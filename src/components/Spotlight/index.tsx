@@ -1,7 +1,6 @@
 import { writeText } from '@tauri-apps/api/clipboard';
 import { SpotlightProvider } from '@mantine/spotlight';
-// import type { SpotlightAction } from '@mantine/spotlight';
-import { IconHome, IconDashboard, IconFileText, IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
+import { IconHome, IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
 import { useContext } from 'react';
 import { useMap } from 'react-map-gl';
 import { AppStateContext } from '../../state';
@@ -65,24 +64,6 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     },
                     icon: <IconZoomReset size={18} />,
                 },
-                // {
-                //     title: 'Home',
-                //     description: 'Get to home page',
-                //     onTrigger: () => console.log('Home'),
-                //     icon: <IconHome size={18} />,
-                // },
-                // {
-                //     title: 'Dashboard',
-                //     description: 'Get full information about current system status',
-                //     onTrigger: () => console.log('Dashboard'),
-                //     icon: <IconDashboard size={18} />,
-                // },
-                // {
-                //     title: 'Documentation',
-                //     description: 'Visit documentation to lean more about all features',
-                //     onTrigger: () => console.log('Documentation'),
-                //     icon: <IconFileText size={18} />,
-                // },
             ]}
             searchIcon={<IconSearch size={18} />}
             searchPlaceholder="Search..."
