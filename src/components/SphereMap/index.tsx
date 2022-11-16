@@ -65,9 +65,11 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             id={id}
             trackResize
             initialViewState={{
-                longitude: 30.31,
-                latitude: 59.93,
-                zoom: 12,
+                longitude: 26.351821433680755,
+                latitude: 30.0194833642568,
+                zoom: 1.76,
+                pitch: 0,
+                bearing: 0,
             }}
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
