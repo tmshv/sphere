@@ -30,4 +30,11 @@ body {
 .container {
   width: 100%;
   height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.map {
+  flex: 1;
 }
