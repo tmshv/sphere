@@ -64,10 +64,12 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
         "resizable": true,
         "title": "Sphere",
-        "width": 800
+        "width": 800,
+        "height": 600,
+        "minWidth": 300,
+        "minHeight": 300
       }
     ]
   }
