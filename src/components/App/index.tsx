@@ -21,9 +21,9 @@ export const App: React.FC<AppProps> = ({ }) => {
     return (
         <React.StrictMode>
             <MantineProvider withGlobalStyles withNormalizeCSS theme={{
-                fontFamily: "monospace",
                 spacing: {
                     xs: 4,
+                    sm: 8,
                 }
             }}>
                 <AppStateProvider>

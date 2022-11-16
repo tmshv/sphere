@@ -3,6 +3,7 @@ import { createStyles, Flex } from "@mantine/core"
 const useStyle = createStyles(theme => ({
     container: {
         backgroundColor: theme.colors.gray[8],
+        color: theme.colors.gray[1],
     }
 }))
 
@@ -13,16 +14,8 @@ export type StatusbarProps = {
 export const Statusbar: React.FC<StatusbarProps> = ({ children }) => {
     const { classes: s } = useStyle()
     return (
-        <Flex gap={"xs"} p={"xs"} className={s.container}>
-            {/* <div style={{
-            // height: 24,
-            backgroundColor: "#2d4144",
-            color: "white",
-            padding: "0 4px",
-            fontFamily: "monospace",
-        }}> */}
+        <Flex gap={"sm"} p={"xs"} className={s.container}>
             {children}
-            {/* </div> */}
         </Flex>
     )
 }

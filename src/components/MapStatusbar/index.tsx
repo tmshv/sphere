@@ -1,9 +1,15 @@
 import { useMap } from "react-map-gl";
-import { Badge } from '@mantine/core';
+import { createStyles, Text } from '@mantine/core';
 import { Statusbar } from '../../ui/Statusbar';
 import { useCursor } from "../../hooks/useCursor";
 import { useZoom } from "../../hooks/useZoom";
 import { usePitch } from "../../hooks/usePitch";
+
+const useStyle = createStyles(theme => ({
+    widget: {
+        fontFamily: "monospace",
+    }
+}))
 
 function round(value: number, n: number): number {
     return Math.round(value * n) / n
@@ -14,6 +20,7 @@ export type MapStatusbarProps = {
 }
 
 export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
+    const { classes: s } = useStyle()
     const { [id]: ref } = useMap()
     const [lng, lat] = useCursor(ref)
     const zoom = useZoom(ref)
@@ -21,10 +28,10 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
     return (
         <Statusbar>
-            <Badge variant={"outline"} style={{ height: 20, width: 130, textAlign: "left" }}>lng={round(lng, 1000000)}</Badge>
-            <Badge variant={"outline"} style={{ height: 20, width: 130, textAlign: "left" }}>lat={round(lat, 1000000)}</Badge>
-            <Badge variant={"outline"} style={{ height: 20 }}>zoom={round(zoom, 1000)}</Badge>
-            <Badge variant={"outline"} style={{ height: 20 }}>pitch={round(pitch, 1000)}</Badge>
+            <Text className={s.widget} size={"xs"}>lng={round(lng, 1000000)}</Text>
+            <Text className={s.widget} size={"xs"}>lat={round(lat, 1000000)}</Text>
+            <Text className={s.widget} size={"xs"}>zoom={round(zoom, 1000)}</Text>
+            <Text className={s.widget} size={"xs"}>pitch={round(pitch, 1000)}</Text>
         </Statusbar>
     );
 }
