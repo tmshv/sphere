@@ -1,14 +1,18 @@
+import { writeText } from '@tauri-apps/api/clipboard';
 import { SpotlightProvider } from '@mantine/spotlight';
 // import type { SpotlightAction } from '@mantine/spotlight';
-import { IconHome, IconDashboard, IconFileText, IconSearch } from '@tabler/icons';
+import { IconHome, IconDashboard, IconFileText, IconSearch, IconCopy } from '@tabler/icons';
 import { useContext } from 'react';
+import { useMap } from 'react-map-gl';
 import { AppStateContext } from '../../state';
 
 export type SpotlightProps = {
+    mapId: string
     children: React.ReactNode
 }
 
-export const Spotlight: React.FC<SpotlightProps> = ({ children }) => {
+export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
+    const { [mapId]: ref } = useMap()
     const state = useContext(AppStateContext);
 
     return (
@@ -21,6 +25,36 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children }) => {
                         state.mapStyle.send("TOGGLE")
                     },
                     icon: <IconHome size={18} />,
+                },
+                {
+                    title: 'Copy viewport',
+                    description: 'Copy current viewport state as JSON',
+                    onTrigger: async () => {
+                        const map = ref?.getMap()
+                        console.log('copy', map)
+                        if (!map) {
+                            return
+                        }
+                        
+                        const center = map.getCenter()
+                        const zoom = map.getZoom()
+                        const pitch = map.getPitch()
+                        const bearing = map.getBearing()
+
+                        const payload = {
+                            center,
+                            zoom,
+                            pitch,
+                            bearing,
+                        }
+
+                        const data = JSON.stringify(payload, null, 4)
+
+                        console.log('copy', data)
+
+                        await writeText(data);
+                    },
+                    icon: <IconCopy size={18} />,
                 },
                 // {
                 //     title: 'Home',

@@ -27,8 +27,10 @@ export const App: React.FC<AppProps> = ({ }) => {
                 }
             }}>
                 <AppStateProvider>
-                    <Spotlight>
-                        <MapProvider>
+                    <MapProvider>
+                        <Spotlight
+                            mapId={id}
+                        >
                             <AppLayout
                                 footer={(
                                     <MapStatusbar
@@ -45,8 +47,8 @@ export const App: React.FC<AppProps> = ({ }) => {
                                     copyLocationValue={copy}
                                 />
                             </AppLayout>
-                        </MapProvider>
-                    </Spotlight>
+                        </Spotlight>
+                    </MapProvider>
                 </AppStateProvider>
             </MantineProvider>
         </React.StrictMode>
