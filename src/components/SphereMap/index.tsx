@@ -57,17 +57,39 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
         if (!map) {
             return
         }
+
         const cb = () => {
-            map.setFog({});
+            map.addSource('mapbox-dem', {
+                'type': 'raster-dem',
+                'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                'tileSize': 512,
+                'maxzoom': 14
+            });
+            // add the DEM source as a terrain layer with exaggerated height
+            map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+
+            // add sky styling with `setFog` that will show when the map is highly pitched
+            map.setFog({
+                // 'horizon-blend': 0.3,
+                // 'color': '#f8f0e3',
+                // 'high-color': '#add8e6',
+                // 'space-color': '#d8f2ff',
+                // 'star-intensity': 0.0
+            });
+        }
+
+        if (map.isStyleLoaded()) {
+            cb()
+            return () => {
+                map.setTerrain()
+            }
         }
 
         map.on('load', cb)
-        if (map.isStyleLoaded()) {
-            map.setFog({});
-        }
 
         return () => {
             map.off('load', cb)
+            map.setTerrain()
         }
     }, [ref, mapStyle])
 
@@ -98,6 +120,16 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             mapStyle={mapStyle}
             projection={'globe'}
         >
+            <Layer
+                id="sky"
+                type="sky"
+                paint={{
+                    'sky-type': 'atmosphere',
+                    'sky-atmosphere-sun': [0.0, 65.0],
+                    'sky-atmosphere-sun-intensity': 15
+                }}
+            />
+
             {!polygons ? null : (
                 <>
                     <Source
