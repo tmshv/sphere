@@ -1,6 +1,6 @@
 // import { invoke } from "@tauri-apps/api/tauri";
-import Map, { Layer, Source } from "react-map-gl";
-import { useContext, useMemo } from "react";
+import Map, { Layer, Source, useMap } from "react-map-gl";
+import { useContext, useEffect, useMemo } from "react";
 import { AppStateContext } from '../../state';
 import { useSelector } from '@xstate/react';
 import * as turf from "@turf/helpers"
@@ -27,6 +27,7 @@ export type SphereMapProps = {
 export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
     const state = useContext(AppStateContext);
     const mapStyle = useSelector(state.mapStyle, mapStyleSelector);
+    const { [id]: ref } = useMap()
 
     const [points, lines, polygons] = useMemo(() => {
         if (!data) {
@@ -51,6 +52,24 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
         ]
     }, [data])
 
+    useEffect(() => {
+        const map = ref?.getMap()
+        if (!map) {
+            return
+        }
+        const cb = () => {
+            map.setFog({});
+        }
+
+        map.on('load', cb)
+
+        return () => {
+            map.off('load', cb)
+        }
+    }, [ref])
+
+
+
     // async function greet() {
     //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     //   setGreetMsg(await invoke("greet", { name }));
@@ -73,6 +92,8 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             }}
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
+            projection={'mercator'}
+            // projection={'globe'}
         >
             {!points ? null : (
                 <>
