@@ -3,11 +3,11 @@
 // import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from '@tauri-apps/api/event'
 import { readTextFile } from "@tauri-apps/api/fs"
-import Map, { Layer, MapLayerMouseEvent, Source } from "react-map-gl";
+import Map, { Layer, MapLayerMouseEvent, Source, ViewStateChangeEvent } from "react-map-gl";
 import { Statusbar } from "./ui/Statusbar";
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import { Badge } from '@mantine/core';
+import { Badge, Flex } from '@mantine/core';
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -17,6 +17,7 @@ function round(value: number, n: number): number {
 
 function App() {
     const [[lng, lat], setCursor] = useState<[number, number]>([0, 0]);
+    const [zoom, setZoom] = useState<number>(12);
     const [geojson, setGeojson] = useState<any>(null);
     // const [greetMsg, setGreetMsg] = useState("");
     // const [name, setName] = useState("");
@@ -66,24 +67,33 @@ function App() {
 
     // const { map } = useMap()
 
-    const move = useCallback<(event: MapLayerMouseEvent) => void>(event => {
+    const onMove = useCallback<(event: MapLayerMouseEvent) => void>(event => {
         setCursor([event.lngLat.lng, event.lngLat.lat])
     }, [])
 
+    const onZoom = useCallback<(event: ViewStateChangeEvent) => void>(event => {
+        setZoom(event.viewState.zoom)
+    }, [])
+
     return (
-        <div className="container">
+        <Flex
+            direction="column"
+            className="container"
+        >
             <div className="map">
                 <Map
+                    // projection={"sphere"}
                     id={"map"}
                     trackResize
                     initialViewState={{
-                        longitude: -122.4,
-                        latitude: 37.8,
-                        zoom: 14
+                        longitude: 30.31,
+                        latitude: 59.93,
+                        zoom,
                     }}
                     mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
                     mapStyle="mapbox://styles/mapbox/streets-v9"
-                    onMouseMove={move}
+                    onMouseMove={onMove}
+                    onZoom={onZoom}
                 >
                     {!geojson ? null : (
                         <>
@@ -106,10 +116,11 @@ function App() {
             </div>
 
             <Statusbar>
-                <Badge style={{ height: 20 }}>lng={round(lng, 1000000)}</Badge>
-                <Badge style={{ height: 20 }}>lat={round(lat, 1000000)}</Badge>
+                <Badge variant={"outline"} style={{ height: 20, width: 130, textAlign: "left" }}>lng={round(lng, 1000000)}</Badge>
+                <Badge variant={"outline"} style={{ height: 20, width: 130, textAlign: "left" }}>lat={round(lat, 1000000)}</Badge>
+                <Badge variant={"outline"} style={{ height: 20 }}>zoom={round(zoom, 1000)}</Badge>
             </Statusbar>
-        </div>
+        </Flex>
     );
 }
 
