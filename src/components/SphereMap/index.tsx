@@ -113,8 +113,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                         source={"geojson-lines"}
                         type={"line"}
                         paint={{
-                            "line-color": "black",
+                            "line-color": "#227FF8",
                             "line-width": 1,
+                            "line-dasharray": [2, 3],
                         }}
                     />
                 </>
@@ -149,7 +150,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                         source={"geojson-polygons"}
                         type={"line"}
                         paint={{
-                            "line-color": "black",
+                            "line-color": "#227FF8",
                             "line-width": 1,
                         }}
                     />
