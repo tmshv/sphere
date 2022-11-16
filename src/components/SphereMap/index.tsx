@@ -62,11 +62,14 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
         }
 
         map.on('load', cb)
+        if (map.isStyleLoaded()) {
+            map.setFog({});
+        }
 
         return () => {
             map.off('load', cb)
         }
-    }, [ref])
+    }, [ref, mapStyle])
 
 
 
