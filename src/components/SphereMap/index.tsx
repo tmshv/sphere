@@ -51,10 +51,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ }) => {
         },
             { capture: true }
         );
-
-        document.addEventListener("click", function (event) {
-            setShowContext(false)
-        });
     }, [])
 
     // async function greet() {
