@@ -2,11 +2,19 @@
 import { listen } from '@tauri-apps/api/event'
 import { readTextFile } from "@tauri-apps/api/fs"
 import Map, { Layer, Source } from "react-map-gl";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AppStateContext } from '../../state';
+import { useSelector } from '@xstate/react';
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
+
+function mapStyleSelector(state: any) {
+    return state.matches("vector")
+        ? "mapbox://styles/mapbox/streets-v9"
+        : "mapbox://styles/mapbox/satellite-streets-v11"
+}
 
 export type SphereMapProps = {
     id: string
@@ -14,6 +22,9 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const [geojson, setGeojson] = useState<any>(null);
+    const state = useContext(AppStateContext );
+    const mapStyle = useSelector(state.mapStyle, mapStyleSelector);
+
     // const [greetMsg, setGreetMsg] = useState("");
 
     // async function greet() {
@@ -69,7 +80,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 zoom: 12,
             }}
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
-            mapStyle="mapbox://styles/mapbox/streets-v9"
+            mapStyle={mapStyle}
         >
             {!geojson ? null : (
                 <>
