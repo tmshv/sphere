@@ -7,6 +7,7 @@ import Map, { Layer, MapLayerMouseEvent, Source } from "react-map-gl";
 import { Statusbar } from "./ui/Statusbar";
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
+import { Badge } from '@mantine/core';
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -105,9 +106,8 @@ function App() {
             </div>
 
             <Statusbar>
-                lng={round(lng, 1000000)}
-                ;
-                lat={round(lat, 1000000)}
+                <Badge style={{ height: 20 }}>lng={round(lng, 1000000)}</Badge>
+                <Badge style={{ height: 20 }}>lat={round(lat, 1000000)}</Badge>
             </Statusbar>
         </div>
     );

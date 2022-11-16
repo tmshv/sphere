@@ -4,11 +4,19 @@ import { MapProvider } from "react-map-gl";
 import App from "./App";
 import "./style.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { MantineProvider } from "@mantine/core";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <MapProvider>
-      <App />
-    </MapProvider>
+    <MantineProvider withGlobalStyles withNormalizeCSS theme={{
+      fontFamily: "monospace",
+      spacing: {
+        xs: 4,
+      }
+    }}>
+      <MapProvider>
+        <App />
+      </MapProvider>
+    </MantineProvider>
   </React.StrictMode>
 );
