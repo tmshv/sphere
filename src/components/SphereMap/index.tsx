@@ -2,12 +2,13 @@
 import { listen } from '@tauri-apps/api/event'
 import { readTextFile } from "@tauri-apps/api/fs"
 import Map, { Layer, MapLayerMouseEvent, Source, ViewStateChangeEvent } from "react-map-gl";
-import { Statusbar } from "./ui/Statusbar";
 import { useCallback, useEffect, useState } from "react";
-import "./App.css";
-import { Badge,  CopyButton, Flex, Menu, Text } from '@mantine/core';
+import { Badge, CopyButton, createStyles, Flex, Menu, Text } from '@mantine/core';
 import { IconCopy, IconSearch } from '@tabler/icons';
 import { useToggle } from '@mantine/hooks';
+import { Statusbar } from '../../ui/Statusbar';
+
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -15,7 +16,22 @@ function round(value: number, n: number): number {
     return Math.round(value * n) / n
 }
 
-function App() {
+const useStyles = createStyles(() => ({
+    container: {
+        width: "100%",
+        height: "100%",
+    },
+    map: {
+        flex: 1,
+    },
+}))
+
+export type SphereMapProps = {
+
+}
+
+export const SphereMap: React.FC<SphereMapProps> = ({ }) => {
+    const {classes: s} = useStyles()
     const [[lng, lat], setCursor] = useState<[number, number]>([0, 0]);
     const [zoom, setZoom] = useState<number>(12);
     const [geojson, setGeojson] = useState<any>(null);
@@ -154,9 +170,9 @@ function App() {
             </Menu>
             <Flex
                 direction="column"
-                className="container"
+                className={s.container}
             >
-                <div className="map">
+                <div className={s.map}>
                     <Map
                         // projection={"sphere"}
                         id={"map"}
@@ -200,5 +216,3 @@ function App() {
         </>
     );
 }
-
-export default App;
