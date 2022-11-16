@@ -93,6 +93,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                 pitch: 0,
                 bearing: 0,
             }}
+            maxPitch={85}
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
             projection={'globe'}

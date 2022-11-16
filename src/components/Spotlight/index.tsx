@@ -38,11 +38,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                         const zoom = map.getZoom()
                         const pitch = map.getPitch()
                         const bearing = map.getBearing()
+                        const maxPitch = map.getMaxPitch()
                         const payload = {
                             center,
                             zoom,
                             pitch,
                             bearing,
+                            maxPitch,
                         }
                         const data = JSON.stringify(payload, null, 4)
 
