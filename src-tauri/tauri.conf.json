@@ -21,6 +21,9 @@
       "path": {
         "all": true
       },
+      "notification": {
+        "all": true
+      },
       "clipboard": {
         "writeText": true,
         "readText": true
