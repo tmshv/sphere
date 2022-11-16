@@ -31,7 +31,6 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     description: 'Copy current viewport state as JSON',
                     onTrigger: async () => {
                         const map = ref?.getMap()
-                        console.log('copy', map)
                         if (!map) {
                             return
                         }
@@ -40,17 +39,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                         const zoom = map.getZoom()
                         const pitch = map.getPitch()
                         const bearing = map.getBearing()
-
                         const payload = {
                             center,
                             zoom,
                             pitch,
                             bearing,
                         }
-
                         const data = JSON.stringify(payload, null, 4)
-
-                        console.log('copy', data)
 
                         await writeText(data);
                     },
