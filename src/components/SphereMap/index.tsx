@@ -92,8 +92,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             }}
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
-            projection={'mercator'}
-            // projection={'globe'}
+            projection={'globe'}
         >
             {!points ? null : (
                 <>
