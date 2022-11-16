@@ -7,6 +7,7 @@ import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 import { AppStateProvider } from "../AppStateProvider";
 import { Spotlight } from "../Spotlight";
+import { useFileDrop } from "../../hooks/useFileDrop";
 
 export type AppProps = {
 
@@ -15,6 +16,7 @@ export type AppProps = {
 export const App: React.FC<AppProps> = ({ }) => {
     const id = "spheremap"
     const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
+    const data = useFileDrop()
 
     return (
         <React.StrictMode>
@@ -36,6 +38,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                             >
                                 <SphereMap
                                     id={id}
+                                    data={data}
                                 />
                                 <MapContextMenu
                                     id={id}
