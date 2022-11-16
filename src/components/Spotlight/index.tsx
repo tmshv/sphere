@@ -1,7 +1,7 @@
 import { writeText } from '@tauri-apps/api/clipboard';
 import { SpotlightProvider } from '@mantine/spotlight';
 // import type { SpotlightAction } from '@mantine/spotlight';
-import { IconHome, IconDashboard, IconFileText, IconSearch, IconCopy } from '@tabler/icons';
+import { IconHome, IconDashboard, IconFileText, IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
 import { useContext } from 'react';
 import { useMap } from 'react-map-gl';
 import { AppStateContext } from '../../state';
@@ -50,6 +50,20 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                         await writeText(data);
                     },
                     icon: <IconCopy size={18} />,
+                },
+                {
+                    title: 'Reset rotation',
+                    description: 'Set pitch and bearing to 0',
+                    onTrigger: async () => {
+                        const map = ref?.getMap()
+                        if (!map) {
+                            return
+                        }
+
+                        map.setBearing(0)
+                        map.setPitch(0)
+                    },
+                    icon: <IconZoomReset size={18} />,
                 },
                 // {
                 //     title: 'Home',
