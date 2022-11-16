@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { MapProvider } from "react-map-gl";
 import { MantineProvider } from "@mantine/core";
 import { SpotlightProvider } from '@mantine/spotlight';
 import type { SpotlightAction } from '@mantine/spotlight';
 import { IconHome, IconDashboard, IconFileText, IconSearch } from '@tabler/icons';
+import { MapStatusbar } from "../MapStatusbar";
+import { AppLayout } from "../../ui/AppLayout";
+import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 
 const actions: SpotlightAction[] = [
@@ -32,6 +35,9 @@ export type AppProps = {
 }
 
 export const App: React.FC<AppProps> = ({ }) => {
+  const id = "spheremap"
+  const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
+
   return (
     <React.StrictMode>
       <MantineProvider withGlobalStyles withNormalizeCSS theme={{
@@ -49,7 +55,21 @@ export const App: React.FC<AppProps> = ({ }) => {
           disabled
         >
           <MapProvider>
-            <SphereMap />
+            <AppLayout
+              footer={(
+                <MapStatusbar
+                  id={id}
+                />
+              )}
+            >
+              <SphereMap
+                id={id}
+              />
+              <MapContextMenu
+                id={id}
+                copyLocationValue={copy}
+              />
+            </AppLayout>
           </MapProvider>
         </SpotlightProvider>
       </MantineProvider>

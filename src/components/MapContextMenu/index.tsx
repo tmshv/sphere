@@ -1,16 +1,24 @@
 import { CopyButton, Menu, Text } from '@mantine/core';
 import { IconCopy, IconSearch } from '@tabler/icons';
+import { useMap } from 'react-map-gl';
+import { useCursor } from '../../hooks/useCursor';
 import { ContextMenu } from "../../ui/ContextMenu";
 
+export type LocationToString = (coord: [number, number]) => string
+
 export type MapContextMenuProps = {
-    copyLocationValue: string
+    id: string
+    copyLocationValue: LocationToString
 }
 
-export const MapContextMenu: React.FC<MapContextMenuProps> = ({ copyLocationValue }) => {
+export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocationValue }) => {
+    const { [id]: ref } = useMap()
+    const coord = useCursor(ref)
+
     return (
         <ContextMenu>
             <Menu.Label>Map</Menu.Label>
-            <CopyButton value={copyLocationValue}>
+            <CopyButton value={copyLocationValue(coord)}>
                 {({ copy }) => (
                     <Menu.Item
                         icon={(
