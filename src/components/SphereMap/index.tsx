@@ -98,54 +98,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             mapStyle={mapStyle}
             projection={'globe'}
         >
-            {!points ? null : (
-                <>
-                    <Source
-                        id={"geojson-points"}
-                        data={points}
-                        type={"geojson"}
-                    />
-                    <Layer
-                        id={"geojson-circle"}
-                        source={"geojson-points"}
-                        type={"circle"}
-                        paint={{
-                            "circle-color": "#227FF8",
-                            "circle-radius": 4,
-                            "circle-stroke-color": "white",
-                            "circle-stroke-width": 1,
-                        }}
-                    />
-                </>
-            )}
-            {!lines ? null : (
-                <>
-                    <Source
-                        id={"geojson-lines"}
-                        data={lines}
-                        type={"geojson"}
-                    />
-                    <Layer
-                        id={"geojson-lines-0"}
-                        source={"geojson-lines"}
-                        type={"line"}
-                        paint={{
-                            "line-color": "white",
-                            "line-width": 3,
-                        }}
-                    />
-                    <Layer
-                        id={"geojson-lines-1"}
-                        source={"geojson-lines"}
-                        type={"line"}
-                        paint={{
-                            "line-color": "#227FF8",
-                            "line-width": 1,
-                            "line-dasharray": [2, 3],
-                        }}
-                    />
-                </>
-            )}
             {!polygons ? null : (
                 <>
                     <Source
@@ -178,6 +130,54 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                         paint={{
                             "line-color": "#227FF8",
                             "line-width": 1,
+                        }}
+                    />
+                </>
+            )}
+            {!lines ? null : (
+                <>
+                    <Source
+                        id={"geojson-lines"}
+                        data={lines}
+                        type={"geojson"}
+                    />
+                    <Layer
+                        id={"geojson-lines-0"}
+                        source={"geojson-lines"}
+                        type={"line"}
+                        paint={{
+                            "line-color": "white",
+                            "line-width": 3,
+                        }}
+                    />
+                    <Layer
+                        id={"geojson-lines-1"}
+                        source={"geojson-lines"}
+                        type={"line"}
+                        paint={{
+                            "line-color": "#227FF8",
+                            "line-width": 1,
+                            "line-dasharray": [2, 3],
+                        }}
+                    />
+                </>
+            )}
+            {!points ? null : (
+                <>
+                    <Source
+                        id={"geojson-points"}
+                        data={points}
+                        type={"geojson"}
+                    />
+                    <Layer
+                        id={"geojson-circle"}
+                        source={"geojson-points"}
+                        type={"circle"}
+                        paint={{
+                            "circle-color": "#227FF8",
+                            "circle-radius": 4,
+                            "circle-stroke-color": "white",
+                            "circle-stroke-width": 1,
                         }}
                     />
                 </>
