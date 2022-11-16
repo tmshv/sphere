@@ -1,9 +1,18 @@
 import { listen } from '@tauri-apps/api/event'
 import { readTextFile } from "@tauri-apps/api/fs"
 import { useEffect, useState } from "react";
+import { parseGeojson } from '../lib/parseGeojson';
+import { parseGpx } from '../lib/parseGpx';
 
-function isFeatureCollection(json: any): boolean {
-    return true
+const parsers = new Map([
+    ["json", parseGeojson],
+    ["geojson", parseGeojson],
+    ["gpx", parseGpx],
+])
+
+function getExt(path: string): string {
+    const x = path.split(".")
+    return x[x.length - 1]
 }
 
 export function useFileDrop(): GeoJSON.FeatureCollection | null {
@@ -19,19 +28,17 @@ export function useFileDrop(): GeoJSON.FeatureCollection | null {
         // })
         listen(e, async (event) => {
             const files = event.payload as string[]
-            const datas = await Promise.all(files.map(x => readTextFile(x)))
+            const file = files[0]
 
-            const d = datas[0]
-
-            try {
-                const gis = JSON.parse(d)
-                if (isFeatureCollection(gis)) {
-                    setGeojson(gis)
-                } else {
-                }
-            } catch (error) {
-
+            const ext = getExt(file)
+            if (!parsers.has(ext)) {
+                return null
             }
+            const parser = parsers.get(ext)!
+
+            const raw = await readTextFile(file)
+            const fc = await parser(raw)
+            setGeojson(fc)
         })
 
     }, [])
