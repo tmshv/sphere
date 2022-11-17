@@ -19,7 +19,7 @@ listenerMiddleware.startListening({
           listenerApi.dispatch(actions.source.readFromFile(file))
         }
 
-        await listenerApi.delay(250)
+        await listenerApi.delay(1000)
 
         const state = listenerApi.getState() as RootState
         const id = state.source.lastAdded
