@@ -64,15 +64,17 @@ export const sourceSlice = createSlice({
 
                     const location = action.meta.arg
                     const sourceId = `${location}|${type}`
+                    if (!(sourceId in state.items)) {
+                        state.allIds.push(sourceId)
+                    }
                     state.items[sourceId] = {
                         id: sourceId,
                         location,
                         data: source,
                         type,
                     }
-                    state.allIds.push(sourceId)
+                    state.lastAdded = sourceId
                 }
-                state.allIds = Array.from(new Set(state.allIds))
             })
     },
 })
