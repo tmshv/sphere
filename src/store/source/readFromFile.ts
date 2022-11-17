@@ -4,6 +4,7 @@ import { parseGeojson } from '../../lib/parseGeojson'
 import { parseGpx } from '../../lib/parseGpx'
 import * as turf from "@turf/helpers"
 import { SourceType } from '../../types'
+import { nextId } from '../../lib/nextId'
 
 const pointType = new Set(["Point", "MultiPoint"])
 const lineType = new Set(["LineString", "MultiLineStreing"])
@@ -37,6 +38,10 @@ export const readFromFile = createAsyncThunk('source/readFromFile', async (path:
     if (!data) {
         console.log("Failed to read")
         return null
+    }
+
+    for (const f of data.features) {
+        f.id = nextId()
     }
 
     const points = data.features.filter(f => pointType.has(f.geometry.type))

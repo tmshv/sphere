@@ -13,6 +13,7 @@ import { SourceType } from "../../types";
 import { Fragment } from "react";
 import { CirclePaint, FillPaint, LinePaint } from "mapbox-gl";
 import { SetupStore } from "./SetupStore";
+import { HandleClick } from "./HandleClick";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -83,6 +84,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             projection={projection}
         >
             <SetupStore
+                mapId={id}
+            />
+            <HandleClick
                 mapId={id}
             />
             {!showFog ? null : (
