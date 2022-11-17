@@ -8,6 +8,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { selectProjection } from "../../store/projection";
 import { selectMapStyle } from "../../store/mapStyle";
 import { Terrain } from "./Terrain";
+import { Fog } from "./Fog";
+import { selectIsShowFog } from "../../store/fog";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -23,6 +25,7 @@ export type SphereMapProps = {
 export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
     const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
+    const showFog = useAppSelector(selectIsShowFog)
     const { [id]: ref } = useMap()
 
     const [points, lines, polygons] = useMemo(() => {
@@ -47,37 +50,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             turf.featureCollection(polygons) as GeoJSON.FeatureCollection,
         ]
     }, [data])
-
-    useEffect(() => {
-        return
-        const map = ref?.getMap()
-        if (!map) {
-            return
-        }
-
-        const cb = () => {
-            // add sky styling with `setFog` that will show when the map is highly pitched
-            // map.setFog({
-            //     // 'horizon-blend': 0.3,
-            //     // 'color': '#f8f0e3',
-            //     // 'high-color': '#add8e6',
-            //     // 'space-color': '#d8f2ff',
-            //     // 'star-intensity': 0.0
-            // });
-        }
-
-        if (map.isStyleLoaded()) {
-            cb()
-            return () => {
-            }
-        }
-
-        map.on('load', cb)
-
-        return () => {
-            map.off('load', cb)
-        }
-    }, [ref])
 
     // async function greet() {
     //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -104,6 +76,11 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             mapStyle={mapStyle}
             projection={projection}
         >
+            {!showFog ? null : (
+                <Fog
+                    mapId={id}
+                />
+            )}
             {/* <Terrain
                 mapId={id}
             /> */}

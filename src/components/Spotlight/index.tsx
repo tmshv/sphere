@@ -18,6 +18,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
         <SpotlightProvider
             actions={[
                 {
+                    title: 'Fog',
+                    description: 'Toggle fog',
+                    onTrigger: () => {
+                        dispatch(actions.fog.toggle())
+                    },
+                },
+                {
                     title: 'Vector',
                     description: 'Set vector map style',
                     onTrigger: () => {
