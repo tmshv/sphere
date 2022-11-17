@@ -9,14 +9,12 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
     const { [mapId]: ref } = useMap()
 
     useEffect(() => {
-        return
         const map = ref?.getMap()
         if (!map) {
             return
         }
 
         const setupTerrain = () => {
-            console.log("Map loaded. Ready for set terrain")
             // add the DEM source as a terrain layer with exaggerated height
             map.setTerrain({
                 source: 'mapbox-dem',
@@ -26,8 +24,11 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
 
         if (map.isStyleLoaded()) {
             setupTerrain()
+
             return () => {
-                map.setTerrain()
+                if (map.isStyleLoaded()) {
+                    map.setTerrain()
+                }
             }
         }
 
@@ -35,7 +36,9 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
 
         return () => {
             map.off('load', setupTerrain)
-            map.setTerrain()
+            if (map.isStyleLoaded()) {
+                map.setTerrain()
+            }
         }
     }, [ref])
 

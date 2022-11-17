@@ -1,4 +1,4 @@
-import {useMap } from "react-map-gl";
+import { useMap } from "react-map-gl";
 import { useEffect } from "react";
 
 export type FogProps = {
@@ -28,7 +28,9 @@ export const Fog: React.FC<FogProps> = ({ mapId }) => {
         if (map.isStyleLoaded()) {
             cb()
             return () => {
-                map.setFog(null as any)
+                if (map.isStyleLoaded()) {
+                    map.setFog(null as any)
+                }
             }
         }
 
@@ -36,7 +38,9 @@ export const Fog: React.FC<FogProps> = ({ mapId }) => {
 
         return () => {
             map.off('load', cb)
-            map.setFog(null as any)
+            if (map.isStyleLoaded()) {
+                map.setFog(null as any)
+            }
         }
     }, [ref])
 

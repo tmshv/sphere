@@ -81,9 +81,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                     mapId={id}
                 />
             )}
-            {/* <Terrain
+            <Terrain
                 mapId={id}
-            /> */}
+            />
             <Layer
                 id="sky"
                 type="sky"
