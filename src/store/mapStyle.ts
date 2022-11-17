@@ -8,7 +8,7 @@ const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v11"
 
 // Define a type for the slice state
 type MapStyleState = {
-    value: string
+    value: string | object
 }
 
 // Define the initial state using that type
@@ -28,7 +28,7 @@ export const mapStyleSlice = createSlice({
             state.value = SATELLITE
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
-        setMapStyle: (state, action: PayloadAction<string>) => {
+        setMapStyle: (state, action: PayloadAction<string | object>) => {
             state.value = action.payload
         },
     },
