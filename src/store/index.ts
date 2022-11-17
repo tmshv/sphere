@@ -4,6 +4,7 @@ import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
 import source, { sourceSlice } from './source'
+import selection, { selectionSlice } from './selection'
 import { fitBounds } from './map'
 import { readFromFile, addFromFiles, } from './source/readFromFile'
 import * as turf from '@turf/turf'
@@ -16,7 +17,7 @@ listenerMiddleware.startListening({
     actionCreator: addFromFiles,
     effect: async (action, listenerApi) => {
         for (const file of action.payload) {
-          listenerApi.dispatch(actions.source.readFromFile(file))
+            listenerApi.dispatch(actions.source.readFromFile(file))
         }
 
         await listenerApi.delay(1000)
@@ -41,14 +42,26 @@ const fitBoundsMiddleware = createListenerMiddleware();
 fitBoundsMiddleware.startListening({
     actionCreator: fitBounds,
     effect: async (action, listenerApi) => {
-        const state = listenerApi.getOriginalState()
-        console.log("wanted to fit bounds");
-        console.log(action);
-        console.log(state);
-        const {mapId, bounds} = action.payload
+        const { mapId, bounds } = action.payload
         const map = getMap(mapId)
-        
         map.fitBounds(bounds)
+    },
+});
+
+const selectFeaturesMiddleware = createListenerMiddleware();
+selectFeaturesMiddleware.startListening({
+    actionCreator: selectionSlice.actions.selectOne,
+    effect: async (action, listenerApi) => {
+        const state = listenerApi.getOriginalState() as RootState
+        const { featureId, sourceId } = action.payload
+        const source = state.source.items[sourceId]
+        const f = source.data.features.find(f => f.id === featureId)
+        if (!f) {
+            return
+        }
+
+        console.log("select!");
+        console.log(f.properties);
     },
 });
 
@@ -59,9 +72,11 @@ export const store = configureStore({
         fog,
         terrain,
         source,
+        selection,
     },
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
+            .prepend(selectFeaturesMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
             .prepend(listenerMiddleware.middleware)
     }
@@ -86,4 +101,5 @@ export const actions = {
     map: {
         fitBounds,
     },
+    selection: selectionSlice.actions,
 }

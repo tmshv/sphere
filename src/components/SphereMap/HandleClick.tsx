@@ -1,6 +1,8 @@
 import { useMap } from "react-map-gl";
 import { useEffect } from "react";
 import mapboxgl, { Point } from "mapbox-gl";
+import { useAppDispatch } from "../../store/hooks";
+import { actions } from "../../store";
 
 export function queryFeaturesInPoint(map: mapboxgl.Map, point: Point, layers: string[]) {
     const size = 8
@@ -25,6 +27,7 @@ export type HandleClickProps = {
 
 export const HandleClick: React.FC<HandleClickProps> = ({ mapId }) => {
     const { [mapId]: ref } = useMap()
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         const map = ref?.getMap()
@@ -33,11 +36,13 @@ export const HandleClick: React.FC<HandleClickProps> = ({ mapId }) => {
         }
 
         const handler = (event: mapboxgl.MapMouseEvent) => {
-            console.log("map click", event)
-
             const features = queryFeaturesInPoint(event.target, event.point, [])
-            for (const f of features) {
-                console.log(f.id, f.properties, f.layer.id)
+            if (features.length > 0) {
+                const f = features[0]
+                dispatch(actions.selection.selectOne({
+                    sourceId: f.source,
+                    featureId: f.id! as number,
+                }))
             }
         }
 
