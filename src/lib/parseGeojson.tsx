@@ -4,9 +4,9 @@ function isFeatureCollection(json: any): boolean {
 
 export async function parseGeojson(raw: string): Promise<GeoJSON.FeatureCollection | null> {
     try {
-        const gis = JSON.parse(raw)
-        if (isFeatureCollection(gis)) {
-            return gis
+        const parsed = JSON.parse(raw)
+        if (isFeatureCollection(parsed)) {
+            return parsed
         } else {
             return null
         }
