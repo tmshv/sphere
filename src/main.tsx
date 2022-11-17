@@ -12,9 +12,7 @@ async function main() {
 
   const unlisten = await listen(e, (event) => {
     const files = event.payload as string[]
-    for (const file of files) {
-      store.dispatch(actions.source.readFromFile(file))
-    }
+    store.dispatch(actions.source.readFromFiles(files))
   })
 }
 main()

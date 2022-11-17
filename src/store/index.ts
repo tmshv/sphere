@@ -4,7 +4,53 @@ import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
 import source, { sourceSlice } from './source'
-import { readFromFile } from './source/readFromFile'
+import { fitBounds } from './map'
+import { readFromFile, addFromFiles, } from './source/readFromFile'
+import * as turf from '@turf/turf'
+
+import { createListenerMiddleware } from "@reduxjs/toolkit";
+import { getMap } from '../map'
+import mapboxgl from 'mapbox-gl'
+const listenerMiddleware = createListenerMiddleware();
+listenerMiddleware.startListening({
+    actionCreator: addFromFiles,
+    effect: async (action, listenerApi) => {
+        for (const file of action.payload) {
+          listenerApi.dispatch(actions.source.readFromFile(file))
+        }
+
+        await listenerApi.delay(250)
+
+        const state = listenerApi.getState() as RootState
+        const id = state.source.lastAdded
+        if (!id) {
+            return
+        }
+
+        const geom = state.source.items[id].data
+        var bbox = turf.bbox(geom);
+
+        listenerApi.dispatch(fitBounds({
+            mapId: "spheremap",
+            bounds: bbox as mapboxgl.LngLatBoundsLike
+        }))
+    },
+});
+
+const fitBoundsMiddleware = createListenerMiddleware();
+fitBoundsMiddleware.startListening({
+    actionCreator: fitBounds,
+    effect: async (action, listenerApi) => {
+        const state = listenerApi.getOriginalState()
+        console.log("wanted to fit bounds");
+        console.log(action);
+        console.log(state);
+        const {mapId, bounds} = action.payload
+        const map = getMap(mapId)
+        
+        map.fitBounds(bounds)
+    },
+});
 
 export const store = configureStore({
     reducer: {
@@ -14,6 +60,11 @@ export const store = configureStore({
         terrain,
         source,
     },
+    middleware: (getDefaultMiddleWare) => {
+        return getDefaultMiddleWare()
+            .prepend(fitBoundsMiddleware.middleware)
+            .prepend(listenerMiddleware.middleware)
+    }
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
@@ -29,6 +80,10 @@ export const actions = {
     terrain: terrainSlice.actions,
     source: {
         readFromFile,
+        readFromFiles: addFromFiles,
         ...sourceSlice.actions,
+    },
+    map: {
+        fitBounds,
     },
 }

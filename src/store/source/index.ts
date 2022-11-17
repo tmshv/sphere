@@ -42,35 +42,34 @@ export const sourceSlice = createSlice({
                 state.lastAdded = undefined
             }
         },
-        // addSource: (state, action: PayloadAction<Source>) => {
-        //     const sourceId = action.payload.id
-        //     state.items[sourceId] = action.payload
-        //     state.allIds.push(sourceId)
-        //     state.lastAdded = action.payload.id
-        // },
+        addSource: (state, action: PayloadAction<Source>) => {
+            const sourceId = action.payload.id
+            state.items[sourceId] = action.payload
+            state.allIds.push(sourceId)
+            state.lastAdded = action.payload.id
+        },
     },
     extraReducers: (builder) => {
-        // Add reducers for additional action types here, and handle loading state as needed
-        builder.addCase(readFromFile.fulfilled, (state, action) => {
-            const data = action.payload
-            if (!data) {
-                return
-            }
-
-            for (const [type, source] of data) {
-                const location = action.meta.arg
-                const sourceId = `${location}|${type}`
-                state.items[sourceId] = {
-                    id: sourceId,
-                    location,
-                    data: source,
-                    type,
+        builder
+            .addCase(readFromFile.fulfilled, (state, action) => {
+                const data = action.payload
+                if (!data) {
+                    return
                 }
-                state.allIds.push(sourceId)
-                state.lastAdded = sourceId
-            }
-            state.allIds = Array.from(new Set(state.allIds))
-        })
+
+                for (const [type, source] of data) {
+                    const location = action.meta.arg
+                    const sourceId = `${location}|${type}`
+                    state.items[sourceId] = {
+                        id: sourceId,
+                        location,
+                        data: source,
+                        type,
+                    }
+                    state.allIds.push(sourceId)
+                }
+                state.allIds = Array.from(new Set(state.allIds))
+            })
     },
 })
 

@@ -1,4 +1,4 @@
-import { createAsyncThunk } from '@reduxjs/toolkit'
+import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
 import { readTextFile } from "@tauri-apps/api/fs"
 import { parseGeojson } from '../../lib/parseGeojson'
 import { parseGpx } from '../../lib/parseGpx'
@@ -21,6 +21,8 @@ function getExt(path: string): string {
 }
 
 type SourceTuple = [SourceType, GeoJSON.FeatureCollection]
+
+export const addFromFiles = createAction<string[]>('source/readFromFiles')
 
 export const readFromFile = createAsyncThunk('source/readFromFile', async (path: string, thunkAPI) => {
     const ext = getExt(path)
