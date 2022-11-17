@@ -18,6 +18,26 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
         <SpotlightProvider
             actions={[
                 {
+                    title: 'Earth',
+                    description: 'Set Earth map view',
+                    onTrigger: () => {
+                        dispatch(actions.terrain.show())
+                        dispatch(actions.fog.show())
+                        dispatch(actions.projection.setGlobe())
+                        dispatch(actions.mapStyle.setSatellite())
+                    },
+                },
+                {
+                    title: 'Simple',
+                    description: 'Set simple map view',
+                    onTrigger: () => {
+                        dispatch(actions.terrain.hide())
+                        dispatch(actions.fog.hide())
+                        dispatch(actions.projection.setFlat())
+                        dispatch(actions.mapStyle.setVector())
+                    },
+                },
+                {
                     title: 'Fog',
                     description: 'Toggle fog',
                     onTrigger: () => {
