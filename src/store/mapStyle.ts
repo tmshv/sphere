@@ -1,14 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '.'
+import { Style } from 'mapbox-gl'
 // import type { RootState } from '../../app/store'
 
 const VECTOR = "mapbox://styles/mapbox/streets-v9"
 const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v11"
 
+type MapStyle = string | Style
+
 // Define a type for the slice state
 type MapStyleState = {
-    value: string | object
+    value: MapStyle
 }
 
 // Define the initial state using that type
@@ -28,8 +31,8 @@ export const mapStyleSlice = createSlice({
             state.value = SATELLITE
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
-        setMapStyle: (state, action: PayloadAction<string | object>) => {
-            state.value = action.payload
+        setMapStyle: (state, action: PayloadAction<MapStyle>) => {
+            state.value = action.payload as any
         },
     },
 })
