@@ -49,8 +49,8 @@ export const readFromFile = createAsyncThunk('source/readFromFile', async (path:
     const polygons = data.features.filter(f => polygonType.has(f.geometry.type))
 
     return [
-        [SourceType.Points, turf.featureCollection(points) as GeoJSON.FeatureCollection] as SourceTuple,
-        [SourceType.Lines, turf.featureCollection(lines) as GeoJSON.FeatureCollection] as SourceTuple,
         [SourceType.Polygons, turf.featureCollection(polygons) as GeoJSON.FeatureCollection] as SourceTuple,
+        [SourceType.Lines, turf.featureCollection(lines) as GeoJSON.FeatureCollection] as SourceTuple,
+        [SourceType.Points, turf.featureCollection(points) as GeoJSON.FeatureCollection] as SourceTuple,
     ]
 })
