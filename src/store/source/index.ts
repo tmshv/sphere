@@ -58,6 +58,10 @@ export const sourceSlice = createSlice({
                 }
 
                 for (const [type, source] of data) {
+                    if (source.features.length === 0) {
+                        break
+                    }
+
                     const location = action.meta.arg
                     const sourceId = `${location}|${type}`
                     state.items[sourceId] = {
