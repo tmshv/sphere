@@ -19,11 +19,10 @@ export const selectionSlice = createSlice({
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
-        // reset: state => {
-        //     state.items = {}
-        //     state.allIds = []
-        //     state.lastAdded = undefined
-        // },
+        reset: state => {
+            state.sourceId = undefined
+            state.selectedIds = []
+        },
         // removeSource: (state, action: PayloadAction<string>) => {
         //     const sourceId = action.payload
         //     delete state.items[sourceId]
@@ -69,6 +68,40 @@ export const selectionSlice = createSlice({
 
 // Other code such as selectors can use the imported `RootState` type
 // export const selectSourcesAmount = (state: RootState) => state.source.allIds.length
-// export const selectSourceIds = (state: RootState) => state.source.allIds
+export const selectProperties = (state: RootState) => {
+    const sourceId = state.selection.sourceId
+    if (!sourceId) {
+        return null
+    }
+
+    const ids = state.selection.selectedIds
+    const featureId = ids[0]
+
+    const source = state.source.items[sourceId]
+    if (!source) {
+        return null
+    }
+
+    const feature = source.data.features.find(f => f.id === featureId)
+    if (!feature) {
+        return null
+    }
+
+    const props = feature.properties
+    if (!props) {
+        return null
+    }
+
+    const excludedKeys = new Set(["id"])
+
+    return [...Object.entries(props)]
+        .filter(([key, _]) => !excludedKeys.has(key))
+        .map(([key, value]) => {
+            return {
+                key,
+                value,
+            }
+        })
+}
 
 export default selectionSlice.reducer
