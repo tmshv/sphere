@@ -18,6 +18,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
         <SpotlightProvider
             actions={[
                 {
+                    title: 'Toggle Dark Theme',
+                    description: 'Set Dark or Light theme',
+                    onTrigger: () => {
+                        dispatch(actions.app.toggleDarkTheme())
+                    },
+                },
+                {
                     title: 'Toggle Zen',
                     description: 'Set Zen mode nn or off',
                     onTrigger: () => {

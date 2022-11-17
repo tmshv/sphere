@@ -31,11 +31,6 @@ export type AppOverlayProps = {
 }
 
 export const AppOverlay: React.FC<AppOverlayProps> = ({ }) => {
-    const isZen = useAppSelector(selectIsZen)
-    if (isZen) {
-        return null
-    }
-
     return (
         <div style={{
             position: "absolute",
