@@ -25,6 +25,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     },
                 },
                 {
+                    title: 'Terrain',
+                    description: 'Toggle terrain',
+                    onTrigger: () => {
+                        dispatch(actions.terrain.toggle())
+                    },
+                },
+                {
                     title: 'Vector',
                     description: 'Set vector map style',
                     onTrigger: () => {

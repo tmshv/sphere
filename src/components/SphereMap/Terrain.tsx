@@ -1,5 +1,7 @@
 import { Source, useMap } from "react-map-gl";
 import { useEffect } from "react";
+import { useAppSelector } from "../../store/hooks";
+import { selectExaggeration } from "../../store/terrain";
 
 export type TerrainProps = {
     mapId: string
@@ -7,6 +9,7 @@ export type TerrainProps = {
 
 export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
     const { [mapId]: ref } = useMap()
+    const exaggeration = useAppSelector(selectExaggeration)
 
     useEffect(() => {
         const map = ref?.getMap()
@@ -18,7 +21,7 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
             // add the DEM source as a terrain layer with exaggerated height
             map.setTerrain({
                 source: 'mapbox-dem',
-                exaggeration: 1.5,
+                exaggeration,
             });
         }
 
@@ -40,7 +43,7 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
                 map.setTerrain()
             }
         }
-    }, [ref])
+    }, [ref, exaggeration])
 
     return (
         <Source

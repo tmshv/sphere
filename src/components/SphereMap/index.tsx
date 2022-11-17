@@ -10,6 +10,7 @@ import { selectMapStyle } from "../../store/mapStyle";
 import { Terrain } from "./Terrain";
 import { Fog } from "./Fog";
 import { selectIsShowFog } from "../../store/fog";
+import { selectIsShowTerrain } from "../../store/terrain";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -26,6 +27,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
     const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
     const showFog = useAppSelector(selectIsShowFog)
+    const showTerrain = useAppSelector(selectIsShowTerrain)
     const { [id]: ref } = useMap()
 
     const [points, lines, polygons] = useMemo(() => {
@@ -81,9 +83,11 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                     mapId={id}
                 />
             )}
-            <Terrain
-                mapId={id}
-            />
+            {!showTerrain ? null : (
+                <Terrain
+                    mapId={id}
+                />
+            )}
             <Layer
                 id="sky"
                 type="sky"

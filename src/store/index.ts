@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import projection, { projectionSlice } from './projection'
 import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
+import terrain, { terrainSlice } from './terrain'
 
 export const store = configureStore({
     reducer: {
         projection,
         mapStyle,
         fog,
+        terrain,
     },
 })
 
@@ -21,4 +23,5 @@ export const actions = {
     projection: projectionSlice.actions,
     mapStyle: mapStyleSlice.actions,
     fog: fogSlice.actions,
+    terrain: terrainSlice.actions,
 }
