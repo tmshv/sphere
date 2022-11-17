@@ -8,6 +8,7 @@ import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 import { Spotlight } from "../Spotlight";
 import { store } from "../../store";
+import { AppOverlay } from "../AppOverlay";
 
 export type AppProps = {
 
@@ -44,6 +45,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                                     id={id}
                                     copyLocationValue={copy}
                                 />
+                                <AppOverlay />
                             </AppLayout>
                         </Spotlight>
                     </MapProvider>

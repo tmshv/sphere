@@ -5,6 +5,7 @@ import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
 import source, { sourceSlice } from './source'
 import selection, { selectionSlice } from './selection'
+import app, { appSlice } from './app'
 import { fitBounds } from './map'
 import { readFromFile, addFromFiles, } from './source/readFromFile'
 import * as turf from '@turf/turf'
@@ -70,6 +71,7 @@ selectFeaturesMiddleware.startListening({
 
 export const store = configureStore({
     reducer: {
+        app,
         projection,
         mapStyle,
         fog,
@@ -92,6 +94,7 @@ export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
 
 export const actions = {
+    app: appSlice.actions,
     projection: projectionSlice.actions,
     mapStyle: mapStyleSlice.actions,
     fog: fogSlice.actions,

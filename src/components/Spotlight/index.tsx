@@ -18,6 +18,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
         <SpotlightProvider
             actions={[
                 {
+                    title: 'Toggle Zen',
+                    description: 'Set Zen mode nn or off',
+                    onTrigger: () => {
+                        dispatch(actions.app.toggleZenMode())
+                    },
+                },
+                {
                     title: 'Earth',
                     description: 'Set Earth map view',
                     onTrigger: () => {
