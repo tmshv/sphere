@@ -1,57 +1,60 @@
 // import { invoke } from "@tauri-apps/api/tauri";
-import Map, { Layer, Source, useMap } from "react-map-gl";
-import { useEffect, useMemo } from "react";
-import { useAppSelector } from "../../store/hooks";
-import * as turf from "@turf/helpers"
-
 import "mapbox-gl/dist/mapbox-gl.css";
+import Map, { Layer } from "react-map-gl";
+import { useAppSelector } from "../../store/hooks";
 import { selectProjection } from "../../store/projection";
 import { selectMapStyle } from "../../store/mapStyle";
 import { Terrain } from "./Terrain";
 import { Fog } from "./Fog";
 import { selectIsShowFog } from "../../store/fog";
 import { selectIsShowTerrain } from "../../store/terrain";
+import { SphereSource } from "./SphereSource";
+import { SourceType } from "../../types";
+import { Fragment } from "react";
+import { CirclePaint, FillPaint, LinePaint } from "mapbox-gl";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
-const pointType = new Set(["Point", "MultiPoint"])
-const lineType = new Set(["LineString", "MultiLineStreing"])
-const polygonType = new Set(["Polygon", "MultiPolygon"])
+const circlePaint: CirclePaint = {
+    "circle-color": "#227FF8",
+    "circle-radius": 4,
+    "circle-stroke-color": "white",
+    "circle-stroke-width": 1,
+}
+const fillPaint: FillPaint = {
+    "fill-color": "#227FF8",
+    "fill-opacity": 0.25,
+}
+const outlinePaint0: LinePaint = {
+    "line-color": "white",
+    "line-width": 3,
+}
+const outlinePaint1: LinePaint = {
+    "line-color": "#227FF8",
+    "line-width": 1,
+}
+const linePaint0: LinePaint = {
+    "line-color": "white",
+    "line-width": 3,
+}
+const linePaint1: LinePaint = {
+    "line-color": "#227FF8",
+    "line-width": 1,
+    "line-dasharray": [2, 3],
+}
 
 export type SphereMapProps = {
     id: string
-    data: GeoJSON.FeatureCollection | null
 }
 
-export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
+export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
     const showFog = useAppSelector(selectIsShowFog)
     const showTerrain = useAppSelector(selectIsShowTerrain)
-    const { [id]: ref } = useMap()
-
-    const [points, lines, polygons] = useMemo(() => {
-        if (!data) {
-            return [
-                turf.featureCollection([]) as GeoJSON.FeatureCollection,
-                turf.featureCollection([]) as GeoJSON.FeatureCollection,
-                turf.featureCollection([]) as GeoJSON.FeatureCollection,
-            ]
-        }
-
-        const points = data.features
-            .filter(f => pointType.has(f.geometry.type))
-        const lines = data.features
-            .filter(f => lineType.has(f.geometry.type))
-        const polygons = data.features
-            .filter(f => polygonType.has(f.geometry.type))
-
-        return [
-            turf.featureCollection(points) as GeoJSON.FeatureCollection,
-            turf.featureCollection(lines) as GeoJSON.FeatureCollection,
-            turf.featureCollection(polygons) as GeoJSON.FeatureCollection,
-        ]
-    }, [data])
+    const sourceIdWithType = useAppSelector(
+        state => state.source.allIds.map(id => [id, state.source.items[id].type])
+    ) as [string, SourceType][]
 
     // async function greet() {
     //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -98,90 +101,62 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
                 }}
             />
 
-            {!polygons ? null : (
-                <>
-                    <Source
-                        id={"geojson-polygons"}
-                        data={polygons}
-                        type={"geojson"}
-                    />
-                    <Layer
-                        id={"geojson-polygons-fill"}
-                        source={"geojson-polygons"}
-                        type={"fill"}
-                        paint={{
-                            "fill-color": "#227FF8",
-                            "fill-opacity": 0.25,
-                        }}
-                    />
-                    <Layer
-                        id={"geojson-polygons-outline-0"}
-                        source={"geojson-polygons"}
-                        type={"line"}
-                        paint={{
-                            "line-color": "white",
-                            "line-width": 3,
-                        }}
-                    />
-                    <Layer
-                        id={"geojson-polygons-outline-1"}
-                        source={"geojson-polygons"}
-                        type={"line"}
-                        paint={{
-                            "line-color": "#227FF8",
-                            "line-width": 1,
-                        }}
-                    />
-                </>
-            )}
-            {!lines ? null : (
-                <>
-                    <Source
-                        id={"geojson-lines"}
-                        data={lines}
-                        type={"geojson"}
-                    />
-                    <Layer
-                        id={"geojson-lines-0"}
-                        source={"geojson-lines"}
-                        type={"line"}
-                        paint={{
-                            "line-color": "white",
-                            "line-width": 3,
-                        }}
-                    />
-                    <Layer
-                        id={"geojson-lines-1"}
-                        source={"geojson-lines"}
-                        type={"line"}
-                        paint={{
-                            "line-color": "#227FF8",
-                            "line-width": 1,
-                            "line-dasharray": [2, 3],
-                        }}
-                    />
-                </>
-            )}
-            {!points ? null : (
-                <>
-                    <Source
-                        id={"geojson-points"}
-                        data={points}
-                        type={"geojson"}
-                    />
-                    <Layer
-                        id={"geojson-circle"}
-                        source={"geojson-points"}
-                        type={"circle"}
-                        paint={{
-                            "circle-color": "#227FF8",
-                            "circle-radius": 4,
-                            "circle-stroke-color": "white",
-                            "circle-stroke-width": 1,
-                        }}
-                    />
-                </>
-            )}
+            {sourceIdWithType.map(([sourceId, type]) => {
+                return (
+                    <Fragment key={sourceId}>
+                        <SphereSource
+                            mapId={id}
+                            id={sourceId}
+                        />
+                        {!(type === SourceType.Polygons) ? null : (
+                            <>
+                                <Layer
+                                    id={`${sourceId}-polygons-fill`}
+                                    source={sourceId}
+                                    type={"fill"}
+                                    paint={fillPaint}
+                                />
+                                <Layer
+                                    id={`${sourceId}-polygons-outline-0`}
+                                    source={sourceId}
+                                    type={"line"}
+                                    paint={outlinePaint0}
+                                />
+                                <Layer
+                                    id={`${sourceId}-polygons-outline-1`}
+                                    source={sourceId}
+                                    type={"line"}
+                                    paint={outlinePaint1}
+                                />
+                            </>
+                        )}
+                        {!(type === SourceType.Lines) ? null : (
+                            <>
+                                <Layer
+                                    id={`${sourceId}-lines-0`}
+                                    source={sourceId}
+                                    type={"line"}
+                                    paint={linePaint0}
+                                />
+                                <Layer
+                                    id={`${sourceId}-lines-1`}
+                                    source={sourceId}
+                                    type={"line"}
+                                    paint={linePaint1}
+                                />
+                            </>
+                        )}
+                        {!(type === SourceType.Points) ? null : (
+                            <Layer
+                                id={`${sourceId}-circles`}
+                                source={sourceId}
+                                type={"circle"}
+                                paint={circlePaint}
+                            />
+                        )}
+                    </Fragment>
+                )
+            })}
         </Map>
     );
 }

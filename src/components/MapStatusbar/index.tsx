@@ -4,6 +4,8 @@ import { Statusbar } from '../../ui/Statusbar';
 import { useCursor } from "../../hooks/useCursor";
 import { useZoom } from "../../hooks/useZoom";
 import { usePitch } from "../../hooks/usePitch";
+import { useAppSelector } from "../../store/hooks";
+import { selectSourcesAmount } from "../../store/source";
 
 const useStyle = createStyles(theme => ({
     widget: {
@@ -26,12 +28,15 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const zoom = useZoom(ref)
     const pitch = usePitch(ref)
 
+    const sources = useAppSelector(selectSourcesAmount)
+
     return (
         <Statusbar>
             <Text className={s.widget} size={"xs"}>lng={round(lng, 1000000)}</Text>
             <Text className={s.widget} size={"xs"}>lat={round(lat, 1000000)}</Text>
             <Text className={s.widget} size={"xs"}>zoom={round(zoom, 1000)}</Text>
             <Text className={s.widget} size={"xs"}>pitch={round(pitch, 1000)}</Text>
+            <Text className={s.widget} size={"xs"}>sources={sources}</Text>
         </Statusbar>
     );
 }

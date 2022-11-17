@@ -3,6 +3,8 @@ import projection, { projectionSlice } from './projection'
 import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
+import source, { sourceSlice } from './source'
+import { readFromFile } from './source/readFromFile'
 
 export const store = configureStore({
     reducer: {
@@ -10,6 +12,7 @@ export const store = configureStore({
         mapStyle,
         fog,
         terrain,
+        source,
     },
 })
 
@@ -24,4 +27,8 @@ export const actions = {
     mapStyle: mapStyleSlice.actions,
     fog: fogSlice.actions,
     terrain: terrainSlice.actions,
+    source: {
+        readFromFile,
+        ...sourceSlice.actions,
+    },
 }
