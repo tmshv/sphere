@@ -1,21 +1,15 @@
 // import { invoke } from "@tauri-apps/api/tauri";
 import Map, { Layer, Source, useMap } from "react-map-gl";
-import { useContext, useEffect, useMemo } from "react";
-import { AppStateContext } from '../../state';
-import { useSelector } from '@xstate/react';
+import { useEffect, useMemo } from "react";
 import { useAppSelector } from "../../store/hooks";
 import * as turf from "@turf/helpers"
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import { selectProjection } from "../../store/projection";
+import { selectMapStyle } from "../../store/mapStyle";
+import { Terrain } from "./Terrain";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
-
-function mapStyleSelector(state: any) {
-    return state.matches("vector")
-        ? "mapbox://styles/mapbox/streets-v9"
-        : "mapbox://styles/mapbox/satellite-streets-v11"
-}
 
 const pointType = new Set(["Point", "MultiPoint"])
 const lineType = new Set(["LineString", "MultiLineStreing"])
@@ -28,8 +22,7 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
     const projection = useAppSelector(selectProjection)
-    const state = useContext(AppStateContext);
-    const mapStyle = useSelector(state.mapStyle, mapStyleSelector);
+    const mapStyle = useAppSelector(selectMapStyle)
     const { [id]: ref } = useMap()
 
     const [points, lines, polygons] = useMemo(() => {
@@ -41,11 +34,11 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             ]
         }
 
-        const points = data["features"]
+        const points = data.features
             .filter(f => pointType.has(f.geometry.type))
-        const lines = data["features"]
+        const lines = data.features
             .filter(f => lineType.has(f.geometry.type))
-        const polygons = data["features"]
+        const polygons = data.features
             .filter(f => polygonType.has(f.geometry.type))
 
         return [
@@ -56,35 +49,26 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
     }, [data])
 
     useEffect(() => {
+        return
         const map = ref?.getMap()
         if (!map) {
             return
         }
 
         const cb = () => {
-            map.addSource('mapbox-dem', {
-                'type': 'raster-dem',
-                'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                'tileSize': 512,
-                'maxzoom': 14
-            });
-            // add the DEM source as a terrain layer with exaggerated height
-            map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-
             // add sky styling with `setFog` that will show when the map is highly pitched
-            map.setFog({
-                // 'horizon-blend': 0.3,
-                // 'color': '#f8f0e3',
-                // 'high-color': '#add8e6',
-                // 'space-color': '#d8f2ff',
-                // 'star-intensity': 0.0
-            });
+            // map.setFog({
+            //     // 'horizon-blend': 0.3,
+            //     // 'color': '#f8f0e3',
+            //     // 'high-color': '#add8e6',
+            //     // 'space-color': '#d8f2ff',
+            //     // 'star-intensity': 0.0
+            // });
         }
 
         if (map.isStyleLoaded()) {
             cb()
             return () => {
-                map.setTerrain()
             }
         }
 
@@ -92,11 +76,8 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
 
         return () => {
             map.off('load', cb)
-            map.setTerrain()
         }
-    }, [ref, mapStyle])
-
-
+    }, [ref])
 
     // async function greet() {
     //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -123,6 +104,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             mapStyle={mapStyle}
             projection={projection}
         >
+            {/* <Terrain
+                mapId={id}
+            /> */}
             <Layer
                 id="sky"
                 type="sky"

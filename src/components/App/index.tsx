@@ -6,7 +6,6 @@ import { MapStatusbar } from "../MapStatusbar";
 import { AppLayout } from "../../ui/AppLayout";
 import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
-import { AppStateProvider } from "../AppStateProvider";
 import { Spotlight } from "../Spotlight";
 import { useFileDrop } from "../../hooks/useFileDrop";
 import { store } from "../../store";
@@ -29,30 +28,28 @@ export const App: React.FC<AppProps> = ({ }) => {
                 }
             }}>
                 <Provider store={store}>
-                    <AppStateProvider>
-                        <MapProvider>
-                            <Spotlight
-                                mapId={id}
+                    <MapProvider>
+                        <Spotlight
+                            mapId={id}
+                        >
+                            <AppLayout
+                                footer={(
+                                    <MapStatusbar
+                                        id={id}
+                                    />
+                                )}
                             >
-                                <AppLayout
-                                    footer={(
-                                        <MapStatusbar
-                                            id={id}
-                                        />
-                                    )}
-                                >
-                                    <SphereMap
-                                        id={id}
-                                        data={data}
-                                    />
-                                    <MapContextMenu
-                                        id={id}
-                                        copyLocationValue={copy}
-                                    />
-                                </AppLayout>
-                            </Spotlight>
-                        </MapProvider>
-                    </AppStateProvider>
+                                <SphereMap
+                                    id={id}
+                                    data={data}
+                                />
+                                <MapContextMenu
+                                    id={id}
+                                    copyLocationValue={copy}
+                                />
+                            </AppLayout>
+                        </Spotlight>
+                    </MapProvider>
                 </Provider>
             </MantineProvider>
         </React.StrictMode>

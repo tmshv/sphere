@@ -1,11 +1,9 @@
 import { writeText } from '@tauri-apps/api/clipboard';
 import { SpotlightProvider } from '@mantine/spotlight';
-import { IconHome, IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
-import { useContext } from 'react';
+import { IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
 import { useMap } from 'react-map-gl';
-import { AppStateContext } from '../../state';
 import { useAppDispatch } from '../../store/hooks';
-import { setFlat, setGlobe } from '../../store/projection';
+import { actions } from '../../store';
 
 export type SpotlightProps = {
     mapId: string
@@ -14,35 +12,38 @@ export type SpotlightProps = {
 
 export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
     const { [mapId]: ref } = useMap()
-    const state = useContext(AppStateContext);
     const dispatch = useAppDispatch()
 
     return (
         <SpotlightProvider
             actions={[
                 {
-                    title: 'Toggle Map',
-                    description: 'Toggle to Vector or Satellite map',
+                    title: 'Vector',
+                    description: 'Set vector map style',
                     onTrigger: () => {
-                        state.mapStyle.send("TOGGLE")
+                        dispatch(actions.mapStyle.setVector())
                     },
-                    icon: <IconHome size={18} />,
                 },
                 {
-                    title: 'Set Globe',
+                    title: 'Satellite',
+                    description: 'Set satellite map style',
+                    onTrigger: () => {
+                        dispatch(actions.mapStyle.setSatellite())
+                    },
+                },
+                {
+                    title: 'Globe',
                     description: 'Set Globe projection',
                     onTrigger: () => {
-                        dispatch(setGlobe())
+                        dispatch(actions.projection.setGlobe())
                     },
-                    icon: <IconHome size={18} />,
                 },
                 {
-                    title: 'Set Flat',
+                    title: 'Flat',
                     description: 'Set Mercator projection',
                     onTrigger: () => {
-                        dispatch(setFlat())
+                        dispatch(actions.projection.setFlat())
                     },
-                    icon: <IconHome size={18} />,
                 },
                 {
                     title: 'Copy viewport',
