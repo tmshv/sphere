@@ -43,6 +43,8 @@ export const HandleClick: React.FC<HandleClickProps> = ({ mapId }) => {
                     sourceId: f.source,
                     featureId: f.id! as number,
                 }))
+            } else {
+                dispatch(actions.selection.reset())
             }
         }
 
