@@ -12,8 +12,8 @@ import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '../map'
 import mapboxgl from 'mapbox-gl'
-const listenerMiddleware = createListenerMiddleware();
-listenerMiddleware.startListening({
+const readFromFilesMiddleware = createListenerMiddleware();
+readFromFilesMiddleware.startListening({
     actionCreator: addFromFiles,
     effect: async (action, listenerApi) => {
         for (const file of action.payload) {
@@ -44,6 +44,9 @@ fitBoundsMiddleware.startListening({
     effect: async (action, listenerApi) => {
         const { mapId, bounds } = action.payload
         const map = getMap(mapId)
+        if(!map) {
+            return
+        }
         map.fitBounds(bounds)
     },
 });
@@ -78,7 +81,7 @@ export const store = configureStore({
         return getDefaultMiddleWare()
             .prepend(selectFeaturesMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
-            .prepend(listenerMiddleware.middleware)
+            .prepend(readFromFilesMiddleware.middleware)
     }
 })
 

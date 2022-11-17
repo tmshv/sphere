@@ -11,5 +11,5 @@ export function removeMap(id: string) {
 }
 
 export function getMap(id: string) {
-    return store.get(id)!
+    return store.get(id)
 }

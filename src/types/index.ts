@@ -1,7 +1,7 @@
 export enum SourceType {
     // Geojson,
     // Gpx,
-    Points,
-    Lines,
-    Polygons,
+    Points = "Point",
+    Lines = "LineString",
+    Polygons = "Polygon",
 }

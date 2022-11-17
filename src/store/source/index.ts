@@ -4,8 +4,14 @@ import { RootState } from '..'
 import { readFromFile } from './readFromFile'
 import { SourceType } from '../../types'
 
+function basename(path: string): string {
+    const parts = path.split('/')
+    return parts[parts.length - 1]
+}
+
 type Source = {
     id: string
+    name: string
     location: string
     type: SourceType
     data: GeoJSON.FeatureCollection
@@ -52,17 +58,20 @@ export const sourceSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(readFromFile.fulfilled, (state, action) => {
-                const data = action.payload
-                if (!data) {
+                const payload = action.payload
+                if (!payload) {
                     return
                 }
+                const location = action.meta.arg
 
-                for (const [type, source] of data) {
-                    if (source.features.length === 0) {
-                        break
+                const name = basename(location)
+
+                for (const [type, data] of payload) {
+
+                    if (data.features.length === 0) {
+                        continue
                     }
 
-                    const location = action.meta.arg
                     const sourceId = `${location}|${type}`
                     if (!(sourceId in state.items)) {
                         state.allIds.push(sourceId)
@@ -70,8 +79,9 @@ export const sourceSlice = createSlice({
                     state.items[sourceId] = {
                         id: sourceId,
                         location,
-                        data: source,
+                        data,
                         type,
+                        name,
                     }
                     state.lastAdded = sourceId
                 }
