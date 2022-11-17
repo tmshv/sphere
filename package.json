@@ -14,6 +14,7 @@
     "@mantine/core": "^5.7.2",
     "@mantine/hooks": "^5.7.2",
     "@mantine/spotlight": "^5.7.2",
+    "@reduxjs/toolkit": "^1.9.0",
     "@tabler/icons": "^1.111.0",
     "@tauri-apps/api": "^1.2.0",
     "@turf/helpers": "^6.5.0",
@@ -22,6 +23,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-map-gl": "^7.0.19",
+    "react-redux": "^8.0.5",
     "simple-xml-to-json": "^1.0.9",
     "xstate": "^4.34.0"
   },

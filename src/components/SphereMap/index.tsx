@@ -3,9 +3,11 @@ import Map, { Layer, Source, useMap } from "react-map-gl";
 import { useContext, useEffect, useMemo } from "react";
 import { AppStateContext } from '../../state';
 import { useSelector } from '@xstate/react';
+import { useAppSelector } from "../../store/hooks";
 import * as turf from "@turf/helpers"
 
 import "mapbox-gl/dist/mapbox-gl.css";
+import { selectProjection } from "../../store/projection";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -25,6 +27,7 @@ export type SphereMapProps = {
 }
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
+    const projection = useAppSelector(selectProjection)
     const state = useContext(AppStateContext);
     const mapStyle = useSelector(state.mapStyle, mapStyleSelector);
     const { [id]: ref } = useMap()
@@ -118,7 +121,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id, data }) => {
             maxPitch={85}
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
-            projection={'globe'}
+            projection={projection}
         >
             <Layer
                 id="sky"

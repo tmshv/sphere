@@ -4,6 +4,8 @@ import { IconHome, IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
 import { useContext } from 'react';
 import { useMap } from 'react-map-gl';
 import { AppStateContext } from '../../state';
+import { useAppDispatch } from '../../store/hooks';
+import { setFlat, setGlobe } from '../../store/projection';
 
 export type SpotlightProps = {
     mapId: string
@@ -13,6 +15,7 @@ export type SpotlightProps = {
 export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
     const { [mapId]: ref } = useMap()
     const state = useContext(AppStateContext);
+    const dispatch = useAppDispatch()
 
     return (
         <SpotlightProvider
@@ -22,6 +25,22 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     description: 'Toggle to Vector or Satellite map',
                     onTrigger: () => {
                         state.mapStyle.send("TOGGLE")
+                    },
+                    icon: <IconHome size={18} />,
+                },
+                {
+                    title: 'Set Globe',
+                    description: 'Set Globe projection',
+                    onTrigger: () => {
+                        dispatch(setGlobe())
+                    },
+                    icon: <IconHome size={18} />,
+                },
+                {
+                    title: 'Set Flat',
+                    description: 'Set Mercator projection',
+                    onTrigger: () => {
+                        dispatch(setFlat())
                     },
                     icon: <IconHome size={18} />,
                 },
