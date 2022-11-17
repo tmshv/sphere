@@ -11,6 +11,9 @@
   },
   "tauri": {
     "allowlist": {
+      "window": {
+        "startDragging": true
+      },
       "fs": {
         "all": true,
         "scope": [
@@ -70,6 +73,9 @@
     },
     "windows": [
       {
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "acceptFirstMouse": true,
         "fullscreen": false,
         "resizable": true,
         "title": "Sphere",
