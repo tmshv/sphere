@@ -6,6 +6,14 @@ import { App } from "./components/App";
 import { actions, store } from "./store";
 import "./style.css";
 
+async function handleTheme() {
+  const e = "tauri://theme-changed"
+  const unlisten = await listen(e, (event) => {
+    const theme = event.payload as string
+    store.dispatch(actions.app.setDarkTheme(theme === "dark"))
+  })
+}
+
 async function main() {
   const e = "tauri://file-drop"
   // const e = "tauri://file-drop-hover"
@@ -17,6 +25,7 @@ async function main() {
   })
 }
 main()
+handleTheme()
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

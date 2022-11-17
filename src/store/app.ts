@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '.'
 
 // Define a type for the slice state
@@ -27,6 +28,9 @@ export const appSlice = createSlice({
         },
         toggleDarkTheme: state => {
             state.darkTheme = !state.darkTheme
+        },
+        setDarkTheme: (state, action: PayloadAction<boolean>) => {
+            state.darkTheme = action.payload
         },
         showLeftSidebar: state => {
             state.showLeftSidebar = true
