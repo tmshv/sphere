@@ -1,4 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
+import { appWindow } from '@tauri-apps/api/window';
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
@@ -7,6 +8,11 @@ import { actions, store } from "./store";
 import "./style.css";
 
 async function handleTheme() {
+  const theme = await appWindow.theme();
+  if (theme) {
+    store.dispatch(actions.app.setDarkTheme(theme === "dark"))
+  }
+
   const e = "tauri://theme-changed"
   const unlisten = await listen(e, (event) => {
     const theme = event.payload as string
