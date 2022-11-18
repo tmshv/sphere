@@ -136,6 +136,9 @@ export const App: React.FC<AppProps> = ({ }) => {
                         }
                     },
                 },
+                activeStyles: {
+                    transform: "none",
+                },
             }}>
                 <MapProvider>
                     <Spotlight
