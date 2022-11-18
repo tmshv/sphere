@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
-    "@mantine/core": "^5.7.2",
-    "@mantine/hooks": "^5.7.2",
-    "@mantine/spotlight": "^5.7.2",
+    "@mantine/core": "^5.8.0",
+    "@mantine/hooks": "^5.8.0",
+    "@mantine/spotlight": "^5.8.0",
     "@reduxjs/toolkit": "^1.9.0",
     "@tabler/icons": "^1.111.0",
     "@tauri-apps/api": "^1.2.0",
