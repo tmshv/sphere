@@ -11,39 +11,13 @@ import { selectIsShowTerrain } from "../../store/terrain";
 import { SphereSource } from "./SphereSource";
 import { SourceType } from "../../types";
 import { Fragment } from "react";
-import { CirclePaint, FillPaint, LinePaint } from "mapbox-gl";
 import { SetupStore } from "./SetupStore";
 import { HandleClick } from "./HandleClick";
+import { PolygonLayer } from "./PolygonLayer";
+import { LineStringLayer } from "./LineStringLayer";
+import { PointLayer } from "./PointLayer";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
-
-const circlePaint: CirclePaint = {
-    "circle-color": "#227FF8",
-    "circle-radius": 4,
-    "circle-stroke-color": "white",
-    "circle-stroke-width": 1,
-}
-const fillPaint: FillPaint = {
-    "fill-color": "#227FF8",
-    "fill-opacity": 0.25,
-}
-const outlinePaint0: LinePaint = {
-    "line-color": "white",
-    "line-width": 3,
-}
-const outlinePaint1: LinePaint = {
-    "line-color": "#227FF8",
-    "line-width": 1,
-}
-const linePaint0: LinePaint = {
-    "line-color": "white",
-    "line-width": 3,
-}
-const linePaint1: LinePaint = {
-    "line-color": "#227FF8",
-    "line-width": 1,
-    "line-dasharray": [2, 3],
-}
 
 export type SphereMapProps = {
     id: string
@@ -117,49 +91,18 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                             id={sourceId}
                         />
                         {!(type === SourceType.Polygons) ? null : (
-                            <>
-                                <Layer
-                                    id={`${sourceId}-polygons-fill`}
-                                    source={sourceId}
-                                    type={"fill"}
-                                    paint={fillPaint}
-                                />
-                                <Layer
-                                    id={`${sourceId}-polygons-outline-0`}
-                                    source={sourceId}
-                                    type={"line"}
-                                    paint={outlinePaint0}
-                                />
-                                <Layer
-                                    id={`${sourceId}-polygons-outline-1`}
-                                    source={sourceId}
-                                    type={"line"}
-                                    paint={outlinePaint1}
-                                />
-                            </>
+                            <PolygonLayer
+                                sourceId={sourceId}
+                            />
                         )}
                         {!(type === SourceType.Lines) ? null : (
-                            <>
-                                <Layer
-                                    id={`${sourceId}-lines-0`}
-                                    source={sourceId}
-                                    type={"line"}
-                                    paint={linePaint0}
-                                />
-                                <Layer
-                                    id={`${sourceId}-lines-1`}
-                                    source={sourceId}
-                                    type={"line"}
-                                    paint={linePaint1}
-                                />
-                            </>
+                            <LineStringLayer
+                                sourceId={sourceId}
+                            />
                         )}
                         {!(type === SourceType.Points) ? null : (
-                            <Layer
-                                id={`${sourceId}-circles`}
-                                source={sourceId}
-                                type={"circle"}
-                                paint={circlePaint}
+                            <PointLayer
+                                sourceId={sourceId}
                             />
                         )}
                     </Fragment>
