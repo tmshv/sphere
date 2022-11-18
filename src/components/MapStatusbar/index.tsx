@@ -1,5 +1,5 @@
 import { useMap } from "react-map-gl";
-import { ActionIcon, Badge, createStyles, Text } from '@mantine/core';
+import { ActionIcon, Badge, createStyles } from '@mantine/core';
 import { Statusbar } from '../../ui/Statusbar';
 import { useCursor } from "../../hooks/useCursor";
 import { useZoom } from "../../hooks/useZoom";
@@ -32,6 +32,9 @@ const useStyle = createStyles(theme => ({
         // Works together with Statusbar height 27 px
         position: "relative",
         top: 1,
+
+        backgroundColor: theme.colors.dark,
+        color: theme.white,
     },
 
     fix0: {
@@ -86,17 +89,17 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 <IconWorld size={16} />
             </ActionIcon>
 
-            <Badge className={s.widget} radius={"sm"} size="sm" variant="light" color={"dark"}>sources={sources}</Badge>
+            <Badge className={s.widget} radius={"sm"} size="sm" variant="light">sources={sources}</Badge>
 
-            <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light" color={"dark"}>pitch={format(round(pitch, 1000), 3)}</Badge>
-            <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light" color={"dark"}>zoom={format(round(zoom, 1000), 3)}</Badge>
+            <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">pitch={format(round(pitch, 1000), 3)}</Badge>
+            <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">zoom={format(round(zoom, 1000), 3)}</Badge>
 
-            <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light" color={"dark"}>lng={format(round(lng, 1000000), 5)}</Badge>
-            <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light" color={"dark"}>lat={format(round(lat, 1000000), 5)}</Badge>
+            <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">lng={format(round(lng, 1000000), 5)}</Badge>
+            <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">lat={format(round(lat, 1000000), 5)}</Badge>
 
             <div className={s.s}></div>
 
-            <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light" color={"dark"}>Sphere {version}</Badge>
+            <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>
         </Statusbar>
     );
 }
