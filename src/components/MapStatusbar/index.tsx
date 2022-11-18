@@ -1,15 +1,15 @@
 import { useMap } from "react-map-gl";
 import { ActionIcon, Badge, createStyles } from '@mantine/core';
-import { Statusbar } from '../../ui/Statusbar';
-import { useCursor } from "../../hooks/useCursor";
-import { useZoom } from "../../hooks/useZoom";
-import { usePitch } from "../../hooks/usePitch";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectSourcesAmount } from "../../store/source";
+import { Statusbar } from '@/ui/Statusbar';
+import { useCursor } from "@/hooks/useCursor";
+import { useZoom } from "@/hooks/useZoom";
+import { usePitch } from "@/hooks/usePitch";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { selectSourcesAmount } from "@/store/source";
 import { IconWorld } from "@tabler/icons";
-import { actions } from "../../store";
-import { selectProjection } from "../../store/projection";
-import { selectVersion } from "../../store/app";
+import { actions } from "@/store";
+import { selectProjection } from "@/store/projection";
+import { selectVersion } from "@/store/app";
 
 const useStyle = createStyles(theme => ({
     s: {
