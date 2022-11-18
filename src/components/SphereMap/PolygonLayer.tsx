@@ -3,7 +3,7 @@ import { createFillPaint, createLinePaint } from "@/lib/createPaint";
 
 const useFillPaint = createFillPaint(colors => ({
     fill: {
-        "fill-color": colors["blue"][5],
+        "fill-color": colors["blue"][9],
         "fill-opacity": 0.25,
     },
 }))
@@ -14,7 +14,7 @@ const useLinePaint = createLinePaint(colors => ({
         "line-width": 3,
     },
     outline1: {
-        "line-color": colors["blue"][5],
+        "line-color": colors["blue"][7],
         "line-width": 1,
     }
 }))

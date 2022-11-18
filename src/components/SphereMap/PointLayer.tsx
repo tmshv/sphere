@@ -3,7 +3,7 @@ import { createCirclePaint } from "@/lib/createPaint";
 
 const useCirclePaint = createCirclePaint(colors => ({
     circle: {
-        "circle-color": colors["blue"][5],
+        "circle-color": colors["blue"][7],
         "circle-radius": 4,
         "circle-stroke-color": "white",
         "circle-stroke-width": 1,
