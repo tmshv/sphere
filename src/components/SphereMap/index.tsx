@@ -56,6 +56,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
             projection={projection}
+            logoPosition={"bottom-right"}
         >
             <SetupStore
                 mapId={id}
