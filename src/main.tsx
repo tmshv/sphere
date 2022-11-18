@@ -1,5 +1,6 @@
 import { listen } from "@tauri-apps/api/event";
 import { appWindow } from '@tauri-apps/api/window';
+import { getVersion } from '@tauri-apps/api/app';
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
@@ -20,6 +21,11 @@ async function handleTheme() {
   })
 }
 
+async function handleVersion() {
+  const version = await getVersion();
+  store.dispatch(actions.app.setVersion(version))
+}
+
 async function main() {
   const e = "tauri://file-drop"
   // const e = "tauri://file-drop-hover"
@@ -32,6 +38,7 @@ async function main() {
 }
 main()
 handleTheme()
+handleVersion()
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
