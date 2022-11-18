@@ -24,18 +24,20 @@ export const PropertiesViewer: React.FC<PropertiesViewerProps> = ({ properties }
 
     return (
         <table className={s.table}>
-            {properties.map(({ key, value }) => (
-                <tr key={key}>
-                    <td className={s.key}>{key}</td>
-                    <td className={s.value}>
-                        {/* <Badge
+            <tbody>
+                {properties.map(({ key, value }) => (
+                    <tr key={key}>
+                        <td className={s.key}>{key}</td>
+                        <td className={s.value}>
+                            {/* <Badge
                             radius={"xs"}
                         > */}
-                        {value}
-                        {/* </Badge> */}
-                    </td>
-                </tr>
-            ))}
+                            {value}
+                            {/* </Badge> */}
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
         </table>
     );
 }
