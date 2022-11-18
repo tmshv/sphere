@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, isAnyOf } from '@reduxjs/toolkit'
 import projection, { projectionSlice } from './projection'
 import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
@@ -69,6 +69,29 @@ selectFeaturesMiddleware.startListening({
     },
 });
 
+const forceResizeMapMiddleware = createListenerMiddleware();
+forceResizeMapMiddleware.startListening({
+    matcher: isAnyOf(
+        appSlice.actions.toggleZenMode,
+        appSlice.actions.showLeftSidebar,
+        appSlice.actions.hideLeftSidebar,
+        appSlice.actions.showRightSidebar,
+        appSlice.actions.hideRightSidebar,
+        selectionSlice.actions.reset, // I'm not sure about this
+    ),
+    effect: async (_, listenerApi) => {
+        const map = getMap("spheremap")
+        if (!map) {
+            return
+        }
+
+        // resize map in next tick
+        await listenerApi.delay(0)
+
+        map.resize()
+    },
+});
+
 export const store = configureStore({
     reducer: {
         app,
@@ -81,6 +104,7 @@ export const store = configureStore({
     },
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
+            .prepend(forceResizeMapMiddleware.middleware)
             .prepend(selectFeaturesMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
             .prepend(readFromFilesMiddleware.middleware)
