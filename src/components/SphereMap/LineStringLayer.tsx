@@ -7,9 +7,9 @@ const useLinePaint = createLinePaint(colors => ({
         "line-width": 3,
     },
     line1: {
-        "line-color": colors["blue"][5],
+        "line-color": colors["blue"][9],
         "line-width": 1,
-        "line-dasharray": [2, 3],
+        "line-dasharray": [4, 1],
     }
 }))
 
