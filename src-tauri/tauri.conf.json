@@ -79,8 +79,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "Sphere",
-        "width": 900,
-        "height": 700,
+        "width": 1000,
+        "height": 750,
         "minWidth": 300,
         "minHeight": 300
       }
