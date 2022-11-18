@@ -14,7 +14,7 @@ import { PropertiesViewer } from "../../ui/PropertiesViewer";
 import { IconPhoto, IconPrinter, IconCameraSelfie, IconPolygon, IconPoint, IconLine, IconDots } from '@tabler/icons';
 import { Accordion, useMantineTheme } from '@mantine/core';
 import { SourceType } from "../../types";
-import { actions } from "../../store";
+import { actions } from "@/store";
 
 const AccordionControl: React.FC<AccordionControlProps> = ({ icon, ...props }) => {
     return (
