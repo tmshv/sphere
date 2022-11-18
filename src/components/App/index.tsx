@@ -127,6 +127,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                 spacing: {
                     xs: 4,
                     sm: 8,
+                    xl: 28, // height of Window Title
                 },
                 headings: {
                     sizes: {
@@ -147,8 +148,8 @@ export const App: React.FC<AppProps> = ({ }) => {
                                 />
                             )}
                             leftSidebar={!showLeft ? null : (
-                                <Paper p={"md"} style={{
-                                    minWidth: 300,
+                                <Paper pb={"md"} pt={"xl"} pl={"sm"} pr={"sm"} style={{
+                                    width: 400,
                                     overflow: "hidden",
                                 }}>
                                     <Layers />
