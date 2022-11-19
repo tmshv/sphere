@@ -50,7 +50,7 @@ export async function parseGeojson(name: string, location: string, raw: string):
                 })
             }
             if (lineType.has(feature.geometry.type)) {
-                points.data.push({
+                lines.data.push({
                     id,
                     geometry: feature.geometry as any,
                     data: feature.properties ?? {},
@@ -59,7 +59,7 @@ export async function parseGeojson(name: string, location: string, raw: string):
                 })
             }
             if (polygonType.has(feature.geometry.type)) {
-                points.data.push({
+                polygons.data.push({
                     id,
                     geometry: feature.geometry as any,
                     data: feature.properties ?? {},
