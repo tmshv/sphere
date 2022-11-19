@@ -9,7 +9,7 @@ const useStyle = createStyles(theme => ({
     button: {
         maxWidth: "100%",
         borderRadius: theme.radius.sm,
-        height: 28,
+        height: 30,
         // padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
     }
 }))
@@ -92,7 +92,7 @@ export const LayersOutline: React.FC = () => {
                             // color="cyan"
                             variant="filled"
                         />
-                        <ActionIcon size={"md"} radius={"sm"} h={28} onClick={() => {
+                        <ActionIcon size={"md"} radius={"sm"} h={30} onClick={() => {
                             dispatch(actions.layer.setVisible({
                                 id,
                                 value: !visible,
