@@ -1,4 +1,3 @@
-// import { invoke } from "@tauri-apps/api/tauri";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Map, { Layer } from "react-map-gl";
 import { useAppSelector } from "../../store/hooks";
@@ -26,15 +25,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const showTerrain = useAppSelector(selectIsShowTerrain)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layerIds = useAppSelector(state => state.layer.allIds)
-
-    // async function greet() {
-    //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    //   setGreetMsg(await invoke("greet", { name }));
-    // }
-
-    // you can use tauri's listen function to register an event listener for the tauri://file-drop event.
-    // There are also tauri://file-drop-hover and tauri://file-drop-cancelled.
-    // They all trigger on the whole window, not on single html elements.So if you need that you have to keep track of the mouse position yourself(for example with mouseenter etc events).
 
     return (
         <Map
