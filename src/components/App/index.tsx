@@ -1,107 +1,19 @@
 import React, { useCallback } from "react";
 import { MapProvider } from "react-map-gl";
-import { AccordionControlProps, ActionIcon, Badge, Box, Button, Container, Flex, List, MantineProvider, Paper, Title } from "@mantine/core";
+import { Container, Flex, MantineProvider, Paper, Title } from "@mantine/core";
 import { MapStatusbar } from "../MapStatusbar";
 import { AppLayout } from "../../ui/AppLayout";
 import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 import { Spotlight } from "../Spotlight";
-import { AppOverlay } from "../AppOverlay";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { selectIsDark, selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "../../store/app";
 import { selectProperties } from "../../store/selection";
 import { PropertiesViewer } from "../../ui/PropertiesViewer";
-import { IconPhoto, IconPrinter, IconCameraSelfie, IconPolygon, IconPoint, IconLine, IconDots } from '@tabler/icons';
-import { Accordion, useMantineTheme } from '@mantine/core';
-import { SourceType } from "../../types";
-import { actions } from "@/store";
-
-const AccordionControl: React.FC<AccordionControlProps> = ({ icon, ...props }) => {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <ActionIcon size="lg">
-                {icon}
-                {/* <IconDots size={16} /> */}
-            </ActionIcon>
-            <Accordion.Control {...props} />
-        </Box>
-    );
-}
-
-const Layers: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const sources = useAppSelector(state => state.source.allIds.map(id => {
-        const s = state.source.items[id]
-
-        return {
-            id,
-            name: s.name,
-            type: s.type,
-        }
-    }))
-    const theme = useMantineTheme();
-    const getColor = (color: string) => theme.colors[color][theme.colorScheme === 'dark' ? 5 : 7];
-
-    return (
-        <Accordion
-            variant="filled"
-        // chevronPosition="left"
-        >
-            {sources.map(source => {
-                let icon: React.ReactNode = null
-
-                if (source.type === SourceType.Points) {
-                    icon = (
-                        <IconPoint size={20} color={getColor('blue')} />
-                    )
-                }
-                if (source.type === SourceType.Lines) {
-                    icon = (
-                        <IconLine size={20} color={getColor('blue')} />
-                    )
-                }
-                if (source.type === SourceType.Polygons) {
-                    icon = (
-                        <IconPolygon size={20} color={getColor('blue')} />
-                    )
-                }
-
-                return (
-                    <Accordion.Item
-                        value={source.id}
-                        key={source.id}
-                    >
-                        <AccordionControl icon={icon}>
-                            {source.name}
-                        </AccordionControl>
-                        <Accordion.Panel>
-                            <Flex direction={"column"} gap={"md"} align={"flex-start"}>
-                                <Badge radius={"sm"}>
-                                    {source.type}
-                                </Badge>
-                                {/* <PropertiesViewer
-                                properties={[
-                                    {
-                                        key: "Area",
-                                        value: 2341,
-                                    }
-                                ]}
-                            /> */}
-                                <Button
-                                    size="sm"
-                                    color={"red"}
-                                    onClick={() => {
-                                        dispatch(actions.source.removeSource(source.id))
-                                    }}
-                                >Delete</Button>
-                            </Flex>
-                        </Accordion.Panel>
-                    </Accordion.Item>
-                )
-            })}
-        </Accordion>
-    )
-}
+import { Overlay } from "@/ui/Overlay";
+import { Toolbar } from "@/ui/Toolbar";
+import { SourcePanel } from "../SourcePanel";
+import { Left, StyledTabs } from "./left";
 
 export type AppProps = {
 
@@ -126,7 +38,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                 colorScheme: isDark ? "dark" : "light",
                 spacing: {
                     xs: 4,
-                    sm: 8,
+                    sm: 6,
                     xl: 28, // height of Window Title
                 },
                 headings: {
@@ -139,6 +51,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                 activeStyles: {
                     transform: "none",
                 },
+                primaryColor: 'blue',
             }}>
                 <MapProvider>
                     <Spotlight
@@ -151,15 +64,18 @@ export const App: React.FC<AppProps> = ({ }) => {
                                 />
                             )}
                             leftSidebar={!showLeft ? null : (
-                                <Paper pb={"md"} pt={"xl"} pl={"sm"} pr={"sm"} style={{
-                                    width: 400,
-                                    overflow: "hidden",
-                                }}>
-                                    <Layers />
-                                </Paper>
+                                <Flex pt={"xl"} p={"md"}>
+                                    <Left/>
+                                    {/* <Paper pl={"sm"} pr={"sm"} style={{
+                                        width: 400,
+                                        overflow: "hidden",
+                                    }}>
+                                        <SourcePanel />
+                                    </Paper> */}
+                                </Flex>
                             )}
                             rightSidebar={!showRight ? null : (
-                                <Container p={"md"} style={{
+                                <Container pt={"lg"} style={{
                                     minWidth: 240,
                                     overflow: "hidden",
                                 }}>
@@ -167,7 +83,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                                         Properties
                                     </Title>
 
-                                    <Paper mt={'md'}>
+                                    <Paper mt={'sm'}>
                                         <PropertiesViewer
                                             properties={props}
                                         />
@@ -182,9 +98,22 @@ export const App: React.FC<AppProps> = ({ }) => {
                                 id={id}
                                 copyLocationValue={copy}
                             />
-                            {/* {isZen ? null : (
-                                <AppOverlay />
-                            )} */}
+                            {zen ? null : (
+                                <Overlay
+                                    // top={(
+                                    //     <Toolbar horizontal></Toolbar>
+                                    // )}
+                                    right={(
+                                        <Toolbar></Toolbar>
+                                        // <Paper pl={"sm"} pr={"sm"} style={{
+                                        //     width: 400,
+                                        //     overflow: "hidden",
+                                        // }}>
+                                        //     <SourcePanel />
+                                        // </Paper>
+                                    )}
+                                />
+                            )}
                         </AppLayout>
                     </Spotlight>
                 </MapProvider>
