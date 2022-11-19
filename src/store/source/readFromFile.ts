@@ -1,5 +1,6 @@
 import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
 import { readTextFile } from "@tauri-apps/api/fs"
+import { basename, extname } from '@tauri-apps/api/path';
 import { parseGeojson } from '../../lib/parseGeojson'
 import { parseGpx } from '../../lib/parseGpx'
 import * as turf from "@turf/helpers"
@@ -16,17 +17,13 @@ const parsers = new Map([
     ["gpx", parseGpx],
 ])
 
-function getExt(path: string): string {
-    const x = path.split(".")
-    return x[x.length - 1]
-}
-
-type SourceTuple = [SourceType, GeoJSON.FeatureCollection]
+type SourceTuple = [string, SourceType, GeoJSON.FeatureCollection]
 
 export const addFromFiles = createAction<string[]>('source/readFromFiles')
 
 export const readFromFile = createAsyncThunk('source/readFromFile', async (path: string, thunkAPI) => {
-    const ext = getExt(path)
+    const name = await basename(path)
+    const ext = await extname(path)
     if (!parsers.has(ext)) {
         console.log("Cannot find parser")
         return null
@@ -49,8 +46,8 @@ export const readFromFile = createAsyncThunk('source/readFromFile', async (path:
     const polygons = data.features.filter(f => polygonType.has(f.geometry.type))
 
     return [
-        [SourceType.Polygons, turf.featureCollection(polygons) as GeoJSON.FeatureCollection] as SourceTuple,
-        [SourceType.Lines, turf.featureCollection(lines) as GeoJSON.FeatureCollection] as SourceTuple,
-        [SourceType.Points, turf.featureCollection(points) as GeoJSON.FeatureCollection] as SourceTuple,
+        [name, SourceType.Polygons, turf.featureCollection(polygons) as GeoJSON.FeatureCollection] as SourceTuple,
+        [name, SourceType.Lines, turf.featureCollection(lines) as GeoJSON.FeatureCollection] as SourceTuple,
+        [name, SourceType.Points, turf.featureCollection(points) as GeoJSON.FeatureCollection] as SourceTuple,
     ]
 })

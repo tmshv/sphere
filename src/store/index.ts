@@ -4,6 +4,7 @@ import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
 import source, { sourceSlice } from './source'
+import layer, { layerSlice } from './layer'
 import selection, { selectionSlice } from './selection'
 import app, { appSlice } from './app'
 import { fitBounds } from './map'
@@ -13,6 +14,8 @@ import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '../map'
 import mapboxgl from 'mapbox-gl'
+import { LayerType, SourceType } from '@/types'
+import { assertUnreachable } from '@/lib'
 const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
     actionCreator: addFromFiles,
@@ -45,7 +48,7 @@ fitBoundsMiddleware.startListening({
     effect: async (action, listenerApi) => {
         const { mapId, bounds } = action.payload
         const map = getMap(mapId)
-        if(!map) {
+        if (!map) {
             return
         }
         map.fitBounds(bounds)
@@ -66,6 +69,72 @@ selectFeaturesMiddleware.startListening({
 
         console.log("select!");
         console.log(f.properties);
+    },
+});
+
+const readFromFileMiddleware = createListenerMiddleware();
+readFromFileMiddleware.startListening({
+    actionCreator: readFromFile.fulfilled,
+    effect: async (action, listenerApi) => {
+        const payload = action.payload
+        if (!payload) {
+            return
+        }
+        const location = action.meta.arg
+
+        for (const [name, type, data] of payload) {
+            if (data.features.length === 0) {
+                continue
+            }
+
+            const sourceId = `${location}|${type}`
+            listenerApi.dispatch(actions.source.addSource({
+                id: sourceId,
+                location,
+                data,
+                type,
+                name,
+            }))
+
+            switch (type) {
+                case SourceType.Points: {
+                    const layerId = `${sourceId}-${LayerType.Point}`
+                    listenerApi.dispatch(actions.layer.addLayer({
+                        id: layerId,
+                        type: LayerType.Point,
+                        sourceId,
+                        fractionIndex: 0,
+                        name,
+                    }))
+                    break
+                }
+                case SourceType.Lines: {
+                    const layerId = `${sourceId}-${LayerType.Line}`
+                    listenerApi.dispatch(actions.layer.addLayer({
+                        id: layerId,
+                        type: LayerType.Line,
+                        sourceId,
+                        fractionIndex: 0,
+                        name,
+                    }))
+                    break
+                }
+                case SourceType.Polygons: {
+                    const layerId = `${sourceId}-${LayerType.Polygon}`
+                    listenerApi.dispatch(actions.layer.addLayer({
+                        id: layerId,
+                        type: LayerType.Polygon,
+                        sourceId,
+                        fractionIndex: 0,
+                        name,
+                    }))
+                    break
+                }
+                default: {
+                    assertUnreachable(type);
+                }
+            }
+        }
     },
 });
 
@@ -100,6 +169,7 @@ export const store = configureStore({
         fog,
         terrain,
         source,
+        layer,
         selection,
     },
     middleware: (getDefaultMiddleWare) => {
@@ -107,6 +177,7 @@ export const store = configureStore({
             .prepend(forceResizeMapMiddleware.middleware)
             .prepend(selectFeaturesMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
+            .prepend(readFromFileMiddleware.middleware)
             .prepend(readFromFilesMiddleware.middleware)
     }
 })
@@ -128,6 +199,7 @@ export const actions = {
         readFromFiles: addFromFiles,
         ...sourceSlice.actions,
     },
+    layer: layerSlice.actions,
     map: {
         fitBounds,
     },

@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
-import { readFromFile } from './readFromFile'
 import { SourceType } from '../../types'
 
 function basename(path: string): string {
@@ -40,6 +39,12 @@ export const sourceSlice = createSlice({
             state.allIds = []
             state.lastAdded = undefined
         },
+        addSource: (state, action: PayloadAction<Source>) => {
+            const sourceId = action.payload.id
+            state.items[sourceId] = action.payload
+            state.allIds.push(sourceId)
+            state.lastAdded = action.payload.id
+        },
         removeSource: (state, action: PayloadAction<string>) => {
             const sourceId = action.payload
             delete state.items[sourceId]
@@ -48,44 +53,6 @@ export const sourceSlice = createSlice({
                 state.lastAdded = undefined
             }
         },
-        addSource: (state, action: PayloadAction<Source>) => {
-            const sourceId = action.payload.id
-            state.items[sourceId] = action.payload
-            state.allIds.push(sourceId)
-            state.lastAdded = action.payload.id
-        },
-    },
-    extraReducers: (builder) => {
-        builder
-            .addCase(readFromFile.fulfilled, (state, action) => {
-                const payload = action.payload
-                if (!payload) {
-                    return
-                }
-                const location = action.meta.arg
-
-                const name = basename(location)
-
-                for (const [type, data] of payload) {
-
-                    if (data.features.length === 0) {
-                        continue
-                    }
-
-                    const sourceId = `${location}|${type}`
-                    if (!(sourceId in state.items)) {
-                        state.allIds.push(sourceId)
-                    }
-                    state.items[sourceId] = {
-                        id: sourceId,
-                        location,
-                        data,
-                        type,
-                        name,
-                    }
-                    state.lastAdded = sourceId
-                }
-            })
     },
 })
 

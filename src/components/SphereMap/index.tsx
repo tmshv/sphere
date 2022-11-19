@@ -9,7 +9,7 @@ import { Fog } from "./Fog";
 import { selectIsShowFog } from "../../store/fog";
 import { selectIsShowTerrain } from "../../store/terrain";
 import { SphereSource } from "./SphereSource";
-import { SourceType } from "../../types";
+import { LayerType, SourceType } from "@/types";
 import { Fragment } from "react";
 import { SetupStore } from "./SetupStore";
 import { HandleClick } from "./HandleClick";
@@ -28,9 +28,16 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectMapStyle)
     const showFog = useAppSelector(selectIsShowFog)
     const showTerrain = useAppSelector(selectIsShowTerrain)
-    const sourceIdWithType = useAppSelector(
-        state => state.source.allIds.map(id => [id, state.source.items[id].type])
-    ) as [string, SourceType][]
+    const sourceIds = useAppSelector(state => state.source.allIds)
+    const layers = useAppSelector(state => state.layer.allIds.map(id => {
+        const { sourceId, type } = state.layer.items[id]
+
+        return {
+            id,
+            sourceId,
+            type,
+        }
+    }))
 
     // async function greet() {
     //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -84,24 +91,27 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 }}
             />
 
-            {sourceIdWithType.map(([sourceId, type]) => {
+            {sourceIds.map(sourceId => (
+                <SphereSource
+                    key={sourceId}
+                    mapId={id}
+                    id={sourceId}
+                />
+            ))}
+            {layers.map(({ id, sourceId, type }) => {
                 return (
-                    <Fragment key={sourceId}>
-                        <SphereSource
-                            mapId={id}
-                            id={sourceId}
-                        />
-                        {!(type === SourceType.Polygons) ? null : (
+                    <Fragment key={id}>
+                        {!(type === LayerType.Polygon) ? null : (
                             <PolygonLayer
                                 sourceId={sourceId}
                             />
                         )}
-                        {!(type === SourceType.Lines) ? null : (
+                        {!(type === LayerType.Line) ? null : (
                             <LineStringLayer
                                 sourceId={sourceId}
                             />
                         )}
-                        {!(type === SourceType.Points) ? null : (
+                        {!(type === LayerType.Point) ? null : (
                             <PointLayer
                                 sourceId={sourceId}
                             />
