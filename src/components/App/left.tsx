@@ -1,6 +1,7 @@
 import { Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
 import { IconDatabase, IconSettings, IconStack, IconWorld } from '@tabler/icons';
-import { LayersPanel } from '../LayersPanel';
+import { LayerPanel } from '../LayerPanel';
+import { LayersOutline } from '../LayersOutline';
 import { SourcePanel } from '../SourcePanel';
 import { SourcesOutline } from '../SourcesOutline';
 
@@ -61,7 +62,7 @@ export function StyledTabs(props: TabsProps) {
 
 export function Left() {
     return (
-        <StyledTabs defaultValue={"layers"}>
+        <StyledTabs defaultValue={"layers"} keepMounted={false}>
             <Tabs.List>
                 <Tabs.Tab value="layers" icon={<IconStack size={16} />}>
                     Layers
@@ -69,28 +70,29 @@ export function Left() {
                 <Tabs.Tab value="sources" icon={<IconDatabase size={16} />}>
                     Sources
                 </Tabs.Tab>
-                <Tabs.Tab value="map-styles" icon={<IconWorld size={16} />}>
+                <Tabs.Tab value="map-styles" icon={<IconWorld size={16} />} disabled>
                     Styles
                 </Tabs.Tab>
-                <Tabs.Tab value="settings" icon={<IconSettings size={16} />}>
+                {/* <Tabs.Tab value="settings" icon={<IconSettings size={16} />}>
                     Settings
-                </Tabs.Tab>
+                </Tabs.Tab> */}
             </Tabs.List>
 
             <Tabs.Panel value="layers">
                 <ScrollArea>
                     <Paper pt={"md"} style={{
-                        width: 400,
+                        width: 300,
                         overflow: "hidden",
                     }}>
-                        <LayersPanel />
+                        <LayersOutline />
+                        <LayerPanel />
                     </Paper>
                 </ScrollArea>
             </Tabs.Panel>
 
             <Tabs.Panel value="sources">
                 <Paper pt={"md"} style={{
-                    width: 400,
+                    width: 300,
                     overflow: "hidden",
                 }}>
                     <SourcesOutline />
@@ -100,7 +102,7 @@ export function Left() {
 
             <Tabs.Panel value="map-styles">
                 <Paper p={"sm"} style={{
-                    width: 400,
+                    width: 300,
                     overflow: "hidden",
                 }}>
                     Map Styles
@@ -109,7 +111,7 @@ export function Left() {
 
             <Tabs.Panel value="settings">
                 <Paper p={"sm"} style={{
-                    width: 400,
+                    width: 300,
                     overflow: "hidden",
                 }}>
                     Settings

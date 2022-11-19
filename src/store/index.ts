@@ -28,8 +28,15 @@ const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
     actionCreator: addFromFiles,
     effect: async (action, listenerApi) => {
+        const state = listenerApi.getOriginalState() as RootState
+
         for (const file of action.payload) {
             listenerApi.dispatch(actions.source.readFromFile(file))
+        }
+
+        const sidebar = state.app.showLeftSidebar
+        if (!sidebar) {
+            listenerApi.dispatch(actions.app.showLeftSidebar())
         }
 
         // await listenerApi.delay(1000)
@@ -160,6 +167,9 @@ addBlankLayerMiddleware.startListening({
             visible: true,
             name,
             color: "#1c7ed6",
+        }))
+        listenerApi.dispatch(actions.selection.selectLayer({
+            layerId,
         }))
     }
 });

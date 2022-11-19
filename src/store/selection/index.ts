@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '..'
+import { actions, RootState } from '..'
 import { DatasetRow, Id } from '@/types'
 
 // Define a type for the slice state
 type SelectionState = {
+    layerId?: Id
     sourceId?: Id
     selectedIds: Id[]
 }
@@ -33,6 +34,9 @@ export const selectionSlice = createSlice({
         // },
         selectSource: (state, action: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = action.payload.sourceId
+        },
+        selectLayer: (state, action: PayloadAction<{ layerId: Id }>) => {
+            state.layerId = action.payload.layerId
         },
         selectOne: (state, action: PayloadAction<{ sourceId: Id, featureId: Id }>) => {
             state.sourceId = action.payload.sourceId
@@ -70,6 +74,7 @@ export const selectionSlice = createSlice({
 })
 
 export const selectCurrentSource = (state: RootState) => state.selection.sourceId
+export const selectCurrentLayer = (state: RootState) => state.selection.layerId
 export const selectProperties = (state: RootState) => {
     const sourceId = state.selection.sourceId
     if (!sourceId) {

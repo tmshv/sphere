@@ -25,6 +25,7 @@ type Layer = {
 type LayerState = {
     items: Record<string, Layer>
     allIds: Id[]
+    lastAdded?: Id
 }
 
 // Define the initial state using that type
@@ -42,6 +43,7 @@ export const layerSlice = createSlice({
             const layerId = action.payload.id
             state.items[layerId] = action.payload
             state.allIds.push(layerId)
+            state.lastAdded = layerId
         },
         removeLayer: (state, action: PayloadAction<Id>) => {
             const layerId = action.payload
