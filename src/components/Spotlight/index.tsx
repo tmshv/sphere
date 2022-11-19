@@ -49,13 +49,6 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     },
                 },
                 {
-                    title: 'Clear',
-                    description: 'Remove all data',
-                    onTrigger: () => {
-                        dispatch(actions.source.reset())
-                    },
-                },
-                {
                     title: 'Simple',
                     description: 'Set simple map view',
                     onTrigger: () => {
