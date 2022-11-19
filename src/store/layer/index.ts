@@ -9,6 +9,8 @@ type Layer = {
     fractionIndex: number
     name: string
     type?: LayerType
+
+    color: string
 }
 
 // Define a type for the slice state
@@ -41,6 +43,10 @@ export const layerSlice = createSlice({
         setType: (state, action: PayloadAction<{id: string, type?: LayerType}>) => {
             const {id, type} = action.payload
             state.items[id].type = type
+        },
+        setColor: (state, action: PayloadAction<{ id: string, color: string }>) => {
+            const { id, color } = action.payload
+            state.items[id].color = color
         },
     },
 })

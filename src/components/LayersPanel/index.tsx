@@ -1,4 +1,4 @@
-import { AccordionControlProps, ActionIcon, Badge, Box, Button, Flex, Select } from "@mantine/core";
+import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, Select, Text } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IconPolygon, IconPoint, IconLine } from '@tabler/icons';
 import { Accordion, useMantineTheme } from '@mantine/core';
@@ -27,6 +27,7 @@ export const LayersPanel: React.FC = () => {
             name: s.name,
             type: s.type,
             sourceId: s.sourceId,
+            color: s.color,
         }
     }))
     const theme = useMantineTheme();
@@ -37,7 +38,7 @@ export const LayersPanel: React.FC = () => {
             variant="filled"
         // chevronPosition="left"
         >
-            {layers.map(({ id, sourceId, name, type }) => {
+            {layers.map(({ id, sourceId, name, type, color }) => {
                 let icon: React.ReactNode = null
 
                 if (type === LayerType.Point) {
@@ -89,6 +90,15 @@ export const LayersPanel: React.FC = () => {
                                         }
                                     }}
                                 />
+                                <ColorPicker
+                                    format="hex"
+                                    size="sm"
+                                    value={color}
+                                    onChange={color => {
+                                        dispatch(actions.layer.setColor({ id, color }))
+                                    }}
+                                />
+                                <Text>{color}</Text>
                                 <Button
                                     size="sm"
                                     color={"red"}

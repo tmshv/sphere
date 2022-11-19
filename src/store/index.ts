@@ -133,6 +133,7 @@ readFromFileMiddleware.startListening({
                         sourceId,
                         fractionIndex: 0,
                         name,
+                        color: "#1c7ed6",
                     }))
                     break
                 }
@@ -144,6 +145,7 @@ readFromFileMiddleware.startListening({
                         sourceId,
                         fractionIndex: 0,
                         name,
+                        color: "#1c7ed6",
                     }))
                     break
                 }
@@ -155,6 +157,7 @@ readFromFileMiddleware.startListening({
                         sourceId,
                         fractionIndex: 0,
                         name,
+                        color: "#1c7ed6",
                     }))
                     break
                 }

@@ -1,24 +1,26 @@
 import { Layer } from "react-map-gl";
-import { createLinePaint } from "@/lib/createPaint";
-
-const useLinePaint = createLinePaint(colors => ({
-    line0: {
-        "line-color": "white",
-        "line-width": 3,
-    },
-    line1: {
-        "line-color": colors["blue"][9],
-        "line-width": 1,
-        "line-dasharray": [4, 1],
-    }
-}))
+import { useMemo } from "react";
+import { LinePaint } from "mapbox-gl";
 
 export type LineStringLayerProps = {
     sourceId: string
+    color: string
 }
 
-export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId }) => {
-    const { line0, line1 } = useLinePaint()
+export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, color, }) => {
+    const [line0, line1] = useMemo(() => {
+        const line0: LinePaint = {
+            "line-color": "white",
+            "line-width": 3,
+        }
+        const line1: LinePaint = {
+            "line-color": color,
+            "line-width": 1,
+            "line-dasharray": [4, 1],
+        }
+
+        return [line0, line1]
+    }, [color])
 
     return (
         <>

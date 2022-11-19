@@ -1,31 +1,30 @@
 import { Layer } from "react-map-gl";
-import { createFillPaint, createLinePaint } from "@/lib/createPaint";
-
-const useFillPaint = createFillPaint(colors => ({
-    fill: {
-        "fill-color": colors["blue"][9],
-        "fill-opacity": 0.25,
-    },
-}))
-
-const useLinePaint = createLinePaint(colors => ({
-    outline0: {
-        "line-color": "white",
-        "line-width": 3,
-    },
-    outline1: {
-        "line-color": colors["blue"][7],
-        "line-width": 1,
-    }
-}))
+import { useMemo } from "react";
+import { FillPaint, LinePaint } from "mapbox-gl";
 
 export type PolygonLayerProps = {
     sourceId: string
+    color: string
 }
 
-export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId }) => {
-    const { fill } = useFillPaint()
-    const { outline0, outline1 } = useLinePaint()
+export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color }) => {
+    const [fill, outline0, outline1] = useMemo(() => {
+        console.log('fill', color)
+        const fill: FillPaint = {
+            "fill-color": color,
+            "fill-opacity": 0.25,
+        }
+        const outline0: LinePaint = {
+            "line-color": "white",
+            "line-width": 3,
+        }
+        const outline1: LinePaint = {
+            "line-color": color,
+            "line-width": 1,
+        }
+
+        return [fill, outline0, outline1]
+    }, [color])
 
     return (
         <>
