@@ -2,6 +2,7 @@ import { Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
 import { IconDatabase, IconSettings, IconStack, IconWorld } from '@tabler/icons';
 import { LayersPanel } from '../LayersPanel';
 import { SourcePanel } from '../SourcePanel';
+import { SourcesOutline } from '../SourcesOutline';
 
 export function StyledTabs(props: TabsProps) {
     return (
@@ -92,6 +93,7 @@ export function Left() {
                     width: 400,
                     overflow: "hidden",
                 }}>
+                    <SourcesOutline />
                     <SourcePanel />
                 </Paper>
             </Tabs.Panel>

@@ -31,6 +31,9 @@ export const selectionSlice = createSlice({
         //         state.lastAdded = undefined
         //     }
         // },
+        selectSource: (state, action: PayloadAction<{ sourceId: Id }>) => {
+            state.sourceId = action.payload.sourceId
+        },
         selectOne: (state, action: PayloadAction<{ sourceId: Id, featureId: Id }>) => {
             state.sourceId = action.payload.sourceId
             state.selectedIds = [action.payload.featureId]
@@ -66,8 +69,7 @@ export const selectionSlice = createSlice({
     // },
 })
 
-// Other code such as selectors can use the imported `RootState` type
-// export const selectSourcesAmount = (state: RootState) => state.source.allIds.length
+export const selectCurrentSource = (state: RootState) => state.selection.sourceId
 export const selectProperties = (state: RootState) => {
     const sourceId = state.selection.sourceId
     if (!sourceId) {
