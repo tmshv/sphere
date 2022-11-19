@@ -1,12 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createAction, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
 import { SourceType } from '../../types'
-
-function basename(path: string): string {
-    const parts = path.split('/')
-    return parts[parts.length - 1]
-}
 
 type Source = {
     id: string
@@ -55,6 +50,8 @@ export const sourceSlice = createSlice({
         },
     },
 })
+
+export const zoomTo = createAction<string>("source/zoomTo")
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectSourcesAmount = (state: RootState) => state.source.allIds.length

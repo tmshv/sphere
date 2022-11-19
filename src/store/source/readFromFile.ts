@@ -20,7 +20,6 @@ const parsers = new Map([
 type SourceTuple = [string, SourceType, GeoJSON.FeatureCollection]
 
 export const addFromFiles = createAction<string[]>('source/readFromFiles')
-
 export const readFromFile = createAsyncThunk('source/readFromFile', async (path: string, thunkAPI) => {
     const name = await basename(path)
     const ext = await extname(path)

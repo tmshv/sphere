@@ -3,7 +3,7 @@ import projection, { projectionSlice } from './projection'
 import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
-import source, { sourceSlice } from './source'
+import source, { sourceSlice, zoomTo } from './source'
 import layer, { layerSlice } from './layer'
 import selection, { selectionSlice } from './selection'
 import app, { appSlice } from './app'
@@ -16,6 +16,7 @@ import { getMap } from '../map'
 import mapboxgl from 'mapbox-gl'
 import { LayerType, SourceType } from '@/types'
 import { assertUnreachable } from '@/lib'
+
 const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
     actionCreator: addFromFiles,
@@ -33,10 +34,37 @@ readFromFilesMiddleware.startListening({
         }
 
         const geom = state.source.items[id].data
-        var bbox = turf.bbox(geom);
+        const bbox = turf.bbox(geom);
 
         listenerApi.dispatch(fitBounds({
             mapId: "spheremap",
+            bounds: bbox as mapboxgl.LngLatBoundsLike
+        }))
+    },
+});
+
+const zoomToMiddleware = createListenerMiddleware();
+zoomToMiddleware.startListening({
+    actionCreator: zoomTo,
+    effect: async (action, listenerApi) => {
+        const mapId = "spheremap"
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+
+        const sourceId = action.payload
+        const state = listenerApi.getOriginalState() as RootState
+        const source = state.source.items[sourceId]
+        if (!source) {
+            return
+        }
+
+        const geom = source.data
+        const bbox = turf.bbox(geom);
+
+        listenerApi.dispatch(fitBounds({
+            mapId,
             bounds: bbox as mapboxgl.LngLatBoundsLike
         }))
     },
@@ -176,6 +204,7 @@ export const store = configureStore({
         return getDefaultMiddleWare()
             .prepend(forceResizeMapMiddleware.middleware)
             .prepend(selectFeaturesMiddleware.middleware)
+            .prepend(zoomToMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
             .prepend(readFromFileMiddleware.middleware)
             .prepend(readFromFilesMiddleware.middleware)
@@ -195,9 +224,10 @@ export const actions = {
     fog: fogSlice.actions,
     terrain: terrainSlice.actions,
     source: {
-        readFromFile,
-        readFromFiles: addFromFiles,
         ...sourceSlice.actions,
+        zoomTo,
+        addFromFiles,
+        readFromFile,
     },
     layer: layerSlice.actions,
     map: {
