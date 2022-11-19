@@ -10,6 +10,7 @@ import { IconLayoutSidebar, IconMountain, IconWorld } from "@tabler/icons";
 import { actions } from "@/store";
 import { selectProjection } from "@/store/projection";
 import { selectShowLeftSidebar, selectVersion } from "@/store/app";
+import { selectIsShowTerrain } from "@/store/terrain";
 
 const useStyle = createStyles(theme => ({
     s: {
@@ -79,6 +80,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const version = useAppSelector(selectVersion)
     const sources = useAppSelector(selectSourcesAmount)
     const projection = useAppSelector(selectProjection)
+    const terrain = useAppSelector(selectIsShowTerrain)
     const isGlobe = projection === "globe"
 
     return (
@@ -103,7 +105,8 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
             <div className={s.s}></div>
 
-            <ActionIcon disabled size={'xs'} className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
+            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: terrain })} onClick={() => {
+                dispatch(actions.terrain.toggle())
             }}>
                 <IconMountain size={16} />
             </ActionIcon>
