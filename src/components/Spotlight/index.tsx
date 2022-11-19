@@ -4,7 +4,6 @@ import { IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
 import { useMap } from 'react-map-gl';
 import { useAppDispatch } from '../../store/hooks';
 import { actions } from '../../store';
-import { Style } from 'mapbox-gl';
 
 export type SpotlightProps = {
     mapId: string
