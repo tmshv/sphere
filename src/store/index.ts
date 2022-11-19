@@ -4,7 +4,7 @@ import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
 import source, { sourceSlice, zoomTo } from './source'
-import layer, { layerSlice } from './layer'
+import layer, { layerSlice, addBlankLayer } from './layer'
 import selection, { selectionSlice } from './selection'
 import app, { appSlice } from './app'
 import { fitBounds } from './map'
@@ -149,6 +149,22 @@ readFromFileMiddleware.startListening({
     },
 });
 
+const addBlankLayerMiddleware = createListenerMiddleware();
+addBlankLayerMiddleware.startListening({
+    actionCreator: addBlankLayer,
+    effect: async (action, listenerApi) => {
+        const layerId = `${nextId()}`
+        const name = "New Layer"
+        listenerApi.dispatch(actions.layer.addLayer({
+            id: layerId,
+            fractionIndex: 0,
+            visible: true,
+            name,
+            color: "#1c7ed6",
+        }))
+    }
+});
+
 const forceResizeMapMiddleware = createListenerMiddleware();
 forceResizeMapMiddleware.startListening({
     matcher: isAnyOf(
@@ -185,6 +201,7 @@ export const store = configureStore({
     },
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
+            .prepend(addBlankLayerMiddleware.middleware)
             .prepend(forceResizeMapMiddleware.middleware)
             .prepend(selectFeaturesMiddleware.middleware)
             .prepend(zoomToMiddleware.middleware)
@@ -212,7 +229,10 @@ export const actions = {
         addFromFiles,
         readFromFile,
     },
-    layer: layerSlice.actions,
+    layer: {
+        ...layerSlice.actions,
+        addBlankLayer,
+    },
     map: {
         fitBounds,
     },

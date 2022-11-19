@@ -1,4 +1,4 @@
-import { createReducer, createSlice, isAnyOf } from '@reduxjs/toolkit'
+import { createAction, createReducer, createSlice, isAnyOf } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
 import { LayerType } from '@/types'
@@ -48,6 +48,10 @@ export const layerSlice = createSlice({
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
         },
+        setSource: (state, action: PayloadAction<{ id: string, sourceId: string }>) => {
+            const { id, sourceId } = action.payload
+            state.items[id].sourceId = sourceId
+        },
         setVisible: (state, action: PayloadAction<{ id: string, value: boolean }>) => {
             const { id, value } = action.payload
             state.items[id].visible = value
@@ -85,6 +89,8 @@ export const layerSlice = createSlice({
         },
     },
 })
+
+export const addBlankLayer = createAction("layer/addBlankLayer")
 
 export const selectLayerIds = (state: RootState) => state.layer.allIds
 
