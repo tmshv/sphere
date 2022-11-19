@@ -144,7 +144,7 @@ export function Left() {
                     variant="default"
                     styles={theme => ({
                         item: {
-                            "&:first-child": {
+                            "&:first-of-type": {
                                 borderTop: `1px solid ${theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3]}`,
                             },
                         },

@@ -59,18 +59,15 @@ export const LayersOutline: React.FC = () => {
                 }
 
                 return (
-                    <Flex gap={"sm"} align="center">
+                    <Flex key={id} gap={"sm"} align="center">
                         <NavLink
-                            // h={20}
                             w={"100%"}
                             key={id}
                             styles={{
                                 label: {
-                                    // width: "auto",
                                     maxWidth: "220px",
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
-                                    // wordWrap: "unset",
                                     textOverflow: "ellipsis",
                                     display: 'block',
                                 }
@@ -84,7 +81,6 @@ export const LayersOutline: React.FC = () => {
                                     layerId: id,
                                 }))
                             }}
-                            // color="cyan"
                             variant="filled"
                         />
                         <ActionIcon size={"md"} radius={"sm"} h={30} onClick={() => {
