@@ -78,7 +78,7 @@ export function Left() {
 
             <Tabs.Panel value="layers">
                 <ScrollArea>
-                    <Paper p={"sm"} style={{
+                    <Paper pt={"md"} style={{
                         width: 400,
                         overflow: "hidden",
                     }}>
@@ -88,7 +88,7 @@ export function Left() {
             </Tabs.Panel>
 
             <Tabs.Panel value="sources">
-                <Paper p={"sm"} style={{
+                <Paper pt={"md"} style={{
                     width: 400,
                     overflow: "hidden",
                 }}>
