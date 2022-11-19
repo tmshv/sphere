@@ -1,12 +1,12 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import Map, { Layer } from "react-map-gl";
-import { useAppSelector } from "../../store/hooks";
-import { selectProjection } from "../../store/projection";
-import { selectMapStyle } from "../../store/mapStyle";
+import { useAppSelector } from "@/store/hooks";
+import { selectProjection } from "@/store/projection";
+import { selectMapStyle } from "@/store/mapStyle";
+import { selectIsShowFog } from "@/store/fog";
+import { selectIsShowTerrain } from "@/store/terrain";
 import { Terrain } from "./Terrain";
 import { Fog } from "./Fog";
-import { selectIsShowFog } from "../../store/fog";
-import { selectIsShowTerrain } from "../../store/terrain";
 import { SphereSource } from "./SphereSource";
 import { SetupStore } from "./SetupStore";
 import { HandleClick } from "./HandleClick";
