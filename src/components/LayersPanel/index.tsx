@@ -29,6 +29,7 @@ export const LayersPanel: React.FC = () => {
             sourceId: s.sourceId,
             color: s.color,
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
+            heatmapRadius: s.heatmap?.radius ?? 10,
         }
     }))
 
@@ -37,7 +38,7 @@ export const LayersPanel: React.FC = () => {
             variant="filled"
         // chevronPosition="left"
         >
-            {layers.map(({ id, sourceId, name, type, color, circleRange }) => {
+            {layers.map(({ id, sourceId, name, type, color, circleRange, heatmapRadius }) => {
                 let icon: React.ReactNode = null
 
                 if (type === LayerType.Point) {
@@ -60,6 +61,9 @@ export const LayersPanel: React.FC = () => {
                         <IconPhoto size={20} color={color} />
                     )
                 }
+                if (type === LayerType.Heatmap) {
+                    icon = (
+                        <IconFlame size={20} color={color} />
                     )
                 }
 
@@ -86,6 +90,7 @@ export const LayersPanel: React.FC = () => {
                                         { value: LayerType.Line, label: 'Lines' },
                                         { value: LayerType.Polygon, label: 'Polygons' },
                                         { value: LayerType.Photo, label: 'Photos' },
+                                        { value: LayerType.Heatmap, label: 'Heatmap' },
                                     ]}
                                     onChange={value => {
                                         if (value) {
@@ -96,7 +101,7 @@ export const LayersPanel: React.FC = () => {
                                         }
                                     }}
                                 />
-                                <Flex direction={"column"} align={"stretch"}>
+                                <Flex direction={"column"} align={"stretch"} gap={"md"}>
                                     <ColorPicker
                                         format="hex"
                                         size="sm"
@@ -134,6 +139,20 @@ export const LayersPanel: React.FC = () => {
                                         //         }))
                                         //     }}
                                         // />
+                                    )}
+
+                                    {!(type === LayerType.Heatmap) ? null : (
+                                        <Slider
+                                            min={2}
+                                            max={30}
+                                            value={heatmapRadius}
+                                            onChange={value => {
+                                                dispatch(actions.layer.setHeatmapRadius({
+                                                    id,
+                                                    value,
+                                                }))
+                                            }}
+                                        />
                                     )}
 
                                     <Button

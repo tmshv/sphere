@@ -5,6 +5,7 @@ import { LineStringLayer } from "./LineStringLayer";
 import { PointLayer } from "./PointLayer";
 import { assertUnreachable } from "@/lib";
 import { GetImageFunction, PhotoLayer } from "./PhotoLayer";
+import { HeatmapLayer } from "./HeatmapLayer";
 
 const getImage: GetImageFunction = p => {
     const srcField = "thumbnail"
@@ -23,7 +24,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { sourceId, type, color, circle } = useAppSelector(state => state.layer.items[id])
+    const { sourceId, type, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -62,6 +63,14 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     clusterRadius={50}
                     iconSize={50}
                     iconSizeCluster={50}
+                />
+            )
+        }
+        case LayerType.Heatmap: {
+            return (
+                <HeatmapLayer
+                    sourceId={sourceId}
+                    options={heatmap!}
                 />
             )
         }

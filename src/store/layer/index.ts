@@ -15,6 +15,9 @@ type Layer = {
         minRadius: number
         maxRadius: number
     }
+    heatmap?: {
+        radius: number
+    }
 }
 
 // Define a type for the slice state
@@ -38,6 +41,17 @@ export const layerSlice = createSlice({
             const layerId = action.payload.id
             state.items[layerId] = action.payload
             state.allIds.push(layerId)
+
+            if (action.payload.type === LayerType.Point) {
+                state.items[layerId].circle = {
+                    minRadius: 2,
+                    maxRadius: 4,
+                }
+            } else if (action.payload.type === LayerType.Heatmap) {
+                state.items[layerId].heatmap = {
+                    radius: 20,
+                }
+            }
         },
         removeLayer: (state, action: PayloadAction<string>) => {
             const layerId = action.payload
@@ -47,6 +61,17 @@ export const layerSlice = createSlice({
         setType: (state, action: PayloadAction<{ id: string, type?: LayerType }>) => {
             const { id, type } = action.payload
             state.items[id].type = type
+
+            if (action.payload.type === LayerType.Point) {
+                state.items[id].circle = {
+                    minRadius: 2,
+                    maxRadius: 4,
+                }
+            } else if (action.payload.type === LayerType.Heatmap) {
+                state.items[id].heatmap = {
+                    radius: 20,
+                }
+            }
         },
         setColor: (state, action: PayloadAction<{ id: string, color: string }>) => {
             const { id, color } = action.payload
@@ -64,6 +89,11 @@ export const layerSlice = createSlice({
                 layer.circle.minRadius = min
                 layer.circle.maxRadius = max
             }
+        },
+        setHeatmapRadius: (state, action: PayloadAction<{ id: string, value: number }>) => {
+            const { id, value } = action.payload
+            const layer = state.items[id]
+            layer.heatmap!.radius = value
         },
     },
 })

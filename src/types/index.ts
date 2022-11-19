@@ -11,4 +11,5 @@ export enum LayerType {
     Line = "Line",
     Polygon = "Polygon",
     Photo = "Photo",
+    Heatmap = "Heatmap",
 }
