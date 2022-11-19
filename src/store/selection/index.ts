@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { actions, RootState } from '..'
+import { RootState } from '..'
 import { DatasetRow, Id } from '@/types'
+import { layerSlice } from '../layer'
 
 // Define a type for the slice state
 type SelectionState = {
@@ -35,7 +36,7 @@ export const selectionSlice = createSlice({
         selectSource: (state, action: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = action.payload.sourceId
         },
-        selectLayer: (state, action: PayloadAction<{ layerId: Id }>) => {
+        selectLayer: (state, action: PayloadAction<{ layerId?: Id }>) => {
             state.layerId = action.payload.layerId
         },
         selectOne: (state, action: PayloadAction<{ sourceId: Id, featureId: Id }>) => {
@@ -43,34 +44,12 @@ export const selectionSlice = createSlice({
             state.selectedIds = [action.payload.featureId]
         },
     },
-    // extraReducers: (builder) => {
-    //     builder
-    //         .addCase(readFromFile.fulfilled, (state, action) => {
-    //             const data = action.payload
-    //             if (!data) {
-    //                 return
-    //             }
-
-    //             for (const [type, source] of data) {
-    //                 if (source.features.length === 0) {
-    //                     break
-    //                 }
-
-    //                 const location = action.meta.arg
-    //                 const sourceId = `${location}|${type}`
-    //                 if (!(sourceId in state.items)) {
-    //                     state.allIds.push(sourceId)
-    //                 }
-    //                 state.items[sourceId] = {
-    //                     id: sourceId,
-    //                     location,
-    //                     data: source,
-    //                     type,
-    //                 }
-    //                 state.lastAdded = sourceId
-    //             }
-    //         })
-    // },
+    extraReducers: (builder) => {
+        builder
+            .addCase(layerSlice.actions.removeLayer, (state, action) => {
+                state.layerId = undefined
+            })
+    },
 })
 
 export const selectCurrentSource = (state: RootState) => state.selection.sourceId

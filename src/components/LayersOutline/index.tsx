@@ -1,4 +1,4 @@
-import { IconPolygon, IconPoint, IconLine, IconPlus, IconBulb, IconBulbOff, IconCross, IconPointOff } from '@tabler/icons';
+import { IconPolygon, IconPoint, IconLine, IconPlus, IconBulb, IconBulbOff, IconCross, IconPointOff, IconFlame } from '@tabler/icons';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ActionIcon, Button, createStyles, Flex, NavLink, Text, useMantineColorScheme, useMantineTheme } from '@mantine/core';
 import { LayerType } from "@/types";
@@ -18,7 +18,7 @@ export const LayersOutline: React.FC = () => {
     const theme = useMantineTheme()
     const { classes: s } = useStyle()
     const dispatch = useAppDispatch()
-    const currentId = useAppSelector(selectCurrentLayer)
+    const layerId = useAppSelector(selectCurrentLayer)
     const items = useAppSelector(state => state.layer.allIds.map(id => {
         const item = state.layer.items[id]
 
@@ -48,6 +48,10 @@ export const LayersOutline: React.FC = () => {
                     icon = (
                         <IconPolygon size={20} color={color} />
                     )
+                } else if (type === LayerType.Heatmap) {
+                    icon = (
+                        <IconFlame size={20} color={color} />
+                    )
                 } else {
                     icon = (
                         <IconPoint size={20} color={undefined} />
@@ -72,18 +76,8 @@ export const LayersOutline: React.FC = () => {
                                 }
                             }}
                             className={s.button}
-                            active={id === currentId}
+                            active={id === layerId}
                             label={name}
-                            // label={(
-                            //     <Text style={{
-                            //         whiteSpace: "nowrap",
-                            //         overflow: "hidden",
-                            //         // wordWrap: "unset",
-                            //         textOverflow: "ellipsis",
-                            //     }}>{name}</Text>
-                            // )}
-                            // description={item.description}
-                            // rightSection={item.rightSection}
                             icon={icon}
                             onClick={() => {
                                 dispatch(actions.selection.selectLayer({

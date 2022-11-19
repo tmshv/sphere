@@ -1,7 +1,8 @@
 import { actions } from '@/store';
-import { useAppDispatch } from '@/store/hooks';
-import { Accordion, AccordionControlProps, ActionIcon, Box, Flex, Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
-import { IconBulbOff, IconDatabase, IconPlus, IconSettings, IconStack, IconWorld } from '@tabler/icons';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import layer from '@/store/layer';
+import { Accordion, AccordionControlProps, ActionIcon, Box, Flex, Paper, ScrollArea, Space, Tabs, TabsProps } from '@mantine/core';
+import { IconBulbOff, IconCrosshair, IconDatabase, IconPlus, IconSettings, IconStack, IconTrash, IconWorld } from '@tabler/icons';
 import { useState } from 'react';
 import { LayerPanel } from '../LayerPanel';
 import { LayersOutline } from '../LayersOutline';
@@ -80,6 +81,14 @@ export function StyledTabs(props: TabsProps) {
 
 export function Left() {
     const dispatch = useAppDispatch()
+    const [layerId, sourceId] = useAppSelector(state => {
+        const layerId = state.selection.layerId
+        if (!layerId) {
+            return [undefined, undefined]
+        }
+        const sourceId = state.layer.items[layerId].sourceId
+        return [layerId, sourceId]
+    })
     const [value, setValue] = useState<string[]>([]);
 
     return (
@@ -105,14 +114,27 @@ export function Left() {
                         width: 300,
                         overflow: "hidden",
                     }}> */}
-                <Flex direction={"row-reverse"} gap={"xs"} pl={"md"} pr={"md"}>
+                <Flex direction={"row"} gap={"xs"} pl={"md"} pr={"md"}>
+                    <ActionIcon size={"md"} disabled={!layerId}> 
+                        <IconTrash size={16} color={"red"} onClick={() => {
+                            dispatch(actions.layer.removeLayer(layerId!))
+                        }} />
+                    </ActionIcon>
+                    <ActionIcon size={"md"} disabled={!sourceId}> 
+                        <IconCrosshair size={16} onClick={() => {
+                            dispatch(actions.source.zoomTo(sourceId!))
+                        }} />
+                    </ActionIcon>
+
+                    <Space style={{ flex: 1 }} />
+
+                    <ActionIcon size={"md"}>
+                        <IconBulbOff size={16} />
+                    </ActionIcon>
                     <ActionIcon size={"md"} onClick={() => {
                         dispatch(actions.layer.addBlankLayer())
                     }}>
                         <IconPlus size={16} />
-                    </ActionIcon>
-                    <ActionIcon size={"md"}>
-                        <IconBulbOff size={16} />
                     </ActionIcon>
                 </Flex>
 

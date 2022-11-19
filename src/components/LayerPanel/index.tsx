@@ -66,7 +66,7 @@ export const LayerPanel: React.FC = () => {
     }
 
     return (
-        <Flex direction={"column"} gap={"md"} align={"stretch"}>
+        <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
             <TextInput
                 size="xs"
                 label="Name"
@@ -79,20 +79,6 @@ export const LayerPanel: React.FC = () => {
                     }))
                 }}
             />
-
-            {/* <Switch
-                checked={visible}
-                onChange={(event) => {
-                    dispatch(actions.layer.setVisible({
-                        id,
-                        value: event.currentTarget.checked,
-                    }))
-                }}
-            /> */}
-
-            {/* <Badge radius={"sm"}>
-                {type}
-            </Badge> */}
 
             <Select
                 size="xs"
@@ -109,6 +95,7 @@ export const LayerPanel: React.FC = () => {
                     }
                 }}
             />
+
             <Select
                 size="xs"
                 label="View"
@@ -131,77 +118,68 @@ export const LayerPanel: React.FC = () => {
                 }}
             />
 
-            <Input.Wrapper label="Color" size="xs">
+            <Input.Wrapper label={(
+                <>
+                Color
+                <Badge ml={"xs"} size="xs" radius={"sm"}>{color}</Badge>
+                </>
+            )} size="xs">
                 <ColorPicker
                     format="hex"
-                    size="sm"
+                    size="xs"
                     value={color}
+                    styles={theme => ({
+                        wrapper: {
+                            width: "100%",
+                        },
+                        saturation: {
+                            height: 130,
+                        },
+                        slider: {
+                            marginTop: theme.spacing.sm,
+                        },
+                    })}
                     onChange={color => {
                         dispatch(actions.layer.setColor({ id, color }))
                     }}
                 />
-                <Text>{color}</Text>
             </Input.Wrapper>
 
             {!(type === LayerType.Point) ? null : (
-                <Slider
-                    min={1}
-                    max={4}
-                    value={circleRange[1]}
-                    onChange={max => {
-                        dispatch(actions.layer.setCircleRadius({
-                            id,
-                            min: 0,
-                            max,
-                        }))
-                    }}
-                />
-                // <RangeSlider
-                //     thumbSize={14}
-                //     mt="xl"
-                //     defaultValue={circleRange}
-                //     onChange={([min, max]) => {
-                //         console.log(min, max)
-                //         dispatch(actions.layer.setCircleRadius({
-                //             id,
-                //             min,
-                //             max,
-                //         }))
-                //     }}
-                // />
+                <Input.Wrapper label="Radius" size="xs">
+                    <Slider
+                        size={"xs"}
+                        min={1}
+                        max={4}
+                        value={circleRange[1]}
+                        onChange={max => {
+                            dispatch(actions.layer.setCircleRadius({
+                                id,
+                                min: 0,
+                                max,
+                            }))
+                        }}
+                    />
+                </Input.Wrapper>
             )}
 
             {!(type === LayerType.Heatmap) ? null : (
-                <Slider
-                    min={2}
-                    max={30}
-                    value={heatmapRadius}
-                    onChange={value => {
-                        dispatch(actions.layer.setHeatmapRadius({
-                            id,
-                            value,
-                        }))
-                    }}
-                />
+                <Input.Wrapper label="Radius" size="xs">
+                    <Slider
+                        label={"Radius"}
+                        size={"xs"}
+                        min={2}
+                        max={30}
+                        value={heatmapRadius}
+                        onChange={value => {
+                            dispatch(actions.layer.setHeatmapRadius({
+                                id,
+                                value,
+                            }))
+                        }}
+                    />
+                </Input.Wrapper>
             )}
-
-            <Button
-                size="sm"
-                color={"red"}
-                onClick={() => {
-                    dispatch(actions.layer.removeLayer(id))
-                }}
-            >Delete</Button>
-            <Button
-                size="sm"
-                disabled={!sourceId}
-                onClick={() => {
-                    if (!sourceId) {
-                        return
-                    }
-                    dispatch(actions.source.zoomTo(sourceId))
-                }}
-            >Zoom</Button>
         </Flex>
     )
 }
