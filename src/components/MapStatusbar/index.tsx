@@ -6,7 +6,7 @@ import { useZoom } from "@/hooks/useZoom";
 import { usePitch } from "@/hooks/usePitch";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectSourcesAmount } from "@/store/source";
-import { IconLayoutSidebar, IconWorld } from "@tabler/icons";
+import { IconLayoutSidebar, IconMountain, IconWorld } from "@tabler/icons";
 import { actions } from "@/store";
 import { selectProjection } from "@/store/projection";
 import { selectShowLeftSidebar, selectVersion } from "@/store/app";
@@ -83,16 +83,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
     return (
         <Statusbar>
-            <ActionIcon size={'xs'} className={s.icon} color={isGlobe ? "yellow" : undefined} onClick={() => {
-                if (isGlobe) {
-                    dispatch(actions.projection.setFlat())
-                } else {
-                    dispatch(actions.projection.setGlobe())
-                }
-            }}>
-                <IconWorld size={16} />
-            </ActionIcon>
-            <ActionIcon size={'xs'} className={cx(s.icon, {[s.active]: sidebar})} onClick={() => {
+            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
                 if (sidebar) {
                     dispatch(actions.app.hideLeftSidebar())
                 } else {
@@ -111,6 +102,20 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
             <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">lat={format(round(lat, 1000000), 5)}</Badge>
 
             <div className={s.s}></div>
+
+            <ActionIcon disabled size={'xs'} className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
+            }}>
+                <IconMountain size={16} />
+            </ActionIcon>
+            <ActionIcon size={'xs'} className={s.icon} color={isGlobe ? "yellow" : undefined} onClick={() => {
+                if (isGlobe) {
+                    dispatch(actions.projection.setFlat())
+                } else {
+                    dispatch(actions.projection.setGlobe())
+                }
+            }}>
+                <IconWorld size={16} />
+            </ActionIcon>
 
             <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>
         </Statusbar>

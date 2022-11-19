@@ -1,4 +1,4 @@
-import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, RangeSlider, Select, Slider, Switch, Text } from "@mantine/core";
+import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, Input, RangeSlider, Select, Slider, Switch, Text, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconPlus } from '@tabler/icons';
 import { Accordion } from '@mantine/core';
@@ -66,8 +66,21 @@ export const LayerPanel: React.FC = () => {
     }
 
     return (
-        <Flex direction={"column"} gap={"md"} align={"flex-start"}>
-            <Switch
+        <Flex direction={"column"} gap={"md"} align={"stretch"}>
+            <TextInput
+                size="xs"
+                label="Name"
+                value={name}
+                onChange={event => {
+                    const value = event.target.value
+                    dispatch(actions.layer.setName({
+                        id,
+                        value,
+                    }))
+                }}
+            />
+
+            {/* <Switch
                 checked={visible}
                 onChange={(event) => {
                     dispatch(actions.layer.setVisible({
@@ -75,12 +88,14 @@ export const LayerPanel: React.FC = () => {
                         value: event.currentTarget.checked,
                     }))
                 }}
-            />
+            /> */}
 
-            <Badge radius={"sm"}>
+            {/* <Badge radius={"sm"}>
                 {type}
-            </Badge>
+            </Badge> */}
+
             <Select
+                size="xs"
                 label="Source"
                 placeholder="Pick one"
                 value={sourceId}
@@ -95,6 +110,7 @@ export const LayerPanel: React.FC = () => {
                 }}
             />
             <Select
+                size="xs"
                 label="View"
                 placeholder="Pick one"
                 value={type}
@@ -114,7 +130,8 @@ export const LayerPanel: React.FC = () => {
                     }
                 }}
             />
-            <Flex direction={"column"} align={"stretch"} gap={"md"}>
+
+            <Input.Wrapper label="Color" size="xs">
                 <ColorPicker
                     format="hex"
                     size="sm"
@@ -124,67 +141,67 @@ export const LayerPanel: React.FC = () => {
                     }}
                 />
                 <Text>{color}</Text>
+            </Input.Wrapper>
 
-                {!(type === LayerType.Point) ? null : (
-                    <Slider
-                        min={1}
-                        max={4}
-                        value={circleRange[1]}
-                        onChange={max => {
-                            dispatch(actions.layer.setCircleRadius({
-                                id,
-                                min: 0,
-                                max,
-                            }))
-                        }}
-                    />
-                    // <RangeSlider
-                    //     thumbSize={14}
-                    //     mt="xl"
-                    //     defaultValue={circleRange}
-                    //     onChange={([min, max]) => {
-                    //         console.log(min, max)
-                    //         dispatch(actions.layer.setCircleRadius({
-                    //             id,
-                    //             min,
-                    //             max,
-                    //         }))
-                    //     }}
-                    // />
-                )}
-
-                {!(type === LayerType.Heatmap) ? null : (
-                    <Slider
-                        min={2}
-                        max={30}
-                        value={heatmapRadius}
-                        onChange={value => {
-                            dispatch(actions.layer.setHeatmapRadius({
-                                id,
-                                value,
-                            }))
-                        }}
-                    />
-                )}
-
-                <Button
-                    size="sm"
-                    color={"red"}
-                    onClick={() => {
-                        dispatch(actions.layer.removeLayer(id))
+            {!(type === LayerType.Point) ? null : (
+                <Slider
+                    min={1}
+                    max={4}
+                    value={circleRange[1]}
+                    onChange={max => {
+                        dispatch(actions.layer.setCircleRadius({
+                            id,
+                            min: 0,
+                            max,
+                        }))
                     }}
-                >Delete</Button>
-                <Button
-                    size="sm"
-                    disabled={!sourceId}
-                    onClick={() => {
-                        if (!sourceId) {
-                            return
-                        }
-                        dispatch(actions.source.zoomTo(sourceId))
+                />
+                // <RangeSlider
+                //     thumbSize={14}
+                //     mt="xl"
+                //     defaultValue={circleRange}
+                //     onChange={([min, max]) => {
+                //         console.log(min, max)
+                //         dispatch(actions.layer.setCircleRadius({
+                //             id,
+                //             min,
+                //             max,
+                //         }))
+                //     }}
+                // />
+            )}
+
+            {!(type === LayerType.Heatmap) ? null : (
+                <Slider
+                    min={2}
+                    max={30}
+                    value={heatmapRadius}
+                    onChange={value => {
+                        dispatch(actions.layer.setHeatmapRadius({
+                            id,
+                            value,
+                        }))
                     }}
-                >Zoom</Button>
-            </Flex>
+                />
+            )}
+
+            <Button
+                size="sm"
+                color={"red"}
+                onClick={() => {
+                    dispatch(actions.layer.removeLayer(id))
+                }}
+            >Delete</Button>
+            <Button
+                size="sm"
+                disabled={!sourceId}
+                onClick={() => {
+                    if (!sourceId) {
+                        return
+                    }
+                    dispatch(actions.source.zoomTo(sourceId))
+                }}
+            >Zoom</Button>
         </Flex>
     )
 }

@@ -58,6 +58,10 @@ export const layerSlice = createSlice({
             const { id, value } = action.payload
             state.items[id].visible = value
         },
+        setName: (state, action: PayloadAction<{ id: Id, value: string }>) => {
+            const { id, value } = action.payload
+            state.items[id].name = value
+        },
         setType: (state, action: PayloadAction<{ id: Id, type?: LayerType }>) => {
             const { id, type } = action.payload
             const layer = state.items[id]

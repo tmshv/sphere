@@ -1,6 +1,6 @@
 import { IconPolygon, IconPoint, IconLine, IconPlus, IconBulb, IconBulbOff, IconCross, IconPointOff } from '@tabler/icons';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActionIcon, Button, createStyles, Flex, NavLink, Text } from '@mantine/core';
+import { ActionIcon, Button, createStyles, Flex, NavLink, Text, useMantineColorScheme, useMantineTheme } from '@mantine/core';
 import { LayerType } from "@/types";
 import { actions } from "@/store";
 import { selectCurrentLayer } from "@/store/selection";
@@ -15,6 +15,7 @@ const useStyle = createStyles(theme => ({
 }))
 
 export const LayersOutline: React.FC = () => {
+    const theme = useMantineTheme()
     const { classes: s } = useStyle()
     const dispatch = useAppDispatch()
     const currentId = useAppSelector(selectCurrentLayer)
@@ -99,7 +100,9 @@ export const LayersOutline: React.FC = () => {
                             }))
                         }}>
                             {visible ? (
-                                <IconBulb size={16} color={"yellow"} />
+                                <IconBulb size={16}
+                                    color={theme.colorScheme === "dark" ? "yellow" : undefined}
+                                />
                             ) : (
                                 <IconBulbOff size={16} />
                             )}
@@ -107,19 +110,6 @@ export const LayersOutline: React.FC = () => {
                     </Flex>
                 )
             })}
-
-            <Button
-                size={"xs"}
-                variant={"default"}
-                leftIcon={(
-                    <IconPlus size={16} />
-                )}
-                onClick={() => {
-                    dispatch(actions.layer.addBlankLayer())
-                }}
-            //     rightIcon={(
-            // )}
-            >New layer</Button>
         </Flex>
     );
 }

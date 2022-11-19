@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { MapProvider } from "react-map-gl";
-import { Container, Flex, MantineProvider, Paper, Title } from "@mantine/core";
+import { Container, Flex, MantineProvider, Paper, Title, useMantineTheme } from "@mantine/core";
 import { MapStatusbar } from "../MapStatusbar";
 import { AppLayout } from "../../ui/AppLayout";
 import { LocationToString, MapContextMenu } from "../MapContextMenu";
@@ -20,6 +20,7 @@ export type AppProps = {
 }
 
 export const App: React.FC<AppProps> = ({ }) => {
+    const theme = useMantineTheme()
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
     const isDark = useAppSelector(selectIsDark)
@@ -64,8 +65,15 @@ export const App: React.FC<AppProps> = ({ }) => {
                                 />
                             )}
                             leftSidebar={!showLeft ? null : (
-                                <Flex pt={"xl"} p={"md"}>
-                                    <Left/>
+                                <Flex pt={"xl"} p={0}
+                                    style={{
+                                        borderRight: `1px solid ${theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3]}`,
+                                    }}
+                                // style={{
+                                //     borderRight: `1px solid #343a40`,
+                                // }}
+                                >
+                                    <Left />
                                     {/* <Paper pl={"sm"} pr={"sm"} style={{
                                         width: 400,
                                         overflow: "hidden",

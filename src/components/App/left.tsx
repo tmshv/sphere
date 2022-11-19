@@ -1,11 +1,26 @@
 import { actions } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
-import { ActionIcon, Flex, Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
+import { Accordion, AccordionControlProps, ActionIcon, Box, Flex, Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
 import { IconBulbOff, IconDatabase, IconPlus, IconSettings, IconStack, IconWorld } from '@tabler/icons';
+import { useState } from 'react';
 import { LayerPanel } from '../LayerPanel';
 import { LayersOutline } from '../LayersOutline';
 import { SourcePanel } from '../SourcePanel';
 import { SourcesOutline } from '../SourcesOutline';
+
+const AccordionControl: React.FC<AccordionControlProps> = ({ icon, ...props }) => {
+    return (
+        <Accordion.Control {...props} />
+    );
+    // return (
+    //     <Box sx={{
+    //         display: 'flex',
+    //         alignItems: 'center',
+    //     }}>
+    //         <Accordion.Control {...props} />
+    //     </Box>
+    // );
+}
 
 export function StyledTabs(props: TabsProps) {
     return (
@@ -65,10 +80,11 @@ export function StyledTabs(props: TabsProps) {
 
 export function Left() {
     const dispatch = useAppDispatch()
+    const [value, setValue] = useState<string[]>([]);
 
     return (
         <StyledTabs defaultValue={"layers"} keepMounted={false}>
-            <Tabs.List>
+            <Tabs.List p={"md"}>
                 <Tabs.Tab value="layers" icon={<IconStack size={16} />}>
                     Layers
                 </Tabs.Tab>
@@ -84,25 +100,78 @@ export function Left() {
             </Tabs.List>
 
             <Tabs.Panel value="layers">
-                <ScrollArea>
+                {/* <ScrollArea>
                     <Paper pt={"md"} style={{
                         width: 300,
                         overflow: "hidden",
+                    }}> */}
+                <Flex direction={"row-reverse"} gap={"xs"} pl={"md"} pr={"md"}>
+                    <ActionIcon size={"md"} onClick={() => {
+                        dispatch(actions.layer.addBlankLayer())
                     }}>
-                        <Flex direction={"row-reverse"} gap={"xs"}>
-                            <ActionIcon size={"md"} onClick={() => {
-                                dispatch(actions.layer.addBlankLayer())
-                            }}>
-                                <IconPlus size={16} />
-                            </ActionIcon>
-                            <ActionIcon size={"md"}>
-                                <IconBulbOff size={16} />
-                            </ActionIcon>
-                        </Flex>
-                        <LayersOutline />
-                        <LayerPanel />
-                    </Paper>
-                </ScrollArea>
+                        <IconPlus size={16} />
+                    </ActionIcon>
+                    <ActionIcon size={"md"}>
+                        <IconBulbOff size={16} />
+                    </ActionIcon>
+                </Flex>
+
+                <Accordion multiple
+                    onChange={setValue}
+                    pt={"md"}
+                    variant="default"
+                    styles={theme => ({
+                        item: {
+                            "&:first-child": {
+                                borderTop: `1px solid ${theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3]}`,
+                            },
+                        },
+                        control: {
+                            height: 30,
+                            paddingTop: theme.spacing.xs,
+                            paddingBottom: theme.spacing.xs,
+                            paddingLeft: theme.spacing.md,
+                            paddingRight: theme.spacing.md,
+                            backgroundColor: theme.colorScheme === "dark" ? theme.colors.gray[9] : theme.white,
+                        },
+                        panel: {
+                            // paddingTop: theme.spacing.sm,
+                            // paddingBottom: theme.spacing.sm,
+                            padding: 0,
+                        },
+                        content: {
+                            // padding: 0,
+                            paddingLeft: theme.spacing.md,
+                            paddingRight: theme.spacing.md,
+                            paddingTop: theme.spacing.sm,
+                            paddingBottom: theme.spacing.sm,
+                        },
+                        // "control:first-item": {
+                        //     backgroundColor: theme.colors.lime[9],
+                        // },
+                    })}
+                // chevronPosition="left"
+                >
+                    <Accordion.Item value={"outline"}>
+                        <Accordion.Control>
+                            Outline
+                        </Accordion.Control>
+                        <Accordion.Panel>
+                            <LayersOutline />
+                        </Accordion.Panel>
+                    </Accordion.Item>
+
+                    <Accordion.Item value={"layer-properties"}>
+                        <Accordion.Control>
+                            Layer properties
+                        </Accordion.Control>
+                        <Accordion.Panel>
+                            <LayerPanel />
+                        </Accordion.Panel>
+                    </Accordion.Item>
+                </Accordion>
+                {/* </Paper>
+                </ScrollArea> */}
             </Tabs.Panel>
 
             <Tabs.Panel value="sources">
