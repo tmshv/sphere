@@ -5,7 +5,7 @@ const useStyle = createStyles(theme => ({
         backgroundColor: theme.colors.dark,
         color: theme.colors.gray[1],
 
-        height: 27,
+        height: 28,
     }
 }))
 
