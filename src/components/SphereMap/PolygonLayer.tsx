@@ -10,7 +10,6 @@ export type PolygonLayerProps = {
 
 export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color, visible }) => {
     const [fill, outline0, outline1] = useMemo(() => {
-        console.log('fill', color)
         const fill: FillPaint = {
             "fill-color": color,
             "fill-opacity": 0.25,
