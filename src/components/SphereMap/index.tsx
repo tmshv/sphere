@@ -9,13 +9,9 @@ import { Fog } from "./Fog";
 import { selectIsShowFog } from "../../store/fog";
 import { selectIsShowTerrain } from "../../store/terrain";
 import { SphereSource } from "./SphereSource";
-import { LayerType, SourceType } from "@/types";
-import { Fragment } from "react";
 import { SetupStore } from "./SetupStore";
 import { HandleClick } from "./HandleClick";
-import { PolygonLayer } from "./PolygonLayer";
-import { LineStringLayer } from "./LineStringLayer";
-import { PointLayer } from "./PointLayer";
+import { SphereLayer } from "./SphereLayer";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -29,15 +25,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const showFog = useAppSelector(selectIsShowFog)
     const showTerrain = useAppSelector(selectIsShowTerrain)
     const sourceIds = useAppSelector(state => state.source.allIds)
-    const layers = useAppSelector(state => state.layer.allIds.map(id => {
-        const { sourceId, type } = state.layer.items[id]
-
-        return {
-            id,
-            sourceId,
-            type,
-        }
-    }))
+    const layerIds = useAppSelector(state => state.layer.allIds)
 
     // async function greet() {
     //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -91,34 +79,18 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 }}
             />
 
-            {sourceIds.map(sourceId => (
+            {sourceIds.map(id => (
                 <SphereSource
-                    key={sourceId}
-                    mapId={id}
-                    id={sourceId}
+                    key={id}
+                    id={id}
                 />
             ))}
-            {layers.map(({ id, sourceId, type }) => {
-                return (
-                    <Fragment key={id}>
-                        {!(type === LayerType.Polygon) ? null : (
-                            <PolygonLayer
-                                sourceId={sourceId}
-                            />
-                        )}
-                        {!(type === LayerType.Line) ? null : (
-                            <LineStringLayer
-                                sourceId={sourceId}
-                            />
-                        )}
-                        {!(type === LayerType.Point) ? null : (
-                            <PointLayer
-                                sourceId={sourceId}
-                            />
-                        )}
-                    </Fragment>
-                )
-            })}
+            {layerIds.map(id => (
+                <SphereLayer
+                    key={id}
+                    id={id}
+                />
+            ))}
         </Map>
     );
 }

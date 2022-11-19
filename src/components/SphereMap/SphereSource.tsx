@@ -3,13 +3,15 @@ import { Source } from "react-map-gl";
 import { useAppSelector } from "../../store/hooks";
 
 export type SphereSourceProps = {
-    mapId: string
     id: string
     children?: ReactNode
 }
 
-export const SphereSource: React.FC<SphereSourceProps> = ({ id, mapId, children }) => {
+export const SphereSource: React.FC<SphereSourceProps> = ({ id, children }) => {
     const data = useAppSelector(state => state.source.items[id].data)
+    if (!data) {
+        return null
+    }
 
     return (
         <Source
