@@ -125,7 +125,6 @@ export const LayerPanel: React.FC = () => {
                 />
                 <Text>{color}</Text>
 
-
                 {!(type === LayerType.Point) ? null : (
                     <Slider
                         min={1}

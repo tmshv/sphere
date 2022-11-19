@@ -1,5 +1,7 @@
-import { Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
-import { IconDatabase, IconSettings, IconStack, IconWorld } from '@tabler/icons';
+import { actions } from '@/store';
+import { useAppDispatch } from '@/store/hooks';
+import { ActionIcon, Flex, Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
+import { IconBulbOff, IconDatabase, IconPlus, IconSettings, IconStack, IconWorld } from '@tabler/icons';
 import { LayerPanel } from '../LayerPanel';
 import { LayersOutline } from '../LayersOutline';
 import { SourcePanel } from '../SourcePanel';
@@ -10,6 +12,7 @@ export function StyledTabs(props: TabsProps) {
         <Tabs unstyled styles={(theme) => ({
             tab: {
                 ...theme.fn.focusStyles(),
+                width: "100%",
                 backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
                 color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[9],
                 border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[4]}`,
@@ -29,13 +32,13 @@ export function StyledTabs(props: TabsProps) {
                 },
 
                 '&:first-of-type': {
-                    borderTopLeftRadius: theme.radius.md,
-                    borderBottomLeftRadius: theme.radius.md,
+                    borderTopLeftRadius: theme.radius.sm,
+                    borderBottomLeftRadius: theme.radius.sm,
                 },
 
                 '&:last-of-type': {
-                    borderTopRightRadius: theme.radius.md,
-                    borderBottomRightRadius: theme.radius.md,
+                    borderTopRightRadius: theme.radius.sm,
+                    borderBottomRightRadius: theme.radius.sm,
                 },
 
                 '&[data-active]': {
@@ -61,6 +64,8 @@ export function StyledTabs(props: TabsProps) {
 }
 
 export function Left() {
+    const dispatch = useAppDispatch()
+
     return (
         <StyledTabs defaultValue={"layers"} keepMounted={false}>
             <Tabs.List>
@@ -84,6 +89,16 @@ export function Left() {
                         width: 300,
                         overflow: "hidden",
                     }}>
+                        <Flex direction={"row-reverse"} gap={"xs"}>
+                            <ActionIcon size={"md"} onClick={() => {
+                                dispatch(actions.layer.addBlankLayer())
+                            }}>
+                                <IconPlus size={16} />
+                            </ActionIcon>
+                            <ActionIcon size={"md"}>
+                                <IconBulbOff size={16} />
+                            </ActionIcon>
+                        </Flex>
                         <LayersOutline />
                         <LayerPanel />
                     </Paper>

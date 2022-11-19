@@ -7,6 +7,7 @@ const useStyles = createStyles(() => ({
     },
     main: {
         flex: 1,
+        overflow: "hidden",
     },
     body: {
         position: "relative",
