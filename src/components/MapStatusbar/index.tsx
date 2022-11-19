@@ -6,10 +6,10 @@ import { useZoom } from "@/hooks/useZoom";
 import { usePitch } from "@/hooks/usePitch";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectSourcesAmount } from "@/store/source";
-import { IconWorld } from "@tabler/icons";
+import { IconLayoutSidebar, IconWorld } from "@tabler/icons";
 import { actions } from "@/store";
 import { selectProjection } from "@/store/projection";
-import { selectVersion } from "@/store/app";
+import { selectShowLeftSidebar, selectVersion } from "@/store/app";
 
 const useStyle = createStyles(theme => ({
     s: {
@@ -19,6 +19,9 @@ const useStyle = createStyles(theme => ({
         "&:hover": {
             backgroundColor: theme.colors.gray[8],
         }
+    },
+    active: {
+        backgroundColor: theme.colors.gray[8],
     },
 
     widget: {
@@ -72,6 +75,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const zoom = useZoom(ref)
     const pitch = usePitch(ref)
 
+    const sidebar = useAppSelector(selectShowLeftSidebar)
     const version = useAppSelector(selectVersion)
     const sources = useAppSelector(selectSourcesAmount)
     const projection = useAppSelector(selectProjection)
@@ -87,6 +91,15 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 }
             }}>
                 <IconWorld size={16} />
+            </ActionIcon>
+            <ActionIcon size={'xs'} className={cx(s.icon, {[s.active]: sidebar})} onClick={() => {
+                if (sidebar) {
+                    dispatch(actions.app.hideLeftSidebar())
+                } else {
+                    dispatch(actions.app.showLeftSidebar())
+                }
+            }}>
+                <IconLayoutSidebar size={16} />
             </ActionIcon>
 
             <Badge className={s.widget} radius={"sm"} size="sm" variant="light">sources={sources}</Badge>
