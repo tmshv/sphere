@@ -5,10 +5,10 @@ import { LayerType } from '@/types'
 
 type Layer = {
     id: string
-    sourceId: string
+    sourceId?: string
     fractionIndex: number
     name: string
-    type: LayerType
+    type?: LayerType
 }
 
 // Define a type for the slice state

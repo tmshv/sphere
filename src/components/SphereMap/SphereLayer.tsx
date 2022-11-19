@@ -10,6 +10,9 @@ export type SphereLayerProps = {
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
     const { sourceId, type } = useAppSelector(state => state.layer.items[id])
+    if (!sourceId || !type) {
+        return null
+    }
 
     return (
         <>
