@@ -1,4 +1,4 @@
-import { Source, useMap } from "react-map-gl";
+import { useMap } from "react-map-gl";
 import { useEffect } from "react";
 import { useAppSelector } from "../../store/hooks";
 import { selectExaggeration } from "../../store/terrain";
@@ -45,4 +45,5 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
         }
     }, [ref, exaggeration])
 
+    return null
 }
