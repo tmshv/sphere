@@ -1,4 +1,4 @@
-import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, Select, Text } from "@mantine/core";
+import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, RangeSlider, Select, Slider, Text } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IconPolygon, IconPoint, IconLine } from '@tabler/icons';
 import { Accordion, useMantineTheme } from '@mantine/core';
@@ -28,6 +28,7 @@ export const LayersPanel: React.FC = () => {
             type: s.type,
             sourceId: s.sourceId,
             color: s.color,
+            circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
         }
     }))
     const theme = useMantineTheme();
@@ -38,7 +39,7 @@ export const LayersPanel: React.FC = () => {
             variant="filled"
         // chevronPosition="left"
         >
-            {layers.map(({ id, sourceId, name, type, color }) => {
+            {layers.map(({ id, sourceId, name, type, color, circleRange }) => {
                 let icon: React.ReactNode = null
 
                 if (type === LayerType.Point) {
@@ -90,32 +91,64 @@ export const LayersPanel: React.FC = () => {
                                         }
                                     }}
                                 />
-                                <ColorPicker
-                                    format="hex"
-                                    size="sm"
-                                    value={color}
-                                    onChange={color => {
-                                        dispatch(actions.layer.setColor({ id, color }))
-                                    }}
-                                />
-                                <Text>{color}</Text>
-                                <Button
-                                    size="sm"
-                                    color={"red"}
-                                    onClick={() => {
-                                        dispatch(actions.layer.removeLayer(id))
-                                    }}
-                                >Delete</Button>
-                                <Button
-                                    size="sm"
-                                    disabled={!sourceId}
-                                    onClick={() => {
-                                        if (!sourceId) {
-                                            return
-                                        }
-                                        dispatch(actions.source.zoomTo(sourceId))
-                                    }}
-                                >Zoom</Button>
+                                <Flex direction={"column"} align={"stretch"}>
+                                    <ColorPicker
+                                        format="hex"
+                                        size="sm"
+                                        value={color}
+                                        onChange={color => {
+                                            dispatch(actions.layer.setColor({ id, color }))
+                                        }}
+                                    />
+                                    <Text>{color}</Text>
+
+
+                                    {!(type === LayerType.Point) ? null : (
+                                        <Slider
+                                            min={2}
+                                            max={6}
+                                            value={circleRange[1]}
+                                            onChange={max => {
+                                                dispatch(actions.layer.setCircleRadius({
+                                                    id,
+                                                    min: 0,
+                                                    max,
+                                                }))
+                                            }}
+                                        />
+                                        // <RangeSlider
+                                        //     thumbSize={14}
+                                        //     mt="xl"
+                                        //     defaultValue={circleRange}
+                                        //     onChange={([min, max]) => {
+                                        //         console.log(min, max)
+                                        //         dispatch(actions.layer.setCircleRadius({
+                                        //             id,
+                                        //             min,
+                                        //             max,
+                                        //         }))
+                                        //     }}
+                                        // />
+                                    )}
+
+                                    <Button
+                                        size="sm"
+                                        color={"red"}
+                                        onClick={() => {
+                                            dispatch(actions.layer.removeLayer(id))
+                                        }}
+                                    >Delete</Button>
+                                    <Button
+                                        size="sm"
+                                        disabled={!sourceId}
+                                        onClick={() => {
+                                            if (!sourceId) {
+                                                return
+                                            }
+                                            dispatch(actions.source.zoomTo(sourceId))
+                                        }}
+                                    >Zoom</Button>
+                                </Flex>
                             </Flex>
                         </Accordion.Panel>
                     </Accordion.Item>

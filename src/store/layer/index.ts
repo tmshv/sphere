@@ -11,6 +11,10 @@ type Layer = {
     type?: LayerType
 
     color: string
+    circle?: {
+        minRadius: number
+        maxRadius: number
+    }
 }
 
 // Define a type for the slice state
@@ -47,6 +51,19 @@ export const layerSlice = createSlice({
         setColor: (state, action: PayloadAction<{ id: string, color: string }>) => {
             const { id, color } = action.payload
             state.items[id].color = color
+        },
+        setCircleRadius: (state, action: PayloadAction<{ id: string, min: number, max: number }>) => {
+            const { id, min, max } = action.payload
+            const layer = state.items[id]
+            if (!layer.circle) {
+                layer.circle = {
+                    minRadius: min,
+                    maxRadius: max,
+                }
+            } else {
+                layer.circle.minRadius = min
+                layer.circle.maxRadius = max
+            }
         },
     },
 })

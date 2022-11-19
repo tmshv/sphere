@@ -23,7 +23,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { sourceId, type, color } = useAppSelector(state => state.layer.items[id])
+    const { sourceId, type, color, circle } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -34,6 +34,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <PointLayer
                     sourceId={sourceId}
                     color={color}
+                    options={circle}
                 />
             )
         }
