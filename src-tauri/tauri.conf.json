@@ -18,7 +18,8 @@
         "all": true,
         "scope": [
           "$APP/*",
-          "$DESKTOP/*"
+          "$DESKTOP/*",
+          "$HOME/*"
         ]
       },
       "path": {
