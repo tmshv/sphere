@@ -1,7 +1,7 @@
 import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, RangeSlider, Select, Slider, Text } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IconPolygon, IconPoint, IconLine } from '@tabler/icons';
-import { Accordion, useMantineTheme } from '@mantine/core';
+import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame } from '@tabler/icons';
+import { Accordion } from '@mantine/core';
 import { LayerType } from "@/types";
 import { actions } from "@/store";
 
@@ -31,8 +31,6 @@ export const LayersPanel: React.FC = () => {
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
         }
     }))
-    const theme = useMantineTheme();
-    const getColor = (color: string) => theme.colors[color][theme.colorScheme === 'dark' ? 5 : 7];
 
     return (
         <Accordion
@@ -44,17 +42,24 @@ export const LayersPanel: React.FC = () => {
 
                 if (type === LayerType.Point) {
                     icon = (
-                        <IconPoint size={20} color={getColor('blue')} />
+                        <IconPoint size={20} color={color} />
                     )
                 }
                 if (type === LayerType.Line) {
                     icon = (
-                        <IconLine size={20} color={getColor('blue')} />
+                        <IconLine size={20} color={color} />
                     )
                 }
                 if (type === LayerType.Polygon) {
                     icon = (
-                        <IconPolygon size={20} color={getColor('blue')} />
+                        <IconPolygon size={20} color={color} />
+                    )
+                }
+                if (type === LayerType.Photo) {
+                    icon = (
+                        <IconPhoto size={20} color={color} />
+                    )
+                }
                     )
                 }
 
