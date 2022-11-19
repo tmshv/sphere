@@ -3,6 +3,7 @@ import { LayerType } from "@/types";
 import { PolygonLayer } from "./PolygonLayer";
 import { LineStringLayer } from "./LineStringLayer";
 import { PointLayer } from "./PointLayer";
+import { assertUnreachable } from "@/lib";
 
 export type SphereLayerProps = {
     id: string
@@ -14,23 +15,30 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         return null
     }
 
-    return (
-        <>
-            {!(type === LayerType.Polygon) ? null : (
-                <PolygonLayer
-                    sourceId={sourceId}
-                />
-            )}
-            {!(type === LayerType.Line) ? null : (
-                <LineStringLayer
-                    sourceId={sourceId}
-                />
-            )}
-            {!(type === LayerType.Point) ? null : (
+    switch (type) {
+        case LayerType.Point: {
+            return (
                 <PointLayer
                     sourceId={sourceId}
                 />
-            )}
-        </>
-    )
+            )
+        }
+        case LayerType.Line: {
+            return (
+                <LineStringLayer
+                    sourceId={sourceId}
+                />
+            )
+        }
+        case LayerType.Polygon: {
+            return (
+            <PolygonLayer
+                sourceId={sourceId}
+            />
+            )
+        }
+        default: {
+            assertUnreachable(type)
+        }
+    }
 }
