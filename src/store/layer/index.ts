@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createReducer, createSlice, isAnyOf } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
 import { LayerType } from '@/types'
@@ -41,17 +41,6 @@ export const layerSlice = createSlice({
             const layerId = action.payload.id
             state.items[layerId] = action.payload
             state.allIds.push(layerId)
-
-            if (action.payload.type === LayerType.Point) {
-                state.items[layerId].circle = {
-                    minRadius: 2,
-                    maxRadius: 4,
-                }
-            } else if (action.payload.type === LayerType.Heatmap) {
-                state.items[layerId].heatmap = {
-                    radius: 20,
-                }
-            }
         },
         removeLayer: (state, action: PayloadAction<string>) => {
             const layerId = action.payload
@@ -60,16 +49,17 @@ export const layerSlice = createSlice({
         },
         setType: (state, action: PayloadAction<{ id: string, type?: LayerType }>) => {
             const { id, type } = action.payload
-            state.items[id].type = type
+            const layer = state.items[id]
+            layer.type = type
 
-            if (action.payload.type === LayerType.Point) {
-                state.items[id].circle = {
+            if ((type === LayerType.Point) && !layer.circle) {
+                layer.circle = {
                     minRadius: 2,
                     maxRadius: 4,
                 }
-            } else if (action.payload.type === LayerType.Heatmap) {
-                state.items[id].heatmap = {
-                    radius: 20,
+            } else if ((type === LayerType.Heatmap) && !layer.heatmap) {
+                layer.heatmap = {
+                    radius: 10,
                 }
             }
         },
@@ -80,15 +70,8 @@ export const layerSlice = createSlice({
         setCircleRadius: (state, action: PayloadAction<{ id: string, min: number, max: number }>) => {
             const { id, min, max } = action.payload
             const layer = state.items[id]
-            if (!layer.circle) {
-                layer.circle = {
-                    minRadius: min,
-                    maxRadius: max,
-                }
-            } else {
-                layer.circle.minRadius = min
-                layer.circle.maxRadius = max
-            }
+            layer.circle!.minRadius = min
+            layer.circle!.maxRadius = max
         },
         setHeatmapRadius: (state, action: PayloadAction<{ id: string, value: number }>) => {
             const { id, value } = action.payload

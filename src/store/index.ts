@@ -16,6 +16,13 @@ import { getMap } from '../map'
 import mapboxgl from 'mapbox-gl'
 import { LayerType, SourceType } from '@/types'
 import { assertUnreachable } from '@/lib'
+import { nextId } from '@/lib/nextId'
+
+const sourceToLayer = new Map<SourceType, LayerType>([
+    [SourceType.Points, LayerType.Point],
+    [SourceType.Lines, LayerType.Line],
+    [SourceType.Polygons, LayerType.Polygon],
+])
 
 const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
@@ -115,7 +122,7 @@ readFromFileMiddleware.startListening({
                 continue
             }
 
-            const sourceId = `${location}|${type}`
+            const sourceId = `${nextId()}`
             listenerApi.dispatch(actions.source.addSource({
                 id: sourceId,
                 location,
@@ -124,47 +131,19 @@ readFromFileMiddleware.startListening({
                 name,
             }))
 
-            switch (type) {
-                case SourceType.Points: {
-                    const layerId = `${sourceId}-${LayerType.Point}`
-                    listenerApi.dispatch(actions.layer.addLayer({
-                        id: layerId,
-                        type: LayerType.Point,
-                        sourceId,
-                        fractionIndex: 0,
-                        name,
-                        color: "#1c7ed6",
-                    }))
-                    break
-                }
-                case SourceType.Lines: {
-                    const layerId = `${sourceId}-${LayerType.Line}`
-                    listenerApi.dispatch(actions.layer.addLayer({
-                        id: layerId,
-                        type: LayerType.Line,
-                        sourceId,
-                        fractionIndex: 0,
-                        name,
-                        color: "#1c7ed6",
-                    }))
-                    break
-                }
-                case SourceType.Polygons: {
-                    const layerId = `${sourceId}-${LayerType.Polygon}`
-                    listenerApi.dispatch(actions.layer.addLayer({
-                        id: layerId,
-                        type: LayerType.Polygon,
-                        sourceId,
-                        fractionIndex: 0,
-                        name,
-                        color: "#1c7ed6",
-                    }))
-                    break
-                }
-                default: {
-                    assertUnreachable(type);
-                }
-            }
+            const layerId = `${nextId()}`
+            listenerApi.dispatch(actions.layer.addLayer({
+                id: layerId,
+                sourceId,
+                fractionIndex: 0,
+                name,
+                color: "#1c7ed6",
+            }))
+
+            listenerApi.dispatch(actions.layer.setType({
+                id: layerId,
+                type: sourceToLayer.get(type),
+            }))
         }
     },
 });
