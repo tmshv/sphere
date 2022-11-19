@@ -115,8 +115,8 @@ export const LayersPanel: React.FC = () => {
 
                                     {!(type === LayerType.Point) ? null : (
                                         <Slider
-                                            min={2}
-                                            max={6}
+                                            min={1}
+                                            max={4}
                                             value={circleRange[1]}
                                             onChange={max => {
                                                 dispatch(actions.layer.setCircleRadius({
