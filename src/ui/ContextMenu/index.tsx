@@ -11,6 +11,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
     const [contextCoord, setContextCoord] = useState<[number, number]>([0, 0]);
 
     useEffect(() => {
+        return
         const callback = (event: MouseEvent) => {
             const xPos = event.pageX;
             const yPos = event.pageY;
