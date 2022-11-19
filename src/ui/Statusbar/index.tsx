@@ -16,7 +16,7 @@ export type StatusbarProps = {
 export const Statusbar: React.FC<StatusbarProps> = ({ children }) => {
     const { classes: s } = useStyle()
     return (
-        <Flex gap={"xs"} p={"xs"} pl={"sm"} pr={"sm"} className={s.container}>
+        <Flex gap={"xs"} p={"xs"} pl={"sm"} pr={"sm"} align={"center"} className={s.container}>
             {children}
         </Flex>
     )
