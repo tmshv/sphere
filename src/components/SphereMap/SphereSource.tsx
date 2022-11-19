@@ -3,7 +3,7 @@ import { SourceType } from "@/types";
 import { featureCollection, lineString, multiLineString, multiPoint, multiPolygon, point, polygon } from "@turf/turf";
 import { ReactNode } from "react";
 import { Source } from "react-map-gl";
-import { useAppSelector } from "../../store/hooks";
+import { useAppSelector } from "@/store/hooks";
 
 export type SphereSourceProps = {
     id: string
@@ -49,20 +49,6 @@ export const SphereSource: React.FC<SphereSourceProps> = ({ id, children }) => {
                 assertUnreachable(type)
             }
         }
-
-        // const items = dataset.data.map(row => {
-        //     switch (dataset.type) {
-        //         case SourceType.Points: {
-        //             const r = row
-        //             return point(row.geometry)
-        //         }
-        //         default: {
-        //             assertUnreachable(dataset.type)
-        //         }
-        //     }
-        //     return
-        // })
-        // return featureCollection(items)
     })
     if (!data) {
         return null
