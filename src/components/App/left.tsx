@@ -1,5 +1,5 @@
 import { Paper, ScrollArea, Tabs, TabsProps } from '@mantine/core';
-import { IconDatabase, IconSettings, IconStack } from '@tabler/icons';
+import { IconDatabase, IconSettings, IconStack, IconWorld } from '@tabler/icons';
 import { LayersPanel } from '../LayersPanel';
 import { SourcePanel } from '../SourcePanel';
 
@@ -68,6 +68,9 @@ export function Left() {
                 <Tabs.Tab value="sources" icon={<IconDatabase size={16} />}>
                     Sources
                 </Tabs.Tab>
+                <Tabs.Tab value="map-styles" icon={<IconWorld size={16} />}>
+                    Styles
+                </Tabs.Tab>
                 <Tabs.Tab value="settings" icon={<IconSettings size={16} />}>
                     Settings
                 </Tabs.Tab>
@@ -90,6 +93,15 @@ export function Left() {
                     overflow: "hidden",
                 }}>
                     <SourcePanel />
+                </Paper>
+            </Tabs.Panel>
+
+            <Tabs.Panel value="map-styles">
+                <Paper p={"sm"} style={{
+                    width: 400,
+                    overflow: "hidden",
+                }}>
+                    Map Styles
                 </Paper>
             </Tabs.Panel>
 
