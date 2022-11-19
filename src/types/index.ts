@@ -10,4 +10,5 @@ export enum LayerType {
     Point = "Circle",
     Line = "Line",
     Polygon = "Polygon",
+    Photo = "Photo",
 }

@@ -75,9 +75,10 @@ export const LayersPanel: React.FC = () => {
                                     placeholder="Pick one"
                                     value={type}
                                     data={[
-                                        { value: LayerType.Point, label: 'Point' },
-                                        { value: LayerType.Line, label: 'Line' },
-                                        { value: LayerType.Polygon, label: 'Polygon' },
+                                        { value: LayerType.Point, label: 'Points' },
+                                        { value: LayerType.Line, label: 'Lines' },
+                                        { value: LayerType.Polygon, label: 'Polygons' },
+                                        { value: LayerType.Photo, label: 'Photos' },
                                     ]}
                                     onChange={value => {
                                         if (value) {

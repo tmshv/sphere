@@ -6,6 +6,7 @@ import { parseGpx } from '../../lib/parseGpx'
 import * as turf from "@turf/helpers"
 import { SourceType } from '../../types'
 import { nextId } from '../../lib/nextId'
+import { parseCsv } from '@/lib/parseCsv';
 
 const pointType = new Set(["Point", "MultiPoint"])
 const lineType = new Set(["LineString", "MultiLineStreing"])
@@ -15,6 +16,7 @@ const parsers = new Map([
     ["json", parseGeojson],
     ["geojson", parseGeojson],
     ["gpx", parseGpx],
+    ["csv", parseCsv],
 ])
 
 type SourceTuple = [string, SourceType, GeoJSON.FeatureCollection]
