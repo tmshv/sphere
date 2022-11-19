@@ -30,6 +30,29 @@ export const mapStyleSlice = createSlice({
         setSatellite: state => {
             state.value = SATELLITE
         },
+        setOsm: state => {
+            state.value = {
+                name: 'osm',
+                version: 8,
+                sources: {
+                    'osm-raster-tiles': {
+                        type: 'raster',
+                        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+                    }
+                },
+                layers: [
+                    {
+                        id: 'osm-raster-layer',
+                        type: 'raster',
+                        source: 'osm-raster-tiles',
+                        minzoom: 0,
+                        maxzoom: 22
+                    }
+                ]
+            }
+        },
         // Use the PayloadAction type to declare the contents of `action.payload`
         setMapStyle: (state, action: PayloadAction<MapStyle>) => {
             state.value = action.payload as any
