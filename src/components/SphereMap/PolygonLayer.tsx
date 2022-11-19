@@ -5,9 +5,10 @@ import { FillPaint, LinePaint } from "mapbox-gl";
 export type PolygonLayerProps = {
     sourceId: string
     color: string
+    visible: boolean
 }
 
-export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color }) => {
+export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color, visible }) => {
     const [fill, outline0, outline1] = useMemo(() => {
         console.log('fill', color)
         const fill: FillPaint = {
@@ -33,18 +34,27 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color }) =
                 source={sourceId}
                 type={"fill"}
                 paint={fill}
+                layout={{
+                    visibility: visible ? "visible" : "none"
+                }}
             />
             <Layer
                 id={`${sourceId}-polygons-outline-0`}
                 source={sourceId}
                 type={"line"}
                 paint={outline0}
+                layout={{
+                    visibility: visible ? "visible" : "none"
+                }}
             />
             <Layer
                 id={`${sourceId}-polygons-outline-1`}
                 source={sourceId}
                 type={"line"}
                 paint={outline1}
+                layout={{
+                    visibility: visible ? "visible" : "none"
+                }}
             />
         </>
     )

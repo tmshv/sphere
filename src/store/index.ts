@@ -136,6 +136,7 @@ readFromFileMiddleware.startListening({
                 id: layerId,
                 sourceId,
                 fractionIndex: 0,
+                visible: true,
                 name,
                 color: "#1c7ed6",
             }))

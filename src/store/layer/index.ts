@@ -6,6 +6,7 @@ import { LayerType } from '@/types'
 type Layer = {
     id: string
     sourceId?: string
+    visible: boolean
     fractionIndex: number
     name: string
     type?: LayerType
@@ -46,6 +47,10 @@ export const layerSlice = createSlice({
             const layerId = action.payload
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
+        },
+        setVisible: (state, action: PayloadAction<{ id: string, value: boolean }>) => {
+            const { id, value } = action.payload
+            state.items[id].visible = value
         },
         setType: (state, action: PayloadAction<{ id: string, type?: LayerType }>) => {
             const { id, type } = action.payload

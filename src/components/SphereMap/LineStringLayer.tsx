@@ -5,9 +5,10 @@ import { LinePaint } from "mapbox-gl";
 export type LineStringLayerProps = {
     sourceId: string
     color: string
+    visible: boolean
 }
 
-export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, color, }) => {
+export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, color, visible }) => {
     const [line0, line1] = useMemo(() => {
         const line0: LinePaint = {
             "line-color": "white",
@@ -29,12 +30,18 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, colo
                 source={sourceId}
                 type={"line"}
                 paint={line0}
+                layout={{
+                    visibility: visible ? "visible" : "none"
+                }}
             />
             <Layer
                 id={`${sourceId}-lines-1`}
                 source={sourceId}
                 type={"line"}
                 paint={line1}
+                layout={{
+                    visibility: visible ? "visible" : "none"
+                }}
             />
         </>
     )

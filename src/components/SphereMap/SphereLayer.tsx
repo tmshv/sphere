@@ -24,7 +24,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { sourceId, type, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
+    const { sourceId, type, visible, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -36,6 +36,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     sourceId={sourceId}
                     color={color}
                     options={circle}
+                    visible={visible}
                 />
             )
         }
@@ -44,6 +45,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <LineStringLayer
                     sourceId={sourceId}
                     color={color}
+                    visible={visible}
                 />
             )
         }
@@ -52,11 +54,12 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <PolygonLayer
                     sourceId={sourceId}
                     color={color}
+                    visible={visible}
                 />
             )
         }
         case LayerType.Photo: {
-            return (
+            return !visible ? null : (
                 <PhotoLayer
                     sourceId={sourceId}
                     getImage={getImage}
@@ -71,6 +74,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <HeatmapLayer
                     sourceId={sourceId}
                     options={heatmap!}
+                    visible={visible}
                 />
             )
         }

@@ -5,13 +5,14 @@ import { CirclePaint } from "mapbox-gl";
 export type PointLayerProps = {
     sourceId: string
     color: string
+    visible: boolean
     options?: {
         maxRadius: number
         minRadius: number
     }
 }
 
-export const PointLayer: React.FC<PointLayerProps> = ({ sourceId, color, options }) => {
+export const PointLayer: React.FC<PointLayerProps> = ({ sourceId, color, options, visible }) => {
     const circle = useMemo(() => {
         const circle: CirclePaint = {
             "circle-color": color,
@@ -28,6 +29,9 @@ export const PointLayer: React.FC<PointLayerProps> = ({ sourceId, color, options
             source={sourceId}
             type={"circle"}
             paint={circle}
+            layout={{
+                visibility: visible ? "visible" : "none",
+            }}
         />
     )
 }

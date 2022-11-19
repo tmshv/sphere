@@ -1,4 +1,4 @@
-import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, RangeSlider, Select, Slider, Text } from "@mantine/core";
+import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, RangeSlider, Select, Slider, Switch, Text } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame } from '@tabler/icons';
 import { Accordion } from '@mantine/core';
@@ -26,6 +26,7 @@ export const LayersPanel: React.FC = () => {
             id,
             name: s.name,
             type: s.type,
+            visible: s.visible,
             sourceId: s.sourceId,
             color: s.color,
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
@@ -38,7 +39,7 @@ export const LayersPanel: React.FC = () => {
             variant="filled"
         // chevronPosition="left"
         >
-            {layers.map(({ id, sourceId, name, type, color, circleRange, heatmapRadius }) => {
+            {layers.map(({ id, sourceId, visible, name, type, color, circleRange, heatmapRadius }) => {
                 let icon: React.ReactNode = null
 
                 if (type === LayerType.Point) {
@@ -77,6 +78,15 @@ export const LayersPanel: React.FC = () => {
                         </AccordionControl>
                         <Accordion.Panel>
                             <Flex direction={"column"} gap={"md"} align={"flex-start"}>
+                                <Switch
+                                    checked={visible}
+                                    onChange={(event) => {
+                                        dispatch(actions.layer.setVisible({
+                                            id,
+                                            value: event.currentTarget.checked,
+                                        }))
+                                    }}
+                                />
 
                                 <Badge radius={"sm"}>
                                     {type}
