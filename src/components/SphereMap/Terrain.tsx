@@ -45,11 +45,4 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
         }
     }, [ref, exaggeration])
 
-    return (
-        <Source
-            id={"mapbox-dem"}
-            type={"raster-dem"}
-            url={"mapbox://mapbox.mapbox-terrain-dem-v1"}
-        />
-    );
 }

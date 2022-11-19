@@ -1,5 +1,5 @@
 import "mapbox-gl/dist/mapbox-gl.css";
-import Map, { Layer } from "react-map-gl";
+import Map, { Layer, Source } from "react-map-gl";
 import { useAppSelector } from "@/store/hooks";
 import { selectProjection } from "@/store/projection";
 import { selectMapStyle } from "@/store/mapStyle";
@@ -21,8 +21,8 @@ export type SphereMapProps = {
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
-    const showFog = useAppSelector(selectIsShowFog)
-    const showTerrain = useAppSelector(selectIsShowTerrain)
+    const fog = useAppSelector(selectIsShowFog)
+    const terrain = useAppSelector(selectIsShowTerrain)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layerIds = useAppSelector(state => state.layer.allIds)
 
@@ -43,18 +43,23 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             projection={projection}
             logoPosition={"bottom-right"}
         >
+            <Source
+                id={"mapbox-dem"}
+                type={"raster-dem"}
+                url={"mapbox://mapbox.mapbox-terrain-dem-v1"}
+            />
             <SetupStore
                 mapId={id}
             />
             <HandleClick
                 mapId={id}
             />
-            {!showFog ? null : (
+            {!fog ? null : (
                 <Fog
                     mapId={id}
                 />
             )}
-            {!showTerrain ? null : (
+            {!terrain ? null : (
                 <Terrain
                     mapId={id}
                 />
