@@ -95,7 +95,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
             )
         }
 
-        const { src } = getImage(feature.properties)
+        const { src } = getImage(feature.properties!)
 
         return (
             <div key={id} style={{ position: 'relative', zIndex: 0, }}>
