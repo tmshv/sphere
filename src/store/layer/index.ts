@@ -40,8 +40,8 @@ export const layerSlice = createSlice({
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
         },
-        setType: (state, action: PayloadAction<{id: string, type?: LayerType}>) => {
-            const {id, type} = action.payload
+        setType: (state, action: PayloadAction<{ id: string, type?: LayerType }>) => {
+            const { id, type } = action.payload
             state.items[id].type = type
         },
         setColor: (state, action: PayloadAction<{ id: string, color: string }>) => {
