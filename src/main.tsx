@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { App } from "./components/App";
 import { actions, store } from "./store";
 import "./style.css";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 async function handleTheme() {
   const theme = await appWindow.theme();
@@ -43,7 +44,9 @@ handleVersion()
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </Provider>
   </React.StrictMode>
 );
