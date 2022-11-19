@@ -15,8 +15,8 @@ import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '../map'
 import mapboxgl from 'mapbox-gl'
 import { LayerType, SourceType } from '@/types'
-import { assertUnreachable } from '@/lib'
 import { nextId } from '@/lib/nextId'
+import { featureCollection } from '@turf/turf'
 
 const sourceToLayer = new Map<SourceType, LayerType>([
     [SourceType.Points, LayerType.Point],
@@ -32,21 +32,21 @@ readFromFilesMiddleware.startListening({
             listenerApi.dispatch(actions.source.readFromFile(file))
         }
 
-        await listenerApi.delay(1000)
+        // await listenerApi.delay(1000)
 
-        const state = listenerApi.getState() as RootState
-        const id = state.source.lastAdded
-        if (!id) {
-            return
-        }
+        // const state = listenerApi.getState() as RootState
+        // const id = state.source.lastAdded
+        // if (!id) {
+        //     return
+        // }
 
-        const geom = state.source.items[id].data
-        const bbox = turf.bbox(geom);
+        // const geom = state.source.items[id].data
+        // const bbox = turf.bbox(geom);
 
-        listenerApi.dispatch(fitBounds({
-            mapId: "spheremap",
-            bounds: bbox as mapboxgl.LngLatBoundsLike
-        }))
+        // listenerApi.dispatch(fitBounds({
+        //     mapId: "spheremap",
+        //     bounds: bbox as mapboxgl.LngLatBoundsLike
+        // }))
     },
 });
 
@@ -67,8 +67,14 @@ zoomToMiddleware.startListening({
             return
         }
 
-        const geom = source.data
-        const bbox = turf.bbox(geom);
+        const fc = featureCollection(source.data.map(g => {
+            return {
+                type: "Feature",
+                geometry: g.geometry,
+                properties: {},
+            }
+        }))
+        const bbox = turf.bbox(fc);
 
         listenerApi.dispatch(fitBounds({
             mapId,
@@ -94,16 +100,16 @@ const selectFeaturesMiddleware = createListenerMiddleware();
 selectFeaturesMiddleware.startListening({
     actionCreator: selectionSlice.actions.selectOne,
     effect: async (action, listenerApi) => {
-        const state = listenerApi.getOriginalState() as RootState
-        const { featureId, sourceId } = action.payload
-        const source = state.source.items[sourceId]
-        const f = source.data.features.find(f => f.id === featureId)
-        if (!f) {
-            return
-        }
+        // const state = listenerApi.getOriginalState() as RootState
+        // const { featureId, sourceId } = action.payload
+        // const source = state.source.items[sourceId]
+        // const f = source.data.data.find(f => f.id === featureId)
+        // if (!f) {
+        //     return
+        // }
 
         console.log("select!");
-        console.log(f.properties);
+        // console.log(f.properties);
     },
 });
 
@@ -115,35 +121,28 @@ readFromFileMiddleware.startListening({
         if (!payload) {
             return
         }
-        const location = action.meta.arg
-
-        for (const [name, type, data] of payload) {
-            if (data.features.length === 0) {
+        for (const dataset of payload) {
+            if (dataset.data.length === 0) {
                 continue
             }
 
-            const sourceId = `${nextId()}`
-            listenerApi.dispatch(actions.source.addSource({
-                id: sourceId,
-                location,
-                data,
-                type,
-                name,
-            }))
+            // const sourceId = `${nextId()}`
+            const sourceId = dataset.id
+            listenerApi.dispatch(actions.source.addSource(dataset))
 
-            const layerId = `${nextId()}`
+            const layerId = nextId()
             listenerApi.dispatch(actions.layer.addLayer({
                 id: layerId,
                 sourceId,
                 fractionIndex: 0,
                 visible: true,
-                name,
+                name: dataset.name,
                 color: "#1c7ed6",
             }))
 
             listenerApi.dispatch(actions.layer.setType({
                 id: layerId,
-                type: sourceToLayer.get(type),
+                type: sourceToLayer.get(dataset.type),
             }))
         }
     },

@@ -1,7 +1,9 @@
 import { ClustersOptions, useClusters } from '@/hooks/useClusters'
 import { useAppSelector } from '@/store/hooks'
+import { Dataset } from '@/types'
 import { ImageMarker } from '@/ui/ImageMarker'
 import { createStyles } from '@mantine/core'
+import { point } from '@turf/helpers'
 import { useCallback, useMemo } from 'react'
 import { Marker } from 'react-map-gl'
 
@@ -59,14 +61,21 @@ export type PhotoLayerProps = {
 }
 
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
-    const data = useAppSelector(state => {
-        const source = state.source.items[sourceId]
-        const features = source.data.features.filter(f => {
-            const { src } = getImage(f.properties)
-            return !!src
-        })
-        return features as GeoJSON.Feature<GeoJSON.Point>[]
+    const features = useAppSelector(state => {
+        const source = state.source.items[sourceId] as Dataset<GeoJSON.Point>
+        return source.data
+            .filter(f => {
+                const { src } = getImage(f.data)
+                return !!src
+            })
+            .map(f => {
+                return point(f.geometry!.coordinates, f.data)
+            })
     })
+
+    if (features.length === 0) {
+        return null
+    }
 
     const renderPhoto = useCallback<RenderPhotoFunction>((feature, isCluster) => {
         const [lng, lat] = feature.geometry.coordinates
@@ -112,14 +121,10 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
         )
     }, [iconSize, getImage])
 
-    if (data.length === 0) {
-        return null
-    }
-
     return (
         <PhotoCluster
             radius={clusterRadius}
-            data={data}
+            data={features}
             renderPhoto={renderPhoto}
             mapProperties={p => {
                 const { src, value } = getImage(p)

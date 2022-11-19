@@ -1,11 +1,11 @@
 import { createAction, createReducer, createSlice, isAnyOf } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
-import { LayerType } from '@/types'
+import { Id, LayerType } from '@/types'
 
 type Layer = {
-    id: string
-    sourceId?: string
+    id: Id
+    sourceId?: Id
     visible: boolean
     fractionIndex: number
     name: string
@@ -24,7 +24,7 @@ type Layer = {
 // Define a type for the slice state
 type LayerState = {
     items: Record<string, Layer>
-    allIds: string[]
+    allIds: Id[]
 }
 
 // Define the initial state using that type
@@ -43,20 +43,20 @@ export const layerSlice = createSlice({
             state.items[layerId] = action.payload
             state.allIds.push(layerId)
         },
-        removeLayer: (state, action: PayloadAction<string>) => {
+        removeLayer: (state, action: PayloadAction<Id>) => {
             const layerId = action.payload
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
         },
-        setSource: (state, action: PayloadAction<{ id: string, sourceId: string }>) => {
+        setSource: (state, action: PayloadAction<{ id: Id, sourceId: Id }>) => {
             const { id, sourceId } = action.payload
             state.items[id].sourceId = sourceId
         },
-        setVisible: (state, action: PayloadAction<{ id: string, value: boolean }>) => {
+        setVisible: (state, action: PayloadAction<{ id: Id, value: boolean }>) => {
             const { id, value } = action.payload
             state.items[id].visible = value
         },
-        setType: (state, action: PayloadAction<{ id: string, type?: LayerType }>) => {
+        setType: (state, action: PayloadAction<{ id: Id, type?: LayerType }>) => {
             const { id, type } = action.payload
             const layer = state.items[id]
             layer.type = type
@@ -72,17 +72,17 @@ export const layerSlice = createSlice({
                 }
             }
         },
-        setColor: (state, action: PayloadAction<{ id: string, color: string }>) => {
+        setColor: (state, action: PayloadAction<{ id: Id, color: string }>) => {
             const { id, color } = action.payload
             state.items[id].color = color
         },
-        setCircleRadius: (state, action: PayloadAction<{ id: string, min: number, max: number }>) => {
+        setCircleRadius: (state, action: PayloadAction<{ id: Id, min: number, max: number }>) => {
             const { id, min, max } = action.payload
             const layer = state.items[id]
             layer.circle!.minRadius = min
             layer.circle!.maxRadius = max
         },
-        setHeatmapRadius: (state, action: PayloadAction<{ id: string, value: number }>) => {
+        setHeatmapRadius: (state, action: PayloadAction<{ id: Id, value: number }>) => {
             const { id, value } = action.payload
             const layer = state.items[id]
             layer.heatmap!.radius = value

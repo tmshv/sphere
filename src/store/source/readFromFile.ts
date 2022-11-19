@@ -3,14 +3,7 @@ import { readTextFile } from "@tauri-apps/api/fs"
 import { basename, extname } from '@tauri-apps/api/path';
 import { parseGeojson } from '../../lib/parseGeojson'
 import { parseGpx } from '../../lib/parseGpx'
-import * as turf from "@turf/helpers"
-import { SourceType } from '../../types'
-import { nextId } from '../../lib/nextId'
 import { parseCsv } from '@/lib/parseCsv';
-
-const pointType = new Set(["Point", "MultiPoint"])
-const lineType = new Set(["LineString", "MultiLineStreing"])
-const polygonType = new Set(["Polygon", "MultiPolygon"])
 
 const parsers = new Map([
     ["json", parseGeojson],
@@ -18,8 +11,6 @@ const parsers = new Map([
     ["gpx", parseGpx],
     ["csv", parseCsv],
 ])
-
-type SourceTuple = [string, SourceType, GeoJSON.FeatureCollection]
 
 export const addFromFiles = createAction<string[]>('source/readFromFiles')
 export const readFromFile = createAsyncThunk('source/readFromFile', async (path: string, thunkAPI) => {
@@ -32,23 +23,11 @@ export const readFromFile = createAsyncThunk('source/readFromFile', async (path:
     const parser = parsers.get(ext)!
 
     const raw = await readTextFile(path)
-    const data = await parser(raw)
-    if (!data) {
+    const datasets = await parser(name, path, raw)
+    if (!datasets) {
         console.log("Failed to read")
         return null
     }
 
-    for (const f of data.features) {
-        f.id = nextId()
-    }
-
-    const points = data.features.filter(f => pointType.has(f.geometry.type))
-    const lines = data.features.filter(f => lineType.has(f.geometry.type))
-    const polygons = data.features.filter(f => polygonType.has(f.geometry.type))
-
-    return [
-        [name, SourceType.Polygons, turf.featureCollection(polygons) as GeoJSON.FeatureCollection] as SourceTuple,
-        [name, SourceType.Lines, turf.featureCollection(lines) as GeoJSON.FeatureCollection] as SourceTuple,
-        [name, SourceType.Points, turf.featureCollection(points) as GeoJSON.FeatureCollection] as SourceTuple,
-    ]
+    return datasets
 })

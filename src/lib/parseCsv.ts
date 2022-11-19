@@ -1,7 +1,9 @@
 import * as Papa from "papaparse"
-import { point, featureCollection } from "@turf/turf"
+import { point } from "@turf/turf"
+import { Dataset, SourceType } from "@/types"
+import { nextId } from "./nextId"
 
-export async function parseCsv<T = GeoJSON.FeatureCollection>(raw: string): Promise<T | null> {
+export async function parseCsv(name: string, location: string, raw: string): Promise<Dataset[] | null> {
     const results = Papa.parse<any>(raw, {
         header: true,
     })
@@ -10,11 +12,22 @@ export async function parseCsv<T = GeoJSON.FeatureCollection>(raw: string): Prom
         .filter(row => {
             return !!row.lng && !!row.lat
         })
-        .map(row => {
-            return point([parseFloat(row.lng), parseFloat(row.lat)], {
-                ...row,
-            })
-        })
 
-    return featureCollection(features) as T
+    return [
+        {
+            id: nextId(),
+            name,
+            location,
+            data: features.map(row => {
+                const feature = point([parseFloat(row.lng), parseFloat(row.lat)])
+                return {
+                    id: nextId(),
+                    geometry: feature.geometry,
+                    data: row,
+                    meta: {},
+                }
+            }),
+            type: SourceType.Points,
+        }
+    ]
 }

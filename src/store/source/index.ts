@@ -1,21 +1,13 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
-import { SourceType } from '../../types'
-
-type Source = {
-    id: string
-    name: string
-    location: string
-    type: SourceType
-    data: GeoJSON.FeatureCollection
-}
+import { Dataset, Id } from '@/types'
 
 // Define a type for the slice state
 type SourceState = {
-    items: Record<string, Source>
-    allIds: string[]
-    lastAdded?: string
+    items: Record<string, Dataset>
+    allIds: Id[]
+    lastAdded?: Id
 }
 
 // Define the initial state using that type
@@ -34,7 +26,7 @@ export const sourceSlice = createSlice({
             state.allIds = []
             state.lastAdded = undefined
         },
-        addSource: (state, action: PayloadAction<Source>) => {
+        addSource: (state, action: PayloadAction<Dataset>) => {
             const sourceId = action.payload.id
             state.items[sourceId] = action.payload
             state.allIds.push(sourceId)

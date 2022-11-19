@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
-import { SourceType } from '../../types'
+import { DatasetRow, Id } from '@/types'
 
 // Define a type for the slice state
 type SelectionState = {
-    sourceId?: string
-    selectedIds: number[]
+    sourceId?: Id
+    selectedIds: Id[]
 }
 
 // Define the initial state using that type
@@ -31,7 +31,7 @@ export const selectionSlice = createSlice({
         //         state.lastAdded = undefined
         //     }
         // },
-        selectOne: (state, action: PayloadAction<{ sourceId: string, featureId: number }>) => {
+        selectOne: (state, action: PayloadAction<{ sourceId: Id, featureId: Id }>) => {
             state.sourceId = action.payload.sourceId
             state.selectedIds = [action.payload.featureId]
         },
@@ -75,19 +75,19 @@ export const selectProperties = (state: RootState) => {
     }
 
     const ids = state.selection.selectedIds
-    const featureId = ids[0]
+    const dataId = ids[0]
 
-    const source = state.source.items[sourceId]
-    if (!source) {
+    const dataset = state.source.items[sourceId]
+    if (!dataset) {
         return null
     }
 
-    const feature = source.data.features.find(f => f.id === featureId)
-    if (!feature) {
+    const row = dataset.data.find(f => f.id === dataId) as DatasetRow<any>
+    if (!row) {
         return null
     }
 
-    const props = feature.properties
+    const props = row.data
     if (!props) {
         return null
     }
