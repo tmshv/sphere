@@ -8,8 +8,7 @@ import layer from './layer'
 import selection from './selection'
 import app from './app'
 import * as listeners from './listeners'
-
-export {actions} from "./actions"
+export { actions } from "./actions"
 
 export const store = configureStore({
     reducer: {
