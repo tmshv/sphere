@@ -62,7 +62,7 @@ export type PhotoLayerProps = {
 
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
     const features = useAppSelector(state => {
-        const source = state.source.items[sourceId] as Dataset<GeoJSON.Point>
+        const source = state.source.items[sourceId].dataset as Dataset<GeoJSON.Point>
         return source.data
             .filter(f => {
                 const { src } = getImage(f.data)
