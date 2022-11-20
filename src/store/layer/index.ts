@@ -2,6 +2,7 @@ import { createAction, createReducer, createSlice, isAnyOf } from '@reduxjs/tool
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
 import { Id, LayerType } from '@/types'
+import { sourceSlice } from '../source'
 
 type Layer = {
     id: Id
@@ -94,6 +95,17 @@ export const layerSlice = createSlice({
             layer.heatmap!.radius = value
         },
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(sourceSlice.actions.removeSource, (state, action) => {
+                const sourceId = action.payload
+                for (const id of state.allIds) {
+                    if (state.items[id].sourceId === sourceId) {
+                        state.items[id].sourceId = undefined
+                    }
+                }
+            })
+    }
 })
 
 export const addBlankLayer = createAction("layer/addBlankLayer")
