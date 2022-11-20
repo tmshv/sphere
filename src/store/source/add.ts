@@ -40,16 +40,18 @@ export const addFromUrl = createAsyncThunk('source/addFromFile', async (url: str
 
     const name = await basename(path)
     const ext = await extname(path)
+    if (!ext) {
+        throw new Error(`Cannot read file extension`)
+    }
+
     if (!parsers.has(ext)) {
-        console.log("Cannot find parser")
-        return null
+        throw new Error(`File "${ext}" is not supported`)
     }
     const parser = parsers.get(ext)!
 
     const datasets = await parser(name, url, raw)
     if (!datasets) {
-        console.log("Failed to read")
-        return null
+        throw new Error("Failed to read file")
     }
 
     return datasets

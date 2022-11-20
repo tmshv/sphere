@@ -7,12 +7,14 @@ import source from './source'
 import layer from './layer'
 import selection from './selection'
 import app from './app'
+import error from './error'
 import * as listeners from './listeners'
 export { actions } from "./actions"
 
 export const store = configureStore({
     reducer: {
         app,
+        error,
         projection,
         mapStyle,
         fog,
@@ -33,6 +35,8 @@ export const store = configureStore({
             .prepend(listeners.addSourceMiddleware.middleware)
             .prepend(listeners.readFromFilesMiddleware.middleware)
             .prepend(listeners.duplicateLayerMiddleware.middleware)
+            .prepend(listeners.failMiddleware.middleware)
+            .prepend(listeners.clearErrorMiddleware.middleware)
     },
 })
 

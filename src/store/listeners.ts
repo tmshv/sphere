@@ -20,6 +20,26 @@ const sourceToLayer = new Map<SourceType, LayerType>([
     [SourceType.Polygons, LayerType.Polygon],
 ])
 
+export const failMiddleware = createListenerMiddleware();
+failMiddleware.startListening({
+    matcher: isAnyOf(
+        actions.source.addFromFile.rejected,
+        actions.source.addFromUrl.rejected,
+    ),
+    effect: async (action, listenerApi) => {
+        listenerApi.dispatch(actions.error.setError(action.error.message))
+    },
+});
+
+export const clearErrorMiddleware = createListenerMiddleware();
+clearErrorMiddleware.startListening({
+    actionCreator: actions.error.setError,
+    effect: async (action, listenerApi) => {
+        await listenerApi.delay(3000)
+        listenerApi.dispatch(actions.error.clear())
+    },
+});
+
 export const mapResizeMiddleware = createListenerMiddleware();
 mapResizeMiddleware.startListening({
     actionCreator: resize,

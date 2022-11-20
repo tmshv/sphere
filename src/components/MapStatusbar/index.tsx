@@ -11,6 +11,7 @@ import { actions } from "@/store";
 import { selectProjection } from "@/store/projection";
 import { selectShowLeftSidebar, selectVersion } from "@/store/app";
 import { selectIsShowTerrain } from "@/store/terrain";
+import { selectErrorMessage } from "@/store/error";
 
 const useStyle = createStyles(theme => ({
     s: {
@@ -38,6 +39,11 @@ const useStyle = createStyles(theme => ({
         top: 1,
 
         backgroundColor: theme.colors.dark,
+        color: theme.white,
+    },
+
+    error: {
+        backgroundColor: theme.colors.red[8],
         color: theme.white,
     },
 
@@ -81,6 +87,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const sources = useAppSelector(selectSourcesAmount)
     const projection = useAppSelector(selectProjection)
     const terrain = useAppSelector(selectIsShowTerrain)
+    const errorMessage = useAppSelector(selectErrorMessage)
     const isGlobe = projection === "globe"
 
     return (
@@ -102,6 +109,12 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
             <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">lng={format(round(lng, 1000000), 5)}</Badge>
             <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">lat={format(round(lat, 1000000), 5)}</Badge>
+
+            {!errorMessage ? null : (
+                <Badge className={cx(s.widget, s.error)} title={"Error"} radius={"sm"} size="sm" variant="filled">
+                    {errorMessage}
+                </Badge>
+            )}
 
             <div className={s.s}></div>
 
