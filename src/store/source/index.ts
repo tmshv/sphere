@@ -1,5 +1,6 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { addFromFile, addFromUrl, addFromFiles, } from './add'
 import { RootState } from '..'
 import { Dataset, Id } from '@/types'
 
@@ -45,6 +46,15 @@ export const sourceSlice = createSlice({
 
 export const zoomTo = createAction<string>("source/zoomTo")
 export const addFiles = createAction("source/addFiles")
+
+export const actions = {
+    ...sourceSlice.actions,
+    zoomTo,
+    addFiles,
+        addFromFiles,
+        addFromFile,
+        addFromUrl,
+}
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectSourcesAmount = (state: RootState) => state.source.allIds.length

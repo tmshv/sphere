@@ -1,4 +1,4 @@
-import { createAction, createReducer, createSlice, isAnyOf } from '@reduxjs/toolkit'
+import { createAction, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
 import { Id, LayerType } from '@/types'
@@ -109,6 +109,13 @@ export const layerSlice = createSlice({
 })
 
 export const addBlankLayer = createAction("layer/addBlankLayer")
+export const duplicate = createAction<string>("layer/duplicate")
+
+export const actions = {
+    ...layerSlice.actions,
+    addBlankLayer,
+    duplicate,
+}
 
 export const selectLayerIds = (state: RootState) => state.layer.allIds
 

@@ -1,19 +1,18 @@
 import { open } from '@tauri-apps/api/dialog';
 import { isAnyOf } from '@reduxjs/toolkit'
-import { addFiles, zoomTo } from './source'
-import { addBlankLayer } from './layer'
 import { selectionSlice } from './selection'
 import { appSlice } from './app'
 import { fitBounds, resize } from './map'
-import { addFromFile, addFromUrl, addFromFiles, } from './source/add'
 import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { getMap } from '../map'
+import { getMap } from '@/map'
 import mapboxgl from 'mapbox-gl'
 import { Dataset, LayerType, SourceType } from '@/types'
 import { nextId } from '@/lib/nextId'
 import { featureCollection } from '@turf/turf'
-import { actions, RootState } from '.';
+import { duplicate } from './layer';
+import { actions } from './actions';
+import { RootState } from '.';
 
 const sourceToLayer = new Map<SourceType, LayerType>([
     [SourceType.Points, LayerType.Point],
@@ -37,7 +36,7 @@ mapResizeMiddleware.startListening({
 
 export const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
-    actionCreator: addFromFiles,
+    actionCreator: actions.source.addFromFiles,
     effect: async (action, listenerApi) => {
         for (const file of action.payload) {
             listenerApi.dispatch(actions.source.addFromFile(file))
@@ -65,7 +64,7 @@ readFromFilesMiddleware.startListening({
 
 export const zoomToMiddleware = createListenerMiddleware();
 zoomToMiddleware.startListening({
-    actionCreator: zoomTo,
+    actionCreator: actions.source.zoomTo,
     effect: async (action, listenerApi) => {
         const mapId = "spheremap"
         const map = getMap(mapId)
@@ -128,7 +127,10 @@ selectFeaturesMiddleware.startListening({
 
 export const addSourceMiddleware = createListenerMiddleware();
 addSourceMiddleware.startListening({
-    matcher: isAnyOf(addFromFile.fulfilled, addFromUrl.fulfilled),
+    matcher: isAnyOf(
+        actions.source.addFromFile.fulfilled,
+        actions.source.addFromUrl.fulfilled,
+    ),
     effect: async (action, listenerApi) => {
         console.log("Adding", action)
         const payload = action.payload as Dataset[]
@@ -163,7 +165,7 @@ addSourceMiddleware.startListening({
 
 export const addFilesMissleware = createListenerMiddleware();
 addFilesMissleware.startListening({
-    actionCreator: addFiles,
+    actionCreator: actions.source.addFiles,
     effect: async (_, listenerApi) => {
         const selected = await open({
             multiple: true,
@@ -186,7 +188,7 @@ addFilesMissleware.startListening({
 
 export const addBlankLayerMiddleware = createListenerMiddleware();
 addBlankLayerMiddleware.startListening({
-    actionCreator: addBlankLayer,
+    actionCreator: actions.layer.addBlankLayer,
     effect: async (action, listenerApi) => {
         const layerId = `${nextId()}`
         const name = "New Layer"
@@ -223,5 +225,22 @@ forceResizeMapMiddleware.startListening({
         await listenerApi.delay(0)
 
         map.resize()
+    },
+});
+
+export const duplicateLayerMiddleware = createListenerMiddleware();
+duplicateLayerMiddleware.startListening({
+    actionCreator: duplicate,
+    effect: async (action, listenerApi) => {
+        const layerId = action.payload
+        const state = listenerApi.getOriginalState() as RootState
+        const layer = state.layer.items[layerId]
+
+        listenerApi.dispatch(actions.layer.addLayer({
+            ...layer,
+            id: nextId(),
+            name: layer.name + " copy",
+            visible: true,
+        }))
     },
 });

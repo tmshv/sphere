@@ -1,6 +1,6 @@
 import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash } from '@tabler/icons';
+import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy } from '@tabler/icons';
 import { LayerType } from "@/types";
 import { actions } from "@/store";
 import { ActionBar } from "@/ui/ActionBar";
@@ -78,12 +78,8 @@ export const LayerPanel: React.FC = () => {
                             dispatch(actions.source.zoomTo(sourceId!))
                             break
                         }
-                        case "hide": {
-                            break
-                            //
-                        }
-                        case "new": {
-                            dispatch(actions.layer.addBlankLayer())
+                        case "duplicate": {
+                            dispatch(actions.layer.duplicate(layerId))
                             break
                         }
                         default: {
@@ -99,6 +95,11 @@ export const LayerPanel: React.FC = () => {
                         color: "red",
                     },
                     null,
+                    {
+                        name: "duplicate",
+                        label: "Duplicate layer",
+                        icon: IconCopy,
+                    },
                     {
                         name: "zoom",
                         label: "Zoom to layer",
