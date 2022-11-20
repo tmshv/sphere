@@ -62,9 +62,9 @@ export const actions = {
     ...sourceSlice.actions,
     zoomTo,
     addFiles,
-        addFromFiles,
-        addFromFile,
-        addFromUrl,
+    addFromFiles,
+    addFromFile,
+    addFromUrl,
 }
 
 // Other code such as selectors can use the imported `RootState` type
