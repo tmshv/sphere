@@ -39,16 +39,11 @@ export const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
     actionCreator: addFromFiles,
     effect: async (action, listenerApi) => {
-        const state = listenerApi.getOriginalState() as RootState
-
         for (const file of action.payload) {
             listenerApi.dispatch(actions.source.addFromFile(file))
         }
 
-        const sidebar = state.app.showLeftSidebar
-        if (!sidebar) {
-            listenerApi.dispatch(actions.app.showLeftSidebar())
-        }
+        listenerApi.dispatch(actions.app.showLeftSidebar())
 
         // await listenerApi.delay(1000)
 
