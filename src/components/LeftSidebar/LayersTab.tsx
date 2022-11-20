@@ -21,7 +21,6 @@ export const LayersTab: React.FC = () => {
     const [value, setValue] = useState<string[]>([]);
 
     const onClick = useCallback<ActionBarOnClick>(name => {
-        console.log(name, layerId, sourceId)
         switch (name) {
             case "trash": {
                 dispatch(actions.layer.removeLayer(layerId!))
