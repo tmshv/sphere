@@ -1,27 +1,12 @@
 import { actions } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import layer from '@/store/layer';
-import { Accordion, AccordionControlProps, ActionIcon, Box, Flex, Paper, ScrollArea, Space, Tabs, TabsProps } from '@mantine/core';
-import { IconBulbOff, IconCrosshair, IconDatabase, IconPlus, IconSettings, IconStack, IconTrash, IconWorld } from '@tabler/icons';
+import { Accordion, ActionIcon, Flex, Paper, Space, Tabs, TabsProps } from '@mantine/core';
+import { IconBulbOff, IconCrosshair, IconDatabase, IconPlus, IconStack, IconTrash, IconWorld } from '@tabler/icons';
 import { useState } from 'react';
 import { LayerPanel } from '../LayerPanel';
 import { LayersOutline } from '../LayersOutline';
 import { SourcePanel } from '../SourcePanel';
 import { SourcesOutline } from '../SourcesOutline';
-
-const AccordionControl: React.FC<AccordionControlProps> = ({ icon, ...props }) => {
-    return (
-        <Accordion.Control {...props} />
-    );
-    // return (
-    //     <Box sx={{
-    //         display: 'flex',
-    //         alignItems: 'center',
-    //     }}>
-    //         <Accordion.Control {...props} />
-    //     </Box>
-    // );
-}
 
 export function StyledTabs(props: TabsProps) {
     return (
@@ -32,7 +17,8 @@ export function StyledTabs(props: TabsProps) {
                 backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
                 color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[9],
                 border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[4]}`,
-                padding: `${theme.spacing.sm}px ${theme.spacing.md}px`,
+                // padding: `${theme.spacing.xs}px ${theme.spacing.md}px`,
+                height: 30,
                 cursor: 'pointer',
                 fontSize: theme.fontSizes.sm,
                 display: 'flex',
@@ -93,7 +79,7 @@ export function Left() {
 
     return (
         <StyledTabs defaultValue={"layers"} keepMounted={false}>
-            <Tabs.List p={"md"}>
+            <Tabs.List pl={"md"} pr={"md"} pt={"sm"} pb={"sm"}>
                 <Tabs.Tab value="layers" icon={<IconStack size={16} />}>
                     Layers
                 </Tabs.Tab>
@@ -109,11 +95,6 @@ export function Left() {
             </Tabs.List>
 
             <Tabs.Panel value="layers">
-                {/* <ScrollArea>
-                    <Paper pt={"md"} style={{
-                        width: 300,
-                        overflow: "hidden",
-                    }}> */}
                 <Flex direction={"row"} gap={"xs"} pl={"md"} pr={"md"}>
                     <ActionIcon size={"md"} disabled={!layerId}> 
                         <IconTrash size={16} color={"red"} onClick={() => {
@@ -140,7 +121,7 @@ export function Left() {
 
                 <Accordion multiple
                     onChange={setValue}
-                    pt={"md"}
+                    pt={"sm"}
                     variant="default"
                     styles={theme => ({
                         item: {

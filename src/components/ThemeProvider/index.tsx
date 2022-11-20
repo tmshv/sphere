@@ -14,7 +14,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
             colorScheme: isDark ? "dark" : "light",
             spacing: {
                 xs: 4,
-                sm: 6,
+                // sm: 6,
                 xl: 28, // height of Window Title
             },
             headings: {

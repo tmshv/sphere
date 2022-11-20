@@ -6,7 +6,6 @@ import { AppLayout } from "../../ui/AppLayout";
 import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 import { Spotlight } from "../Spotlight";
-import { useAppSelector } from "../../store/hooks";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIsDark, selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "../../store/app";
 import { selectProperties } from "../../store/selection";
@@ -22,11 +21,9 @@ export type AppProps = {
 }
 
 export const App: React.FC<AppProps> = ({ }) => {
-    const theme = useMantineTheme()
     const dispatch = useAppDispatch()
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
-    const isDark = useAppSelector(selectIsDark)
     const left = useAppSelector(selectShowLeftSidebar)
     const right = useAppSelector(selectShowRightSidebar)
     const props = useAppSelector(selectProperties)
