@@ -1,9 +1,9 @@
-import { AccordionControlProps, ActionIcon, Badge, Box, Button, ColorPicker, Flex, HueSlider, Input, RangeSlider, Select, Slider, Switch, Text, TextInput } from "@mantine/core";
+import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconPlus } from '@tabler/icons';
-import { Accordion } from '@mantine/core';
+import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash } from '@tabler/icons';
 import { LayerType } from "@/types";
 import { actions } from "@/store";
+import { ActionBar } from "@/ui/ActionBar";
 
 export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -31,11 +31,10 @@ export const LayerPanel: React.FC = () => {
             heatmapRadius: s.heatmap?.radius ?? 10,
         }
     })
-
     if (!layer) {
         return null
     }
-    const { id, sourceId, visible, name, type, color, circleRange, heatmapRadius } = layer
+    const { id: layerId, sourceId, visible, name, type, color, circleRange, heatmapRadius } = layer
 
     let icon: React.ReactNode = null
 
@@ -67,6 +66,47 @@ export const LayerPanel: React.FC = () => {
 
     return (
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
+            <ActionBar
+                tooltipPosition={"top"}
+                onClick={name => {
+                    switch (name) {
+                        case "trash": {
+                            dispatch(actions.layer.removeLayer(layerId!))
+                            break
+                        }
+                        case "zoom": {
+                            dispatch(actions.source.zoomTo(sourceId!))
+                            break
+                        }
+                        case "hide": {
+                            break
+                            //
+                        }
+                        case "new": {
+                            dispatch(actions.layer.addBlankLayer())
+                            break
+                        }
+                        default: {
+                        }
+                    }
+                }}
+                items={[
+                    {
+                        name: "trash",
+                        label: "Delete layer",
+                        disabled: !layerId,
+                        icon: IconTrash,
+                        color: "red",
+                    },
+                    null,
+                    {
+                        name: "zoom",
+                        label: "Zoom to layer",
+                        disabled: !sourceId,
+                        icon: IconCrosshair,
+                    },
+                ]}
+            />
             <TextInput
                 size="xs"
                 label="Name"
@@ -74,7 +114,7 @@ export const LayerPanel: React.FC = () => {
                 onChange={event => {
                     const value = event.target.value
                     dispatch(actions.layer.setName({
-                        id,
+                        id: layerId,
                         value,
                     }))
                 }}
@@ -89,7 +129,7 @@ export const LayerPanel: React.FC = () => {
                 onChange={value => {
                     if (value) {
                         dispatch(actions.layer.setSource({
-                            id,
+                            id: layerId,
                             sourceId: value,
                         }))
                     }
@@ -111,7 +151,7 @@ export const LayerPanel: React.FC = () => {
                 onChange={value => {
                     if (value) {
                         dispatch(actions.layer.setType({
-                            id,
+                            id: layerId,
                             type: value as LayerType
                         }))
                     }
@@ -120,8 +160,8 @@ export const LayerPanel: React.FC = () => {
 
             <Input.Wrapper label={(
                 <>
-                Color
-                <Badge ml={"xs"} size="xs" radius={"sm"}>{color}</Badge>
+                    Color
+                    <Badge ml={"xs"} size="xs" radius={"sm"}>{color}</Badge>
                 </>
             )} size="xs">
                 <ColorPicker
@@ -140,7 +180,7 @@ export const LayerPanel: React.FC = () => {
                         },
                     })}
                     onChange={color => {
-                        dispatch(actions.layer.setColor({ id, color }))
+                        dispatch(actions.layer.setColor({ id: layerId, color }))
                     }}
                 />
             </Input.Wrapper>
@@ -154,7 +194,7 @@ export const LayerPanel: React.FC = () => {
                         value={circleRange[1]}
                         onChange={max => {
                             dispatch(actions.layer.setCircleRadius({
-                                id,
+                                id: layerId,
                                 min: 0,
                                 max,
                             }))
@@ -173,7 +213,7 @@ export const LayerPanel: React.FC = () => {
                         value={heatmapRadius}
                         onChange={value => {
                             dispatch(actions.layer.setHeatmapRadius({
-                                id,
+                                id: layerId,
                                 value,
                             }))
                         }}

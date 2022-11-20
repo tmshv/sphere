@@ -1,7 +1,7 @@
 import { actions } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Accordion } from '@mantine/core';
-import { IconBulbOff, IconCrosshair, IconPlus, IconTrash } from '@tabler/icons';
+import { IconBulbOff, IconPlus } from '@tabler/icons';
 import { useCallback, useState } from 'react';
 import { LayerPanel } from '../LayerPanel';
 import { LayersOutline } from '../LayersOutline';
@@ -22,14 +22,6 @@ export const LayersTab: React.FC = () => {
 
     const onClick = useCallback<ActionBarOnClick>(name => {
         switch (name) {
-            case "trash": {
-                dispatch(actions.layer.removeLayer(layerId!))
-                break
-            }
-            case "zoom": {
-                dispatch(actions.source.zoomTo(sourceId!))
-                break
-            }
             case "hide": {
                 break
                 //
@@ -51,19 +43,6 @@ export const LayersTab: React.FC = () => {
                 tooltipPosition={"top"}
                 onClick={onClick}
                 items={[
-                    {
-                        name: "trash",
-                        label: "Delete layer",
-                        disabled: !layerId,
-                        icon: IconTrash,
-                        color: "red",
-                    },
-                    {
-                        name: "zoom",
-                        label: "Zoom to layer",
-                        disabled: !sourceId,
-                        icon: IconCrosshair,
-                    },
                     null,
                     {
                         name: "hide",
