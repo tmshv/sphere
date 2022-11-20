@@ -63,7 +63,7 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
         document.addEventListener('mousemove', move, true);
 
         return () => {
-            ref!.current!.removeEventListener('mousedown', down);
+            // ref!.current!.removeEventListener('mousedown', down);
             document.removeEventListener('mouseup', up, true);
             document.removeEventListener('mousemove', move, true);
         };
