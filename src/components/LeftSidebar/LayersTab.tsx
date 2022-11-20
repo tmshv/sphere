@@ -1,10 +1,11 @@
 import { actions } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { Accordion, ActionIcon, Flex, Space } from '@mantine/core';
+import { Accordion } from '@mantine/core';
 import { IconBulbOff, IconCrosshair, IconPlus, IconTrash } from '@tabler/icons';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { LayerPanel } from '../LayerPanel';
 import { LayersOutline } from '../LayersOutline';
+import { ActionBar, ActionBarOnClick } from '@/ui/ActionBar';
 
 export const LayersTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -18,31 +19,63 @@ export const LayersTab: React.FC = () => {
     })
     const [value, setValue] = useState<string[]>([]);
 
+    const onClick = useCallback<ActionBarOnClick>(name => {
+        console.log(name, layerId, sourceId)
+        switch (name) {
+            case "trash": {
+                dispatch(actions.layer.removeLayer(layerId!))
+                break
+            }
+            case "zoom": {
+                dispatch(actions.source.zoomTo(sourceId!))
+                break
+            }
+            case "hide": {
+                //
+            }
+            case "new": {
+                dispatch(actions.layer.addBlankLayer())
+                break
+            }
+            default: {
+            }
+        }
+    }, [layerId, sourceId])
+
     return (
         <>
-            <Flex direction={"row"} gap={"xs"} pl={"sm"} pr={"sm"}>
-                <ActionIcon size={"md"} disabled={!layerId}>
-                    <IconTrash size={16} color={"red"} onClick={() => {
-                        dispatch(actions.layer.removeLayer(layerId!))
-                    }} />
-                </ActionIcon>
-                <ActionIcon size={"md"} disabled={!sourceId}>
-                    <IconCrosshair size={16} onClick={() => {
-                        dispatch(actions.source.zoomTo(sourceId!))
-                    }} />
-                </ActionIcon>
-
-                <Space style={{ flex: 1 }} />
-
-                <ActionIcon size={"md"}>
-                    <IconBulbOff size={16} />
-                </ActionIcon>
-                <ActionIcon size={"md"} onClick={() => {
-                    dispatch(actions.layer.addBlankLayer())
-                }}>
-                    <IconPlus size={16} />
-                </ActionIcon>
-            </Flex>
+            <ActionBar
+                pl={"sm"}
+                pr={"sm"}
+                tooltipPosition={"top"}
+                onClick={onClick}
+                items={[
+                    {
+                        name: "trash",
+                        label: "Delete layer",
+                        disabled: !layerId,
+                        icon: IconTrash,
+                        color: "red",
+                    },
+                    {
+                        name: "zoom",
+                        label: "Zoom to layer",
+                        disabled: !sourceId,
+                        icon: IconCrosshair,
+                    },
+                    null,
+                    {
+                        name: "hide",
+                        label: "Hide all layers",
+                        icon: IconBulbOff,
+                    },
+                    {
+                        name: "new",
+                        label: "New layer",
+                        icon: IconPlus,
+                    },
+                ]}
+            />
 
             <Accordion multiple
                 value={value}
