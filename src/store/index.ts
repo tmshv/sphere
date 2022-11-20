@@ -9,13 +9,13 @@ import layer, { layerSlice, addBlankLayer } from './layer'
 import selection, { selectionSlice } from './selection'
 import app, { appSlice } from './app'
 import { fitBounds, resize } from './map'
-import { readFromFile, addFromFiles, } from './source/readFromFile'
+import { addFromFile, addFromUrl, addFromFiles, } from './source/add'
 import * as turf from '@turf/turf'
 
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '../map'
 import mapboxgl from 'mapbox-gl'
-import { LayerType, SourceType } from '@/types'
+import { Dataset, LayerType, SourceType } from '@/types'
 import { nextId } from '@/lib/nextId'
 import { featureCollection } from '@turf/turf'
 
@@ -45,7 +45,7 @@ readFromFilesMiddleware.startListening({
         const state = listenerApi.getOriginalState() as RootState
 
         for (const file of action.payload) {
-            listenerApi.dispatch(actions.source.readFromFile(file))
+            listenerApi.dispatch(actions.source.addFromFile(file))
         }
 
         const sidebar = state.app.showLeftSidebar
@@ -134,11 +134,12 @@ selectFeaturesMiddleware.startListening({
     },
 });
 
-const readFromFileMiddleware = createListenerMiddleware();
-readFromFileMiddleware.startListening({
-    actionCreator: readFromFile.fulfilled,
+const addSourceMiddleware = createListenerMiddleware();
+addSourceMiddleware.startListening({
+    matcher: isAnyOf(addFromFile.fulfilled, addFromUrl.fulfilled),
     effect: async (action, listenerApi) => {
-        const payload = action.payload
+        console.log("Adding", action)
+        const payload = action.payload as Dataset[]
         if (!payload) {
             return
         }
@@ -147,7 +148,6 @@ readFromFileMiddleware.startListening({
                 continue
             }
 
-            // const sourceId = `${nextId()}`
             const sourceId = dataset.id
             listenerApi.dispatch(actions.source.addSource(dataset))
 
@@ -181,7 +181,7 @@ addFilesMissleware.startListening({
             }]
         });
         if (!selected) {
-            return 
+            return
         }
 
         if (Array.isArray(selected)) {
@@ -254,7 +254,7 @@ export const store = configureStore({
             .prepend(zoomToMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
             .prepend(addFilesMissleware.middleware)
-            .prepend(readFromFileMiddleware.middleware)
+            .prepend(addSourceMiddleware.middleware)
             .prepend(readFromFilesMiddleware.middleware)
     }
 })
@@ -275,7 +275,8 @@ export const actions = {
         ...sourceSlice.actions,
         zoomTo,
         addFromFiles,
-        readFromFile,
+        addFromFile,
+        addFromUrl,
         addFiles,
     },
     layer: {

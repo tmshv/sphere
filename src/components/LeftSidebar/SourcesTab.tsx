@@ -1,7 +1,8 @@
 import { actions } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { Accordion } from '@mantine/core';
-import { IconCrosshair, IconPlus, IconTrash } from '@tabler/icons';
+import { Accordion, Button, Flex, Group, Modal, Stack, TextInput } from '@mantine/core';
+import { IconCrosshair, IconLink, IconPlus, IconTrash } from '@tabler/icons';
+import { useForm } from '@mantine/form';
 import { useCallback, useState } from 'react';
 import { ActionBar, ActionBarOnClick } from '@/ui/ActionBar';
 import { StyledAccordion } from './StyledAccordion';
@@ -13,7 +14,14 @@ export const SourcesTab: React.FC = () => {
     const sourceId = useAppSelector(state => {
         return state.selection.sourceId
     })
+    const [showModal, setShowModal] = useState(false)
     const [value, setValue] = useState<string[]>([]);
+    const form = useForm({
+        initialValues: {
+            // url: 'https://s.tmshv.com/20220901-voronezh_karlamarksa-liked.geojson',
+            url: 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
+        },
+    });
 
     const onClick = useCallback<ActionBarOnClick>(name => {
         switch (name) {
@@ -23,6 +31,10 @@ export const SourcesTab: React.FC = () => {
             }
             case "zoom": {
                 dispatch(actions.source.zoomTo(sourceId!))
+                break
+            }
+            case "add-from-url": {
+                setShowModal(true)
                 break
             }
             case "new": {
@@ -36,6 +48,38 @@ export const SourcesTab: React.FC = () => {
 
     return (
         <>
+            <Modal
+                centered
+                opened={showModal}
+                onClose={() => setShowModal(false)}
+                title="Input URL"
+                size={"md"}
+            >
+                <form onSubmit={form.onSubmit((values) => {
+                    setShowModal(false)
+
+                    dispatch(actions.source.addFromUrl(values.url))
+                })}>
+                    <TextInput
+                        withAsterisk
+                        label="URL"
+                        placeholder=""
+                        {...form.getInputProps('url')}
+                    />
+
+                    <Group position="right" mt="md">
+                        <Button type="submit">Submit</Button>
+                    </Group>
+
+                    {/* <Stack>
+                        <TextInput size={"xs"} label="URL" />
+                        <Flex direction={"row-reverse"}>
+                            <Button>Ok</Button>
+                        </Flex>
+                    </Stack> */}
+                </form>
+            </Modal>
+
             <ActionBar
                 pl={"sm"}
                 pr={"sm"}
@@ -56,6 +100,11 @@ export const SourcesTab: React.FC = () => {
                         icon: IconCrosshair,
                     },
                     null,
+                    {
+                        name: "add-from-url",
+                        label: "Add from URL",
+                        icon: IconLink,
+                    },
                     {
                         name: "new",
                         label: "New source",
