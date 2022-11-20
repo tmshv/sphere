@@ -20,8 +20,8 @@ export const SourcePanel: React.FC = () => {
 
         return {
             id,
-            name: source.name,
-            type: source.type,
+            name: source.dataset.name,
+            type: source.dataset.type,
         }
     })
     const theme = useMantineTheme();

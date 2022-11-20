@@ -99,7 +99,7 @@ zoomToMiddleware.startListening({
             return
         }
 
-        const fc = featureCollection(source.data.map(g => {
+        const fc = featureCollection(source.dataset.data.map(g => {
             return {
                 type: "Feature",
                 geometry: g.geometry,

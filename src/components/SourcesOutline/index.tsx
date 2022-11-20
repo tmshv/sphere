@@ -10,7 +10,7 @@ export const SourcesOutline: React.FC = () => {
     const dispatch = useAppDispatch()
     const currentId = useAppSelector(selectCurrentSource)
     const sources = useAppSelector(state => state.source.allIds.map(id => {
-        const s = state.source.items[id]
+        const s = state.source.items[id].dataset
 
         return {
             id,

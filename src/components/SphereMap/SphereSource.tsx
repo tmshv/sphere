@@ -12,7 +12,7 @@ export type SphereSourceProps = {
 
 export const SphereSource: React.FC<SphereSourceProps> = ({ id, children }) => {
     const data = useAppSelector(state => {
-        const { type, data } = state.source.items[id]
+        const { type, data } = state.source.items[id].dataset
 
         switch (type) {
             case SourceType.Points: {

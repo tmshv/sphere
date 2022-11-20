@@ -4,9 +4,16 @@ import { addFromFile, addFromUrl, addFromFiles, } from './add'
 import { RootState } from '..'
 import { Dataset, Id } from '@/types'
 
+
+type Source = {
+    id: Id
+    dataset: Dataset
+    fractionIndex: number
+}
+
 // Define a type for the slice state
 type SourceState = {
-    items: Record<string, Dataset>
+    items: Record<string, Source>
     allIds: Id[]
     lastAdded?: Id
 }
@@ -29,7 +36,11 @@ export const sourceSlice = createSlice({
         },
         addSource: (state, action: PayloadAction<Dataset>) => {
             const sourceId = action.payload.id
-            state.items[sourceId] = action.payload
+            state.items[sourceId] = {
+                id: sourceId,
+                dataset: action.payload,
+                fractionIndex: 0,
+            }
             state.allIds.push(sourceId)
             state.lastAdded = action.payload.id
         },
