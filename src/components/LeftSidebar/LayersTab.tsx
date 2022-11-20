@@ -31,6 +31,7 @@ export const LayersTab: React.FC = () => {
                 break
             }
             case "hide": {
+                break
                 //
             }
             case "new": {
