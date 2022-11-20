@@ -24,7 +24,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { sourceId, type, visible, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
+    const { id: layerId, sourceId, type, visible, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -33,6 +33,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         case LayerType.Point: {
             return (
                 <PointLayer
+                    layerId={layerId}
                     sourceId={sourceId}
                     color={color}
                     options={circle}
@@ -43,16 +44,18 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         case LayerType.Line: {
             return (
                 <LineStringLayer
-                    thick={false}
+                    layerId={layerId}
                     sourceId={sourceId}
                     color={color}
                     visible={visible}
+                    thick={false}
                 />
             )
         }
         case LayerType.Polygon: {
             return (
                 <PolygonLayer
+                    layerId={layerId}
                     sourceId={sourceId}
                     color={color}
                     visible={visible}
@@ -62,6 +65,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         case LayerType.Photo: {
             return !visible ? null : (
                 <PhotoLayer
+                    layerId={layerId}
                     sourceId={sourceId}
                     getImage={getImage}
                     clusterRadius={50}
@@ -73,6 +77,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         case LayerType.Heatmap: {
             return (
                 <HeatmapLayer
+                    layerId={layerId}
                     sourceId={sourceId}
                     options={heatmap!}
                     visible={visible}

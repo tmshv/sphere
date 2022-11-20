@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { HeatmapPaint } from "mapbox-gl";
 
 export type HeatmapLayerProps = {
+    layerId: string
     sourceId: string
     visible: boolean
     options: {
@@ -10,7 +11,7 @@ export type HeatmapLayerProps = {
     }
 }
 
-export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ sourceId, options, visible }) => {
+export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, options, visible }) => {
     const heatmap = useMemo(() => {
         const heatmap: HeatmapPaint = {
             // Increase the heatmap weight based on frequency and property magnitude
@@ -81,7 +82,7 @@ export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ sourceId, options, v
 
     return (
         <Layer
-            id={`${sourceId}-heatmap`}
+            id={`${layerId}-heatmap`}
             source={sourceId}
             type={"heatmap"}
             paint={heatmap}

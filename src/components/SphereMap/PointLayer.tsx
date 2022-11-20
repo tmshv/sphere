@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { CirclePaint } from "mapbox-gl";
 
 export type PointLayerProps = {
+    layerId: string
     sourceId: string
     color: string
     visible: boolean
@@ -12,7 +13,7 @@ export type PointLayerProps = {
     }
 }
 
-export const PointLayer: React.FC<PointLayerProps> = ({ sourceId, color, options, visible }) => {
+export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, color, options, visible }) => {
     const circle = useMemo(() => {
         const circle: CirclePaint = {
             "circle-color": color,
@@ -25,7 +26,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ sourceId, color, options
 
     return (
         <Layer
-            id={`${sourceId}-circles`}
+            id={layerId}
             source={sourceId}
             type={"circle"}
             paint={circle}

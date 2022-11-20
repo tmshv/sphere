@@ -53,6 +53,7 @@ export type GetImageFunction = (p: Record<string, any>) => {
 }
 
 export type PhotoLayerProps = {
+    layerId: string
     sourceId: string
     clusterRadius: number
     getImage: GetImageFunction
