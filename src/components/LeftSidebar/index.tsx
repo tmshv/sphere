@@ -68,7 +68,7 @@ export function StyledTabs(props: TabsProps) {
 export const LeftSidebar: React.FC = () => {
     return (
         <StyledTabs defaultValue={"layers"} keepMounted={false}>
-            <Tabs.List pl={"md"} pr={"md"} pt={"sm"} pb={"sm"}>
+            <Tabs.List p={"sm"}>
                 <Tabs.Tab value="layers" icon={<IconStack size={16} />}>
                     Layers
                 </Tabs.Tab>
