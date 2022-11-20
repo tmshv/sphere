@@ -7,7 +7,7 @@ import source, { sourceSlice, zoomTo } from './source'
 import layer, { layerSlice, addBlankLayer } from './layer'
 import selection, { selectionSlice } from './selection'
 import app, { appSlice } from './app'
-import { fitBounds } from './map'
+import { fitBounds, resize } from './map'
 import { readFromFile, addFromFiles, } from './source/readFromFile'
 import * as turf from '@turf/turf'
 
@@ -24,6 +24,19 @@ const sourceToLayer = new Map<SourceType, LayerType>([
     [SourceType.Polygons, LayerType.Polygon],
 ])
 
+const mapResizeMiddleware = createListenerMiddleware();
+mapResizeMiddleware.startListening({
+    actionCreator: resize,
+    effect: async (action, listenerApi) => {
+        const mapId = action.payload
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+
+        map.resize()
+    },
+});
 const readFromFilesMiddleware = createListenerMiddleware();
 readFromFilesMiddleware.startListening({
     actionCreator: addFromFiles,
@@ -210,6 +223,7 @@ export const store = configureStore({
     },
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
+            .prepend(mapResizeMiddleware.middleware)
             .prepend(addBlankLayerMiddleware.middleware)
             .prepend(forceResizeMapMiddleware.middleware)
             .prepend(selectFeaturesMiddleware.middleware)
@@ -244,6 +258,7 @@ export const actions = {
     },
     map: {
         fitBounds,
+        resize,
     },
     selection: selectionSlice.actions,
 }

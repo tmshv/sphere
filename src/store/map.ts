@@ -6,3 +6,4 @@ export type FitBoundsPayload = {
     bounds: mapboxgl.LngLatBoundsLike
 }
 export const fitBounds = createAction<FitBoundsPayload>("map/fitBounds")
+export const resize = createAction<string>("map/resize")

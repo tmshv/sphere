@@ -7,12 +7,15 @@ import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 import { Spotlight } from "../Spotlight";
 import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIsDark, selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "../../store/app";
 import { selectProperties } from "../../store/selection";
 import { PropertiesViewer } from "../../ui/PropertiesViewer";
 import { Overlay } from "@/ui/Overlay";
 import { Toolbar } from "@/ui/Toolbar";
 import { Left } from "./left";
+import { Sidebar } from "@/ui/Sidebar";
+import { actions } from "@/store";
 
 export type AppProps = {
 
@@ -20,6 +23,7 @@ export type AppProps = {
 
 export const App: React.FC<AppProps> = ({ }) => {
     const theme = useMantineTheme()
+    const dispatch = useAppDispatch()
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
     const isDark = useAppSelector(selectIsDark)
@@ -45,13 +49,16 @@ export const App: React.FC<AppProps> = ({ }) => {
                             />
                         )}
                         leftSidebar={!showLeft ? null : (
-                            <Flex pt={"xl"} p={0}
-                                style={{
-                                    borderRight: `1px solid ${theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3]}`,
+                            <Sidebar
+                                startWidth={300}
+                                minWidth={200}
+                                maxWidth={500}
+                                onResize={() => {
+                                    dispatch(actions.map.resize(id))
                                 }}
                             >
                                 <Left />
-                            </Flex>
+                            </Sidebar>
                         )}
                         rightSidebar={!showRight ? null : (
                             <Container pt={"lg"} style={{
