@@ -48,7 +48,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                         leftSidebar={!showLeft ? null : (
                             <Sidebar
                                 startWidth={300}
-                                minWidth={200}
+                                minWidth={265}
                                 maxWidth={500}
                                 onResize={() => {
                                     dispatch(actions.map.resize(id))

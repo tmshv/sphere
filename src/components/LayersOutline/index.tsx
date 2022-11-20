@@ -32,7 +32,7 @@ export const LayersOutline: React.FC = () => {
     }))
 
     return (
-        <Flex direction={'column'} gap={'sm'} align={"stretch"}>
+        <Flex direction={'column'} gap={'xs'} align={"stretch"}>
             {items.map(({ id, name, type, color, visible }) => {
                 let icon: React.ReactNode = null
 
@@ -59,11 +59,15 @@ export const LayersOutline: React.FC = () => {
                 }
 
                 return (
-                    <Flex key={id} gap={"sm"} align="center">
+                    <Flex key={id} gap={"xs"} align="center">
                         <NavLink
                             w={"100%"}
                             key={id}
-                            styles={{
+                            styles={theme => ({
+                                root: {
+                                    paddingLeft: theme.spacing.xs,
+                                    paddingRight: theme.spacing.xs,
+                                },
                                 label: {
                                     maxWidth: "220px",
                                     whiteSpace: "nowrap",
@@ -71,7 +75,7 @@ export const LayersOutline: React.FC = () => {
                                     textOverflow: "ellipsis",
                                     display: 'block',
                                 }
-                            }}
+                            })}
                             className={s.button}
                             active={id === layerId}
                             label={name}

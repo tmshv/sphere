@@ -1,19 +1,19 @@
-import { actions } from '@/store';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { Accordion, ActionIcon, Flex, Paper, Space, Tabs, TabsProps } from '@mantine/core';
-import { IconBulbOff, IconCrosshair, IconDatabase, IconPlus, IconStack, IconTrash, IconWorld } from '@tabler/icons';
-import { useState } from 'react';
-import { LayerPanel } from '../LayerPanel';
-import { LayersOutline } from '../LayersOutline';
+import { Paper, Tabs, TabsProps } from '@mantine/core';
+import { IconDatabase, IconSquaresFilled, IconStack, IconWorld } from '@tabler/icons';
 import { SourcePanel } from '../SourcePanel';
 import { SourcesOutline } from '../SourcesOutline';
+import { LayersTab } from './LayersTab';
 
 export function StyledTabs(props: TabsProps) {
     return (
         <Tabs unstyled styles={(theme) => ({
+            root: {
+                width: "100%",
+            },
             tab: {
                 ...theme.fn.focusStyles(),
-                width: "100%",
+                // width: "100%",
+                // width: 200,
                 backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
                 color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[9],
                 border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[4]}`,
@@ -66,17 +66,6 @@ export function StyledTabs(props: TabsProps) {
 }
 
 export const LeftSidebar: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const [layerId, sourceId] = useAppSelector(state => {
-        const layerId = state.selection.layerId
-        if (!layerId) {
-            return [undefined, undefined]
-        }
-        const sourceId = state.layer.items[layerId].sourceId
-        return [layerId, sourceId]
-    })
-    const [value, setValue] = useState<string[]>([]);
-
     return (
         <StyledTabs defaultValue={"layers"} keepMounted={false}>
             <Tabs.List pl={"md"} pr={"md"} pt={"sm"} pb={"sm"}>
@@ -86,7 +75,7 @@ export const LeftSidebar: React.FC = () => {
                 <Tabs.Tab value="sources" icon={<IconDatabase size={16} />}>
                     Sources
                 </Tabs.Tab>
-                <Tabs.Tab value="map-styles" icon={<IconWorld size={16} />} disabled>
+                <Tabs.Tab value="map-styles" icon={<IconSquaresFilled size={16} />} disabled>
                     Styles
                 </Tabs.Tab>
                 {/* <Tabs.Tab value="settings" icon={<IconSettings size={16} />}>
@@ -95,87 +84,7 @@ export const LeftSidebar: React.FC = () => {
             </Tabs.List>
 
             <Tabs.Panel value="layers">
-                <Flex direction={"row"} gap={"xs"} pl={"md"} pr={"md"}>
-                    <ActionIcon size={"md"} disabled={!layerId}>
-                        <IconTrash size={16} color={"red"} onClick={() => {
-                            dispatch(actions.layer.removeLayer(layerId!))
-                        }} />
-                    </ActionIcon>
-                    <ActionIcon size={"md"} disabled={!sourceId}>
-                        <IconCrosshair size={16} onClick={() => {
-                            dispatch(actions.source.zoomTo(sourceId!))
-                        }} />
-                    </ActionIcon>
-
-                    <Space style={{ flex: 1 }} />
-
-                    <ActionIcon size={"md"}>
-                        <IconBulbOff size={16} />
-                    </ActionIcon>
-                    <ActionIcon size={"md"} onClick={() => {
-                        dispatch(actions.layer.addBlankLayer())
-                    }}>
-                        <IconPlus size={16} />
-                    </ActionIcon>
-                </Flex>
-
-                <Accordion multiple
-                    value={value}
-                    onChange={setValue}
-                    pt={"sm"}
-                    variant="default"
-                    styles={theme => ({
-                        item: {
-                            "&:first-of-type": {
-                                borderTop: `1px solid ${theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3]}`,
-                            },
-                        },
-                        control: {
-                            height: 30,
-                            paddingTop: theme.spacing.xs,
-                            paddingBottom: theme.spacing.xs,
-                            paddingLeft: theme.spacing.md,
-                            paddingRight: theme.spacing.md,
-                            backgroundColor: theme.colorScheme === "dark" ? theme.colors.gray[9] : theme.white,
-                        },
-                        panel: {
-                            // paddingTop: theme.spacing.sm,
-                            // paddingBottom: theme.spacing.sm,
-                            padding: 0,
-                        },
-                        content: {
-                            // padding: 0,
-                            paddingLeft: theme.spacing.md,
-                            paddingRight: theme.spacing.md,
-                            paddingTop: theme.spacing.sm,
-                            paddingBottom: theme.spacing.sm,
-                        },
-                        // "control:first-item": {
-                        //     backgroundColor: theme.colors.lime[9],
-                        // },
-                    })}
-                // chevronPosition="left"
-                >
-                    <Accordion.Item value={"outline"}>
-                        <Accordion.Control>
-                            Outline
-                        </Accordion.Control>
-                        <Accordion.Panel>
-                            <LayersOutline />
-                        </Accordion.Panel>
-                    </Accordion.Item>
-
-                    <Accordion.Item value={"layer-properties"}>
-                        <Accordion.Control>
-                            Layer properties
-                        </Accordion.Control>
-                        <Accordion.Panel>
-                            <LayerPanel />
-                        </Accordion.Panel>
-                    </Accordion.Item>
-                </Accordion>
-                {/* </Paper>
-                </ScrollArea> */}
+                <LayersTab />
             </Tabs.Panel>
 
             <Tabs.Panel value="sources">
