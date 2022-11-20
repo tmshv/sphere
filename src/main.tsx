@@ -8,6 +8,28 @@ import { App } from "./components/App";
 import { actions, store } from "./store";
 import "./style.css";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { isRegistered, register } from '@tauri-apps/api/globalShortcut';
+
+async function handleHotkey() {
+  // await register('CommandOrControl+Shift+C', () => {
+  let hotkey = ""
+
+  // hotkey = 'CommandOrControl+Z'
+  // if (!await isRegistered(hotkey)) {
+  //   await register('CommandOrControl+Z', () => {
+  //     console.log('undo');
+  //     store.dispatch(actions.undo())
+  //   })
+  // }
+
+  // hotkey = 'CommandOrControl+Shift+Z'
+  // if (!await isRegistered(hotkey)) {
+  //   await register('CommandOrControl+Shift+Z', () => {
+  //     console.log('redo');
+  //     store.dispatch(actions.redo())
+  //   })
+  // }
+}
 
 async function handleTheme() {
   const theme = await appWindow.theme();
@@ -40,6 +62,7 @@ async function main() {
 main()
 handleTheme()
 handleVersion()
+handleHotkey()
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

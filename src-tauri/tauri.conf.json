@@ -31,6 +31,9 @@
       "notification": {
         "all": true
       },
+      "globalShortcut": {
+        "all": true
+      },
       "clipboard": {
         "writeText": true,
         "readText": true
