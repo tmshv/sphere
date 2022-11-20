@@ -44,6 +44,7 @@ export const sourceSlice = createSlice({
 })
 
 export const zoomTo = createAction<string>("source/zoomTo")
+export const addFiles = createAction("source/addFiles")
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectSourcesAmount = (state: RootState) => state.source.allIds.length

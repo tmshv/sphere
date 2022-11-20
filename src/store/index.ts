@@ -1,9 +1,10 @@
+import { open } from '@tauri-apps/api/dialog';
 import { configureStore, isAnyOf } from '@reduxjs/toolkit'
 import projection, { projectionSlice } from './projection'
 import mapStyle, { mapStyleSlice } from './mapStyle'
 import fog, { fogSlice } from './fog'
 import terrain, { terrainSlice } from './terrain'
-import source, { sourceSlice, zoomTo } from './source'
+import source, { sourceSlice, addFiles, zoomTo } from './source'
 import layer, { layerSlice, addBlankLayer } from './layer'
 import selection, { selectionSlice } from './selection'
 import app, { appSlice } from './app'
@@ -168,6 +169,29 @@ readFromFileMiddleware.startListening({
     },
 });
 
+const addFilesMissleware = createListenerMiddleware();
+addFilesMissleware.startListening({
+    actionCreator: addFiles,
+    effect: async (_, listenerApi) => {
+        const selected = await open({
+            multiple: true,
+            filters: [{
+                name: 'Geospatial file',
+                extensions: ['csv', 'geojson', 'gpx'],
+            }]
+        });
+        if (!selected) {
+            return 
+        }
+
+        if (Array.isArray(selected)) {
+            listenerApi.dispatch(actions.source.addFromFiles(selected))
+        } else {
+            listenerApi.dispatch(actions.source.addFromFiles([selected]))
+        }
+    },
+});
+
 const addBlankLayerMiddleware = createListenerMiddleware();
 addBlankLayerMiddleware.startListening({
     actionCreator: addBlankLayer,
@@ -229,6 +253,7 @@ export const store = configureStore({
             .prepend(selectFeaturesMiddleware.middleware)
             .prepend(zoomToMiddleware.middleware)
             .prepend(fitBoundsMiddleware.middleware)
+            .prepend(addFilesMissleware.middleware)
             .prepend(readFromFileMiddleware.middleware)
             .prepend(readFromFilesMiddleware.middleware)
     }
@@ -251,6 +276,7 @@ export const actions = {
         zoomTo,
         addFromFiles,
         readFromFile,
+        addFiles,
     },
     layer: {
         ...layerSlice.actions,

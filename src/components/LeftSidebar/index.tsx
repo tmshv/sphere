@@ -1,8 +1,7 @@
 import { Paper, Tabs, TabsProps } from '@mantine/core';
-import { IconDatabase, IconSquaresFilled, IconStack, IconWorld } from '@tabler/icons';
-import { SourcePanel } from '../SourcePanel';
-import { SourcesOutline } from '../SourcesOutline';
+import { IconDatabase, IconSquaresFilled, IconStack } from '@tabler/icons';
 import { LayersTab } from './LayersTab';
+import { SourcesTab } from './SourcesTab';
 
 export function StyledTabs(props: TabsProps) {
     return (
@@ -88,13 +87,7 @@ export const LeftSidebar: React.FC = () => {
             </Tabs.Panel>
 
             <Tabs.Panel value="sources">
-                <Paper pt={"md"} style={{
-                    width: 300,
-                    overflow: "hidden",
-                }}>
-                    <SourcesOutline />
-                    <SourcePanel />
-                </Paper>
+                <SourcesTab />
             </Tabs.Panel>
 
             <Tabs.Panel value="map-styles">
