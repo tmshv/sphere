@@ -65,7 +65,7 @@ export function StyledTabs(props: TabsProps) {
     );
 }
 
-export function Left() {
+export const LeftSidebar: React.FC = () => {
     const dispatch = useAppDispatch()
     const [layerId, sourceId] = useAppSelector(state => {
         const layerId = state.selection.layerId
@@ -96,12 +96,12 @@ export function Left() {
 
             <Tabs.Panel value="layers">
                 <Flex direction={"row"} gap={"xs"} pl={"md"} pr={"md"}>
-                    <ActionIcon size={"md"} disabled={!layerId}> 
+                    <ActionIcon size={"md"} disabled={!layerId}>
                         <IconTrash size={16} color={"red"} onClick={() => {
                             dispatch(actions.layer.removeLayer(layerId!))
                         }} />
                     </ActionIcon>
-                    <ActionIcon size={"md"} disabled={!sourceId}> 
+                    <ActionIcon size={"md"} disabled={!sourceId}>
                         <IconCrosshair size={16} onClick={() => {
                             dispatch(actions.source.zoomTo(sourceId!))
                         }} />
@@ -120,6 +120,7 @@ export function Left() {
                 </Flex>
 
                 <Accordion multiple
+                    value={value}
                     onChange={setValue}
                     pt={"sm"}
                     variant="default"

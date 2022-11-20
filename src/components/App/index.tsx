@@ -1,18 +1,18 @@
 import React, { useCallback } from "react";
 import { MapProvider } from "react-map-gl";
-import { Container, Flex, Paper, Title, useMantineTheme } from "@mantine/core";
+import { Container, Paper, Title } from "@mantine/core";
 import { MapStatusbar } from "../MapStatusbar";
-import { AppLayout } from "../../ui/AppLayout";
+import { AppLayout } from "@/ui/AppLayout";
 import { LocationToString, MapContextMenu } from "../MapContextMenu";
 import { SphereMap } from "../SphereMap";
 import { Spotlight } from "../Spotlight";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectIsDark, selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "../../store/app";
-import { selectProperties } from "../../store/selection";
-import { PropertiesViewer } from "../../ui/PropertiesViewer";
+import { LeftSidebar } from "../LeftSidebar";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "@/store/app";
+import { selectProperties } from "@/store/selection";
+import { PropertiesViewer } from "@/ui/PropertiesViewer";
 import { Overlay } from "@/ui/Overlay";
 import { Toolbar } from "@/ui/Toolbar";
-import { Left } from "./left";
 import { Sidebar } from "@/ui/Sidebar";
 import { actions } from "@/store";
 
@@ -54,7 +54,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                                     dispatch(actions.map.resize(id))
                                 }}
                             >
-                                <Left />
+                                <LeftSidebar />
                             </Sidebar>
                         )}
                         rightSidebar={!showRight ? null : (
