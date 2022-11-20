@@ -43,6 +43,8 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color, vis
                 type={"line"}
                 paint={outline0}
                 layout={{
+                    "line-cap": "round",
+                    "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
             />
@@ -52,6 +54,8 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ sourceId, color, vis
                 type={"line"}
                 paint={outline1}
                 layout={{
+                    "line-cap": "round",
+                    "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
             />

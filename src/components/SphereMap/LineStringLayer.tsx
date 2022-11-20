@@ -6,22 +6,22 @@ export type LineStringLayerProps = {
     sourceId: string
     color: string
     visible: boolean
+    thick: boolean
 }
 
-export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, color, visible }) => {
+export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, color, visible, thick }) => {
     const [line0, line1] = useMemo(() => {
         const line0: LinePaint = {
-            "line-color": "white",
-            "line-width": 3,
+            "line-color": "#fff",
+            "line-width": thick ? 4 : 3,
         }
         const line1: LinePaint = {
             "line-color": color,
-            "line-width": 1,
-            "line-dasharray": [4, 1],
+            "line-width": thick ? 2 : 1,
         }
 
         return [line0, line1]
-    }, [color])
+    }, [color, thick])
 
     return (
         <>
@@ -31,6 +31,8 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, colo
                 type={"line"}
                 paint={line0}
                 layout={{
+                    "line-cap": "round",
+                    "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
             />
@@ -40,6 +42,8 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ sourceId, colo
                 type={"line"}
                 paint={line1}
                 layout={{
+                    "line-cap": "round",
+                    "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
             />

@@ -43,6 +43,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         case LayerType.Line: {
             return (
                 <LineStringLayer
+                    thick={false}
                     sourceId={sourceId}
                     color={color}
                     visible={visible}
