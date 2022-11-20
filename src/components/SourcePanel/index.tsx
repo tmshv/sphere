@@ -22,6 +22,7 @@ export const SourcePanel: React.FC = () => {
             id,
             name: source.dataset.name,
             type: source.dataset.type,
+            size: source.dataset.data.length,
         }
     })
     const theme = useMantineTheme();
@@ -53,6 +54,9 @@ export const SourcePanel: React.FC = () => {
         <Flex pt={"md"} direction={"column"} gap={"md"} align={"flex-start"}>
             <Badge radius={"sm"}>
                 {source.type}
+            </Badge>
+            <Badge radius={"sm"}>
+                SIZE:{source.size}
             </Badge>
 
             <Select
