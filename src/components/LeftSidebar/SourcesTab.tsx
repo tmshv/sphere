@@ -18,8 +18,7 @@ export const SourcesTab: React.FC = () => {
     const [value, setValue] = useState<string[]>([]);
     const form = useForm({
         initialValues: {
-            // url: 'https://s.tmshv.com/20220901-voronezh_karlamarksa-liked.geojson',
-            url: 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
+            url: '',
         },
     });
 
@@ -63,20 +62,14 @@ export const SourcesTab: React.FC = () => {
                     <TextInput
                         withAsterisk
                         label="URL"
-                        placeholder=""
+                        size="xs"
+                        placeholder="https://..."
                         {...form.getInputProps('url')}
                     />
 
                     <Group position="right" mt="md">
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit" size={"xs"}>Submit</Button>
                     </Group>
-
-                    {/* <Stack>
-                        <TextInput size={"xs"} label="URL" />
-                        <Flex direction={"row-reverse"}>
-                            <Button>Ok</Button>
-                        </Flex>
-                    </Stack> */}
                 </form>
             </Modal>
 
