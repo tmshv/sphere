@@ -1,6 +1,6 @@
-import { IconPolygon, IconPoint, IconLine, IconPlus, IconBulb, IconBulbOff, IconCross, IconPointOff, IconFlame } from '@tabler/icons';
+import { IconPolygon, IconPoint, IconLine, IconBulb, IconBulbOff, IconFlame } from '@tabler/icons';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActionIcon, Button, createStyles, Flex, NavLink, Text, useMantineColorScheme, useMantineTheme } from '@mantine/core';
+import { ActionIcon, createStyles, Flex, NavLink, useMantineTheme } from '@mantine/core';
 import { LayerType } from "@/types";
 import { actions } from "@/store";
 import { selectCurrentLayer } from "@/store/selection";
@@ -10,7 +10,6 @@ const useStyle = createStyles(theme => ({
         maxWidth: "100%",
         borderRadius: theme.radius.sm,
         height: 30,
-        // padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
     }
 }))
 
@@ -28,14 +27,20 @@ export const LayersOutline: React.FC = () => {
             type: item.type,
             color: item.color,
             visible: item.visible,
+            sourceId: item.sourceId,
         }
     }))
+    const dark = theme.colorScheme === "dark"
 
     return (
         <Flex direction={'column'} gap={'xs'} align={"stretch"}>
-            {items.map(({ id, name, type, color, visible }) => {
-                let icon: React.ReactNode = null
+            {items.map(({ id, sourceId, name, type, color, visible }) => {
+                let bulbIconColor: string | undefined = undefined
+                if (dark && !!sourceId) {
+                    bulbIconColor = "yellow"
+                }
 
+                let icon: React.ReactNode = null
                 if (type === LayerType.Point) {
                     icon = (
                         <IconPoint size={20} color={color} />
@@ -94,9 +99,7 @@ export const LayersOutline: React.FC = () => {
                             }))
                         }}>
                             {visible ? (
-                                <IconBulb size={16}
-                                    color={theme.colorScheme === "dark" ? "yellow" : undefined}
-                                />
+                                <IconBulb size={16} color={bulbIconColor} />
                             ) : (
                                 <IconBulbOff size={16} />
                             )}
