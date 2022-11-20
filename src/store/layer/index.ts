@@ -70,7 +70,7 @@ export const layerSlice = createSlice({
             if ((type === LayerType.Point) && !layer.circle) {
                 layer.circle = {
                     minRadius: 2,
-                    maxRadius: 4,
+                    maxRadius: 3,
                 }
             } else if ((type === LayerType.Heatmap) && !layer.heatmap) {
                 layer.heatmap = {
