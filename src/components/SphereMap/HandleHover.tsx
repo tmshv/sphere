@@ -1,6 +1,5 @@
 import { useMap } from "react-map-gl";
 import { useEffect } from "react";
-import mapboxgl from "mapbox-gl";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { actions } from "@/store";
 import { selectVisibleLayerIds } from "@/store/layer";
@@ -20,32 +19,26 @@ export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
             return
         }
 
-        const enter = (event: mapboxgl.MapMouseEvent) => {
-            console.log('enter')
+        const enter = () => {
             dispatch(actions.map.setInteractive({
                 mapId,
                 value: true,
             }))
         }
 
-        const leave = (event: mapboxgl.MapMouseEvent) => {
-            console.log('leave')
+        const leave = () => {
             dispatch(actions.map.setInteractive({
                 mapId,
                 value: false,
             }))
         }
 
-        for (const id in layerIds) {
-            map.on('mouseenter', id, enter)
-            map.on('mouseleave', id, leave)
-        }
+        map.on('mouseenter', layerIds, enter)
+        map.on('mouseleave', layerIds, leave)
 
         return () => {
-            for (const id in layerIds) {
-                map.off('mouseenter', id, enter)
-                map.off('mouseleave', id, leave)
-            }
+            map.off('mouseenter', layerIds, enter)
+            map.off('mouseleave', layerIds, leave)
         }
     }, [ref, mapId, layerIds])
 

@@ -139,7 +139,8 @@ mapInteractiveMiddleware.startListening({
             return
         }
 
-        map.getCanvas().style.cursor = value ? "pointer" : "default"
+        const element = map.getCanvasContainer()
+        element.style.cursor = value ? "pointer" : ""
     },
 });
 
