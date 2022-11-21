@@ -51,6 +51,16 @@ export const layerSlice = createSlice({
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
         },
+        setPositionBefore: (state, action: PayloadAction<{ layerId: Id, otherLayerId: Id }>) => {
+            const {layerId, otherLayerId} = action.payload
+            const index = state.items[otherLayerId].fractionIndex
+            state.items[layerId].fractionIndex = index - 0.00001
+        },
+        setPositionAfter: (state, action: PayloadAction<{ layerId: Id, otherLayerId: Id }>) => {
+            const {layerId, otherLayerId} = action.payload
+            const index = state.items[otherLayerId].fractionIndex
+            state.items[layerId].fractionIndex = index + 0.00001
+        },
         setSource: (state, action: PayloadAction<{ id: Id, sourceId: Id }>) => {
             const { id, sourceId } = action.payload
             state.items[id].sourceId = sourceId

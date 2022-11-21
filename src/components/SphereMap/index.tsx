@@ -24,7 +24,17 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const fog = useAppSelector(selectIsShowFog)
     const terrain = useAppSelector(selectIsShowTerrain)
     const sourceIds = useAppSelector(state => state.source.allIds)
-    const layerIds = useAppSelector(state => state.layer.allIds)
+    const layers = useAppSelector(state => {
+        return state.layer.allIds
+            .map(id => {
+                const layer = state.layer.items[id]
+                return {
+                    id: layer.id,
+                    index: layer.fractionIndex,
+                }
+            })
+            .sort((a, b) => a.index - b.index)
+    })
 
     return (
         <Map
@@ -81,7 +91,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-            {layerIds.map(id => (
+            {layers.map(({ id }) => (
                 <SphereLayer
                     key={id}
                     id={id}

@@ -217,7 +217,7 @@ addSourceMiddleware.startListening({
             listenerApi.dispatch(actions.layer.addLayer({
                 id: layerId,
                 sourceId,
-                fractionIndex: 0,
+                fractionIndex: Math.random(),
                 visible: true,
                 name: dataset.name,
                 color: "#1c7ed6",
@@ -262,7 +262,7 @@ addBlankLayerMiddleware.startListening({
         const name = "New Layer"
         listenerApi.dispatch(actions.layer.addLayer({
             id: layerId,
-            fractionIndex: 0,
+            fractionIndex: 0.99999,
             visible: true,
             name,
             color: "#1c7ed6",
@@ -306,6 +306,7 @@ duplicateLayerMiddleware.startListening({
 
         listenerApi.dispatch(actions.layer.addLayer({
             ...layer,
+            fractionIndex: layer.fractionIndex + 0.00001,
             id: nextId("layer"),
             name: layer.name + " copy",
             visible: true,
