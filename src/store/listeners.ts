@@ -157,7 +157,7 @@ selectFeaturesMiddleware.startListening({
         const { featureId, layerId } = action.payload
 
         const prevLayerId = state.selection.layerId
-        if (layerId !== prevLayerId) {
+        if (prevLayerId && layerId !== prevLayerId) {
             map.setFilter(`${prevLayerId}-selected`, ['in', 'id', ''])
         }
 
@@ -184,7 +184,11 @@ clearSelectionMiddleware.startListening({
             return
         }
         const state = listenerApi.getOriginalState() as RootState
-        const layerId = state.selection.layerId!
+        const layerId = state.selection.layerId
+        if (!layerId) {
+            return
+        }
+
         map.setFilter(`${layerId}-selected`, ['in', 'id', ''])
     },
 });
