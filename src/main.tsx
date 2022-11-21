@@ -1,3 +1,6 @@
+import "./style.css";
+import "mapbox-gl/dist/mapbox-gl.css";
+
 import { listen } from "@tauri-apps/api/event";
 import { appWindow } from '@tauri-apps/api/window';
 import { getVersion } from '@tauri-apps/api/app';
@@ -6,7 +9,6 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { App } from "./components/App";
 import { actions, store } from "./store";
-import "./style.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { isRegistered, register } from '@tauri-apps/api/globalShortcut';
 

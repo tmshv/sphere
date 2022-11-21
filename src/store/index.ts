@@ -28,6 +28,7 @@ export const store = configureStore({
             .prepend(listeners.mapResizeMiddleware.middleware)
             .prepend(listeners.addBlankLayerMiddleware.middleware)
             .prepend(listeners.forceResizeMapMiddleware.middleware)
+            .prepend(listeners.clearSelectionMiddleware.middleware)
             .prepend(listeners.selectFeaturesMiddleware.middleware)
             .prepend(listeners.zoomToMiddleware.middleware)
             .prepend(listeners.fitBoundsMiddleware.middleware)
@@ -37,6 +38,7 @@ export const store = configureStore({
             .prepend(listeners.duplicateLayerMiddleware.middleware)
             .prepend(listeners.failMiddleware.middleware)
             .prepend(listeners.clearErrorMiddleware.middleware)
+            .prepend(listeners.mapInteractiveMiddleware.middleware)
     },
 })
 

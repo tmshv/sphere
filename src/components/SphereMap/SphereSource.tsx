@@ -1,54 +1,45 @@
-import { assertUnreachable } from "@/lib";
-import { SourceType } from "@/types";
 import { featureCollection, lineString, multiLineString, multiPoint, multiPolygon, point, polygon } from "@turf/turf";
-import { ReactNode } from "react";
+import { memo } from "react";
 import { Source } from "react-map-gl";
 import { useAppSelector } from "@/store/hooks";
 
 export type SphereSourceProps = {
     id: string
-    children?: ReactNode
 }
 
-export const SphereSource: React.FC<SphereSourceProps> = ({ id, children }) => {
+export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const data = useAppSelector(state => {
-        const { type, data } = state.source.items[id].dataset
+        const data = state.source.items[id].dataset.data
 
-        switch (type) {
-            case SourceType.Points: {
-                const features = data.map(row => {
-                    const geom = row.geometry!
-                    if (Array.isArray(geom)) {
-                        return multiPoint((geom as GeoJSON.MultiPoint).coordinates, row.data) as GeoJSON.Feature
-                    }
-                    return point((geom as GeoJSON.Point).coordinates, row.data) as GeoJSON.Feature
-                })
-                return featureCollection(features)
+        const features = data.map(row => {
+            let f: GeoJSON.Feature = null!
+            const props = {
+                ...row.data,
+                id: row.id,
             }
-            case SourceType.Lines: {
-                const features = data.map(row => {
-                    const geom = row.geometry!
-                    if (Array.isArray(geom)) {
-                        return multiLineString((geom as GeoJSON.MultiLineString).coordinates, row.data)
-                    }
-                    return lineString((geom as GeoJSON.LineString).coordinates, row.data) as GeoJSON.Feature
-                })
-                return featureCollection(features)
+            const geom = row.geometry!
+            if (geom.type === "Point") {
+                f = point((geom as GeoJSON.Point).coordinates, props) as GeoJSON.Feature
             }
-            case SourceType.Polygons: {
-                const features = data.map(row => {
-                    const geom = row.geometry!
-                    if (Array.isArray(geom)) {
-                        return multiPolygon((geom as GeoJSON.MultiPolygon).coordinates, row.data)
-                    }
-                    return polygon((geom as GeoJSON.Polygon).coordinates, row.data) as GeoJSON.Feature
-                })
-                return featureCollection(features)
+            if (geom.type === "MultiPoint") {
+                f = multiPoint((geom as GeoJSON.MultiPoint).coordinates, props) as GeoJSON.Feature
             }
-            default: {
-                assertUnreachable(type)
+            if (geom.type === "MultiLineString") {
+                f = multiLineString((geom as GeoJSON.MultiLineString).coordinates, props)
             }
-        }
+            if (geom.type === "LineString") {
+                f = lineString((geom as GeoJSON.LineString).coordinates, props) as GeoJSON.Feature
+            }
+            if (geom.type === "MultiPolygon") {
+                f = multiPolygon((geom as GeoJSON.MultiPolygon).coordinates, props)
+            }
+            if (geom.type === "Polygon") {
+                f = polygon((geom as GeoJSON.Polygon).coordinates, props) as GeoJSON.Feature
+            }
+            f.id = row.id
+            return f
+        })
+        return featureCollection(features)
     })
     if (!data) {
         return null
@@ -60,7 +51,8 @@ export const SphereSource: React.FC<SphereSourceProps> = ({ id, children }) => {
             type={"geojson"}
             data={data}
         >
-            {children}
         </Source>
     );
-}
+})
+
+SphereSource.displayName = "SphereSource"

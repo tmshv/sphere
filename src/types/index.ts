@@ -26,7 +26,7 @@ export type DatasetRecordMeta = {
 }
 
 export type DatasetRow<G> = {
-    id: Id
+    id: number
     geometry?: G
     data: Record<string, any>
     meta: Record<string, DatasetRecordMeta>

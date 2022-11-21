@@ -1,4 +1,3 @@
-import "mapbox-gl/dist/mapbox-gl.css";
 import Map, { Layer, Source } from "react-map-gl";
 import { useAppSelector } from "@/store/hooks";
 import { selectProjection } from "@/store/projection";
@@ -11,6 +10,7 @@ import { SphereSource } from "./SphereSource";
 import { SetupStore } from "./SetupStore";
 import { HandleClick } from "./HandleClick";
 import { SphereLayer } from "./SphereLayer";
+import { HandleHover } from "./HandleHover";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -51,9 +51,10 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             <SetupStore
                 mapId={id}
             />
-            <HandleClick
+            <HandleHover
                 mapId={id}
             />
+            <HandleClick />
             {!fog ? null : (
                 <Fog
                     mapId={id}

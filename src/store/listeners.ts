@@ -128,20 +128,63 @@ fitBoundsMiddleware.startListening({
     },
 });
 
+
+export const mapInteractiveMiddleware = createListenerMiddleware();
+mapInteractiveMiddleware.startListening({
+    actionCreator: actions.map.setInteractive,
+    effect: async (action, listenerApi) => {
+        const { mapId, value } = action.payload
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+
+        map.getCanvas().style.cursor = value ? "pointer" : "default"
+    },
+});
+
 export const selectFeaturesMiddleware = createListenerMiddleware();
 selectFeaturesMiddleware.startListening({
-    actionCreator: selectionSlice.actions.selectOne,
+    actionCreator: actions.selection.selectOne,
     effect: async (action, listenerApi) => {
-        // const state = listenerApi.getOriginalState() as RootState
-        // const { featureId, sourceId } = action.payload
+        const map = getMap("spheremap")
+        if (!map) {
+            return
+        }
+
+        const state = listenerApi.getOriginalState() as RootState
+        const { featureId, layerId } = action.payload
+
+        const prevLayerId = state.selection.layerId
+        if (layerId !== prevLayerId) {
+            map.setFilter(`${prevLayerId}-selected`, ['in', 'id', ''])
+        }
+
         // const source = state.source.items[sourceId]
         // const f = source.data.data.find(f => f.id === featureId)
         // if (!f) {
         //     return
         // }
 
-        console.log("select!");
+        // console.log("select!", featureId, sourceId);
+
+        map.setFilter(`${layerId}-selected`, ['in', 'id', ...[featureId]])
+
         // console.log(f.properties);
+    },
+});
+
+export const clearSelectionMiddleware = createListenerMiddleware();
+clearSelectionMiddleware.startListening({
+    actionCreator: actions.selection.reset,
+    effect: async (action, listenerApi) => {
+        const map = getMap("spheremap")
+        if (!map) {
+            return
+        }
+        const state = listenerApi.getOriginalState() as RootState
+        const layerId = state.selection.layerId!
+        map.setFilter(`${layerId}-selected`, ['in', 'id', ''])
     },
 });
 
@@ -165,7 +208,7 @@ addSourceMiddleware.startListening({
             const sourceId = dataset.id
             listenerApi.dispatch(actions.source.addSource(dataset))
 
-            const layerId = nextId()
+            const layerId = nextId("layer")
             listenerApi.dispatch(actions.layer.addLayer({
                 id: layerId,
                 sourceId,
@@ -258,7 +301,7 @@ duplicateLayerMiddleware.startListening({
 
         listenerApi.dispatch(actions.layer.addLayer({
             ...layer,
-            id: nextId(),
+            id: nextId("layer"),
             name: layer.name + " copy",
             visible: true,
         }))

@@ -10,7 +10,7 @@ export type PolygonLayerProps = {
 }
 
 export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, color, visible }) => {
-    const [fill, outline0, outline1] = useMemo(() => {
+    const [fill, outline0, outline1, selected] = useMemo(() => {
         const fill: FillPaint = {
             "fill-color": color,
             "fill-opacity": 0.25,
@@ -23,8 +23,12 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, c
             "line-color": color,
             "line-width": 1,
         }
+        const selected: LinePaint = {
+            "line-color": "white",
+            "line-width": 3,
+        }
 
-        return [fill, outline0, outline1]
+        return [fill, outline0, outline1, selected]
     }, [color])
 
     return (
@@ -59,6 +63,18 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, c
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
+            />
+            <Layer
+                id={`${layerId}-selected`}
+                source={sourceId}
+                type={"line"}
+                paint={selected}
+                layout={{
+                    "line-cap": "round",
+                    "line-join": "round",
+                    visibility: visible ? "visible" : "none"
+                }}
+                filter={['in', 'id', '']}
             />
         </>
     )

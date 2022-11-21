@@ -1,7 +1,7 @@
 import * as Papa from "papaparse"
 import { point } from "@turf/turf"
 import { Dataset, SourceType } from "@/types"
-import { nextId } from "./nextId"
+import { nextId, nextNumber } from "./nextId"
 
 export async function parseCsv(name: string, location: string, raw: string): Promise<Dataset[] | null> {
     const results = Papa.parse<any>(raw, {
@@ -21,7 +21,7 @@ export async function parseCsv(name: string, location: string, raw: string): Pro
             data: features.map(row => {
                 const feature = point([parseFloat(row.lng), parseFloat(row.lat)])
                 return {
-                    id: nextId(),
+                    id: nextNumber(),
                     geometry: feature.geometry,
                     data: row,
                     meta: {},

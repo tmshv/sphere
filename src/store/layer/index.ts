@@ -118,5 +118,9 @@ export const actions = {
 }
 
 export const selectLayerIds = (state: RootState) => state.layer.allIds
+export const selectVisibleLayerIds = (state: RootState) => state.layer.allIds.filter(id => {
+    const layer = state.layer.items[id]
+    return layer.visible
+})
 
 export default layerSlice.reducer

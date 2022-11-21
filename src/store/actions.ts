@@ -1,5 +1,3 @@
-import { ActionCreators } from 'redux-undo';
-
 import { projectionSlice } from './projection'
 import { mapStyleSlice } from './mapStyle'
 import { fogSlice } from './fog'
@@ -9,7 +7,7 @@ import { actions as layerActions } from './layer'
 import { actions as errorActions } from './error'
 import { selectionSlice } from './selection'
 import { appSlice } from './app'
-import { fitBounds, resize } from './map'
+import { actions as mapActions } from './map'
 
 export const actions = {
     app: appSlice.actions,
@@ -20,11 +18,6 @@ export const actions = {
     terrain: terrainSlice.actions,
     source: sourceActions,
     layer: layerActions,
-    map: {
-        fitBounds,
-        resize,
-    },
+    map: mapActions,
     selection: selectionSlice.actions,
-    undo: ActionCreators.undo,
-    redo: ActionCreators.redo,
 }

@@ -1,5 +1,5 @@
 import { Dataset, LineStringDataset, PointDataset, PolygonDataset, SourceType } from "@/types"
-import { nextId } from "./nextId"
+import { nextId, nextNumber } from "./nextId"
 
 const pointType = new Set(["Point", "MultiPoint"])
 const lineType = new Set(["LineString", "MultiLineStreing"])
@@ -16,21 +16,21 @@ export async function parseGeojson(name: string, location: string, raw: string):
             return null
         }
         const points: PointDataset = {
-            id: nextId(),
+            id: nextId("dataset"),
             name,
             location,
             type: SourceType.Points,
             data: [],
         }
         const lines: LineStringDataset = {
-            id: nextId(),
+            id: nextId("dataset"),
             name,
             location,
             type: SourceType.Lines,
             data: [],
         }
         const polygons: PolygonDataset = {
-            id: nextId(),
+            id: nextId("dataset"),
             name,
             location,
             type: SourceType.Polygons,
@@ -39,7 +39,7 @@ export async function parseGeojson(name: string, location: string, raw: string):
 
         const features = (parsed as GeoJSON.FeatureCollection).features
         for (const feature of features) {
-            const id = nextId()
+            const id = nextNumber()
             if (pointType.has(feature.geometry.type)) {
                 points.data.push({
                     id,

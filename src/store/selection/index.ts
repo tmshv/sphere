@@ -8,7 +8,7 @@ import { layerSlice } from '../layer'
 type SelectionState = {
     layerId?: Id
     sourceId?: Id
-    selectedIds: Id[]
+    selectedIds: number[]
 }
 
 // Define the initial state using that type
@@ -39,8 +39,8 @@ export const selectionSlice = createSlice({
         selectLayer: (state, action: PayloadAction<{ layerId?: Id }>) => {
             state.layerId = action.payload.layerId
         },
-        selectOne: (state, action: PayloadAction<{ sourceId: Id, featureId: Id }>) => {
-            state.sourceId = action.payload.sourceId
+        selectOne: (state, action: PayloadAction<{ layerId: Id, featureId: number }>) => {
+            state.layerId = action.payload.layerId
             state.selectedIds = [action.payload.featureId]
         },
     },
@@ -55,7 +55,12 @@ export const selectionSlice = createSlice({
 export const selectCurrentSource = (state: RootState) => state.selection.sourceId
 export const selectCurrentLayer = (state: RootState) => state.selection.layerId
 export const selectProperties = (state: RootState) => {
-    const sourceId = state.selection.sourceId
+    const layerId = state.selection.layerId
+    if (!layerId) {
+        return null
+    }
+
+    const sourceId = state.layer.items[layerId].sourceId
     if (!sourceId) {
         return null
     }
@@ -63,12 +68,12 @@ export const selectProperties = (state: RootState) => {
     const ids = state.selection.selectedIds
     const dataId = ids[0]
 
-    const dataset = state.source.items[sourceId]
-    if (!dataset) {
+    const source = state.source.items[sourceId]
+    if (!source) {
         return null
     }
 
-    const row = dataset.data.find(f => f.id === dataId) as DatasetRow<any>
+    const row = source.dataset.data.find(record => record.id === dataId) as DatasetRow<any>
     if (!row) {
         return null
     }

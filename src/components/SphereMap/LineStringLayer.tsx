@@ -11,7 +11,7 @@ export type LineStringLayerProps = {
 }
 
 export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourceId, color, visible, thick }) => {
-    const [outline, line] = useMemo(() => {
+    const [outline, line, selected] = useMemo(() => {
         const outline: LinePaint = {
             "line-color": "#fff",
             "line-width": thick ? 4 : 3,
@@ -20,8 +20,12 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourc
             "line-color": color,
             "line-width": thick ? 2 : 1,
         }
+        const selected: LinePaint = {
+            "line-color": "white",
+            "line-width": thick ? 6 : 3,
+        }
 
-        return [outline, line]
+        return [outline, line, selected]
     }, [color, thick])
 
     return (
@@ -47,6 +51,18 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourc
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
+            />
+            <Layer
+                id={`${layerId}-selected`}
+                source={sourceId}
+                type={"line"}
+                paint={selected}
+                layout={{
+                    "line-cap": "round",
+                    "line-join": "round",
+                    visibility: visible ? "visible" : "none"
+                }}
+                filter={['in', 'in', '']}
             />
         </>
     )

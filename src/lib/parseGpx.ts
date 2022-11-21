@@ -1,7 +1,7 @@
 import { convertXML } from "simple-xml-to-json"
 import { lineString } from "@turf/turf"
 import { Dataset, SourceType } from "@/types"
-import { nextId } from "./nextId"
+import { nextId, nextNumber } from "./nextId"
 
 type Gpx = {
     gpx: {
@@ -128,7 +128,7 @@ export async function parseGpx(name: string, location: string, raw: string): Pro
                 location,
                 type: SourceType.Lines,
                 data: [{
-                    id: nextId(),
+                    id: nextNumber(),
                     geometry: feature.geometry,
                     data: {
                         maxEle,
