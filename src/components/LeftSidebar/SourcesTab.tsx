@@ -15,7 +15,7 @@ export const SourcesTab: React.FC = () => {
         return state.selection.sourceId
     })
     const [showModal, setShowModal] = useState(false)
-    const [value, setValue] = useState<string[]>([]);
+    const [value, setValue] = useState<string[]>(["outline", "source-properties"]);
     const form = useForm({
         initialValues: {
             url: '',

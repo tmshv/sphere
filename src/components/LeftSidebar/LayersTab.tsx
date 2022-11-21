@@ -18,7 +18,7 @@ export const LayersTab: React.FC = () => {
         const sourceId = state.layer.items[layerId].sourceId
         return [layerId, sourceId]
     })
-    const [value, setValue] = useState<string[]>([]);
+    const [value, setValue] = useState<string[]>(["outline", "layer-properties"]);
 
     const onClick = useCallback<ActionBarOnClick>(name => {
         switch (name) {
