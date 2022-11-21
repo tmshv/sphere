@@ -21,8 +21,8 @@ export const LayersPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const sources = useAppSelector(state => state.source.allIds.map(id => ({
         value: id,
-        label: state.source.items[id].name,
-        type: state.source.items[id].type,
+        label: state.source.items[id].dataset.name,
+        type: state.source.items[id].dataset.type,
     })))
     const layers = useAppSelector(state => state.layer.allIds.map(id => {
         const s = state.layer.items[id]
