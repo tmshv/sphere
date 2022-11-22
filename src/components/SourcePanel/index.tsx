@@ -1,9 +1,10 @@
-import { Badge, Button, Flex, Select } from "@mantine/core";
+import { Badge, Button, Flex, Group, Select, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { IconPolygon, IconPoint, IconLine } from '@tabler/icons';
+import { IconPolygon, IconPoint, IconLine, IconTrash, IconCrosshair } from '@tabler/icons';
 import { useMantineTheme } from '@mantine/core';
 import { SourceType } from "../../types";
 import { actions } from "@/store";
+import { ActionBar } from "@/ui/ActionBar";
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -51,45 +52,59 @@ export const SourcePanel: React.FC = () => {
         )
     }
     return (
-        <Flex pt={"md"} direction={"column"} gap={"md"} align={"flex-start"}>
-            <Badge radius={"sm"}>
-                {source.type}
-            </Badge>
-            <Badge radius={"sm"}>
-                SIZE:{source.size}
-            </Badge>
-
-            <Select
-                label="Type"
-                placeholder="Pick one"
-                value={source.type}
-                data={[
-                    { value: SourceType.Points, label: 'Point' },
-                    { value: SourceType.Lines, label: 'Line' },
-                    { value: SourceType.Polygons, label: 'Polygon' },
-                ]}
-                onChange={value => {
-                    if (value) {
-                        // dispatch(actions.layer.setType({
-                        //     id,
-                        //     type: value as LayerType
-                        // }))
+        <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
+            <ActionBar
+                tooltipPosition={"top"}
+                onClick={name => {
+                    switch (name) {
+                        case "trash": {
+                            dispatch(actions.source.removeSource(source.id))
+                            break
+                        }
+                        case "zoom": {
+                            dispatch(actions.source.zoomTo(source.id))
+                            break
+                        }
+                        default: {
+                        }
                     }
                 }}
+                items={[
+                    {
+                        name: "trash",
+                        label: "Delete source",
+                        icon: IconTrash,
+                        color: "red",
+                    },
+                    null,
+                    {
+                        name: "zoom",
+                        label: "Zoom to source",
+                        icon: IconCrosshair,
+                    },
+                ]}
             />
-            <Button
-                size="sm"
-                color={"red"}
-                onClick={() => {
-                    dispatch(actions.source.removeSource(source.id))
+            <TextInput
+                size="xs"
+                label="Name"
+                value={source.name}
+                onChange={event => {
+                    const value = event.target.value
+                    dispatch(actions.source.setName({
+                        id: source.id,
+                        value,
+                    }))
                 }}
-            >Delete</Button>
-            <Button
-                size="sm"
-                onClick={() => {
-                    dispatch(actions.source.zoomTo(source.id))
-                }}
-            >Zoom</Button>
+            />
+
+            <Group>
+                <Badge radius={"sm"}>
+                    {source.type}
+                </Badge>
+                <Badge radius={"sm"}>
+                    SIZE:{source.size}
+                </Badge>
+            </Group>
         </Flex>
     )
 }
