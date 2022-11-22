@@ -2,7 +2,6 @@ import { open } from '@tauri-apps/api/dialog';
 import { isAnyOf } from '@reduxjs/toolkit'
 import { selectionSlice } from './selection'
 import { appSlice } from './app'
-import { fitBounds, resize } from './map'
 import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '@/map'
@@ -37,20 +36,6 @@ clearErrorMiddleware.startListening({
     effect: async (action, listenerApi) => {
         await listenerApi.delay(3000)
         listenerApi.dispatch(actions.error.clear())
-    },
-});
-
-export const mapResizeMiddleware = createListenerMiddleware();
-mapResizeMiddleware.startListening({
-    actionCreator: resize,
-    effect: async (action, listenerApi) => {
-        const mapId = action.payload
-        const map = getMap(mapId)
-        if (!map) {
-            return
-        }
-
-        map.resize()
     },
 });
 
@@ -108,26 +93,12 @@ zoomToMiddleware.startListening({
         }))
         const bbox = turf.bbox(fc);
 
-        listenerApi.dispatch(fitBounds({
+        listenerApi.dispatch(actions.map.fitBounds({
             mapId,
             bounds: bbox as mapboxgl.LngLatBoundsLike
         }))
     },
 });
-
-export const fitBoundsMiddleware = createListenerMiddleware();
-fitBoundsMiddleware.startListening({
-    actionCreator: fitBounds,
-    effect: async (action, listenerApi) => {
-        const { mapId, bounds } = action.payload
-        const map = getMap(mapId)
-        if (!map) {
-            return
-        }
-        map.fitBounds(bounds)
-    },
-});
-
 
 export const mapInteractiveMiddleware = createListenerMiddleware();
 mapInteractiveMiddleware.startListening({

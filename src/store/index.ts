@@ -7,6 +7,7 @@ import source from './source'
 import layer from './layer'
 import selection from './selection'
 import app from './app'
+import { listener as mapListener } from './map'
 import error from './error'
 import * as listeners from './listeners'
 export { actions } from "./actions"
@@ -25,13 +26,12 @@ export const store = configureStore({
     },
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
-            .prepend(listeners.mapResizeMiddleware.middleware)
+            .prepend(mapListener.middleware)
             .prepend(listeners.addBlankLayerMiddleware.middleware)
             .prepend(listeners.forceResizeMapMiddleware.middleware)
             .prepend(listeners.clearSelectionMiddleware.middleware)
             .prepend(listeners.selectFeaturesMiddleware.middleware)
             .prepend(listeners.zoomToMiddleware.middleware)
-            .prepend(listeners.fitBoundsMiddleware.middleware)
             .prepend(listeners.addFilesMissleware.middleware)
             .prepend(listeners.addSourceMiddleware.middleware)
             .prepend(listeners.readFromFilesMiddleware.middleware)
