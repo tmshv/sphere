@@ -1,11 +1,9 @@
-import { ButtonProps, Center, createStyles, Flex, UnstyledButton } from '@mantine/core'
+import { Center, createStyles, Flex, UnstyledButton } from '@mantine/core'
 import { MouseEventHandler, ReactNode } from 'react'
-import { ActionBarOnClick } from '../ActionBar'
 
 const useStyle = createStyles(theme => ({
     button: {
         flex: 1,
-        color: theme.white,
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
         overflow: 'hidden',
@@ -14,17 +12,19 @@ const useStyle = createStyles(theme => ({
         paddingLeft: theme.spacing.sm,
         paddingRight: theme.spacing.xs,
 
-        backgroundColor: theme.colors.dark[7],
+        color: theme.colorScheme === 'dark' ? theme.white : theme.black,
+        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
 
         // fontSize: theme.fontSizes.sm,
         fontSize: theme.fontSizes.xs,
 
         "&:hover": {
-            backgroundColor: theme.colors.dark[6],
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
         }
     },
     active: {
         backgroundColor: theme.colors.blue[7],
+        color: theme.white,
 
         "&:hover": {
             backgroundColor: theme.colors.blue[6],
@@ -37,7 +37,6 @@ export type OutlineItemProps = {
     active?: boolean
     icon?: ReactNode
     extra?: ReactNode
-    // onClick: OnClick
     onClick?: MouseEventHandler<HTMLButtonElement>
 }
 
