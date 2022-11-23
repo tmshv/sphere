@@ -7,6 +7,7 @@ import { ActionBar } from "@/ui/ActionBar";
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
+    const drawing = useAppSelector(state => !!state.draw.sourceId)
     const source = useAppSelector(state => {
         const id = state.selection.sourceId
         if (!id) {
@@ -72,10 +73,16 @@ export const SourcePanel: React.FC = () => {
                             dispatch(actions.source.zoomTo(source.id))
                             break
                         }
-                        // case "add-to-layer": {
-                        //     dispatch(actions.source.zoomTo(source.id))
-                        //     break
-                        // }
+                        case "edit": {
+                            if (drawing) {
+                                dispatch(actions.draw.cancel())
+                            } else {
+                                dispatch(actions.draw.start({
+                                    sourceId: source.id,
+                                }))
+                            }
+                            break
+                        }
                         default: {
                         }
                     }

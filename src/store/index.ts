@@ -7,6 +7,7 @@ import source from './source'
 import layer from './layer'
 import selection from './selection'
 import app from './app'
+import draw from './draw'
 import { listener as mapListener } from './map'
 import { sourceListener } from './source/listeners'
 import error from './error'
@@ -16,6 +17,7 @@ export { actions } from "./actions"
 export const store = configureStore({
     reducer: {
         app,
+        draw,
         error,
         projection,
         mapStyle,
