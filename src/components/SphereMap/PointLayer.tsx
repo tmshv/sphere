@@ -40,6 +40,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, color
                 layout={{
                     visibility: visible ? "visible" : "none",
                 }}
+                filter={['==', ['geometry-type'], 'Point']}
             />
             <Layer
                 id={`${layerId}-selected`}

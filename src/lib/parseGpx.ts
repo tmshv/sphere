@@ -1,6 +1,6 @@
 import { convertXML } from "simple-xml-to-json"
 import { lineString } from "@turf/turf"
-import { Dataset, SourceType } from "@/types"
+import { FileParser, SourceType } from "@/types"
 import { nextId, nextNumber } from "./nextId"
 
 type Gpx = {
@@ -62,7 +62,8 @@ function split<T>(items: T[], predicate: (item: T) => boolean): T[][] {
     return result.filter(segment => segment.length > 0)
 }
 
-export async function parseGpx(name: string, location: string, raw: string): Promise<Dataset[] | null> {
+export const parseGpx: FileParser<SourceType.Lines> = async raw => {
+    // export async function parseGpx(name: string, location: string, raw: string): Promise<Dataset[] | null> {
     try {
         const result = convertXML<Gpx>(raw)
         const pts = result.gpx.children[0].trk.children[1].trkseg.children
@@ -124,22 +125,29 @@ export async function parseGpx(name: string, location: string, raw: string): Pro
         return [
             {
                 id: nextId(),
-                name,
-                location,
+                // name,
+                // location,
                 type: SourceType.Lines,
-                data: [{
-                    id: nextNumber(),
-                    geometry: feature.geometry,
-                    data: {
-                        maxEle,
-                        minEle,
-                        averageEle,
+                data: [
+                    {
+                        id: nextNumber(),
+                        geometry: feature.geometry,
+                        data: {
+                            maxEle,
+                            minEle,
+                            averageEle,
+                        },
+                        meta: {},
                     },
-                    meta: {},
-                }],
+                ],
+            },
+            {
+                pointsCount: 0,
+                linesCount: 1,
+                polygonsCount: 0,
             },
         ]
     } catch (error) {
-        return null
+        throw new Error("Failed to read GPX file")
     }
 }

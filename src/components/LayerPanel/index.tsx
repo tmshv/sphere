@@ -9,7 +9,7 @@ export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const sources = useAppSelector(state => state.source.allIds.map(id => ({
         value: id,
-        label: state.source.items[id].dataset.name,
+        label: state.source.items[id].name,
         type: state.source.items[id].dataset.type,
     })))
     const layer = useAppSelector(state => {
@@ -127,11 +127,11 @@ export const LayerPanel: React.FC = () => {
                 placeholder="Pick one"
                 value={sourceId}
                 data={sources}
-                onChange={value => {
-                    if (value) {
+                onChange={sourceId => {
+                    if (sourceId) {
                         dispatch(actions.layer.setSource({
                             id: layerId,
-                            sourceId: value,
+                            sourceId,
                         }))
                     }
                 }}

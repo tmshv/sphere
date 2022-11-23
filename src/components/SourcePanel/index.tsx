@@ -1,6 +1,6 @@
 import { Badge, Button, Flex, Group, Select, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconTrash, IconCrosshair } from '@tabler/icons';
+import { IconPolygon, IconPoint, IconLine, IconTrash, IconCrosshair, IconStack } from '@tabler/icons';
 import { useMantineTheme } from '@mantine/core';
 import { SourceType } from "../../types";
 import { actions } from "@/store";
@@ -21,9 +21,10 @@ export const SourcePanel: React.FC = () => {
 
         return {
             id,
-            name: source.dataset.name,
+            name: source.name,
             type: source.dataset.type,
             size: source.dataset.data.length,
+            location: source.location,
         }
     })
     const theme = useMantineTheme();
@@ -65,6 +66,10 @@ export const SourcePanel: React.FC = () => {
                             dispatch(actions.source.zoomTo(source.id))
                             break
                         }
+                        // case "add-to-layer": {
+                        //     dispatch(actions.source.zoomTo(source.id))
+                        //     break
+                        // }
                         default: {
                         }
                     }
@@ -77,6 +82,11 @@ export const SourcePanel: React.FC = () => {
                         color: "red",
                     },
                     null,
+                    {
+                        name: "add-to-layer",
+                        label: "Add to layer",
+                        icon: IconStack,
+                    },
                     {
                         name: "zoom",
                         label: "Zoom to source",
@@ -105,6 +115,10 @@ export const SourcePanel: React.FC = () => {
                     SIZE:{source.size}
                 </Badge>
             </Group>
+
+            <Badge radius={"sm"} size={"xs"}>
+                {source.location}
+            </Badge>
         </Flex>
     )
 }

@@ -41,6 +41,7 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, c
                 layout={{
                     visibility: visible ? "visible" : "none"
                 }}
+                filter={['==', ['geometry-type'], 'Polygon']}
             />
             <Layer
                 id={`${layerId}-outline-0`}
@@ -52,6 +53,7 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, c
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
+                filter={['==', ['geometry-type'], 'Polygon']}
             />
             <Layer
                 id={`${layerId}-outline-1`}
@@ -63,6 +65,7 @@ export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, c
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
+                filter={['==', ['geometry-type'], 'Polygon']}
             />
             <Layer
                 id={`${layerId}-selected`}

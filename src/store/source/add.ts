@@ -4,8 +4,11 @@ import { basename, extname } from '@tauri-apps/api/path';
 import { parseGeojson } from '../../lib/parseGeojson'
 import { parseGpx } from '../../lib/parseGpx'
 import { parseCsv } from '@/lib/parseCsv';
+import { FileParser, SourceType } from '@/types';
+import { actions } from '..';
+import { nextId } from '@/lib/nextId';
 
-const parsers = new Map([
+const parsers = new Map<string, FileParser<any>>([
     ["json", parseGeojson],
     ["geojson", parseGeojson],
     ["gpx", parseGpx],
@@ -23,22 +26,37 @@ export const addFromFile = createAsyncThunk('source/addFromFile', async (path: s
     const parser = parsers.get(ext)!
 
     const raw = await readTextFile(path)
-    const datasets = await parser(name, path, raw)
-    if (!datasets) {
-        console.log("Failed to read")
-        return null
-    }
+    const [dataset, meta] = await parser(raw)
 
-    return datasets
+    return {
+        location: path,
+        name,
+        dataset,
+        meta,
+    }
 })
 
 export const addFromUrl = createAsyncThunk('source/addFromFile', async (url: string, thunkAPI) => {
     const x = new URL(url)
+    const path = x.pathname
+    const name = await basename(path)
+
+    // if geojson -> add it as is
+    // thunkAPI.dispatch(actions.source.addSource({
+    //     id: nextId('source-url'),
+    //     name,
+    //     location: url,
+    //     dataset: {
+    //         id: '1',
+    //         type: SourceType.Geojson,
+    //         data: []
+    //     },
+    // }))
+
+    // if it other -> load it and parse
     const res = await fetch(url)
     const raw = await res.text()
-    const path = x.pathname
 
-    const name = await basename(path)
     const ext = await extname(path)
     if (!ext) {
         throw new Error(`Cannot read file extension`)
@@ -49,10 +67,16 @@ export const addFromUrl = createAsyncThunk('source/addFromFile', async (url: str
     }
     const parser = parsers.get(ext)!
 
-    const datasets = await parser(name, url, raw)
-    if (!datasets) {
-        throw new Error("Failed to read file")
-    }
+    // const dataset = await parser(name, url, raw)
+    const [dataset, meta] = await parser(raw)
+    // if (!dataset) {
+    //     throw new Error("Failed to read file")
+    // }
 
-    return datasets
+    return {
+        location: url,
+        name,
+        dataset,
+        meta,
+    }
 })

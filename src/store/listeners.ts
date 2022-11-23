@@ -6,18 +6,25 @@ import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '@/map'
 import mapboxgl from 'mapbox-gl'
-import { Dataset, LayerType, SourceType } from '@/types'
+import { Dataset, LayerType, ParserMetadata } from '@/types'
 import { nextId } from '@/lib/nextId'
 import { featureCollection } from '@turf/turf'
 import { duplicate } from './layer';
 import { actions } from './actions';
 import { RootState } from '.';
 
-const sourceToLayer = new Map<SourceType, LayerType>([
-    [SourceType.Points, LayerType.Point],
-    [SourceType.Lines, LayerType.Line],
-    [SourceType.Polygons, LayerType.Polygon],
-])
+function predictLayerType({ pointsCount, linesCount, polygonsCount }: ParserMetadata): LayerType | null {
+    if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
+        return LayerType.Point
+    }
+    if (pointsCount === 0 && linesCount > 0 && polygonsCount === 0) {
+        return LayerType.Line
+    }
+    if (pointsCount === 0 && linesCount === 0 && polygonsCount > 0) {
+        return LayerType.Polygon
+    }
+    return null
+}
 
 export const failMiddleware = createListenerMiddleware();
 failMiddleware.startListening({
@@ -171,34 +178,40 @@ addSourceMiddleware.startListening({
         actions.source.addFromUrl.fulfilled,
     ),
     effect: async (action, listenerApi) => {
-        console.log("Adding", action)
-        const payload = action.payload as Dataset[]
-        if (!payload) {
+        const dataset = action.payload.dataset as Dataset<any>
+        const meta = action.payload.meta as ParserMetadata
+        const name = action.payload.name as string
+        const location = action.payload.location as string
+        if (dataset.data.length === 0) {
             return
         }
-        for (const dataset of payload) {
-            if (dataset.data.length === 0) {
-                continue
-            }
 
-            const sourceId = dataset.id
-            listenerApi.dispatch(actions.source.addSource(dataset))
+        const sourceId = nextId("source")
+        listenerApi.dispatch(actions.source.addSource({
+            id: sourceId,
+            name,
+            location,
+            dataset,
+        }))
 
-            const layerId = nextId("layer")
-            listenerApi.dispatch(actions.layer.addLayer({
-                id: layerId,
-                sourceId,
-                fractionIndex: Math.random(),
-                visible: true,
-                name: dataset.name,
-                color: "#1c7ed6",
-            }))
-
-            listenerApi.dispatch(actions.layer.setType({
-                id: layerId,
-                type: sourceToLayer.get(dataset.type),
-            }))
+        const layerType = predictLayerType(meta)
+        if (!layerType) {
+            return
         }
+
+        const layerId = nextId("layer")
+        listenerApi.dispatch(actions.layer.addLayer({
+            id: layerId,
+            sourceId,
+            fractionIndex: Math.random(),
+            visible: true,
+            name: name,
+            color: "#1c7ed6",
+        }))
+        listenerApi.dispatch(actions.layer.setType({
+            id: layerId,
+            type: layerType,
+        }))
     },
 });
 
@@ -219,6 +232,7 @@ addFilesMissleware.startListening({
 
         if (Array.isArray(selected)) {
             listenerApi.dispatch(actions.source.addFromFiles(selected))
+            // select layer
         } else {
             listenerApi.dispatch(actions.source.addFromFiles([selected]))
         }

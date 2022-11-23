@@ -40,6 +40,7 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourc
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
+                filter={['==', ['geometry-type'], 'LineString']}
             />
             <Layer
                 id={layerId}
@@ -51,6 +52,7 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourc
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
+                filter={['==', ['geometry-type'], 'LineString']}
             />
             <Layer
                 id={`${layerId}-selected`}
