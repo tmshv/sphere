@@ -11,7 +11,6 @@ import { duplicate } from './layer';
 import { actions } from './actions';
 import { RootState } from '.';
 import { assertUnreachable } from '@/lib';
-import { addFromUrl } from './source/addFromUrl';
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: ParserMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
@@ -158,27 +157,7 @@ export const addSourceMiddleware = createListenerMiddleware();
 addSourceMiddleware.startListening({
     actionCreator: actions.source.addFromFile.fulfilled,
     effect: async (action, listenerApi) => {
-        if (!action.payload) {
-            return
-        }
-
-        const dataset = action.payload.dataset
-        const meta = action.payload.meta
-        const name = action.payload.name
-        const location = action.payload.location
-
-        // if (dataset.features.length === 0) {
-        //     return
-        // }
-
-        const sourceId = nextId("source")
-        console.log("Adding FC", sourceId, dataset)
-        listenerApi.dispatch(actions.source.addFeatureCollection({
-            id: sourceId,
-            name,
-            location,
-            dataset,
-        }))
+        const { sourceId, name, meta } = action.payload
 
         const layerType = predictLayerType(meta)
         if (!layerType) {

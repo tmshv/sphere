@@ -7,6 +7,7 @@ import { parseCsv } from '@/lib/parseCsv';
 import { FileParser } from '@/types';
 import { nextId } from '@/lib/nextId';
 import { open } from '@tauri-apps/api/dialog';
+import { actions } from '.';
 
 const parsers = new Map<string, FileParser>([
     ["json", parseGeojson],
@@ -60,18 +61,32 @@ export const addFromFile = createAsyncThunk('source/addFromFile', async (path: s
     if (!parsers.has(ext)) {
         throw new Error("Cannot find parser")
     }
-    const parser = parsers.get(ext)!
 
+    // const name = (dataset as any).name ?? await basename(path)
+    const name = await basename(path)
+    const sourceId = nextId("source")
+
+    // add pending source
+    thunkAPI.dispatch(actions.addFeatureCollection({
+        id: sourceId,
+        name,
+        location: path
+        // dataset,
+    }))
+
+    const parser = parsers.get(ext)!
     const raw = await readTextFile(path)
     const [dataset, meta] = await parser(raw)
 
-    const name = (dataset as any).name ?? await basename(path)
+    // add source later
+    thunkAPI.dispatch(actions.setData({
+        id: sourceId,
+        dataset,
+    }))
 
     return {
-        id: nextId("source"),
-        location: path,
-        name,
-        dataset,
+        sourceId,
         meta,
+        name,
     }
 })

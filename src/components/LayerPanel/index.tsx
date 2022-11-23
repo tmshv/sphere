@@ -12,11 +12,20 @@ type Option = {
 
 export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
-    const sources = useAppSelector(state => state.source.allIds.map(id => ({
-        value: id,
-        label: state.source.items[id].name,
-        type: state.source.items[id].type,
-    })))
+    const sources = useAppSelector(state => {
+        return state.source.allIds.reduce((acc, id) => {
+            const source = state.source.items[id]
+            if (!source.pending) {
+                acc.push({
+                    value: id,
+                    label: state.source.items[id].name,
+                    type: state.source.items[id].type,
+                })
+            }
+            return acc
+        }, [] as Array<Option & { type: SourceType }>)
+    })
+
     const layer = useAppSelector(state => {
         const { layerId } = state.selection
         if (!layerId) {

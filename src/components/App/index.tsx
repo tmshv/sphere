@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { MapProvider } from "react-map-gl";
-import { Container, Paper, Title } from "@mantine/core";
+import { Center, Container, Paper, Title } from "@mantine/core";
 import { MapStatusbar } from "../MapStatusbar";
 import { AppLayout } from "@/ui/AppLayout";
 import { LocationToString, MapContextMenu } from "../MapContextMenu";
@@ -15,6 +15,7 @@ import { Overlay } from "@/ui/Overlay";
 import { Toolbar } from "@/ui/Toolbar";
 import { Sidebar } from "@/ui/Sidebar";
 import { actions } from "@/store";
+import { WorkingIndicator } from "../WorkingIndicator";
 
 export type AppProps = {
 
@@ -54,6 +55,15 @@ export const App: React.FC<AppProps> = ({ }) => {
                                     dispatch(actions.map.resize(id))
                                 }}
                             >
+                                <Center style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    right: 0,
+                                    width: 28,
+                                    height: 28,
+                                }}>
+                                    <WorkingIndicator />
+                                </Center>
                                 <LeftSidebar />
                             </Sidebar>
                         )}

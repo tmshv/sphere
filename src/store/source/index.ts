@@ -13,6 +13,7 @@ type GeojsonSource = {
     location: string
     dataset?: GeoJSON.FeatureCollection
     editable: false
+    pending: false
 }
 
 type VectorSource = {
@@ -21,6 +22,7 @@ type VectorSource = {
     // layers: 
     editable: false
     sourceLayers: { id: string, name: string }[]
+    pending: false
 }
 
 type RasterSource = {
@@ -28,17 +30,26 @@ type RasterSource = {
     location: string
     // layers: 
     editable: false
+    pending: false
 }
 
 type FeatureCollecionSource = {
     type: SourceType.FeatureCollection
     location?: string
     dataset: GeoJSON.FeatureCollection
-    editable: true
-    pending: boolean
+    editable: false
+    pending: false
 }
 
-type Source = (GeojsonSource | VectorSource | RasterSource | FeatureCollecionSource) & {
+type PendingFeatureCollecionSource = {
+    type: SourceType.FeatureCollection
+    location?: string
+    dataset?: GeoJSON.FeatureCollection
+    editable: true
+    pending: true
+}
+
+type Source = (GeojsonSource | VectorSource | RasterSource | PendingFeatureCollecionSource | FeatureCollecionSource) & {
     id: Id
     name: string
     fractionIndex: number
@@ -95,19 +106,16 @@ export const sourceSlice = createSlice({
         addFeatureCollection: (state, action: PayloadAction<{
             id: Id,
             name: string,
-            dataset: GeoJSON.FeatureCollection,
+            // dataset: GeoJSON.FeatureCollection,
             location?: string,
         }>) => {
-            const { id: sourceId, name, location, dataset } = action.payload
+            const { id: sourceId, name, location } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
                 type: SourceType.FeatureCollection,
                 name,
                 location,
-                dataset,
-                // dataset: featureCollection([]),
                 fractionIndex: 0,
-                // status: "init",
                 pending: true,
                 editable: true,
             }
@@ -135,10 +143,12 @@ export const sourceSlice = createSlice({
         //     state.allIds.push(sourceId)
         //     state.lastAdded = sourceId
         // },
-        // setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection }>) => {
-        //     const { id, dataset } = action.payload
-        //     state.items[id].dataset = dataset
-        // },
+        setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection }>) => {
+            const { id, dataset } = action.payload
+            const source = state.items[id] as FeatureCollecionSource
+            source.dataset = dataset
+            source.pending = false
+        },
         addVector: (state, action: PayloadAction<{
             id: Id,
             name: string,
@@ -172,26 +182,11 @@ export const sourceSlice = createSlice({
                 name,
                 location,
                 fractionIndex: 0,
-                // status: "init",
-                pending: false,
                 editable: false,
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
-        // addFromUrl: (state, action: PayloadAction<{ url: string }>) => {
-        //     const sourceId = nextId("source")
-        //     state.items[sourceId] = {
-        //         id: sourceId,
-        //         // name,
-        //         location: action.payload.url,
-        //         // dataset,
-        //         fractionIndex: 0,
-        //         status: "init",
-        //     }
-        //     state.allIds.push(sourceId)
-        //     state.lastAdded = sourceId
-        // },
         removeSource: (state, action: PayloadAction<string>) => {
             const sourceId = action.payload
             delete state.items[sourceId]
