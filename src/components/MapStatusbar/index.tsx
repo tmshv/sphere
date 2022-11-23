@@ -6,7 +6,7 @@ import { useZoom } from "@/hooks/useZoom";
 import { usePitch } from "@/hooks/usePitch";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectSourcesAmount } from "@/store/source";
-import { IconLayoutSidebar, IconLiveView, IconMountain, IconNorthStar, IconWorld, IconWorldOff } from "@tabler/icons";
+import { IconLayoutSidebar, IconLiveView, IconMountain, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons";
 import { actions } from "@/store";
 import { selectChangeProjectionAvailable, selectProjection } from "@/store/projection";
 import { selectShowLeftSidebar, selectVersion } from "@/store/app";
@@ -128,6 +128,11 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 dispatch(actions.terrain.toggle())
             }}>
                 <IconMountain size={16} />
+            </ActionIcon>
+            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: terrain })} onClick={() => {
+                dispatch(actions.mapStyle.setSatellite())
+            }}>
+                <IconSatellite size={16} />
             </ActionIcon>
             <ActionIcon
                 size={'xs'}
