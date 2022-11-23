@@ -1,9 +1,14 @@
 import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy } from '@tabler/icons';
-import { LayerType } from "@/types";
+import { LayerType, SourceType } from "@/types";
 import { actions } from "@/store";
 import { ActionBar } from "@/ui/ActionBar";
+
+type Option = {
+    value: string
+    label: string
+}
 
 export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -20,12 +25,26 @@ export const LayerPanel: React.FC = () => {
 
         const s = state.layer.items[layerId]
 
+        const sourceId = s.sourceId
+        let sourceLayers: Option[] | undefined
+        if (sourceId) {
+            const source = state.source.items[sourceId]
+            if (source.type === SourceType.MVT) {
+                sourceLayers = source.sourceLayers.map(({ id, name }) => ({
+                    value: id,
+                    label: id,
+                }))
+            }
+        }
+
         return {
             id: layerId,
             name: s.name,
             type: s.type,
             visible: s.visible,
             sourceId: s.sourceId,
+            sourceLayer: s.sourceLayer,
+            sourceLayers,
             color: s.color,
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
             heatmapRadius: s.heatmap?.radius ?? 10,
@@ -34,7 +53,8 @@ export const LayerPanel: React.FC = () => {
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, visible, name, type, color, circleRange, heatmapRadius } = layer
+    console.log(layer)
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, visible, name, type, color, circleRange, heatmapRadius } = layer
 
     let icon: React.ReactNode = null
 
@@ -136,6 +156,25 @@ export const LayerPanel: React.FC = () => {
                     }
                 }}
             />
+
+            {!sourceLayers ? null : (
+                <Select
+                    size="xs"
+                    label="Source layer"
+                    placeholder="Pick one"
+                    value={sourceLayer}
+                    data={sourceLayers}
+                    onChange={value => {
+                        if (value) {
+                            dispatch(actions.layer.setSource({
+                                id: layerId,
+                                sourceId: sourceId!,
+                                sourceLayer: value,
+                            }))
+                        }
+                    }}
+                />
+            )}
 
             <Select
                 size="xs"

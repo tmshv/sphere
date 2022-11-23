@@ -1,10 +1,11 @@
 import { Layer } from "react-map-gl";
 import { useMemo } from "react";
-import { CirclePaint } from "mapbox-gl";
+import mapboxgl, { CirclePaint } from "mapbox-gl";
 
 export type PointLayerProps = {
     layerId: string
     sourceId: string
+    sourceLayer?: string
     color: string
     visible: boolean
     options?: {
@@ -13,7 +14,7 @@ export type PointLayerProps = {
     }
 }
 
-export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, color, options, visible }) => {
+export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourceLayer, color, options, visible }) => {
     const [circle, selected] = useMemo(() => {
         const radius = options?.maxRadius ?? 4
         const circle: CirclePaint = {
@@ -30,19 +31,25 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, color
         return [circle, selected]
     }, [color, options])
 
+    const layer: mapboxgl.Layer = {
+        id: layerId,
+        source: sourceId,
+        // "source-layer": sourceLayer,
+        // type: 'circle',
+        paint: circle,
+        layout: {
+            visibility: visible ? "visible" : "none",
+        },
+        filter: ['==', ['geometry-type'], 'Point'],
+    }
+    if (sourceLayer) {
+        layer["source-layer"] = sourceLayer
+    }
+
     return (
         <>
-            <Layer
-                id={layerId}
-                source={sourceId}
-                type={"circle"}
-                paint={circle}
-                layout={{
-                    visibility: visible ? "visible" : "none",
-                }}
-                filter={['==', ['geometry-type'], 'Point']}
-            />
-            <Layer
+            <Layer type={'circle'} {...layer} />
+            {/* <Layer
                 id={`${layerId}-selected`}
                 source={sourceId}
                 type={"circle"}
@@ -51,7 +58,10 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, color
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={['in', 'id', '']}
-            />
+                {...{
+                    'source-layer': sourceLayer,
+                }}
+            /> */}
         </>
     )
 }

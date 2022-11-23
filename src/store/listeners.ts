@@ -1,4 +1,3 @@
-import { open } from '@tauri-apps/api/dialog';
 import { isAnyOf } from '@reduxjs/toolkit'
 import { selectionSlice } from './selection'
 import { appSlice } from './app'
@@ -12,6 +11,7 @@ import { duplicate } from './layer';
 import { actions } from './actions';
 import { RootState } from '.';
 import { assertUnreachable } from '@/lib';
+import { addFromUrl } from './source/addFromUrl';
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: ParserMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
@@ -30,9 +30,10 @@ export const failMiddleware = createListenerMiddleware();
 failMiddleware.startListening({
     matcher: isAnyOf(
         actions.source.addFromFile.rejected,
-        actions.source.addFromUrl.rejected,
+        // actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
+        console.log('fail', action)
         listenerApi.dispatch(actions.error.setError(action.error.message))
     },
 });
@@ -43,34 +44,6 @@ clearErrorMiddleware.startListening({
     effect: async (action, listenerApi) => {
         await listenerApi.delay(3000)
         listenerApi.dispatch(actions.error.clear())
-    },
-});
-
-export const readFromFilesMiddleware = createListenerMiddleware();
-readFromFilesMiddleware.startListening({
-    actionCreator: actions.source.addFromFiles,
-    effect: async (action, listenerApi) => {
-        for (const file of action.payload) {
-            listenerApi.dispatch(actions.source.addFromFile(file))
-        }
-
-        listenerApi.dispatch(actions.app.showLeftSidebar())
-
-        // await listenerApi.delay(1000)
-
-        // const state = listenerApi.getState() as RootState
-        // const id = state.source.lastAdded
-        // if (!id) {
-        //     return
-        // }
-
-        // const geom = state.source.items[id].data
-        // const bbox = turf.bbox(geom);
-
-        // listenerApi.dispatch(fitBounds({
-        //     mapId: "spheremap",
-        //     bounds: bbox as mapboxgl.LngLatBoundsLike
-        // }))
     },
 });
 
@@ -183,24 +156,25 @@ clearSelectionMiddleware.startListening({
 
 export const addSourceMiddleware = createListenerMiddleware();
 addSourceMiddleware.startListening({
-    matcher: isAnyOf(
-        actions.source.addFromFile.fulfilled,
-        actions.source.addFromUrl.fulfilled,
-    ),
+    actionCreator: actions.source.addFromFile.fulfilled,
     effect: async (action, listenerApi) => {
-        const dataset = action.payload.dataset as GeoJSON.FeatureCollection
-        const meta = action.payload.meta as ParserMetadata
-        const name = action.payload.name as string
-        const location = action.payload.location as string
-
-        if (dataset.features.length === 0) {
+        if (!action.payload) {
             return
         }
 
+        const dataset = action.payload.dataset
+        const meta = action.payload.meta
+        const name = action.payload.name
+        const location = action.payload.location
+
+        // if (dataset.features.length === 0) {
+        //     return
+        // }
+
         const sourceId = nextId("source")
-        listenerApi.dispatch(actions.source.addSource({
+        console.log("Adding FC", sourceId, dataset)
+        listenerApi.dispatch(actions.source.addFeatureCollection({
             id: sourceId,
-            // type: SourceType.FeatureCollection,
             name,
             location,
             dataset,
@@ -227,36 +201,12 @@ addSourceMiddleware.startListening({
     },
 });
 
-export const addFilesMissleware = createListenerMiddleware();
-addFilesMissleware.startListening({
-    actionCreator: actions.source.addFiles,
-    effect: async (_, listenerApi) => {
-        const selected = await open({
-            multiple: true,
-            filters: [{
-                name: 'Geospatial file',
-                extensions: ['csv', 'geojson', 'gpx'],
-            }]
-        });
-        if (!selected) {
-            return
-        }
-
-        if (Array.isArray(selected)) {
-            listenerApi.dispatch(actions.source.addFromFiles(selected))
-            // select layer
-        } else {
-            listenerApi.dispatch(actions.source.addFromFiles([selected]))
-        }
-    },
-});
-
 export const addBlankLayerMiddleware = createListenerMiddleware();
 addBlankLayerMiddleware.startListening({
     actionCreator: actions.layer.addBlankLayer,
     effect: async (action, listenerApi) => {
-        const layerId = `${nextId()}`
-        const name = "New Layer"
+        const layerId = nextId("layer")
+        const name = "Layer"
         listenerApi.dispatch(actions.layer.addLayer({
             id: layerId,
             fractionIndex: 0.99999,

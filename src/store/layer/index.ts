@@ -7,6 +7,7 @@ import { sourceSlice } from '../source'
 type Layer = {
     id: Id
     sourceId?: Id
+    sourceLayer?: string
     visible: boolean
     fractionIndex: number
     name: string
@@ -61,9 +62,10 @@ export const layerSlice = createSlice({
             const index = state.items[otherLayerId].fractionIndex
             state.items[layerId].fractionIndex = index + 0.00001
         },
-        setSource: (state, action: PayloadAction<{ id: Id, sourceId: Id }>) => {
-            const { id, sourceId } = action.payload
+        setSource: (state, action: PayloadAction<{ id: Id, sourceId: Id, sourceLayer?: string }>) => {
+            const { id, sourceId, sourceLayer } = action.payload
             state.items[id].sourceId = sourceId
+            state.items[id].sourceLayer = sourceLayer
         },
         setVisible: (state, action: PayloadAction<{ id: Id, value: boolean }>) => {
             const { id, value } = action.payload

@@ -2,14 +2,15 @@ import { Layer } from "react-map-gl";
 import { useMemo } from "react";
 import { FillPaint, LinePaint } from "mapbox-gl";
 
-export type PolygonLayerProps = {
+export type SpherePolygonLayerProps = {
     layerId: string
     sourceId: string
+    sourceLayer?: string
     color: string
     visible: boolean
 }
 
-export const PolygonLayer: React.FC<PolygonLayerProps> = ({ layerId, sourceId, color, visible }) => {
+export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible }) => {
     const [fill, outline0, outline1, selected] = useMemo(() => {
         const fill: FillPaint = {
             "fill-color": color,

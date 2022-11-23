@@ -1,29 +1,48 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { addFromFile, addFromUrl, addFromFiles, } from './add'
+import { addFromFile, addFromFiles, } from './add'
+import { addFromUrl } from './addFromUrl'
 import { RootState } from '..'
 import { Id, SourceType } from '@/types'
+import { featureCollection } from '@turf/helpers'
 
 type SourceStatus = 'init' | 'loading' | 'done' | 'failed'
 
-type StringSource = {
-    type: SourceType.Geojson | SourceType.MVT | SourceType.Raster
-    dataset: string
+type GeojsonSource = {
+    type: SourceType.Geojson
+    location: string
+    dataset?: GeoJSON.FeatureCollection
+    editable: false
 }
 
-type FCSource = {
+type VectorSource = {
+    type: SourceType.MVT
+    location: string
+    // layers: 
+    editable: false
+    sourceLayers: { id: string, name: string }[]
+}
+
+type RasterSource = {
+    type: SourceType.Raster
+    location: string
+    // layers: 
+    editable: false
+}
+
+type FeatureCollecionSource = {
     type: SourceType.FeatureCollection
+    location?: string
     dataset: GeoJSON.FeatureCollection
+    editable: true
+    pending: boolean
 }
 
-type Source = (StringSource | FCSource) & {
+type Source = (GeojsonSource | VectorSource | RasterSource | FeatureCollecionSource) & {
     id: Id
     name: string
-    location: string
     fractionIndex: number
     error?: string
-    pending: boolean
-    editable: boolean
 }
 
 // type PendingSource = {
@@ -73,7 +92,12 @@ export const sourceSlice = createSlice({
         //     state.allIds.push(sourceId)
         //     state.lastAdded = sourceId
         // },
-        addSource: (state, action: PayloadAction<{ id: Id, name: string, location: string, dataset: GeoJSON.FeatureCollection }>) => {
+        addFeatureCollection: (state, action: PayloadAction<{
+            id: Id,
+            name: string,
+            dataset: GeoJSON.FeatureCollection,
+            location?: string,
+        }>) => {
             const { id: sourceId, name, location, dataset } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
@@ -81,6 +105,72 @@ export const sourceSlice = createSlice({
                 name,
                 location,
                 dataset,
+                // dataset: featureCollection([]),
+                fractionIndex: 0,
+                // status: "init",
+                pending: true,
+                editable: true,
+            }
+            state.allIds.push(sourceId)
+            state.lastAdded = sourceId
+        },
+        // createFeatureCollection: (state, action: PayloadAction<{
+        //     id: Id,
+        //     name: string,
+        //     location: string,
+        //     dataset: GeoJSON.FeatureCollection,
+        // }>) => {
+        //     const { id: sourceId, name, location, dataset } = action.payload
+        //     state.items[sourceId] = {
+        //         id: sourceId,
+        //         type: SourceType.FeatureCollection,
+        //         name,
+        //         location,
+        //         dataset,
+        //         fractionIndex: 0,
+        //         // status: "init",
+        //         pending: false,
+        //         editable: true,
+        //     }
+        //     state.allIds.push(sourceId)
+        //     state.lastAdded = sourceId
+        // },
+        // setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection }>) => {
+        //     const { id, dataset } = action.payload
+        //     state.items[id].dataset = dataset
+        // },
+        addVector: (state, action: PayloadAction<{
+            id: Id,
+            name: string,
+            sourceLayers: { name: string, id: string }[],
+            location: string,
+        }>) => {
+            const { id: sourceId, sourceLayers, name, location } = action.payload
+            state.items[sourceId] = {
+                id: sourceId,
+                type: SourceType.MVT,
+                name,
+                location,
+                fractionIndex: 0,
+                // status: "init",
+                editable: false,
+                sourceLayers,
+            }
+            state.allIds.push(sourceId)
+            state.lastAdded = sourceId
+        },
+        addRemote: (state, action: PayloadAction<{
+            id: Id,
+            type: SourceType.Geojson | SourceType.Raster,
+            name: string,
+            location: string,
+        }>) => {
+            const { id: sourceId, type, name, location } = action.payload
+            state.items[sourceId] = {
+                id: sourceId,
+                type,
+                name,
+                location,
                 fractionIndex: 0,
                 // status: "init",
                 pending: false,
@@ -118,12 +208,10 @@ export const sourceSlice = createSlice({
 })
 
 export const zoomTo = createAction<string>("source/zoomTo")
-export const addFiles = createAction("source/addFiles")
 
 export const actions = {
     ...sourceSlice.actions,
     zoomTo,
-    addFiles,
     addFromFiles,
     addFromFile,
     addFromUrl,

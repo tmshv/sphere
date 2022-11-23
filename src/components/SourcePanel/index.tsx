@@ -1,8 +1,7 @@
-import { Badge, Button, Flex, Group, Select, TextInput } from "@mantine/core";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconTrash, IconCrosshair, IconStack, IconBraces } from '@tabler/icons';
+import { Badge, Flex, Group, TextInput } from "@mantine/core";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { IconTrash, IconCrosshair, IconStack, IconPencil } from '@tabler/icons';
 import { useMantineTheme } from '@mantine/core';
-import { SourceType } from "../../types";
 import { actions } from "@/store";
 import { ActionBar } from "@/ui/ActionBar";
 
@@ -26,6 +25,7 @@ export const SourcePanel: React.FC = () => {
             size: 0,
             // size: source.data.length,
             location: source.location,
+            editable: source.editable,
         }
     })
     const theme = useMantineTheme();
@@ -92,6 +92,12 @@ export const SourcePanel: React.FC = () => {
                         name: "add-to-layer",
                         label: "Add to layer",
                         icon: IconStack,
+                    },
+                    {
+                        name: "edit",
+                        label: "Switch to edit mode",
+                        icon: IconPencil,
+                        disabled: !source.editable,
                     },
                     {
                         name: "zoom",
