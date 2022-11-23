@@ -6,7 +6,7 @@ import { useZoom } from "@/hooks/useZoom";
 import { usePitch } from "@/hooks/usePitch";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectSourcesAmount } from "@/store/source";
-import { IconLayoutSidebar, IconLiveView, IconMountain, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons";
+import { IconLayoutSidebar, IconLiveView, IconMountain, IconMountainOff, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons";
 import { actions } from "@/store";
 import { selectChangeProjectionAvailable, selectProjection } from "@/store/projection";
 import { selectShowLeftSidebar, selectVersion } from "@/store/app";
@@ -119,20 +119,30 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
             <div className={s.s}></div>
 
-            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: terrain })} onClick={() => {
-                dispatch(actions.map.resetNorth({mapId: "spheremap"}))
+            <ActionIcon size={'xs'} className={s.icon} onClick={() => {
+                dispatch(actions.map.printViewport({ mapId: "spheremap" }))
+            }}>
+                <IconLiveView size={16} />
+            </ActionIcon>
+
+            <ActionIcon size={'xs'} className={s.icon} onClick={() => {
+                dispatch(actions.map.resetNorth({ mapId: "spheremap" }))
             }}>
                 <IconNorthStar size={16} />
             </ActionIcon>
-            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: terrain })} onClick={() => {
-                dispatch(actions.terrain.toggle())
-            }}>
-                <IconMountain size={16} />
-            </ActionIcon>
-            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: terrain })} onClick={() => {
+            <ActionIcon size={'xs'} className={cx(s.icon)} onClick={() => {
                 dispatch(actions.mapStyle.setSatellite())
             }}>
                 <IconSatellite size={16} />
+            </ActionIcon>
+            <ActionIcon size={'xs'} className={cx(s.icon)} onClick={() => {
+                dispatch(actions.terrain.toggle())
+            }}>
+                {terrain ? (
+                    <IconMountain size={16} />
+                ) : (
+                    <IconMountainOff size={16} />
+                )}
             </ActionIcon>
             <ActionIcon
                 size={'xs'}
