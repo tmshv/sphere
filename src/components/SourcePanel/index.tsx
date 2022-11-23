@@ -4,6 +4,7 @@ import { IconTrash, IconCrosshair, IconStack, IconPencil } from '@tabler/icons';
 import { useMantineTheme } from '@mantine/core';
 import { actions } from "@/store";
 import { ActionBar } from "@/ui/ActionBar";
+import { SourceMetadata, SourceType } from "@/types";
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -11,12 +12,17 @@ export const SourcePanel: React.FC = () => {
     const source = useAppSelector(state => {
         const id = state.selection.sourceId
         if (!id) {
-            return
+            return null
         }
 
         const source = state.source.items[id]
         if (!source) {
-            return
+            return null
+        }
+
+        let meta: SourceMetadata | undefined = undefined
+        if ((source.type === SourceType.FeatureCollection) && !source.pending) {
+            meta = source.meta
         }
 
         return {
@@ -27,6 +33,7 @@ export const SourcePanel: React.FC = () => {
             // size: source.data.length,
             location: source.location,
             editable: source.editable,
+            meta,
         }
     })
     const theme = useMantineTheme();
@@ -35,6 +42,8 @@ export const SourcePanel: React.FC = () => {
     if (!source) {
         return null
     }
+
+    const { meta } = source
 
     // let icon: React.ReactNode = (
     //     <IconBraces size={16} color={getColor('blue')} />
@@ -142,6 +151,20 @@ export const SourcePanel: React.FC = () => {
             <Badge radius={"sm"} size={"xs"}>
                 {source.location}
             </Badge>
+
+            {!meta ? null : (
+                <>
+                    <Badge radius={"sm"} size={"xs"}>
+                        Points={meta.pointsCount}
+                    </Badge>
+                    <Badge radius={"sm"} size={"xs"}>
+                        Lines={meta.linesCount}
+                    </Badge>
+                    <Badge radius={"sm"} size={"xs"}>
+                        Polygons={meta.polygonsCount}
+                    </Badge>
+                </>
+            )}
         </Flex>
     )
 }

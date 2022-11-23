@@ -5,14 +5,14 @@ import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '@/map'
 import mapboxgl from 'mapbox-gl'
-import { LayerType, ParserMetadata, SourceType } from '@/types'
+import { LayerType, SourceMetadata, SourceType } from '@/types'
 import { nextId } from '@/lib/nextId'
 import { duplicate } from './layer';
 import { actions } from './actions';
 import { RootState } from '.';
 import { assertUnreachable } from '@/lib';
 
-function predictLayerType({ pointsCount, linesCount, polygonsCount }: ParserMetadata): LayerType | null {
+function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
         return LayerType.Point
     }
@@ -186,9 +186,10 @@ addBlankLayerMiddleware.startListening({
     effect: async (action, listenerApi) => {
         const state = listenerApi.getOriginalState() as RootState
         const sourceId = action.payload
-
         const layerId = nextId("layer")
-        const name = "Layer"
+        const source = sourceId ? state.source.items[sourceId] : null
+        let name = source ? source.name : "Layer"
+
         listenerApi.dispatch(actions.layer.addLayer({
             id: layerId,
             fractionIndex: 0.99999,
@@ -197,15 +198,21 @@ addBlankLayerMiddleware.startListening({
             color: "#1c7ed6",
         }))
 
-        if (sourceId) {
-            const source = state.source.items[sourceId]
-            if (source) {
-                listenerApi.dispatch(actions.layer.setSource({
-                    id: layerId,
-                    sourceId,
-                }))
+        if (sourceId && source) {
+            listenerApi.dispatch(actions.layer.setSource({
+                id: layerId,
+                sourceId,
+            }))
 
-                // try to predict default layer view
+            // try to predict default layer view
+            if (source.type === SourceType.FeatureCollection && !source.pending) {
+                const layerType = predictLayerType(source.meta)
+                if (layerType) {
+                    listenerApi.dispatch(actions.layer.setType({
+                        id: layerId,
+                        type: layerType,
+                    }))
+                }
             }
         }
 

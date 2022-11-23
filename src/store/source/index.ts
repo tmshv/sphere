@@ -6,8 +6,6 @@ import { RootState } from '..'
 import { drawSlice } from '../draw'
 import { Id, SourceMetadata, SourceType } from '@/types'
 
-type SourceStatus = 'init' | 'loading' | 'done' | 'failed'
-
 type GeojsonSource = {
     type: SourceType.Geojson
     location: string
