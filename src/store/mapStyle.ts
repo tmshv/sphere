@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '.'
 import { Style } from 'mapbox-gl'
+import { selectIsDrawing } from './draw'
+import { selectIsDark } from './app'
 // import type { RootState } from '../../app/store'
 
 const VECTOR = "mapbox://styles/mapbox/streets-v9"
@@ -61,6 +63,17 @@ export const mapStyleSlice = createSlice({
 })
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectMapStyle = (state: RootState) => state.mapStyle.value
+export const selectMapStyle = (state: RootState) => {
+    const draw = selectIsDrawing(state)
+    const dark = selectIsDark(state)
+
+    if (draw) {
+        return dark
+            ? 'mapbox://styles/mapbox/dark-v10'
+            : 'mapbox://styles/mapbox/light-v10'
+    }
+
+    return state.mapStyle.value
+}
 
 export default mapStyleSlice.reducer

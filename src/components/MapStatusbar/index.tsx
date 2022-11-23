@@ -6,9 +6,9 @@ import { useZoom } from "@/hooks/useZoom";
 import { usePitch } from "@/hooks/usePitch";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectSourcesAmount } from "@/store/source";
-import { IconLayoutSidebar, IconMountain, IconNorthStar, IconWorld } from "@tabler/icons";
+import { IconLayoutSidebar, IconLiveView, IconMountain, IconNorthStar, IconWorld, IconWorldOff } from "@tabler/icons";
 import { actions } from "@/store";
-import { selectProjection } from "@/store/projection";
+import { selectChangeProjectionAvailable, selectProjection } from "@/store/projection";
 import { selectShowLeftSidebar, selectVersion } from "@/store/app";
 import { selectIsShowTerrain } from "@/store/terrain";
 import { selectErrorMessage } from "@/store/error";
@@ -86,6 +86,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const version = useAppSelector(selectVersion)
     const sources = useAppSelector(selectSourcesAmount)
     const projection = useAppSelector(selectProjection)
+    const changeProjection = useAppSelector(selectChangeProjectionAvailable)
     const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
     const isGlobe = projection === "globe"
@@ -128,14 +129,30 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
             }}>
                 <IconMountain size={16} />
             </ActionIcon>
-            <ActionIcon size={'xs'} className={s.icon} color={isGlobe ? "yellow" : undefined} onClick={() => {
-                if (isGlobe) {
-                    dispatch(actions.projection.setFlat())
-                } else {
-                    dispatch(actions.projection.setGlobe())
-                }
-            }}>
-                <IconWorld size={16} />
+            <ActionIcon
+                size={'xs'}
+                className={s.icon}
+                color={isGlobe ? "yellow" : undefined}
+                disabled={!changeProjection}
+                sx={{
+                    "&[data-disabled]": {
+                        backgroundColor: '#00000000',
+                        border: 'none',
+                    }
+                }}
+                onClick={() => {
+                    if (isGlobe) {
+                        dispatch(actions.projection.setFlat())
+                    } else {
+                        dispatch(actions.projection.setGlobe())
+                    }
+                }}
+            >
+                {changeProjection ? (
+                    <IconWorld size={16} />
+                ) : (
+                    <IconWorldOff size={16} />
+                )}
             </ActionIcon>
 
             <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>

@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { RootState } from '.'
+import { selectIsDrawing } from './draw'
 
 // Define a type for the slice state
 type ProjectionState = {
@@ -26,6 +27,16 @@ export const projectionSlice = createSlice({
 })
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectProjection = (state: RootState) => state.projection.value
+export const selectProjection = (state: RootState) => {
+    const draw = selectIsDrawing(state)
+
+    return draw
+        ? "mercator"
+        : state.projection.value
+}
+
+export const selectChangeProjectionAvailable = (state: RootState) => {
+    return !selectIsDrawing(state)
+}
 
 export default projectionSlice.reducer
