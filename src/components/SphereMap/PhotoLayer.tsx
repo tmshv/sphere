@@ -1,6 +1,6 @@
 import { ClustersOptions, useClusters } from '@/hooks/useClusters'
 import { useAppSelector } from '@/store/hooks'
-import { Dataset } from '@/types'
+import { Dataset, SourceType } from '@/types'
 import { ImageMarker } from '@/ui/ImageMarker'
 import { createStyles } from '@mantine/core'
 import { point } from '@turf/helpers'
@@ -63,7 +63,7 @@ export type PhotoLayerProps = {
 
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
     const features = useAppSelector(state => {
-        const source = state.source.items[sourceId].dataset as Dataset<GeoJSON.Point>
+        const source = state.source.items[sourceId].dataset as Dataset<SourceType.Points, GeoJSON.Point>
         return source.data
             .filter(f => {
                 const { src } = getImage(f.data)
