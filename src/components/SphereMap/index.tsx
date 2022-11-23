@@ -11,6 +11,8 @@ import { SetupStore } from "./SetupStore";
 import { HandleClick } from "./HandleClick";
 import { SphereLayer } from "./SphereLayer";
 import { HandleHover } from "./HandleHover";
+import { selectIsDrawing } from "@/store/draw";
+import { Draw } from "./Draw";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -23,6 +25,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectMapStyle)
     const fog = useAppSelector(selectIsShowFog)
     const terrain = useAppSelector(selectIsShowTerrain)
+    const draw = useAppSelector(selectIsDrawing)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layers = useAppSelector(state => {
         return state.layer.allIds
@@ -91,7 +94,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-            {layers.map(({ id }) => (
+            {draw ? (<Draw />) : layers.map(({ id }) => (
                 <SphereLayer
                     key={id}
                     id={id}

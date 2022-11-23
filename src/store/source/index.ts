@@ -3,8 +3,8 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { addFromFile, addFromFiles, } from './add'
 import { addFromUrl } from './addFromUrl'
 import { RootState } from '..'
+import { drawSlice } from '../draw'
 import { Id, SourceType } from '@/types'
-import { featureCollection } from '@turf/helpers'
 
 type SourceStatus = 'init' | 'loading' | 'done' | 'failed'
 
@@ -204,6 +204,16 @@ export const sourceSlice = createSlice({
             const { id: sourceId, value } = action.payload
             state.items[sourceId].name = value
         },
+    },
+    extraReducers: builder => {
+        builder
+            .addCase(drawSlice.actions.stop, (state, action) => {
+                const { sourceId: id, featureCollection } = action.payload
+                const source = state.items[id]
+                if (source.type === SourceType.FeatureCollection) {
+                    source.dataset = featureCollection
+                }
+            })
     },
 })
 
