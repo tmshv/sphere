@@ -2,8 +2,19 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import { SourceType } from '@/types';
 import { nextId } from '@/lib/nextId';
 import { actions } from '.';
+import { init } from '@/lib/array';
 
 const AT = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
+
+export function getStem(pathname: string): string | null {
+    const parts = pathname.split('/')
+    if (parts.length === 0) {
+        return null
+    }
+
+    const file = parts[parts.length - 1]
+    return init(file.split('.')).join('.')
+}
 
 export async function extract(location: string, accessToken: string) {
     const p = /mapbox:\/\/(.*)/
@@ -31,8 +42,8 @@ export const addFromUrl = createAsyncThunk(
     async ({ url, type }: { url: string, type: SourceType.Geojson | SourceType.MVT | SourceType.Raster }, thunkAPI) => {
         const x = new URL(url)
         // const path = x.pathname
-        // const name = await basename(path)
-        let name = x.href
+        const stem = getStem(x.pathname)
+        let name = stem ?? x.pathname
 
         let id = nextId("source")
         // const { location, type } = action.payload

@@ -56,7 +56,6 @@ export const addFromFiles = createAsyncThunk('source/addFromFiles', async (paths
 })
 
 export const addFromFile = createAsyncThunk('source/addFromFile', async (path: string, thunkAPI) => {
-    const name = await basename(path)
     const ext = await extname(path)
     if (!parsers.has(ext)) {
         throw new Error("Cannot find parser")
@@ -65,6 +64,8 @@ export const addFromFile = createAsyncThunk('source/addFromFile', async (path: s
 
     const raw = await readTextFile(path)
     const [dataset, meta] = await parser(raw)
+
+    const name = (dataset as any).name ?? await basename(path)
 
     return {
         id: nextId("source"),
