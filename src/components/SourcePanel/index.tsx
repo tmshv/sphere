@@ -73,6 +73,10 @@ export const SourcePanel: React.FC = () => {
                             dispatch(actions.source.zoomTo(source.id))
                             break
                         }
+                        case "add-to-layer": {
+                            dispatch(actions.layer.addBlankLayer(source.id))
+                            break
+                        }
                         case "edit": {
                             if (drawing) {
                                 dispatch(actions.draw.cancel())

@@ -184,6 +184,9 @@ export const addBlankLayerMiddleware = createListenerMiddleware();
 addBlankLayerMiddleware.startListening({
     actionCreator: actions.layer.addBlankLayer,
     effect: async (action, listenerApi) => {
+        const state = listenerApi.getOriginalState() as RootState
+        const sourceId = action.payload
+
         const layerId = nextId("layer")
         const name = "Layer"
         listenerApi.dispatch(actions.layer.addLayer({
@@ -193,6 +196,19 @@ addBlankLayerMiddleware.startListening({
             name,
             color: "#1c7ed6",
         }))
+
+        if (sourceId) {
+            const source = state.source.items[sourceId]
+            if (source) {
+                listenerApi.dispatch(actions.layer.setSource({
+                    id: layerId,
+                    sourceId,
+                }))
+
+                // try to predict default layer view
+            }
+        }
+
         listenerApi.dispatch(actions.selection.selectLayer({
             layerId,
         }))

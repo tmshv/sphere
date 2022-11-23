@@ -82,6 +82,7 @@ export const addFromFile = createAsyncThunk('source/addFromFile', async (path: s
     thunkAPI.dispatch(actions.setData({
         id: sourceId,
         dataset,
+        meta,
     }))
 
     return {

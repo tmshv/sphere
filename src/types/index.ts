@@ -17,6 +17,12 @@ export enum LayerType {
     Heatmap = "Heatmap",
 }
 
+export type SourceMetadata = {
+    pointsCount: number
+    linesCount: number
+    polygonsCount: number
+}
+
 export type PointLike = GeoJSON.Point | GeoJSON.MultiPoint
 export type LineStringLike = GeoJSON.LineString | GeoJSON.MultiLineString
 export type PolygonLike = GeoJSON.Polygon | GeoJSON.MultiPolygon
@@ -42,9 +48,4 @@ export type DatasetRow<G> = {
 //     data: DatasetRow<G>[]
 // }
 
-export type ParserMetadata = {
-    pointsCount: number
-    linesCount: number
-    polygonsCount: number
-}
-export type FileParser = (raw: string) => Promise<[GeoJSON.FeatureCollection, ParserMetadata]>
+export type FileParser = (raw: string) => Promise<[GeoJSON.FeatureCollection, SourceMetadata]>

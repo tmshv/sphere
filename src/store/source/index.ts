@@ -4,7 +4,7 @@ import { addFromFile, addFromFiles, } from './add'
 import { addFromUrl } from './addFromUrl'
 import { RootState } from '..'
 import { drawSlice } from '../draw'
-import { Id, SourceType } from '@/types'
+import { Id, SourceMetadata, SourceType } from '@/types'
 
 type SourceStatus = 'init' | 'loading' | 'done' | 'failed'
 
@@ -39,6 +39,7 @@ type FeatureCollecionSource = {
     dataset: GeoJSON.FeatureCollection
     editable: false
     pending: false
+    meta: SourceMetadata
 }
 
 type PendingFeatureCollecionSource = {
@@ -143,10 +144,11 @@ export const sourceSlice = createSlice({
         //     state.allIds.push(sourceId)
         //     state.lastAdded = sourceId
         // },
-        setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection }>) => {
-            const { id, dataset } = action.payload
+        setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection, meta: SourceMetadata }>) => {
+            const { id, dataset, meta } = action.payload
             const source = state.items[id] as FeatureCollecionSource
             source.dataset = dataset
+            source.meta = meta
             source.pending = false
         },
         addVector: (state, action: PayloadAction<{
@@ -162,7 +164,7 @@ export const sourceSlice = createSlice({
                 name,
                 location,
                 fractionIndex: 0,
-                // status: "init",
+                pending: false,
                 editable: false,
                 sourceLayers,
             }
@@ -181,6 +183,7 @@ export const sourceSlice = createSlice({
                 type,
                 name,
                 location,
+                pending: false,
                 fractionIndex: 0,
                 editable: false,
             }

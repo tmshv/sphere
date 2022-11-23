@@ -120,7 +120,7 @@ export const layerSlice = createSlice({
     }
 })
 
-export const addBlankLayer = createAction("layer/addBlankLayer")
+export const addBlankLayer = createAction<string | undefined>("layer/addBlankLayer")
 export const duplicate = createAction<string>("layer/duplicate")
 
 export const actions = {
