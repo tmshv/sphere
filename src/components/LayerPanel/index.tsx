@@ -10,7 +10,7 @@ export const LayerPanel: React.FC = () => {
     const sources = useAppSelector(state => state.source.allIds.map(id => ({
         value: id,
         label: state.source.items[id].name,
-        type: state.source.items[id].dataset.type,
+        type: state.source.items[id].type,
     })))
     const layer = useAppSelector(state => {
         const { layerId } = state.selection

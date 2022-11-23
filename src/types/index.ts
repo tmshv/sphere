@@ -1,12 +1,12 @@
 export enum SourceType {
-    Geojson = "GeoJSON",
     FeatureCollection = "FeatureCollection",
+    Geojson = "GeoJSON",
     MVT = "MVT",
     Raster = "Raster",
 
-    Points = "Point",
-    Lines = "LineString",
-    Polygons = "Polygon",
+    // Points = "Point",
+    // Lines = "LineString",
+    // Polygons = "Polygon",
 }
 
 export enum LayerType {
@@ -37,47 +37,14 @@ export type DatasetRow<G> = {
     meta: Record<string, DatasetRecordMeta>
 }
 
-type DatasetCore = {
-    id: Id
-    // name: string
-    // location: string
-}
-
-export type PointDataset<G = PointLike | LineStringLike | PolygonLike> = DatasetCore & {
-    type: SourceType.Points,
-    // data: DatasetRow<Point>[]
-    data: DatasetRow<G>[]
-}
-
-export type LineStringDataset<G = PointLike | LineStringLike | PolygonLike> = DatasetCore & {
-    type: SourceType.Lines,
-    // data: DatasetRow<LineString>[]
-    data: DatasetRow<G>[]
-}
-
-export type PolygonDataset<G = PointLike | LineStringLike | PolygonLike> = DatasetCore & {
-    type: SourceType.Polygons,
-    // data: DatasetRow<Polygon>[]
-    data: DatasetRow<G>[]
-}
-
-// export type Dataset<G = PointLike | LineStringLike | PolygonLike> =
-//     | PointDataset<G>
-//     | LineStringDataset<G>
-//     | PolygonDataset<G>
-
-export type Dataset<T extends SourceType, G = PointLike | LineStringLike | PolygonLike> = {
-    id: Id
-    // name: string
-    // location: string
-    // data: DatasetRow<Polygon>[]
-    type: T,
-    data: DatasetRow<G>[]
-}
+// export type Dataset = GeoJSON.FeatureCollection | string
+// export type Dataset<T extends SourceType, G = PointLike | LineStringLike | PolygonLike> = {
+//     data: DatasetRow<G>[]
+// }
 
 export type ParserMetadata = {
     pointsCount: number
     linesCount: number
     polygonsCount: number
 }
-export type FileParser<T extends SourceType> = (raw: string) => Promise<[Dataset<T>, ParserMetadata]>
+export type FileParser = (raw: string) => Promise<[GeoJSON.FeatureCollection, ParserMetadata]>

@@ -1,13 +1,10 @@
 import { ClustersOptions, useClusters } from '@/hooks/useClusters'
 import { useAppSelector } from '@/store/hooks'
-import { Dataset, SourceType } from '@/types'
+import { SourceType } from '@/types'
 import { ImageMarker } from '@/ui/ImageMarker'
 import { createStyles } from '@mantine/core'
-import { point } from '@turf/helpers'
 import { useCallback, useMemo } from 'react'
 import { Marker } from 'react-map-gl'
-
-//badge
 
 const useStyle = createStyles(theme => ({
     badge: {
@@ -63,15 +60,16 @@ export type PhotoLayerProps = {
 
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
     const features = useAppSelector(state => {
-        const source = state.source.items[sourceId].dataset as Dataset<SourceType.Points, GeoJSON.Point>
-        return source.data
-            .filter(f => {
-                const { src } = getImage(f.data)
-                return !!src
-            })
-            .map(f => {
-                return point(f.geometry!.coordinates, f.data)
-            })
+        const source = state.source.items[sourceId]
+        if (source.type === SourceType.FeatureCollection) {
+            return source.dataset.features
+                .filter(f => {
+                    const { src } = getImage(f.properties!)
+                    return !!src
+                })
+        } else {
+            return []
+        }
     })
 
     if (features.length === 0) {
@@ -125,7 +123,8 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
     return (
         <PhotoCluster
             radius={clusterRadius}
-            data={features}
+            data={features as any}
+            //  as GeoJSON.FeatureCollection<GeoJSON.Point>}
             renderPhoto={renderPhoto}
             mapProperties={p => {
                 const { src, value } = getImage(p)

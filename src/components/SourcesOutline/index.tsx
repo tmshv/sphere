@@ -1,13 +1,11 @@
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconFile, IconBraces } from '@tabler/icons';
-import { Box, NavLink, useMantineTheme } from '@mantine/core';
-import { SourceType } from "../../types";
+import { IconBraces } from '@tabler/icons';
+import { useMantineTheme } from '@mantine/core';
 import { actions } from "@/store";
 import { selectCurrentSource } from "@/store/selection";
 import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline";
 import { useCallback } from "react";
 import { OutlineItem } from "@/ui/Outline/OutlineItem";
-// import { NavbarLink, SideMenu } from "@/ui/SideMenu";
 
 export const SourcesOutline: React.FC = () => {
     const theme = useMantineTheme();
@@ -22,7 +20,7 @@ export const SourcesOutline: React.FC = () => {
                 id,
                 active: id === currentId,
                 name: s.name,
-                type: s.dataset.type,
+                type: s.type,
             }
         })
     })
@@ -42,25 +40,6 @@ export const SourcesOutline: React.FC = () => {
     }, [])
 
     const renderItem = useCallback<OutlineRenderItem<typeof items[0]>>(({ id, name, type, active }) => {
-        let icon: React.ReactNode = null
-        if (type === SourceType.Points) {
-            icon = (
-                <IconPoint size={16} color={getColor('blue')} />
-            )
-        } else if (type === SourceType.Lines) {
-            icon = (
-                <IconLine size={16} color={getColor('blue')} />
-            )
-        } else if (type === SourceType.Polygons) {
-            icon = (
-                <IconPolygon size={16} color={getColor('blue')} />
-            )
-        } else {
-            icon = (
-                <IconBraces size={16} color={getColor('blue')} />
-            )
-        }
-
         return (
             <OutlineItem
                 label={name}
@@ -70,7 +49,9 @@ export const SourcesOutline: React.FC = () => {
                         sourceId: id,
                     }))
                 }}
-                icon={icon}
+                icon={(
+                <IconBraces size={16} color={getColor('blue')} />
+                )}
             />
         )
     }, [])

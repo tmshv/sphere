@@ -1,6 +1,6 @@
 import { Badge, Button, Flex, Group, Select, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconTrash, IconCrosshair, IconStack } from '@tabler/icons';
+import { IconPolygon, IconPoint, IconLine, IconTrash, IconCrosshair, IconStack, IconBraces } from '@tabler/icons';
 import { useMantineTheme } from '@mantine/core';
 import { SourceType } from "../../types";
 import { actions } from "@/store";
@@ -22,8 +22,9 @@ export const SourcePanel: React.FC = () => {
         return {
             id,
             name: source.name,
-            type: source.dataset.type,
-            size: source.dataset.data.length,
+            type: source.type,
+            size: 0,
+            // size: source.data.length,
             location: source.location,
         }
     })
@@ -34,24 +35,29 @@ export const SourcePanel: React.FC = () => {
         return null
     }
 
-    // sources.map(source => {
-    let icon: React.ReactNode = null
-
-    if (source.type === SourceType.Points) {
-        icon = (
-            <IconPoint size={20} color={getColor('blue')} />
-        )
-    }
-    if (source.type === SourceType.Lines) {
-        icon = (
-            <IconLine size={20} color={getColor('blue')} />
-        )
-    }
-    if (source.type === SourceType.Polygons) {
-        icon = (
-            <IconPolygon size={20} color={getColor('blue')} />
-        )
-    }
+    // let icon: React.ReactNode = (
+    //     <IconBraces size={16} color={getColor('blue')} />
+    // )
+    // if (source.type === SourceType.Geojson) {
+    //     icon = (
+    //         <IconBraces size={16} color={getColor('blue')} />
+    //     )
+    // }
+    // if (source.type === SourceType.FeatureCollection) {
+    //     icon = (
+    //         <IconBraces size={16} color={getColor('blue')} />
+    //     )
+    // }
+    // if (source.type === SourceType.Raster) {
+    //     icon = (
+    //         <IconBraces size={16} color={getColor('blue')} />
+    //     )
+    // }
+    // if (source.type === SourceType.Raster) {
+    //     icon = (
+    //         <IconBraces size={16} color={getColor('blue')} />
+    //     )
+    // }
     return (
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
             <ActionBar

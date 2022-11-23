@@ -2,18 +2,28 @@ import { createAction, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { addFromFile, addFromUrl, addFromFiles, } from './add'
 import { RootState } from '..'
-import { Dataset, Id } from '@/types'
-import { nextId } from '@/lib/nextId'
+import { Id, SourceType } from '@/types'
 
 type SourceStatus = 'init' | 'loading' | 'done' | 'failed'
 
-type Source = {
+type StringSource = {
+    type: SourceType.Geojson | SourceType.MVT | SourceType.Raster
+    dataset: string
+}
+
+type FCSource = {
+    type: SourceType.FeatureCollection
+    dataset: GeoJSON.FeatureCollection
+}
+
+type Source = (StringSource | FCSource) & {
     id: Id
     name: string
     location: string
-    dataset: Dataset<any>
     fractionIndex: number
-    status: SourceStatus
+    error?: string
+    pending: boolean
+    editable: boolean
 }
 
 // type PendingSource = {
@@ -47,15 +57,34 @@ export const sourceSlice = createSlice({
             state.allIds = []
             state.lastAdded = undefined
         },
-        addSource: (state, action: PayloadAction<{ id: Id, name: string, location: string, dataset: Dataset<any>}>) => {
-            const {id: sourceId, name, location, dataset} = action.payload
+        // addFeatureCollection: (state, action: PayloadAction<{ id: Id, name: string, location?: string, dataset: GeoJSON.FeatureCollection }>) => {
+        //     const { id: sourceId, name, location, dataset } = action.payload
+        //     state.items[sourceId] = {
+        //         id: sourceId,
+        //         type: SourceType.FeatureCollection,
+        //         name,
+        //         location: location ?? "<unknown>",
+        //         dataset,
+        //         fractionIndex: 0,
+        //         // status: "init",
+        //         pending: false,
+        //         editable: true,
+        //     }
+        //     state.allIds.push(sourceId)
+        //     state.lastAdded = sourceId
+        // },
+        addSource: (state, action: PayloadAction<{ id: Id, name: string, location: string, dataset: GeoJSON.FeatureCollection }>) => {
+            const { id: sourceId, name, location, dataset } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
+                type: SourceType.FeatureCollection,
                 name,
                 location,
                 dataset,
                 fractionIndex: 0,
-                status: "init",
+                // status: "init",
+                pending: false,
+                editable: false,
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId

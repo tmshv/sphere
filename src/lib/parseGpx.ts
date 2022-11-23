@@ -1,7 +1,7 @@
 import { convertXML } from "simple-xml-to-json"
-import { lineString } from "@turf/turf"
-import { FileParser, SourceType } from "@/types"
-import { nextId, nextNumber } from "./nextId"
+import { featureCollection, lineString } from "@turf/turf"
+import { FileParser } from "@/types"
+import { nextNumber } from "./nextId"
 
 type Gpx = {
     gpx: {
@@ -62,7 +62,7 @@ function split<T>(items: T[], predicate: (item: T) => boolean): T[][] {
     return result.filter(segment => segment.length > 0)
 }
 
-export const parseGpx: FileParser<SourceType.Lines> = async raw => {
+export const parseGpx: FileParser = async raw => {
     // export async function parseGpx(name: string, location: string, raw: string): Promise<Dataset[] | null> {
     try {
         const result = convertXML<Gpx>(raw)
@@ -120,27 +120,15 @@ export const parseGpx: FileParser<SourceType.Lines> = async raw => {
         const maxEle = Math.max(...ele)
         const minEle = Math.min(...ele)
         const averageEle = ele.reduce((acc, x) => acc + x, 0) / ele.length
-        const feature = lineString(points.map(p => [p.lng, p.lat]))
+        const feature = lineString(points.map(p => [p.lng, p.lat]), {
+            maxEle,
+            minEle,
+            averageEle,
+        })
+        feature.id = nextNumber()
 
         return [
-            {
-                id: nextId(),
-                // name,
-                // location,
-                type: SourceType.Lines,
-                data: [
-                    {
-                        id: nextNumber(),
-                        geometry: feature.geometry,
-                        data: {
-                            maxEle,
-                            minEle,
-                            averageEle,
-                        },
-                        meta: {},
-                    },
-                ],
-            },
+            featureCollection([feature]),
             {
                 pointsCount: 0,
                 linesCount: 1,

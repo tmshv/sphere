@@ -6,12 +6,12 @@ import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '@/map'
 import mapboxgl from 'mapbox-gl'
-import { Dataset, LayerType, ParserMetadata } from '@/types'
+import { LayerType, ParserMetadata, SourceType } from '@/types'
 import { nextId } from '@/lib/nextId'
-import { featureCollection } from '@turf/turf'
 import { duplicate } from './layer';
 import { actions } from './actions';
 import { RootState } from '.';
+import { assertUnreachable } from '@/lib';
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: ParserMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
@@ -91,19 +91,29 @@ zoomToMiddleware.startListening({
             return
         }
 
-        const fc = featureCollection(source.dataset.data.map(g => {
-            return {
-                type: "Feature",
-                geometry: g.geometry,
-                properties: {},
-            }
-        }))
-        const bbox = turf.bbox(fc);
+        const { type } = source
+        switch (type) {
+            case SourceType.FeatureCollection: {
+                const bbox = turf.bbox(source.dataset);
 
-        listenerApi.dispatch(actions.map.fitBounds({
-            mapId,
-            bounds: bbox as mapboxgl.LngLatBoundsLike
-        }))
+                listenerApi.dispatch(actions.map.fitBounds({
+                    mapId,
+                    bounds: bbox as mapboxgl.LngLatBoundsLike
+                }))
+            }
+            case SourceType.Geojson: {
+                break
+            }
+            case SourceType.MVT: {
+                break
+            }
+            case SourceType.Raster: {
+                break
+            }
+            default: {
+                assertUnreachable(type)
+            }
+        }
     },
 });
 
@@ -178,17 +188,19 @@ addSourceMiddleware.startListening({
         actions.source.addFromUrl.fulfilled,
     ),
     effect: async (action, listenerApi) => {
-        const dataset = action.payload.dataset as Dataset<any>
+        const dataset = action.payload.dataset as GeoJSON.FeatureCollection
         const meta = action.payload.meta as ParserMetadata
         const name = action.payload.name as string
         const location = action.payload.location as string
-        if (dataset.data.length === 0) {
+
+        if (dataset.features.length === 0) {
             return
         }
 
         const sourceId = nextId("source")
         listenerApi.dispatch(actions.source.addSource({
             id: sourceId,
+            // type: SourceType.FeatureCollection,
             name,
             location,
             dataset,

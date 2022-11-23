@@ -1,5 +1,5 @@
-import { Dataset, FileParser, SourceType } from "@/types"
-import { nextId, nextNumber } from "./nextId"
+import { FileParser } from "@/types"
+import { nextNumber } from "./nextId"
 
 const pointType = new Set(["Point", "MultiPoint"])
 const lineType = new Set(["LineString", "MultiLineStreing"])
@@ -9,32 +9,19 @@ function isFeatureCollection(json: any): boolean {
     return true
 }
 
-export const parseGeojson: FileParser<SourceType.Geojson> = async raw => {
+export const parseGeojson: FileParser = async raw => {
     try {
         const parsed = JSON.parse(raw)
         if (!isFeatureCollection(parsed)) {
             throw new Error("Fail is not a GeoJSON")
         }
 
-        const features = (parsed as GeoJSON.FeatureCollection).features
-        const geojson: Dataset<SourceType.Geojson> = {
-            id: nextId("dataset"),
-            type: SourceType.Geojson,
-            data: [],
-        }
+        const geojson = (parsed as GeoJSON.FeatureCollection)
         let pointsCount = 0
         let linesCount = 0
         let polygonsCount = 0
-        for (const feature of features) {
-            const id = nextNumber()
-            geojson.data.push({
-                id,
-                geometry: feature.geometry as any,
-                data: feature.properties ?? {},
-                meta: {
-                },
-            })
-
+        for (const feature of geojson.features) {
+            feature.id = nextNumber()
             if (pointType.has(feature.geometry.type)) {
                 pointsCount ++
             }

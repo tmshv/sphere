@@ -4,11 +4,10 @@ import { basename, extname } from '@tauri-apps/api/path';
 import { parseGeojson } from '../../lib/parseGeojson'
 import { parseGpx } from '../../lib/parseGpx'
 import { parseCsv } from '@/lib/parseCsv';
-import { FileParser, SourceType } from '@/types';
-import { actions } from '..';
+import { FileParser } from '@/types';
 import { nextId } from '@/lib/nextId';
 
-const parsers = new Map<string, FileParser<any>>([
+const parsers = new Map<string, FileParser>([
     ["json", parseGeojson],
     ["geojson", parseGeojson],
     ["gpx", parseGpx],
@@ -29,6 +28,7 @@ export const addFromFile = createAsyncThunk('source/addFromFile', async (path: s
     const [dataset, meta] = await parser(raw)
 
     return {
+        id: nextId("source"),
         location: path,
         name,
         dataset,
@@ -74,6 +74,7 @@ export const addFromUrl = createAsyncThunk('source/addFromFile', async (url: str
     // }
 
     return {
+        if: nextId("source"),
         location: url,
         name,
         dataset,
