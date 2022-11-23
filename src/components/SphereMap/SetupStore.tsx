@@ -1,6 +1,6 @@
 import { useMap } from "react-map-gl";
 import { useEffect } from "react";
-import { removeMap, setMap } from "../../map";
+import { removeMap, setMap } from "@/map";
 
 export type SetupStoreProps = {
     mapId: string
