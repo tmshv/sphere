@@ -1,12 +1,17 @@
-import { createAction } from '@reduxjs/toolkit'
+import { getMap } from '@/map'
+import { createAction, createListenerMiddleware } from '@reduxjs/toolkit'
 import mapboxgl from 'mapbox-gl'
 
-type FitBoundsPayload = {
+type WithMapId = {
     mapId: string
+}
+
+type FitBoundsPayload = WithMapId & {
     bounds: mapboxgl.LngLatBoundsLike
 }
 export const fitBounds = createAction<FitBoundsPayload>("map/fitBounds")
 
+export const resetNorth = createAction<WithMapId>("map/resetNorth")
 export const resize = createAction<string>("map/resize")
 
 type ValuePayload<T> = {
@@ -18,5 +23,47 @@ export const setInteractive = createAction<ValuePayload<boolean>>("map/setIntera
 export const actions = {
     fitBounds,
     resize,
+    resetNorth,
     setInteractive,
 }
+
+export const listener = createListenerMiddleware()
+listener.startListening({
+    actionCreator: fitBounds,
+    effect: async (action, listenerApi) => {
+        const { mapId, bounds } = action.payload
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+        map.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 18,
+            // maxDuration: 500,
+        })
+    },
+})
+listener.startListening({
+    actionCreator: resize,
+    effect: async (action, listenerApi) => {
+        const mapId = action.payload
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+
+        map.resize()
+    },
+})
+listener.startListening({
+    actionCreator: resetNorth,
+    effect: async (action, listenerApi) => {
+        const { mapId } = action.payload
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+
+        map.resetNorthPitch()
+    },
+})

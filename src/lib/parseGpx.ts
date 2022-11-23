@@ -1,7 +1,7 @@
 import { convertXML } from "simple-xml-to-json"
-import { lineString } from "@turf/turf"
-import { Dataset, SourceType } from "@/types"
-import { nextId, nextNumber } from "./nextId"
+import { featureCollection, lineString } from "@turf/turf"
+import { FileParser } from "@/types"
+import { nextNumber } from "./nextId"
 
 type Gpx = {
     gpx: {
@@ -62,7 +62,8 @@ function split<T>(items: T[], predicate: (item: T) => boolean): T[][] {
     return result.filter(segment => segment.length > 0)
 }
 
-export async function parseGpx(name: string, location: string, raw: string): Promise<Dataset[] | null> {
+export const parseGpx: FileParser = async raw => {
+    // export async function parseGpx(name: string, location: string, raw: string): Promise<Dataset[] | null> {
     try {
         const result = convertXML<Gpx>(raw)
         const pts = result.gpx.children[0].trk.children[1].trkseg.children
@@ -119,27 +120,22 @@ export async function parseGpx(name: string, location: string, raw: string): Pro
         const maxEle = Math.max(...ele)
         const minEle = Math.min(...ele)
         const averageEle = ele.reduce((acc, x) => acc + x, 0) / ele.length
-        const feature = lineString(points.map(p => [p.lng, p.lat]))
+        const feature = lineString(points.map(p => [p.lng, p.lat]), {
+            maxEle,
+            minEle,
+            averageEle,
+        })
+        feature.id = nextNumber()
 
         return [
+            featureCollection([feature]),
             {
-                id: nextId(),
-                name,
-                location,
-                type: SourceType.Lines,
-                data: [{
-                    id: nextNumber(),
-                    geometry: feature.geometry,
-                    data: {
-                        maxEle,
-                        minEle,
-                        averageEle,
-                    },
-                    meta: {},
-                }],
+                pointsCount: 0,
+                linesCount: 1,
+                polygonsCount: 0,
             },
         ]
     } catch (error) {
-        return null
+        throw new Error("Failed to read GPX file")
     }
 }

@@ -1,6 +1,6 @@
 import { actions } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { Accordion, Button, Flex, Group, Modal, Stack, TextInput } from '@mantine/core';
+import { Accordion, Button, Group, Modal, TextInput } from '@mantine/core';
 import { IconCrosshair, IconLink, IconPlus, IconTrash } from '@tabler/icons';
 import { useForm } from '@mantine/form';
 import { useCallback, useState } from 'react';
@@ -8,6 +8,7 @@ import { ActionBar, ActionBarOnClick } from '@/ui/ActionBar';
 import { StyledAccordion } from './StyledAccordion';
 import { SourcesOutline } from '../SourcesOutline';
 import { SourcePanel } from '../SourcePanel';
+import { SourceType } from '@/types';
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -37,7 +38,7 @@ export const SourcesTab: React.FC = () => {
                 break
             }
             case "new": {
-                dispatch(actions.source.addFiles())
+                dispatch(actions.source.addFromFiles([]))
                 break
             }
             default: {
@@ -57,7 +58,10 @@ export const SourcesTab: React.FC = () => {
                 <form onSubmit={form.onSubmit((values) => {
                     setShowModal(false)
 
-                    dispatch(actions.source.addFromUrl(values.url))
+                    dispatch(actions.source.addFromUrl({
+                        url: values.url,
+                        type: SourceType.Geojson,
+                    }))
                 })}>
                     <TextInput
                         withAsterisk

@@ -5,42 +5,22 @@ import { LinePaint } from "mapbox-gl";
 export type LineStringLayerProps = {
     layerId: string
     sourceId: string
+    sourceLayer?: string
     color: string
     visible: boolean
-    thick: boolean
 }
 
-export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourceId, color, visible, thick }) => {
-    const [outline, line, selected] = useMemo(() => {
-        const outline: LinePaint = {
-            "line-color": "#fff",
-            "line-width": thick ? 4 : 3,
-        }
+export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible }) => {
+    const line= useMemo(() => {
         const line: LinePaint = {
             "line-color": color,
-            "line-width": thick ? 2 : 1,
+            "line-width": 1,
         }
-        const selected: LinePaint = {
-            "line-color": "white",
-            "line-width": thick ? 6 : 3,
-        }
-
-        return [outline, line, selected]
-    }, [color, thick])
+        return line
+    }, [color])
 
     return (
         <>
-            <Layer
-                id={`${layerId}-outline`}
-                source={sourceId}
-                type={"line"}
-                paint={outline}
-                layout={{
-                    "line-cap": "round",
-                    "line-join": "round",
-                    visibility: visible ? "visible" : "none"
-                }}
-            />
             <Layer
                 id={layerId}
                 source={sourceId}
@@ -51,18 +31,9 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourc
                     "line-join": "round",
                     visibility: visible ? "visible" : "none"
                 }}
-            />
-            <Layer
-                id={`${layerId}-selected`}
-                source={sourceId}
-                type={"line"}
-                paint={selected}
-                layout={{
-                    "line-cap": "round",
-                    "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                {...{
+                    'source-layer': sourceLayer,
                 }}
-                filter={['in', 'in', '']}
             />
         </>
     )

@@ -1,11 +1,13 @@
 import { useAppSelector } from "../../store/hooks";
 import { LayerType } from "@/types";
-import { PolygonLayer } from "./PolygonLayer";
+import { FillLayer } from "./FillLayer";
 import { LineStringLayer } from "./LineStringLayer";
 import { PointLayer } from "./PointLayer";
 import { assertUnreachable } from "@/lib";
 import { GetImageFunction, PhotoLayer } from "./PhotoLayer";
 import { HeatmapLayer } from "./HeatmapLayer";
+import { SphereLineStringLayer } from "./ShpereLineStringLayer";
+import { SpherePolygonLayer } from "./SpherePolygonLayer";
 
 const getImage: GetImageFunction = p => {
     const srcField = "thumbnail"
@@ -24,7 +26,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { id: layerId, sourceId, type, visible, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
+    const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -35,6 +37,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <PointLayer
                     layerId={layerId}
                     sourceId={sourceId}
+                    sourceLayer={sourceLayer}
                     color={color}
                     options={circle}
                     visible={visible}
@@ -42,8 +45,19 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
             )
         }
         case LayerType.Line: {
+            if (sourceLayer) {
+                return (
+                    <LineStringLayer
+                        layerId={layerId}
+                        sourceId={sourceId}
+                        sourceLayer={sourceLayer}
+                        color={color}
+                        visible={visible}
+                    />
+                )
+            }
             return (
-                <LineStringLayer
+                <SphereLineStringLayer
                     layerId={layerId}
                     sourceId={sourceId}
                     color={color}
@@ -53,8 +67,19 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
             )
         }
         case LayerType.Polygon: {
+            if (sourceLayer) {
+                return (
+                    <FillLayer
+                        layerId={layerId}
+                        sourceId={sourceId}
+                        sourceLayer={sourceLayer}
+                        color={color}
+                        visible={visible}
+                    />
+                )
+            }
             return (
-                <PolygonLayer
+                <SpherePolygonLayer
                     layerId={layerId}
                     sourceId={sourceId}
                     color={color}

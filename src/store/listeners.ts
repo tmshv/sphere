@@ -1,32 +1,39 @@
-import { open } from '@tauri-apps/api/dialog';
 import { isAnyOf } from '@reduxjs/toolkit'
 import { selectionSlice } from './selection'
 import { appSlice } from './app'
-import { fitBounds, resize } from './map'
 import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '@/map'
 import mapboxgl from 'mapbox-gl'
-import { Dataset, LayerType, SourceType } from '@/types'
+import { LayerType, ParserMetadata, SourceType } from '@/types'
 import { nextId } from '@/lib/nextId'
-import { featureCollection } from '@turf/turf'
 import { duplicate } from './layer';
 import { actions } from './actions';
 import { RootState } from '.';
+import { assertUnreachable } from '@/lib';
+import { addFromUrl } from './source/addFromUrl';
 
-const sourceToLayer = new Map<SourceType, LayerType>([
-    [SourceType.Points, LayerType.Point],
-    [SourceType.Lines, LayerType.Line],
-    [SourceType.Polygons, LayerType.Polygon],
-])
+function predictLayerType({ pointsCount, linesCount, polygonsCount }: ParserMetadata): LayerType | null {
+    if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
+        return LayerType.Point
+    }
+    if (pointsCount === 0 && linesCount > 0 && polygonsCount === 0) {
+        return LayerType.Line
+    }
+    if (pointsCount === 0 && linesCount === 0 && polygonsCount > 0) {
+        return LayerType.Polygon
+    }
+    return null
+}
 
 export const failMiddleware = createListenerMiddleware();
 failMiddleware.startListening({
     matcher: isAnyOf(
         actions.source.addFromFile.rejected,
-        actions.source.addFromUrl.rejected,
+        // actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
+        console.log('fail', action)
         listenerApi.dispatch(actions.error.setError(action.error.message))
     },
 });
@@ -37,48 +44,6 @@ clearErrorMiddleware.startListening({
     effect: async (action, listenerApi) => {
         await listenerApi.delay(3000)
         listenerApi.dispatch(actions.error.clear())
-    },
-});
-
-export const mapResizeMiddleware = createListenerMiddleware();
-mapResizeMiddleware.startListening({
-    actionCreator: resize,
-    effect: async (action, listenerApi) => {
-        const mapId = action.payload
-        const map = getMap(mapId)
-        if (!map) {
-            return
-        }
-
-        map.resize()
-    },
-});
-
-export const readFromFilesMiddleware = createListenerMiddleware();
-readFromFilesMiddleware.startListening({
-    actionCreator: actions.source.addFromFiles,
-    effect: async (action, listenerApi) => {
-        for (const file of action.payload) {
-            listenerApi.dispatch(actions.source.addFromFile(file))
-        }
-
-        listenerApi.dispatch(actions.app.showLeftSidebar())
-
-        // await listenerApi.delay(1000)
-
-        // const state = listenerApi.getState() as RootState
-        // const id = state.source.lastAdded
-        // if (!id) {
-        //     return
-        // }
-
-        // const geom = state.source.items[id].data
-        // const bbox = turf.bbox(geom);
-
-        // listenerApi.dispatch(fitBounds({
-        //     mapId: "spheremap",
-        //     bounds: bbox as mapboxgl.LngLatBoundsLike
-        // }))
     },
 });
 
@@ -99,35 +64,31 @@ zoomToMiddleware.startListening({
             return
         }
 
-        const fc = featureCollection(source.dataset.data.map(g => {
-            return {
-                type: "Feature",
-                geometry: g.geometry,
-                properties: {},
+        const { type } = source
+        switch (type) {
+            case SourceType.FeatureCollection: {
+                const bbox = turf.bbox(source.dataset);
+
+                listenerApi.dispatch(actions.map.fitBounds({
+                    mapId,
+                    bounds: bbox as mapboxgl.LngLatBoundsLike
+                }))
             }
-        }))
-        const bbox = turf.bbox(fc);
-
-        listenerApi.dispatch(fitBounds({
-            mapId,
-            bounds: bbox as mapboxgl.LngLatBoundsLike
-        }))
-    },
-});
-
-export const fitBoundsMiddleware = createListenerMiddleware();
-fitBoundsMiddleware.startListening({
-    actionCreator: fitBounds,
-    effect: async (action, listenerApi) => {
-        const { mapId, bounds } = action.payload
-        const map = getMap(mapId)
-        if (!map) {
-            return
+            case SourceType.Geojson: {
+                break
+            }
+            case SourceType.MVT: {
+                break
+            }
+            case SourceType.Raster: {
+                break
+            }
+            default: {
+                assertUnreachable(type)
+            }
         }
-        map.fitBounds(bounds)
     },
 });
-
 
 export const mapInteractiveMiddleware = createListenerMiddleware();
 mapInteractiveMiddleware.startListening({
@@ -195,62 +156,48 @@ clearSelectionMiddleware.startListening({
 
 export const addSourceMiddleware = createListenerMiddleware();
 addSourceMiddleware.startListening({
-    matcher: isAnyOf(
-        actions.source.addFromFile.fulfilled,
-        actions.source.addFromUrl.fulfilled,
-    ),
+    actionCreator: actions.source.addFromFile.fulfilled,
     effect: async (action, listenerApi) => {
-        console.log("Adding", action)
-        const payload = action.payload as Dataset[]
-        if (!payload) {
-            return
-        }
-        for (const dataset of payload) {
-            if (dataset.data.length === 0) {
-                continue
-            }
-
-            const sourceId = dataset.id
-            listenerApi.dispatch(actions.source.addSource(dataset))
-
-            const layerId = nextId("layer")
-            listenerApi.dispatch(actions.layer.addLayer({
-                id: layerId,
-                sourceId,
-                fractionIndex: Math.random(),
-                visible: true,
-                name: dataset.name,
-                color: "#1c7ed6",
-            }))
-
-            listenerApi.dispatch(actions.layer.setType({
-                id: layerId,
-                type: sourceToLayer.get(dataset.type),
-            }))
-        }
-    },
-});
-
-export const addFilesMissleware = createListenerMiddleware();
-addFilesMissleware.startListening({
-    actionCreator: actions.source.addFiles,
-    effect: async (_, listenerApi) => {
-        const selected = await open({
-            multiple: true,
-            filters: [{
-                name: 'Geospatial file',
-                extensions: ['csv', 'geojson', 'gpx'],
-            }]
-        });
-        if (!selected) {
+        if (!action.payload) {
             return
         }
 
-        if (Array.isArray(selected)) {
-            listenerApi.dispatch(actions.source.addFromFiles(selected))
-        } else {
-            listenerApi.dispatch(actions.source.addFromFiles([selected]))
+        const dataset = action.payload.dataset
+        const meta = action.payload.meta
+        const name = action.payload.name
+        const location = action.payload.location
+
+        // if (dataset.features.length === 0) {
+        //     return
+        // }
+
+        const sourceId = nextId("source")
+        console.log("Adding FC", sourceId, dataset)
+        listenerApi.dispatch(actions.source.addFeatureCollection({
+            id: sourceId,
+            name,
+            location,
+            dataset,
+        }))
+
+        const layerType = predictLayerType(meta)
+        if (!layerType) {
+            return
         }
+
+        const layerId = nextId("layer")
+        listenerApi.dispatch(actions.layer.addLayer({
+            id: layerId,
+            sourceId,
+            fractionIndex: Math.random(),
+            visible: true,
+            name: name,
+            color: "#1c7ed6",
+        }))
+        listenerApi.dispatch(actions.layer.setType({
+            id: layerId,
+            type: layerType,
+        }))
     },
 });
 
@@ -258,8 +205,8 @@ export const addBlankLayerMiddleware = createListenerMiddleware();
 addBlankLayerMiddleware.startListening({
     actionCreator: actions.layer.addBlankLayer,
     effect: async (action, listenerApi) => {
-        const layerId = `${nextId()}`
-        const name = "New Layer"
+        const layerId = nextId("layer")
+        const name = "Layer"
         listenerApi.dispatch(actions.layer.addLayer({
             id: layerId,
             fractionIndex: 0.99999,

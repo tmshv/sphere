@@ -1,57 +1,53 @@
-import { featureCollection, lineString, multiLineString, multiPoint, multiPolygon, point, polygon } from "@turf/turf";
 import { memo } from "react";
-import { Source } from "react-map-gl";
+import { Source, SourceProps } from "react-map-gl";
 import { useAppSelector } from "@/store/hooks";
-
+import { SourceType } from "@/types";
+import { assertUnreachable } from "@/lib";
 export type SphereSourceProps = {
     id: string
 }
 
 export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
-    const data = useAppSelector(state => {
-        const data = state.source.items[id].dataset.data
+    const source = useAppSelector(state => {
+        const s = state.source.items[id]
+        const { type } = s
 
-        const features = data.map(row => {
-            let f: GeoJSON.Feature = null!
-            const props = {
-                ...row.data,
-                id: row.id,
+        switch (type) {
+            case SourceType.FeatureCollection: {
+                return {
+                    id,
+                    type: "geojson",
+                    data: s.dataset,
+                } as SourceProps
             }
-            const geom = row.geometry!
-            if (geom.type === "Point") {
-                f = point((geom as GeoJSON.Point).coordinates, props) as GeoJSON.Feature
+            case SourceType.Geojson: {
+                return {
+                    id,
+                    type: "geojson",
+                    data: s.location,
+                } as SourceProps
             }
-            if (geom.type === "MultiPoint") {
-                f = multiPoint((geom as GeoJSON.MultiPoint).coordinates, props) as GeoJSON.Feature
+            case SourceType.MVT: {
+                return {
+                    id,
+                    type: "vector",
+                    url: s.location,
+                } as SourceProps
             }
-            if (geom.type === "MultiLineString") {
-                f = multiLineString((geom as GeoJSON.MultiLineString).coordinates, props)
+            case SourceType.Raster: {
+                return null
             }
-            if (geom.type === "LineString") {
-                f = lineString((geom as GeoJSON.LineString).coordinates, props) as GeoJSON.Feature
+            default: {
+                assertUnreachable(type)
             }
-            if (geom.type === "MultiPolygon") {
-                f = multiPolygon((geom as GeoJSON.MultiPolygon).coordinates, props)
-            }
-            if (geom.type === "Polygon") {
-                f = polygon((geom as GeoJSON.Polygon).coordinates, props) as GeoJSON.Feature
-            }
-            f.id = row.id
-            return f
-        })
-        return featureCollection(features)
+        }
     })
-    if (!data) {
+    if (!source) {
         return null
     }
 
     return (
-        <Source
-            id={id}
-            type={"geojson"}
-            data={data}
-        >
-        </Source>
+        <Source {...source} />
     );
 })
 

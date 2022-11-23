@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
-import { DatasetRow, Id } from '@/types'
+import { DatasetRow, Id, SourceType } from '@/types'
 import { layerSlice } from '../layer'
 
 // Define a type for the slice state
@@ -73,26 +73,27 @@ export const selectProperties = (state: RootState) => {
         return null
     }
 
-    const row = source.dataset.data.find(record => record.id === dataId) as DatasetRow<any>
-    if (!row) {
-        return null
-    }
+    return null
+    // const row = source.dataset.data.find(record => record.id === dataId) as DatasetRow<any>
+    // if (!row) {
+    //     return null
+    // }
 
-    const props = row.data
-    if (!props) {
-        return null
-    }
+    // const props = row.data
+    // if (!props) {
+    //     return null
+    // }
 
-    const excludedKeys = new Set(["id"])
+    // const excludedKeys = new Set(["id"])
 
-    return [...Object.entries(props)]
-        .filter(([key, _]) => !excludedKeys.has(key))
-        .map(([key, value]) => {
-            return {
-                key,
-                value,
-            }
-        })
+    // return [...Object.entries(props)]
+    //     .filter(([key, _]) => !excludedKeys.has(key))
+    //     .map(([key, value]) => {
+    //         return {
+    //             key,
+    //             value,
+    //         }
+    //     })
 }
 
 export default selectionSlice.reducer
