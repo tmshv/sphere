@@ -153,7 +153,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                     }
                 }}
             >
-                {changeProjection ? (
+                {isGlobe ? (
                     <IconWorld size={16} />
                 ) : (
                     <IconWorldOff size={16} />
