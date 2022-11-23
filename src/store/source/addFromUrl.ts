@@ -16,23 +16,55 @@ export function getStem(pathname: string): string | null {
     return init(file.split('.')).join('.')
 }
 
-export async function extract(location: string, accessToken: string) {
+function mapboxToHttp(value: string, accessToken: string): string | null {
     const p = /mapbox:\/\/(.*)/
-    const m = p.exec(location)
+    const m = p.exec(value)
     if (!m) {
         return null
     }
     const name = m[1]
 
-    const res = await fetch(`https://api.mapbox.com/v4/${name}.json?secure&access_token=${accessToken}`)
+    return `https://api.mapbox.com/v4/${name}.json?secure&access_token=${accessToken}`
+}
+
+export async function extract(location: string, accessToken: string) {
+    const url = new URL(location)
+    console.log(url)
+
+    let u = location
+    switch (url.protocol) {
+        case 'mapbox:': {
+            u = mapboxToHttp(location, accessToken) ?? location
+            break
+        }
+        default: {
+            break
+        }
+    }
+
+    const res = await fetch(u)
     const json = await res.json()
 
+    const name = json.name
+    if (!json.vector_layers) {
+        const layers = [
+            {
+                id: name,
+                name: name,
+            }
+        ]
+        return {
+            id: json.id,
+            name,
+            layers,
+        }
+    }
     return {
         id: json.id,
-        name: json.name,
-        layers: json.vector_layers.map(({ id, name }) => ({
-            id,
-            name,
+        name,
+        layers: json.vector_layers.map((layer: any)=> ({
+            id: layer.id,
+            name: layer.name,
         }))
     }
 }
@@ -50,7 +82,6 @@ export const addFromUrl = createAsyncThunk(
         if (type === SourceType.MVT) {
             const e = await extract(url, AT)
             name = e?.name ?? x.href
-            // id = e?.id
 
             thunkAPI.dispatch(actions.addVector({
                 id,

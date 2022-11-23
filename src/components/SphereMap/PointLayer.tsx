@@ -35,7 +35,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
         id: layerId,
         source: sourceId,
         // "source-layer": sourceLayer,
-        // type: 'circle',
+        type: 'circle',
         paint: circle,
         layout: {
             visibility: visible ? "visible" : "none",
@@ -48,7 +48,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
 
     return (
         <>
-            <Layer type={'circle'} {...layer} />
+            <Layer {...layer as any} />
             {/* <Layer
                 id={`${layerId}-selected`}
                 source={sourceId}
