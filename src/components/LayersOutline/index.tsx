@@ -8,6 +8,7 @@ import { Outline, OutlineOnMove, OutlineRenderItem } from '@/ui/Outline';
 import { useCallback } from 'react';
 import { selectIsDark } from '@/store/app';
 import { OutlineItem } from '@/ui/Outline/OutlineItem';
+import { Icon } from './Icon';
 
 export const LayersOutline: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -53,28 +54,6 @@ export const LayersOutline: React.FC = () => {
     }, [])
 
     const renderLayerItem = useCallback<OutlineRenderItem<typeof items[0]>>(({ id, name, type, color, visible, active, bulbIconColor }) => {
-        let icon: React.ReactNode = null
-        if (type === LayerType.Point) {
-            icon = (
-                <IconPoint size={20} color={color} />
-            )
-        } else if (type === LayerType.Line) {
-            icon = (
-                <IconLine size={20} color={color} />
-            )
-        } else if (type === LayerType.Polygon) {
-            icon = (
-                <IconPolygon size={20} color={color} />
-            )
-        } else if (type === LayerType.Heatmap) {
-            icon = (
-                <IconFlame size={20} color={color} />
-            )
-        } else {
-            icon = (
-                <IconPoint size={20} color={undefined} />
-            )
-        }
         return (
             <OutlineItem
                 label={name}
@@ -84,7 +63,9 @@ export const LayersOutline: React.FC = () => {
                         layerId: id,
                     }))
                 }}
-                icon={icon}
+                icon={(
+                    <Icon type={type} color={color} />
+                )}
                 extra={(
                     <ActionIcon size={"md"} radius={"sm"} h={30} onClick={() => {
                         dispatch(actions.layer.setVisible({
