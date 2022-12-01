@@ -66,13 +66,13 @@ export function StyledTabs(props: TabsProps) {
 
 export const LeftSidebar: React.FC = () => {
     return (
-        <StyledTabs defaultValue={"layers"} keepMounted={false}>
+        <StyledTabs defaultValue={"sources"} keepMounted={false}>
             <Tabs.List p={"sm"}>
-                <Tabs.Tab value="layers" icon={<IconStack size={16} />}>
-                    Layers
-                </Tabs.Tab>
                 <Tabs.Tab value="sources" icon={<IconDatabase size={16} />}>
                     Sources
+                </Tabs.Tab>
+                <Tabs.Tab value="layers" icon={<IconStack size={16} />}>
+                    Layers
                 </Tabs.Tab>
                 <Tabs.Tab value="map-styles" icon={<IconSquaresFilled size={16} />} disabled>
                     Styles
