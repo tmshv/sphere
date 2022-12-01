@@ -12,6 +12,7 @@
   "tauri": {
     "allowlist": {
       "window": {
+        "create": true,
         "startDragging": true
       },
       "http": {

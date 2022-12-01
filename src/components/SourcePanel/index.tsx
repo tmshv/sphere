@@ -1,6 +1,6 @@
 import { Badge, Flex, Group, TextInput } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IconTrash, IconCrosshair, IconStack, IconPencil } from '@tabler/icons';
+import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable } from '@tabler/icons';
 import { useMantineTheme } from '@mantine/core';
 import { actions } from "@/store";
 import { ActionBar } from "@/ui/ActionBar";
@@ -82,6 +82,10 @@ export const SourcePanel: React.FC = () => {
                             dispatch(actions.source.zoomTo(source.id))
                             break
                         }
+                        case "show-properties": {
+                            dispatch(actions.source.showProperties({ id: source.id }))
+                            break
+                        }
                         case "add-to-layer": {
                             dispatch(actions.layer.addBlankLayer(source.id))
                             break
@@ -108,6 +112,11 @@ export const SourcePanel: React.FC = () => {
                         color: "red",
                     },
                     null,
+                    {
+                        name: "show-properties",
+                        label: "Show properties",
+                        icon: IconTable,
+                    },
                     {
                         name: "add-to-layer",
                         label: "Add to layer",
