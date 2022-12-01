@@ -61,7 +61,7 @@ export type PhotoLayerProps = {
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
     const features = useAppSelector(state => {
         const source = state.source.items[sourceId]
-        if (source.type === SourceType.FeatureCollection) {
+        if (!source.pending && source.type === SourceType.FeatureCollection) {
             return source.dataset.features
                 .filter(f => {
                     const { src } = getImage(f.properties!)
