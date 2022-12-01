@@ -8,7 +8,7 @@ import { useReactTable, createColumnHelper, getCoreRowModel, flexRender, ColumnD
 // appWindow.emit('event', { message: 'Tauri is awesome!' })// emit an event that are only visible to the current window
 // appWindow.emit('event', { message: 'Tauri is awesome!' }) from "react-dom/client";
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
-import { Table } from "@mantine/core";
+import { Box, createStyles } from "@mantine/core";
 
 type PropertyItem = Record<string, any>
 
@@ -34,6 +34,12 @@ function useEvent<T>(eventName: string) {
 
     return payload
 }
+
+const useStyle = createStyles(theme => ({
+    container: {
+        overflowX: 'auto',
+    }
+}))
 
 const columnHelper = createColumnHelper<PropertyItem>()
 
@@ -87,12 +93,16 @@ function useData(): [ColumnDef<PropertyItem>[], PropertyItem[]] | undefined {
 }
 
 const App: React.FC = () => {
+    const { classes: s } = useStyle()
+
     useEffect(() => {
         emit("properties-init", { message: "lalala-" + Date.now() })
     }, [])
 
     return (
-        <View />
+        <Box className={s.container}>
+            <View />
+        </Box>
     )
 }
 
