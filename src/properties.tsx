@@ -38,7 +38,26 @@ function useEvent<T>(eventName: string) {
 const useStyle = createStyles(theme => ({
     container: {
         overflowX: 'auto',
-    }
+        userSelect: 'none',
+        touchAction: 'none',
+    },
+
+    th: {
+        position: 'relative',
+    },
+    resizer: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        height: '100%',
+        width: 5,
+        background: "rgba(0, 0, 0, 0.5);",
+        cursor: "col-resize",
+    },
+    isResizing: {
+        background: 'blue',
+        opacity: 1,
+    },
 }))
 
 const columnHelper = createColumnHelper<PropertyItem>()
@@ -112,26 +131,58 @@ type PropertyTableProps = {
 }
 
 const PropertyTable: React.FC<PropertyTableProps> = ({ data, columns }) => {
+    const { classes: s, cx } = useStyle()
     const table = useReactTable({
         // columns: head,
         data,
         columns,
+        columnResizeMode: 'onChange',
         getCoreRowModel: getCoreRowModel(),
     })
 
     return (
-        <table>
+        <table
+            {...{
+                style: {
+                    width: table.getCenterTotalSize(),
+                },
+            }}
+        >
             <thead>
                 {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id}>
+                    <tr
+                        key={headerGroup.id}
+                    >
                         {headerGroup.headers.map(header => (
-                            <th key={header.id}>
+                            <th
+                                key={header.id}
+                                className={s.th}
+                                style={{
+                                    width: header.getSize(),
+                                }}
+                            >
                                 {header.isPlaceholder
                                     ? null
                                     : flexRender(
                                         header.column.columnDef.header,
                                         header.getContext()
                                     )}
+                                <div
+                                    {...{
+                                        onMouseDown: header.getResizeHandler(),
+                                        onTouchStart: header.getResizeHandler(),
+                                        // className: `resizer ${header.column.getIsResizing() ? 'isResizing' : ''}`,
+                                        className: cx(s.resizer, {[s.isResizing]: header.column.getIsResizing()}),
+                                        style: {
+                                            // transform:
+                                            //     columnResizeMode === 'onEnd' &&
+                                            //         header.column.getIsResizing()
+                                            //         ? `translateX(${table.getState().columnSizingInfo.deltaOffset
+                                            //         }px)`
+                                            //         : '',
+                                        },
+                                    }}
+                                />
                             </th>
                         ))}
                     </tr>
@@ -142,7 +193,9 @@ const PropertyTable: React.FC<PropertyTableProps> = ({ data, columns }) => {
                 {table.getRowModel().rows.map(row => (
                     <tr key={row.id}>
                         {row.getVisibleCells().map(cell => (
-                            <td key={cell.id}>
+                            <td key={cell.id} style={{
+                                width: cell.column.getSize(),
+                            }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </td>
                         ))}
