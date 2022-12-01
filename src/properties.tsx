@@ -3,7 +3,7 @@ import "./style.css";
 import { emit, listen, UnlistenFn } from "@tauri-apps/api/event";
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { useReactTable, createColumnHelper, getCoreRowModel, flexRender } from '@tanstack/react-table'
+import { useReactTable, createColumnHelper, getCoreRowModel, flexRender, ColumnDef } from '@tanstack/react-table'
     ;// emit an event that are only visible to the current window
 // appWindow.emit('event', { message: 'Tauri is awesome!' })// emit an event that are only visible to the current window
 // appWindow.emit('event', { message: 'Tauri is awesome!' }) from "react-dom/client";
@@ -41,7 +41,7 @@ type PropertiesSetPayload = {
     properties: PropertyItem[]
 }
 
-function useData(): [any[], PropertyItem[]] | undefined {
+function useData(): [ColumnDef<PropertyItem>[], PropertyItem[]] | undefined {
     const data = useEvent<PropertiesSetPayload>("properties-set")
     if (!data) {
         return undefined
@@ -98,7 +98,7 @@ const App: React.FC = () => {
 
 type PropertyTableProps = {
     data: PropertyItem[]
-    columns: any[]
+    columns: ColumnDef<PropertyItem>[]
 }
 
 const PropertyTable: React.FC<PropertyTableProps> = ({ data, columns }) => {
