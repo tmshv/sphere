@@ -1,15 +1,15 @@
 import { isAnyOf } from '@reduxjs/toolkit'
-import { selectionSlice } from './selection'
-import { appSlice } from './app'
+import { selectionSlice } from '../selection'
+import { appSlice } from '../app'
 import * as turf from '@turf/turf'
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { getMap } from '@/map'
 import mapboxgl from 'mapbox-gl'
 import { LayerType, SourceMetadata, SourceType } from '@/types'
 import { nextId } from '@/lib/nextId'
-import { duplicate } from './layer';
-import { actions } from './actions';
-import { RootState } from '.';
+import { duplicate } from '../layer';
+import { actions } from '../actions';
+import { RootState } from '..';
 import { assertUnreachable } from '@/lib';
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | null {

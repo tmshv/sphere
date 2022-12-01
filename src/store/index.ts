@@ -9,7 +9,6 @@ import selection from './selection'
 import app from './app'
 import draw from './draw'
 import { listener as mapListener } from './map'
-import { sourceListener } from './source/listeners'
 import error from './error'
 import * as listeners from './listeners'
 export { actions } from "./actions"
@@ -30,7 +29,6 @@ export const store = configureStore({
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
             .prepend(mapListener.middleware)
-            .prepend(sourceListener.middleware)
             .prepend(listeners.addBlankLayerMiddleware.middleware)
             .prepend(listeners.forceResizeMapMiddleware.middleware)
             .prepend(listeners.clearSelectionMiddleware.middleware)
