@@ -13,6 +13,7 @@ export const fitBounds = createAction<FitBoundsPayload>("map/fitBounds")
 
 export const resetNorth = createAction<WithMapId>("map/resetNorth")
 export const resize = createAction<string>("map/resize")
+export const printViewport = createAction<WithMapId>("map/printViewport")
 
 type ValuePayload<T> = {
     mapId: string
@@ -25,6 +26,7 @@ export const actions = {
     resize,
     resetNorth,
     setInteractive,
+    printViewport,
 }
 
 export const listener = createListenerMiddleware()
@@ -65,5 +67,23 @@ listener.startListening({
         }
 
         map.resetNorthPitch()
+    },
+})
+listener.startListening({
+    actionCreator: printViewport,
+    effect: async (action, listenerApi) => {
+        const { mapId } = action.payload
+        const map = getMap(mapId)
+        if (!map) {
+            return
+        }
+
+        const viewport = {
+            zoom: map.getZoom(),
+            center: map.getCenter().toArray(),
+            bbox: map.getBounds().toArray(),
+        }
+
+        console.log("viewport", viewport)
     },
 })
