@@ -3,6 +3,7 @@ import { SourceType } from '@/types';
 import { nextId } from '@/lib/nextId';
 import { actions } from '.';
 import { init } from '@/lib/array';
+import { get } from '@/lib/http';
 
 const AT = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -13,7 +14,11 @@ export function getStem(pathname: string): string | null {
     }
 
     const file = parts[parts.length - 1]
-    return init(file.split('.')).join('.')
+    const fileParts = file.split('.')
+    if (fileParts.length === 1) {
+        return fileParts[0]
+    }
+    return init(fileParts).join('.')
 }
 
 function mapboxToHttp(value: string, accessToken: string): string | null {
@@ -29,7 +34,6 @@ function mapboxToHttp(value: string, accessToken: string): string | null {
 
 export async function extract(location: string, accessToken: string) {
     const url = new URL(location)
-    console.log(url)
 
     let u = location
     switch (url.protocol) {
@@ -42,9 +46,12 @@ export async function extract(location: string, accessToken: string) {
         }
     }
 
-    const res = await fetch(u)
-    const json = await res.json()
+    const res = await get<any>(u)
+    if (!res.ok) {
+        return null
+    }
 
+    const json = res.data
     const name = json.name
     if (!json.vector_layers) {
         const layers = [
@@ -62,7 +69,7 @@ export async function extract(location: string, accessToken: string) {
     return {
         id: json.id,
         name,
-        layers: json.vector_layers.map((layer: any)=> ({
+        layers: json.vector_layers.map((layer: any) => ({
             id: layer.id,
             name: layer.name,
         }))
@@ -72,11 +79,12 @@ export async function extract(location: string, accessToken: string) {
 export const addFromUrl = createAsyncThunk(
     'source/addFromUrl',
     async ({ url, type }: { url: string, type: SourceType.Geojson | SourceType.MVT | SourceType.Raster }, thunkAPI) => {
+        let id = nextId("source")
+
         const x = new URL(url)
         const stem = getStem(x.pathname)
-        let name = stem ?? x.pathname
+        let name = stem ?? id
 
-        let id = nextId("source")
         if (type === SourceType.MVT) {
             const e = await extract(url, AT)
             name = e?.name ?? x.href
@@ -88,12 +96,30 @@ export const addFromUrl = createAsyncThunk(
                 sourceLayers: e?.layers,
             }))
         } else {
-            thunkAPI.dispatch(actions.addRemote({
+            // add pending source
+            thunkAPI.dispatch(actions.addFeatureCollection({
                 id,
-                type,
-                location: url,
                 name,
+                location: url,
             }))
+
+            const res = await get<GeoJSON.FeatureCollection>(url)
+            if (res.ok) {
+                // add source later
+                thunkAPI.dispatch(actions.setData({
+                    id,
+                    dataset: res.data,
+
+                    // todo: hardcode
+                    meta: {
+                        pointsCount: 0,
+                        polygonsCount: 0,
+                        linesCount: 0,
+                    }
+                }))
+            } else {
+                throw res.error
+            }
         }
 
         return
