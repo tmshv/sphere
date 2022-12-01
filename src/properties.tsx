@@ -3,7 +3,7 @@ import "./style.css";
 import { emit, listen, UnlistenFn } from "@tauri-apps/api/event";
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { useReactTable, createColumnHelper, getCoreRowModel, flexRender, ColumnDef } from '@tanstack/react-table'
+import { useReactTable, createColumnHelper, getCoreRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
     ;// emit an event that are only visible to the current window
 // appWindow.emit('event', { message: 'Tauri is awesome!' })// emit an event that are only visible to the current window
 // appWindow.emit('event', { message: 'Tauri is awesome!' }) from "react-dom/client";
@@ -132,12 +132,18 @@ type PropertyTableProps = {
 
 const PropertyTable: React.FC<PropertyTableProps> = ({ data, columns }) => {
     const { classes: s, cx } = useStyle()
+    const [sorting, setSorting] = React.useState<SortingState>([])
     const table = useReactTable({
         // columns: head,
         data,
         columns,
         columnResizeMode: 'onChange',
         getCoreRowModel: getCoreRowModel(),
+        state: {
+            sorting,
+        },
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
     })
 
     return (
@@ -161,18 +167,31 @@ const PropertyTable: React.FC<PropertyTableProps> = ({ data, columns }) => {
                                     width: header.getSize(),
                                 }}
                             >
-                                {header.isPlaceholder
-                                    ? null
-                                    : flexRender(
-                                        header.column.columnDef.header,
-                                        header.getContext()
-                                    )}
+                                <div
+                                    {...{
+                                        className: header.column.getCanSort()
+                                            ? 'cursor-pointer select-none'
+                                            : '',
+                                        onClick: header.column.getToggleSortingHandler(),
+                                    }}
+                                >
+                                    {{
+                                        asc: ' 🔼',
+                                        desc: ' 🔽',
+                                    }[header.column.getIsSorted() as string] ?? null}
+                                    {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
+                                </div>
                                 <div
                                     {...{
                                         onMouseDown: header.getResizeHandler(),
                                         onTouchStart: header.getResizeHandler(),
                                         // className: `resizer ${header.column.getIsResizing() ? 'isResizing' : ''}`,
-                                        className: cx(s.resizer, {[s.isResizing]: header.column.getIsResizing()}),
+                                        className: cx(s.resizer, { [s.isResizing]: header.column.getIsResizing() }),
                                         style: {
                                             // transform:
                                             //     columnResizeMode === 'onEnd' &&
