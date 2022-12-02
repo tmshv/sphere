@@ -36,6 +36,10 @@ const useStyle = createStyles(theme => ({
         overflowX: 'auto',
         height: '100%',
 
+        marginLeft: theme.spacing.md,
+        marginRight: theme.spacing.md,
+        marginBottom: theme.spacing.md,
+
         userSelect: 'none',
         touchAction: 'none',
     },
@@ -63,20 +67,6 @@ function useData(): [ColumnDef<PropertyItem>[], PropertyItem[]] | undefined {
     return [columns, data.properties]
 }
 
-const App: React.FC = () => {
-    const { classes: s } = useStyle()
-
-    useEffect(() => {
-        emit("properties-init", { message: "lalala-" + Date.now() })
-    }, [])
-
-    return (
-        <Box className={s.container}>
-            <View />
-        </Box>
-    )
-}
-
 const View: React.FC = () => {
     const def = useData()
     if (!def) {
@@ -88,6 +78,20 @@ const View: React.FC = () => {
             columns={def[0]}
             data={def[1]}
         />
+    )
+}
+
+const App: React.FC = () => {
+    const { classes: s } = useStyle()
+
+    useEffect(() => {
+        emit("properties-init", { message: "lalala-" + Date.now() })
+    }, [])
+
+    return (
+        <Box className={s.container}>
+            <View />
+        </Box>
     )
 }
 
