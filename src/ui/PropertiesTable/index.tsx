@@ -104,6 +104,9 @@ const useStyle = createStyles(theme => ({
     resizing: {
         opacity: 0.5,
     },
+    mixedItem: {
+        marginRight: theme.spacing.xs,
+    }
 }))
 
 type PropertyTableProps = {
@@ -257,18 +260,49 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                             const value = cell.getValue()
                                             if (Array.isArray(value)) {
                                                 return (
-                                                    <Flex gap={'xs'}>
+                                                    <>
                                                         {value.map(x => (
-                                                            <Badge key={x} size={'sm'} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
+                                                            <Badge key={x} className={s.mixedItem} size={'sm'} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
                                                         ))}
-                                                    </Flex>
+                                                    </>
                                                 )
                                             }
                                         }
                                         break
                                     }
                                     case 'date': {
-                                        render = info => format(new Date(info.getValue()), "yyyy-MM-dd hh:mm:ss")
+                                        render = info => {
+                                            const value = info.getValue()
+                                            return (
+                                                <Tooltip label={value} openDelay={500}>
+                                                    <span>
+                                                        {format(new Date(value), "yyyy-MM-dd hh:mm:ss")}
+                                                    </span>
+                                                </Tooltip>
+                                            )
+                                        }
+                                        break
+                                    }
+                                    case 'int': {
+                                        render = info => {
+                                            const value = info.getValue()
+                                            return (
+                                                <span style={{ textAlign: 'right', display: 'inline-block', width: '100%' }}>
+                                                    {value}
+                                                </span>
+                                            )
+                                        }
+                                        break
+                                    }
+                                    case 'float': {
+                                        render = info => {
+                                            const value = info.getValue()
+                                            return (
+                                                <span style={{ textAlign: 'right', display: 'inline-block', width: '100%' }}>
+                                                    {value}
+                                                </span>
+                                            )
+                                        }
                                         break
                                     }
                                     default: {
@@ -284,11 +318,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                             width: cell.column.getSize(),
                                         }}
                                     >
-                                        {/* <Flex> */}
                                         {flexRender(render, cell.getContext())}
-                                        {/* {flexRender(cell.column.columnDef.cell, cell.getContext())} */}
-                                        {/* {content} */}
-                                        {/* </Flex> */}
                                     </td>
                                 )
                             })}
