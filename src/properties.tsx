@@ -60,7 +60,7 @@ function useData(): [ColumnDef<PropertyItem>[], PropertyItem[]] | undefined {
     const head = Object.keys(data.properties[0])
     const columns = head.map(key => columnHelper.accessor(key, {
         id: key,
-        cell: info => <i>{info.getValue()}</i>,
+        cell: info => info.getValue(),
         header: () => <span>{key}</span>,
     }))
 
