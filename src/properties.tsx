@@ -36,9 +36,9 @@ const useStyle = createStyles(theme => ({
         overflowX: 'auto',
         height: '100%',
 
-        marginLeft: theme.spacing.md,
-        marginRight: theme.spacing.md,
-        marginBottom: theme.spacing.md,
+        paddingLeft: theme.spacing.md,
+        paddingRight: theme.spacing.md,
+        paddingBottom: theme.spacing.md,
 
         userSelect: 'none',
         touchAction: 'none',
