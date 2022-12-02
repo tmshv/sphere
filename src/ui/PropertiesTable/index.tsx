@@ -83,7 +83,7 @@ const useStyle = createStyles(theme => ({
     },
     td: {
         border: `1px solid ${theme.colors.gray[1]}`,
-        verticalAlign: "baseline",
+        verticalAlign: "top",
         padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
     },
     resizer: {
