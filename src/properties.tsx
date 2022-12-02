@@ -6,7 +6,59 @@ import ReactDOM from "react-dom/client";
 import { createColumnHelper, ColumnDef } from '@tanstack/react-table'
 import { Box, createStyles } from "@mantine/core";
 import { ThemeProvider } from "./ui/ThemeProvider";
-import { PropertesTable, PropertyItem } from "./ui/PropertiesTable";
+import { PropertesTable, PropertyItem, PropertyItemMeta } from "./ui/PropertiesTable";
+
+function isInt(n: number): boolean {
+    return n % 1 === 0;
+}
+
+function isDate(value: string): boolean {
+    const date = Date.parse(value)
+
+    return !isNaN(date)
+}
+
+function isNumeric(value: string): boolean {
+    return /^-?\d+(\.\d+)?(e-?[\d.]+)?$/.test(value)
+}
+
+function predictType<K extends string>(key: K, samples: Record<K | string, any>[]): 'string' | 'url' | 'int' | 'float' | 'date' | "empty" | "mixed" | "unknown" {
+    if (samples.length === 0) {
+        return 'empty'
+    }
+
+    const sample = samples[0]
+    const value = sample[key]
+
+    if (Array.isArray(value)) {
+        return 'mixed'
+    }
+
+    if (isNumeric(value)) {
+        const n = parseFloat(value)
+        if (typeof n === 'number' && !isNaN(n) && isInt(n)) {
+            return 'int'
+        }
+        if (typeof n === 'number' && !isNaN(n) && !isInt(n)) {
+            return 'float'
+        }
+    }
+
+    if (isDate(value)) {
+        return 'date'
+    }
+
+    try {
+        const url = new URL(value)
+        return 'url'
+    } catch { }
+
+    if (typeof value === 'string') {
+        return 'string'
+    }
+
+    return "unknown"
+}
 
 function useEvent<T>(eventName: string) {
     const [payload, setPayload] = useState<T | undefined>(undefined)
@@ -36,9 +88,7 @@ const useStyle = createStyles(theme => ({
         overflowX: 'auto',
         height: '100%',
 
-        paddingLeft: theme.spacing.md,
-        paddingRight: theme.spacing.md,
-        paddingBottom: theme.spacing.md,
+        padding: theme.spacing.sm,
 
         userSelect: 'none',
         touchAction: 'none',
@@ -51,7 +101,7 @@ type PropertiesSetPayload = {
     properties: PropertyItem[]
 }
 
-function useData(): [ColumnDef<PropertyItem>[], PropertyItem[]] | undefined {
+function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>, PropertyItem[]] | undefined {
     const data = useEvent<PropertiesSetPayload>("properties-set")
     if (!data) {
         return undefined
@@ -64,7 +114,14 @@ function useData(): [ColumnDef<PropertyItem>[], PropertyItem[]] | undefined {
         header: () => <span>{key}</span>,
     }))
 
-    return [columns, data.properties]
+    const meta = head.reduce((acc, key) => {
+        acc[key] = {
+            type: predictType(key, data.properties)
+        }
+        return acc
+    }, {} as Record<string, PropertyItemMeta>)
+
+    return [columns, meta, data.properties]
 }
 
 const View: React.FC = () => {
@@ -73,10 +130,13 @@ const View: React.FC = () => {
         return null
     }
 
+    const [columns, meta, data] = def
+
     return (
         <PropertesTable
-            columns={def[0]}
-            data={def[1]}
+            columns={columns}
+            meta={meta}
+            data={data}
         />
     )
 }

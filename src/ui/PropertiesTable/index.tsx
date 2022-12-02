@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { Table, Column, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
-import { createStyles, Flex, Pagination, Select } from "@mantine/core";
+import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
+import { Badge, Box, createStyles, Flex, Pagination, Select, Tooltip } from "@mantine/core";
+import { format } from 'date-fns'
 import { IconArrowDown, IconArrowUp } from '@tabler/icons';
 
+export type PropertyItemMeta = {
+    type: 'string' | 'url' | 'int' | 'float' | 'date' | "empty" | "mixed" | "unknown"
+}
 export type PropertyItem = Record<string, any>
 
 export type FilterProps = {
@@ -80,8 +84,7 @@ const useStyle = createStyles(theme => ({
     td: {
         border: `1px solid ${theme.colors.gray[1]}`,
         verticalAlign: "baseline",
-        padding: theme.spacing.xs,
-        // margin: 0,
+        padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
     },
     resizer: {
         position: 'absolute',
@@ -106,9 +109,10 @@ const useStyle = createStyles(theme => ({
 type PropertyTableProps = {
     data: PropertyItem[]
     columns: ColumnDef<PropertyItem>[]
+    meta: Record<string, PropertyItemMeta>
 }
 
-export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) => {
+export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, meta }) => {
     const { classes: s, cx } = useStyle()
     const [sorting, setSorting] = useState<SortingState>([])
     const table = useReactTable({
@@ -151,7 +155,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                                 >
                                     <Flex
                                         align={'center'}
-                                        p={'xs'}
+                                        p={'sm'}
                                         gap={'xs'}
                                         onClick={header.column.getToggleSortingHandler()}
                                     >
@@ -169,6 +173,10 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                                                 header.column.columnDef.header,
                                                 header.getContext()
                                             )}
+                                        <Box style={{ flex: 1 }} />
+                                        <Badge size={'xs'} radius={'xs'}>
+                                            {meta[header.column.id].type}
+                                        </Badge>
                                         {/* {header.column.getCanFilter() ? (
                                             <div>
                                                 <Filter column={header.column} table={table} />
@@ -194,6 +202,31 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                             ))}
                         </tr>
                     ))}
+                    {table.getHeaderGroups().map(headerGroup => (
+                        <tr
+                            key={headerGroup.id}
+                            className={s.tr}
+                        >
+                            {headerGroup.headers.map(header => (
+                                <th
+                                    key={header.id}
+                                    className={s.th}
+                                    style={{
+                                        width: header.getSize(),
+                                    }}
+                                >
+                                    <Flex
+                                        align={'center'}
+                                        p={'sm'}
+                                        gap={'xs'}
+                                        onClick={header.column.getToggleSortingHandler()}
+                                    >
+                                        <Badge>string</Badge>
+                                    </Flex>
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
                 </thead>
 
                 <tbody>
@@ -202,19 +235,63 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                             key={row.id}
                             className={s.tr}
                         >
-                            {row.getVisibleCells().map(cell => (
-                                <td
-                                    key={cell.id}
-                                    className={s.td}
-                                    style={{
-                                        width: cell.column.getSize(),
-                                    }}
-                                >
-                                    <Flex>
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </Flex>
-                                </td>
-                            ))}
+                            {row.getVisibleCells().map(cell => {
+                                let render = (info: CellContext<PropertyItem, any>) => info.getValue()
+
+                                const type = meta[cell.column.id].type
+                                switch (type) {
+                                    case 'url': {
+                                        render = info => {
+                                            const value = info.getValue()
+                                            const url = new URL(value)
+                                            return (
+                                                <Tooltip label={value} openDelay={500}>
+                                                    <Badge size={'sm'} radius={'sm'} variant={'outline'} color={'dark'}>{url.hostname}{url.pathname}</Badge>
+                                                </Tooltip>
+                                            )
+                                        }
+                                        break
+                                    }
+                                    case 'mixed': {
+                                        render = info => {
+                                            const value = cell.getValue()
+                                            if (Array.isArray(value)) {
+                                                return (
+                                                    <Flex gap={'xs'}>
+                                                        {value.map(x => (
+                                                            <Badge key={x} size={'sm'} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
+                                                        ))}
+                                                    </Flex>
+                                                )
+                                            }
+                                        }
+                                        break
+                                    }
+                                    case 'date': {
+                                        render = info => format(new Date(info.getValue()), "yyyy-MM-dd hh:mm:ss")
+                                        break
+                                    }
+                                    default: {
+                                        break
+                                    }
+                                }
+
+                                return (
+                                    <td
+                                        key={cell.id}
+                                        className={s.td}
+                                        style={{
+                                            width: cell.column.getSize(),
+                                        }}
+                                    >
+                                        {/* <Flex> */}
+                                        {flexRender(render, cell.getContext())}
+                                        {/* {flexRender(cell.column.columnDef.cell, cell.getContext())} */}
+                                        {/* {content} */}
+                                        {/* </Flex> */}
+                                    </td>
+                                )
+                            })}
                         </tr>
                     ))}
                 </tbody>
@@ -262,6 +339,6 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                     }))}
                 />
             </Flex>
-        </Flex>
+        </Flex >
     )
 }
