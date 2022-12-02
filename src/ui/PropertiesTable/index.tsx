@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
-import { Badge, Box, createStyles, Flex, Pagination, Select, Tooltip } from "@mantine/core";
+import { ActionIcon, Badge, Box, createStyles, Flex, Image, Pagination, Select, Tooltip } from "@mantine/core";
 import { format } from 'date-fns'
-import { IconArrowDown, IconArrowUp } from '@tabler/icons';
+import { IconArrowDown, IconArrowUp, IconPhoto, IconPhotoOff } from '@tabler/icons';
 
 export type PropertyItemMeta = {
     type: 'string' | 'url' | 'int' | 'float' | 'date' | "empty" | "mixed" | "unknown"
@@ -118,6 +118,7 @@ type PropertyTableProps = {
 export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, meta }) => {
     const { classes: s, cx } = useStyle()
     const [sorting, setSorting] = useState<SortingState>([])
+    const [photos, setPhotos] = useState<Record<string, boolean>>({})
     const table = useReactTable({
         data,
         columns,
@@ -170,13 +171,25 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                 <IconArrowDown size={16} />
                                             ),
                                         }[header.column.getIsSorted() as string] ?? null}
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
+                                        {header.isPlaceholder ? null : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
                                         <Box style={{ flex: 1 }} />
+                                        {meta[header.column.id].type !== 'url' ? null : (
+                                            <ActionIcon size={'xs'} onClick={() => {
+                                                setPhotos(photos => ({
+                                                    ...photos,
+                                                    [header.column.id]: !photos[header.column.id],
+                                                }))
+                                            }}>
+                                                {photos[header.column.id] ? (
+                                                    <IconPhoto size={16} />
+                                                ) : (
+                                                    <IconPhotoOff size={16} />
+                                                )}
+                                            </ActionIcon>
+                                        )}
                                         <Badge size={'xs'} radius={'xs'}>
                                             {meta[header.column.id].type}
                                         </Badge>
@@ -246,6 +259,15 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                     case 'url': {
                                         render = info => {
                                             const value = info.getValue()
+                                            if (photos[info.column.id]) {
+                                                return (
+                                                    <Image
+                                                        src={value}
+                                                        width={50}
+                                                        height={50}
+                                                    />
+                                                )
+                                            }
                                             const url = new URL(value)
                                             return (
                                                 <Tooltip label={value} openDelay={500}>
