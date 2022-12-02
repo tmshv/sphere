@@ -29,7 +29,7 @@ export const failMiddleware = createListenerMiddleware();
 failMiddleware.startListening({
     matcher: isAnyOf(
         actions.source.addFromFile.rejected,
-        // actions.source.addFromUrl.rejected,
+        actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
         console.log('fail', action)

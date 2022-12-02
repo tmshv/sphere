@@ -23,13 +23,13 @@ export const parseGeojson: FileParser = async raw => {
         for (const feature of geojson.features) {
             feature.id = nextNumber()
             if (pointType.has(feature.geometry.type)) {
-                pointsCount ++
+                pointsCount++
             }
             if (lineType.has(feature.geometry.type)) {
-                linesCount ++
+                linesCount++
             }
             if (polygonType.has(feature.geometry.type)) {
-                polygonsCount ++
+                polygonsCount++
             }
         }
 

@@ -12,7 +12,13 @@
   "tauri": {
     "allowlist": {
       "window": {
+        "create": true,
         "startDragging": true
+      },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": ["https://**"]
       },
       "dialog": {
         "open": true
