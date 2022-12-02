@@ -90,7 +90,6 @@ const useStyle = createStyles(theme => ({
 
         padding: theme.spacing.sm,
 
-        userSelect: 'none',
         touchAction: 'none',
     },
 }))
