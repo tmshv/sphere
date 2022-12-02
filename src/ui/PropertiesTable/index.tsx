@@ -12,18 +12,18 @@ type StringPropertyMeta = {
 
 type IntPropertyMeta = {
     type: 'int'
-    min: number
-    max: number
-    mean: number
-    hist: number[]
+    min?: number
+    max?: number
+    mean?: number
+    hist?: number[]
 }
 
 type FloatPropertyMeta = {
     type: 'float'
-    min: number
-    max: number
-    mean: number
-    hist: number[]
+    min?: number
+    max?: number
+    mean?: number
+    hist?: number[]
 }
 
 export type PropertyItemMeta = StringPropertyMeta | IntPropertyMeta | FloatPropertyMeta | {
@@ -272,14 +272,16 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                 gap={'xs'}
                                                 justify={'space-between'}
                                             >
-                                                <BarChart
-                                                    width={50}
-                                                    height={50}
-                                                    min={t.min}
-                                                    max={t.max}
-                                                    data={t.hist}
-                                                    color={"rgb(34, 139, 230)"}
-                                                />
+                                                {!t.hist ? null : (
+                                                    <BarChart
+                                                        width={50}
+                                                        height={50}
+                                                        // min={t.min}
+                                                        // max={t.max}
+                                                        data={t.hist}
+                                                        color={"rgb(34, 139, 230)"}
+                                                    />
+                                                )}
                                                 <Flex
                                                     gap={'xs'}
                                                     direction={'column'}
@@ -299,14 +301,16 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                 gap={'xs'}
                                                 justify={'space-between'}
                                             >
-                                                <BarChart
-                                                    width={50}
-                                                    height={50}
-                                                    min={t.min}
-                                                    max={t.max}
-                                                    data={t.hist}
-                                                    color={"rgb(34, 139, 230)"}
-                                                />
+                                                {!t.hist ? null : (
+                                                    <BarChart
+                                                        width={50}
+                                                        height={50}
+                                                        // min={t.min}
+                                                        // max={t.max}
+                                                        data={t.hist}
+                                                        color={"rgb(34, 139, 230)"}
+                                                    />
+                                                )}
                                                 <Flex
                                                     gap={'xs'}
                                                     direction={'column'}

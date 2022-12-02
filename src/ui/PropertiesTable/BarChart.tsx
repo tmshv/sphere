@@ -13,8 +13,8 @@ const verticalMargin = 0
 // const getLetterFrequency = (d: LetterFrequency) => Number(d.frequency) * 100;
 
 export type BarsProps = {
-    min: number
-    max: number
+    min?: number
+    max?: number
     data: number[]
     width: number;
     height: number;
@@ -22,9 +22,15 @@ export type BarsProps = {
 };
 
 export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, color }) => {
+    const radius = 3
     // bounds
     const xMax = width;
     const yMax = height - verticalMargin;
+
+    const size = data.length
+    const minValue = min ?? Math.min(...data)
+    const maxValue = max ?? Math.max(...data)
+    const barWidth = (xMax - radius - radius) / size
 
     // scales, memoize for performance
     // const xScale = useMemo(() => scaleBand<string>({
@@ -35,29 +41,25 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
     //     padding: 0.1,
     // }), [xMax]);
     const xScale = useMemo(() => scaleLinear<number>({
-        range: [0, xMax],
+        range: [radius, xMax-radius],
         round: true,
-        domain: [0, data.length],
-    }), [yMax, data]);
+        domain: [0, size],
+    }), [yMax, size, radius]);
     const yScale = useMemo(() => scaleLinear<number>({
         range: [yMax, 0],
         round: true,
-        domain: [min, max],
-    }), [min, max, yMax]);
+        domain: [minValue, maxValue],
+    }), [minValue, maxValue, yMax]);
 
     return width < 10 ? null : (
         <svg width={width} height={height}>
             {/* <GradientTealBlue id="teal" /> */}
             {/* <rect width={width} height={height} fill="url(#teal)" rx={14} /> */}
+            <rect width={width} height={height} fill={color} opacity={0.25} rx={radius} />
 
             <Group top={verticalMargin / 2}>
                 {data.map((d, i) => {
-                    // const letter = getLetter(d);
-                    const barWidth = 1
-                    // const barWidth = xScale.bandwidth();
-                    // const barHeight = yMax - (yScale(getLetterFrequency(d)) ?? 0);
                     const barHeight = yMax - yScale(d)
-                    // const barX = xScale(letter);
                     const barX = xScale(i);
                     const barY = yMax - barHeight;
                     return (
