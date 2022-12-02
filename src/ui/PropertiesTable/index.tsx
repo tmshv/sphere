@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Table, Column, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
-import { createStyles, Pagination } from "@mantine/core";
+import { createStyles, Flex, Pagination } from "@mantine/core";
+import { IconArrowDown, IconArrowUp } from '@tabler/icons';
 
 export type PropertyItem = Record<string, any>
 
@@ -55,25 +56,50 @@ const Filter: React.FC<FilterProps> = ({ column, table }) => {
 }
 
 const useStyle = createStyles(theme => ({
+    table: {
+        borderCollapse: 'collapse',
+        border: `1px solid ${theme.colors.gray[1]}`,
+    },
     thead: {
         position: 'sticky',
         top: 0,
     },
+    tr: {
+        margin: 0,
+    },
     th: {
         position: 'relative',
+        border: `1px solid ${theme.colors.gray[1]}`,
+
+        cursor: 'default',
+        userSelect: 'none',
+
+        // height: 30,
+        padding: 0,
+    },
+    td: {
+        border: `1px solid ${theme.colors.gray[1]}`,
+        verticalAlign: "baseline",
+        padding: theme.spacing.xs,
+        // margin: 0,
     },
     resizer: {
         position: 'absolute',
-        right: 0,
-        top: 0,
-        height: '100%',
-        width: 5,
-        background: "rgba(0, 0, 0, 0.5);",
+        right: -3,
+        top: theme.spacing.xs,
+        height: `calc(100% - ${theme.spacing.xs}px * 2)`,
+        width: 6,
         cursor: "col-resize",
+        borderRadius: theme.radius.sm,
+        zIndex: 1,
+        background: theme.primaryColor,
+        opacity: 0,
+        '&:hover': {
+            opacity: 0.5,
+        }
     },
-    isResizing: {
-        background: 'blue',
-        opacity: 1,
+    resizing: {
+        opacity: 0.5,
     },
 }))
 
@@ -102,16 +128,18 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
     return (
         <>
             <table
-                {...{
-                    style: {
-                        width: table.getCenterTotalSize(),
-                    },
+                className={s.table}
+                style={{
+                    width: table.getCenterTotalSize(),
                 }}
+                cellPadding={0}
+                cellSpacing={0}
             >
                 <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr
                             key={headerGroup.id}
+                            className={s.tr}
                         >
                             {headerGroup.headers.map(header => (
                                 <th
@@ -121,17 +149,19 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                                         width: header.getSize(),
                                     }}
                                 >
-                                    <div
-                                        {...{
-                                            className: header.column.getCanSort()
-                                                ? 'cursor-pointer select-none'
-                                                : '',
-                                            onClick: header.column.getToggleSortingHandler(),
-                                        }}
+                                    <Flex
+                                        align={'center'}
+                                        p={'xs'}
+                                        gap={'xs'}
+                                        onClick={header.column.getToggleSortingHandler()}
                                     >
                                         {{
-                                            asc: ' 🔼',
-                                            desc: ' 🔽',
+                                            asc: (
+                                                <IconArrowUp size={16} />
+                                            ),
+                                            desc: (
+                                                <IconArrowDown size={16} />
+                                            ),
                                         }[header.column.getIsSorted() as string] ?? null}
                                         {header.isPlaceholder
                                             ? null
@@ -139,27 +169,26 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                                                 header.column.columnDef.header,
                                                 header.getContext()
                                             )}
-                                        {header.column.getCanFilter() ? (
+                                        {/* {header.column.getCanFilter() ? (
                                             <div>
                                                 <Filter column={header.column} table={table} />
                                             </div>
-                                        ) : null}
-                                    </div>
+                                        ) : null} */}
+                                    </Flex>
                                     <div
-                                        {...{
-                                            onMouseDown: header.getResizeHandler(),
-                                            onTouchStart: header.getResizeHandler(),
-                                            // className: `resizer ${header.column.getIsResizing() ? 'isResizing' : ''}`,
-                                            className: cx(s.resizer, { [s.isResizing]: header.column.getIsResizing() }),
-                                            style: {
-                                                // transform:
-                                                //     columnResizeMode === 'onEnd' &&
-                                                //         header.column.getIsResizing()
-                                                //         ? `translateX(${table.getState().columnSizingInfo.deltaOffset
-                                                //         }px)`
-                                                //         : '',
-                                            },
-                                        }}
+                                        className={cx(s.resizer, {
+                                            [s.resizing]: header.column.getIsResizing(),
+                                        })}
+                                        // style={{
+                                        //     transform:
+                                        //         columnResizeMode === 'onEnd' &&
+                                        //             header.column.getIsResizing()
+                                        //             ? `translateX(${table.getState().columnSizingInfo.deltaOffset
+                                        //             }px)`
+                                        //             : '',
+                                        // }}
+                                        onMouseDown={header.getResizeHandler()}
+                                        onTouchStart={header.getResizeHandler()}
                                     />
                                 </th>
                             ))}
@@ -169,12 +198,21 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
 
                 <tbody>
                     {table.getRowModel().rows.map(row => (
-                        <tr key={row.id}>
+                        <tr
+                            key={row.id}
+                            className={s.tr}
+                        >
                             {row.getVisibleCells().map(cell => (
-                                <td key={cell.id} style={{
-                                    width: cell.column.getSize(),
-                                }}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                <td
+                                    key={cell.id}
+                                    className={s.td}
+                                    style={{
+                                        width: cell.column.getSize(),
+                                    }}
+                                >
+                                    <Flex>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </Flex>
                                 </td>
                             ))}
                         </tr>
@@ -182,7 +220,10 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                 </tbody>
                 <tfoot>
                     {table.getFooterGroups().map(footerGroup => (
-                        <tr key={footerGroup.id}>
+                        <tr
+                            key={footerGroup.id}
+                            className={s.tr}
+                        >
                             {footerGroup.headers.map(header => (
                                 <th key={header.id}>
                                     {header.isPlaceholder
