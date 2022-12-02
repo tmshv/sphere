@@ -9,6 +9,7 @@ import { Table, Column, useReactTable, createColumnHelper, getCoreRowModel, getP
 // appWindow.emit('event', { message: 'Tauri is awesome!' }) from "react-dom/client";
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { Box, createStyles, Pagination } from "@mantine/core";
+import { ThemeProvider } from "./ui/ThemeProvider";
 
 type PropertyItem = Record<string, any>
 
@@ -369,11 +370,10 @@ const View: React.FC = () => {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
-        <App></App>
-        {/* <Provider store={store}>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>
-    </Provider> */}
+        {/* <Provider store={store}> */}
+        <ThemeProvider dark={false}>
+            <App />
+        </ThemeProvider>
+        {/* </Provider> */}
     </React.StrictMode>
 );
