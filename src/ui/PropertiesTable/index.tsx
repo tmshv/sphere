@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Table, Column, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
-import { createStyles, Flex, Pagination } from "@mantine/core";
+import { createStyles, Flex, Pagination, Select } from "@mantine/core";
 import { IconArrowDown, IconArrowUp } from '@tabler/icons';
 
 export type PropertyItem = Record<string, any>
@@ -126,7 +126,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
     })
 
     return (
-        <>
+        <Flex direction={'column'} gap={'sm'}>
             <table
                 className={s.table}
                 style={{
@@ -238,26 +238,30 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns }) 
                     ))}
                 </tfoot>
             </table>
-            <Pagination
-                page={table.getState().pagination.pageIndex + 1}
-                // onChange={setPage}
-                // onClick={page => table.setPageIndex(table.getPageCount() - 1)}
-                onChange={page => table.setPageIndex(page - 1)}
-                total={table.getPageCount()}
-            />
 
-            <select
-                value={table.getState().pagination.pageSize}
-                onChange={e => {
-                    table.setPageSize(Number(e.target.value))
-                }}
-            >
-                {[10, 20, 30, 40, 50].map(pageSize => (
-                    <option key={pageSize} value={pageSize}>
-                        Show {pageSize}
-                    </option>
-                ))}
-            </select>
-        </>
+            <Flex justify={"space-between"}>
+                <Pagination
+                    page={table.getState().pagination.pageIndex + 1}
+                    // onChange={setPage}
+                    // onClick={page => table.setPageIndex(table.getPageCount() - 1)}
+                    onChange={page => table.setPageIndex(page - 1)}
+                    total={table.getPageCount()}
+                />
+
+                <Select
+                    value={`${table.getState().pagination.pageSize}`}
+                    onChange={value => {
+                        if (!value) {
+                            return
+                        }
+                        table.setPageSize(Number(value))
+                    }}
+                    data={[10, 25, 50, 100].map(x => ({
+                        label: `${x}`,
+                        value: `${x}`,
+                    }))}
+                />
+            </Flex>
+        </Flex>
     )
 }
