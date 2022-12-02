@@ -9,7 +9,7 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { App } from "./components/App";
 import { actions, store } from "./store";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { SphereThemeProvider } from "@/components/SphereThemeProvider";
 import { isRegistered, register } from '@tauri-apps/api/globalShortcut';
 
 async function handleHotkey() {
@@ -69,9 +69,9 @@ handleHotkey()
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <Provider store={store}>
-      <ThemeProvider>
+      <SphereThemeProvider>
         <App />
-      </ThemeProvider>
+      </SphereThemeProvider>
     </Provider>
   </React.StrictMode>
 );
