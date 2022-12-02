@@ -124,6 +124,38 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 }
                 break
             }
+            case 'int': {
+                const n = data.properties.map(p => parseFloat(p[key]))
+                const min = Math.min(...n)
+                const max = Math.max(...n)
+                const mean = 0
+                const hist = n
+
+                acc[key] = {
+                    type,
+                    min,
+                    max,
+                    mean,
+                    hist,
+                }
+                break
+            }
+            case 'float': {
+                const n = data.properties.map(p => parseFloat(p[key]))
+                const min = Math.min(...n)
+                const max = Math.max(...n)
+                const mean = 0
+                const hist = n
+
+                acc[key] = {
+                    type,
+                    min,
+                    max,
+                    mean,
+                    hist,
+                }
+                break
+            }
             default: {
                 acc[key] = {
                     type,

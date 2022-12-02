@@ -3,14 +3,31 @@ import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginati
 import { ActionIcon, Badge, Box, createStyles, Flex, Image, Pagination, Select, Tooltip } from "@mantine/core";
 import { format } from 'date-fns'
 import { IconArrowDown, IconArrowUp, IconPhoto, IconPhotoOff } from '@tabler/icons';
+import { BarChart } from './BarChart';
 
 type StringPropertyMeta = {
     type: 'string'
     unique: number
 }
 
-export type PropertyItemMeta = StringPropertyMeta | {
-    type: 'url' | 'int' | 'float' | 'date' | "empty" | "mixed" | "unknown"
+type IntPropertyMeta = {
+    type: 'int'
+    min: number
+    max: number
+    mean: number
+    hist: number[]
+}
+
+type FloatPropertyMeta = {
+    type: 'float'
+    min: number
+    max: number
+    mean: number
+    hist: number[]
+}
+
+export type PropertyItemMeta = StringPropertyMeta | IntPropertyMeta | FloatPropertyMeta | {
+    type: 'url' | 'date' | "empty" | "mixed" | "unknown"
 }
 
 export type PropertyItem = Record<string, any>
@@ -243,6 +260,60 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                 gap={'xs'}
                                             >
                                                 <Badge size={'xs'} radius={'sm'}>unique={t.unique}</Badge>
+                                            </Flex>
+                                        )
+                                        break
+                                    }
+                                    case 'int': {
+                                        content = (
+                                            <Flex
+                                                direction={'row'}
+                                                p={'sm'}
+                                                gap={'xs'}
+                                                justify={'space-between'}
+                                            >
+                                                <BarChart
+                                                    width={50}
+                                                    height={50}
+                                                    min={t.min}
+                                                    max={t.max}
+                                                    data={t.hist}
+                                                    color={"rgb(34, 139, 230)"}
+                                                />
+                                                <Flex
+                                                    gap={'xs'}
+                                                    direction={'column'}
+                                                >
+                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
+                                                    <Badge size={'xs'} radius={'sm'}>min={t.min}</Badge>
+                                                </Flex>
+                                            </Flex>
+                                        )
+                                        break
+                                    }
+                                    case 'float': {
+                                        content = (
+                                            <Flex
+                                                direction={'row'}
+                                                p={'sm'}
+                                                gap={'xs'}
+                                                justify={'space-between'}
+                                            >
+                                                <BarChart
+                                                    width={50}
+                                                    height={50}
+                                                    min={t.min}
+                                                    max={t.max}
+                                                    data={t.hist}
+                                                    color={"rgb(34, 139, 230)"}
+                                                />
+                                                <Flex
+                                                    gap={'xs'}
+                                                    direction={'column'}
+                                                >
+                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
+                                                    <Badge size={'xs'} radius={'sm'}>min={t.min}</Badge>
+                                                </Flex>
                                             </Flex>
                                         )
                                         break

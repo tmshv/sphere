@@ -1,0 +1,77 @@
+import React, { useMemo } from 'react';
+import { Bar } from '@visx/shape';
+import { Group } from '@visx/group';
+// import { GradientTealBlue } from '@visx/gradient';
+// import letterFrequency, { LetterFrequency } from '@visx/mock-data/lib/mocks/letterFrequency';
+import { scaleBand, scaleLinear } from '@visx/scale';
+
+// const data = letterFrequency.slice(5);
+const verticalMargin = 0
+
+// accessors
+// const getLetter = (d: LetterFrequency) => d.letter;
+// const getLetterFrequency = (d: LetterFrequency) => Number(d.frequency) * 100;
+
+export type BarsProps = {
+    min: number
+    max: number
+    data: number[]
+    width: number;
+    height: number;
+    color: string
+};
+
+export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, color }) => {
+    // bounds
+    const xMax = width;
+    const yMax = height - verticalMargin;
+
+    // scales, memoize for performance
+    // const xScale = useMemo(() => scaleBand<string>({
+    //     range: [0, xMax],
+    //     round: true,
+    //     // domain: data.map(getLetter),
+    //     // domain: data.map(getLetter),
+    //     padding: 0.1,
+    // }), [xMax]);
+    const xScale = useMemo(() => scaleLinear<number>({
+        range: [0, xMax],
+        round: true,
+        domain: [0, data.length],
+    }), [yMax, data]);
+    const yScale = useMemo(() => scaleLinear<number>({
+        range: [yMax, 0],
+        round: true,
+        domain: [min, max],
+    }), [min, max, yMax]);
+
+    return width < 10 ? null : (
+        <svg width={width} height={height}>
+            {/* <GradientTealBlue id="teal" /> */}
+            {/* <rect width={width} height={height} fill="url(#teal)" rx={14} /> */}
+
+            <Group top={verticalMargin / 2}>
+                {data.map((d, i) => {
+                    // const letter = getLetter(d);
+                    const barWidth = 1
+                    // const barWidth = xScale.bandwidth();
+                    // const barHeight = yMax - (yScale(getLetterFrequency(d)) ?? 0);
+                    const barHeight = yMax - yScale(d)
+                    // const barX = xScale(letter);
+                    const barX = xScale(i);
+                    const barY = yMax - barHeight;
+                    return (
+                        <Bar
+                            key={i}
+                            x={barX}
+                            y={barY}
+                            width={barWidth}
+                            height={barHeight}
+                            fill={color}
+                        />
+                    );
+                })}
+            </Group>
+        </svg>
+    );
+}
