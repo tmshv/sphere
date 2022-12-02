@@ -114,8 +114,22 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
     }))
 
     const meta = head.reduce((acc, key) => {
-        acc[key] = {
-            type: predictType(key, data.properties)
+        const type = predictType(key, data.properties)
+        switch (type) {
+            case 'string': {
+                const unique = new Set(data.properties.map(p => p[key]))
+                acc[key] = {
+                    type,
+                    unique: unique.size,
+                }
+                break
+            }
+            default: {
+                acc[key] = {
+                    type,
+                }
+                break
+            }
         }
         return acc
     }, {} as Record<string, PropertyItemMeta>)

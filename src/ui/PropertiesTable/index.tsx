@@ -4,9 +4,15 @@ import { ActionIcon, Badge, Box, createStyles, Flex, Image, Pagination, Select, 
 import { format } from 'date-fns'
 import { IconArrowDown, IconArrowUp, IconPhoto, IconPhotoOff } from '@tabler/icons';
 
-export type PropertyItemMeta = {
-    type: 'string' | 'url' | 'int' | 'float' | 'date' | "empty" | "mixed" | "unknown"
+type StringPropertyMeta = {
+    type: 'string'
+    unique: number
 }
+
+export type PropertyItemMeta = StringPropertyMeta | {
+    type: 'url' | 'int' | 'float' | 'date' | "empty" | "mixed" | "unknown"
+}
+
 export type PropertyItem = Record<string, any>
 
 export type FilterProps = {
@@ -223,24 +229,48 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                             key={headerGroup.id}
                             className={s.tr}
                         >
-                            {headerGroup.headers.map(header => (
-                                <th
-                                    key={header.id}
-                                    className={s.th}
-                                    style={{
-                                        width: header.getSize(),
-                                    }}
-                                >
-                                    <Flex
-                                        align={'center'}
-                                        p={'sm'}
-                                        gap={'xs'}
-                                        onClick={header.column.getToggleSortingHandler()}
+                            {headerGroup.headers.map(header => {
+                                const t = meta[header.column.id]
+                                let content: React.ReactNode = null
+
+                                switch (t.type) {
+                                    case 'string': {
+                                        content = (
+                                            <Flex
+                                                align={'center'}
+                                                direction={'row-reverse'}
+                                                p={'sm'}
+                                                gap={'xs'}
+                                            >
+                                                <Badge size={'xs'} radius={'sm'}>unique={t.unique}</Badge>
+                                            </Flex>
+                                        )
+                                        break
+                                    }
+                                    default: {
+                                        break
+                                    }
+                                }
+
+                                return (
+                                    <th
+                                        key={header.id}
+                                        className={s.th}
+                                        style={{
+                                            width: header.getSize(),
+                                        }}
                                     >
-                                        <Badge>string</Badge>
-                                    </Flex>
-                                </th>
-                            ))}
+                                        {content}
+                                        {/* <Flex
+                                            align={'center'}
+                                            p={'sm'}
+                                            gap={'xs'}
+                                        >
+                                            <Badge>string</Badge>
+                                        </Flex> */}
+                                    </th>
+                                )
+                            })}
                         </tr>
                     ))}
                 </thead>
