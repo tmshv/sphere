@@ -257,7 +257,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                     }
                                     case 'mixed': {
                                         render = info => {
-                                            const value = cell.getValue()
+                                            const value = info.getValue()
                                             if (Array.isArray(value)) {
                                                 return (
                                                     <>
