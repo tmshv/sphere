@@ -1,13 +1,13 @@
-import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
+import { createAsyncThunk, createAction } from "@reduxjs/toolkit"
 import { readTextFile } from "@tauri-apps/api/fs"
-import { basename, extname } from '@tauri-apps/api/path';
-import { parseGeojson } from '../../lib/parseGeojson'
-import { parseGpx } from '../../lib/parseGpx'
-import { parseCsv } from '@/lib/parseCsv';
-import { FileParser } from '@/types';
-import { nextId } from '@/lib/nextId';
-import { open } from '@tauri-apps/api/dialog';
-import { actions } from '.';
+import { basename, extname } from "@tauri-apps/api/path"
+import { parseGeojson } from "../../lib/parseGeojson"
+import { parseGpx } from "../../lib/parseGpx"
+import { parseCsv } from "@/lib/parseCsv"
+import { FileParser } from "@/types"
+import { nextId } from "@/lib/nextId"
+import { open } from "@tauri-apps/api/dialog"
+import { actions } from "."
 
 const parsers = new Map<string, FileParser>([
     ["json", parseGeojson],
@@ -16,15 +16,15 @@ const parsers = new Map<string, FileParser>([
     ["csv", parseCsv],
 ])
 
-export const addFromFiles = createAsyncThunk('source/addFromFiles', async (paths: string[], thunkAPI) => {
+export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths: string[], thunkAPI) => {
     if (paths.length === 0) {
         const selected = await open({
             multiple: true,
             filters: [{
-                name: 'Geospatial file',
-                extensions: ['csv', 'geojson', 'gpx'],
-            }]
-        });
+                name: "Geospatial file",
+                extensions: ["csv", "geojson", "gpx"],
+            }],
+        })
         if (!selected) {
             return
         }
@@ -56,7 +56,7 @@ export const addFromFiles = createAsyncThunk('source/addFromFiles', async (paths
     // }))
 })
 
-export const addFromFile = createAsyncThunk('source/addFromFile', async (path: string, thunkAPI) => {
+export const addFromFile = createAsyncThunk("source/addFromFile", async (path: string, thunkAPI) => {
     const ext = await extname(path)
     if (!parsers.has(ext)) {
         throw new Error("Cannot find parser")
@@ -70,7 +70,7 @@ export const addFromFile = createAsyncThunk('source/addFromFile', async (path: s
     thunkAPI.dispatch(actions.addFeatureCollection({
         id: sourceId,
         name,
-        location: path
+        location: path,
         // dataset,
     }))
 

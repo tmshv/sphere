@@ -1,16 +1,16 @@
-import { isAnyOf } from '@reduxjs/toolkit'
-import { selectionSlice } from '../selection'
-import { appSlice } from '../app'
-import * as turf from '@turf/turf'
-import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { getMap } from '@/map'
-import mapboxgl from 'mapbox-gl'
-import { LayerType, SourceMetadata, SourceType } from '@/types'
-import { nextId } from '@/lib/nextId'
-import { duplicate } from '../layer';
-import { actions } from '../actions';
-import { RootState } from '..';
-import { assertUnreachable } from '@/lib';
+import { isAnyOf } from "@reduxjs/toolkit"
+import { selectionSlice } from "../selection"
+import { appSlice } from "../app"
+import * as turf from "@turf/turf"
+import { createListenerMiddleware } from "@reduxjs/toolkit"
+import { getMap } from "@/map"
+import mapboxgl from "mapbox-gl"
+import { LayerType, SourceMetadata, SourceType } from "@/types"
+import { nextId } from "@/lib/nextId"
+import { duplicate } from "../layer"
+import { actions } from "../actions"
+import { RootState } from ".."
+import { assertUnreachable } from "@/lib"
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
@@ -25,28 +25,28 @@ function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMeta
     return null
 }
 
-export const failMiddleware = createListenerMiddleware();
+export const failMiddleware = createListenerMiddleware()
 failMiddleware.startListening({
     matcher: isAnyOf(
         actions.source.addFromFile.rejected,
         actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
-        console.log('fail', action)
+        console.log("fail", action)
         listenerApi.dispatch(actions.error.setError(action.error.message))
     },
-});
+})
 
-export const clearErrorMiddleware = createListenerMiddleware();
+export const clearErrorMiddleware = createListenerMiddleware()
 clearErrorMiddleware.startListening({
     actionCreator: actions.error.setError,
     effect: async (action, listenerApi) => {
         await listenerApi.delay(3000)
         listenerApi.dispatch(actions.error.clear())
     },
-});
+})
 
-export const zoomToMiddleware = createListenerMiddleware();
+export const zoomToMiddleware = createListenerMiddleware()
 zoomToMiddleware.startListening({
     actionCreator: actions.source.zoomTo,
     effect: async (action, listenerApi) => {
@@ -66,11 +66,11 @@ zoomToMiddleware.startListening({
         const { type } = source
         switch (type) {
             case SourceType.FeatureCollection: {
-                const bbox = turf.bbox(source.dataset);
+                const bbox = turf.bbox(source.dataset)
 
                 listenerApi.dispatch(actions.map.fitBounds({
                     mapId,
-                    bounds: bbox as mapboxgl.LngLatBoundsLike
+                    bounds: bbox as mapboxgl.LngLatBoundsLike,
                 }))
             }
             case SourceType.Geojson: {
@@ -87,9 +87,9 @@ zoomToMiddleware.startListening({
             }
         }
     },
-});
+})
 
-export const mapInteractiveMiddleware = createListenerMiddleware();
+export const mapInteractiveMiddleware = createListenerMiddleware()
 mapInteractiveMiddleware.startListening({
     actionCreator: actions.map.setInteractive,
     effect: async (action, listenerApi) => {
@@ -102,9 +102,9 @@ mapInteractiveMiddleware.startListening({
         const element = map.getCanvasContainer()
         element.style.cursor = value ? "pointer" : ""
     },
-});
+})
 
-export const selectFeaturesMiddleware = createListenerMiddleware();
+export const selectFeaturesMiddleware = createListenerMiddleware()
 selectFeaturesMiddleware.startListening({
     actionCreator: actions.selection.selectOne,
     effect: async (action, listenerApi) => {
@@ -118,7 +118,7 @@ selectFeaturesMiddleware.startListening({
 
         const prevLayerId = state.selection.layerId
         if (prevLayerId && layerId !== prevLayerId) {
-            map.setFilter(`${prevLayerId}-selected`, ['in', 'id', ''])
+            map.setFilter(`${prevLayerId}-selected`, ["in", "id", ""])
         }
 
         // const source = state.source.items[sourceId]
@@ -129,13 +129,13 @@ selectFeaturesMiddleware.startListening({
 
         // console.log("select!", featureId, sourceId);
 
-        map.setFilter(`${layerId}-selected`, ['in', 'id', ...[featureId]])
+        map.setFilter(`${layerId}-selected`, ["in", "id", ...[featureId]])
 
         // console.log(f.properties);
     },
-});
+})
 
-export const clearSelectionMiddleware = createListenerMiddleware();
+export const clearSelectionMiddleware = createListenerMiddleware()
 clearSelectionMiddleware.startListening({
     actionCreator: actions.selection.reset,
     effect: async (action, listenerApi) => {
@@ -149,11 +149,11 @@ clearSelectionMiddleware.startListening({
             return
         }
 
-        map.setFilter(`${layerId}-selected`, ['in', 'id', ''])
+        map.setFilter(`${layerId}-selected`, ["in", "id", ""])
     },
-});
+})
 
-export const addSourceMiddleware = createListenerMiddleware();
+export const addSourceMiddleware = createListenerMiddleware()
 addSourceMiddleware.startListening({
     actionCreator: actions.source.addFromFile.fulfilled,
     effect: async (action, listenerApi) => {
@@ -178,9 +178,9 @@ addSourceMiddleware.startListening({
             type: layerType,
         }))
     },
-});
+})
 
-export const addBlankLayerMiddleware = createListenerMiddleware();
+export const addBlankLayerMiddleware = createListenerMiddleware()
 addBlankLayerMiddleware.startListening({
     actionCreator: actions.layer.addBlankLayer,
     effect: async (action, listenerApi) => {
@@ -219,10 +219,10 @@ addBlankLayerMiddleware.startListening({
         listenerApi.dispatch(actions.selection.selectLayer({
             layerId,
         }))
-    }
-});
+    },
+})
 
-export const forceResizeMapMiddleware = createListenerMiddleware();
+export const forceResizeMapMiddleware = createListenerMiddleware()
 forceResizeMapMiddleware.startListening({
     matcher: isAnyOf(
         appSlice.actions.toggleZenMode,
@@ -243,9 +243,9 @@ forceResizeMapMiddleware.startListening({
 
         map.resize()
     },
-});
+})
 
-export const duplicateLayerMiddleware = createListenerMiddleware();
+export const duplicateLayerMiddleware = createListenerMiddleware()
 duplicateLayerMiddleware.startListening({
     actionCreator: duplicate,
     effect: async (action, listenerApi) => {
@@ -261,4 +261,4 @@ duplicateLayerMiddleware.startListening({
             visible: true,
         }))
     },
-});
+})

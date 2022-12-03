@@ -1,9 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '.'
-import { Style } from 'mapbox-gl'
-import { selectIsDrawing } from './draw'
-import { selectIsDark } from './app'
+import { createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { RootState } from "."
+import { Style } from "mapbox-gl"
+import { selectIsDrawing } from "./draw"
+import { selectIsDark } from "./app"
 // import type { RootState } from '../../app/store'
 
 const VECTOR = "mapbox://styles/mapbox/streets-v9"
@@ -22,7 +22,7 @@ const initialState: MapStyleState = {
 }
 
 export const mapStyleSlice = createSlice({
-    name: 'mapStyle',
+    name: "mapStyle",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
@@ -34,25 +34,25 @@ export const mapStyleSlice = createSlice({
         },
         setOsm: state => {
             state.value = {
-                name: 'osm',
+                name: "osm",
                 version: 8,
                 sources: {
-                    'osm-raster-tiles': {
-                        type: 'raster',
-                        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    "osm-raster-tiles": {
+                        type: "raster",
+                        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
                         tileSize: 256,
-                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-                    }
+                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+                    },
                 },
                 layers: [
                     {
-                        id: 'osm-raster-layer',
-                        type: 'raster',
-                        source: 'osm-raster-tiles',
+                        id: "osm-raster-layer",
+                        type: "raster",
+                        source: "osm-raster-tiles",
                         minzoom: 0,
-                        maxzoom: 22
-                    }
-                ]
+                        maxzoom: 22,
+                    },
+                ],
             }
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
@@ -69,8 +69,8 @@ export const selectMapStyle = (state: RootState) => {
 
     if (draw) {
         return dark
-            ? 'mapbox://styles/mapbox/dark-v10'
-            : 'mapbox://styles/mapbox/light-v10'
+            ? "mapbox://styles/mapbox/dark-v10"
+            : "mapbox://styles/mapbox/light-v10"
     }
 
     return state.mapStyle.value

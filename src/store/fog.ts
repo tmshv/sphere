@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { RootState } from '.'
+import { createSlice } from "@reduxjs/toolkit"
+import { RootState } from "."
 
 // Define a type for the slice state
 type FogState = {
@@ -8,11 +8,11 @@ type FogState = {
 
 // Define the initial state using that type
 const initialState: FogState = {
-    show: true
+    show: true,
 }
 
 export const fogSlice = createSlice({
-    name: 'fog',
+    name: "fog",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {

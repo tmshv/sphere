@@ -1,6 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '.'
+import { createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { RootState } from "."
 
 // Define a type for the slice state
 type TerrainState = {
@@ -15,7 +15,7 @@ const initialState: TerrainState = {
 }
 
 export const terrainSlice = createSlice({
-    name: 'terrain',
+    name: "terrain",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {

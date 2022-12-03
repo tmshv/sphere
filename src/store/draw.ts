@@ -1,7 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '.'
-import { Id } from '@turf/helpers'
+import { createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { RootState } from "."
+import { Id } from "@turf/helpers"
 
 // Define a type for the slice state
 type DrawState = {
@@ -15,7 +15,7 @@ const initialState: DrawState = {
 }
 
 export const drawSlice = createSlice({
-    name: 'draw',
+    name: "draw",
     initialState,
     reducers: {
         start: (state, action: PayloadAction<{ sourceId: Id }>) => {
