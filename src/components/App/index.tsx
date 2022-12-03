@@ -1,9 +1,8 @@
-import React, { useCallback } from "react"
+import { StrictMode } from "react"
 import { MapProvider } from "react-map-gl"
 import { Center, Container, Paper, Title } from "@mantine/core"
 import { MapStatusbar } from "../MapStatusbar"
 import { AppLayout } from "@/ui/AppLayout"
-import { LocationToString, MapContextMenu } from "../MapContextMenu"
 import { SphereMap } from "../SphereMap"
 import { Spotlight } from "../Spotlight"
 import { LeftSidebar } from "../LeftSidebar"
@@ -12,7 +11,6 @@ import { selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "@/st
 import { selectProperties } from "@/store/selection"
 import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Overlay } from "@/ui/Overlay"
-import { Toolbar } from "@/ui/Toolbar"
 import { Sidebar } from "@/ui/Sidebar"
 import { actions } from "@/store"
 import { WorkingIndicator } from "../WorkingIndicator"
@@ -21,7 +19,7 @@ export type AppProps = {
 
 }
 
-export const App: React.FC<AppProps> = ({ }) => {
+export const App: React.FC<AppProps> = () => {
     const dispatch = useAppDispatch()
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
@@ -32,10 +30,10 @@ export const App: React.FC<AppProps> = ({ }) => {
     const showLeft = left && !zen
     const showRight = right && !zen && !!props
 
-    const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
+    // const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
 
     return (
-        <React.StrictMode>
+        <StrictMode>
             <MapProvider>
                 <Spotlight
                     mapId={id}
@@ -87,10 +85,10 @@ export const App: React.FC<AppProps> = ({ }) => {
                         <SphereMap
                             id={id}
                         />
-                        <MapContextMenu
+                        {/* <MapContextMenu
                             id={id}
                             copyLocationValue={copy}
-                        />
+                        /> */}
                         {zen ? null : (
                             <Overlay
                                 // right={(
@@ -101,6 +99,6 @@ export const App: React.FC<AppProps> = ({ }) => {
                     </AppLayout>
                 </Spotlight>
             </MapProvider>
-        </React.StrictMode>
+        </StrictMode>
     )
 }

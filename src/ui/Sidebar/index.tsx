@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { createStyles, Flex } from "@mantine/core"
 
 const useStyle = createStyles(theme => ({
@@ -36,7 +36,7 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
     const refx = useRef<number>(0)
     const [width, setWidth] = useState(startWidth)
 
-    const up = useCallback((event: MouseEvent) => {
+    const up = useCallback(() => {
         refx.current = 0
     }, [])
 
@@ -45,7 +45,6 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
 
         const down = (event: MouseEvent) => {
             event.preventDefault()
-            console.log("down")
             refx.current = event.pageX
             refw.current = w
         }

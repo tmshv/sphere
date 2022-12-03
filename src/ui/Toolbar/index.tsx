@@ -8,7 +8,6 @@ import {
     IconFingerprint,
     IconCalendarStats,
     IconUser,
-    IconSettings,
 } from "@tabler/icons"
 
 const useStyles = createStyles((theme) => {
