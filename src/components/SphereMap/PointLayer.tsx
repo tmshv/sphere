@@ -1,6 +1,6 @@
-import { Layer } from "react-map-gl";
-import { useMemo } from "react";
-import mapboxgl, { CirclePaint } from "mapbox-gl";
+import { Layer } from "react-map-gl"
+import { useMemo } from "react"
+import mapboxgl, { CirclePaint } from "mapbox-gl"
 
 export type PointLayerProps = {
     layerId: string
@@ -35,12 +35,12 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
         id: layerId,
         source: sourceId,
         // "source-layer": sourceLayer,
-        type: 'circle',
+        type: "circle",
         paint: circle,
         layout: {
             visibility: visible ? "visible" : "none",
         },
-        filter: ['==', ['geometry-type'], 'Point'],
+        filter: ["==", ["geometry-type"], "Point"],
     }
     if (sourceLayer) {
         layer["source-layer"] = sourceLayer

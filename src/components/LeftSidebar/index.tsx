@@ -1,7 +1,7 @@
-import { Paper, Tabs, TabsProps } from '@mantine/core';
-import { IconDatabase, IconSquaresFilled, IconStack } from '@tabler/icons';
-import { LayersTab } from './LayersTab';
-import { SourcesTab } from './SourcesTab';
+import { Paper, Tabs, TabsProps } from "@mantine/core"
+import { IconDatabase, IconSquaresFilled, IconStack } from "@tabler/icons"
+import { LayersTab } from "./LayersTab"
+import { SourcesTab } from "./SourcesTab"
 
 export function StyledTabs(props: TabsProps) {
     return (
@@ -13,36 +13,36 @@ export function StyledTabs(props: TabsProps) {
                 ...theme.fn.focusStyles(),
                 // width: "100%",
                 // width: 200,
-                backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
-                color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[9],
-                border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[4]}`,
+                backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+                color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[9],
+                border: `1px solid ${theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[4]}`,
                 // padding: `${theme.spacing.xs}px ${theme.spacing.md}px`,
                 height: 30,
-                cursor: 'pointer',
+                cursor: "pointer",
                 fontSize: theme.fontSizes.sm,
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
 
-                '&:disabled': {
+                "&:disabled": {
                     opacity: 0.5,
-                    cursor: 'not-allowed',
+                    cursor: "not-allowed",
                 },
 
-                '&:not(:first-of-type)': {
+                "&:not(:first-of-type)": {
                     borderLeft: 0,
                 },
 
-                '&:first-of-type': {
+                "&:first-of-type": {
                     borderTopLeftRadius: theme.radius.sm,
                     borderBottomLeftRadius: theme.radius.sm,
                 },
 
-                '&:last-of-type': {
+                "&:last-of-type": {
                     borderTopRightRadius: theme.radius.sm,
                     borderBottomRightRadius: theme.radius.sm,
                 },
 
-                '&[data-active]': {
+                "&[data-active]": {
                     backgroundColor: theme.colors.blue[7],
                     borderColor: theme.colors.blue[7],
                     color: theme.white,
@@ -51,17 +51,17 @@ export function StyledTabs(props: TabsProps) {
 
             tabIcon: {
                 marginRight: theme.spacing.xs,
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
             },
 
             tabsList: {
-                display: 'flex',
+                display: "flex",
             },
         })}
-            {...props}
+        {...props}
         />
-    );
+    )
 }
 
 export const LeftSidebar: React.FC = () => {
@@ -108,5 +108,5 @@ export const LeftSidebar: React.FC = () => {
                 </Paper>
             </Tabs.Panel>
         </StyledTabs>
-    );
+    )
 }

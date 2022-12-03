@@ -1,21 +1,21 @@
-import React, { useCallback } from "react";
-import { MapProvider } from "react-map-gl";
-import { Center, Container, Paper, Title } from "@mantine/core";
-import { MapStatusbar } from "../MapStatusbar";
-import { AppLayout } from "@/ui/AppLayout";
-import { LocationToString, MapContextMenu } from "../MapContextMenu";
-import { SphereMap } from "../SphereMap";
-import { Spotlight } from "../Spotlight";
-import { LeftSidebar } from "../LeftSidebar";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "@/store/app";
-import { selectProperties } from "@/store/selection";
-import { PropertiesViewer } from "@/ui/PropertiesViewer";
-import { Overlay } from "@/ui/Overlay";
-import { Toolbar } from "@/ui/Toolbar";
-import { Sidebar } from "@/ui/Sidebar";
-import { actions } from "@/store";
-import { WorkingIndicator } from "../WorkingIndicator";
+import React, { useCallback } from "react"
+import { MapProvider } from "react-map-gl"
+import { Center, Container, Paper, Title } from "@mantine/core"
+import { MapStatusbar } from "../MapStatusbar"
+import { AppLayout } from "@/ui/AppLayout"
+import { LocationToString, MapContextMenu } from "../MapContextMenu"
+import { SphereMap } from "../SphereMap"
+import { Spotlight } from "../Spotlight"
+import { LeftSidebar } from "../LeftSidebar"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "@/store/app"
+import { selectProperties } from "@/store/selection"
+import { PropertiesViewer } from "@/ui/PropertiesViewer"
+import { Overlay } from "@/ui/Overlay"
+import { Toolbar } from "@/ui/Toolbar"
+import { Sidebar } from "@/ui/Sidebar"
+import { actions } from "@/store"
+import { WorkingIndicator } from "../WorkingIndicator"
 
 export type AppProps = {
 
@@ -76,7 +76,7 @@ export const App: React.FC<AppProps> = ({ }) => {
                                     Properties
                                 </Title>
 
-                                <Paper mt={'sm'}>
+                                <Paper mt={"sm"}>
                                     <PropertiesViewer
                                         properties={props}
                                     />
@@ -102,5 +102,5 @@ export const App: React.FC<AppProps> = ({ }) => {
                 </Spotlight>
             </MapProvider>
         </React.StrictMode>
-    );
+    )
 }

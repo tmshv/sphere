@@ -1,14 +1,14 @@
-import { actions } from '@/store';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { Accordion, Button, Group, Modal, TextInput } from '@mantine/core';
-import { IconCrosshair, IconLink, IconPlus, IconTrash } from '@tabler/icons';
-import { useForm } from '@mantine/form';
-import { useCallback, useState } from 'react';
-import { ActionBar, ActionBarOnClick } from '@/ui/ActionBar';
-import { StyledAccordion } from './StyledAccordion';
-import { SourcesOutline } from '../SourcesOutline';
-import { SourcePanel } from '../SourcePanel';
-import { SourceType } from '@/types';
+import { actions } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
+import { IconCrosshair, IconLink, IconPlus, IconTrash } from "@tabler/icons"
+import { useForm } from "@mantine/form"
+import { useCallback, useState } from "react"
+import { ActionBar, ActionBarOnClick } from "@/ui/ActionBar"
+import { StyledAccordion } from "./StyledAccordion"
+import { SourcesOutline } from "../SourcesOutline"
+import { SourcePanel } from "../SourcePanel"
+import { SourceType } from "@/types"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -16,12 +16,12 @@ export const SourcesTab: React.FC = () => {
         return state.selection.sourceId
     })
     const [showModal, setShowModal] = useState(false)
-    const [value, setValue] = useState<string[]>(["outline", "source-properties"]);
+    const [value, setValue] = useState<string[]>(["outline", "source-properties"])
     const form = useForm({
         initialValues: {
-            url: '',
+            url: "",
         },
-    });
+    })
 
     const onClick = useCallback<ActionBarOnClick>(name => {
         switch (name) {
@@ -68,7 +68,7 @@ export const SourcesTab: React.FC = () => {
                         label="URL"
                         size="xs"
                         placeholder="https://..."
-                        {...form.getInputProps('url')}
+                        {...form.getInputProps("url")}
                     />
 
                     <Group position="right" mt="md">
@@ -134,5 +134,5 @@ export const SourcesTab: React.FC = () => {
                 </Accordion.Item>
             </StyledAccordion>
         </>
-    );
+    )
 }

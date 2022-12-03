@@ -1,10 +1,10 @@
-import { Badge, Flex, Group, TextInput } from "@mantine/core";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable } from '@tabler/icons';
-import { useMantineTheme } from '@mantine/core';
-import { actions } from "@/store";
-import { ActionBar } from "@/ui/ActionBar";
-import { SourceMetadata, SourceType } from "@/types";
+import { Badge, Flex, Group, TextInput } from "@mantine/core"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable } from "@tabler/icons"
+import { useMantineTheme } from "@mantine/core"
+import { actions } from "@/store"
+import { ActionBar } from "@/ui/ActionBar"
+import { SourceMetadata, SourceType } from "@/types"
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -36,8 +36,8 @@ export const SourcePanel: React.FC = () => {
             meta,
         }
     })
-    const theme = useMantineTheme();
-    const getColor = (color: string) => theme.colors[color][theme.colorScheme === 'dark' ? 5 : 7];
+    const theme = useMantineTheme()
+    const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
 
     if (!source) {
         return null

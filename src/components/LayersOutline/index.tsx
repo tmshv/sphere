@@ -1,14 +1,14 @@
-import { IconPolygon, IconPoint, IconLine, IconBulb, IconBulbOff, IconFlame } from '@tabler/icons';
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActionIcon } from '@mantine/core';
-import { LayerType } from "@/types";
-import { actions } from "@/store";
-import { selectCurrentLayer } from "@/store/selection";
-import { Outline, OutlineOnMove, OutlineRenderItem } from '@/ui/Outline';
-import { useCallback } from 'react';
-import { selectIsDark } from '@/store/app';
-import { OutlineItem } from '@/ui/Outline/OutlineItem';
-import { Icon } from './Icon';
+import { IconPolygon, IconPoint, IconLine, IconBulb, IconBulbOff, IconFlame } from "@tabler/icons"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { ActionIcon } from "@mantine/core"
+import { LayerType } from "@/types"
+import { actions } from "@/store"
+import { selectCurrentLayer } from "@/store/selection"
+import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline"
+import { useCallback } from "react"
+import { selectIsDark } from "@/store/app"
+import { OutlineItem } from "@/ui/Outline/OutlineItem"
+import { Icon } from "./Icon"
 
 export const LayersOutline: React.FC = () => {
     const dispatch = useAppDispatch()

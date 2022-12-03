@@ -1,18 +1,18 @@
-import Map, { Layer, Source } from "react-map-gl";
-import { useAppSelector } from "@/store/hooks";
-import { selectProjection } from "@/store/projection";
-import { selectMapStyle } from "@/store/mapStyle";
-import { selectIsShowFog } from "@/store/fog";
-import { selectIsShowTerrain } from "@/store/terrain";
-import { Terrain } from "./Terrain";
-import { Fog } from "./Fog";
-import { SphereSource } from "./SphereSource";
-import { SetupStore } from "./SetupStore";
-import { HandleClick } from "./HandleClick";
-import { SphereLayer } from "./SphereLayer";
-import { HandleHover } from "./HandleHover";
-import { selectIsDrawing } from "@/store/draw";
-import { Draw } from "./Draw";
+import Map, { Layer, Source } from "react-map-gl"
+import { useAppSelector } from "@/store/hooks"
+import { selectProjection } from "@/store/projection"
+import { selectMapStyle } from "@/store/mapStyle"
+import { selectIsShowFog } from "@/store/fog"
+import { selectIsShowTerrain } from "@/store/terrain"
+import { Terrain } from "./Terrain"
+import { Fog } from "./Fog"
+import { SphereSource } from "./SphereSource"
+import { SetupStore } from "./SetupStore"
+import { HandleClick } from "./HandleClick"
+import { SphereLayer } from "./SphereLayer"
+import { HandleHover } from "./HandleHover"
+import { selectIsDrawing } from "@/store/draw"
+import { Draw } from "./Draw"
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -82,9 +82,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 id="sky"
                 type="sky"
                 paint={{
-                    'sky-type': 'atmosphere',
-                    'sky-atmosphere-sun': [0.0, 65.0],
-                    'sky-atmosphere-sun-intensity': 15
+                    "sky-type": "atmosphere",
+                    "sky-atmosphere-sun": [0.0, 65.0],
+                    "sky-atmosphere-sun-intensity": 15,
                 }}
             />
 
@@ -101,5 +101,5 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 />
             ))}
         </Map>
-    );
+    )
 }

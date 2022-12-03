@@ -1,12 +1,12 @@
-import { actions } from '@/store';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { Accordion } from '@mantine/core';
-import { IconBulbOff, IconPlus } from '@tabler/icons';
-import { useCallback, useState } from 'react';
-import { LayerPanel } from '../LayerPanel';
-import { LayersOutline } from '../LayersOutline';
-import { ActionBar, ActionBarOnClick } from '@/ui/ActionBar';
-import { StyledAccordion } from './StyledAccordion';
+import { actions } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { Accordion } from "@mantine/core"
+import { IconBulbOff, IconPlus } from "@tabler/icons"
+import { useCallback, useState } from "react"
+import { LayerPanel } from "../LayerPanel"
+import { LayersOutline } from "../LayersOutline"
+import { ActionBar, ActionBarOnClick } from "@/ui/ActionBar"
+import { StyledAccordion } from "./StyledAccordion"
 
 export const LayersTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -18,7 +18,7 @@ export const LayersTab: React.FC = () => {
         const sourceId = state.layer.items[layerId].sourceId
         return [layerId, sourceId]
     })
-    const [value, setValue] = useState<string[]>(["outline", "layer-properties"]);
+    const [value, setValue] = useState<string[]>(["outline", "layer-properties"])
 
     const onClick = useCallback<ActionBarOnClick>(name => {
         switch (name) {
@@ -81,5 +81,5 @@ export const LayersTab: React.FC = () => {
                 </Accordion.Item>
             </StyledAccordion>
         </>
-    );
+    )
 }

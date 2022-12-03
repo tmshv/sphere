@@ -1,6 +1,6 @@
-import { Layer } from "react-map-gl";
-import { useMemo } from "react";
-import { FillPaint, LinePaint } from "mapbox-gl";
+import { Layer } from "react-map-gl"
+import { useMemo } from "react"
+import { FillPaint, LinePaint } from "mapbox-gl"
 
 export type SpherePolygonLayerProps = {
     layerId: string
@@ -40,9 +40,9 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 type={"fill"}
                 paint={fill}
                 layout={{
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['==', ['geometry-type'], 'Polygon']}
+                filter={["==", ["geometry-type"], "Polygon"]}
             />
             <Layer
                 id={`${layerId}-outline-0`}
@@ -52,9 +52,9 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['==', ['geometry-type'], 'Polygon']}
+                filter={["==", ["geometry-type"], "Polygon"]}
             />
             <Layer
                 id={`${layerId}-outline-1`}
@@ -64,9 +64,9 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['==', ['geometry-type'], 'Polygon']}
+                filter={["==", ["geometry-type"], "Polygon"]}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -76,9 +76,9 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['in', 'id', '']}
+                filter={["in", "id", ""]}
             />
         </>
     )

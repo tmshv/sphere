@@ -1,13 +1,13 @@
-import { useAppSelector } from "../../store/hooks";
-import { LayerType } from "@/types";
-import { FillLayer } from "./FillLayer";
-import { LineStringLayer } from "./LineStringLayer";
-import { PointLayer } from "./PointLayer";
-import { assertUnreachable } from "@/lib";
-import { GetImageFunction, PhotoLayer } from "./PhotoLayer";
-import { HeatmapLayer } from "./HeatmapLayer";
-import { SphereLineStringLayer } from "./ShpereLineStringLayer";
-import { SpherePolygonLayer } from "./SpherePolygonLayer";
+import { useAppSelector } from "../../store/hooks"
+import { LayerType } from "@/types"
+import { FillLayer } from "./FillLayer"
+import { LineStringLayer } from "./LineStringLayer"
+import { PointLayer } from "./PointLayer"
+import { assertUnreachable } from "@/lib"
+import { GetImageFunction, PhotoLayer } from "./PhotoLayer"
+import { HeatmapLayer } from "./HeatmapLayer"
+import { SphereLineStringLayer } from "./ShpereLineStringLayer"
+import { SpherePolygonLayer } from "./SpherePolygonLayer"
 
 const getImage: GetImageFunction = p => {
     const srcField = "thumbnail"

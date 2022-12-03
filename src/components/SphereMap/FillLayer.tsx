@@ -1,6 +1,6 @@
-import { Layer } from "react-map-gl";
-import { useMemo } from "react";
-import { FillPaint } from "mapbox-gl";
+import { Layer } from "react-map-gl"
+import { useMemo } from "react"
+import { FillPaint } from "mapbox-gl"
 
 export type FillLayerProps = {
     layerId: string
@@ -27,11 +27,11 @@ export const FillLayer: React.FC<FillLayerProps> = ({ layerId, sourceId, sourceL
                 type={"fill"}
                 paint={fill}
                 layout={{
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['==', ['geometry-type'], 'Polygon']}
+                filter={["==", ["geometry-type"], "Polygon"]}
                 {...{
-                    'source-layer': sourceLayer,
+                    "source-layer": sourceLayer,
                 }}
             />
         </>

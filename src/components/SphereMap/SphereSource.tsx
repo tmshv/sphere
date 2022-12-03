@@ -1,8 +1,8 @@
-import { memo } from "react";
-import { Source, SourceProps } from "react-map-gl";
-import { useAppSelector } from "@/store/hooks";
-import { SourceType } from "@/types";
-import { assertUnreachable } from "@/lib";
+import { memo } from "react"
+import { Source, SourceProps } from "react-map-gl"
+import { useAppSelector } from "@/store/hooks"
+import { SourceType } from "@/types"
+import { assertUnreachable } from "@/lib"
 export type SphereSourceProps = {
     id: string
 }
@@ -48,7 +48,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
 
     return (
         <Source {...source} />
-    );
+    )
 })
 
 SphereSource.displayName = "SphereSource"

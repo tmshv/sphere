@@ -1,17 +1,17 @@
-import { useMap } from "react-map-gl";
-import { ActionIcon, Badge, createStyles } from '@mantine/core';
-import { Statusbar } from '@/ui/Statusbar';
-import { useCursor } from "@/hooks/useCursor";
-import { useZoom } from "@/hooks/useZoom";
-import { usePitch } from "@/hooks/usePitch";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { selectSourcesAmount } from "@/store/source";
-import { IconLayoutSidebar, IconLiveView, IconMountain, IconMountainOff, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons";
-import { actions } from "@/store";
-import { selectChangeProjectionAvailable, selectProjection } from "@/store/projection";
-import { selectShowLeftSidebar, selectVersion } from "@/store/app";
-import { selectIsShowTerrain } from "@/store/terrain";
-import { selectErrorMessage } from "@/store/error";
+import { useMap } from "react-map-gl"
+import { ActionIcon, Badge, createStyles } from "@mantine/core"
+import { Statusbar } from "@/ui/Statusbar"
+import { useCursor } from "@/hooks/useCursor"
+import { useZoom } from "@/hooks/useZoom"
+import { usePitch } from "@/hooks/usePitch"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { selectSourcesAmount } from "@/store/source"
+import { IconLayoutSidebar, IconLiveView, IconMountain, IconMountainOff, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons"
+import { actions } from "@/store"
+import { selectChangeProjectionAvailable, selectProjection } from "@/store/projection"
+import { selectShowLeftSidebar, selectVersion } from "@/store/app"
+import { selectIsShowTerrain } from "@/store/terrain"
+import { selectErrorMessage } from "@/store/error"
 
 const useStyle = createStyles(theme => ({
     s: {
@@ -20,7 +20,7 @@ const useStyle = createStyles(theme => ({
     icon: {
         "&:hover": {
             backgroundColor: theme.colors.gray[8],
-        }
+        },
     },
     active: {
         backgroundColor: theme.colors.gray[8],
@@ -93,7 +93,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
     return (
         <Statusbar>
-            <ActionIcon size={'xs'} className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
+            <ActionIcon size={"xs"} className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
                 if (sidebar) {
                     dispatch(actions.app.hideLeftSidebar())
                 } else {
@@ -119,23 +119,23 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
             <div className={s.s}></div>
 
-            <ActionIcon size={'xs'} className={s.icon} onClick={() => {
+            <ActionIcon size={"xs"} className={s.icon} onClick={() => {
                 dispatch(actions.map.printViewport({ mapId: "spheremap" }))
             }}>
                 <IconLiveView size={16} />
             </ActionIcon>
 
-            <ActionIcon size={'xs'} className={s.icon} onClick={() => {
+            <ActionIcon size={"xs"} className={s.icon} onClick={() => {
                 dispatch(actions.map.resetNorth({ mapId: "spheremap" }))
             }}>
                 <IconNorthStar size={16} />
             </ActionIcon>
-            <ActionIcon size={'xs'} className={cx(s.icon)} onClick={() => {
+            <ActionIcon size={"xs"} className={cx(s.icon)} onClick={() => {
                 dispatch(actions.mapStyle.setSatellite())
             }}>
                 <IconSatellite size={16} />
             </ActionIcon>
-            <ActionIcon size={'xs'} className={cx(s.icon)} onClick={() => {
+            <ActionIcon size={"xs"} className={cx(s.icon)} onClick={() => {
                 dispatch(actions.terrain.toggle())
             }}>
                 {terrain ? (
@@ -145,15 +145,15 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 )}
             </ActionIcon>
             <ActionIcon
-                size={'xs'}
+                size={"xs"}
                 className={s.icon}
                 color={isGlobe ? "yellow" : undefined}
                 disabled={!changeProjection}
                 sx={{
                     "&[data-disabled]": {
-                        backgroundColor: '#00000000',
-                        border: 'none',
-                    }
+                        backgroundColor: "#00000000",
+                        border: "none",
+                    },
                 }}
                 onClick={() => {
                     if (isGlobe) {
@@ -172,5 +172,5 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
             <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>
         </Statusbar>
-    );
+    )
 }
