@@ -1,4 +1,4 @@
-import mapboxgl from "mapbox-gl";
+import mapboxgl from "mapbox-gl"
 
 const store = new Map<string, mapboxgl.Map>()
 

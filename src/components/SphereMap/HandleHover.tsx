@@ -1,8 +1,8 @@
-import { useMap } from "react-map-gl";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { actions } from "@/store";
-import { selectVisibleLayerIds } from "@/store/layer";
+import { useMap } from "react-map-gl"
+import { useEffect } from "react"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { actions } from "@/store"
+import { selectVisibleLayerIds } from "@/store/layer"
 
 export type HandleHoverProps = {
     mapId: string
@@ -33,12 +33,12 @@ export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
             }))
         }
 
-        map.on('mouseenter', layerIds, enter)
-        map.on('mouseleave', layerIds, leave)
+        map.on("mouseenter", layerIds, enter)
+        map.on("mouseleave", layerIds, leave)
 
         return () => {
-            map.off('mouseenter', layerIds, enter)
-            map.off('mouseleave', layerIds, leave)
+            map.off("mouseenter", layerIds, enter)
+            map.off("mouseleave", layerIds, leave)
         }
     }, [ref, mapId, layerIds])
 

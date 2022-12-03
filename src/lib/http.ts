@@ -1,4 +1,4 @@
-import { getClient } from "@tauri-apps/api/http";
+import { getClient } from "@tauri-apps/api/http"
 
 type OkResponse<T> = {
     ok: true
@@ -12,8 +12,8 @@ type ErrorResponse = {
 
 export async function get<T = any>(url: string): Promise<ErrorResponse | OkResponse<T>> {
     try {
-        const client = await getClient();
-        const response = await client.get<T>(url);
+        const client = await getClient()
+        const response = await client.get<T>(url)
 
         if (response.ok) {
             return {
@@ -23,12 +23,12 @@ export async function get<T = any>(url: string): Promise<ErrorResponse | OkRespo
         } else if (response.status === 404) {
             return {
                 ok: false,
-                error: 'Not found'
+                error: "Not found",
             }
         } else {
             return {
                 ok: false,
-                error: 'Unknown'
+                error: "Unknown",
             }
         }
     } catch (error) {
@@ -37,13 +37,13 @@ export async function get<T = any>(url: string): Promise<ErrorResponse | OkRespo
         if (e.startsWith("Network Error")) {
             return {
                 ok: false,
-                error: 'Offline'
+                error: "Offline",
             }
         }
 
         return {
             ok: false,
-            error: 'Unknown'
+            error: "Unknown",
         }
     }
 }

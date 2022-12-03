@@ -1,6 +1,6 @@
-import { Layer } from "react-map-gl";
-import { useMemo } from "react";
-import { LinePaint } from "mapbox-gl";
+import { Layer } from "react-map-gl"
+import { useMemo } from "react"
+import { LinePaint } from "mapbox-gl"
 
 export type LineStringLayerProps = {
     layerId: string
@@ -29,10 +29,10 @@ export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourc
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
                 {...{
-                    'source-layer': sourceLayer,
+                    "source-layer": sourceLayer,
                 }}
             />
         </>

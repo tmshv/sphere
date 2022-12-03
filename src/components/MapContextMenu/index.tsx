@@ -1,8 +1,8 @@
-import { CopyButton, Menu, Text } from '@mantine/core';
-import { IconCopy, IconSearch } from '@tabler/icons';
-import { useMap } from 'react-map-gl';
-import { useCursor } from '../../hooks/useCursor';
-import { ContextMenu } from "../../ui/ContextMenu";
+import { CopyButton, Menu, Text } from "@mantine/core"
+import { IconCopy, IconSearch } from "@tabler/icons"
+import { useMap } from "react-map-gl"
+import { useCursor } from "../../hooks/useCursor"
+import { ContextMenu } from "../../ui/ContextMenu"
 
 export type LocationToString = (coord: [number, number]) => string
 
@@ -50,5 +50,5 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
             {/* <Menu.Item icon={<IconArrowsLeftRight size={14} />}>Transfer my data</Menu.Item> */}
             {/* <Menu.Item color="red" icon={<IconTrash size={14} />}>Delete my account</Menu.Item> */}
         </ContextMenu>
-    );
+    )
 }

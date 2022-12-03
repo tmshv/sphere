@@ -1,6 +1,6 @@
-import { ActionIcon, Flex, MantineStyleSystemProps, Space, Tooltip } from '@mantine/core';
-import type { FloatingPosition } from '@mantine/core/lib/Floating';
-import { TablerIconProps } from '@tabler/icons';
+import { ActionIcon, Flex, MantineStyleSystemProps, Space, Tooltip } from "@mantine/core"
+import type { FloatingPosition } from "@mantine/core/lib/Floating"
+import { TablerIconProps } from "@tabler/icons"
 
 export type ActionBarItem = {
     name: string,
@@ -40,7 +40,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
                 >
                     <ActionIcon size={"md"} disabled={disabled}
                         sx={{
-                            '&[data-disabled]': {
+                            "&[data-disabled]": {
                                 opacity: 0.5,
                                 backgroundColor: "#00000000",
                                 border: "none",
@@ -56,4 +56,4 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
             )
         })}
     </Flex>
-);
+)

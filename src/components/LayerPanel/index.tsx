@@ -1,9 +1,9 @@
-import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy } from '@tabler/icons';
-import { LayerType, SourceType } from "@/types";
-import { actions } from "@/store";
-import { ActionBar } from "@/ui/ActionBar";
+import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy } from "@tabler/icons"
+import { LayerType, SourceType } from "@/types"
+import { actions } from "@/store"
+import { ActionBar } from "@/ui/ActionBar"
 
 type Option = {
     value: string
@@ -191,17 +191,17 @@ export const LayerPanel: React.FC = () => {
                 placeholder="Pick one"
                 value={type}
                 data={[
-                    { value: LayerType.Point, label: 'Points' },
-                    { value: LayerType.Line, label: 'Lines' },
-                    { value: LayerType.Polygon, label: 'Polygons' },
-                    { value: LayerType.Photo, label: 'Photos' },
-                    { value: LayerType.Heatmap, label: 'Heatmap' },
+                    { value: LayerType.Point, label: "Points" },
+                    { value: LayerType.Line, label: "Lines" },
+                    { value: LayerType.Polygon, label: "Polygons" },
+                    { value: LayerType.Photo, label: "Photos" },
+                    { value: LayerType.Heatmap, label: "Heatmap" },
                 ]}
                 onChange={value => {
                     if (value) {
                         dispatch(actions.layer.setType({
                             id: layerId,
-                            type: value as LayerType
+                            type: value as LayerType,
                         }))
                     }
                 }}

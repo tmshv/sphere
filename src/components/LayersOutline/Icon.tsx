@@ -1,5 +1,5 @@
-import { IconPolygon, IconPoint, IconLine, IconFlame, IconPhoto } from '@tabler/icons';
-import { LayerType } from "@/types";
+import { IconPolygon, IconPoint, IconLine, IconFlame, IconPhoto } from "@tabler/icons"
+import { LayerType } from "@/types"
 
 export type IconProps = {
     type?: LayerType

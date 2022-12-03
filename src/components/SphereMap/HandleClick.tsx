@@ -1,9 +1,9 @@
-import { useMap } from "react-map-gl";
-import { useEffect } from "react";
-import mapboxgl, { Point } from "mapbox-gl";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { actions } from "@/store";
-import { selectVisibleLayerIds } from "@/store/layer";
+import { useMap } from "react-map-gl"
+import { useEffect } from "react"
+import mapboxgl, { Point } from "mapbox-gl"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { actions } from "@/store"
+import { selectVisibleLayerIds } from "@/store/layer"
 
 export function queryFeaturesInPoint(map: mapboxgl.Map, point: Point, layers: string[]) {
     const size = 8
@@ -49,10 +49,10 @@ export const HandleClick: React.FC<HandleClickProps> = ({ }) => {
             }
         }
 
-        map.on('click', handler)
+        map.on("click", handler)
 
         return () => {
-            map.off('click', handler)
+            map.off("click", handler)
         }
     }, [ref, layerIds])
 

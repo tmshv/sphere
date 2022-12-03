@@ -1,5 +1,5 @@
-import { useMap } from "react-map-gl";
-import { useEffect } from "react";
+import { useMap } from "react-map-gl"
+import { useEffect } from "react"
 
 export type FogProps = {
     mapId: string
@@ -22,7 +22,7 @@ export const Fog: React.FC<FogProps> = ({ mapId }) => {
                 // 'high-color': '#add8e6',
                 // 'space-color': '#d8f2ff',
                 // 'star-intensity': 0.0
-            });
+            })
         }
 
         if (map.isStyleLoaded()) {
@@ -34,10 +34,10 @@ export const Fog: React.FC<FogProps> = ({ mapId }) => {
             }
         }
 
-        map.on('load', cb)
+        map.on("load", cb)
 
         return () => {
-            map.off('load', cb)
+            map.off("load", cb)
             if (map.isStyleLoaded()) {
                 map.setFog(null as any)
             }

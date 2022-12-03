@@ -1,5 +1,5 @@
-import { Accordion } from '@mantine/core';
-import type { AccordionProps } from '@mantine/core';
+import { Accordion } from "@mantine/core"
+import type { AccordionProps } from "@mantine/core"
 
 export type StyledAccordionProps = Omit<AccordionProps, "value" | "onChange" | "multiple" | "style" | "defaultValue"> & {
     value: string[]
@@ -42,4 +42,4 @@ export const StyledAccordion: React.FC<StyledAccordionProps> = ({ value, onChang
             },
         })}
     />
-);
+)

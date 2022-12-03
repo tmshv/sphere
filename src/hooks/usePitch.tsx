@@ -1,5 +1,5 @@
-import { MapRef, ViewStateChangeEvent } from "react-map-gl";
-import { useEffect, useState } from "react";
+import { MapRef, ViewStateChangeEvent } from "react-map-gl"
+import { useEffect, useState } from "react"
 
 export function usePitch(ref?: MapRef): number {
     const [value, setValue] = useState<number>(0)

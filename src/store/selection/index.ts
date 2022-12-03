@@ -1,8 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '..'
-import { DatasetRow, Id, SourceType } from '@/types'
-import { layerSlice } from '../layer'
+import { createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { RootState } from ".."
+import { DatasetRow, Id, SourceType } from "@/types"
+import { layerSlice } from "../layer"
 
 // Define a type for the slice state
 type SelectionState = {
@@ -17,7 +17,7 @@ const initialState: SelectionState = {
 }
 
 export const selectionSlice = createSlice({
-    name: 'selection',
+    name: "selection",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {

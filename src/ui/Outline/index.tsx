@@ -1,9 +1,9 @@
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Card } from './Card'
-import { Flex } from '@mantine/core'
-import { OutlineItem } from './OutlineItem'
-import { Fragment } from 'react'
+import { DndProvider } from "react-dnd"
+import { HTML5Backend } from "react-dnd-html5-backend"
+import { Card } from "./Card"
+import { Flex } from "@mantine/core"
+import { OutlineItem } from "./OutlineItem"
+import { Fragment } from "react"
 
 // export type OutlineOnMove = (dragIndex: number, hoverIndex: number) => void
 export type OutlineOnMove<T> = (drag: T, hover: T) => void

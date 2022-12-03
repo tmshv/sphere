@@ -25,6 +25,6 @@ export const parseCsv: FileParser = async raw => {
             pointsCount: features.length,
             linesCount: 0,
             polygonsCount: 0,
-        }
+        },
     ]
 }

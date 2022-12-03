@@ -1,6 +1,6 @@
-import { Layer } from "react-map-gl";
-import { useMemo } from "react";
-import { LinePaint } from "mapbox-gl";
+import { Layer } from "react-map-gl"
+import { useMemo } from "react"
+import { LinePaint } from "mapbox-gl"
 
 export type SphereLineStringLayerProps = {
     layerId: string
@@ -38,9 +38,9 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['==', ['geometry-type'], 'LineString']}
+                filter={["==", ["geometry-type"], "LineString"]}
             />
             <Layer
                 id={layerId}
@@ -50,9 +50,9 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['==', ['geometry-type'], 'LineString']}
+                filter={["==", ["geometry-type"], "LineString"]}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -62,9 +62,9 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none"
+                    visibility: visible ? "visible" : "none",
                 }}
-                filter={['in', 'in', '']}
+                filter={["in", "in", ""]}
             />
         </>
     )

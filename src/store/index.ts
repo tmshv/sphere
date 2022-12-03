@@ -1,16 +1,16 @@
-import { configureStore } from '@reduxjs/toolkit'
-import projection from './projection'
-import mapStyle from './mapStyle'
-import fog from './fog'
-import terrain from './terrain'
-import source from './source'
-import layer from './layer'
-import selection from './selection'
-import app from './app'
-import draw from './draw'
-import { listener as mapListener } from './map'
-import error from './error'
-import * as listeners from './listeners'
+import { configureStore } from "@reduxjs/toolkit"
+import projection from "./projection"
+import mapStyle from "./mapStyle"
+import fog from "./fog"
+import terrain from "./terrain"
+import source from "./source"
+import layer from "./layer"
+import selection from "./selection"
+import app from "./app"
+import draw from "./draw"
+import { listener as mapListener } from "./map"
+import error from "./error"
+import * as listeners from "./listeners"
 export { actions } from "./actions"
 
 export const store = configureStore({

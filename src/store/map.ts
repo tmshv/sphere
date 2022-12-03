@@ -1,6 +1,6 @@
-import { getMap } from '@/map'
-import { createAction, createListenerMiddleware } from '@reduxjs/toolkit'
-import mapboxgl from 'mapbox-gl'
+import { getMap } from "@/map"
+import { createAction, createListenerMiddleware } from "@reduxjs/toolkit"
+import mapboxgl from "mapbox-gl"
 
 type WithMapId = {
     mapId: string

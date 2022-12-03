@@ -1,35 +1,34 @@
-import { Menu } from '@mantine/core';
-import { useEffect, useState } from "react";
-import { useToggle } from '@mantine/hooks';
+import { Menu } from "@mantine/core"
+import { useEffect, useState } from "react"
+import { useToggle } from "@mantine/hooks"
 
 export type ContextMenuProps = {
     children: React.ReactNode
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
-    const [showContext, toggleShowContext] = useToggle<boolean>();
-    const [contextCoord, setContextCoord] = useState<[number, number]>([0, 0]);
+    const [showContext, toggleShowContext] = useToggle<boolean>()
+    const [contextCoord, setContextCoord] = useState<[number, number]>([0, 0])
 
     useEffect(() => {
-        return
         const callback = (event: MouseEvent) => {
-            const xPos = event.pageX;
-            const yPos = event.pageY;
+            const xPos = event.pageX
+            const yPos = event.pageY
 
             toggleShowContext(true)
             setContextCoord([xPos, yPos])
-            event.preventDefault();
-            return false;
+            event.preventDefault()
+            return false
         }
 
         document.addEventListener("contextmenu", callback, {
-            capture: true
-        });
+            capture: true,
+        })
 
         return () => {
             document.removeEventListener("contextmenu", callback, {
-                capture: true
-            });
+                capture: true,
+            })
         }
     }, [])
 
@@ -57,5 +56,5 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
                 {children}
             </Menu.Dropdown>
         </Menu>
-    );
+    )
 }

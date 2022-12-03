@@ -1,8 +1,8 @@
-import { createAction, createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '..'
-import { Id, LayerType } from '@/types'
-import { sourceSlice } from '../source'
+import { createAction, createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { RootState } from ".."
+import { Id, LayerType } from "@/types"
+import { sourceSlice } from "../source"
 
 type Layer = {
     id: Id
@@ -37,7 +37,7 @@ const initialState: LayerState = {
 }
 
 export const layerSlice = createSlice({
-    name: 'layer',
+    name: "layer",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
@@ -117,7 +117,7 @@ export const layerSlice = createSlice({
                     }
                 }
             })
-    }
+    },
 })
 
 export const addBlankLayer = createAction<string | undefined>("layer/addBlankLayer")

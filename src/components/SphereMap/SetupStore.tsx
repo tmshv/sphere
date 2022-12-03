@@ -1,6 +1,6 @@
-import { useMap } from "react-map-gl";
-import { useEffect } from "react";
-import { removeMap, setMap } from "@/map";
+import { useMap } from "react-map-gl"
+import { useEffect } from "react"
+import { removeMap, setMap } from "@/map"
 
 export type SetupStoreProps = {
     mapId: string
@@ -26,10 +26,10 @@ export const SetupStore: React.FC<SetupStoreProps> = ({ mapId }) => {
             }
         }
 
-        map.on('load', handler)
+        map.on("load", handler)
 
         return () => {
-            map.off('load', handler)
+            map.off("load", handler)
             removeMap(mapId)
         }
     }, [ref, mapId])

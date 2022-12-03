@@ -1,9 +1,9 @@
-import { writeText } from '@tauri-apps/api/clipboard';
-import { SpotlightProvider } from '@mantine/spotlight';
-import { IconSearch, IconCopy, IconZoomReset } from '@tabler/icons';
-import { useMap } from 'react-map-gl';
-import { useAppDispatch } from '../../store/hooks';
-import { actions } from '../../store';
+import { writeText } from "@tauri-apps/api/clipboard"
+import { SpotlightProvider } from "@mantine/spotlight"
+import { IconSearch, IconCopy, IconZoomReset } from "@tabler/icons"
+import { useMap } from "react-map-gl"
+import { useAppDispatch } from "../../store/hooks"
+import { actions } from "../../store"
 
 export type SpotlightProps = {
     mapId: string
@@ -18,29 +18,29 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
         <SpotlightProvider
             actions={[
                 {
-                    title: 'OSM',
-                    description: 'Set OSM map style',
+                    title: "OSM",
+                    description: "Set OSM map style",
                     onTrigger: () => {
                         dispatch(actions.mapStyle.setOsm())
                     },
                 },
                 {
-                    title: 'Toggle Dark Theme',
-                    description: 'Set Dark or Light theme',
+                    title: "Toggle Dark Theme",
+                    description: "Set Dark or Light theme",
                     onTrigger: () => {
                         dispatch(actions.app.toggleDarkTheme())
                     },
                 },
                 {
-                    title: 'Toggle Zen',
-                    description: 'Set Zen mode nn or off',
+                    title: "Toggle Zen",
+                    description: "Set Zen mode nn or off",
                     onTrigger: () => {
                         dispatch(actions.app.toggleZenMode())
                     },
                 },
                 {
-                    title: 'Earth',
-                    description: 'Set Earth map view',
+                    title: "Earth",
+                    description: "Set Earth map view",
                     onTrigger: () => {
                         dispatch(actions.terrain.show())
                         dispatch(actions.fog.show())
@@ -49,8 +49,8 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     },
                 },
                 {
-                    title: 'Simple',
-                    description: 'Set simple map view',
+                    title: "Simple",
+                    description: "Set simple map view",
                     onTrigger: () => {
                         dispatch(actions.terrain.hide())
                         dispatch(actions.fog.hide())
@@ -59,50 +59,50 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     },
                 },
                 {
-                    title: 'Fog',
-                    description: 'Toggle fog',
+                    title: "Fog",
+                    description: "Toggle fog",
                     onTrigger: () => {
                         dispatch(actions.fog.toggle())
                     },
                 },
                 {
-                    title: 'Terrain',
-                    description: 'Toggle terrain',
+                    title: "Terrain",
+                    description: "Toggle terrain",
                     onTrigger: () => {
                         dispatch(actions.terrain.toggle())
                     },
                 },
                 {
-                    title: 'Vector',
-                    description: 'Set vector map style',
+                    title: "Vector",
+                    description: "Set vector map style",
                     onTrigger: () => {
                         dispatch(actions.mapStyle.setVector())
                     },
                 },
                 {
-                    title: 'Satellite',
-                    description: 'Set satellite map style',
+                    title: "Satellite",
+                    description: "Set satellite map style",
                     onTrigger: () => {
                         dispatch(actions.mapStyle.setSatellite())
                     },
                 },
                 {
-                    title: 'Globe',
-                    description: 'Set Globe projection',
+                    title: "Globe",
+                    description: "Set Globe projection",
                     onTrigger: () => {
                         dispatch(actions.projection.setGlobe())
                     },
                 },
                 {
-                    title: 'Flat',
-                    description: 'Set Mercator projection',
+                    title: "Flat",
+                    description: "Set Mercator projection",
                     onTrigger: () => {
                         dispatch(actions.projection.setFlat())
                     },
                 },
                 {
-                    title: 'Copy viewport',
-                    description: 'Copy current viewport state as JSON',
+                    title: "Copy viewport",
+                    description: "Copy current viewport state as JSON",
                     onTrigger: async () => {
                         const map = ref?.getMap()
                         if (!map) {
@@ -123,13 +123,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                         }
                         const data = JSON.stringify(payload, null, 4)
 
-                        await writeText(data);
+                        await writeText(data)
                     },
                     icon: <IconCopy size={18} />,
                 },
                 {
-                    title: 'Reset rotation',
-                    description: 'Set pitch and bearing to 0',
+                    title: "Reset rotation",
+                    description: "Set pitch and bearing to 0",
                     onTrigger: async () => {
                         const map = ref?.getMap()
                         if (!map) {
@@ -149,5 +149,5 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
         >
             {children}
         </SpotlightProvider>
-    );
+    )
 }

@@ -1,6 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { RootState } from '.'
-import { selectIsDrawing } from './draw'
+import { createSlice } from "@reduxjs/toolkit"
+import { RootState } from "."
+import { selectIsDrawing } from "./draw"
 
 // Define a type for the slice state
 type ProjectionState = {
@@ -13,7 +13,7 @@ const initialState: ProjectionState = {
 }
 
 export const projectionSlice = createSlice({
-    name: 'projection',
+    name: "projection",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {

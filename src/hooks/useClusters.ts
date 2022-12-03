@@ -1,8 +1,8 @@
-import type { Feature, Point, BBox } from 'geojson'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useMap } from 'react-map-gl'
-import Supercluster from 'supercluster'
-import { useMapboxEvent } from './useMapboxEvent'
+import type { Feature, Point, BBox } from "geojson"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useMap } from "react-map-gl"
+import Supercluster from "supercluster"
+import { useMapboxEvent } from "./useMapboxEvent"
 
 type DefaultFeatureProperties = {
     [key: string]: any

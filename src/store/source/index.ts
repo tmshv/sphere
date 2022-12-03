@@ -1,11 +1,11 @@
-import { createAction, createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { addFromFile, addFromFiles, } from './add'
-import { addFromUrl } from './addFromUrl'
-import { showProperties } from './showProperties'
-import { RootState } from '..'
-import { drawSlice } from '../draw'
-import { Id, SourceMetadata, SourceType } from '@/types'
+import { createAction, createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { addFromFile, addFromFiles } from "./add"
+import { addFromUrl } from "./addFromUrl"
+import { showProperties } from "./showProperties"
+import { RootState } from ".."
+import { drawSlice } from "../draw"
+import { Id, SourceMetadata, SourceType } from "@/types"
 
 type GeojsonSource = {
     type: SourceType.Geojson
@@ -18,7 +18,7 @@ type GeojsonSource = {
 type VectorSource = {
     type: SourceType.MVT
     location: string
-    // layers: 
+    // layers:
     editable: false
     sourceLayers: { id: string, name: string }[]
     pending: false
@@ -27,7 +27,7 @@ type VectorSource = {
 type RasterSource = {
     type: SourceType.Raster
     location: string
-    // layers: 
+    // layers:
     editable: false
     pending: false
 }
@@ -78,7 +78,7 @@ const initialState: SourceState = {
 }
 
 export const sourceSlice = createSlice({
-    name: 'source',
+    name: "source",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
@@ -222,7 +222,7 @@ export const actions = {
     addFromFiles,
     addFromFile,
     addFromUrl,
-    showProperties
+    showProperties,
 }
 
 // Other code such as selectors can use the imported `RootState` type

@@ -1,5 +1,4 @@
-import React from "react";
-import { createStyles } from "@mantine/core";
+import { createStyles } from "@mantine/core"
 
 const useStyles = createStyles(theme => ({
     table: {
@@ -39,5 +38,5 @@ export const PropertiesViewer: React.FC<PropertiesViewerProps> = ({ properties }
                 ))}
             </tbody>
         </table>
-    );
+    )
 }

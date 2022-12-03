@@ -1,10 +1,10 @@
-import { ClustersOptions, useClusters } from '@/hooks/useClusters'
-import { useAppSelector } from '@/store/hooks'
-import { SourceType } from '@/types'
-import { ImageMarker } from '@/ui/ImageMarker'
-import { createStyles } from '@mantine/core'
-import { useCallback, useMemo } from 'react'
-import { Marker } from 'react-map-gl'
+import { ClustersOptions, useClusters } from "@/hooks/useClusters"
+import { useAppSelector } from "@/store/hooks"
+import { SourceType } from "@/types"
+import { ImageMarker } from "@/ui/ImageMarker"
+import { createStyles } from "@mantine/core"
+import { useCallback, useMemo } from "react"
+import { Marker } from "react-map-gl"
 
 const useStyle = createStyles(theme => ({
     badge: {
@@ -32,7 +32,7 @@ export const Badge: React.FC<BadgeProps> = ({ top, right, children }) => {
         <div
             className={s.badge}
             style={{
-                position: 'absolute',
+                position: "absolute",
                 top: top ?? 0,
                 right: right ?? 0,
             }}
@@ -90,7 +90,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
                     <ImageMarker
                         src={url}
                         size={iconSizeCluster ?? iconSize}
-                        layout={'circle'}
+                        layout={"circle"}
                     >
                         <Badge
                             top={-6}
@@ -106,14 +106,14 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
         const { src } = getImage(feature.properties!)
 
         return (
-            <div key={id} style={{ position: 'relative', zIndex: 0, }}>
+            <div key={id} style={{ position: "relative", zIndex: 0 }}>
                 <Marker
                     longitude={lng} latitude={lat}
                 >
                     <ImageMarker
                         src={src}
                         size={iconSize}
-                        layout={'circle'}
+                        layout={"circle"}
                     />
                 </Marker>
             </div>
@@ -130,7 +130,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
                 const { src, value } = getImage(p)
                 return {
                     value,
-                    url: src ?? '',
+                    url: src ?? "",
                 }
             }}
         />
@@ -164,7 +164,7 @@ const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapProperties
             }
         },
     }), [radius, mapProperties])
-    const { clusters } = useClusters<Props, Props>("spheremap", data, 'moveend', options)
+    const { clusters } = useClusters<Props, Props>("spheremap", data, "moveend", options)
 
     return (
         <>
