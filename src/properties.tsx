@@ -7,6 +7,7 @@ import { createColumnHelper, ColumnDef } from '@tanstack/react-table'
 import { Box, createStyles } from "@mantine/core";
 import { ThemeProvider } from "./ui/ThemeProvider";
 import { PropertesTable, PropertyItem, PropertyItemMeta } from "./ui/PropertiesTable";
+import { hist } from "./lib/stat";
 
 function isInt(n: number): boolean {
     return n % 1 === 0;
@@ -58,32 +59,6 @@ function predictType<K extends string>(key: K, samples: Record<K | string, any>[
     }
 
     return "unknown"
-}
-
-/**
- * linear interpolation of v in [min, max] range to [a, b] range
- * @param v input value
- * @param min min range of value
- * @param max max range of value
- * @param a min value of output range
- * @param b max value of output range
- */
-function lerp(v: number, min: number, max: number, a: number, b: number): number {
-    const range = max - min
-    const ratio = (v - min) / range
-    return a + (b - a) * ratio
-}
-
-function calcHistogram(values: number[], bins: number): number[] {
-    const min = Math.min(...values)
-    const max = Math.max(...values)
-    const result: number[] = Array(bins).fill(0)
-    for (let i = 0; i < values.length; i++) {
-        const v = values[i]
-        const r = Math.floor(lerp(v, min, max, 0, bins - 1))
-        result[r] += 1
-    }
-    return result
 }
 
 function useEvent<T>(eventName: string) {
@@ -156,15 +131,14 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 const min = Math.min(...n)
                 const max = Math.max(...n)
                 const mean = 0
-                const hist = !isNaN(max) && !isNaN(min)
-                    ? calcHistogram(n, bins)
-                    : undefined
                 acc[key] = {
                     type,
                     min,
                     max,
                     mean,
-                    hist,
+                    hist: !isNaN(max) && !isNaN(min)
+                        ? hist(n, bins)
+                        : undefined,
                 }
                 break
             }
@@ -173,15 +147,14 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 const min = Math.min(...n)
                 const max = Math.max(...n)
                 const mean = 0
-                const hist = !isNaN(max) && !isNaN(min)
-                    ? calcHistogram(n, bins)
-                    : undefined
                 acc[key] = {
                     type,
                     min,
                     max,
                     mean,
-                    hist,
+                    hist: !isNaN(max) && !isNaN(min)
+                        ? hist(n, bins)
+                        : undefined,
                 }
                 break
             }
