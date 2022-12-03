@@ -1,4 +1,4 @@
-import { Box, createStyles } from "@mantine/core";
+import { Box, createStyles } from "@mantine/core"
 
 const useStyles = createStyles(theme => ({
     container: {
@@ -84,5 +84,5 @@ export const Overlay: React.FC<OverlayProps> = ({ topLeft, left, right, top, bot
                 </Box>
             )}
         </Box>
-    );
+    )
 }

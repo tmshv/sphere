@@ -1,26 +1,26 @@
-import { Center, createStyles, Flex, UnstyledButton } from '@mantine/core'
-import { MouseEventHandler, ReactNode } from 'react'
+import { Center, createStyles, Flex, UnstyledButton } from "@mantine/core"
+import { MouseEventHandler, ReactNode } from "react"
 
 const useStyle = createStyles(theme => ({
     button: {
         flex: 1,
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
-        overflow: 'hidden',
+        overflow: "hidden",
 
         borderRadius: theme.radius.sm,
         paddingLeft: theme.spacing.sm,
         paddingRight: theme.spacing.xs,
 
-        color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+        color: theme.colorScheme === "dark" ? theme.white : theme.black,
+        backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
 
         // fontSize: theme.fontSizes.sm,
         fontSize: theme.fontSizes.xs,
 
         "&:hover": {
-            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-        }
+            backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
+        },
     },
     active: {
         backgroundColor: theme.colors.blue[7],
@@ -28,7 +28,7 @@ const useStyle = createStyles(theme => ({
 
         "&:hover": {
             backgroundColor: theme.colors.blue[6],
-        }
+        },
     },
 }))
 

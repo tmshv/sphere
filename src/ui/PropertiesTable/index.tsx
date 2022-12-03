@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from '@tanstack/react-table'
-import { ActionIcon, Badge, Box, createStyles, Flex, Image, Pagination, Select, Tooltip } from "@mantine/core";
-import { format } from 'date-fns'
-import { IconArrowDown, IconArrowUp, IconPhoto, IconPhotoOff } from '@tabler/icons';
-import { BarChart } from './BarChart';
+import { useState } from "react"
+import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from "@tanstack/react-table"
+import { ActionIcon, Badge, Box, createStyles, Flex, Image, Pagination, Select, Tooltip } from "@mantine/core"
+import { format } from "date-fns"
+import { IconArrowDown, IconArrowUp, IconPhoto, IconPhotoOff } from "@tabler/icons"
+import { BarChart } from "./BarChart"
 
 type StringPropertyMeta = {
-    type: 'string'
+    type: "string"
     unique: number
 }
 
 type IntPropertyMeta = {
-    type: 'int'
+    type: "int"
     min?: number
     max?: number
     mean?: number
@@ -19,7 +19,7 @@ type IntPropertyMeta = {
 }
 
 type FloatPropertyMeta = {
-    type: 'float'
+    type: "float"
     min?: number
     max?: number
     mean?: number
@@ -27,7 +27,7 @@ type FloatPropertyMeta = {
 }
 
 export type PropertyItemMeta = StringPropertyMeta | IntPropertyMeta | FloatPropertyMeta | {
-    type: 'url' | 'date' | "empty" | "mixed" | "unknown"
+    type: "url" | "date" | "empty" | "mixed" | "unknown"
 }
 
 export type PropertyItem = Record<string, any>
@@ -44,39 +44,39 @@ const Filter: React.FC<FilterProps> = ({ column, table }) => {
 
     const columnFilterValue = column.getFilterValue()
 
-    return typeof firstValue === 'number' ? (
+    return typeof firstValue === "number" ? (
         <div className="flex space-x-2">
             <input
                 type="number"
-                value={(columnFilterValue as [number, number])?.[0] ?? ''}
+                value={(columnFilterValue as [number, number])?.[0] ?? ""}
                 onChange={e =>
                     column.setFilterValue((old: [number, number]) => [
                         e.target.value,
                         old?.[1],
                     ])
                 }
-                placeholder={`Min`}
+                placeholder={"Min"}
             // className="w-24 border shadow rounded"
             />
             <input
                 type="number"
-                value={(columnFilterValue as [number, number])?.[1] ?? ''}
+                value={(columnFilterValue as [number, number])?.[1] ?? ""}
                 onChange={e =>
                     column.setFilterValue((old: [number, number]) => [
                         old?.[0],
                         e.target.value,
                     ])
                 }
-                placeholder={`Max`}
+                placeholder={"Max"}
             // className="w-24 border shadow rounded"
             />
         </div>
     ) : (
         <input
             type="text"
-            value={(columnFilterValue ?? '') as string}
+            value={(columnFilterValue ?? "") as string}
             onChange={e => column.setFilterValue(e.target.value)}
-            placeholder={`Search...`}
+            placeholder={"Search..."}
         // className="w-36 border shadow rounded"
         />
     )
@@ -84,22 +84,22 @@ const Filter: React.FC<FilterProps> = ({ column, table }) => {
 
 const useStyle = createStyles(theme => ({
     table: {
-        borderCollapse: 'collapse',
+        borderCollapse: "collapse",
         border: `1px solid ${theme.colors.gray[1]}`,
     },
     thead: {
-        position: 'sticky',
+        position: "sticky",
         top: 0,
     },
     tr: {
         margin: 0,
     },
     th: {
-        position: 'relative',
+        position: "relative",
         border: `1px solid ${theme.colors.gray[1]}`,
 
-        cursor: 'default',
-        userSelect: 'none',
+        cursor: "default",
+        userSelect: "none",
 
         // height: 30,
         padding: 0,
@@ -110,7 +110,7 @@ const useStyle = createStyles(theme => ({
         padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
     },
     resizer: {
-        position: 'absolute',
+        position: "absolute",
         right: -3,
         top: theme.spacing.xs,
         height: `calc(100% - ${theme.spacing.xs}px * 2)`,
@@ -120,16 +120,16 @@ const useStyle = createStyles(theme => ({
         zIndex: 1,
         background: theme.primaryColor,
         opacity: 0,
-        '&:hover': {
+        "&:hover": {
             opacity: 0.5,
-        }
+        },
     },
     resizing: {
         opacity: 0.5,
     },
     mixedItem: {
         marginRight: theme.spacing.xs,
-    }
+    },
 }))
 
 type PropertyTableProps = {
@@ -145,7 +145,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
     const table = useReactTable({
         data,
         columns,
-        columnResizeMode: 'onChange',
+        columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
         // getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -157,7 +157,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
     })
 
     return (
-        <Flex direction={'column'} gap={'sm'}>
+        <Flex direction={"column"} gap={"sm"}>
             <table
                 className={s.table}
                 style={{
@@ -181,9 +181,9 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                     }}
                                 >
                                     <Flex
-                                        align={'center'}
-                                        p={'sm'}
-                                        gap={'xs'}
+                                        align={"center"}
+                                        p={"sm"}
+                                        gap={"xs"}
                                         onClick={header.column.getToggleSortingHandler()}
                                     >
                                         {{
@@ -199,8 +199,8 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                             header.getContext()
                                         )}
                                         <Box style={{ flex: 1 }} />
-                                        {meta[header.column.id].type !== 'url' ? null : (
-                                            <ActionIcon size={'xs'} onClick={() => {
+                                        {meta[header.column.id].type !== "url" ? null : (
+                                            <ActionIcon size={"xs"} onClick={() => {
                                                 setPhotos(photos => ({
                                                     ...photos,
                                                     [header.column.id]: !photos[header.column.id],
@@ -213,7 +213,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                 )}
                                             </ActionIcon>
                                         )}
-                                        <Badge size={'xs'} radius={'xs'}>
+                                        <Badge size={"xs"} radius={"xs"}>
                                             {meta[header.column.id].type}
                                         </Badge>
                                         {/* {header.column.getCanFilter() ? (
@@ -251,26 +251,26 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                 let content: React.ReactNode = null
 
                                 switch (t.type) {
-                                    case 'string': {
+                                    case "string": {
                                         content = (
                                             <Flex
-                                                align={'center'}
-                                                direction={'row-reverse'}
-                                                p={'sm'}
-                                                gap={'xs'}
+                                                align={"center"}
+                                                direction={"row-reverse"}
+                                                p={"sm"}
+                                                gap={"xs"}
                                             >
-                                                <Badge size={'xs'} radius={'sm'}>unique={t.unique}</Badge>
+                                                <Badge size={"xs"} radius={"sm"}>unique={t.unique}</Badge>
                                             </Flex>
                                         )
                                         break
                                     }
-                                    case 'int': {
+                                    case "int": {
                                         content = (
                                             <Flex
-                                                direction={'row'}
-                                                p={'sm'}
-                                                gap={'xs'}
-                                                justify={'space-between'}
+                                                direction={"row"}
+                                                p={"sm"}
+                                                gap={"xs"}
+                                                justify={"space-between"}
                                             >
                                                 {!t.hist ? null : (
                                                     <BarChart
@@ -283,23 +283,23 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                     />
                                                 )}
                                                 <Flex
-                                                    gap={'xs'}
-                                                    direction={'column'}
+                                                    gap={"xs"}
+                                                    direction={"column"}
                                                 >
-                                                    <Badge size={'xs'} radius={'sm'}>min={t.min}</Badge>
-                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
+                                                    <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
+                                                    <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
                                                 </Flex>
                                             </Flex>
                                         )
                                         break
                                     }
-                                    case 'float': {
+                                    case "float": {
                                         content = (
                                             <Flex
-                                                direction={'row'}
-                                                p={'sm'}
-                                                gap={'xs'}
-                                                justify={'space-between'}
+                                                direction={"row"}
+                                                p={"sm"}
+                                                gap={"xs"}
+                                                justify={"space-between"}
                                             >
                                                 {!t.hist ? null : (
                                                     <BarChart
@@ -312,11 +312,11 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                     />
                                                 )}
                                                 <Flex
-                                                    gap={'xs'}
-                                                    direction={'column'}
+                                                    gap={"xs"}
+                                                    direction={"column"}
                                                 >
-                                                    <Badge size={'xs'} radius={'sm'}>min={t.min}</Badge>
-                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
+                                                    <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
+                                                    <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
                                                 </Flex>
                                             </Flex>
                                         )
@@ -361,7 +361,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
 
                                 const type = meta[cell.column.id].type
                                 switch (type) {
-                                    case 'url': {
+                                    case "url": {
                                         render = info => {
                                             const value = info.getValue()
                                             if (photos[info.column.id]) {
@@ -376,20 +376,20 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                             const url = new URL(value)
                                             return (
                                                 <Tooltip label={value} openDelay={500}>
-                                                    <Badge size={'sm'} radius={'sm'} variant={'outline'} color={'dark'}>{url.hostname}{url.pathname}</Badge>
+                                                    <Badge size={"sm"} radius={"sm"} variant={"outline"} color={"dark"}>{url.hostname}{url.pathname}</Badge>
                                                 </Tooltip>
                                             )
                                         }
                                         break
                                     }
-                                    case 'mixed': {
+                                    case "mixed": {
                                         render = info => {
                                             const value = info.getValue()
                                             if (Array.isArray(value)) {
                                                 return (
                                                     <>
                                                         {value.map(x => (
-                                                            <Badge key={x} className={s.mixedItem} size={'sm'} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
+                                                            <Badge key={x} className={s.mixedItem} size={"sm"} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
                                                         ))}
                                                     </>
                                                 )
@@ -397,7 +397,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                         }
                                         break
                                     }
-                                    case 'date': {
+                                    case "date": {
                                         render = info => {
                                             const value = info.getValue()
                                             return (
@@ -410,22 +410,22 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                         }
                                         break
                                     }
-                                    case 'int': {
+                                    case "int": {
                                         render = info => {
                                             const value = info.getValue()
                                             return (
-                                                <span style={{ textAlign: 'right', display: 'inline-block', width: '100%' }}>
+                                                <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
                                                     {value}
                                                 </span>
                                             )
                                         }
                                         break
                                     }
-                                    case 'float': {
+                                    case "float": {
                                         render = info => {
                                             const value = info.getValue()
                                             return (
-                                                <span style={{ textAlign: 'right', display: 'inline-block', width: '100%' }}>
+                                                <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
                                                     {value}
                                                 </span>
                                             )

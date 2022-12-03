@@ -1,4 +1,4 @@
-import { createStyles, Flex } from '@mantine/core';
+import { createStyles, Flex } from "@mantine/core"
 
 const useStyles = createStyles(() => ({
     container: {
@@ -45,5 +45,5 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, footer, leftSide
 
             {footer}
         </Flex>
-    );
+    )
 }

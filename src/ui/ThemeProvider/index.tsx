@@ -1,4 +1,4 @@
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider } from "@mantine/core"
 
 export type ThemeProviderProps = {
     dark: boolean
@@ -17,14 +17,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, dark }) 
             sizes: {
                 h3: {
                     fontSize: 18,
-                }
+                },
             },
         },
         activeStyles: {
             transform: "none",
         },
-        primaryColor: 'blue',
+        primaryColor: "blue",
     }}>
         {children}
     </MantineProvider>
-);
+)

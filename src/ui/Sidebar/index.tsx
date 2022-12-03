@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createStyles, Flex } from "@mantine/core";
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { createStyles, Flex } from "@mantine/core"
 
 const useStyle = createStyles(theme => ({
     container: {
@@ -16,7 +16,7 @@ const useStyle = createStyles(theme => ({
 
         "&:hover": {
             cursor: "col-resize",
-        }
+        },
     },
 }))
 
@@ -31,9 +31,9 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export default function useHandler(startWidth: number, minWidth: number, maxWidth: number) {
-    const ref = useRef<HTMLDivElement>(null);
-    const refw = useRef<number>(0);
-    const refx = useRef<number>(0);
+    const ref = useRef<HTMLDivElement>(null)
+    const refw = useRef<number>(0)
+    const refx = useRef<number>(0)
     const [width, setWidth] = useState(startWidth)
 
     const up = useCallback((event: MouseEvent) => {
@@ -45,7 +45,7 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
 
         const down = (event: MouseEvent) => {
             event.preventDefault()
-            console.log('down')
+            console.log("down")
             refx.current = event.pageX
             refw.current = w
         }
@@ -54,22 +54,22 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
                 return
             }
 
-            w = clamp(refw.current - refx.current + event.pageX, minWidth, maxWidth);
-            setWidth(w);
+            w = clamp(refw.current - refx.current + event.pageX, minWidth, maxWidth)
+            setWidth(w)
         }
 
-        ref!.current!.addEventListener('mousedown', down);
-        document.addEventListener('mouseup', up, true);
-        document.addEventListener('mousemove', move, true);
+        ref!.current!.addEventListener("mousedown", down)
+        document.addEventListener("mouseup", up, true)
+        document.addEventListener("mousemove", move, true)
 
         return () => {
             // ref!.current!.removeEventListener('mousedown', down);
-            document.removeEventListener('mouseup', up, true);
-            document.removeEventListener('mousemove', move, true);
-        };
-    }, [startWidth, minWidth, maxWidth]);
+            document.removeEventListener("mouseup", up, true)
+            document.removeEventListener("mousemove", move, true)
+        }
+    }, [startWidth, minWidth, maxWidth])
 
-    return { ref, width };
+    return { ref, width }
 }
 
 export type OnResize = (width: number) => void
@@ -106,5 +106,5 @@ export const Sidebar: React.FC<SidebarProps> = ({ children, startWidth, minWidth
             />
             {children}
         </Flex>
-    );
+    )
 }

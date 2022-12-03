@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { Bar } from '@visx/shape';
-import { Group } from '@visx/group';
+import React, { useMemo } from "react"
+import { Bar } from "@visx/shape"
+import { Group } from "@visx/group"
 // import { GradientTealBlue } from '@visx/gradient';
 // import letterFrequency, { LetterFrequency } from '@visx/mock-data/lib/mocks/letterFrequency';
-import { scaleBand, scaleLinear } from '@visx/scale';
+import { scaleBand, scaleLinear } from "@visx/scale"
 
 // const data = letterFrequency.slice(5);
 const verticalMargin = 0
@@ -24,8 +24,8 @@ export type BarsProps = {
 export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, color }) => {
     const radius = 3
     // bounds
-    const xMax = width;
-    const yMax = height - verticalMargin;
+    const xMax = width
+    const yMax = height - verticalMargin
 
     const size = data.length
     const minValue = min ?? Math.min(...data)
@@ -44,12 +44,12 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
         range: [radius, xMax-radius],
         round: true,
         domain: [0, size],
-    }), [yMax, size, radius]);
+    }), [yMax, size, radius])
     const yScale = useMemo(() => scaleLinear<number>({
         range: [yMax, 0],
         round: true,
         domain: [minValue, maxValue],
-    }), [minValue, maxValue, yMax]);
+    }), [minValue, maxValue, yMax])
 
     return width < 10 ? null : (
         <svg width={width} height={height}>
@@ -60,8 +60,8 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
             <Group top={verticalMargin / 2}>
                 {data.map((d, i) => {
                     const barHeight = yMax - yScale(d)
-                    const barX = xScale(i);
-                    const barY = yMax - barHeight;
+                    const barX = xScale(i)
+                    const barY = yMax - barHeight
                     return (
                         <Bar
                             key={i}
@@ -71,9 +71,9 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
                             height={barHeight}
                             fill={color}
                         />
-                    );
+                    )
                 })}
             </Group>
         </svg>
-    );
+    )
 }
