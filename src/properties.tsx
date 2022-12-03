@@ -192,7 +192,7 @@ const App: React.FC = () => {
     const { classes: s } = useStyle()
 
     useEffect(() => {
-        emit("properties-init", { message: "lalala-" + Date.now() })
+        emit("properties-init", {})
     }, [])
 
     return (
