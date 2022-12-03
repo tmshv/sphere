@@ -74,10 +74,9 @@ function lerp(v: number, min: number, max: number, a: number, b: number): number
     return a + (b - a) * ratio
 }
 
-function calcHistogram(values: number[]): number[] {
+function calcHistogram(values: number[], bins: number): number[] {
     const min = Math.min(...values)
     const max = Math.max(...values)
-    const bins = Math.min(max, 10)
     const result: number[] = Array(bins).fill(0)
     for (let i = 0; i < values.length; i++) {
         const v = values[i]
@@ -141,6 +140,7 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
     }))
 
     const meta = head.reduce((acc, key) => {
+        const bins = 11
         const type = predictType(key, data.properties)
         switch (type) {
             case 'string': {
@@ -157,7 +157,7 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 const max = Math.max(...n)
                 const mean = 0
                 const hist = !isNaN(max) && !isNaN(min)
-                    ? calcHistogram(n)
+                    ? calcHistogram(n, bins)
                     : undefined
                 acc[key] = {
                     type,
@@ -174,7 +174,7 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 const max = Math.max(...n)
                 const mean = 0
                 const hist = !isNaN(max) && !isNaN(min)
-                    ? calcHistogram(n)
+                    ? calcHistogram(n, bins)
                     : undefined
                 acc[key] = {
                     type,
