@@ -93,18 +93,9 @@ export const App: React.FC<AppProps> = ({ }) => {
                         />
                         {zen ? null : (
                             <Overlay
-                                // top={(
-                                //     <Toolbar horizontal></Toolbar>
+                                // right={(
+                                //     <Toolbar></Toolbar>
                                 // )}
-                                right={(
-                                    <Toolbar></Toolbar>
-                                    // <Paper pl={"sm"} pr={"sm"} style={{
-                                    //     width: 400,
-                                    //     overflow: "hidden",
-                                    // }}>
-                                    //     <SourcePanel />
-                                    // </Paper>
-                                )}
                             />
                         )}
                     </AppLayout>
