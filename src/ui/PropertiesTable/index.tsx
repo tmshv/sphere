@@ -286,8 +286,8 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                     gap={'xs'}
                                                     direction={'column'}
                                                 >
-                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
                                                     <Badge size={'xs'} radius={'sm'}>min={t.min}</Badge>
+                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
                                                 </Flex>
                                             </Flex>
                                         )
@@ -315,8 +315,8 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                                     gap={'xs'}
                                                     direction={'column'}
                                                 >
-                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
                                                     <Badge size={'xs'} radius={'sm'}>min={t.min}</Badge>
+                                                    <Badge size={'xs'} radius={'sm'}>max={t.max}</Badge>
                                                 </Flex>
                                             </Flex>
                                         )
