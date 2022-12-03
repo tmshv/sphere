@@ -1,5 +1,5 @@
-import { MapLayerMouseEvent, MapRef } from "react-map-gl";
-import { useEffect, useState } from "react";
+import { MapLayerMouseEvent, MapRef } from "react-map-gl"
+import { useEffect, useState } from "react"
 
 export function useCursor(ref?: MapRef): [number, number] {
     const [[lng, lat], setCoord] = useState<[number, number]>([0, 0])
