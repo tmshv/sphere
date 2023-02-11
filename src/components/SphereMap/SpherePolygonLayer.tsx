@@ -18,7 +18,11 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
         }
         const outline0: LinePaint = {
             "line-color": "white",
-            "line-width": 3,
+            "line-width": 1,
+            "line-offset": -1,
+            // for double size
+            // "line-width": 3,
+            // "line-offset": 0,
         }
         const outline1: LinePaint = {
             "line-color": color,
