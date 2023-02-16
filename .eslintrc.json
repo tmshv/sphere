@@ -1,5 +1,9 @@
 {
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react/jsx-runtime"
+    ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": [
@@ -7,6 +11,7 @@
         ]
     },
     "plugins": [
+        "react",
         "import",
         "@typescript-eslint"
     ],
@@ -68,6 +73,9 @@
         "no-alert": "error",
         "no-debugger": "error",
         "no-var": "error",
+        "no-unused-vars": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/prop-types": "off",
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
