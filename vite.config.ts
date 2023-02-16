@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'src'),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [react()],
@@ -29,5 +29,12 @@ export default defineConfig({
         minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
         // produce sourcemaps for debug builds
         sourcemap: !!process.env.TAURI_DEBUG,
+
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+                properties: resolve(__dirname, 'properties.html'),
+            },
+        },
     },
 });
