@@ -10,13 +10,16 @@ import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
 
 const getImage: GetImageFunction = p => {
-    const srcField = "thumbnail"
+    const iconField = "thumbnail"
+    const srcField = "src"
     const valueField = "score"
 
     const src = p[srcField] as string
+    const iconSrc = p[iconField] as string
 
     return {
         src,
+        iconSrc,
         value: p[valueField] ?? 0,
     }
 }

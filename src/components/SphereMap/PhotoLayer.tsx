@@ -3,8 +3,8 @@ import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { ImageMarker } from "@/ui/ImageMarker"
 import { createStyles } from "@mantine/core"
-import { useCallback, useMemo } from "react"
-import { Marker } from "react-map-gl"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Marker, useMap } from "react-map-gl"
 
 const useStyle = createStyles(theme => ({
     badge: {
@@ -46,6 +46,7 @@ export const Badge: React.FC<BadgeProps> = ({ top, right, children }) => {
 
 export type GetImageFunction = (p: Record<string, any>) => {
     src: string,
+    iconSrc: string,
     value: number
 }
 
@@ -59,18 +60,37 @@ export type PhotoLayerProps = {
 }
 
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
+    const { current } = useMap()
+    const [activeImage, setActiveImage] = useState<string | number | null>(null)
     const features = useAppSelector(state => {
         const source = state.source.items[sourceId]
         if (!source.pending && source.type === SourceType.FeatureCollection) {
             return source.dataset.features
                 .filter(f => {
-                    const { src } = getImage(f.properties!)
-                    return !!src
+                    const { src, iconSrc } = getImage(f.properties!)
+                    return !!src && !!iconSrc
                 })
         } else {
             return []
         }
     })
+
+    useEffect(() => {
+        const map = current?.getMap()
+        if (!map) {
+            return
+        }
+
+        const cb = () => {
+            setActiveImage(null)
+        }
+
+        map.on("click", cb)
+
+        return () => {
+            map.off("click", cb)
+        }
+    }, [current])
 
     if (features.length === 0) {
         return null
@@ -103,22 +123,31 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
             )
         }
 
-        const { src } = getImage(feature.properties!)
+        const { src, iconSrc } = getImage(feature.properties!)
+        const active = activeImage === id
 
         return (
             <div key={id} style={{ position: "relative", zIndex: 0 }}>
                 <Marker
-                    longitude={lng} latitude={lat}
+                    longitude={lng}
+                    latitude={lat}
+                    onClick={(event) => {
+                        event.originalEvent.stopPropagation()
+                        setActiveImage(id)
+                    }}
+                    style={{
+                        zIndex: active ? 100 : 1,
+                    }}
                 >
                     <ImageMarker
-                        src={src}
-                        size={iconSize}
-                        layout={"circle"}
+                        src={active ? src : iconSrc}
+                        size={active ? 300 : iconSize}
+                        layout={active ? "square" : "circle"}
                     />
                 </Marker>
             </div>
         )
-    }, [iconSize, getImage])
+    }, [iconSize, getImage, activeImage])
 
     return (
         <PhotoCluster
@@ -127,10 +156,10 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
             //  as GeoJSON.FeatureCollection<GeoJSON.Point>}
             renderPhoto={renderPhoto}
             mapProperties={p => {
-                const { src, value } = getImage(p)
+                const { iconSrc, value } = getImage(p)
                 return {
                     value,
-                    url: src ?? "",
+                    url: iconSrc ?? "",
                 }
             }}
         />
