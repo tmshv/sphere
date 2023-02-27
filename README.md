@@ -15,5 +15,7 @@ This template should help get you started developing with Tauri, React and Types
 
 - [kt-companion.vercel.app](https://kt-companion.vercel.app)
 - [gpxstudio.github.io](https://github.com/gpxstudio/gpxstudio.github.io)
+- [geojson.io](https://geojson.io)
+- [mapshaper](https://mapshaper.org)
 
 
