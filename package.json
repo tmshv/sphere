@@ -10,6 +10,7 @@
         "lint": "eslint --ext .tsx,.ts src/",
         "lint:fix": "eslint --ext .tsx,.ts --fix src/",
         "test": "jest",
+        "coverage": "jest --coverage",
         "tauri": "tauri"
     },
     "dependencies": {
