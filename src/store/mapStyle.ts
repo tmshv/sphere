@@ -7,7 +7,7 @@ import { selectIsDark } from "./app"
 // import type { RootState } from '../../app/store'
 
 const VECTOR = "mapbox://styles/mapbox/streets-v9"
-const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v11"
+const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v12"
 
 type MapStyle = string | Style
 
