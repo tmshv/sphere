@@ -9,7 +9,7 @@ type ProjectionState = {
 
 // Define the initial state using that type
 const initialState: ProjectionState = {
-    value: "globe",
+    value: "mercator",
 }
 
 export const projectionSlice = createSlice({
