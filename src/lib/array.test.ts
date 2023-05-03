@@ -4,7 +4,7 @@ import { head, init, last, tail, zip } from "./array"
 describe("lib/array/head", () => {
     test("returns the first element of an array", () => {
         const array = [1, 2, 3, 4, 5]
-        expect(array).toBe(1)
+        expect(head(array)).toBe(1)
     })
 
     test("returns null for zero length array", () => {
