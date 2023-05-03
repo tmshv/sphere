@@ -10,7 +10,7 @@ type ErrorResponse = {
     ok: false
 }
 
-export async function get<T = any>(url: string): Promise<ErrorResponse | OkResponse<T>> {
+export async function get<T>(url: string): Promise<ErrorResponse | OkResponse<T>> {
     try {
         const client = await getClient()
         const response = await client.get<T>(url)
@@ -47,3 +47,4 @@ export async function get<T = any>(url: string): Promise<ErrorResponse | OkRespo
         }
     }
 }
+
