@@ -20,7 +20,8 @@ export class MapboxProtocol {
 
     public buildHttpUrl(value: string): string | null {
         // mapbox://mapbox.satellite
-        const regexp1 = /mapbox:\/\/(mapbox)\.([\w\d-_]+?)$/
+        // mapbox://mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v7
+        const regexp1 = /mapbox:\/\/(mapbox)\.([\w\d-_.,]+?)$/
         let m = regexp1.exec(value)
         if (m) {
             const [_, resourceOwner, resourceName] = m
