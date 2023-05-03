@@ -76,11 +76,15 @@ export async function extract(location: string, accessToken: string) {
     }
 }
 
+export type AddFromUrlOptions = {
+    url: string,
+    type: SourceType.Geojson | SourceType.MVT | SourceType.Raster
+}
+
 export const addFromUrl = createAsyncThunk(
     "source/addFromUrl",
-    async ({ url, type }: { url: string, type: SourceType.Geojson | SourceType.MVT | SourceType.Raster }, thunkAPI) => {
-        let id = nextId("source")
-
+    async ({ url, type }: AddFromUrlOptions, thunkAPI) => {
+        const id = nextId("source")
         const x = new URL(url)
         const stem = getStem(x.pathname)
         let name = stem ?? id
