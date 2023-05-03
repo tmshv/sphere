@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 import { RootState } from "."
 
 // Define a type for the slice state
-type FogState = {
+export type FogState = {
     show: boolean
 }
 
