@@ -26,7 +26,10 @@ jobs:
         sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
     - name: install app dependencies, lint and build it
       # run: npm ci && npm run lint && npm run build
-      run: npm ci && npm t && npm run build
+      run: |
+          npm ci
+          npm t
+          npm run build
     - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
