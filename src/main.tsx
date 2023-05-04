@@ -39,7 +39,7 @@ async function handleTheme() {
     }
 
     const e = "tauri://theme-changed"
-    // const unlisten = 
+    // const unlisten =
     await listen(e, (event) => {
         const theme = event.payload as string
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
@@ -56,7 +56,7 @@ async function main() {
     // const e = "tauri://file-drop-hover"
     // const e = "tauri://file-drop-cancelled"
 
-    // const unlisten = 
+    // const unlisten =
     await listen(e, (event) => {
         const files = event.payload as string[]
         store.dispatch(actions.source.addFromFiles(files))
