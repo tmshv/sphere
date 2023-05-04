@@ -2,7 +2,6 @@ import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { Card } from "./Card"
 import { Flex } from "@mantine/core"
-import { OutlineItem } from "./OutlineItem"
 import { Fragment } from "react"
 
 // export type OutlineOnMove = (dragIndex: number, hoverIndex: number) => void
@@ -42,7 +41,6 @@ export function Outline<T extends OutlineItem>({ items, onMove, renderItem, drag
                         id={item.id}
                         index={i}
                         onMove={(dragIndex, hoverIndex) => {
-                            console.log("on move", dragIndex, hoverIndex)
                             const drag = items[dragIndex]
                             const hover = items[hoverIndex]
                             onMove(drag, hover)
