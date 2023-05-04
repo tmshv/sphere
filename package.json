@@ -30,7 +30,7 @@
         "@visx/group": "^2.10.0",
         "@visx/scale": "^2.2.2",
         "@visx/shape": "^2.10.0",
-        "date-fns": "^2.29.3",
+        "date-fns": "^2.30.0",
         "mapbox-gl": "npm:empty-npm-package@^1.0.0",
         "maplibre-gl": "^2.4.0",
         "papaparse": "^5.3.2",
