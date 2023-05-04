@@ -7,7 +7,7 @@ export type MapboxEventCallback = (map: mapboxgl.Map, event: MapboxEvent) => voi
 type OnEvent = (event: MapboxEvent) => void
 
 export function useMapboxEvent(eventName: string, callback: MapboxEventCallback) {
-    const {current} = useMap()
+    const { current } = useMap()
     const map = current?.getMap()!
 
     const onEvent = useCallback<OnEvent>(event => {

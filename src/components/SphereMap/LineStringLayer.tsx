@@ -11,7 +11,7 @@ export type LineStringLayerProps = {
 }
 
 export const LineStringLayer: React.FC<LineStringLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible }) => {
-    const line= useMemo(() => {
+    const line = useMemo(() => {
         const line: LinePaint = {
             "line-color": color,
             "line-width": 1,
