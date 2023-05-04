@@ -1,4 +1,4 @@
-import { createAsyncThunk, createAction } from "@reduxjs/toolkit"
+import { createAsyncThunk } from "@reduxjs/toolkit"
 import { readTextFile } from "@tauri-apps/api/fs"
 import { basename, extname } from "@tauri-apps/api/path"
 import { parseGeojson } from "../../lib/parseGeojson"

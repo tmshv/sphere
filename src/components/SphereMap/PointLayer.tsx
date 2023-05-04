@@ -15,6 +15,7 @@ export type PointLayerProps = {
 }
 
 export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourceLayer, color, options, visible }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [circle, selected] = useMemo(() => {
         const radius = options?.maxRadius ?? 4
         const circle: CirclePaint = {

@@ -1,11 +1,11 @@
-import Map, { Layer, Source } from "react-map-gl"
+import MapGl, { Source } from "react-map-gl"
 import { useAppSelector } from "@/store/hooks"
 import { selectProjection } from "@/store/projection"
 import { selectMapStyle } from "@/store/mapStyle"
-import { selectIsShowFog } from "@/store/fog"
+// import { selectIsShowFog } from "@/store/fog"
 import { selectIsShowTerrain } from "@/store/terrain"
 import { Terrain } from "./Terrain"
-import { Fog } from "./Fog"
+// import { Fog } from "./Fog"
 import { SphereSource } from "./SphereSource"
 import { SetupStore } from "./SetupStore"
 import { HandleClick } from "./HandleClick"
@@ -29,7 +29,7 @@ export type SphereMapProps = {
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
-    const fog = useAppSelector(selectIsShowFog)
+    // const fog = useAppSelector(selectIsShowFog)
     const terrain = useAppSelector(selectIsShowTerrain)
     const draw = useAppSelector(selectIsDrawing)
     const sourceIds = useAppSelector(state => state.source.allIds)
@@ -46,7 +46,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     })
 
     return (
-        <Map
+        <MapGl
             mapLib={maplibregl}
             id={id}
             trackResize
@@ -109,6 +109,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-        </Map>
+        </MapGl>
     )
 }

@@ -25,7 +25,7 @@ export function queryFeaturesInPoint(map: mapboxgl.Map, point: Point, layers: st
 export type HandleClickProps = {
 }
 
-export const HandleClick: React.FC<HandleClickProps> = ({ }) => {
+export const HandleClick: React.FC<HandleClickProps> = () => {
     const { current: ref } = useMap()
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectVisibleLayerIds)

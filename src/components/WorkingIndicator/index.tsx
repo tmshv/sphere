@@ -5,7 +5,7 @@ export type WorkingIndicatorProps = {
 
 }
 
-export const WorkingIndicator: React.FC<WorkingIndicatorProps> = ({ }) => {
+export const WorkingIndicator: React.FC<WorkingIndicatorProps> = () => {
     const working = useAppSelector(state => {
         let sourceWorking = false
         for (const sourceId of state.source.allIds) {

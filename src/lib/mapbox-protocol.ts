@@ -98,7 +98,7 @@ export class MapboxProtocol {
             return {
                 cancel: () => {
                     console.log("canceling", params)
-                }
+                },
             }
         }
     }

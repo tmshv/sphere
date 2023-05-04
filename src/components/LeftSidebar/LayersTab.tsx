@@ -31,6 +31,7 @@ export const LayersTab: React.FC = () => {
                 break
             }
             default: {
+                break
             }
         }
     }, [layerId, sourceId])

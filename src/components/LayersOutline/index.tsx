@@ -1,7 +1,6 @@
-import { IconPolygon, IconPoint, IconLine, IconBulb, IconBulbOff, IconFlame } from "@tabler/icons"
+import { IconBulb, IconBulbOff } from "@tabler/icons"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { ActionIcon } from "@mantine/core"
-import { LayerType } from "@/types"
 import { actions } from "@/store"
 import { selectCurrentLayer } from "@/store/selection"
 import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline"
