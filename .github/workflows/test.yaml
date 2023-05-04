@@ -10,9 +10,9 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: setup node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: 18
     - name: install Rust stable
@@ -24,9 +24,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
-    - name: install app dependencies, lint and build it
-      # run: npm ci && npm run lint && npm run build
-      run: npm ci && npm t && npm run build
+    - name: install npm dependencies
+      run: npm ci
+    - name: run npm checks
+      run: |
+          npm t
+          # npm run lint
     - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

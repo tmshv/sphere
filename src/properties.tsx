@@ -55,7 +55,7 @@ function predictType<K extends string>(
     try {
         const url = new URL(value)
         return "url"
-    } catch {}
+    } catch { }
 
     if (typeof value === "string") {
         return "string"

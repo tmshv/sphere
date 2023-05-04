@@ -9,7 +9,7 @@ type ProjectionState = {
 
 // Define the initial state using that type
 const initialState: ProjectionState = {
-    value: "globe",
+    value: "mercator",
 }
 
 export const projectionSlice = createSlice({
@@ -36,7 +36,10 @@ export const selectProjection = (state: RootState) => {
 }
 
 export const selectChangeProjectionAvailable = (state: RootState) => {
-    return !selectIsDrawing(state)
+    // disabled forever after mapboxgl -> maplibregl switch
+    return false
+    // old:
+    // return !selectIsDrawing(state)
 }
 
 export default projectionSlice.reducer

@@ -13,8 +13,14 @@ import { SphereLayer } from "./SphereLayer"
 import { HandleHover } from "./HandleHover"
 import { selectIsDrawing } from "@/store/draw"
 import { Draw } from "./Draw"
+import maplibregl from "maplibre-gl"
+import { MapboxProtocol } from "@/lib/mapbox-protocol"
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
+
+const mb = new MapboxProtocol(MAPBOX_ACCESS_TOKEN)
+
+maplibregl.addProtocol(mb.name, mb.createHandler())
 
 export type SphereMapProps = {
     id: string
@@ -41,6 +47,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
 
     return (
         <Map
+            mapLib={maplibregl}
             id={id}
             trackResize
             initialViewState={{
@@ -51,10 +58,12 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 bearing: 0,
             }}
             maxPitch={85}
-            mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={mapStyle}
             projection={projection}
             logoPosition={"bottom-right"}
+            onError={(error) => {
+                console.error("Got error from maplibre", error)
+            }}
         >
             <Source
                 id={"mapbox-dem"}
@@ -68,17 +77,17 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 mapId={id}
             />
             <HandleClick />
-            {!fog ? null : (
+            {/* {!fog ? null : (
                 <Fog
                     mapId={id}
                 />
-            )}
+            )} */}
             {!terrain ? null : (
                 <Terrain
                     mapId={id}
                 />
             )}
-            <Layer
+            {/* <Layer
                 id="sky"
                 type="sky"
                 paint={{
@@ -86,7 +95,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     "sky-atmosphere-sun": [0.0, 65.0],
                     "sky-atmosphere-sun-intensity": 15,
                 }}
-            />
+            /> */}
 
             {sourceIds.map(id => (
                 <SphereSource

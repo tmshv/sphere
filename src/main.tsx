@@ -1,5 +1,5 @@
 import "./style.css"
-import "mapbox-gl/dist/mapbox-gl.css"
+import "maplibre-gl/dist/maplibre-gl.css"
 
 import { listen } from "@tauri-apps/api/event"
 import { appWindow } from "@tauri-apps/api/window"
