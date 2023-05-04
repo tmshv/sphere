@@ -1,5 +1,5 @@
 import { useMap } from "react-map-gl"
-import { ActionIcon, Badge, createStyles } from "@mantine/core"
+import { ActionIcon, Badge, MantineProvider, createStyles } from "@mantine/core"
 import { Statusbar } from "@/ui/Statusbar"
 import { useCursor } from "@/hooks/useCursor"
 import { useZoom } from "@/hooks/useZoom"
@@ -12,6 +12,7 @@ import { selectChangeProjectionAvailable, selectProjection } from "@/store/proje
 import { selectShowLeftSidebar, selectVersion } from "@/store/app"
 import { selectIsShowTerrain } from "@/store/terrain"
 import { selectErrorMessage } from "@/store/error"
+import type { ActionIconProps } from "@mantine/core"
 
 const useStyle = createStyles(theme => ({
     s: {
@@ -70,6 +71,12 @@ function format(value: number, floatingLength: number): string {
     return `${a}.${c}`
 }
 
+const actionIconDefaultProps: Partial<ActionIconProps> = {
+    size: "xs",
+    radius: "sm",
+    // className: s.icon,
+};
+
 export type MapStatusbarProps = {
     id: string
 }
@@ -93,84 +100,94 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
     return (
         <Statusbar>
-            <ActionIcon size={"xs"} className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
-                if (sidebar) {
-                    dispatch(actions.app.hideLeftSidebar())
-                } else {
-                    dispatch(actions.app.showLeftSidebar())
-                }
-            }}>
-                <IconLayoutSidebar size={16} />
-            </ActionIcon>
-
-            <Badge className={s.widget} radius={"sm"} size="sm" variant="light">sources={sources}</Badge>
-
-            <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">pitch={format(round(pitch, 1000), 3)}</Badge>
-            <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">zoom={format(round(zoom, 1000), 3)}</Badge>
-
-            <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">lng={format(round(lng, 1000000), 5)}</Badge>
-            <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">lat={format(round(lat, 1000000), 5)}</Badge>
-
-            {!errorMessage ? null : (
-                <Badge className={cx(s.widget, s.error)} title={"Error"} radius={"sm"} size="sm" variant="filled">
-                    {errorMessage}
-                </Badge>
-            )}
-
-            <div className={s.s}></div>
-
-            <ActionIcon size={"xs"} className={s.icon} onClick={() => {
-                dispatch(actions.map.printViewport({ mapId: "spheremap" }))
-            }}>
-                <IconLiveView size={16} />
-            </ActionIcon>
-
-            <ActionIcon size={"xs"} className={s.icon} onClick={() => {
-                dispatch(actions.map.resetNorth({ mapId: "spheremap" }))
-            }}>
-                <IconNorthStar size={16} />
-            </ActionIcon>
-            <ActionIcon size={"xs"} className={cx(s.icon)} onClick={() => {
-                dispatch(actions.mapStyle.setSatellite())
-            }}>
-                <IconSatellite size={16} />
-            </ActionIcon>
-            <ActionIcon size={"xs"} className={cx(s.icon)} onClick={() => {
-                dispatch(actions.terrain.toggle())
-            }}>
-                {terrain ? (
-                    <IconMountain size={16} />
-                ) : (
-                    <IconMountainOff size={16} />
-                )}
-            </ActionIcon>
-            <ActionIcon
-                size={"xs"}
-                className={s.icon}
-                color={isGlobe ? "yellow" : undefined}
-                disabled={!changeProjection}
-                sx={{
-                    "&[data-disabled]": {
-                        backgroundColor: "#00000000",
-                        border: "none",
+            <MantineProvider theme={{
+                components: {
+                    ActionIcon: {
+                        defaultProps: theme => ({
+                            ...actionIconDefaultProps,
+                            className: s.icon,
+                            sx: {
+                                "&[data-disabled]": {
+                                    backgroundColor: "#00000000",
+                                    color: theme.colors.gray[8],
+                                    border: "none",
+                                },
+                            },
+                        }),
                     },
-                }}
-                onClick={() => {
-                    if (isGlobe) {
-                        dispatch(actions.projection.setFlat())
+                },
+            }}>
+                <ActionIcon className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
+                    if (sidebar) {
+                        dispatch(actions.app.hideLeftSidebar())
                     } else {
-                        dispatch(actions.projection.setGlobe())
+                        dispatch(actions.app.showLeftSidebar())
                     }
-                }}
-            >
-                {isGlobe ? (
-                    <IconWorld size={16} />
-                ) : (
-                    <IconWorldOff size={16} />
-                )}
-            </ActionIcon>
+                }}>
+                    <IconLayoutSidebar size={16} />
+                </ActionIcon>
 
-            <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>
+                <Badge className={s.widget} radius={"sm"} size="sm" variant="light">sources={sources}</Badge>
+
+                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">pitch={format(round(pitch, 1000), 3)}</Badge>
+                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">zoom={format(round(zoom, 1000), 3)}</Badge>
+
+                <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">lng={format(round(lng, 1000000), 5)}</Badge>
+                <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">lat={format(round(lat, 1000000), 5)}</Badge>
+
+                {!errorMessage ? null : (
+                    <Badge className={cx(s.widget, s.error)} title={"Error"} radius={"sm"} size="sm" variant="filled">
+                        {errorMessage}
+                    </Badge>
+                )}
+
+                <div className={s.s}></div>
+
+                <ActionIcon onClick={() => {
+                    dispatch(actions.map.printViewport({ mapId: "spheremap" }))
+                }}>
+                    <IconLiveView size={16} />
+                </ActionIcon>
+
+                <ActionIcon onClick={() => {
+                    dispatch(actions.map.resetNorth({ mapId: "spheremap" }))
+                }}>
+                    <IconNorthStar size={16} />
+                </ActionIcon>
+                <ActionIcon onClick={() => {
+                    dispatch(actions.mapStyle.setSatellite())
+                }}>
+                    <IconSatellite size={16} />
+                </ActionIcon>
+                <ActionIcon disabled onClick={() => {
+                    dispatch(actions.terrain.toggle())
+                }}>
+                    {terrain ? (
+                        <IconMountain size={16} />
+                    ) : (
+                        <IconMountainOff size={16} />
+                    )}
+                </ActionIcon>
+                <ActionIcon
+                    color={isGlobe ? "yellow" : undefined}
+                    disabled={!changeProjection}
+                    onClick={() => {
+                        if (isGlobe) {
+                            dispatch(actions.projection.setFlat())
+                        } else {
+                            dispatch(actions.projection.setGlobe())
+                        }
+                    }}
+                >
+                    {isGlobe ? (
+                        <IconWorld size={16} />
+                    ) : (
+                        <IconWorldOff size={16} />
+                    )}
+                </ActionIcon>
+
+                <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>
+            </MantineProvider>
         </Statusbar>
     )
 }
