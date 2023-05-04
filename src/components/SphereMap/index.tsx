@@ -77,17 +77,17 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 mapId={id}
             />
             <HandleClick />
-            {!fog ? null : (
+            {/* {!fog ? null : (
                 <Fog
                     mapId={id}
                 />
-            )}
+            )} */}
             {!terrain ? null : (
                 <Terrain
                     mapId={id}
                 />
             )}
-            <Layer
+            {/* <Layer
                 id="sky"
                 type="sky"
                 paint={{
@@ -95,7 +95,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     "sky-atmosphere-sun": [0.0, 65.0],
                     "sky-atmosphere-sun-intensity": 15,
                 }}
-            />
+            /> */}
 
             {sourceIds.map(id => (
                 <SphereSource
