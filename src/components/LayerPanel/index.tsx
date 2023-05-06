@@ -62,11 +62,9 @@ export const LayerPanel: React.FC = () => {
     if (!layer) {
         return null
     }
-    console.log(layer)
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, visible, name, type, color, circleRange, heatmapRadius } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, heatmapRadius } = layer
 
     let icon: React.ReactNode = null
-
     if (type === LayerType.Point) {
         icon = (
             <IconPoint size={20} color={color} />
@@ -88,6 +86,7 @@ export const LayerPanel: React.FC = () => {
         )
     }
     if (type === LayerType.Heatmap) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         icon = (
             <IconFlame size={20} color={color} />
         )
@@ -112,6 +111,7 @@ export const LayerPanel: React.FC = () => {
                             break
                         }
                         default: {
+                            break
                         }
                     }
                 }}

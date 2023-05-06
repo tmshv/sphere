@@ -42,6 +42,7 @@ export const SourcesTab: React.FC = () => {
                 break
             }
             default: {
+                break
             }
         }
     }, [sourceId])

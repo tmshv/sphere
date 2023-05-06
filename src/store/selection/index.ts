@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from ".."
-import { DatasetRow, Id, SourceType } from "@/types"
+import { Id } from "@/types"
 import { layerSlice } from "../layer"
 
 // Define a type for the slice state
@@ -65,13 +65,13 @@ export const selectProperties = (state: RootState) => {
         return null
     }
 
-    const ids = state.selection.selectedIds
-    const dataId = ids[0]
-
     const source = state.source.items[sourceId]
     if (!source) {
         return null
     }
+
+    // const ids = state.selection.selectedIds
+    // const dataId = ids[0]
 
     return null
     // const row = source.dataset.data.find(record => record.id === dataId) as DatasetRow<any>

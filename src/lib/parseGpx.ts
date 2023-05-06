@@ -41,6 +41,7 @@ type Time = {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function split<T>(items: T[], predicate: (item: T) => boolean): T[][] {
     const result: T[][] = []
     let buffer: T[] = []

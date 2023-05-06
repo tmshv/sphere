@@ -32,7 +32,6 @@ failMiddleware.startListening({
         actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
-        console.log("fail", action)
         listenerApi.dispatch(actions.error.setError(action.error.message))
     },
 })
@@ -67,11 +66,11 @@ zoomToMiddleware.startListening({
         switch (type) {
             case SourceType.FeatureCollection: {
                 const bbox = turf.bbox(source.dataset)
-
                 listenerApi.dispatch(actions.map.fitBounds({
                     mapId,
                     bounds: bbox as mapboxgl.LngLatBoundsLike,
                 }))
+                break
             }
             case SourceType.Geojson: {
                 break

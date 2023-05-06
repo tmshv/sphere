@@ -37,6 +37,7 @@ export const SourcePanel: React.FC = () => {
         }
     })
     const theme = useMantineTheme()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
 
     if (!source) {
@@ -101,6 +102,7 @@ export const SourcePanel: React.FC = () => {
                             break
                         }
                         default: {
+                            break
                         }
                     }
                 }}

@@ -75,7 +75,7 @@ const actionIconDefaultProps: Partial<ActionIconProps> = {
     size: "xs",
     radius: "sm",
     // className: s.icon,
-};
+}
 
 export type MapStatusbarProps = {
     id: string
@@ -141,7 +141,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                     </Badge>
                 )}
 
-                <div className={s.s}></div>
+                <div className={s.s} />
 
                 <ActionIcon onClick={() => {
                     dispatch(actions.map.printViewport({ mapId: "spheremap" }))

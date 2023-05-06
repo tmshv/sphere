@@ -8,61 +8,7 @@ import { Box, createStyles } from "@mantine/core"
 import { ThemeProvider } from "./ui/ThemeProvider"
 import { PropertesTable, PropertyItem, PropertyItemMeta } from "./ui/PropertiesTable"
 import { hist } from "./lib/stat"
-
-function isInt(n: number): boolean {
-    return n % 1 === 0
-}
-
-function isDate(value: string): boolean {
-    const date = Date.parse(value)
-
-    return !isNaN(date)
-}
-
-function isNumeric(value: string): boolean {
-    return /^-?\d+(\.\d+)?(e-?[\d.]+)?$/.test(value)
-}
-
-function predictType<K extends string>(
-    key: K,
-    samples: Record<K | string, any>[],
-): "string" | "url" | "int" | "float" | "date" | "empty" | "mixed" | "unknown" {
-    if (samples.length === 0) {
-        return "empty"
-    }
-
-    const sample = samples[0]
-    const value = sample[key]
-
-    if (Array.isArray(value)) {
-        return "mixed"
-    }
-
-    if (isNumeric(value)) {
-        const n = parseFloat(value)
-        if (typeof n === "number" && !isNaN(n) && isInt(n)) {
-            return "int"
-        }
-        if (typeof n === "number" && !isNaN(n) && !isInt(n)) {
-            return "float"
-        }
-    }
-
-    if (isDate(value)) {
-        return "date"
-    }
-
-    try {
-        const url = new URL(value)
-        return "url"
-    } catch { }
-
-    if (typeof value === "string") {
-        return "string"
-    }
-
-    return "unknown"
-}
+import { predictType } from "@/lib/predict-data-type"
 
 function useEvent<T>(eventName: string) {
     const [payload, setPayload] = useState<T | undefined>(undefined)
