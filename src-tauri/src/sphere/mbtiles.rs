@@ -1,4 +1,6 @@
-use rusqlite::Connection;
+use std::io::Result;
+
+use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -12,6 +14,13 @@ fn merge(a: &mut Value, b: Value) {
         }
         (a, b) => *a = b,
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Tile {
+    pub x: i32,
+    pub y: i32,
+    pub zoom: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -46,7 +55,13 @@ pub fn mbtiles_read_metadata(path: &str) -> String {
     let conn = Connection::open(path).unwrap();
 
     let mut statement = conn
-        .prepare(r#"SELECT name, value FROM metadata WHERE value IS NOT NULL"#)
+        .prepare(
+            r#"
+            SELECT name, value
+            FROM metadata
+            WHERE value IS NOT NULL
+            "#,
+        )
         .unwrap();
 
     let mut metadata_rows = statement.query([]).unwrap();
@@ -125,4 +140,37 @@ pub fn mbtiles_read_metadata(path: &str) -> String {
 
     let serialized = serde_json::to_string(&tilejson).unwrap();
     serialized
+}
+
+pub fn mbtiles_read_tile(path: &str, tile: &Tile) -> Option<Vec<u8>> {
+    let conn = Connection::open(path).unwrap();
+    let statement = conn.prepare(
+        r#"
+            SELECT tile_data
+            FROM tiles
+            WHERE 1=1
+            AND zoom_level = ?1
+            AND tile_column = ?2
+            AND tile_row = ?3
+        "#,
+    );
+    match statement {
+        Ok(mut statement) => {
+            let res: Option<Vec<u8>> = match statement
+                .query_row(params![tile.zoom, tile.x, tile.y], |row| {
+                    Ok(row.get(0).unwrap())
+                }) {
+                Ok(data) => Some(data),
+                Err(err) => {
+                    println!("Failed to get SQL row: {}", err);
+                    None
+                }
+            };
+            res
+        }
+        Err(err) => {
+            println!("Failed to create SQL query: {}", err);
+            None
+        }
+    }
 }
