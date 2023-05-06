@@ -12,7 +12,6 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn mbtiles_get_metadata(path: &str) -> String {
     let meta = mbtiles_read_metadata(path);
