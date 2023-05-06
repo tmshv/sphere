@@ -27,6 +27,7 @@ tauri = { version = "1.3", features = ["clipboard-read-text", "clipboard-write-t
 # libraries built around `rusqlite` should probably not enable it, which
 # is why it is not a default feature -- it could become hard to disable.
 rusqlite = { version = "0.29.0", features = ["bundled"] }
+flate2 = "1.0.26"
 
 [features]
 # by default Tauri runs in production mode

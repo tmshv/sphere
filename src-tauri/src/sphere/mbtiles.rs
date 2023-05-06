@@ -1,6 +1,7 @@
-use std::io::Result;
+use std::io::{Result, Read};
 
 use rusqlite::{params, Connection};
+use flate2::read::{GzDecoder, ZlibDecoder};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -13,6 +14,29 @@ fn merge(a: &mut Value, b: Value) {
             }
         }
         (a, b) => *a = b,
+    }
+}
+
+pub enum TileFormat {
+    Gzip,
+    Zlib,
+}
+
+fn unzip(data: Vec<u8>, data_type: TileFormat) -> Result<Vec<u8>> {
+    match data_type {
+        TileFormat::Gzip => {
+            let mut decoder = GzDecoder::new(&data[..]);
+            let mut s = Vec::new();
+            decoder.read_to_end(&mut s).unwrap();
+            Ok(s)
+        }
+        TileFormat::Zlib => {
+            let mut decoder = ZlibDecoder::new(&data[..]);
+            let mut s = Vec::new();
+            decoder.read_to_end(&mut s).unwrap();
+            Ok(s)
+        }
+        _ => Ok(data),
     }
 }
 
@@ -114,8 +138,7 @@ pub fn mbtiles_read_metadata(path: &str) -> String {
 
     println!("mbtile meta was invoked from js with result: {:?}", meta);
 
-    // TODO: use sphere://
-    let tiles = format!["sphere:/{}?z={{z}}&x={{x}}&y={{y}}", path];
+    let tiles = format!["sphere://mbtiles{}?z={{z}}&x={{x}}&y={{y}}", path];
 
     let mut tilejson = json!({
         "tilejson": meta.tilejson,
@@ -154,10 +177,11 @@ pub fn mbtiles_read_tile(path: &str, tile: &Tile) -> Option<Vec<u8>> {
             AND tile_row = ?3
         "#,
     );
-    match statement {
+    let tile_bytes = match statement {
         Ok(mut statement) => {
+            let y = (1 << tile.zoom) - 1 - tile.y;
             let res: Option<Vec<u8>> = match statement
-                .query_row(params![tile.zoom, tile.x, tile.y], |row| {
+                .query_row(params![tile.zoom, tile.x, y], |row| {
                     Ok(row.get(0).unwrap())
                 }) {
                 Ok(data) => Some(data),
@@ -172,5 +196,13 @@ pub fn mbtiles_read_tile(path: &str, tile: &Tile) -> Option<Vec<u8>> {
             println!("Failed to create SQL query: {}", err);
             None
         }
+    };
+
+    match tile_bytes {
+        Some(bytes) => {
+            let t = unzip(bytes, TileFormat::Gzip).unwrap();
+            return Some(t)
+        }
+        None => None
     }
 }

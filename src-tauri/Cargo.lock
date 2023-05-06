@@ -2912,6 +2912,7 @@ dependencies = [
 name = "sphere"
 version = "0.2.2"
 dependencies = [
+ "flate2",
  "rusqlite",
  "serde",
  "serde_json",
