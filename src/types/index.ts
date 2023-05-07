@@ -15,6 +15,7 @@ export enum LayerType {
     Polygon = "Polygon",
     Photo = "Photo",
     Heatmap = "Heatmap",
+    Raster = "Raster",
 }
 
 export type SourceMetadata = {
