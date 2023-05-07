@@ -21,15 +21,10 @@ fn mbtiles_get_metadata(path: &str) -> String {
 }
 
 #[tauri::command]
-fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Vec<u8> {
+fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Option<Vec<u8>> {
     let tile = Tile { x, y, zoom: z };
-    let pbf = mbtiles_read_tile(path, &tile);
-    println!("Tile: {:?}", pbf);
-
-    match pbf {
-        Some(tile) => tile,
-        None => vec![],
-    }
+    let data = mbtiles_read_tile(path, &tile);
+    return data;
 }
 
 fn main() {
