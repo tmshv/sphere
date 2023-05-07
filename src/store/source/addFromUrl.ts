@@ -2,24 +2,10 @@ import { createAsyncThunk } from "@reduxjs/toolkit"
 import { SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { actions } from "."
-import { init } from "@/lib/array"
+import { getStem } from "@/lib/path"
 import { get } from "@/lib/http"
 
 const AT = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
-
-export function getStem(pathname: string): string | null {
-    const parts = pathname.split("/")
-    if (parts.length === 0) {
-        return null
-    }
-
-    const file = parts[parts.length - 1]
-    const fileParts = file.split(".")
-    if (fileParts.length === 1) {
-        return fileParts[0]
-    }
-    return init(fileParts).join(".")
-}
 
 function mapboxToHttp(value: string, accessToken: string): string | null {
     const p = /mapbox:\/\/(.*)/
