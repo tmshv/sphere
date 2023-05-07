@@ -17,8 +17,8 @@ fn greet(name: &str) -> String {
 fn mbtiles_get_metadata(path: &str) -> Result<String, String> {
     let meta = mbtiles_read_metadata(path);
     match meta {
-        Some(meta) => Ok(meta),
-        None => Err("Failed to get TileJSON".into()),
+        Ok(meta) => Ok(meta),
+        Err(err) => Err(err),
    }
 }
 
