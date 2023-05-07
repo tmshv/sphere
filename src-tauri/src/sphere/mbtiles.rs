@@ -72,7 +72,7 @@ pub struct MbtilesMetadata {
     pub mbtiles_type: Option<String>,
 }
 
-pub fn mbtiles_read_metadata(path: &str) -> String {
+pub fn mbtiles_read_metadata(path: &str) -> Option<String> {
     let mut meta = MbtilesMetadata {
         tilejson: String::from("2.0.0"),
         name: None,
@@ -283,8 +283,14 @@ pub fn mbtiles_read_metadata(path: &str) -> String {
         None => (),
     }
 
-    let serialized = serde_json::to_string(&tilejson).unwrap();
-    serialized
+    let serialized = serde_json::to_string(&tilejson);
+    match serialized {
+        Ok(data) => Some(data),
+        Err(err) => {
+            println!("Failed to serialize TileJSON: {}", err);
+            None
+        }
+    }
 }
 
 pub fn mbtiles_read_tile(path: &str, tile: &Tile) -> Option<Vec<u8>> {

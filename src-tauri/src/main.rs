@@ -13,10 +13,8 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn mbtiles_get_metadata(path: &str) -> String {
+fn mbtiles_get_metadata(path: &str) -> Option<String> {
     let meta = mbtiles_read_metadata(path);
-    println!("mbtile meta was invoked from js with result: {:?}", meta);
-
     meta
 }
 
