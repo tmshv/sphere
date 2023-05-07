@@ -74,7 +74,7 @@ pub struct MbtilesMetadata {
 
 pub fn mbtiles_read_metadata(path: &str) -> Option<String> {
     let mut meta = MbtilesMetadata {
-        tilejson: String::from("2.0.0"),
+        tilejson: String::from("3.0.0"),
         name: None,
         description: None,
         attribution: None,
