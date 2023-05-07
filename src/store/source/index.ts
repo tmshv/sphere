@@ -150,33 +150,14 @@ export const sourceSlice = createSlice({
             source.meta = meta
             source.pending = false
         },
-        addVector: (state, action: PayloadAction<{
+        addSource: (state, action: PayloadAction<{
             id: Id,
-            name: string,
-            sourceLayers: { name: string, id: string }[],
-            location: string,
-        }>) => {
-            const { id: sourceId, sourceLayers, name, location } = action.payload
-            state.items[sourceId] = {
-                id: sourceId,
-                type: SourceType.MVT,
-                name,
-                location,
-                fractionIndex: 0,
-                pending: false,
-                editable: false,
-                sourceLayers,
-            }
-            state.allIds.push(sourceId)
-            state.lastAdded = sourceId
-        },
-        addRemote: (state, action: PayloadAction<{
-            id: Id,
-            type: SourceType.Geojson | SourceType.Raster,
+            type: SourceType.Geojson | SourceType.Raster | SourceType.MVT,
             name: string,
             location: string,
+            sourceLayers?: { name: string, id: string }[],
         }>) => {
-            const { id: sourceId, type, name, location } = action.payload
+            const { id: sourceId, type, name, location, sourceLayers } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
                 type,
@@ -185,6 +166,7 @@ export const sourceSlice = createSlice({
                 pending: false,
                 fractionIndex: 0,
                 editable: false,
+                sourceLayers,
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId

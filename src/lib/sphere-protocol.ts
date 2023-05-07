@@ -12,7 +12,7 @@ export class SphereProtocol {
     public async handleMbtiles(reader: MbtilesReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
         switch (type) {
             case "json": {
-                return reader.getMetadata()
+                return reader.getTileJson()
             }
             case "arrayBuffer": {
                 const z = parseInt(url.searchParams.get("z")!)
