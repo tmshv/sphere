@@ -4,6 +4,7 @@
 )]
 
 mod sphere;
+
 use sphere::mbtiles::{mbtiles_read_metadata, mbtiles_read_tile, Tile};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -13,16 +14,22 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn mbtiles_get_metadata(path: &str) -> Option<String> {
+fn mbtiles_get_metadata(path: &str) -> Result<String, String> {
     let meta = mbtiles_read_metadata(path);
-    meta
+    match meta {
+        Some(meta) => Ok(meta),
+        None => Err("Failed to get TileJSON".into()),
+   }
 }
 
 #[tauri::command]
-fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Option<Vec<u8>> {
+fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Result<Vec<u8>, String> {
     let tile = Tile { x, y, zoom: z };
     let data = mbtiles_read_tile(path, &tile);
-    return data;
+    match data {
+        Some(data) => Ok(data),
+        None => Err("Failed to get Tile".into()),
+    }
 }
 
 fn main() {
