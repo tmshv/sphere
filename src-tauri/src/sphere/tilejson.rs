@@ -1,18 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-fn merge(a: &mut Value, b: Value) {
-    match (a, b) {
-        (a @ &mut Value::Object(_), Value::Object(b)) => {
-            let a = a.as_object_mut().unwrap();
-            for (k, v) in b {
-                merge(a.entry(k).or_insert(Value::Null), v);
-            }
-        }
-        (a, b) => *a = b,
-    }
-}
-
 pub const MINZOOM: i32 = 0;
 pub const MAXZOOM: i32 = 30;
 
