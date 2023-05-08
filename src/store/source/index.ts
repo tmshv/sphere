@@ -166,7 +166,7 @@ export const sourceSlice = createSlice({
                 pending: false,
                 fractionIndex: 0,
                 editable: false,
-                sourceLayers,
+                sourceLayers: sourceLayers ?? [],
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
