@@ -97,10 +97,10 @@ impl Mbtiles {
             Ok(conn) => {
                 let statement = conn.prepare(
                     r#"
-                SELECT name, value
-                FROM metadata
-                WHERE value IS NOT NULL
-                "#,
+                    SELECT name, value
+                    FROM metadata
+                    WHERE value IS NOT NULL
+                    "#,
                 );
                 match statement {
                     Ok(mut statement) => {
@@ -205,7 +205,7 @@ impl Mbtiles {
             AND zoom_level = ?1
             AND tile_column = ?2
             AND tile_row = ?3
-        "#,
+            "#,
         );
         let tile_bytes = match statement {
             Ok(mut statement) => {
