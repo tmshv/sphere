@@ -203,6 +203,11 @@ impl Tilejson3 {
         self
     }
 
+    pub fn set_scheme(&mut self, value: TileScheme) -> &Tilejson3 {
+        self.scheme = value;
+        self
+    }
+
     pub fn set_name(&mut self, value: String) -> &Tilejson3 {
         self.name = Some(value);
         self

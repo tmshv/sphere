@@ -7,7 +7,7 @@ use std::io;
 use std::io::Read;
 use std::result;
 
-use super::tilejson::{MAXZOOM, MINZOOM};
+use super::tilejson::{TileScheme, MAXZOOM, MINZOOM};
 
 fn merge(a: &mut Value, b: Value) {
     match (a, b) {
@@ -151,6 +151,15 @@ impl Mbtiles {
                 }
                 "template" => {
                     tilejson.set_template(value);
+                }
+                "scheme" => {
+                    let scheme = TileScheme::from_str(value.as_str());
+                    match scheme {
+                        Some(value) => {
+                            tilejson.set_scheme(value);
+                        }
+                        None => (),
+                    }
                 }
                 "bounds" => {
                     let bounds = value
