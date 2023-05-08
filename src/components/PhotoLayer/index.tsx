@@ -1,48 +1,9 @@
-import { ClustersOptions, useClusters } from "@/hooks/useClusters"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { ImageMarker } from "@/ui/ImageMarker"
-import { createStyles } from "@mantine/core"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Marker, useMap } from "react-map-gl"
-
-const useStyle = createStyles(theme => ({
-    badge: {
-        backgroundColor: theme.white,
-        padding: "0 5px",
-        borderRadius: 50,
-        color: theme.black,
-        fontSize: 12,
-        minWidth: 20,
-        textAlign: "center",
-        transform: "translate(50 %, -50 %)",
-        boxShadow: "0px 0px 3px rgba(0, 0, 20, 0.1)",
-    },
-}))
-
-export type BadgeProps = {
-    top?: number
-    right?: number
-    children?: React.ReactNode
-}
-
-export const Badge: React.FC<BadgeProps> = ({ top, right, children }) => {
-    const { classes: s } = useStyle()
-    return (
-        <div
-            className={s.badge}
-            style={{
-                position: "absolute",
-                top: top ?? 0,
-                right: right ?? 0,
-            }}
-        >
-            {children}
-        </div>
-    )
-}
-
-// layer
+import { PhotoCluster } from "./PhotoCluster"
 
 export type GetImageFunction = (p: Record<string, any>) => {
     src: string,
@@ -59,19 +20,38 @@ export type PhotoLayerProps = {
     iconSizeCluster?: number
 }
 
-export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
+export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
     const { current } = useMap()
     const [activeImage, setActiveImage] = useState<string | number | null>(null)
     const features = useAppSelector(state => {
         const source = state.source.items[sourceId]
-        if (!source.pending && source.type === SourceType.FeatureCollection) {
-            return source.dataset.features
-                .filter(f => {
-                    const { src, iconSrc } = getImage(f.properties!)
-                    return !!src && !!iconSrc
-                })
-        } else {
-            return []
+        switch (source.type) {
+            case SourceType.FeatureCollection: {
+                if (source.pending) {
+                    return []
+                }
+                return source.dataset.features
+                    .filter(f => {
+                        const { src, iconSrc } = getImage(f.properties!)
+                        return !!src && !!iconSrc
+                    })
+            }
+            case SourceType.MVT: {
+                // layerId = "layer-2"
+                const layer = state.layer.items[layerId]
+                let features = []
+                const map = current?.getMap()
+                if (map) {
+                    features = map?.queryRenderedFeatures(undefined, {
+                        layers: [layerId]
+                    })
+                }
+                console.log("you are going to mvt photo of layer", layer, features)
+                return []
+            }
+            default: {
+                return []
+            }
         }
     })
 
@@ -152,8 +132,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
     return (
         <PhotoCluster
             radius={clusterRadius}
-            data={features as any}
-            //  as GeoJSON.FeatureCollection<GeoJSON.Point>}
+            data={features as GeoJSON.FeatureCollection<GeoJSON.Point>}
             renderPhoto={renderPhoto}
             mapProperties={p => {
                 const { iconSrc, value } = getImage(p)
@@ -166,44 +145,3 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, clusterRadius,
     )
 }
 
-type RenderPhotoFunction = (feature: GeoJSON.Feature<GeoJSON.Point>, isCluster: boolean) => React.ReactNode
-type MapPropertiesFunction = (properties: Record<string, any>) => { url: string, value: number }
-type PhotoClusterProps = {
-    radius: number
-    data: GeoJSON.Feature<GeoJSON.Point, any>[]
-    mapProperties: MapPropertiesFunction
-    renderPhoto: RenderPhotoFunction
-}
-
-const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapProperties, renderPhoto }) => {
-    type Props = {
-        [key: string]: string | number
-    }
-    const options = useMemo<ClustersOptions<Props, Props>>(() => ({
-        minZoom: 0,
-        maxZoom: 22,
-        radius,
-        extent: 512,
-        nodeSize: 64,
-        map: mapProperties,
-        reduce: (acc, props) => {
-            if (acc.value < props.value) {
-                acc.value = props.value
-                acc.url = props.url
-            }
-        },
-    }), [radius, mapProperties])
-    const { clusters } = useClusters<Props, Props>("spheremap", data, "moveend", options)
-
-    return (
-        <>
-            {clusters.map(cluster => {
-                if (cluster.properties?.cluster) {
-                    return renderPhoto(cluster, true)
-                }
-
-                return renderPhoto(cluster, false)
-            })}
-        </>
-    )
-}

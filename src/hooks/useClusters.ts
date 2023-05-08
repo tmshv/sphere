@@ -28,7 +28,7 @@ export function useClusters<
         const zoom = map.getZoom()
         const bounds = map.getBounds() // sw ne
         const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()] as BBox
-        let clusters = cluster.current.getClusters(bbox, Math.floor(zoom)) // w s e n
+        const clusters = cluster.current.getClusters(bbox, Math.floor(zoom)) // w s e n
         setClusters(clusters)
     }, [map])
 
