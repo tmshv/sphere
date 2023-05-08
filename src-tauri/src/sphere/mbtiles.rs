@@ -7,7 +7,7 @@ use std::io;
 use std::io::Read;
 use std::result::Result;
 
-use super::tilejson::{MINZOOM, MAXZOOM};
+use super::tilejson::{MAXZOOM, MINZOOM};
 
 fn merge(a: &mut Value, b: Value) {
     match (a, b) {
@@ -81,120 +81,124 @@ pub struct MbtilesMetadata {
     pub mbtiles_type: Option<String>,
 }
 
-fn sphere_mbtile_url(path: &str) -> String {
-    format!("sphere://mbtiles{}?z={{z}}&x={{x}}&y={{y}}", path)
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Mbtiles {
+    pub path: String,
 }
 
-pub fn mbtiles_read_metadata(path: &str) -> Result<String, String> {
-    let conn = Connection::open(path);
-    match conn {
-        Ok(conn) => {
-            let statement = conn.prepare(
-                r#"
+impl Mbtiles {
+    fn sphere_url(&self) -> String {
+        format!("sphere://mbtiles{}?z={{z}}&x={{x}}&y={{y}}", self.path)
+    }
+
+    pub fn get_metadata(&self) -> Result<String, String> {
+        let conn = Connection::open(self.path.as_str());
+        match conn {
+            Ok(conn) => {
+                let statement = conn.prepare(
+                    r#"
                 SELECT name, value
                 FROM metadata
                 WHERE value IS NOT NULL
                 "#,
-            );
-            match statement {
-                Ok(mut statement) => {
-                    let mut meta = MbtilesMetadata {
-                        format: None,
-                        json: None,
-                        mbtiles_type: None,
-                    };
-                    let mut tilejson = tilejson::Tilejson3::new();
-                    let mut meta_rows = statement.query([]).unwrap();
-                    let mut minzoom: i32 = MINZOOM;
-                    let mut maxzoom: i32 = MAXZOOM;
-                    while let Some(row) = meta_rows.next().unwrap() {
-                        let key: String = row.get(0).unwrap();
-                        let value: String = row.get(1).unwrap();
-                        match key.as_ref() {
-                            "name" => {
-                                tilejson.set_name(value);
-                            }
-                            "description" => {
-                                tilejson.set_description(value);
-                            }
-                            "version" => {
-                                tilejson.set_version(value);
-                            }
-                            "attribution" => {
-                                tilejson.set_attribution(value);
-                            }
-                            "legend" => {
-                                tilejson.set_legend(value);
-                            }
-                            "template" => {
-                                tilejson.set_template(value);
-                            }
-                            "bounds" => {
-                                let bounds = value
-                                    .split(',')
-                                    .filter_map(|s| s.parse::<f32>().ok())
-                                    .collect::<Vec<f32>>();
-                                if bounds.len() == 4 {
-                                    tilejson.set_bounds(bounds);
+                );
+                match statement {
+                    Ok(mut statement) => {
+                        let mut meta = MbtilesMetadata {
+                            format: None,
+                            json: None,
+                            mbtiles_type: None,
+                        };
+                        let mut tilejson = tilejson::Tilejson3::new();
+                        let mut meta_rows = statement.query([]).unwrap();
+                        let mut minzoom: i32 = MINZOOM;
+                        let mut maxzoom: i32 = MAXZOOM;
+                        while let Some(row) = meta_rows.next().unwrap() {
+                            let key: String = row.get(0).unwrap();
+                            let value: String = row.get(1).unwrap();
+                            match key.as_ref() {
+                                "name" => {
+                                    tilejson.set_name(value);
                                 }
-                            }
-                            "center" => {
-                                let coord = value
-                                    .split(',')
-                                    .filter_map(|s| s.parse::<f32>().ok())
-                                    .collect::<Vec<f32>>();
-                                if coord.len() == 2 || coord.len() == 3 {
-                                    tilejson.set_center(coord);
+                                "description" => {
+                                    tilejson.set_description(value);
                                 }
-                            }
-                            "minzoom" => {
-                                minzoom = match value.parse::<i32>() {
-                                    Ok(value) => value,
-                                    Err(_) => tilejson::MINZOOM,
+                                "version" => {
+                                    tilejson.set_version(value);
                                 }
-                            }
-                            "maxzoom" => {
-                                maxzoom = match value.parse::<i32>() {
-                                    Ok(value) => value,
-                                    Err(_) => tilejson::MAXZOOM,
+                                "attribution" => {
+                                    tilejson.set_attribution(value);
                                 }
+                                "legend" => {
+                                    tilejson.set_legend(value);
+                                }
+                                "template" => {
+                                    tilejson.set_template(value);
+                                }
+                                "bounds" => {
+                                    let bounds = value
+                                        .split(',')
+                                        .filter_map(|s| s.parse::<f32>().ok())
+                                        .collect::<Vec<f32>>();
+                                    if bounds.len() == 4 {
+                                        tilejson.set_bounds(bounds);
+                                    }
+                                }
+                                "center" => {
+                                    let coord = value
+                                        .split(',')
+                                        .filter_map(|s| s.parse::<f32>().ok())
+                                        .collect::<Vec<f32>>();
+                                    if coord.len() == 2 || coord.len() == 3 {
+                                        tilejson.set_center(coord);
+                                    }
+                                }
+                                "minzoom" => {
+                                    minzoom = match value.parse::<i32>() {
+                                        Ok(value) => value,
+                                        Err(_) => tilejson::MINZOOM,
+                                    }
+                                }
+                                "maxzoom" => {
+                                    maxzoom = match value.parse::<i32>() {
+                                        Ok(value) => value,
+                                        Err(_) => tilejson::MAXZOOM,
+                                    }
+                                }
+                                "type" => meta.mbtiles_type = Some(value),
+                                "format" => meta.format = Some(value),
+                                "json" => meta.json = Some(serde_json::from_str(&value).unwrap()),
+                                &_ => {}
                             }
-                            "type" => meta.mbtiles_type = Some(value),
-                            "format" => meta.format = Some(value),
-                            "json" => meta.json = Some(serde_json::from_str(&value).unwrap()),
-                            &_ => {}
+                        }
+                        tilejson.set_zoom(minzoom, maxzoom);
+                        tilejson.add_tile(self.sphere_url());
+
+                        let mut tj = tilejson.as_json();
+                        match meta.json {
+                            Some(json) => {
+                                merge(&mut tj, json);
+                            }
+                            None => (),
+                        }
+
+                        let serialized = serde_json::to_string(&tj);
+                        match serialized {
+                            Ok(data) => Ok(data),
+                            Err(_) => Err("Failed to serialize TileJSON".into()),
                         }
                     }
-                    tilejson.set_zoom(minzoom, maxzoom);
-
-                    let tiles = sphere_mbtile_url(path);
-                    tilejson.add_tile(tiles);
-
-                    let mut tj = tilejson.as_json();
-                    match meta.json {
-                        Some(json) => {
-                            merge(&mut tj, json);
-                        }
-                        None => (),
-                    }
-
-                    let serialized = serde_json::to_string(&tj);
-                    match serialized {
-                        Ok(data) => Ok(data),
-                        Err(_) => Err("Failed to serialize TileJSON".into()),
-                    }
+                    Err(_) => Err("Failed to query".into()),
                 }
-                Err(_) => Err("Failed to query".into()),
             }
+            Err(_) => Err("Failed to create SQL connection".into()),
         }
-        Err(_) => Err("Failed to create SQL connection".into()),
     }
-}
 
-pub fn mbtiles_read_tile(path: &str, tile: &Tile) -> Option<Vec<u8>> {
-    let conn = Connection::open(path).unwrap();
-    let statement = conn.prepare(
-        r#"
+    pub fn get_tile(&self, tile: &Tile) -> Option<Vec<u8>> {
+        let conn = Connection::open(self.path.as_str()).unwrap();
+        let statement = conn.prepare(
+            r#"
             SELECT tile_data
             FROM tiles
             WHERE 1=1
@@ -202,41 +206,42 @@ pub fn mbtiles_read_tile(path: &str, tile: &Tile) -> Option<Vec<u8>> {
             AND tile_column = ?2
             AND tile_row = ?3
         "#,
-    );
-    let tile_bytes = match statement {
-        Ok(mut statement) => {
-            let (z, x, y) = tile.as_tms();
-            let res: Option<Vec<u8>> =
-                match statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap())) {
-                    Ok(data) => Some(data),
-                    Err(err) => {
-                        println!("Failed to get SQL row: {}", err);
-                        None
-                    }
-                };
-            res
-        }
-        Err(err) => {
-            println!("Failed to create SQL query: {}", err);
-            None
-        }
-    };
-
-    match tile_bytes {
-        Some(bytes) => {
-            let f = get_tile_format(bytes.as_slice());
-            match f {
-                TileFormat::Zlib => {
-                    let t = unzip(bytes, TileFormat::Zlib).unwrap();
-                    return Some(t);
-                }
-                TileFormat::Gzip => {
-                    let t = unzip(bytes, TileFormat::Gzip).unwrap();
-                    return Some(t);
-                }
-                _ => return Some(bytes),
+        );
+        let tile_bytes = match statement {
+            Ok(mut statement) => {
+                let (z, x, y) = tile.as_tms();
+                let res: Option<Vec<u8>> =
+                    match statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap())) {
+                        Ok(data) => Some(data),
+                        Err(err) => {
+                            println!("Failed to get SQL row: {}", err);
+                            None
+                        }
+                    };
+                res
             }
+            Err(err) => {
+                println!("Failed to create SQL query: {}", err);
+                None
+            }
+        };
+
+        match tile_bytes {
+            Some(bytes) => {
+                let f = get_tile_format(bytes.as_slice());
+                match f {
+                    TileFormat::Zlib => {
+                        let t = unzip(bytes, TileFormat::Zlib).unwrap();
+                        return Some(t);
+                    }
+                    TileFormat::Gzip => {
+                        let t = unzip(bytes, TileFormat::Gzip).unwrap();
+                        return Some(t);
+                    }
+                    _ => return Some(bytes),
+                }
+            }
+            None => None,
         }
-        None => None,
     }
 }
