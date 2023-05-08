@@ -2910,7 +2910,7 @@ dependencies = [
 
 [[package]]
 name = "sphere"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "flate2",
  "rusqlite",
