@@ -27,7 +27,6 @@ type VectorSource = {
 type RasterSource = {
     type: SourceType.Raster
     location: string
-    // layers:
     editable: false
     pending: false
 }

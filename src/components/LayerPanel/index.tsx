@@ -85,6 +85,11 @@ export const LayerPanel: React.FC = () => {
             <IconPhoto size={20} color={color} />
         )
     }
+    if (type === LayerType.Raster) {
+        icon = (
+            <IconPhoto size={20} color={color} />
+        )
+    }
     if (type === LayerType.Heatmap) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         icon = (

@@ -15,13 +15,13 @@ const getImage: GetImageFunction = p => {
     const srcField = "src"
     const valueField = "score"
 
-    const src = p[srcField] as string
-    const iconSrc = p[iconField] as string
+    const src = p![srcField] as string
+    const iconSrc = p![iconField] as string
 
     return {
         src,
         iconSrc,
-        value: p[valueField] ?? 0,
+        value: p![valueField] ?? 0,
     }
 }
 

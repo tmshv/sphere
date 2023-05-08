@@ -3,9 +3,10 @@ import { SourceType } from "@/types"
 import { ImageMarker } from "@/ui/ImageMarker"
 import { useCallback, useEffect, useState } from "react"
 import { Marker, useMap } from "react-map-gl"
-import { PhotoCluster } from "./PhotoCluster"
+import { Badge } from "./Badge"
+import { PhotoCluster, RenderPhotoFunction } from "./PhotoCluster"
 
-export type GetImageFunction = (p: Record<string, any>) => {
+export type GetImageFunction = (p: GeoJSON.GeoJsonProperties) => {
     src: string,
     iconSrc: string,
     value: number
@@ -43,7 +44,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
                 const map = current?.getMap()
                 if (map) {
                     features = map?.queryRenderedFeatures(undefined, {
-                        layers: [layerId]
+                        layers: [layerId],
                     })
                 }
                 console.log("you are going to mvt photo of layer", layer, features)

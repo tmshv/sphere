@@ -43,7 +43,7 @@ export async function get<T>(url: string): Promise<ErrorResponse | OkResponse<T>
 
         return {
             ok: false,
-            error: "Unknown",
+            error: error as unknown as string,
         }
     }
 }
