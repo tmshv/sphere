@@ -19,7 +19,7 @@ fn mbtiles_get_metadata(path: &str) -> Result<String, String> {
     let meta = mbtiles.get_metadata();
     match meta {
         Ok(meta) => Ok(meta),
-        Err(err) => Err(err),
+        Err(err) => Err(format!("Failed to get metadata: {:?}", err)),
     }
 }
 
@@ -29,8 +29,8 @@ fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Result<Vec<u8>, Strin
     let mbtiles = Mbtiles { path: path.into() };
     let data = mbtiles.get_tile(&tile);
     match data {
-        Some(data) => Ok(data),
-        None => Err("Failed to get Tile".into()),
+        Ok(data) => Ok(data),
+        Err(err) => Err(format!("Failed to get tile {}/{}/{}: {:?}", z, x, y, err)),
     }
 }
 

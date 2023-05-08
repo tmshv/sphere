@@ -1,11 +1,11 @@
 use crate::sphere::tilejson;
 use flate2::read::{GzDecoder, ZlibDecoder};
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, Error as RusqliteError};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Error as SerdeError, Value};
 use std::io;
 use std::io::Read;
-use std::result::Result;
+use std::result;
 
 use super::tilejson::{MAXZOOM, MINZOOM};
 
@@ -74,6 +74,27 @@ impl Tile {
     }
 }
 
+#[derive(Debug)]
+pub enum MbtilesError {
+    DB(RusqliteError),
+    Serialize(SerdeError),
+    // Unknown,
+}
+
+impl From<RusqliteError> for MbtilesError {
+    fn from(err: RusqliteError) -> Self {
+        MbtilesError::DB(err)
+    }
+}
+
+impl From<SerdeError> for MbtilesError {
+    fn from(err: SerdeError) -> Self {
+        MbtilesError::Serialize(err)
+    }
+}
+
+pub type Result<T> = result::Result<T, MbtilesError>;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MbtilesMetadata {
     pub format: Option<String>,
@@ -91,113 +112,100 @@ impl Mbtiles {
         format!("sphere://mbtiles{}?z={{z}}&x={{x}}&y={{y}}", self.path)
     }
 
-    pub fn get_metadata(&self) -> Result<String, String> {
-        let conn = Connection::open(self.path.as_str());
-        match conn {
-            Ok(conn) => {
-                let statement = conn.prepare(
-                    r#"
-                    SELECT name, value
-                    FROM metadata
-                    WHERE value IS NOT NULL
-                    "#,
-                );
-                match statement {
-                    Ok(mut statement) => {
-                        let mut meta = MbtilesMetadata {
-                            format: None,
-                            json: None,
-                            mbtiles_type: None,
-                        };
-                        let mut tilejson = tilejson::Tilejson3::new();
-                        let mut meta_rows = statement.query([]).unwrap();
-                        let mut minzoom: i32 = MINZOOM;
-                        let mut maxzoom: i32 = MAXZOOM;
-                        while let Some(row) = meta_rows.next().unwrap() {
-                            let key: String = row.get(0).unwrap();
-                            let value: String = row.get(1).unwrap();
-                            match key.as_ref() {
-                                "name" => {
-                                    tilejson.set_name(value);
-                                }
-                                "description" => {
-                                    tilejson.set_description(value);
-                                }
-                                "version" => {
-                                    tilejson.set_version(value);
-                                }
-                                "attribution" => {
-                                    tilejson.set_attribution(value);
-                                }
-                                "legend" => {
-                                    tilejson.set_legend(value);
-                                }
-                                "template" => {
-                                    tilejson.set_template(value);
-                                }
-                                "bounds" => {
-                                    let bounds = value
-                                        .split(',')
-                                        .filter_map(|s| s.parse::<f32>().ok())
-                                        .collect::<Vec<f32>>();
-                                    if bounds.len() == 4 {
-                                        tilejson.set_bounds(bounds);
-                                    }
-                                }
-                                "center" => {
-                                    let coord = value
-                                        .split(',')
-                                        .filter_map(|s| s.parse::<f32>().ok())
-                                        .collect::<Vec<f32>>();
-                                    if coord.len() == 2 || coord.len() == 3 {
-                                        tilejson.set_center(coord);
-                                    }
-                                }
-                                "minzoom" => {
-                                    minzoom = match value.parse::<i32>() {
-                                        Ok(value) => value,
-                                        Err(_) => tilejson::MINZOOM,
-                                    }
-                                }
-                                "maxzoom" => {
-                                    maxzoom = match value.parse::<i32>() {
-                                        Ok(value) => value,
-                                        Err(_) => tilejson::MAXZOOM,
-                                    }
-                                }
-                                "type" => meta.mbtiles_type = Some(value),
-                                "format" => meta.format = Some(value),
-                                "json" => meta.json = Some(serde_json::from_str(&value).unwrap()),
-                                &_ => {}
-                            }
-                        }
-                        tilejson.set_zoom(minzoom, maxzoom);
-                        tilejson.add_tile(self.sphere_url());
-
-                        let mut tj = tilejson.as_json();
-                        match meta.json {
-                            Some(json) => {
-                                merge(&mut tj, json);
-                            }
-                            None => (),
-                        }
-
-                        let serialized = serde_json::to_string(&tj);
-                        match serialized {
-                            Ok(data) => Ok(data),
-                            Err(_) => Err("Failed to serialize TileJSON".into()),
-                        }
-                    }
-                    Err(_) => Err("Failed to query".into()),
+    pub fn get_metadata(&self) -> Result<String> {
+        let conn = Connection::open(self.path.as_str())?;
+        let mut statement = conn.prepare(
+            r#"
+            SELECT name, value
+            FROM metadata
+            WHERE value IS NOT NULL
+            "#,
+        )?;
+        let mut meta = MbtilesMetadata {
+            format: None,
+            json: None,
+            mbtiles_type: None,
+        };
+        let mut tilejson = tilejson::Tilejson3::new();
+        let mut meta_rows = statement.query([])?;
+        let mut minzoom: i32 = MINZOOM;
+        let mut maxzoom: i32 = MAXZOOM;
+        while let Some(row) = meta_rows.next()? {
+            let key: String = row.get(0).unwrap();
+            let value: String = row.get(1).unwrap();
+            match key.as_ref() {
+                "name" => {
+                    tilejson.set_name(value);
                 }
+                "description" => {
+                    tilejson.set_description(value);
+                }
+                "version" => {
+                    tilejson.set_version(value);
+                }
+                "attribution" => {
+                    tilejson.set_attribution(value);
+                }
+                "legend" => {
+                    tilejson.set_legend(value);
+                }
+                "template" => {
+                    tilejson.set_template(value);
+                }
+                "bounds" => {
+                    let bounds = value
+                        .split(',')
+                        .filter_map(|s| s.parse::<f32>().ok())
+                        .collect::<Vec<f32>>();
+                    if bounds.len() == 4 {
+                        tilejson.set_bounds(bounds);
+                    }
+                }
+                "center" => {
+                    let coord = value
+                        .split(',')
+                        .filter_map(|s| s.parse::<f32>().ok())
+                        .collect::<Vec<f32>>();
+                    if coord.len() == 2 || coord.len() == 3 {
+                        tilejson.set_center(coord);
+                    }
+                }
+                "minzoom" => {
+                    minzoom = match value.parse::<i32>() {
+                        Ok(value) => value,
+                        Err(_) => tilejson::MINZOOM,
+                    }
+                }
+                "maxzoom" => {
+                    maxzoom = match value.parse::<i32>() {
+                        Ok(value) => value,
+                        Err(_) => tilejson::MAXZOOM,
+                    }
+                }
+                "type" => meta.mbtiles_type = Some(value),
+                "format" => meta.format = Some(value),
+                "json" => meta.json = Some(serde_json::from_str(&value).unwrap()),
+                &_ => {}
             }
-            Err(_) => Err("Failed to create SQL connection".into()),
         }
+        tilejson.set_zoom(minzoom, maxzoom);
+        tilejson.add_tile(self.sphere_url());
+
+        let mut tj = tilejson.as_json();
+        match meta.json {
+            Some(json) => {
+                merge(&mut tj, json);
+            }
+            None => (),
+        }
+
+        let serialized = serde_json::to_string(&tj)?;
+        Ok(serialized)
     }
 
-    pub fn get_tile(&self, tile: &Tile) -> Option<Vec<u8>> {
-        let conn = Connection::open(self.path.as_str()).unwrap();
-        let statement = conn.prepare(
+    pub fn get_tile(&self, tile: &Tile) -> Result<Vec<u8>> {
+        let conn = Connection::open(self.path.as_str())?;
+        let mut statement = conn.prepare(
             r#"
             SELECT tile_data
             FROM tiles
@@ -206,42 +214,21 @@ impl Mbtiles {
             AND tile_column = ?2
             AND tile_row = ?3
             "#,
-        );
-        let tile_bytes = match statement {
-            Ok(mut statement) => {
-                let (z, x, y) = tile.as_tms();
-                let res: Option<Vec<u8>> =
-                    match statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap())) {
-                        Ok(data) => Some(data),
-                        Err(err) => {
-                            println!("Failed to get SQL row: {}", err);
-                            None
-                        }
-                    };
-                res
+        )?;
+        let (z, x, y) = tile.as_tms();
+        let tile_bytes: Vec<u8> =
+            statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap()))?;
+        let f = get_tile_format(tile_bytes.as_slice());
+        match f {
+            TileFormat::Zlib => {
+                let t = unzip(tile_bytes, TileFormat::Zlib).unwrap();
+                Ok(t)
             }
-            Err(err) => {
-                println!("Failed to create SQL query: {}", err);
-                None
+            TileFormat::Gzip => {
+                let t = unzip(tile_bytes, TileFormat::Gzip).unwrap();
+                Ok(t)
             }
-        };
-
-        match tile_bytes {
-            Some(bytes) => {
-                let f = get_tile_format(bytes.as_slice());
-                match f {
-                    TileFormat::Zlib => {
-                        let t = unzip(bytes, TileFormat::Zlib).unwrap();
-                        return Some(t);
-                    }
-                    TileFormat::Gzip => {
-                        let t = unzip(bytes, TileFormat::Gzip).unwrap();
-                        return Some(t);
-                    }
-                    _ => return Some(bytes),
-                }
-            }
-            None => None,
+            _ => Ok(tile_bytes),
         }
     }
 }
