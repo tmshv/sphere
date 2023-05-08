@@ -11,6 +11,7 @@ import { duplicate } from "../layer"
 import { actions } from "../actions"
 import { RootState } from ".."
 import { assertUnreachable } from "@/lib"
+import { MbtilesReader } from "@/lib/mbtiles"
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
@@ -76,6 +77,16 @@ zoomToMiddleware.startListening({
                 break
             }
             case SourceType.MVT: {
+                const u = new URL(source.location)
+                const r = new MbtilesReader(u.pathname)
+                const tilejson = await r.getTileJson()
+                if (tilejson?.bounds) {
+                    const bounds = tilejson.bounds
+                    listenerApi.dispatch(actions.map.fitBounds({
+                        mapId,
+                        bounds,
+                    }))
+                }
                 break
             }
             case SourceType.Raster: {
