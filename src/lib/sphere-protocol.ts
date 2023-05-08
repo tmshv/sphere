@@ -9,23 +9,28 @@ export class SphereProtocol {
         return "sphere"
     }
 
+    public parseZXY(url: URL): [number, number, number] {
+        const z = url.searchParams.get("z") ?? "0"
+        const x = url.searchParams.get("x") ?? "0"
+        const y = url.searchParams.get("y") ?? "0"
+        return [
+            parseInt(z),
+            parseInt(x),
+            parseInt(y),
+        ]
+    }
+
     public async handleMbtiles(reader: MbtilesReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
         switch (type) {
             case "json": {
                 return reader.getTileJson()
             }
             case "arrayBuffer": {
-                const z = parseInt(url.searchParams.get("z")!)
-                const x = parseInt(url.searchParams.get("x")!)
-                const y = parseInt(url.searchParams.get("y")!)
-
+                const [z, x, y] = this.parseZXY(url)
                 const pbf = await reader.getTile({ z, x, y })
                 if (!pbf) {
                     return null
                 }
-
-                console.log("TILE", pbf.buffer)
-
                 return pbf.buffer
             }
             default: {
@@ -37,8 +42,6 @@ export class SphereProtocol {
     public createHandler() {
         const run = async (params: RequestParameters) => {
             const url = new URL(params.url)
-            // console.log("sphere protocol", url)
-
             switch (url.host) {
                 case "mbtiles": {
                     const reader = new MbtilesReader(url.pathname)
@@ -48,32 +51,6 @@ export class SphereProtocol {
                     throw new Error(`SphereProtocol for ${url.host} is not implemented`)
                 }
             }
-
-            // const url = this.buildHttpUrl(params.url)
-            // if (!url) {
-            //     throw new Error(`Not valid mapbox:// url (${params.url})`)
-            // }
-            //
-            // const res = await fetch(url, {
-            //     headers: {
-            //         ...params.headers,
-            //     },
-            // })
-            // if (!res.ok) {
-            //     throw new Error(`fetch error: ${res.statusText}`)
-            // }
-            //
-            // switch (params.type) {
-            //     case "json": {
-            //         return res.json()
-            //     }
-            //     case "arrayBuffer": {
-            //         return res.arrayBuffer()
-            //     }
-            //     case "string": {
-            //         return res.text()
-            //     }
-            // }
         }
 
         return (params: RequestParameters, callback: ResponseCallback<any>) => {
