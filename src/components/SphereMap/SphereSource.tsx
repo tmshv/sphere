@@ -35,7 +35,11 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
                 } as SourceProps
             }
             case SourceType.Raster: {
-                return null
+                return {
+                    id,
+                    type: "raster",
+                    url: s.location,
+                } as SourceProps
             }
             default: {
                 assertUnreachable(type)

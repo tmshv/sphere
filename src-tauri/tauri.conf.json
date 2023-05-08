@@ -19,6 +19,7 @@
                 "all": true,
                 "request": true,
                 "scope": [
+                    "http://**",
                     "https://**"
                 ]
             },

@@ -196,6 +196,7 @@ export const LayerPanel: React.FC = () => {
                     { value: LayerType.Polygon, label: "Polygons" },
                     { value: LayerType.Photo, label: "Photos" },
                     { value: LayerType.Heatmap, label: "Heatmap" },
+                    { value: LayerType.Raster, label: "Raster" },
                 ]}
                 onChange={value => {
                     if (value) {

@@ -4,10 +4,11 @@ import { basename, extname } from "@tauri-apps/api/path"
 import { parseGeojson } from "../../lib/parseGeojson"
 import { parseGpx } from "../../lib/parseGpx"
 import { parseCsv } from "@/lib/parseCsv"
-import { FileParser } from "@/types"
+import { FileParser, SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { open } from "@tauri-apps/api/dialog"
 import { actions } from "."
+import { addFromUrl } from "./addFromUrl"
 
 const parsers = new Map<string, FileParser>([
     ["json", parseGeojson],
@@ -22,7 +23,7 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
             multiple: true,
             filters: [{
                 name: "Geospatial file",
-                extensions: ["csv", "geojson", "gpx"],
+                extensions: ["csv", "geojson", "gpx", "mbtiles"],
             }],
         })
         if (!selected) {
@@ -36,8 +37,23 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
         }
     }
 
-    for (const file of paths) {
-        thunkAPI.dispatch(addFromFile(file))
+    for (const path of paths) {
+        const ext = await extname(path)
+        switch (ext) {
+            case "mbtiles": {
+                const url = `sphere://mbtiles${path}`
+                thunkAPI.dispatch(addFromUrl({
+                    url,
+                    // type: SourceType.MVT,
+                    type: SourceType.Raster,
+                }))
+                break
+            }
+            default: {
+                thunkAPI.dispatch(addFromFile(path))
+                break
+            }
+        }
     }
 
     // this is true side effects

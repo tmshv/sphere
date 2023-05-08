@@ -8,6 +8,7 @@ import { GetImageFunction, PhotoLayer } from "./PhotoLayer"
 import { HeatmapLayer } from "./HeatmapLayer"
 import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
+import { RasterLayer } from "./RasterLayer"
 
 const getImage: GetImageFunction = p => {
     const iconField = "thumbnail"
@@ -108,6 +109,15 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     layerId={layerId}
                     sourceId={sourceId}
                     options={heatmap!}
+                    visible={visible}
+                />
+            )
+        }
+        case LayerType.Raster: {
+            return (
+                <RasterLayer
+                    layerId={layerId}
+                    sourceId={sourceId}
                     visible={visible}
                 />
             )
