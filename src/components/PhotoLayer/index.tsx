@@ -38,16 +38,13 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
                     })
             }
             case SourceType.MVT: {
-                // layerId = "layer-2"
-                const layer = state.layer.items[layerId]
-                let features = []
-                const map = current?.getMap()
-                if (map) {
-                    features = map?.queryRenderedFeatures(undefined, {
-                        layers: [layerId],
-                    })
-                }
-                console.log("you are going to mvt photo of layer", layer, features)
+                // const layer = state.layer.items[layerId]
+                // const map = current?.getMap()
+                // if (map) {
+                //     features = map?.queryRenderedFeatures(undefined, {
+                //         layers: [layerId],
+                //     })
+                // }
                 return []
             }
             default: {
@@ -133,7 +130,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
     return (
         <PhotoCluster
             radius={clusterRadius}
-            data={features as GeoJSON.FeatureCollection<GeoJSON.Point>}
+            data={features as any}
             renderPhoto={renderPhoto}
             mapProperties={p => {
                 const { iconSrc, value } = getImage(p)
