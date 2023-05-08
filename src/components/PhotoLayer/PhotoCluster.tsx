@@ -4,18 +4,19 @@ import { useMemo } from "react"
 export type RenderPhotoFunction = (feature: GeoJSON.Feature<GeoJSON.Point>, isCluster: boolean) => React.ReactNode
 export type MapPropertiesFunction = (properties: GeoJSON.GeoJsonProperties) => { url: string, value: number }
 
+type GeojsonProps = {
+    [key: string]: string | number
+}
+
 export type PhotoClusterProps = {
     radius: number
-    data: GeoJSON.Feature<GeoJSON.Point, GeoJSON.GeoJsonProperties>[]
+    data: GeoJSON.Feature<GeoJSON.Point, GeojsonProps>[]
     mapProperties: MapPropertiesFunction
     renderPhoto: RenderPhotoFunction
 }
 
 export const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapProperties, renderPhoto }) => {
-    type Props = {
-        [key: string]: string | number
-    }
-    const options = useMemo<ClustersOptions<Props, Props>>(() => ({
+    const options = useMemo<ClustersOptions<GeojsonProps, GeojsonProps>>(() => ({
         minZoom: 0,
         maxZoom: 22,
         radius,
@@ -29,7 +30,7 @@ export const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapPro
             }
         },
     }), [radius, mapProperties])
-    const { clusters } = useClusters<Props, Props>("spheremap", data, "moveend", options)
+    const { clusters } = useClusters<GeojsonProps, GeojsonProps>("spheremap", data, "moveend", options)
 
     return (
         <>
