@@ -6,7 +6,7 @@ export class ShapeReader {
 
     public async getGeojson(): Promise<GeoJSON.FeatureCollection | null> {
         try {
-            const res = await invoke<string>("shape_test", {
+            const res = await invoke<string>("shape_get_geojson", {
                 path: this.path,
             })
             return JSON.parse(res)

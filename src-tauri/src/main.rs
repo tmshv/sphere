@@ -36,7 +36,10 @@ fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Result<Vec<u8>, Strin
 
 #[tauri::command]
 fn shape_get_geojson(path: &str) -> Result<String, String> {
-    sphere::shape::to_geojson(path)
+    let shp = sphere::shape::Shape {
+        path: String::from(path),
+    };
+    shp.to_geojson()
 }
 
 fn main() {
