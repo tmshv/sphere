@@ -177,8 +177,8 @@ impl Tilejson3 {
     pub fn new() -> Tilejson3 {
         Tilejson3 {
             tilejson: "3.0.0".into(),
-            tiles: vec![],
-            vector_layers: vec![],
+            tiles: Vec::new(),
+            vector_layers: Vec::new(),
             scheme: TileScheme::XYZ,
             name: None,
             version: None,
@@ -270,7 +270,7 @@ impl Tilejson3 {
             "attribution": self.attribution,
             "bounds": self.bounds,
             "center": self.center,
-            // "data": vec![],
+            // "data": Vec::new(),
             "description": self.description,
             // "fillzoom": 0,
             // "grids": []
