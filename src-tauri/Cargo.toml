@@ -31,6 +31,8 @@ flate2 = "1.0.26"
 shapefile = "0.4.0"
 geo = "0.24.1"
 geojson = "0.24.0"
+geozero = "0.9.9"
+geozero-shp = "0.4.0"
 
 [features]
 # by default Tauri runs in production mode
