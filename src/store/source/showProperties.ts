@@ -4,6 +4,28 @@ import { Id, SourceType } from "@/types"
 import { emit } from "@tauri-apps/api/event"
 import { RootState } from ".."
 import { waitEvent } from "@/lib/tauri"
+import { Source } from "."
+import { ShapeReader } from "@/lib/shape"
+
+async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | null> {
+    switch (source.type) {
+        case SourceType.FeatureCollection: {
+            return source.dataset!.features.map(f => f.properties)
+        }
+        case SourceType.Geojson: {
+            const url = new URL(source.location)
+            const r = new ShapeReader(url.pathname)
+            const geojson = await r.getGeojson()
+            if (!geojson) {
+                return null
+            }
+            return geojson.features.map(f => f.properties)
+        }
+        default: {
+            return null
+        }
+    }
+}
 
 export const showProperties = createAsyncThunk(
     "source/showProperties",
@@ -14,11 +36,11 @@ export const showProperties = createAsyncThunk(
             throw new Error("Source is not found")
         }
 
-        if (!(!source.pending && source.type === SourceType.FeatureCollection)) {
+        const properties = await getProps(source)
+        if (!properties) {
+            console.log("no", source)
             throw new Error(`Property table is not available for "${source.name}"`)
         }
-
-        const properties = source.dataset.features.map(f => f.properties)
 
         const w = "sphere-properties"
         const window = new WebviewWindow(w, {
