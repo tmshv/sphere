@@ -56,6 +56,6 @@ fn main() {
             shape_get_geojson,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("Error while running Application");
 }
 
