@@ -1,5 +1,7 @@
 import type { RequestParameters, ResponseCallback } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
+import { ShapeReader } from "./shape"
+import logger from "@/logger"
 
 export class SphereProtocol {
     constructor() {
@@ -39,6 +41,17 @@ export class SphereProtocol {
         }
     }
 
+    public async handleShape(reader: ShapeReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
+        switch (type) {
+            case "json": {
+                return reader.getGeojson()
+            }
+            default: {
+                throw new Error(`SphereProtocol for ${url.host}/${type} is not implemented`)
+            }
+        }
+    }
+
     public createHandler() {
         const run = async (params: RequestParameters) => {
             const url = new URL(params.url)
@@ -46,6 +59,10 @@ export class SphereProtocol {
                 case "mbtiles": {
                     const reader = new MbtilesReader(url.pathname)
                     return this.handleMbtiles(reader, url, params.type)
+                }
+                case "shape": {
+                    const reader = new ShapeReader(url.pathname)
+                    return this.handleShape(reader, url, params.type)
                 }
                 default: {
                     throw new Error(`SphereProtocol for ${url.host} is not implemented`)
@@ -64,7 +81,7 @@ export class SphereProtocol {
 
             return {
                 cancel: () => {
-                    console.log("canceling", params)
+                    logger.debug("Not Implemented. Cancelling protocol request", params)
                 },
             }
         }

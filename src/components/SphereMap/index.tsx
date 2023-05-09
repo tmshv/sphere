@@ -16,6 +16,7 @@ import { Draw } from "./Draw"
 import maplibregl from "maplibre-gl"
 import { MapboxProtocol } from "@/lib/mapbox-protocol"
 import { SphereProtocol } from "@/lib/sphere-protocol"
+import logger from "@/logger"
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAxZThkMWM5MTRlZGM4YTYifQ.uvMlwjz7hyyY7c54Hs47SQ"
 
@@ -65,7 +66,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             projection={projection}
             logoPosition={"bottom-right"}
             onError={(error) => {
-                console.error("Got error from maplibre", error)
+                logger.error("Got error from maplibre", error)
             }}
         >
             <Source

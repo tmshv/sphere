@@ -3,7 +3,6 @@ import { SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { actions } from "."
 import { getStem } from "@/lib/path"
-import { get } from "@/lib/http"
 import { MbtilesReader } from "@/lib/mbtiles"
 
 export type AddFromUrlOptions = {
@@ -57,30 +56,12 @@ export const addFromUrl = createAsyncThunk(
                 break
             }
             case SourceType.Geojson: {
-                // add pending source
-                thunkAPI.dispatch(actions.addFeatureCollection({
+                thunkAPI.dispatch(actions.addSource({
                     id,
                     name,
                     location: url,
+                    type,
                 }))
-
-                const res = await get<GeoJSON.FeatureCollection>(url)
-                if (res.ok) {
-                    // add source later
-                    thunkAPI.dispatch(actions.setData({
-                        id,
-                        dataset: res.data,
-
-                        // todo: hardcode
-                        meta: {
-                            pointsCount: 0,
-                            polygonsCount: 0,
-                            linesCount: 0,
-                        },
-                    }))
-                } else {
-                    throw res.error
-                }
                 break
             }
             default: {

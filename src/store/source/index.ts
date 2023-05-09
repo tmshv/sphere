@@ -48,7 +48,7 @@ type PendingFeatureCollecionSource = {
     pending: true
 }
 
-type Source = (GeojsonSource | VectorSource | RasterSource | PendingFeatureCollecionSource | FeatureCollecionSource) & {
+export type Source = (GeojsonSource | VectorSource | RasterSource | PendingFeatureCollecionSource | FeatureCollecionSource) & {
     id: Id
     name: string
     fractionIndex: number

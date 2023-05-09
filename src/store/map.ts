@@ -1,3 +1,4 @@
+import logger from "@/logger"
 import { getMap } from "@/map"
 import { createAction, createListenerMiddleware } from "@reduxjs/toolkit"
 import mapboxgl from "mapbox-gl"
@@ -84,6 +85,6 @@ listener.startListening({
             bbox: map.getBounds().toArray(),
         }
 
-        console.log("viewport", viewport)
+        logger.info("viewport", viewport)
     },
 })

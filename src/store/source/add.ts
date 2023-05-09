@@ -23,7 +23,7 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
             multiple: true,
             filters: [{
                 name: "Geospatial file",
-                extensions: ["csv", "geojson", "gpx", "mbtiles"],
+                extensions: ["csv", "geojson", "gpx", "mbtiles", "shp"],
             }],
         })
         if (!selected) {
@@ -46,6 +46,14 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
                     url,
                     // type: SourceType.MVT,
                     type: SourceType.Raster,
+                }))
+                break
+            }
+            case "shp": {
+                const url = `sphere://shape${path}`
+                thunkAPI.dispatch(addFromUrl({
+                    url,
+                    type: SourceType.Geojson,
                 }))
                 break
             }

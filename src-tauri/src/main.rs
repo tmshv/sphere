@@ -6,6 +6,7 @@
 mod sphere;
 
 use sphere::mbtiles::{Mbtiles, Tile};
+use sphere::shape::{Shapefile};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -34,13 +35,27 @@ fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Result<Vec<u8>, Strin
     }
 }
 
+#[tauri::command]
+fn shape_get_geojson(path: &str) -> Result<String, String> {
+    let shp = Shapefile {
+        path: String::from(path),
+    };
+    let data = shp.to_geojson();
+    match data {
+        Ok(data) => Ok(data),
+        Err(err) => Err(format!("Failed read {} as GeoJSON: {:?}", path, err)),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             greet,
             mbtiles_get_tile,
             mbtiles_get_metadata,
+            shape_get_geojson,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+

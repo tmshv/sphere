@@ -1,3 +1,4 @@
+import logger from "@/logger"
 import type { RequestParameters, ResponseCallback } from "maplibre-gl"
 
 export function insertBefore(value: string, match: string, prefix: string): string {
@@ -97,7 +98,7 @@ export class MapboxProtocol {
 
             return {
                 cancel: () => {
-                    console.log("canceling", params)
+                    logger.debug("Not Implemented. Cancelling protocol request", params)
                 },
             }
         }
