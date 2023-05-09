@@ -1,6 +1,7 @@
 import type { RequestParameters, ResponseCallback } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
 import { ShapeReader } from "./shape"
+import logger from "@/logger"
 
 export class SphereProtocol {
     constructor() {
@@ -80,7 +81,7 @@ export class SphereProtocol {
 
             return {
                 cancel: () => {
-                    console.log("canceling", params)
+                    logger.debug("Not Implemented. Cancelling protocol request", params)
                 },
             }
         }

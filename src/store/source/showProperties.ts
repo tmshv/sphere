@@ -6,6 +6,7 @@ import { RootState } from ".."
 import { waitEvent } from "@/lib/tauri"
 import { Source } from "."
 import { ShapeReader } from "@/lib/shape"
+import logger from "@/logger"
 
 async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | null> {
     switch (source.type) {
@@ -38,7 +39,7 @@ export const showProperties = createAsyncThunk(
 
         const properties = await getProps(source)
         if (!properties) {
-            console.log("no", source)
+            logger.error(`No properties for source ${source.name}`)
             throw new Error(`Property table is not available for "${source.name}"`)
         }
 
@@ -49,17 +50,15 @@ export const showProperties = createAsyncThunk(
         // since the webview window is created asynchronously,
         // Tauri emits the `tauri://created` and `tauri://error` to notify you of the creation response
         window.once("tauri://created", function() {
-            console.log("window created")
             // webview window successfully created
         })
         window.once("tauri://error", function(e) {
-            console.log("window error", e)
             // an error occurred during webview window creation
         })
 
         const status = await waitEvent("properties-init")
+        logger.info("Got properties-init", status)
 
         emit("properties-set", { properties })
-        console.log("fired!", status)
     },
 )
