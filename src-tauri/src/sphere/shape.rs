@@ -26,12 +26,11 @@ impl Shapefile {
         let reader = geozero_shp::Reader::from_path(self.path.as_str())?;
         let mut json: Vec<u8> = Vec::new();
         let mut g = GeoJsonWriter::new(&mut json);
-        match reader.iter_features(&mut g) {
-            Ok(_) => match String::from_utf8(json) {
-                Ok(str) => Ok(str),
-                Err(_) => Err(ShapeError::Serialize),
-            },
-            Err(err) => Err(ShapeError::Shape(err)),
+        // TODO do this without count
+        let _ = reader.iter_features(&mut g)?.count();
+        match String::from_utf8(json) {
+            Ok(str) => Ok(str),
+            Err(_) => Err(ShapeError::Serialize),
         }
     }
 }
