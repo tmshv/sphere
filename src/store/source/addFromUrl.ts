@@ -3,7 +3,6 @@ import { SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { actions } from "."
 import { getStem } from "@/lib/path"
-import { get } from "@/lib/http"
 import { MbtilesReader } from "@/lib/mbtiles"
 
 export type AddFromUrlOptions = {
