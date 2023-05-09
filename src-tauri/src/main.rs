@@ -47,10 +47,23 @@ fn shape_get_geojson(path: &str) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+fn geojson_get(path: &str) -> Result<String, String> {
+    let geojson = sphere::geojson::Geojson {
+        path: String::from(path),
+    };
+    let data = geojson.read();
+    match data {
+        Ok(data) => Ok(data),
+        Err(err) => Err(format!("Failed read GeoJSON {}: {:?}", path, err)),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             greet,
+            geojson_get,
             mbtiles_get_tile,
             mbtiles_get_metadata,
             shape_get_geojson,
