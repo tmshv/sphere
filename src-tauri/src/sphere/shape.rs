@@ -34,3 +34,15 @@ impl Shapefile {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_shapefile() {
+        let shapefile = Shapefile { path: "./assets/shape-files/ne_10m_populated_places.shp".to_string() };
+        assert!(shapefile.to_geojson().is_ok());
+    }
+}
+
