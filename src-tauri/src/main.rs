@@ -6,7 +6,7 @@
 mod sphere;
 
 use sphere::mbtiles::{Mbtiles, Tile};
-use sphere::shape::{Shapefile};
+use sphere::shape::Shapefile;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
