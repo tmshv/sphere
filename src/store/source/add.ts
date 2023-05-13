@@ -35,7 +35,10 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
     }
 
     for (const path of paths) {
-        const ext = await extname(path)
+        let ext = await extname(path)
+        if (ext) {
+            ext = ext.toLowerCase()
+        }
         switch (ext) {
             case "mbtiles": {
                 const url = `sphere://mbtiles${path}`
