@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { readTextFile } from "@tauri-apps/api/fs"
 import { basename, extname } from "@tauri-apps/api/path"
-import { parseGeojson } from "../../lib/parseGeojson"
 import { parseGpx } from "../../lib/parseGpx"
 import { parseCsv } from "@/lib/parseCsv"
 import { FileParser, SourceType } from "@/types"
@@ -11,8 +10,6 @@ import { actions } from "."
 import { addFromUrl } from "./addFromUrl"
 
 const parsers = new Map<string, FileParser>([
-    ["json", parseGeojson],
-    ["geojson", parseGeojson],
     ["gpx", parseGpx],
     ["csv", parseCsv],
 ])
