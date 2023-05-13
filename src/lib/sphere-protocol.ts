@@ -2,6 +2,9 @@ import type { RequestParameters, ResponseCallback } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
 import { ShapeReader } from "./shape"
 import logger from "@/logger"
+import { GeojsonReader } from "./geojson"
+
+type RequestType = "json" | "arrayBuffer" | "string" | undefined
 
 export class SphereProtocol {
     constructor() {
@@ -22,7 +25,7 @@ export class SphereProtocol {
         ]
     }
 
-    public async handleMbtiles(reader: MbtilesReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
+    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType) {
         switch (type) {
             case "json": {
                 return reader.getTileJson()
@@ -41,7 +44,18 @@ export class SphereProtocol {
         }
     }
 
-    public async handleShape(reader: ShapeReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
+    public async handleShape(reader: ShapeReader, url: URL, type: RequestType) {
+        switch (type) {
+            case "json": {
+                return reader.getGeojson()
+            }
+            default: {
+                throw new Error(`SphereProtocol for ${url.host}/${type} is not implemented`)
+            }
+        }
+    }
+
+    public async handleGeojson(reader: GeojsonReader, url: URL, type: RequestType) {
         switch (type) {
             case "json": {
                 return reader.getGeojson()
@@ -56,6 +70,10 @@ export class SphereProtocol {
         const run = async (params: RequestParameters) => {
             const url = new URL(params.url)
             switch (url.host) {
+                case "geojson": {
+                    const reader = new GeojsonReader(url.pathname)
+                    return this.handleGeojson(reader, url, params.type)
+                }
                 case "mbtiles": {
                     const reader = new MbtilesReader(url.pathname)
                     return this.handleMbtiles(reader, url, params.type)

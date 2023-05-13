@@ -42,6 +42,12 @@ mod tests {
     #[test]
     fn test_valid_shapefile() {
         let shapefile = Shapefile { path: "./assets/shape-files/ne_10m_populated_places.shp".to_string() };
+        match shapefile.to_geojson() {
+            Ok(_) => (),
+            Err(err) => {
+                println!("{:?}", err);
+            }
+        }
         assert!(shapefile.to_geojson().is_ok());
     }
 }
