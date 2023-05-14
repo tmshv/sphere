@@ -1,6 +1,6 @@
+use sha256::digest;
 use std::path::Path;
 use url::Url;
-use sha256::digest;
 
 use super::geojson::Geojson;
 use super::mbtiles::Mbtiles;
@@ -63,11 +63,10 @@ impl Source {
 
         // let path = source_url.path();
         // let source_path = path.to_string();
-        let path = Path::new(source_url.path());
-        let data = Source::create_data(path)?;
-        let name = path.file_stem().unwrap().to_str().unwrap().to_string();
         let id = digest(source_url.to_string());
-        let location = format!("sphere://source/{}", id);
+        let path = Path::new(source_url.path());
+        let (data, location) = Source::create_data(&id, path)?;
+        let name = path.file_stem().unwrap().to_str().unwrap().to_string();
 
         Ok(Source {
             id,
@@ -77,7 +76,7 @@ impl Source {
         })
     }
 
-    fn create_data(path: &Path) -> Result<SourceData, String> {
+    fn create_data(id: &String, path: &Path) -> Result<(SourceData, String), String> {
         let source_path = path
             .to_str()
             .expect("Failed to convert path to string")
@@ -86,15 +85,27 @@ impl Source {
         match ext {
             "shp" => {
                 let source = Shapefile { path: source_path };
-                Ok(SourceData::Shapefile(source))
+                Ok((
+                    SourceData::Shapefile(source),
+                    format!("sphere://source/{}", id),
+                ))
             }
             "geojson" => {
                 let source = Geojson { path: source_path };
-                Ok(SourceData::Geojson(source))
+                Ok((
+                    SourceData::Geojson(source),
+                    format!("sphere://source/{}", id),
+                ))
             }
             "mbtiles" => {
-                let source = Mbtiles { path: source_path };
-                Ok(SourceData::Mbtiles(source))
+                let source = Mbtiles {
+                    name: id.clone(),
+                    path: source_path,
+                };
+                Ok((
+                    SourceData::Mbtiles(source),
+                    format!("sphere://mbtiles/{}", id),
+                ))
             }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }

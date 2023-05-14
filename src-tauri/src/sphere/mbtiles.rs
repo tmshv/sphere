@@ -105,12 +105,13 @@ pub struct MbtilesMetadata {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Mbtiles {
+    pub name: String,
     pub path: String,
 }
 
 impl Mbtiles {
     fn sphere_url(&self) -> String {
-        format!("sphere://mbtiles{}?z={{z}}&x={{x}}&y={{y}}", self.path)
+        format!("sphere://mbtiles/{}?z={{z}}&x={{x}}&y={{y}}", self.name)
     }
 
     pub fn get_metadata(&self) -> Result<String> {
