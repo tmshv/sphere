@@ -1,4 +1,3 @@
-// use geojson::GeoJson;
 use geo::BoundingRect;
 use geozero::ToGeo;
 use geozero::geojson::GeoJson;
@@ -30,7 +29,6 @@ impl Bounds for Geojson {
     fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
         match self.read() {
             Ok(geojson_str) => {
-                // let geojson = geojson_str.parse::<GeoJson>().unwrap();
                 let geojson = GeoJson(geojson_str.as_str());
                 let b = geojson.to_geo().unwrap();
                 let bounds = b.bounding_rect().unwrap();
@@ -42,8 +40,8 @@ impl Bounds for Geojson {
 
                 let min = bounds.min();
                 let max = bounds.max();
-                println!("Getting bounds {:?} {:?}", min, max);
-                Some((min.x, min.y, max.x, max.y))
+                let bounds = (min.x, min.y, max.x, max.y);
+                Some(bounds)
             }
             Err(err) => {
                 println!("{:?}", err);
