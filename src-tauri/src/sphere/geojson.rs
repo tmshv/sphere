@@ -1,6 +1,6 @@
 use geo::BoundingRect;
-use geozero::ToGeo;
 use geozero::geojson::GeoJson;
+use geozero::ToGeo;
 use std::io::prelude::*;
 use std::{fs::File, result};
 
@@ -70,5 +70,14 @@ mod tests {
             path: "./assets/geojson-files/ne_10m_airports.geojson".to_string(),
         };
         assert!(geojson.read().is_ok());
+    }
+
+    #[test]
+    fn test_valid_bounds() {
+        let geojson = Geojson {
+            path: "./assets/geojson-files/ne_10m_airports.geojson".to_string(),
+        };
+        let bounds = geojson.get_bounds().unwrap_or_default();
+        assert!(bounds == (-175.135635, -53.7814746058316, 179.19544202302, 78.246717));
     }
 }
