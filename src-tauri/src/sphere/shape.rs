@@ -1,3 +1,6 @@
+use geo::BoundingRect;
+use geozero::ToGeo;
+use geozero::geojson::GeoJson;
 use geozero::geojson::GeoJsonWriter;
 use geozero_shp;
 use std::result;
@@ -25,9 +28,27 @@ pub struct Shapefile {
 
 impl Bounds for Shapefile {
     fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
-        let j = self.to_geojson();
-        println!("getting bbox of {:?}", j);
-        None
+        match self.to_geojson() {
+            Ok(geojson_str) => {
+                let geojson = GeoJson(geojson_str.as_str());
+                let b = geojson.to_geo().unwrap();
+                let bounds = b.bounding_rect().unwrap();
+
+                // assert_eq!(40.02f64, bounding_rect.min().x);
+                // assert_eq!(42.02f64, bounding_rect.max().x);
+                // assert_eq!(116.34, bounding_rect.min().y);
+                // assert_eq!(118.34, bounding_rect.max().y);
+
+                let min = bounds.min();
+                let max = bounds.max();
+                let bounds = (min.x, min.y, max.x, max.y);
+                Some(bounds)
+            }
+            Err(err) => {
+                println!("{:?}", err);
+                None
+            }
+        }
     }
 }
 
