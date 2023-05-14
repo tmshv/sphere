@@ -72,14 +72,18 @@ mod tests {
 
     #[test]
     fn test_valid_shapefile() {
-        let shapefile = Shapefile { path: "./assets/shape-files/ne_10m_populated_places.shp".to_string() };
-        match shapefile.to_geojson() {
-            Ok(_) => (),
-            Err(err) => {
-                println!("{:?}", err);
-            }
-        }
+        let shapefile = Shapefile {
+            path: "./assets/shape-files/ne_10m_populated_places.shp".to_string(),
+        };
         assert!(shapefile.to_geojson().is_ok());
     }
-}
 
+    #[test]
+    fn test_valid_bounds() {
+        let shapefile = Shapefile {
+            path: "./assets/shape-files/ne_10m_populated_places.shp".to_string(),
+        };
+        let bounds = shapefile.get_bounds().unwrap_or_default();
+        assert!(bounds == (-179.5899789, -89.9999998, 179.3833036, 82.4833232));
+    }
+}
