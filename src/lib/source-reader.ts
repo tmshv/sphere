@@ -1,5 +1,8 @@
 import logger from "@/logger"
 import { invoke } from "@tauri-apps/api"
+import type { LngLatBoundsLike } from "maplibre-gl"
+
+type Bbox = [number, number, number, number]
 
 export class SourceReader {
     constructor(public location: string) {
@@ -19,6 +22,18 @@ export class SourceReader {
             return this.parse(res)
         } catch (error) {
             logger.error("Failed to read shape as geojson", error)
+            return null
+        }
+    }
+
+    public async getBounds(): Promise<LngLatBoundsLike | null> {
+        try {
+            const bounds = await invoke<Bbox>("source_bounds", {
+                id: this.getId(),
+            })
+            return bounds
+        } catch (error) {
+            logger.error("Failed to get bounds", error)
             return null
         }
     }
