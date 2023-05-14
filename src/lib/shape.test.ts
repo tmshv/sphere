@@ -1,6 +1,6 @@
 import { jest, describe, expect, test } from "@jest/globals"
 import { invoke as _invoke } from "@tauri-apps/api"
-import { ShapeReader } from "./shape"
+import { SourceReader } from "./shape"
 
 type InvokeFn = typeof _invoke<string>
 jest.mock("@tauri-apps/api")
@@ -9,9 +9,9 @@ const invoke = _invoke as jest.MockedFunction<InvokeFn>
 
 describe("ShapeReader", () => {
     test("should store input value in path property", () => {
-        const reader = new ShapeReader("./path/to/test/shape.shp")
+        const reader = new SourceReader("./path/to/test/shape.shp")
 
-        expect(reader.path).toEqual("./path/to/test/shape.shp")
+        expect(reader.location).toEqual("./path/to/test/shape.shp")
     })
 })
 
@@ -41,7 +41,7 @@ describe("ShapeReader::getGeojson", () => {
         const mock: InvokeFn = jest.fn<InvokeFn>().mockResolvedValueOnce(JSON.stringify(geojson))
         invoke.mockImplementation(mock)
 
-        const reader = new ShapeReader("test/path")
+        const reader = new SourceReader("test/path")
         const result = await reader.getGeojson()
 
         expect(result).toEqual(geojson)
@@ -54,7 +54,7 @@ describe("ShapeReader::getGeojson", () => {
         const mockInvoke = jest.fn<InvokeFn>().mockRejectedValueOnce(new Error("test error"))
         invoke.mockImplementation(mockInvoke)
 
-        const reader = new ShapeReader("test/path")
+        const reader = new SourceReader("test/path")
         const result = await reader.getGeojson()
 
         expect(result).toBeNull()
