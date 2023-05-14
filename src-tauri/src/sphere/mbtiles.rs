@@ -3,9 +3,10 @@ use flate2::read::{GzDecoder, ZlibDecoder};
 use rusqlite::{params, Connection, Error as RusqliteError};
 use serde::{Deserialize, Serialize};
 use serde_json::{Error as SerdeError, Value};
-use std::io;
+use std::{io, string};
 use std::io::Read;
 use std::result;
+use std::path::Path;
 
 use super::tilejson::{TileScheme, MAXZOOM, MINZOOM};
 
@@ -102,7 +103,7 @@ pub struct MbtilesMetadata {
     pub mbtiles_type: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Mbtiles {
     pub path: String,
 }
