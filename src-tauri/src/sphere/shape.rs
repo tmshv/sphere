@@ -1,7 +1,7 @@
 use geo::BoundingRect;
-use geozero::ToGeo;
 use geozero::geojson::GeoJson;
 use geozero::geojson::GeoJsonWriter;
+use geozero::ToGeo;
 use geozero_shp;
 use std::result;
 
