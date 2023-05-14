@@ -28,7 +28,8 @@ pub struct Source {
 impl Bounds for Source {
     fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
         match &self.data {
-            SourceData::Shapefile(shp) => shp.get_bounds(),
+            SourceData::Geojson(val) => val.get_bounds(),
+            SourceData::Shapefile(val) => val.get_bounds(),
             _ => None,
         }
     }

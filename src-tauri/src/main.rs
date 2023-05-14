@@ -14,7 +14,6 @@ use sphere::mbtiles::Tile;
 use sphere::source::{Source, SourceData};
 
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::sync::Mutex;
 
 // here we use Mutex to achieve interior mutability
@@ -56,13 +55,7 @@ fn mbtiles_get_metadata(id: String, storage: State<SourceStorage>) -> Result<Str
 }
 
 #[tauri::command]
-fn mbtiles_get_tile(
-    id: String,
-    z: i32,
-    x: i32,
-    y: i32,
-    storage: State<SourceStorage>,
-) -> Result<Vec<u8>, String> {
+fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<SourceStorage>) -> Result<Vec<u8>, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -86,9 +79,7 @@ fn source_get(id: String, storage: State<SourceStorage>) -> Result<String, Strin
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
-        Some(source) => {
-            source.to_geojson()
-        }
+        Some(source) => source.to_geojson(),
         None => Err(format!("Not found {}", &id)),
     }
 }
@@ -114,14 +105,13 @@ fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSour
 }
 
 #[tauri::command]
-fn source_bounds(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+fn source_bounds(id: String, storage: State<SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
     let store = storage.store.lock().unwrap();
-    let val = store.get(&id);
-    match val {
-        Some(val) => {
-            println!("Found! {:?}", val.get_bounds());
-            Ok("Found!".to_string())
-        }
+    match store.get(&id) {
+        Some(source) => match source.get_bounds() {
+            Some(bounds) => Ok(bounds),
+            None => Err(format!("Cannot get bounds {}", &id)),
+        },
         None => Err(format!("Not found {}", &id)),
     }
 }

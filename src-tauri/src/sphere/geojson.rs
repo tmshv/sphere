@@ -1,6 +1,9 @@
-use geozero::geojson;
-use std::{fs::File, result};
+// use geojson::GeoJson;
+use geo::BoundingRect;
+use geozero::ToGeo;
+use geozero::geojson::GeoJson;
 use std::io::prelude::*;
+use std::{fs::File, result};
 
 use super::Bounds;
 
@@ -25,7 +28,28 @@ pub struct Geojson {
 
 impl Bounds for Geojson {
     fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
-        None
+        match self.read() {
+            Ok(geojson_str) => {
+                // let geojson = geojson_str.parse::<GeoJson>().unwrap();
+                let geojson = GeoJson(geojson_str.as_str());
+                let b = geojson.to_geo().unwrap();
+                let bounds = b.bounding_rect().unwrap();
+
+                // assert_eq!(40.02f64, bounding_rect.min().x);
+                // assert_eq!(42.02f64, bounding_rect.max().x);
+                // assert_eq!(116.34, bounding_rect.min().y);
+                // assert_eq!(118.34, bounding_rect.max().y);
+
+                let min = bounds.min();
+                let max = bounds.max();
+                println!("Getting bounds {:?} {:?}", min, max);
+                Some((min.x, min.y, max.x, max.y))
+            }
+            Err(err) => {
+                println!("{:?}", err);
+                None
+            }
+        }
     }
 }
 
