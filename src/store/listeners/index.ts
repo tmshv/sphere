@@ -77,8 +77,7 @@ zoomToMiddleware.startListening({
                 break
             }
             case SourceType.MVT: {
-                const u = new URL(source.location)
-                const r = new MbtilesReader(u.pathname)
+                const r = new MbtilesReader(source.location)
                 const tilejson = await r.getTileJson()
                 if (tilejson?.bounds) {
                     const bounds = tilejson.bounds
