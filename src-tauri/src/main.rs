@@ -7,6 +7,7 @@ mod sphere;
 
 use lazy_static::lazy_static;
 use sphere::Bounds;
+use tauri::State;
 use url::{ParseError, Url};
 
 use sphere::geojson::Geojson;
@@ -16,6 +17,7 @@ use sphere::shape::Shapefile;
 use std::collections::HashMap;
 use std::path::Path;
 use std::str::FromStr;
+use std::sync::Mutex;
 
 #[derive(Debug)]
 enum Source {
@@ -36,11 +38,58 @@ impl Bounds for Source {
     }
 }
 
-// Declare global map variable with key type String and value type MyStruct
-lazy_static! {
-    static ref STORE: std::sync::RwLock<HashMap<String, Source>> =
-        std::sync::RwLock::new(HashMap::new());
+impl Source {
+    fn from_url(source_url: Url) -> Result<Self, String> {
+        let scheme = source_url.scheme();
+        match scheme {
+            "sphere" => {
+                println!(
+                    "Found Sphere source. Will load {} from FS",
+                    &source_url.domain().unwrap()
+                );
+            }
+            "http" => {
+                println!("Found HTTP source. Will load remote {}", &source_url);
+            }
+            "https" => {
+                println!("Found HTTPS source. Will load remote {}", &source_url);
+            }
+            _ => {
+                return Err(format!("Cannot handle scheme {}", scheme));
+            }
+        }
+
+        // Get the query parameters (e.g. "foo=bar")
+        // let query_pairs = url.query_pairs();
+        // for (name, value) in query_pairs {
+        //     println!("Query parameter - Name: {}, Value: {}", name, value);
+        // }
+
+        let path = Path::new(source_url.path());
+        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+        match ext {
+            "shp" => {
+                let shp = Shapefile {
+                    path: String::from(path.to_str().unwrap()),
+                };
+                Ok(Source::Shapefile(shp))
+            }
+            _ => Err(format!("Cannot handle extension {}", ext)),
+        }
+    }
 }
+
+// here we use Mutex to achieve interior mutability
+#[derive(Default)]
+struct SourceStorage {
+    store: Mutex<HashMap<String, Source>>,
+}
+
+// Declare global map variable with key type String and value type MyStruct
+// lazy_static! {
+//     static ref STORE: std::sync::RwLock<HashMap<String, Source>> =
+//         std::sync::RwLock::new(HashMap::new());
+// }
 
 // struct Source {
 //     path: String,
@@ -75,124 +124,52 @@ fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Result<Vec<u8>, Strin
 }
 
 #[tauri::command]
-fn shape_get_geojson(path: &str) -> Result<String, String> {
-    match STORE.read() {
-        Ok(store) => {
-            let key = String::from_str(path).unwrap();
-            let val = store.get(&key);
-            match val {
-                Some(val) => {
-                    println!("Found! {:?}", val);
-                    let shp = Shapefile {
-                        path: String::from(path),
-                    };
-                    let data = shp.to_geojson();
-                    match data {
-                        Ok(data) => Ok(data),
-                        Err(err) => Err(format!("Failed read {} as GeoJSON: {:?}", path, err)),
-                    }
-                }
-                None => Err(format!("Not found {}", path)),
-            }
-        }
-        Err(err) => Err(format!("Failed read {} as GeoJSON: {:?}", path, err)),
-    }
-}
-
-fn uparse(source_url: &str) {
-    let url = Url::parse(source_url).unwrap();
-
-    // Get the scheme (e.g. "https")
-    let scheme = url.scheme();
-    println!("Scheme: {}", scheme);
-
-    // Get the path (e.g. "/path/to/file.txt")
-    let path_str = url.path();
-    let path = Path::new(path_str);
-    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-    println!("Path: {}, Extension: {}", path_str, ext);
-
-    match scheme {
-        "sphere" => {
-            println!("Found Sphere source. Will load from FS {:?}", url.domain());
-        }
-        "http" => {
-            println!("Found HTTP source. Will load remote {}", url);
-        }
-        "https" => {
-            println!("Found HTTPS source. Will load remote {}", url);
-        }
-        _ => {
-            println!("Cannot handle scheme {}", scheme);
-        }
-    }
-
-    // Get the query parameters (e.g. "foo=bar")
-    let query_pairs = url.query_pairs();
-    for (name, value) in query_pairs {
-        println!("Query parameter - Name: {}, Value: {}", name, value);
-    }
-}
-
-#[tauri::command]
-fn source_add(source_url: &str) -> Result<String, String> {
-    match STORE.write() {
-        Ok(mut store) => {
-            let key = String::from_str(source_url).unwrap();
-            let url = Url::parse(source_url).unwrap();
-            println!("Adding Source: {}", url);
-            // uparse(format!("sphere://source{}", source_url).as_str());
-            let p = Path::new(url.path());
-            let src = match p.extension() {
-                Some(ext) => {
-                    let ext_str = ext.to_str().unwrap();
-                    // .to_lowercase();
-                    match ext_str {
-                        "shp" => {
-                            let shp = Shapefile {
-                                path: String::from(p.to_str().unwrap()),
-                            };
-                            Some(Source::Shapefile(shp))
-                        }
-                        _ => {
-                            println!("Source {} is not yet implemented!", ext_str);
-                            None
-                        }
-                    }
-                }
-                None => {
-                    println!("No extension found.");
-                    None
-                }
+fn shape_get_geojson(path: &str, storage: State<SourceStorage>) -> Result<String, String> {
+    let key = String::from_str(path).unwrap();
+    let store = storage.store.lock().unwrap();
+    let val = store.get(&key);
+    match val {
+        Some(val) => {
+            println!("Found! {:?}", val);
+            let shp = Shapefile {
+                path: String::from(path),
             };
-
-            match src {
-                Some(src) => {
-                    store.insert(key, src);
-                    Ok(String::from("Add!"))
-                }
-                None => Err(String::from("No Add!")),
+            let data = shp.to_geojson();
+            match data {
+                Ok(data) => Ok(data),
+                Err(err) => Err(format!("Failed read {} as GeoJSON: {:?}", path, err)),
             }
         }
-        Err(_) => Err(format!("Failed to create Shape source at {}", source_url)),
+        None => Err(format!("Not found {}", path)),
     }
 }
 
 #[tauri::command]
-fn source_bounds(source_path: &str) -> Result<String, String> {
-    match STORE.read() {
-        Ok(store) => {
-            let key = String::from_str(source_path).unwrap();
-            let val = store.get(&key);
-            match val {
-                Some(val) => {
-                    println!("Found! {:?}", val.get_bounds());
-                    Ok("Found!".to_string())
-                }
-                None => Err(format!("Not found {}", source_path)),
-            }
+fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<String, String> {
+    let key = String::from_str(source_url).unwrap();
+    let url = Url::parse(source_url).unwrap();
+    println!("Adding Source: {}", url);
+
+    match Source::from_url(url) {
+        Ok(source) => {
+            let src = storage.store.lock().unwrap().insert(key, source);
+            Ok(String::from("Add!"))
         }
-        Err(err) => Err(format!("Failed read {} as GeoJSON: {:?}", source_path, err)),
+        Err(_) => Err(String::from("No Add!")),
+    }
+}
+
+#[tauri::command]
+fn source_bounds(source_path: &str, storage: State<SourceStorage>) -> Result<String, String> {
+    let key = String::from_str(source_path).unwrap();
+    let store = storage.store.lock().unwrap();
+    let val = store.get(&key);
+    match val {
+        Some(val) => {
+            println!("Found! {:?}", val.get_bounds());
+            Ok("Found!".to_string())
+        }
+        None => Err(format!("Not found {}", source_path)),
     }
 }
 
@@ -210,6 +187,9 @@ fn geojson_get(path: &str) -> Result<String, String> {
 
 fn main() {
     tauri::Builder::default()
+        .manage(SourceStorage {
+            store: Default::default(),
+        })
         .invoke_handler(tauri::generate_handler![
             greet,
             geojson_get,
