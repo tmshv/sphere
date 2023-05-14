@@ -55,14 +55,6 @@ impl Source {
             }
         }
 
-        // Get the query parameters (e.g. "foo=bar")
-        // let query_pairs = url.query_pairs();
-        // for (name, value) in query_pairs {
-        //     println!("Query parameter - Name: {}, Value: {}", name, value);
-        // }
-
-        // let path = source_url.path();
-        // let source_path = path.to_string();
         let id = digest(source_url.to_string());
         let path = Path::new(source_url.path());
         let (data, location) = Source::create_data(&id, path)?;
