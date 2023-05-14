@@ -57,7 +57,7 @@ export const addFromUrl = createAsyncThunk(
                         thunkAPI.dispatch(actions.addSource({
                             id,
                             name,
-                            location: url,
+                            location,
                             type,
                         }))
                     }
