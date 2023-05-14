@@ -5,10 +5,9 @@
 
 mod sphere;
 
-use lazy_static::lazy_static;
 use sphere::Bounds;
 use tauri::State;
-use url::{ParseError, Url};
+use url::Url;
 
 use sphere::geojson::Geojson;
 use sphere::mbtiles::{Mbtiles, Tile};
@@ -25,7 +24,7 @@ enum Source {
     Shapefile(Shapefile),
     // Gpx,
     // Csv,
-    // Mbtiles,
+    Mbtiles(Mbtiles),
     // Pmtiles,
 }
 
@@ -65,14 +64,28 @@ impl Source {
         //     println!("Query parameter - Name: {}, Value: {}", name, value);
         // }
 
-        let path = Path::new(source_url.path());
+        let path = source_url.path();
+        let source_path = path.to_string();
+        let path = Path::new(path);
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
             "shp" => {
-                let shp = Shapefile {
-                    path: String::from(path.to_str().unwrap()),
+                let source = Shapefile {
+                    path: source_path,
                 };
-                Ok(Source::Shapefile(shp))
+                Ok(Source::Shapefile(source))
+            }
+            "geojson" => {
+                let source = Geojson {
+                    path: source_path,
+                };
+                Ok(Source::Geojson(source))
+            }
+            "mbtiles" => {
+                let source = Mbtiles {
+                    path: source_path,
+                };
+                Ok(Source::Mbtiles(source))
             }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }
