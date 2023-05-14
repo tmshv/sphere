@@ -2,6 +2,8 @@ use geozero::geojson::GeoJsonWriter;
 use geozero_shp;
 use std::result;
 
+use super::Bounds;
+
 #[derive(Debug)]
 pub enum ShapeError {
     Shape(geozero_shp::Error),
@@ -19,6 +21,14 @@ pub type Result<T> = result::Result<T, ShapeError>;
 #[derive(Debug)]
 pub struct Shapefile {
     pub path: String,
+}
+
+impl Bounds for Shapefile {
+    fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
+        let j = self.to_geojson();
+        println!("getting bbox of {:?}", j);
+        None
+    }
 }
 
 impl Shapefile {

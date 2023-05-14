@@ -33,6 +33,8 @@ geo = "0.24.1"
 geojson = "0.24.0"
 geozero = "0.9.9"
 geozero-shp = "0.4.0"
+lazy_static = "1.4.0"
+url = "2.3.1"
 
 [features]
 # by default Tauri runs in production mode

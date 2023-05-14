@@ -3088,12 +3088,14 @@ dependencies = [
  "geojson",
  "geozero",
  "geozero-shp",
+ "lazy_static",
  "rusqlite",
  "serde",
  "serde_json",
  "shapefile",
  "tauri",
  "tauri-build",
+ "url",
 ]
 
 [[package]]

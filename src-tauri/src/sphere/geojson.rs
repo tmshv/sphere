@@ -2,6 +2,8 @@ use geozero::geojson;
 use std::{fs::File, result};
 use std::io::prelude::*;
 
+use super::Bounds;
+
 #[derive(Debug)]
 pub enum GeojsonError {
     FS(std::io::Error),
@@ -19,6 +21,12 @@ pub type Result<T> = result::Result<T, GeojsonError>;
 #[derive(Debug)]
 pub struct Geojson {
     pub path: String,
+}
+
+impl Bounds for Geojson {
+    fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
+        None
+    }
 }
 
 impl Geojson {
