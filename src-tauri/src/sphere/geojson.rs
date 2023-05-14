@@ -32,12 +32,6 @@ impl Bounds for Geojson {
                 let geojson = GeoJson(geojson_str.as_str());
                 let b = geojson.to_geo().unwrap();
                 let bounds = b.bounding_rect().unwrap();
-
-                // assert_eq!(40.02f64, bounding_rect.min().x);
-                // assert_eq!(42.02f64, bounding_rect.max().x);
-                // assert_eq!(116.34, bounding_rect.min().y);
-                // assert_eq!(118.34, bounding_rect.max().y);
-
                 let min = bounds.min();
                 let max = bounds.max();
                 let bounds = (min.x, min.y, max.x, max.y);
