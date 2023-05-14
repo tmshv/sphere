@@ -1,6 +1,6 @@
 import type { RequestParameters, ResponseCallback } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
-import { SourceReader } from "./shape"
+import { SourceReader } from "./source-reader"
 import logger from "@/logger"
 
 type RequestType = "json" | "arrayBuffer" | "string" | undefined
