@@ -27,6 +27,7 @@ struct NewSource {
     id: String,
     name: String,
     location: String,
+    source_type: String,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -95,6 +96,12 @@ fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSour
                 id: source.id.clone(),
                 location: source.location.clone(),
                 name: source.name.clone(),
+                source_type: match &source.data {
+                    SourceData::Geojson(_) => "geojson".into(),
+                    SourceData::Mbtiles(_) => "mbtiles".into(),
+                    SourceData::Shapefile(_) => "shapefile".into(),
+                    SourceData::Csv(_) => "csv".into(),
+                }
             };
             let id = source.id.clone();
             storage.store.lock().unwrap().insert(id, source);
