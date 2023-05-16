@@ -50,7 +50,7 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
                 break
             }
             case "geojson": {
-                const url = `sphere://geojson${path}`
+                const url = `sphere://source${path}`
                 thunkAPI.dispatch(addFromUrl({
                     url,
                     type: SourceType.Geojson,
@@ -58,7 +58,15 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
                 break
             }
             case "shp": {
-                const url = `sphere://shape${path}`
+                const url = `sphere://source${path}`
+                thunkAPI.dispatch(addFromUrl({
+                    url,
+                    type: SourceType.Geojson,
+                }))
+                break
+            }
+            case "csv": {
+                const url = `sphere://source${path}`
                 thunkAPI.dispatch(addFromUrl({
                     url,
                     type: SourceType.Geojson,
