@@ -2,6 +2,7 @@ use sha256::digest;
 use std::path::Path;
 use url::Url;
 
+use super::csv::{Csv, CsvGeometry};
 use super::geojson::Geojson;
 use super::mbtiles::Mbtiles;
 use super::shape::Shapefile;
@@ -12,8 +13,8 @@ pub enum SourceData {
     Geojson(Geojson),
     Shapefile(Shapefile),
     Mbtiles(Mbtiles),
+    Csv(Csv),
     // Gpx,
-    // Csv,
     // Pmtiles,
 }
 
@@ -30,6 +31,7 @@ impl Bounds for Source {
         match &self.data {
             SourceData::Geojson(val) => val.get_bounds(),
             SourceData::Shapefile(val) => val.get_bounds(),
+            SourceData::Csv(val) => val.get_bounds(),
             _ => None,
         }
     }
@@ -70,35 +72,31 @@ impl Source {
     }
 
     fn create_data(id: &String, path: &Path) -> Result<(SourceData, String), String> {
-        let source_path = path
-            .to_str()
-            .expect("Failed to convert path to string")
-            .to_string();
+        let source_path = path.to_str().expect("Failed to convert path to string").to_string();
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
             "shp" => {
                 let source = Shapefile { path: source_path };
-                Ok((
-                    SourceData::Shapefile(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::Shapefile(source), format!("sphere://source/{}", id)))
             }
             "geojson" => {
                 let source = Geojson { path: source_path };
-                Ok((
-                    SourceData::Geojson(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::Geojson(source), format!("sphere://source/{}", id)))
             }
             "mbtiles" => {
                 let source = Mbtiles {
                     name: id.clone(),
                     path: source_path,
                 };
-                Ok((
-                    SourceData::Mbtiles(source),
-                    format!("sphere://mbtiles/{}", id),
-                ))
+                Ok((SourceData::Mbtiles(source), format!("sphere://mbtiles/{}", id)))
+            }
+            "csv" => {
+                let source = Csv {
+                    path: source_path,
+                    geometry: CsvGeometry::XY(("lng".into(), "lat".into())),
+                    delimiter: ",".into(),
+                };
+                Ok((SourceData::Csv(source), format!("sphere://source/{}", id)))
             }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }
@@ -112,6 +110,10 @@ impl Source {
             }
             SourceData::Geojson(src) => {
                 let val = src.read().expect("No geojson".into());
+                Ok(val)
+            }
+            SourceData::Csv(src) => {
+                let val = src.to_geojson().expect("No csv".into());
                 Ok(val)
             }
             _ => Err("No".into()),
