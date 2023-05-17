@@ -1,9 +1,9 @@
 use csv;
-use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Value};
 use geo::BoundingRect;
+use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Value, Position};
 use geozero::geojson::GeoJson;
-use std::{fs::File, result};
 use geozero::ToGeo;
+use std::{fs::File, result};
 
 use super::Bounds;
 
@@ -25,6 +25,30 @@ pub type Result<T> = result::Result<T, CsvError>;
 pub enum CsvGeometry {
     WKT(String),
     XY((String, String)),
+}
+
+impl CsvGeometry {
+    pub fn get_value(&self, record: &JsonObject) -> Option<Value> {
+        match &self {
+            CsvGeometry::XY((xfield, yfield)) => {
+                let x = record.get(xfield).map(|value| match value {
+                    serde_json::Value::Number(n) => n.as_f64(),
+                    serde_json::Value::String(s) => s.parse::<f64>().ok(),
+                    _ => None,
+                }).flatten();
+
+                let y = record.get(yfield).map(|value| match value {
+                    serde_json::Value::Number(n) => n.as_f64(),
+                    serde_json::Value::String(s) => s.parse::<f64>().ok(),
+                    _ => None,
+                }).flatten();
+
+                let pos: Option<Position> = vec![x, y].into_iter().collect();
+                pos.map(|pos| Value::Point(pos))
+            }
+            CsvGeometry::WKT(_) => None,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -70,30 +94,10 @@ impl Csv {
         let mut rdr = csv::Reader::from_reader(file);
         for result in rdr.deserialize() {
             let record: JsonObject = result.unwrap();
-
-            let p = match &self.geometry {
-                CsvGeometry::XY((xfield, yfield)) => {
-                    let x = match record.get(xfield).unwrap() {
-                        serde_json::Value::Number(n) => n.as_f64(),
-                        serde_json::Value::String(s) => s.parse::<f64>().ok(),
-                        _ => Some(0.0),
-                    };
-                    let y = match record.get(yfield).unwrap() {
-                        serde_json::Value::Number(n) => n.as_f64(),
-                        serde_json::Value::String(s) => s.parse::<f64>().ok(),
-                        _ => Some(0.0),
-                    };
-                    match (x, y) {
-                        (Some(x), Some(y)) => Some(Value::Point(vec![x, y])),
-                        _ => None,
-                    }
-                }
-                CsvGeometry::WKT(col) => None,
-            };
-
-            match p {
-                Some(point) => {
-                    let geometry = Geometry::new(point);
+            let geom = self.geometry.get_value(&record);
+            match geom {
+                Some(geom) => {
+                    let geometry = Geometry::new(geom);
                     let feature = Feature {
                         bbox: None,
                         geometry: Some(geometry),
@@ -107,7 +111,7 @@ impl Csv {
             };
         }
 
-        let fc = FeatureCollection{
+        let fc = FeatureCollection {
             features,
             bbox: None,
             foreign_members: None,
