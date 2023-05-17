@@ -28,7 +28,7 @@ pub enum CsvGeometry {
 }
 
 impl CsvGeometry {
-    pub fn get_value(&self, record: &JsonObject) -> Option<Value> {
+    fn get_value(&self, record: &JsonObject) -> Option<Value> {
         match &self {
             CsvGeometry::XY((xfield, yfield)) => {
                 let x = record.get(xfield).map(|value| match value {
