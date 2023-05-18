@@ -31,7 +31,6 @@ function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMeta
 export const failMiddleware = createListenerMiddleware()
 failMiddleware.startListening({
     matcher: isAnyOf(
-        actions.source.addFromFile.rejected,
         actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
@@ -175,28 +174,29 @@ clearSelectionMiddleware.startListening({
 
 export const addSourceMiddleware = createListenerMiddleware()
 addSourceMiddleware.startListening({
-    actionCreator: actions.source.addFromFile.fulfilled,
+    actionCreator: actions.source.addFromUrl.fulfilled,
     effect: async (action, listenerApi) => {
-        const { sourceId, name, meta } = action.payload
-
-        const layerType = predictLayerType(meta)
-        if (!layerType) {
-            return
-        }
-
-        const layerId = nextId("layer")
-        listenerApi.dispatch(actions.layer.addLayer({
-            id: layerId,
-            sourceId,
-            fractionIndex: Math.random(),
-            visible: true,
-            name: name,
-            color: "#1c7ed6",
-        }))
-        listenerApi.dispatch(actions.layer.setType({
-            id: layerId,
-            type: layerType,
-        }))
+        logger.info("Source was added", action)
+        // const { sourceId, name, meta } = action.payload
+        //
+        // const layerType = predictLayerType(meta)
+        // if (!layerType) {
+        //     return
+        // }
+        //
+        // const layerId = nextId("layer")
+        // listenerApi.dispatch(actions.layer.addLayer({
+        //     id: layerId,
+        //     sourceId,
+        //     fractionIndex: Math.random(),
+        //     visible: true,
+        //     name: name,
+        //     color: "#1c7ed6",
+        // }))
+        // listenerApi.dispatch(actions.layer.setType({
+        //     id: layerId,
+        //     type: layerType,
+        // }))
     },
 })
 

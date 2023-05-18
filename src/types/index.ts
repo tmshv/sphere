@@ -49,4 +49,3 @@ export type DatasetRow<G> = {
 //     data: DatasetRow<G>[]
 // }
 
-export type FileParser = (raw: string) => Promise<[GeoJSON.FeatureCollection, SourceMetadata]>
