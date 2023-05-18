@@ -132,15 +132,20 @@ type TileJSON = {
 }
 
 export class MbtilesReader {
-    constructor(public path: string) {
+    constructor(public location: string) {
+    }
+
+    private getId(): string {
+        const url = new URL(this.location)
+        return url.pathname.substring(1)
     }
 
     public async getTileJson(): Promise<TileJSON | null> {
         try {
             const res = await invoke<string>("mbtiles_get_metadata", {
-                path: this.path,
+                id: this.getId(),
             })
-            return JSON.parse(res)
+            return this.parse(res)
         } catch (error) {
             return null
         }
@@ -148,7 +153,7 @@ export class MbtilesReader {
 
     public async getTile({ z, x, y }: Tile): Promise<Uint8Array | null> {
         const res = await invoke<number[]>("mbtiles_get_tile", {
-            path: this.path,
+            id: this.getId(),
             z,
             x,
             y,
@@ -158,6 +163,10 @@ export class MbtilesReader {
         }
 
         return Uint8Array.from(res)
+    }
+
+    async parse(value: string) {
+        return (new Response(value)).json()
     }
 }
 

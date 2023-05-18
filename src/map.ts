@@ -1,9 +1,10 @@
 import mapboxgl from "mapbox-gl"
+import maplibregl from "maplibre-gl"
 
-const store = new Map<string, mapboxgl.Map>()
+const store = new Map<string, maplibregl.Map>()
 
-export function setMap(id: string, map: mapboxgl.Map) {
-    store.set(id, map)
+export function setMap(id: string, map: maplibregl.Map | mapboxgl.Map) {
+    store.set(id, map as maplibregl.Map)
 }
 
 export function removeMap(id: string) {

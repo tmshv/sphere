@@ -1,22 +1,22 @@
 import { jest, describe, expect, test } from "@jest/globals"
 import { invoke as _invoke } from "@tauri-apps/api"
-import { ShapeReader } from "./shape"
+import { SourceReader } from "./source-reader"
 
 type InvokeFn = typeof _invoke<string>
 jest.mock("@tauri-apps/api")
 
 const invoke = _invoke as jest.MockedFunction<InvokeFn>
 
-describe("ShapeReader", () => {
+describe("SourceReader", () => {
     test("should store input value in path property", () => {
-        const reader = new ShapeReader("./path/to/test/shape.shp")
+        const reader = new SourceReader("./path/to/test/shape.shp")
 
-        expect(reader.path).toEqual("./path/to/test/shape.shp")
+        expect(reader.location).toEqual("./path/to/test/shape.shp")
     })
 })
 
-describe("ShapeReader::getGeojson", () => {
-    test("should return geojson data if invoke function returns data", async () => {
+describe("SourceReader::getGeojson", () => {
+    test("should return geojson if invoke function returns data", async () => {
         const geojson = {
             type: "FeatureCollection",
             features: [
@@ -41,12 +41,12 @@ describe("ShapeReader::getGeojson", () => {
         const mock: InvokeFn = jest.fn<InvokeFn>().mockResolvedValueOnce(JSON.stringify(geojson))
         invoke.mockImplementation(mock)
 
-        const reader = new ShapeReader("test/path")
+        const reader = new SourceReader("sphere://source/XXX")
         const result = await reader.getGeojson()
 
         expect(result).toEqual(geojson)
-        expect(mock).toHaveBeenCalledWith("shape_get_geojson", {
-            path: "test/path",
+        expect(mock).toHaveBeenCalledWith("source_get", {
+            id: "XXX",
         })
     })
 
@@ -54,12 +54,12 @@ describe("ShapeReader::getGeojson", () => {
         const mockInvoke = jest.fn<InvokeFn>().mockRejectedValueOnce(new Error("test error"))
         invoke.mockImplementation(mockInvoke)
 
-        const reader = new ShapeReader("test/path")
+        const reader = new SourceReader("sphere://source/XXX")
         const result = await reader.getGeojson()
 
         expect(result).toBeNull()
-        expect(mockInvoke).toHaveBeenCalledWith("shape_get_geojson", {
-            path: "test/path",
+        expect(mockInvoke).toHaveBeenCalledWith("source_get", {
+            id: "XXX",
         })
     })
 })

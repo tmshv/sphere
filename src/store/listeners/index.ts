@@ -4,7 +4,6 @@ import { appSlice } from "../app"
 import * as turf from "@turf/turf"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { getMap } from "@/map"
-import mapboxgl from "mapbox-gl"
 import { LayerType, SourceMetadata, SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { duplicate } from "../layer"
@@ -12,6 +11,9 @@ import { actions } from "../actions"
 import { RootState } from ".."
 import { assertUnreachable } from "@/lib"
 import { MbtilesReader } from "@/lib/mbtiles"
+import logger from "@/logger"
+import { SourceReader } from "@/lib/source-reader"
+import type { LngLatBoundsLike } from "maplibre-gl"
 
 function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | null {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
@@ -29,7 +31,6 @@ function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMeta
 export const failMiddleware = createListenerMiddleware()
 failMiddleware.startListening({
     matcher: isAnyOf(
-        actions.source.addFromFile.rejected,
         actions.source.addFromUrl.rejected,
     ),
     effect: async (action, listenerApi) => {
@@ -69,16 +70,24 @@ zoomToMiddleware.startListening({
                 const bbox = turf.bbox(source.dataset)
                 listenerApi.dispatch(actions.map.fitBounds({
                     mapId,
-                    bounds: bbox as mapboxgl.LngLatBoundsLike,
+                    bounds: bbox as LngLatBoundsLike,
                 }))
                 break
             }
             case SourceType.Geojson: {
+                const reader = new SourceReader(source.location)
+                const bounds = await reader.getBounds()
+                if (bounds) {
+                    logger.info("Got bbox", bounds)
+                    listenerApi.dispatch(actions.map.fitBounds({
+                        mapId,
+                        bounds,
+                    }))
+                }
                 break
             }
             case SourceType.MVT: {
-                const u = new URL(source.location)
-                const r = new MbtilesReader(u.pathname)
+                const r = new MbtilesReader(source.location)
                 const tilejson = await r.getTileJson()
                 if (tilejson?.bounds) {
                     const bounds = tilejson.bounds
@@ -165,28 +174,29 @@ clearSelectionMiddleware.startListening({
 
 export const addSourceMiddleware = createListenerMiddleware()
 addSourceMiddleware.startListening({
-    actionCreator: actions.source.addFromFile.fulfilled,
+    actionCreator: actions.source.addFromUrl.fulfilled,
     effect: async (action, listenerApi) => {
-        const { sourceId, name, meta } = action.payload
-
-        const layerType = predictLayerType(meta)
-        if (!layerType) {
-            return
-        }
-
-        const layerId = nextId("layer")
-        listenerApi.dispatch(actions.layer.addLayer({
-            id: layerId,
-            sourceId,
-            fractionIndex: Math.random(),
-            visible: true,
-            name: name,
-            color: "#1c7ed6",
-        }))
-        listenerApi.dispatch(actions.layer.setType({
-            id: layerId,
-            type: layerType,
-        }))
+        logger.info("Source was added", action)
+        // const { sourceId, name, meta } = action.payload
+        //
+        // const layerType = predictLayerType(meta)
+        // if (!layerType) {
+        //     return
+        // }
+        //
+        // const layerId = nextId("layer")
+        // listenerApi.dispatch(actions.layer.addLayer({
+        //     id: layerId,
+        //     sourceId,
+        //     fractionIndex: Math.random(),
+        //     visible: true,
+        //     name: name,
+        //     color: "#1c7ed6",
+        // }))
+        // listenerApi.dispatch(actions.layer.setType({
+        //     id: layerId,
+        //     type: layerType,
+        // }))
     },
 })
 

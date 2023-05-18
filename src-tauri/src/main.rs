@@ -5,8 +5,30 @@
 
 mod sphere;
 
-use sphere::mbtiles::{Mbtiles, Tile};
-use sphere::shape::{Shapefile};
+use serde::Serialize;
+use sphere::Bounds;
+use tauri::State;
+use url::Url;
+
+use sphere::mbtiles::Tile;
+use sphere::source::{Source, SourceData};
+
+use std::collections::HashMap;
+use std::sync::Mutex;
+
+// here we use Mutex to achieve interior mutability
+#[derive(Default)]
+struct SourceStorage {
+    store: Mutex<HashMap<String, Source>>,
+}
+
+#[derive(Serialize, Debug)]
+struct NewSource {
+    id: String,
+    name: String,
+    location: String,
+    source_type: String,
+}
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -15,47 +37,106 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn mbtiles_get_metadata(path: &str) -> Result<String, String> {
-    let mbtiles = Mbtiles { path: path.into() };
-    let meta = mbtiles.get_metadata();
-    match meta {
-        Ok(meta) => Ok(meta),
-        Err(err) => Err(format!("Failed to get metadata: {:?}", err)),
+fn mbtiles_get_metadata(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+    let store = storage.store.lock().unwrap();
+    let source = store.get(&id);
+    match source {
+        Some(source) => match &source.data {
+            SourceData::Mbtiles(mbtiles) => {
+                let meta = mbtiles.get_metadata();
+                match meta {
+                    Ok(meta) => Ok(meta),
+                    Err(err) => Err(format!("Failed to get metadata: {:?}", err)),
+                }
+            }
+            _ => Err("Source not found".into()),
+        },
+        None => Err("Source not found".into()),
     }
 }
 
 #[tauri::command]
-fn mbtiles_get_tile(path: &str, z: i32, x: i32, y: i32) -> Result<Vec<u8>, String> {
-    let tile = Tile { x, y, zoom: z };
-    let mbtiles = Mbtiles { path: path.into() };
-    let data = mbtiles.get_tile(&tile);
-    match data {
-        Ok(data) => Ok(data),
-        Err(err) => Err(format!("Failed to get tile {}/{}/{}: {:?}", z, x, y, err)),
+fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<SourceStorage>) -> Result<Vec<u8>, String> {
+    let store = storage.store.lock().unwrap();
+    let source = store.get(&id);
+    match source {
+        Some(source) => match source.get_mbtiles() {
+            Some(mbtiles) => {
+                let tile = Tile { x, y, zoom: z };
+                let data = mbtiles.get_tile(&tile);
+                match data {
+                    Ok(data) => Ok(data),
+                    Err(err) => Err(format!("Failed to get tile {}/{}/{}: {:?}", z, x, y, err)),
+                }
+            }
+            None => Err("Source is not MBTiles".into()),
+        },
+        None => Err(format!("Not found {}", &id)),
     }
 }
 
 #[tauri::command]
-fn shape_get_geojson(path: &str) -> Result<String, String> {
-    let shp = Shapefile {
-        path: String::from(path),
-    };
-    let data = shp.to_geojson();
-    match data {
-        Ok(data) => Ok(data),
-        Err(err) => Err(format!("Failed read {} as GeoJSON: {:?}", path, err)),
+fn source_get(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+    let store = storage.store.lock().unwrap();
+    let source = store.get(&id);
+    match source {
+        Some(source) => source.to_geojson(),
+        None => Err(format!("Not found {}", &id)),
+    }
+}
+
+#[tauri::command]
+fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSource, String> {
+    let url = Url::parse(source_url).unwrap();
+    println!("Adding Source: {}", url);
+
+    match Source::from_url(url) {
+        Ok(source) => {
+            let n = NewSource {
+                id: source.id.clone(),
+                location: source.location.clone(),
+                name: source.name.clone(),
+                source_type: match &source.data {
+                    SourceData::Geojson(_) => "geojson".into(),
+                    SourceData::Mbtiles(_) => "mbtiles".into(),
+                    SourceData::Shapefile(_) => "shapefile".into(),
+                    SourceData::Csv(_) => "csv".into(),
+                    SourceData::Gpx(_) => "gpx".into(),
+                }
+            };
+            let id = source.id.clone();
+            storage.store.lock().unwrap().insert(id, source);
+            Ok(n)
+        }
+        Err(_) => Err(String::from("No Add!")),
+    }
+}
+
+#[tauri::command]
+fn source_bounds(id: String, storage: State<SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
+    let store = storage.store.lock().unwrap();
+    match store.get(&id) {
+        Some(source) => match source.get_bounds() {
+            Some(bounds) => Ok(bounds),
+            None => Err(format!("Cannot get bounds {}", &id)),
+        },
+        None => Err(format!("Not found {}", &id)),
     }
 }
 
 fn main() {
     tauri::Builder::default()
+        .manage(SourceStorage {
+            store: Default::default(),
+        })
         .invoke_handler(tauri::generate_handler![
             greet,
             mbtiles_get_tile,
             mbtiles_get_metadata,
-            shape_get_geojson,
+            source_add,
+            source_get,
+            source_bounds,
         ])
         .run(tauri::generate_context!())
         .expect("Error while running Application");
 }
-

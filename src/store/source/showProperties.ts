@@ -5,7 +5,7 @@ import { emit } from "@tauri-apps/api/event"
 import { RootState } from ".."
 import { waitEvent } from "@/lib/tauri"
 import { Source } from "."
-import { ShapeReader } from "@/lib/shape"
+import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 
 async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | null> {
@@ -15,7 +15,7 @@ async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | n
         }
         case SourceType.Geojson: {
             const url = new URL(source.location)
-            const r = new ShapeReader(url.pathname)
+            const r = new SourceReader(url.pathname)
             const geojson = await r.getGeojson()
             if (!geojson) {
                 return null

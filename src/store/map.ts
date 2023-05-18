@@ -1,14 +1,14 @@
 import logger from "@/logger"
 import { getMap } from "@/map"
 import { createAction, createListenerMiddleware } from "@reduxjs/toolkit"
-import mapboxgl from "mapbox-gl"
+import type { LngLatBoundsLike } from "maplibre-gl"
 
 type WithMapId = {
     mapId: string
 }
 
 type FitBoundsPayload = WithMapId & {
-    bounds: mapboxgl.LngLatBoundsLike
+    bounds: LngLatBoundsLike
 }
 export const fitBounds = createAction<FitBoundsPayload>("map/fitBounds")
 

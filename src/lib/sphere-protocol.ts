@@ -1,7 +1,9 @@
 import type { RequestParameters, ResponseCallback } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
-import { ShapeReader } from "./shape"
+import { SourceReader } from "./source-reader"
 import logger from "@/logger"
+
+type RequestType = "json" | "arrayBuffer" | "string" | undefined
 
 export class SphereProtocol {
     constructor() {
@@ -22,7 +24,7 @@ export class SphereProtocol {
         ]
     }
 
-    public async handleMbtiles(reader: MbtilesReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
+    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType) {
         switch (type) {
             case "json": {
                 return reader.getTileJson()
@@ -41,13 +43,13 @@ export class SphereProtocol {
         }
     }
 
-    public async handleShape(reader: ShapeReader, url: URL, type: "json" | "arrayBuffer" | "string" | undefined) {
+    public async handleSource(reader: SourceReader, type: RequestType) {
         switch (type) {
             case "json": {
                 return reader.getGeojson()
             }
             default: {
-                throw new Error(`SphereProtocol for ${url.host}/${type} is not implemented`)
+                throw new Error(`SphereProtocol for ${type} is not implemented`)
             }
         }
     }
@@ -57,12 +59,13 @@ export class SphereProtocol {
             const url = new URL(params.url)
             switch (url.host) {
                 case "mbtiles": {
-                    const reader = new MbtilesReader(url.pathname)
+                    logger.info("handle mbtiles", url)
+                    const reader = new MbtilesReader(params.url)
                     return this.handleMbtiles(reader, url, params.type)
                 }
-                case "shape": {
-                    const reader = new ShapeReader(url.pathname)
-                    return this.handleShape(reader, url, params.type)
+                case "source": {
+                    const reader = new SourceReader(params.url)
+                    return this.handleSource(reader, params.type)
                 }
                 default: {
                     throw new Error(`SphereProtocol for ${url.host} is not implemented`)
