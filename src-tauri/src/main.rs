@@ -101,6 +101,7 @@ fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSour
                     SourceData::Mbtiles(_) => "mbtiles".into(),
                     SourceData::Shapefile(_) => "shapefile".into(),
                     SourceData::Csv(_) => "csv".into(),
+                    SourceData::Gpx(_) => "gpx".into(),
                 }
             };
             let id = source.id.clone();

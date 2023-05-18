@@ -5,6 +5,7 @@ use url::Url;
 use super::csv::{Csv, CsvGeometry};
 use super::geojson::Geojson;
 use super::mbtiles::Mbtiles;
+use super::gpx::Gpx;
 use super::shape::Shapefile;
 use super::Bounds;
 
@@ -14,7 +15,7 @@ pub enum SourceData {
     Shapefile(Shapefile),
     Mbtiles(Mbtiles),
     Csv(Csv),
-    // Gpx,
+    Gpx(Gpx),
     // Pmtiles,
 }
 
@@ -32,6 +33,7 @@ impl Bounds for Source {
             SourceData::Geojson(val) => val.get_bounds(),
             SourceData::Shapefile(val) => val.get_bounds(),
             SourceData::Csv(val) => val.get_bounds(),
+            SourceData::Gpx(val) => val.get_bounds(),
             _ => None,
         }
     }
@@ -98,6 +100,12 @@ impl Source {
                 };
                 Ok((SourceData::Csv(source), format!("sphere://source/{}", id)))
             }
+            "gpx" => {
+                let source = Gpx {
+                    path: source_path,
+                };
+                Ok((SourceData::Gpx(source), format!("sphere://source/{}", id)))
+            }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }
     }
@@ -114,6 +122,10 @@ impl Source {
             }
             SourceData::Csv(src) => {
                 let val = src.to_geojson().expect("No csv".into());
+                Ok(val)
+            }
+            SourceData::Gpx(src) => {
+                let val = src.to_geojson().expect("No gpx".into());
                 Ok(val)
             }
             _ => Err("No".into()),
