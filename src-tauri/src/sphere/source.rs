@@ -1,6 +1,7 @@
 use sha256::digest;
 use std::path::Path;
 use url::Url;
+use urlencoding;
 
 use super::csv::{Csv, CsvGeometry};
 use super::geojson::Geojson;
@@ -61,7 +62,13 @@ impl Source {
         }
 
         let id = digest(source_url.to_string());
-        let path = Path::new(source_url.path());
+
+        let path = urlencoding::decode(source_url.path()).unwrap().to_string();
+        let path = Path::new(path.as_str());
+        if !path.is_file() {
+            return Err("File not found".into());
+        }
+
         let (data, location) = Source::create_data(&id, path)?;
         let name = path.file_stem().unwrap().to_str().unwrap().to_string();
 
