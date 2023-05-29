@@ -37,7 +37,7 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn mbtiles_get_metadata(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+async fn mbtiles_get_metadata(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -56,7 +56,7 @@ fn mbtiles_get_metadata(id: String, storage: State<SourceStorage>) -> Result<Str
 }
 
 #[tauri::command]
-fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<SourceStorage>) -> Result<Vec<u8>, String> {
+async fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<'_, SourceStorage>) -> Result<Vec<u8>, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -76,7 +76,7 @@ fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<SourceSto
 }
 
 #[tauri::command]
-fn source_get(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -86,7 +86,7 @@ fn source_get(id: String, storage: State<SourceStorage>) -> Result<String, Strin
 }
 
 #[tauri::command]
-fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSource, String> {
+async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<NewSource, String> {
     let url = Url::parse(source_url).unwrap();
     println!("Adding Source: {}", url);
 
@@ -113,7 +113,7 @@ fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSour
 }
 
 #[tauri::command]
-fn source_bounds(id: String, storage: State<SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
+async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
         Some(source) => match source.get_bounds() {
