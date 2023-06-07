@@ -3,7 +3,7 @@ import { MbtilesReader } from "./mbtiles"
 import { SourceReader } from "./source-reader"
 import logger from "@/logger"
 
-type RequestType = "json" | "arrayBuffer" | "string" | undefined
+type RequestType = "json" | "arrayBuffer" | "string" | "image" | undefined
 
 export class SphereProtocol {
     constructor() {
