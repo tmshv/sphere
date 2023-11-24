@@ -1,13 +1,11 @@
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
+#![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
 mod sphere;
 
 use serde::Serialize;
 use sphere::Bounds;
 use tauri::State;
+// use tokio::sync::mpsc;
 use url::Url;
 
 use sphere::mbtiles::Tile;
@@ -37,7 +35,7 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn mbtiles_get_metadata(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+async fn mbtiles_get_metadata(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -56,7 +54,13 @@ fn mbtiles_get_metadata(id: String, storage: State<SourceStorage>) -> Result<Str
 }
 
 #[tauri::command]
-fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<SourceStorage>) -> Result<Vec<u8>, String> {
+async fn mbtiles_get_tile(
+    id: String,
+    z: i32,
+    x: i32,
+    y: i32,
+    storage: State<'_, SourceStorage>,
+) -> Result<Vec<u8>, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -76,7 +80,7 @@ fn mbtiles_get_tile(id: String, z: i32, x: i32, y: i32, storage: State<SourceSto
 }
 
 #[tauri::command]
-fn source_get(id: String, storage: State<SourceStorage>) -> Result<String, String> {
+async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
@@ -86,7 +90,7 @@ fn source_get(id: String, storage: State<SourceStorage>) -> Result<String, Strin
 }
 
 #[tauri::command]
-fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSource, String> {
+async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<NewSource, String> {
     let url = Url::parse(source_url).unwrap();
     println!("Adding Source: {}", url);
 
@@ -102,7 +106,7 @@ fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSour
                     SourceData::Shapefile(_) => "shapefile".into(),
                     SourceData::Csv(_) => "csv".into(),
                     SourceData::Gpx(_) => "gpx".into(),
-                }
+                },
             };
             let id = source.id.clone();
             storage.store.lock().unwrap().insert(id, source);
@@ -113,7 +117,7 @@ fn source_add(source_url: &str, storage: State<SourceStorage>) -> Result<NewSour
 }
 
 #[tauri::command]
-fn source_bounds(id: String, storage: State<SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
+async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
         Some(source) => match source.get_bounds() {
@@ -124,7 +128,20 @@ fn source_bounds(id: String, storage: State<SourceStorage>) -> Result<(f64, f64,
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
+    tauri::async_runtime::set(tokio::runtime::Handle::current());
+
+    // let (async_proc_input_tx, async_proc_input_rx) = mpsc::channel(1);
+    // let (async_proc_output_tx, mut async_proc_output_rx) = mpsc::channel(1);
+
+    // tokio::spawn(async move {
+    //     async_process(
+    //         async_process_input_rx,
+    //         async_process_output_tx,
+    //     ).await
+    // });
+
     tauri::Builder::default()
         .manage(SourceStorage {
             store: Default::default(),
@@ -137,6 +154,20 @@ fn main() {
             source_get,
             source_bounds,
         ])
+        // .setup(|app| {
+        //     let app_handle = app.handle();
+        //     tauri::async_runtime::spawn(async move {
+        //         // A loop that takes output from the async process and sends it
+        //         // to the webview via a Tauri Event
+        //         loop {
+        //             if let Some(output) = async_proc_output_rx.recv().await {
+        //                 // rs2js(output, &app_handle);
+        //             }
+        //         }
+        //     });
+        //
+        //     Ok(())
+        // })
         .run(tauri::generate_context!())
         .expect("Error while running Application");
 }

@@ -3,10 +3,9 @@ use flate2::read::{GzDecoder, ZlibDecoder};
 use rusqlite::{params, Connection, Error as RusqliteError};
 use serde::{Deserialize, Serialize};
 use serde_json::{Error as SerdeError, Value};
-use std::{io, string};
+use std::io;
 use std::io::Read;
 use std::result;
-use std::path::Path;
 
 use super::tilejson::{TileScheme, MAXZOOM, MINZOOM};
 
@@ -227,8 +226,7 @@ impl Mbtiles {
             "#,
         )?;
         let (z, x, y) = tile.as_tms();
-        let tile_bytes: Vec<u8> =
-            statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap()))?;
+        let tile_bytes: Vec<u8> = statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap()))?;
         let f = get_tile_format(tile_bytes.as_slice());
         match f {
             TileFormat::Zlib => {

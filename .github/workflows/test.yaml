@@ -11,25 +11,25 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
     - uses: actions/checkout@v3
-    - name: setup node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
     - name: install Rust stable
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
-        toolchain: stable
+        toolchain: 1.74
     - name: install dependencies (ubuntu only)
       if: matrix.platform == 'ubuntu-20.04'
       run: |
         sudo apt-get update
         sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+    - name: setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
     - name: install npm dependencies
       run: npm ci
     - name: run npm checks
       run: |
-          npm t
-          npm run lint
+        npm t
+        npm run lint
     - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
