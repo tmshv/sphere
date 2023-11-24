@@ -35,17 +35,17 @@ pub struct VectorLayer {
     pub maxzoom: Option<i32>,
 }
 
-impl VectorLayer {
-    pub fn new(id: String, fields: Value) -> VectorLayer {
-        VectorLayer {
-            id,
-            fields,
-            description: None,
-            minzoom: None,
-            maxzoom: None,
-        }
-    }
-}
+// impl VectorLayer {
+//     pub fn new(id: String, fields: Value) -> VectorLayer {
+//         VectorLayer {
+//             id,
+//             fields,
+//             description: None,
+//             minzoom: None,
+//             maxzoom: None,
+//         }
+//     }
+// }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Tilejson3 {
@@ -198,10 +198,10 @@ impl Tilejson3 {
         self
     }
 
-    pub fn add_layer(&mut self, value: VectorLayer) -> &Tilejson3 {
-        self.vector_layers.push(value);
-        self
-    }
+    // pub fn add_layer(&mut self, value: VectorLayer) -> &Tilejson3 {
+    //     self.vector_layers.push(value);
+    //     self
+    // }
 
     pub fn set_scheme(&mut self, value: TileScheme) -> &Tilejson3 {
         self.scheme = value;

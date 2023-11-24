@@ -1,6 +1,6 @@
 use csv;
 use geo::BoundingRect;
-use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Value, Position};
+use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Position, Value};
 use geozero::geojson::GeoJson;
 use geozero::ToGeo;
 use std::{fs::File, result};
@@ -10,7 +10,7 @@ use super::Bounds;
 #[derive(Debug)]
 pub enum CsvError {
     FS(std::io::Error),
-    Serialize,
+    // Serialize,
 }
 
 impl From<std::io::Error> for CsvError {
@@ -23,7 +23,7 @@ pub type Result<T> = result::Result<T, CsvError>;
 
 #[derive(Debug)]
 pub enum CsvGeometry {
-    WKT(String),
+    // WKT(String),
     XY((String, String)),
 }
 
@@ -31,22 +31,27 @@ impl CsvGeometry {
     fn get_value(&self, record: &JsonObject) -> Option<Value> {
         match &self {
             CsvGeometry::XY((xfield, yfield)) => {
-                let x = record.get(xfield).map(|value| match value {
-                    serde_json::Value::Number(n) => n.as_f64(),
-                    serde_json::Value::String(s) => s.parse::<f64>().ok(),
-                    _ => None,
-                }).flatten();
+                let x = record
+                    .get(xfield)
+                    .map(|value| match value {
+                        serde_json::Value::Number(n) => n.as_f64(),
+                        serde_json::Value::String(s) => s.parse::<f64>().ok(),
+                        _ => None,
+                    })
+                    .flatten();
 
-                let y = record.get(yfield).map(|value| match value {
-                    serde_json::Value::Number(n) => n.as_f64(),
-                    serde_json::Value::String(s) => s.parse::<f64>().ok(),
-                    _ => None,
-                }).flatten();
+                let y = record
+                    .get(yfield)
+                    .map(|value| match value {
+                        serde_json::Value::Number(n) => n.as_f64(),
+                        serde_json::Value::String(s) => s.parse::<f64>().ok(),
+                        _ => None,
+                    })
+                    .flatten();
 
                 let pos: Option<Position> = vec![x, y].into_iter().collect();
                 pos.map(|pos| Value::Point(pos))
-            }
-            CsvGeometry::WKT(_) => None,
+            } // CsvGeometry::WKT(_) => None,
         }
     }
 }
@@ -123,7 +128,7 @@ impl Csv {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // use super::*;
 
     #[test]
     fn test_valid_jsonfile() {

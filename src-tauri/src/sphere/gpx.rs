@@ -12,7 +12,7 @@ use super::Bounds;
 #[derive(Debug)]
 pub enum GpxError {
     FS(std::io::Error),
-    Serialize,
+    // Serialize,
 }
 
 impl From<std::io::Error> for GpxError {
@@ -94,8 +94,6 @@ impl Gpx {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_valid_jsonfile() {
         // let geojson = Csv {

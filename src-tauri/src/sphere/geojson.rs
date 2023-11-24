@@ -9,7 +9,7 @@ use super::Bounds;
 #[derive(Debug)]
 pub enum GeojsonError {
     FS(std::io::Error),
-    Serialize,
+    // Serialize,
 }
 
 impl From<std::io::Error> for GeojsonError {
@@ -50,6 +50,9 @@ impl Geojson {
         let mut file = File::open(self.path.as_str())?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
+
+        // let geojson = contents.parse::<geojson::GeoJson>().unwrap();
+
         Ok(contents)
     }
 }

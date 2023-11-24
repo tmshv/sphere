@@ -1,8 +1,8 @@
-use geozero::geojson::GeoJson;
-use geozero::ToGeo;
+// use geozero::geojson::GeoJson;
+// use geozero::ToGeo;
 use sha256::digest;
 use std::path::Path;
-use std::result;
+// use std::result;
 use url::Url;
 use urlencoding;
 
@@ -17,9 +17,9 @@ use super::Bounds;
 pub enum SourceError {
     // DB(RusqliteError),
     // Serialize(SerdeError),
-    NotFound,
-    BadGeometry,
-    UnknownType,
+    // NotFound,
+    // BadGeometry,
+    // UnknownType,
 }
 
 // impl From<RusqliteError> for MbtilesError {
@@ -28,7 +28,7 @@ pub enum SourceError {
 //     }
 // }
 
-pub type SResult<T> = result::Result<T, SourceError>;
+// pub type SResult<T> = result::Result<T, SourceError>;
 
 #[derive(Debug)]
 pub enum SourceData {
@@ -157,35 +157,35 @@ impl Source {
         }
     }
 
-    pub fn to_geo(&self) -> SResult<geo::Geometry<f64>> {
-        match &self.data {
-            SourceData::Geojson(src) => {
-                let geojson_str = src.read().unwrap();
-                let geojson = GeoJson(geojson_str.as_str());
-                let b = geojson.to_geo().unwrap();
-                Ok(b)
-            }
-            SourceData::Shapefile(src) => {
-                let val = src.to_geojson().expect("No shape".into());
-                let geojson = GeoJson(val.as_str());
-                let b = geojson.to_geo().unwrap();
-                Ok(b)
-            }
-            SourceData::Csv(src) => {
-                let val = src.to_geojson().expect("No csv".into());
-                let geojson = GeoJson(val.as_str());
-                let b = geojson.to_geo().unwrap();
-                Ok(b)
-            }
-            SourceData::Gpx(src) => {
-                let val = src.to_geojson().expect("No gpx".into());
-                let geojson = GeoJson(val.as_str());
-                let b = geojson.to_geo().unwrap();
-                Ok(b)
-            }
-            _ => Err(SourceError::NotFound),
-        }
-    }
+    // pub fn to_geo(&self) -> SResult<geo::Geometry<f64>> {
+    //     match &self.data {
+    //         SourceData::Geojson(src) => {
+    //             let geojson_str = src.read().unwrap();
+    //             let geojson = GeoJson(geojson_str.as_str());
+    //             let b = geojson.to_geo().unwrap();
+    //             Ok(b)
+    //         }
+    //         SourceData::Shapefile(src) => {
+    //             let val = src.to_geojson().expect("No shape".into());
+    //             let geojson = GeoJson(val.as_str());
+    //             let b = geojson.to_geo().unwrap();
+    //             Ok(b)
+    //         }
+    //         SourceData::Csv(src) => {
+    //             let val = src.to_geojson().expect("No csv".into());
+    //             let geojson = GeoJson(val.as_str());
+    //             let b = geojson.to_geo().unwrap();
+    //             Ok(b)
+    //         }
+    //         SourceData::Gpx(src) => {
+    //             let val = src.to_geojson().expect("No gpx".into());
+    //             let geojson = GeoJson(val.as_str());
+    //             let b = geojson.to_geo().unwrap();
+    //             Ok(b)
+    //         }
+    //         _ => Err(SourceError::NotFound),
+    //     }
+    // }
 
     pub fn get_mbtiles(&self) -> Option<&Mbtiles> {
         match &self.data {
