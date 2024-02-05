@@ -19,12 +19,12 @@ jobs:
     - name: setup node
       uses: actions/setup-node@v1
       with:
-        node-version: 18
+        node-version: 20
 
     - name: install Rust stable
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
-        toolchain: stable
+        toolchain: 1.74
 
     # - name: install dependencies (ubuntu only)
     #   if: matrix.platform == 'ubuntu-latest'
