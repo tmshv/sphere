@@ -3,6 +3,7 @@ import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectVisibleLayerIds } from "@/store/layer"
+import type { Map as MapGL } from "maplibre-gl"
 
 export type HandleHoverProps = {
     mapId: string
@@ -14,8 +15,15 @@ export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
     const layerIds = useAppSelector(selectVisibleLayerIds)
 
     useEffect(() => {
-        const map = ref?.getMap()
+        const map = ref?.getMap() as MapGL | undefined
         if (!map) {
+            return
+        }
+
+        // Skip setup in case
+        // - No layers in scene
+        // - All layers are invisible
+        if (layerIds.length === 0) {
             return
         }
 
@@ -33,12 +41,16 @@ export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
             }))
         }
 
-        map.on("mouseenter", layerIds, enter)
-        map.on("mouseleave", layerIds, leave)
+        for (const layerId of layerIds) {
+            map.on("mouseover", layerId, enter)
+            map.on("mouseout", layerId, leave)
+        }
 
         return () => {
-            map.off("mouseenter", layerIds, enter)
-            map.off("mouseleave", layerIds, leave)
+            for (const layerId of layerIds) {
+                map.off("mouseover", layerId, enter)
+                map.off("mouseout", layerId, leave)
+            }
         }
     }, [ref, mapId, layerIds])
 
