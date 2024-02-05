@@ -2,7 +2,7 @@ name: "publish"
 on:
   push:
     branches:
-      - release
+      - 'release-**'
 
 jobs:
   publish-tauri:
@@ -15,9 +15,10 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+
     - name: setup node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: 20
 
@@ -37,15 +38,12 @@ jobs:
     #   run: |
     #     rustup target add x86_64-apple-darwin
 
-    - name: install app dependencies and build it
-      run: yarn && yarn build
-      env:
-        CI: false
+    - name: install frontend dependencies
+      run: npm ci
 
-    - uses: tauri-apps/tauri-action@dev
+    - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CI: false
       with:
         tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
         releaseName: "v__VERSION__"
