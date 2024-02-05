@@ -112,7 +112,7 @@ async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Resu
             storage.store.lock().unwrap().insert(id, source);
             Ok(n)
         }
-        Err(_) => Err(String::from("No Add!")),
+        Err(err) => Err(err),
     }
 }
 
