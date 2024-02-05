@@ -69,13 +69,13 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 logger.error("Got error from maplibre", error)
             }}
         >
+            <SetupStore
+                mapId={id}
+            />
             <Source
                 id={"mapbox-dem"}
                 type={"raster-dem"}
                 url={"mapbox://mapbox.mapbox-terrain-dem-v1"}
-            />
-            <SetupStore
-                mapId={id}
             />
             <HandleHover
                 mapId={id}
