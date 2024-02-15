@@ -64,7 +64,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                     "line-join": "round",
                     visibility: visible ? "visible" : "none",
                 }}
-                filter={["in", "in", ""]}
+                filter={["in", "id", ""]}
             />
         </>
     )
