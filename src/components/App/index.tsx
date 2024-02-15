@@ -71,9 +71,9 @@ export const App: React.FC<AppProps> = () => {
                         /> */}
                         {zen ? null : (
                             <Overlay
-                                // right={(
-                                //     <Toolbar></Toolbar>
-                                // )}
+                            // right={(
+                            //     <Toolbar></Toolbar>
+                            // )}
                             />
                         )}
 
