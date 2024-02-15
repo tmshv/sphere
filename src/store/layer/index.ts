@@ -53,12 +53,12 @@ export const layerSlice = createSlice({
             state.allIds = state.allIds.filter(id => id !== layerId)
         },
         setPositionBefore: (state, action: PayloadAction<{ layerId: Id, otherLayerId: Id }>) => {
-            const {layerId, otherLayerId} = action.payload
+            const { layerId, otherLayerId } = action.payload
             const index = state.items[otherLayerId].fractionIndex
             state.items[layerId].fractionIndex = index - 0.00001
         },
         setPositionAfter: (state, action: PayloadAction<{ layerId: Id, otherLayerId: Id }>) => {
-            const {layerId, otherLayerId} = action.payload
+            const { layerId, otherLayerId } = action.payload
             const index = state.items[otherLayerId].fractionIndex
             state.items[layerId].fractionIndex = index + 0.00001
         },
