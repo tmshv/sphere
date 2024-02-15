@@ -249,6 +249,11 @@ addBlankLayerMiddleware.startListening({
                     }))
                 }
             }
+            // TODO: use smart prediction instead of just Point
+            listenerApi.dispatch(actions.layer.setType({
+                id: layerId,
+                type: LayerType.Point,
+            }))
         }
 
         listenerApi.dispatch(actions.selection.selectLayer({
