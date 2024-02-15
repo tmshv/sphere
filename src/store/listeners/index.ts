@@ -211,8 +211,12 @@ addBlankLayerMiddleware.startListening({
         const state = listenerApi.getOriginalState() as RootState
         const sourceId = action.payload
         const layerId = nextId("layer")
-        const source = sourceId ? state.source.items[sourceId] : null
-        let name = source ? source.name : "Layer"
+        const source = sourceId
+            ? state.source.items[sourceId]
+            : null
+        let name = source
+            ? source.name
+            : "Layer"
 
         listenerApi.dispatch(actions.layer.addLayer({
             id: layerId,
