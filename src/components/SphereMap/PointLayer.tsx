@@ -50,7 +50,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
     return (
         <>
             <Layer {...layer as any} />
-            {/* <Layer
+            <Layer
                 id={`${layerId}-selected`}
                 source={sourceId}
                 type={"circle"}
@@ -58,11 +58,11 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                 layout={{
                     visibility: visible ? "visible" : "none",
                 }}
-                filter={['in', 'id', '']}
+                filter={["in", "id", ""]}
                 {...{
-                    'source-layer': sourceLayer,
+                    "source-layer": sourceLayer,
                 }}
-            /> */}
+            />
         </>
     )
 }
