@@ -7,8 +7,8 @@ import { SphereMap } from "../SphereMap"
 import { Spotlight } from "../Spotlight"
 import { LeftSidebar } from "../LeftSidebar"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { selectIsZen, selectShowLeftSidebar, selectShowRightSidebar } from "@/store/app"
-import { selectProperties } from "@/store/selection"
+import { selectIsZen, selectShowLeftSidebar } from "@/store/app"
+import { selectProperties } from "@/store/properties"
 import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Overlay } from "@/ui/Overlay"
 import { Sidebar } from "@/ui/Sidebar"
@@ -24,13 +24,9 @@ export const App: React.FC<AppProps> = () => {
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
     const left = useAppSelector(selectShowLeftSidebar)
-    const right = useAppSelector(selectShowRightSidebar)
     const props = useAppSelector(selectProperties)
 
     const showLeft = left && !zen
-    const showRight = right && !zen && !!props
-
-    // const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
 
     return (
         <StrictMode>
@@ -65,22 +61,6 @@ export const App: React.FC<AppProps> = () => {
                                 <LeftSidebar />
                             </Sidebar>
                         )}
-                        rightSidebar={!showRight ? null : (
-                            <Container pt={"lg"} style={{
-                                minWidth: 240,
-                                overflow: "hidden",
-                            }}>
-                                <Title order={3}>
-                                    Properties
-                                </Title>
-
-                                <Paper mt={"sm"}>
-                                    <PropertiesViewer
-                                        properties={props}
-                                    />
-                                </Paper>
-                            </Container>
-                        )}
                     >
                         <SphereMap
                             id={id}
@@ -95,6 +75,24 @@ export const App: React.FC<AppProps> = () => {
                                 //     <Toolbar></Toolbar>
                                 // )}
                             />
+                        )}
+
+                        {!props ? null : (
+                            <Overlay right={(
+                                <Container pt={"lg"} style={{
+                                    minWidth: 300,
+                                    overflow: "hidden",
+                                }}>
+                                    <Paper p={"sm"}>
+                                        <Title order={3}>
+                                            Properties
+                                        </Title>
+                                        <PropertiesViewer
+                                            properties={props}
+                                        />
+                                    </Paper>
+                                </Container>
+                            )} />
                         )}
                     </AppLayout>
                 </Spotlight>
