@@ -54,6 +54,7 @@ zoomToMiddleware.startListening({
         const mapId = "spheremap"
         const map = getMap(mapId)
         if (!map) {
+            logger.info("No map")
             return
         }
 
@@ -61,6 +62,7 @@ zoomToMiddleware.startListening({
         const state = listenerApi.getOriginalState() as RootState
         const source = state.source.items[sourceId]
         if (!source) {
+            logger.info("No source", sourceId)
             return
         }
 
@@ -83,6 +85,8 @@ zoomToMiddleware.startListening({
                         mapId,
                         bounds,
                     }))
+                } else {
+                    logger.info("No bounds", bounds)
                 }
                 break
             }
