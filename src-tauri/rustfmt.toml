@@ -1,0 +1,13 @@
+# Maximum width of a line
+max_width = 120
+
+# Use 4 spaces instead of tabs
+tab_spaces = 4
+
+# Place a newline character at the end of the file
+hard_tabs = false
+
+# Use UNIX-style line endings
+# (Supported values: "auto", "lf", "crlf", or "cr")
+newline = "lf"
+
