@@ -6,6 +6,7 @@ import terrain from "./terrain"
 import source from "./source"
 import layer from "./layer"
 import selection from "./selection"
+import properties from "./properties"
 import app from "./app"
 import draw from "./draw"
 import { listener as mapListener } from "./map"
@@ -25,6 +26,7 @@ export const store = configureStore({
         source,
         layer,
         selection,
+        properties,
     },
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()

@@ -6,6 +6,7 @@ import { actions as sourceActions } from "./source"
 import { actions as layerActions } from "./layer"
 import { actions as errorActions } from "./error"
 import { selectionSlice } from "./selection"
+import { propertiesSlice } from "./properties"
 import { appSlice } from "./app"
 import { actions as drawActions } from "./draw"
 import { actions as mapActions } from "./map"
@@ -22,4 +23,5 @@ export const actions = {
     layer: layerActions,
     map: mapActions,
     selection: selectionSlice.actions,
+    properties: propertiesSlice.actions,
 }
