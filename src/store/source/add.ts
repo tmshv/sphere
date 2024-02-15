@@ -65,4 +65,3 @@ export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths
     //     bounds: bbox as mapboxgl.LngLatBoundsLike
     // }))
 })
-
