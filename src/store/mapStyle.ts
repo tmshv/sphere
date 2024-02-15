@@ -8,6 +8,27 @@ import { selectIsDark } from "./app"
 
 const VECTOR = "mapbox://styles/mapbox/streets-v9"
 const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v12"
+const OSM: Style = {
+    name: "osm",
+    version: 8,
+    sources: {
+        "osm-raster-tiles": {
+            type: "raster",
+            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            tileSize: 256,
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+        },
+    },
+    layers: [
+        {
+            id: "osm-raster-layer",
+            type: "raster",
+            source: "osm-raster-tiles",
+            minzoom: 0,
+            maxzoom: 22,
+        },
+    ],
+}
 
 type MapStyle = string | Style
 
@@ -18,7 +39,7 @@ type MapStyleState = {
 
 // Define the initial state using that type
 const initialState: MapStyleState = {
-    value: SATELLITE,
+    value: OSM,
 }
 
 export const mapStyleSlice = createSlice({
@@ -33,27 +54,7 @@ export const mapStyleSlice = createSlice({
             state.value = SATELLITE
         },
         setOsm: state => {
-            state.value = {
-                name: "osm",
-                version: 8,
-                sources: {
-                    "osm-raster-tiles": {
-                        type: "raster",
-                        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-                        tileSize: 256,
-                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
-                    },
-                },
-                layers: [
-                    {
-                        id: "osm-raster-layer",
-                        type: "raster",
-                        source: "osm-raster-tiles",
-                        minzoom: 0,
-                        maxzoom: 22,
-                    },
-                ],
-            }
+            state.value = OSM as any
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
         setMapStyle: (state, action: PayloadAction<MapStyle>) => {
