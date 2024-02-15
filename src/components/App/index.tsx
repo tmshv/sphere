@@ -78,7 +78,7 @@ export const App: React.FC<AppProps> = () => {
                         )}
 
                         {!props ? null : (
-                            <Overlay right={(
+                            <Overlay topRight={(
                                 <Container pt={"lg"} style={{
                                     minWidth: 300,
                                     overflow: "hidden",

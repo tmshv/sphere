@@ -32,6 +32,11 @@ const useStyles = createStyles(theme => ({
         transform: "translateY(-50%)",
     },
 
+    topRight: {
+        top: theme.spacing.sm,
+        right: theme.spacing.sm,
+    },
+
     top: {
         top: theme.spacing.md,
         left: "50%",
@@ -51,13 +56,19 @@ export type OverlayProps = {
     top?: React.ReactNode
     bottom?: React.ReactNode
     topLeft?: React.ReactNode
+    topRight?: React.ReactNode
 }
 
-export const Overlay: React.FC<OverlayProps> = ({ topLeft, left, right, top, bottom }) => {
+export const Overlay: React.FC<OverlayProps> = ({ topLeft, topRight, left, right, top, bottom }) => {
     const { classes: s, cx } = useStyles()
 
     return (
         <Box className={s.container}>
+            {!topRight ? null : (
+                <Box className={cx(s.inner, s.topRight)}>
+                    {topRight}
+                </Box>
+            )}
             {!topLeft ? null : (
                 <Box className={cx(s.inner, s.topLeft)}>
                     {topLeft}
