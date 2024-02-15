@@ -42,14 +42,14 @@ export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
         }
 
         for (const layerId of layerIds) {
-            map.on("mouseover", layerId, enter)
-            map.on("mouseout", layerId, leave)
+            map.on("mouseenter", layerId, enter)
+            map.on("mouseleave", layerId, leave)
         }
 
         return () => {
             for (const layerId of layerIds) {
-                map.off("mouseover", layerId, enter)
-                map.off("mouseout", layerId, leave)
+                map.off("mouseenter", layerId, enter)
+                map.off("mouseleave", layerId, leave)
             }
         }
     }, [ref, mapId, layerIds])
