@@ -1,4 +1,4 @@
-import { useAppSelector } from "../../store/hooks"
+import { useAppSelector } from "@/store/hooks"
 import { LayerType } from "@/types"
 import { FillLayer } from "./FillLayer"
 import { LineStringLayer } from "./LineStringLayer"
