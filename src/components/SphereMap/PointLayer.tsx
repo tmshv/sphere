@@ -59,9 +59,9 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["in", "id", ""]}
-                {...{
+                {...sourceLayer ? {
                     "source-layer": sourceLayer,
-                }}
+                } : {}}
             />
         </>
     )
