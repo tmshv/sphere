@@ -101,7 +101,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                         valueField: "score",
                     })}
                     clusterRadius={50}
-                    iconSize={50}
+                    iconSize={100}
                     iconSizeCluster={50}
                     iconLayout="square"
                 />
