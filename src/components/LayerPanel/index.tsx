@@ -4,6 +4,7 @@ import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, 
 import { LayerType, SourceType } from "@/types"
 import { actions } from "@/store"
 import { ActionBar } from "@/ui/ActionBar"
+import { PhotoIconLayout } from "@/store/layer"
 
 type Option = {
     value: string
@@ -57,6 +58,7 @@ export const LayerPanel: React.FC = () => {
             color: s.color,
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
             heatmapRadius: s.heatmap?.radius ?? 10,
+            icon: s.photo?.icon,
         }
     })
     if (!layer) {
@@ -276,6 +278,29 @@ export const LayerPanel: React.FC = () => {
                         }}
                     />
                 </Input.Wrapper>
+            )}
+
+            {!(type === LayerType.Photo) ? null : (
+                <>
+                    <Select
+                        size="xs"
+                        label="Layout"
+                        placeholder="Pick one"
+                        value={layer.icon}
+                        data={[
+                            { value: "square", label: "Square" },
+                            { value: "circle", label: "Circle" },
+                        ]}
+                        onChange={(value: PhotoIconLayout) => {
+                            if (value) {
+                                dispatch(actions.layer.setPhotoIconLayout({
+                                    id: layerId,
+                                    value,
+                                }))
+                            }
+                        }}
+                    />
+                </>
             )}
         </Flex>
     )

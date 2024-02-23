@@ -4,6 +4,10 @@ import { RootState } from ".."
 import { Id, LayerType } from "@/types"
 import { sourceSlice } from "../source"
 
+export type PhotoIconLayout = "circle" | "square"
+
+const DEFAULT_PHOTO_ICON: PhotoIconLayout = "square"
+
 type Layer = {
     id: Id
     sourceId?: Id
@@ -20,6 +24,9 @@ type Layer = {
     }
     heatmap?: {
         radius: number
+    }
+    photo?: {
+        icon: PhotoIconLayout
     }
 }
 
@@ -90,6 +97,20 @@ export const layerSlice = createSlice({
                     radius: 10,
                 }
             }
+
+            switch (type) {
+                case LayerType.Photo: {
+                    if (!layer.photo) {
+                        layer.photo = {
+                            icon: DEFAULT_PHOTO_ICON,
+                        }
+                    }
+                    break
+                }
+                default: {
+                    break
+                }
+            }
         },
         setColor: (state, action: PayloadAction<{ id: Id, color: string }>) => {
             const { id, color } = action.payload
@@ -105,6 +126,11 @@ export const layerSlice = createSlice({
             const { id, value } = action.payload
             const layer = state.items[id]
             layer.heatmap!.radius = value
+        },
+        setPhotoIconLayout: (state, action: PayloadAction<{ id: Id, value: PhotoIconLayout }>) => {
+            const { id, value } = action.payload
+            const layer = state.items[id]
+            layer.photo!.icon = value
         },
     },
     extraReducers: (builder) => {

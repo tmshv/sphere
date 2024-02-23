@@ -29,7 +29,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap } = useAppSelector(state => state.layer.items[id])
+    const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap, photo } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -103,7 +103,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     clusterRadius={50}
                     iconSize={100}
                     iconSizeCluster={50}
-                    iconLayout="square"
+                    iconLayout={photo!.icon}
                 />
             )
         }
