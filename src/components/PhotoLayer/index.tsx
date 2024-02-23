@@ -1,56 +1,35 @@
-import { useAppSelector } from "@/store/hooks"
-import { SourceType } from "@/types"
-import { ImageMarker } from "@/ui/ImageMarker"
+import { ImageMarker, ImageMarkerLayout } from "@/ui/ImageMarker"
 import { useCallback, useEffect, useState } from "react"
 import { Marker, useMap } from "react-map-gl"
 import { Badge } from "./Badge"
 import { PhotoCluster, RenderPhotoFunction } from "./PhotoCluster"
-
-export type GetImageFunction = (p: GeoJSON.GeoJsonProperties) => {
-    src: string,
-    iconSrc: string,
-    value: number
-}
+import { useDispatch } from "react-redux"
+import { actions } from "@/store"
+import * as maplibregl from "maplibre-gl"
+import { InvisibleCircleLayer } from "./InvisibleCircleLayer"
+import type { GetImageFunction } from "./types"
+import { useFeatures } from "./hooks"
 
 export type PhotoLayerProps = {
     layerId: string
     sourceId: string
     clusterRadius: number
     getImage: GetImageFunction
+    iconLayout: ImageMarkerLayout
     iconSize: number
     iconSizeCluster?: number
 }
 
-export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clusterRadius, getImage, iconSize, iconSizeCluster }) => {
+export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clusterRadius, getImage, iconLayout, iconSize, iconSizeCluster }) => {
+    const invisiblePointsLayer = `${layerId}-invisible-points`
+    const dispatch = useDispatch()
     const { current } = useMap()
     const [activeImage, setActiveImage] = useState<string | number | null>(null)
-    const features = useAppSelector(state => {
-        const source = state.source.items[sourceId]
-        switch (source.type) {
-            case SourceType.FeatureCollection: {
-                if (source.pending) {
-                    return []
-                }
-                return source.dataset.features
-                    .filter(f => {
-                        const { src, iconSrc } = getImage(f.properties!)
-                        return !!src && !!iconSrc
-                    })
-            }
-            case SourceType.MVT: {
-                // const layer = state.layer.items[layerId]
-                // const map = current?.getMap()
-                // if (map) {
-                //     features = map?.queryRenderedFeatures(undefined, {
-                //         layers: [layerId],
-                //     })
-                // }
-                return []
-            }
-            default: {
-                return []
-            }
-        }
+    const sourceLayer = "sndl"
+    const features = useFeatures({
+        sourceId,
+        layerId: invisiblePointsLayer,
+        map: current?.getMap() as unknown as maplibregl.Map,
     })
 
     useEffect(() => {
@@ -70,13 +49,9 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
         }
     }, [current])
 
-    if (features.length === 0) {
-        return null
-    }
-
     const renderPhoto = useCallback<RenderPhotoFunction>((feature, isCluster) => {
         const [lng, lat] = feature.geometry.coordinates
-        let id = feature.id!
+        let id = feature.id! // useFeatures hook makes sure feature has id
 
         if (isCluster) {
             const url = feature.properties!.url
@@ -88,11 +63,16 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
                     <ImageMarker
                         src={url}
                         size={iconSizeCluster ?? iconSize}
-                        layout={"circle"}
+                        layout={iconLayout}
+                        onHover={() => {
+                            dispatch(actions.properties.set({
+                                values: feature.properties!,
+                            }))
+                        }}
                     >
                         <Badge
-                            top={-6}
-                            right={-6}
+                            top={-12}
+                            right={-12}
                         >
                             {clusterSize}
                         </Badge>
@@ -101,7 +81,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
             )
         }
 
-        const { src, iconSrc } = getImage(feature.properties!)
+        const { iconSrc } = getImage(feature.properties!)
         const active = activeImage === id
 
         return (
@@ -111,16 +91,24 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
                     latitude={lat}
                     onClick={(event) => {
                         event.originalEvent.stopPropagation()
+
                         setActiveImage(id)
                     }}
                     style={{
-                        zIndex: active ? 100 : 1,
+                        zIndex: active
+                            ? 100
+                            : 1,
                     }}
                 >
                     <ImageMarker
-                        src={active ? src : iconSrc}
-                        size={active ? 300 : iconSize}
-                        layout={active ? "square" : "circle"}
+                        src={iconSrc}
+                        size={iconSize}
+                        layout={iconLayout}
+                        onHover={() => {
+                            dispatch(actions.properties.set({
+                                values: feature.properties!,
+                            }))
+                        }}
                     />
                 </Marker>
             </div>
@@ -128,18 +116,27 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
     }, [iconSize, getImage, activeImage])
 
     return (
-        <PhotoCluster
-            radius={clusterRadius}
-            data={features as any}
-            renderPhoto={renderPhoto}
-            mapProperties={p => {
-                const { iconSrc, value } = getImage(p)
-                return {
-                    value,
-                    url: iconSrc ?? "",
-                }
-            }}
-        />
+        <>
+            <InvisibleCircleLayer
+                layerId={invisiblePointsLayer}
+                sourceId={sourceId}
+                sourceLayer={sourceLayer}
+            />
+            <PhotoCluster
+                radius={clusterRadius}
+                data={features.filter(f => {
+                    const { src, iconSrc } = getImage(f.properties!)
+                    return !!src && !!iconSrc
+                }) as any}
+                renderPhoto={renderPhoto}
+                mapProperties={p => {
+                    const { iconSrc, value } = getImage(p)
+                    return {
+                        value,
+                        url: iconSrc ?? "",
+                    }
+                }}
+            />
+        </>
     )
 }
-

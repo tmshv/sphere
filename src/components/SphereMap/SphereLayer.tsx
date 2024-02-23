@@ -4,24 +4,23 @@ import { FillLayer } from "./FillLayer"
 import { LineStringLayer } from "./LineStringLayer"
 import { PointLayer } from "./PointLayer"
 import { assertUnreachable } from "@/lib"
-import { GetImageFunction, PhotoLayer } from "@/components/PhotoLayer"
+import { PhotoLayer } from "@/components/PhotoLayer"
 import { HeatmapLayer } from "./HeatmapLayer"
 import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
 import { RasterLayer } from "./RasterLayer"
+import type { GetImageFunction } from "../PhotoLayer/types"
 
-const getImage: GetImageFunction = p => {
-    const iconField = "thumbnail"
-    const srcField = "src"
-    const valueField = "score"
+function createGetImageFunction({ iconField, srcField, valueField }: { iconField: string, srcField: string, valueField: string }): GetImageFunction {
+    return propetries => {
+        const src = propetries![srcField] as string
+        const iconSrc = propetries![iconField] as string
 
-    const src = p![srcField] as string
-    const iconSrc = p![iconField] as string
-
-    return {
-        src,
-        iconSrc,
-        value: p![valueField] ?? 0,
+        return {
+            src,
+            iconSrc,
+            value: propetries![valueField] ?? 0,
+        }
     }
 }
 
@@ -96,10 +95,15 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <PhotoLayer
                     layerId={layerId}
                     sourceId={sourceId}
-                    getImage={getImage}
+                    getImage={createGetImageFunction({
+                        iconField: "thumbnail",
+                        srcField: "src",
+                        valueField: "score",
+                    })}
                     clusterRadius={50}
                     iconSize={50}
                     iconSizeCluster={50}
+                    iconLayout="square"
                 />
             )
         }

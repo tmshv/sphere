@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl"
 import Supercluster from "supercluster"
 import { useMapboxEvent } from "./useMapboxEvent"
+import logger from "@/logger"
 
 type DefaultFeatureProperties = {
     [key: string]: any
@@ -28,7 +29,14 @@ export function useClusters<
         const zoom = map.getZoom()
         const bounds = map.getBounds() // sw ne
         const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()] as BBox
-        const clusters = cluster.current.getClusters(bbox, Math.floor(zoom)) // w s e n
+
+        let clusters: Array<Supercluster.PointFeature<P> | Supercluster.ClusterFeature<C>> = []
+        try {
+            clusters = cluster.current.getClusters(bbox, Math.floor(zoom)) // w s e n
+        } catch (err) {
+            logger.error(err)
+            return
+        }
         setClusters(clusters)
     }, [map])
 

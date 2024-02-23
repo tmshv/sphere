@@ -22,10 +22,12 @@ const useStyle = createStyles(theme => ({
     },
 }))
 
+export type ImageMarkerLayout = "circle" | "square"
+
 export type ImageMarkerProps = {
     src: string
     size: number
-    layout: "circle" | "square"
+    layout: ImageMarkerLayout
     style?: React.CSSProperties
     children?: React.ReactNode
     onHover?: () => void
