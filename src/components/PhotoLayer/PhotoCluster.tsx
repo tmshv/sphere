@@ -41,4 +41,3 @@ export const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapPro
         </>
     )
 }
-
