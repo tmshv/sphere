@@ -162,12 +162,13 @@ export const LayerPanel: React.FC = () => {
                 value={sourceId}
                 data={sources}
                 onChange={sourceId => {
-                    if (sourceId) {
-                        dispatch(actions.layer.setSource({
-                            id: layerId,
-                            sourceId,
-                        }))
+                    if (!sourceId) {
+                        return
                     }
+                    dispatch(actions.layer.setSource({
+                        id: layerId,
+                        sourceId,
+                    }))
                 }}
             />
 
@@ -179,13 +180,14 @@ export const LayerPanel: React.FC = () => {
                     value={sourceLayer}
                     data={sourceLayers}
                     onChange={value => {
-                        if (value) {
-                            dispatch(actions.layer.setSource({
-                                id: layerId,
-                                sourceId: sourceId!,
-                                sourceLayer: value,
-                            }))
+                        if (!value) {
+                            return
                         }
+                        dispatch(actions.layer.setSource({
+                            id: layerId,
+                            sourceId: sourceId!,
+                            sourceLayer: value,
+                        }))
                     }}
                 />
             )}
