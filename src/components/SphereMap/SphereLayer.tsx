@@ -98,6 +98,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <PhotoLayer
                     layerId={layerId}
                     sourceId={sourceId}
+                    sourceLayer={sourceLayer}
                     getImage={createGetImageFunction({
                         srcField,
                         valueField,

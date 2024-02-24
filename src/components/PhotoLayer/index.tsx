@@ -13,6 +13,7 @@ import { useFeatures } from "./hooks"
 export type PhotoLayerProps = {
     layerId: string
     sourceId: string
+    sourceLayer?: string
     clusterRadius: number
     getImage: GetImageFunction
     iconLayout: ImageMarkerLayout
@@ -20,12 +21,11 @@ export type PhotoLayerProps = {
     iconSizeCluster?: number
 }
 
-export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clusterRadius, getImage, iconLayout, iconSize, iconSizeCluster }) => {
+export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourceLayer, clusterRadius, getImage, iconLayout, iconSize, iconSizeCluster }) => {
     const invisiblePointsLayer = `${layerId}-invisible-points`
     const dispatch = useDispatch()
     const { current } = useMap()
     const [activeImage, setActiveImage] = useState<string | number | null>(null)
-    const sourceLayer = "sndl"
     const features = useFeatures({
         sourceId,
         layerId: invisiblePointsLayer,
