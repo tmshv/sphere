@@ -84,7 +84,7 @@ impl Bounds for Csv {
 }
 
 impl Csv {
-    pub fn to_geojson(&self) -> Result<String> {
+    pub fn get_features(&self) -> Result<Vec<Feature>> {
         let file = File::open(self.path.as_str())?;
 
         // let mut rdr = csv::ReaderBuilder::new()
@@ -116,12 +116,16 @@ impl Csv {
             };
         }
 
+        Ok(features)
+    }
+
+    pub fn to_geojson(&self) -> Result<String> {
+        let features = self.get_features()?;
         let fc = FeatureCollection {
             features,
             bbox: None,
             foreign_members: None,
         };
-
         Ok(fc.to_string())
     }
 }
