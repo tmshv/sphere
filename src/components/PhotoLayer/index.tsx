@@ -54,14 +54,14 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
         let id = feature.id! // useFeatures hook makes sure feature has id
 
         if (isCluster) {
-            const url = feature.properties!.url
+            const src = feature.properties!.src
             id = feature.properties!.cluster_id
             const clusterSize = feature.properties!.point_count
 
             return (
                 <Marker key={id} longitude={lng} latitude={lat}>
                     <ImageMarker
-                        src={url}
+                        src={src}
                         size={iconSizeCluster ?? iconSize}
                         layout={iconLayout}
                         onHover={() => {
@@ -81,7 +81,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
             )
         }
 
-        const { iconSrc } = getImage(feature.properties!)
+        const { src } = getImage(feature.properties!)
         const active = activeImage === id
 
         return (
@@ -101,7 +101,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
                     }}
                 >
                     <ImageMarker
-                        src={iconSrc}
+                        src={src}
                         size={iconSize}
                         layout={iconLayout}
                         onHover={() => {
@@ -125,17 +125,11 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, clust
             <PhotoCluster
                 radius={clusterRadius}
                 data={features.filter(f => {
-                    const { src, iconSrc } = getImage(f.properties!)
-                    return !!src && !!iconSrc
+                    const { src } = getImage(f.properties!)
+                    return !!src
                 }) as any}
                 renderPhoto={renderPhoto}
-                mapProperties={p => {
-                    const { iconSrc, value } = getImage(p)
-                    return {
-                        value,
-                        url: iconSrc ?? "",
-                    }
-                }}
+                mapProperties={getImage}
             />
         </>
     )

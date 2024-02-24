@@ -6,9 +6,14 @@ import { showProperties } from "./showProperties"
 import { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
+import { TileJSON } from "@/types/tilejson"
 
+const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
+
+type GeojsonMetadata = Record<string, any>
 type GeojsonSource = {
     type: SourceType.Geojson
+    metadata: GeojsonMetadata
     location: string
     dataset?: GeoJSON.FeatureCollection
     editable: false
@@ -17,6 +22,7 @@ type GeojsonSource = {
 
 type VectorSource = {
     type: SourceType.MVT
+    tilejson: TileJSON
     location: string
     // layers:
     editable: false
@@ -114,7 +120,7 @@ export const sourceSlice = createSlice({
                 type: SourceType.FeatureCollection,
                 name,
                 location,
-                fractionIndex: 0,
+                fractionIndex: NEW_SOURCE_INDEX,
                 pending: true,
                 editable: true,
             }
@@ -149,23 +155,64 @@ export const sourceSlice = createSlice({
             source.meta = meta
             source.pending = false
         },
-        addSource: (state, action: PayloadAction<{
+        addGeojsonSource: (state, action: PayloadAction<{
             id: Id,
-            type: SourceType.Geojson | SourceType.Raster | SourceType.MVT,
+            name: string,
+            location: string,
+            metadata: GeojsonMetadata,
+        }>) => {
+            const { id, name, location, metadata } = action.payload
+            state.items[id] = {
+                id,
+                name,
+                location,
+                type: SourceType.Geojson,
+                pending: false,
+                fractionIndex: NEW_SOURCE_INDEX,
+                editable: false,
+                metadata: metadata,
+            }
+            state.allIds.push(id)
+            state.lastAdded = id
+        },
+        addMVTSource: (state, action: PayloadAction<{
+            id: Id,
+            name: string,
+            location: string,
+            tilejson: TileJSON,
+            sourceLayers?: { name: string, id: string }[],
+        }>) => {
+            const { id, name, location, tilejson, sourceLayers } = action.payload
+            state.items[id] = {
+                id,
+                name,
+                location,
+                type: SourceType.MVT,
+                pending: false,
+                fractionIndex: NEW_SOURCE_INDEX,
+                editable: false,
+                tilejson,
+                sourceLayers: sourceLayers ?? [],
+            }
+            state.allIds.push(id)
+            state.lastAdded = id
+        },
+        addRasterSource: (state, action: PayloadAction<{
+            id: Id,
             name: string,
             location: string,
             sourceLayers?: { name: string, id: string }[],
+            metadata?: TileJSON | GeojsonMetadata,
         }>) => {
-            const { id: sourceId, type, name, location, sourceLayers } = action.payload
+            const { id: sourceId, name, location } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
-                type,
                 name,
                 location,
+                type: SourceType.Raster,
                 pending: false,
-                fractionIndex: 0,
+                fractionIndex: NEW_SOURCE_INDEX,
                 editable: false,
-                sourceLayers: sourceLayers ?? [],
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId

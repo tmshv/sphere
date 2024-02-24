@@ -11,14 +11,12 @@ import { SpherePolygonLayer } from "./SpherePolygonLayer"
 import { RasterLayer } from "./RasterLayer"
 import type { GetImageFunction } from "../PhotoLayer/types"
 
-function createGetImageFunction({ iconField, srcField, valueField }: { iconField: string, srcField: string, valueField: string }): GetImageFunction {
+function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
     return propetries => {
         const src = propetries![srcField] as string
-        const iconSrc = propetries![iconField] as string
 
         return {
             src,
-            iconSrc,
             value: propetries![valueField] ?? 0,
         }
     }
@@ -91,14 +89,18 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
             )
         }
         case LayerType.Photo: {
+            const srcField = photo?.srcField
+            const valueField = photo?.valueField ?? "value"
+            if (!srcField) {
+                return null
+            }
             return !visible ? null : (
                 <PhotoLayer
                     layerId={layerId}
                     sourceId={sourceId}
                     getImage={createGetImageFunction({
-                        iconField: "thumbnail",
-                        srcField: "src",
-                        valueField: "score",
+                        srcField,
+                        valueField,
                     })}
                     clusterRadius={50}
                     iconSize={100}

@@ -26,6 +26,12 @@ type Layer = {
         radius: number
     }
     photo?: {
+        // A key from feature properties for an image src
+        srcField?: string
+        // A key from feature properties for an sorting value
+        valueField?: string
+        // An optional key from feature properties to use insead of cluster count
+        countField?: string
         icon: PhotoIconLayout
     }
 }
@@ -131,6 +137,19 @@ export const layerSlice = createSlice({
             const { id, value } = action.payload
             const layer = state.items[id]
             layer.photo!.icon = value
+        },
+        setPhotoField: (state, action: PayloadAction<{ id: Id, src?: string, value?: string, count?: string }>) => {
+            const { id, src, value, count } = action.payload
+            const layer = state.items[id]
+            if (src) {
+                layer.photo!.srcField = src
+            }
+            if (value) {
+                layer.photo!.valueField = value
+            }
+            if (count) {
+                layer.photo!.countField = count
+            }
         },
     },
     extraReducers: (builder) => {

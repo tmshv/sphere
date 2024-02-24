@@ -37,13 +37,28 @@ export const LayerPanel: React.FC = () => {
 
         const sourceId = s.sourceId
         let sourceLayers: Option[] | undefined
+        let fields: string[] | undefined
         if (sourceId) {
             const source = state.source.items[sourceId]
-            if (source.type === SourceType.MVT) {
-                sourceLayers = source.sourceLayers.map(({ id, name }) => ({
-                    value: id,
-                    label: id,
-                }))
+            switch (source.type) {
+                case SourceType.MVT: {
+                    sourceLayers = source.sourceLayers.map(({ id, name }) => ({
+                        value: id,
+                        label: id,
+                    }))
+                    const vl = source.tilejson.vector_layers.find(x => x.id === s.sourceLayer)
+                    if (vl) {
+                        fields = Object.keys(vl.fields)
+                    }
+                    break
+                }
+                case SourceType.Geojson: {
+                    fields = Object.keys(source.metadata)
+                    break
+                }
+                default: {
+                    break
+                }
             }
         }
 
@@ -55,6 +70,9 @@ export const LayerPanel: React.FC = () => {
             sourceId: s.sourceId,
             sourceLayer: s.sourceLayer,
             sourceLayers,
+            srcField: s.photo?.srcField,
+            valueField: s.photo?.valueField,
+            fields: fields ?? [],
             color: s.color,
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
             heatmapRadius: s.heatmap?.radius ?? 10,
@@ -289,6 +307,36 @@ export const LayerPanel: React.FC = () => {
 
             {!(type === LayerType.Photo) ? null : (
                 <>
+                    <Select
+                        size="xs"
+                        label="Image field"
+                        placeholder="Pick one"
+                        value={layer.srcField}
+                        data={layer.fields}
+                        onChange={src => {
+                            if (src) {
+                                dispatch(actions.layer.setPhotoField({
+                                    id: layerId,
+                                    src,
+                                }))
+                            }
+                        }}
+                    />
+                    <Select
+                        size="xs"
+                        label="Value field"
+                        placeholder="Pick one"
+                        value={layer.valueField}
+                        data={layer.fields}
+                        onChange={value => {
+                            if (value) {
+                                dispatch(actions.layer.setPhotoField({
+                                    id: layerId,
+                                    value,
+                                }))
+                            }
+                        }}
+                    />
                     <Select
                         size="xs"
                         label="Layout"

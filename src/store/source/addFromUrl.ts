@@ -37,12 +37,12 @@ export const addFromUrl = createAsyncThunk(
                             name = tilejson.name
                         }
                         const sourceLayers = tilejson.vector_layers.map(({ id }) => ({ id, name: id })) ?? []
-                        thunkAPI.dispatch(actions.addSource({
+                        thunkAPI.dispatch(actions.addMVTSource({
                             id,
                             name,
-                            type,
                             location,
                             sourceLayers,
+                            tilejson,
                         }))
                     }
                     break
@@ -54,21 +54,22 @@ export const addFromUrl = createAsyncThunk(
                         if (tilejson.name) {
                             name = tilejson.name
                         }
-                        thunkAPI.dispatch(actions.addSource({
+                        thunkAPI.dispatch(actions.addRasterSource({
                             id,
                             name,
                             location,
-                            type,
                         }))
                     }
                     break
                 }
                 case SourceType.Geojson: {
-                    thunkAPI.dispatch(actions.addSource({
+                    const r = new SourceReader(location)
+                    const metadata = await r.getSchema() ?? {}
+                    thunkAPI.dispatch(actions.addGeojsonSource({
                         id,
                         name,
                         location,
-                        type,
+                        metadata,
                     }))
                     break
                 }

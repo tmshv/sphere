@@ -38,8 +38,18 @@ export class SourceReader {
         }
     }
 
+    public async getSchema(): Promise<object | null> {
+        try {
+            return invoke<object>("source_get_schema", {
+                id: this.getId(),
+            })
+        } catch (error) {
+            logger.error("Failed to get schema", error)
+            return null
+        }
+    }
+
     async parse(value: string) {
         return JSON.parse(value)
     }
 }
-
