@@ -18,7 +18,6 @@ export class SourceReader {
             const res = await invoke<string>("source_get", {
                 id: this.getId(),
             })
-            logger.info(`Got shape geojson ${res.length} bytes`)
             return this.parse(res)
         } catch (error) {
             logger.error("Failed to read shape as geojson", error)

@@ -66,7 +66,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             // projection={projection}
             logoPosition={"bottom-right"}
             onError={(error) => {
-                logger.error("Got error from maplibre", error)
+                logger.error("Got maplibre error", error)
             }}
         >
             <SetupStore
