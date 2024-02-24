@@ -3,7 +3,7 @@ use geo::BoundingRect;
 use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Position, Value};
 use geozero::geojson::GeoJson;
 use geozero::ToGeo;
-use std::{fs::File, result};
+use std::{collections::HashMap, fs::File, result};
 
 use super::Bounds;
 
@@ -127,6 +127,26 @@ impl Csv {
             foreign_members: None,
         };
         Ok(fc.to_string())
+    }
+
+    pub fn get_schema(&self) -> Result<HashMap<String, String>> {
+        let mut schema = HashMap::new();
+        match self.get_features() {
+            Ok(features) => {
+                let x = features.into_iter().take(1).next().unwrap();
+                let p = x.properties.unwrap();
+                p.keys().for_each(|k| {
+                    let val = p.get(k).unwrap();
+                    match val {
+                        serde_json::Value::String(_) => schema.insert(k.clone(), "String".into()),
+                        serde_json::Value::Number(_) => schema.insert(k.clone(), "Number".into()),
+                        _ => schema.insert(k.clone(), "Mixed".into()),
+                    };
+                });
+            }
+            _ => {}
+        }
+        Ok(schema)
     }
 }
 

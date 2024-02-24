@@ -1,6 +1,7 @@
 // use geozero::geojson::GeoJson;
 // use geozero::ToGeo;
 use sha256::digest;
+use std::collections::HashMap;
 use std::path::Path;
 // use std::result;
 use url::Url;
@@ -157,6 +158,27 @@ impl Source {
         }
     }
 
+    pub fn get_schema(&self) -> Result<HashMap<String, String>, String> {
+        match &self.data {
+            // SourceData::Shapefile(src) => {
+            //     let val = src.to_geojson().expect("No shape".into());
+            //     Ok(val)
+            // }
+            SourceData::Geojson(src) => {
+                let val = src.get_schema().expect("No schema".into());
+                Ok(val)
+            }
+            SourceData::Csv(src) => {
+                let val = src.get_schema().expect("No schema".into());
+                Ok(val)
+            }
+            // SourceData::Gpx(src) => {
+            //     let val = src.to_geojson().expect("No gpx".into());
+            //     Ok(val)
+            // }
+            _ => Err("Not implemented".into()),
+        }
+    }
     // pub fn to_geo(&self) -> SResult<geo::Geometry<f64>> {
     //     match &self.data {
     //         SourceData::Geojson(src) => {

@@ -89,6 +89,17 @@ async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result<Str
     }
 }
 
+
+#[tauri::command]
+async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) -> Result<HashMap<String, String>, String> {
+    let store = storage.store.lock().unwrap();
+    let source = store.get(&id);
+    match source {
+        Some(source) => source.get_schema(),
+        None => Err(format!("Not found {}", &id)),
+    }
+}
+
 #[tauri::command]
 async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<NewSource, String> {
     let url = Url::parse(source_url).unwrap();
@@ -153,6 +164,7 @@ async fn main() {
             source_add,
             source_get,
             source_bounds,
+            source_get_schema,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();
