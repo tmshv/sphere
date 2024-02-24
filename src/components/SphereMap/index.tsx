@@ -1,6 +1,7 @@
-import MapGl, { Source } from "react-map-gl"
+import { Source } from "react-map-gl"
+import MapGl from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
-import { selectProjection } from "@/store/projection"
+// import { selectProjection } from "@/store/projection"
 import { selectMapStyle } from "@/store/mapStyle"
 // import { selectIsShowFog } from "@/store/fog"
 import { selectIsShowTerrain } from "@/store/terrain"
@@ -23,7 +24,6 @@ const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidG1zaHYiLCJhIjoiZjYzYmViZjllN2MxNGU1OTAx
 
 const mb = new MapboxProtocol(MAPBOX_ACCESS_TOKEN)
 maplibregl.addProtocol(mb.name, mb.createHandler())
-
 const sp = new SphereProtocol()
 maplibregl.addProtocol(sp.name, sp.createHandler())
 
@@ -32,7 +32,7 @@ export type SphereMapProps = {
 }
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
-    const projection = useAppSelector(selectProjection)
+    // const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
     // const fog = useAppSelector(selectIsShowFog)
     const terrain = useAppSelector(selectIsShowTerrain)
@@ -52,7 +52,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
 
     return (
         <MapGl
-            mapLib={maplibregl}
             id={id}
             trackResize
             initialViewState={{
@@ -64,7 +63,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             }}
             maxPitch={85}
             mapStyle={mapStyle}
-            projection={projection}
+            // projection={projection}
             logoPosition={"bottom-right"}
             onError={(error) => {
                 logger.error("Got error from maplibre", error)

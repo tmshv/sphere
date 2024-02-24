@@ -1,4 +1,4 @@
-import type { RequestParameters, ResponseCallback } from "maplibre-gl"
+import type { AddProtocolAction } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
 import { SourceReader } from "./source-reader"
 import logger from "@/logger"
@@ -24,7 +24,7 @@ export class SphereProtocol {
         ]
     }
 
-    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType) {
+    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType, sig: AbortSignal) {
         switch (type) {
             case "json": {
                 return reader.getTileJson()
@@ -43,7 +43,7 @@ export class SphereProtocol {
         }
     }
 
-    public async handleSource(reader: SourceReader, type: RequestType) {
+    public async handleSource(reader: SourceReader, type: RequestType, sig: AbortSignal) {
         switch (type) {
             case "json": {
                 return reader.getGeojson()
@@ -54,38 +54,24 @@ export class SphereProtocol {
         }
     }
 
-    public createHandler() {
-        const run = async (params: RequestParameters) => {
+    public createHandler(): AddProtocolAction {
+        return async (params, abort) => {
+            logger.info("sphere protocol got params", params)
             const url = new URL(params.url)
             switch (url.host) {
                 case "mbtiles": {
-                    logger.info("handle mbtiles", url)
                     const reader = new MbtilesReader(params.url)
-                    return this.handleMbtiles(reader, url, params.type)
+                    const data = await this.handleMbtiles(reader, url, params.type, abort.signal)
+                    return { data }
                 }
                 case "source": {
                     const reader = new SourceReader(params.url)
-                    return this.handleSource(reader, params.type)
+                    const data = await this.handleSource(reader, params.type, abort.signal)
+                    return { data }
                 }
                 default: {
                     throw new Error(`SphereProtocol for ${url.host} is not implemented`)
                 }
-            }
-        }
-
-        return (params: RequestParameters, callback: ResponseCallback<any>) => {
-            run(params)
-                .then(data => {
-                    callback(null, data, null, null)
-                })
-                .catch(error => {
-                    callback(error, null, null, null)
-                })
-
-            return {
-                cancel: () => {
-                    logger.debug("Not Implemented. Cancelling protocol request", params)
-                },
             }
         }
     }

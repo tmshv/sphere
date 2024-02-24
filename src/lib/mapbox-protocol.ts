@@ -1,5 +1,5 @@
 import logger from "@/logger"
-import type { RequestParameters, ResponseCallback } from "maplibre-gl"
+import type { AddProtocolAction, RequestParameters } from "maplibre-gl"
 
 export function insertBefore(value: string, match: string, prefix: string): string {
     const i = value.indexOf(match)
@@ -58,7 +58,7 @@ export class MapboxProtocol {
         return null
     }
 
-    public createHandler() {
+    public createHandler(): AddProtocolAction {
         const run = async (params: RequestParameters) => {
             const url = this.buildHttpUrl(params.url)
             if (!url) {
@@ -87,20 +87,9 @@ export class MapboxProtocol {
             }
         }
 
-        return (params: RequestParameters, callback: ResponseCallback<any>) => {
-            run(params)
-                .then(data => {
-                    callback(null, data, null, null)
-                })
-                .catch(error => {
-                    callback(error, null, null, null)
-                })
-
-            return {
-                cancel: () => {
-                    logger.debug("Not Implemented. Cancelling protocol request", params)
-                },
-            }
+        return async (params, abort) => {
+            const data = await run(params)
+            return { data }
         }
     }
 }

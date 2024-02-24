@@ -1,14 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "."
-import { Style } from "mapbox-gl"
 import { selectIsDrawing } from "./draw"
 import { selectIsDark } from "./app"
+import type { StyleSpecification } from "maplibre-gl"
 // import type { RootState } from '../../app/store'
 
 const VECTOR = "mapbox://styles/mapbox/streets-v9"
 const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v12"
-const OSM: Style = {
+const OSM: StyleSpecification = {
     name: "osm",
     version: 8,
     sources: {
@@ -30,7 +30,7 @@ const OSM: Style = {
     ],
 }
 
-type MapStyle = string | Style
+type MapStyle = string | StyleSpecification
 
 // Define a type for the slice state
 type MapStyleState = {
