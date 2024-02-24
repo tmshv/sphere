@@ -79,7 +79,7 @@ impl Geojson {
                     _ => {}
                 };
             }
-            Err(err) => {}
+            Err(_) => {}
         };
         Ok(schema)
     }
