@@ -4,6 +4,7 @@ import { actions } from "."
 import { MbtilesReader } from "@/lib/mbtiles"
 import { invoke } from "@tauri-apps/api"
 import logger from "@/logger"
+import { SourceReader } from "@/lib/source-reader"
 
 type NewSource = {
     id: string,
