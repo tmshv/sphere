@@ -60,10 +60,10 @@ impl Geojson {
 
     pub fn get_schema(&self) -> Result<HashMap<String, String>> {
         let mut schema = HashMap::<String, String>::new();
-        let a = match self.read() {
+        match self.read() {
             Ok(geojson_str) => {
                 let geojson = geojson_str.parse::<GeoJson2>().unwrap();
-                let b = match geojson {
+                match geojson {
                     GeoJson2::FeatureCollection(val) => {
                         let x = val.features.into_iter().take(1).next().unwrap();
                         let p = x.properties.unwrap();
