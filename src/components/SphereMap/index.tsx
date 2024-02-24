@@ -1,5 +1,5 @@
 import { Source } from "react-map-gl"
-import MapGl from "react-map-gl/maplibre"
+import Maplibre, { AttributionControl } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 // import { selectProjection } from "@/store/projection"
 import { selectMapStyle } from "@/store/mapStyle"
@@ -51,7 +51,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     })
 
     return (
-        <MapGl
+        <Maplibre
             id={id}
             trackResize
             initialViewState={{
@@ -65,10 +65,12 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             mapStyle={mapStyle}
             // projection={projection}
             logoPosition={"bottom-right"}
+            attributionControl={false}
             onError={(error) => {
                 logger.error("Got maplibre error", error)
             }}
         >
+            <AttributionControl compact />
             <SetupStore
                 mapId={id}
             />
@@ -114,6 +116,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-        </MapGl>
+        </Maplibre>
     )
 }
