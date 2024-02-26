@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { LayerType, SourceMetadata, SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
+import { nextColor } from "@/lib/color-scheme"
 import { actions } from "../actions"
 import { RootState } from ".."
 
@@ -36,7 +37,7 @@ listener.startListening({
             fractionIndex: 0.99999,
             visible: true,
             name,
-            color: "#1c7ed6",
+            color: nextColor(),
         }))
 
         if (sourceId && source) {
