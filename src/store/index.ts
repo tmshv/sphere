@@ -31,7 +31,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleWare) => {
         return getDefaultMiddleWare()
             .prepend(mapListener.middleware)
-            .prepend(listeners.addBlankLayerMiddleware.middleware)
+            .prepend(listeners.addBlankLayer.middleware)
             .prepend(listeners.forceResizeMapMiddleware.middleware)
             .prepend(listeners.clearSelectionMiddleware.middleware)
             .prepend(listeners.selectFeaturesMiddleware.middleware)
