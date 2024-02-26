@@ -176,7 +176,7 @@ impl Source {
             //     let val = src.to_geojson().expect("No gpx".into());
             //     Ok(val)
             // }
-            _ => Err("Not implemented".into()),
+            _ => Err("Getting schema is not implemented for this type of file".into()),
         }
     }
     // pub fn to_geo(&self) -> SResult<geo::Geometry<f64>> {
