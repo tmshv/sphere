@@ -127,7 +127,7 @@ export const SourcesTab: React.FC = () => {
 
                 <Accordion.Item value={"source-properties"}>
                     <Accordion.Control>
-                        Source properties
+                        Source
                     </Accordion.Control>
                     <Accordion.Panel>
                         <SourcePanel />

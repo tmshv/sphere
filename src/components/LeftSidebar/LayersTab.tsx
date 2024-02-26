@@ -74,7 +74,7 @@ export const LayersTab: React.FC = () => {
 
                 <Accordion.Item value={"layer-properties"}>
                     <Accordion.Control>
-                        Layer properties
+                        Layer
                     </Accordion.Control>
                     <Accordion.Panel>
                         <LayerPanel />
