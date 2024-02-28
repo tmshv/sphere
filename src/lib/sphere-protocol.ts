@@ -56,7 +56,6 @@ export class SphereProtocol {
 
     public createHandler(): AddProtocolAction {
         return async (params, abort) => {
-            logger.info("sphere protocol got params", params)
             const url = new URL(params.url)
             switch (url.host) {
                 case "mbtiles": {
