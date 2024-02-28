@@ -1,6 +1,8 @@
-import { Layer } from "react-map-gl"
+import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
-import mapboxgl, { CirclePaint } from "mapbox-gl"
+import { CircleLayerSpecification } from "maplibre-gl"
+
+type CirclePaint = CircleLayerSpecification["paint"]
 
 export type PointLayerProps = {
     layerId: string
@@ -15,7 +17,6 @@ export type PointLayerProps = {
 }
 
 export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourceLayer, color, options, visible }) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [circle, selected] = useMemo(() => {
         const radius = options?.maxRadius ?? 4
         const circle: CirclePaint = {
@@ -32,24 +33,19 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
         return [circle, selected]
     }, [color, options])
 
-    const layer: mapboxgl.Layer = {
-        id: layerId,
-        source: sourceId,
-        // "source-layer": sourceLayer,
-        type: "circle",
-        paint: circle,
-        layout: {
-            visibility: visible ? "visible" : "none",
-        },
-        filter: ["==", ["geometry-type"], "Point"],
-    }
-    if (sourceLayer) {
-        layer["source-layer"] = sourceLayer
-    }
-
     return (
         <>
-            <Layer {...layer as any} />
+            <Layer
+                id={layerId}
+                source={sourceId}
+                type="circle"
+                paint={circle}
+                layout={{
+                    visibility: visible ? "visible" : "none",
+                }}
+                filter={["==", ["geometry-type"], "Point"]}
+                source-layer={sourceLayer}
+            />
             <Layer
                 id={`${layerId}-selected`}
                 source={sourceId}
@@ -59,9 +55,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["in", "id", ""]}
-                {...sourceLayer ? {
-                    "source-layer": sourceLayer,
-                } : {}}
+                source-layer={sourceLayer}
             />
         </>
     )
