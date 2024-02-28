@@ -1,6 +1,4 @@
-import { Layer } from "react-map-gl"
-import { useMemo } from "react"
-import { HeatmapPaint } from "mapbox-gl"
+import { Layer } from "react-map-gl/maplibre"
 
 export type HeatmapLayerProps = {
     layerId: string
@@ -11,9 +9,12 @@ export type HeatmapLayerProps = {
     }
 }
 
-export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, options, visible }) => {
-    const heatmap = useMemo(() => {
-        const heatmap: HeatmapPaint = {
+export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, options, visible }) => (
+    <Layer
+        id={layerId}
+        source={sourceId}
+        type={"heatmap"}
+        paint={{
             // Increase the heatmap weight based on frequency and property magnitude
             // 'heatmap-weight': [
             //     'interpolate',
@@ -76,19 +77,11 @@ export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, o
             //     9,
             //     0
             // ]
-        }
-        return heatmap
-    }, [options])
-
-    return (
-        <Layer
-            id={`${layerId}-heatmap`}
-            source={sourceId}
-            type={"heatmap"}
-            paint={heatmap}
-            layout={{
-                visibility: visible ? "visible" : "none",
-            }}
-        />
-    )
-}
+        }}
+        layout={{
+            visibility: visible
+                ? "visible"
+                : "none",
+        }}
+    />
+)
