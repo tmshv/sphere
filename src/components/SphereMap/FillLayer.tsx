@@ -1,6 +1,4 @@
-import { Layer } from "react-map-gl"
-import { useMemo } from "react"
-import { FillPaint } from "mapbox-gl"
+import { Layer } from "react-map-gl/maplibre"
 
 export type FillLayerProps = {
     layerId: string
@@ -10,30 +8,21 @@ export type FillLayerProps = {
     visible: boolean
 }
 
-export const FillLayer: React.FC<FillLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible }) => {
-    const fill = useMemo(() => {
-        const fill: FillPaint = {
+export const FillLayer: React.FC<FillLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible }) => (
+    <Layer
+        id={layerId}
+        source={sourceId}
+        type={"fill"}
+        paint={{
             "fill-color": color,
             "fill-opacity": 0.25,
-        }
-        return fill
-    }, [color])
-
-    return (
-        <>
-            <Layer
-                id={`${layerId}`}
-                source={sourceId}
-                type={"fill"}
-                paint={fill}
-                layout={{
-                    visibility: visible ? "visible" : "none",
-                }}
-                filter={["==", ["geometry-type"], "Polygon"]}
-                {...{
-                    "source-layer": sourceLayer,
-                }}
-            />
-        </>
-    )
-}
+        }}
+        layout={{
+            visibility: visible ? "visible" : "none",
+        }}
+        filter={["==", ["geometry-type"], "Polygon"]}
+        {...{
+            "source-layer": sourceLayer,
+        }}
+    />
+)
