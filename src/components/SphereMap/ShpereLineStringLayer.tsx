@@ -1,6 +1,8 @@
-import { Layer } from "react-map-gl"
+import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
-import { LinePaint } from "mapbox-gl"
+import { LineLayerSpecification } from "maplibre-gl"
+
+type LinePaint = LineLayerSpecification["paint"]
 
 export type SphereLineStringLayerProps = {
     layerId: string
