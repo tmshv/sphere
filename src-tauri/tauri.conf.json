@@ -46,6 +46,9 @@
             "clipboard": {
                 "writeText": true,
                 "readText": true
+            },
+            "shell": {
+                "open": true
             }
         },
         "bundle": {
