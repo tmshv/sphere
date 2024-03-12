@@ -76,6 +76,7 @@ export const LayerPanel: React.FC = () => {
             color: s.color,
             circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
             heatmapRadius: s.heatmap?.radius ?? 10,
+            heatmapIntensity: s.heatmap?.intensity ?? 1,
             icon: s.photo?.icon,
         }
     })
@@ -83,7 +84,7 @@ export const LayerPanel: React.FC = () => {
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, heatmapRadius } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, heatmapRadius, heatmapIntensity } = layer
 
     let icon: React.ReactNode = null
     if (type === LayerType.Point) {
@@ -288,21 +289,38 @@ export const LayerPanel: React.FC = () => {
             )}
 
             {!(type === LayerType.Heatmap) ? null : (
-                <Input.Wrapper label="Radius" size="xs">
-                    <Slider
-                        label={"Radius"}
-                        size={"xs"}
-                        min={2}
-                        max={30}
-                        value={heatmapRadius}
-                        onChange={value => {
-                            dispatch(actions.layer.setHeatmapRadius({
-                                id: layerId,
-                                value,
-                            }))
-                        }}
-                    />
-                </Input.Wrapper>
+                <>
+                    <Input.Wrapper label="Radius" size="xs">
+                        <Slider
+                            label={"Radius"}
+                            size={"xs"}
+                            min={2}
+                            max={30}
+                            value={heatmapRadius}
+                            onChange={value => {
+                                dispatch(actions.layer.setHeatmapParameters({
+                                    id: layerId,
+                                    radius: value,
+                                }))
+                            }}
+                        />
+                    </Input.Wrapper>
+                    <Input.Wrapper label="Intensity" size="xs">
+                        <Slider
+                            label={"Intensity"}
+                            size={"xs"}
+                            min={1}
+                            max={5}
+                            value={heatmapIntensity}
+                            onChange={value => {
+                                dispatch(actions.layer.setHeatmapParameters({
+                                    id: layerId,
+                                    intensity: value,
+                                }))
+                            }}
+                        />
+                    </Input.Wrapper>
+                </>
             )}
 
             {!(type === LayerType.Photo) ? null : (

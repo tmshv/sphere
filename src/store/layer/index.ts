@@ -24,6 +24,7 @@ type Layer = {
     }
     heatmap?: {
         radius: number
+        intensity: number
     }
     photo?: {
         // A key from feature properties for an image src
@@ -101,6 +102,7 @@ export const layerSlice = createSlice({
             } else if ((type === LayerType.Heatmap) && !layer.heatmap) {
                 layer.heatmap = {
                     radius: 10,
+                    intensity: 3,
                 }
             }
 
@@ -128,10 +130,15 @@ export const layerSlice = createSlice({
             layer.circle!.minRadius = min
             layer.circle!.maxRadius = max
         },
-        setHeatmapRadius: (state, action: PayloadAction<{ id: Id, value: number }>) => {
-            const { id, value } = action.payload
+        setHeatmapParameters: (state, action: PayloadAction<{ id: Id, radius?: number, intensity?: number }>) => {
+            const { id, radius, intensity } = action.payload
             const layer = state.items[id]
-            layer.heatmap!.radius = value
+            if (typeof radius !== "undefined") {
+                layer.heatmap!.radius = radius
+            }
+            if (typeof intensity !== "undefined") {
+                layer.heatmap!.intensity = intensity
+            }
         },
         setPhotoIconLayout: (state, action: PayloadAction<{ id: Id, value: PhotoIconLayout }>) => {
             const { id, value } = action.payload

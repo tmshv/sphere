@@ -4,12 +4,11 @@ export type HeatmapLayerProps = {
     layerId: string
     sourceId: string
     visible: boolean
-    options: {
-        radius: number
-    }
+    intensity: number
+    radius: number
 }
 
-export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, options, visible }) => (
+export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, radius, intensity, visible }) => (
     <Layer
         id={layerId}
         source={sourceId}
@@ -31,10 +30,8 @@ export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, o
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                0,
-                1,
-                9,
-                3,
+                0, 1,
+                9, intensity,
             ],
             // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
             // Begin color ramp at 0-stop with a 0-transparancy color
@@ -61,11 +58,8 @@ export const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ layerId, sourceId, o
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                0,
-                2,
-                9,
-                options.radius,
-                // 20
+                0, 2,
+                9, radius,
             ],
             // Transition from heatmap to circle layer by zoom level
             // 'heatmap-opacity': [

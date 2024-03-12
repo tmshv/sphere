@@ -115,7 +115,8 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                 <HeatmapLayer
                     layerId={layerId}
                     sourceId={sourceId}
-                    options={heatmap!}
+                    intensity={heatmap!.intensity}
+                    radius={heatmap!.radius}
                     visible={visible}
                 />
             )
