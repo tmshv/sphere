@@ -234,5 +234,5 @@ duplicateLayerMiddleware.startListening({
 })
 
 export {
-    addBlankLayer
+    addBlankLayer,
 }
