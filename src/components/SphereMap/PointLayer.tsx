@@ -44,7 +44,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["==", ["geometry-type"], "Point"]}
-                source-layer={sourceLayer}
+                source-layer={sourceLayer ?? ""}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -55,7 +55,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["in", "id", ""]}
-                source-layer={sourceLayer}
+                source-layer={sourceLayer ?? ""}
             />
         </>
     )
