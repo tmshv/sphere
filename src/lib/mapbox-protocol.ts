@@ -1,4 +1,3 @@
-import logger from "@/logger"
 import type { AddProtocolAction, RequestParameters } from "maplibre-gl"
 
 export function insertBefore(value: string, match: string, prefix: string): string {

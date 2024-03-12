@@ -1,7 +1,6 @@
 import type { AddProtocolAction } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
 import { SourceReader } from "./source-reader"
-import logger from "@/logger"
 
 type RequestType = "json" | "arrayBuffer" | "string" | "image" | undefined
 
