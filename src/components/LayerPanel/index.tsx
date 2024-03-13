@@ -78,13 +78,14 @@ export const LayerPanel: React.FC = () => {
             heatmapRadius: s.heatmap?.radius ?? 10,
             heatmapIntensity: s.heatmap?.intensity ?? 1,
             icon: s.photo?.icon,
+            clusterRadius: s.photo?.clusterRadius ?? 100,
         }
     })
 
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, heatmapRadius, heatmapIntensity } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity } = layer
 
     let icon: React.ReactNode = null
     if (type === LayerType.Point) {
@@ -325,6 +326,21 @@ export const LayerPanel: React.FC = () => {
 
             {!(type === LayerType.Photo) ? null : (
                 <>
+                    <Input.Wrapper label="Radius" size="xs">
+                        <Slider
+                            label={"Radius"}
+                            size={"xs"}
+                            min={50}
+                            max={200}
+                            value={clusterRadius}
+                            onChange={value => {
+                                dispatch(actions.layer.setPhotoClusterRadius({
+                                    id: layerId,
+                                    value,
+                                }))
+                            }}
+                        />
+                    </Input.Wrapper>
                     <Select
                         size="xs"
                         label="Image field"

@@ -34,6 +34,7 @@ type Layer = {
         // An optional key from feature properties to use insead of cluster count
         countField?: string
         icon: PhotoIconLayout
+        clusterRadius: number
     }
 }
 
@@ -111,6 +112,7 @@ export const layerSlice = createSlice({
                     if (!layer.photo) {
                         layer.photo = {
                             icon: DEFAULT_PHOTO_ICON,
+                            clusterRadius: 100,
                         }
                     }
                     break
@@ -144,6 +146,11 @@ export const layerSlice = createSlice({
             const { id, value } = action.payload
             const layer = state.items[id]
             layer.photo!.icon = value
+        },
+        setPhotoClusterRadius: (state, action: PayloadAction<{ id: Id, value: number }>) => {
+            const { id, value } = action.payload
+            const layer = state.items[id]
+            layer.photo!.clusterRadius = value
         },
         setPhotoField: (state, action: PayloadAction<{ id: Id, src?: string, value?: string, count?: string }>) => {
             const { id, src, value, count } = action.payload
