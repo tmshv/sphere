@@ -106,7 +106,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     clusterRadius={photo?.clusterRadius ?? 100}
                     iconSize={100}
                     iconSizeCluster={50}
-                    iconLayout={photo!.icon}
+                    iconLayout={photo?.icon ?? "square"}
                 />
             )
         }
