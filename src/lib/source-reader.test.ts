@@ -1,5 +1,5 @@
 import { jest, describe, expect, test } from "@jest/globals"
-import { invoke as _invoke } from "@tauri-apps/api"
+import { invoke as _invoke } from "@tauri-apps/api/core"
 import { SourceReader } from "./source-reader"
 
 type InvokeFn = typeof _invoke<string>

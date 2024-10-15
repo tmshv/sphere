@@ -1,5 +1,5 @@
 import { TileJSON } from "@/types/tilejson"
-import { invoke } from "@tauri-apps/api"
+import { invoke } from "@tauri-apps/api/core"
 
 type Tile = {
     z: number

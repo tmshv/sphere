@@ -39,8 +39,7 @@ async function handleTheme() {
     }
 
     const e = "tauri://theme-changed"
-    // const unlisten =
-    await listen(e, (event) => {
+    const unlisten = await listen(e, (event) => {
         const theme = event.payload as string
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     })
@@ -52,14 +51,16 @@ async function handleVersion() {
 }
 
 async function main() {
-    const e = "tauri://file-drop"
+    const e = "tauri://drag-drop"
     // const e = "tauri://file-drop-hover"
     // const e = "tauri://file-drop-cancelled"
 
-    // const unlisten =
-    await listen(e, (event) => {
-        const files = event.payload as string[]
-        store.dispatch(actions.source.addFromFiles(files))
+    type DragPayload = {
+        paths: string[]
+    }
+    
+    const unlisten = await listen<DragPayload>(e, (event) => {
+        store.dispatch(actions.source.addFromFiles(event.payload.paths))
     })
 }
 main()

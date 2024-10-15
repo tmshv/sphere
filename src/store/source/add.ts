@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { extname } from "@tauri-apps/api/path"
 import { SourceType } from "@/types"
-import { open } from "@tauri-apps/api/dialog"
+import { open } from "@tauri-apps/plugin-dialog"
 import { addFromUrl } from "./addFromUrl"
 
 export const addFromFiles = createAsyncThunk("source/addFromFiles", async (paths: string[], thunkAPI) => {

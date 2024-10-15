@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit"
 import { SourceType } from "@/types"
 import { actions } from "."
 import { MbtilesReader } from "@/lib/mbtiles"
-import { invoke } from "@tauri-apps/api"
+import { invoke } from "@tauri-apps/api/core"
 import logger from "@/logger"
 import { SourceReader } from "@/lib/source-reader"
 

@@ -1,5 +1,5 @@
 import logger from "@/logger"
-import { invoke } from "@tauri-apps/api"
+import { invoke } from "@tauri-apps/api/core"
 import type { LngLatBoundsLike } from "maplibre-gl"
 
 type Bbox = [number, number, number, number]
