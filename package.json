@@ -27,6 +27,7 @@
         "@tauri-apps/api": "^2.0.0",
         "@tauri-apps/plugin-clipboard-manager": "^2.0.0",
         "@tauri-apps/plugin-dialog": "^2.0.0",
+        "@tauri-apps/plugin-http": "^2.2.0",
         "@tauri-apps/plugin-shell": "^2.0.0",
         "@turf/helpers": "^6.5.0",
         "@turf/turf": "^6.5.0",

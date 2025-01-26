@@ -154,6 +154,7 @@ async fn main() {
     // });
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(SourceStorage {
             store: Default::default(),

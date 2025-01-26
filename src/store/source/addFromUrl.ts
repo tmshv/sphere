@@ -25,7 +25,7 @@ export const addFromUrl = createAsyncThunk(
             const s = await invoke<NewSource>("source_add", {
                 sourceUrl: url,
             })
-            logger.info("Got source", s)
+            logger.info("Got url source", s)
             let { id, name, location } = s
 
             switch (type) {
