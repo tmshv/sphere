@@ -39,8 +39,8 @@ async function handleTheme() {
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     }
 
-    const e = "tauri://theme-changed"
-    const unlisten = await listen(e, (event) => {
+    // const unlisten =
+    await listen("tauri://theme-changed", (event) => {
         const theme = event.payload as string
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     })
@@ -59,8 +59,9 @@ async function main() {
     type DragPayload = {
         paths: string[]
     }
-    
-    const unlisten = await listen<DragPayload>(e, (event) => {
+
+    // const unlisten =
+    await listen<DragPayload>(e, (event) => {
         store.dispatch(actions.source.addFromFiles(event.payload.paths))
     })
 }
