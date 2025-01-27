@@ -102,8 +102,8 @@
             "error",
             {
                 "devDependencies": [
-                    "** /*.test.js",
-                    "mocks/**/*.js"
+                    "**/*.test.ts",
+                    "**/*.test.tsx"
                 ]
             }
         ],
