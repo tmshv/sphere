@@ -2,7 +2,7 @@ import "./style.css"
 import "maplibre-gl/dist/maplibre-gl.css"
 
 import { listen } from "@tauri-apps/api/event"
-import { appWindow } from "@tauri-apps/api/window"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 import { getVersion } from "@tauri-apps/api/app"
 import React from "react"
 import ReactDOM from "react-dom/client"
@@ -33,7 +33,8 @@ async function handleHotkey() {
 }
 
 async function handleTheme() {
-    const theme = await appWindow.theme()
+    const w = getCurrentWindow()
+    const theme = await w.theme()
     if (theme) {
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     }
