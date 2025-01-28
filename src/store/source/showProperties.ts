@@ -1,4 +1,4 @@
-import { WebviewWindow } from "@tauri-apps/api/window"
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { Id, SourceType } from "@/types"
 import { emit } from "@tauri-apps/api/event"
@@ -43,8 +43,7 @@ export const showProperties = createAsyncThunk(
             throw new Error(`Property table is not available for "${source.name}"`)
         }
 
-        const w = "sphere-properties"
-        const window = new WebviewWindow(w, {
+        const window = new WebviewWindow("sphere-properties", {
             url: "properties.html",
         })
         // since the webview window is created asynchronously,

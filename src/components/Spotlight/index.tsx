@@ -1,4 +1,4 @@
-import { writeText } from "@tauri-apps/api/clipboard"
+import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { SpotlightProvider } from "@mantine/spotlight"
 import { IconSearch, IconCopy, IconZoomReset } from "@tabler/icons"
 import { useMap } from "react-map-gl"

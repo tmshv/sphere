@@ -10,13 +10,16 @@ use super::Bounds;
 
 #[derive(Debug)]
 pub enum GeojsonError {
-    FS(std::io::Error),
+    // FS(std::io::Error),
+    FS,
     // Serialize,
 }
 
 impl From<std::io::Error> for GeojsonError {
-    fn from(err: std::io::Error) -> Self {
-        GeojsonError::FS(err)
+    // fn from(err: std::io::Error) -> Self {
+    fn from(_: std::io::Error) -> Self {
+        // GeojsonError::FS(err)
+        GeojsonError::FS
     }
 }
 

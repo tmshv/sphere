@@ -2,7 +2,7 @@ import "./style.css"
 import "maplibre-gl/dist/maplibre-gl.css"
 
 import { listen } from "@tauri-apps/api/event"
-import { appWindow } from "@tauri-apps/api/window"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 import { getVersion } from "@tauri-apps/api/app"
 import React from "react"
 import ReactDOM from "react-dom/client"
@@ -33,14 +33,14 @@ async function handleHotkey() {
 }
 
 async function handleTheme() {
-    const theme = await appWindow.theme()
+    const w = getCurrentWindow()
+    const theme = await w.theme()
     if (theme) {
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     }
 
-    const e = "tauri://theme-changed"
     // const unlisten =
-    await listen(e, (event) => {
+    await listen("tauri://theme-changed", (event) => {
         const theme = event.payload as string
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     })
@@ -52,14 +52,17 @@ async function handleVersion() {
 }
 
 async function main() {
-    const e = "tauri://file-drop"
+    const e = "tauri://drag-drop"
     // const e = "tauri://file-drop-hover"
     // const e = "tauri://file-drop-cancelled"
 
+    type DragPayload = {
+        paths: string[]
+    }
+
     // const unlisten =
-    await listen(e, (event) => {
-        const files = event.payload as string[]
-        store.dispatch(actions.source.addFromFiles(files))
+    await listen<DragPayload>(e, (event) => {
+        store.dispatch(actions.source.addFromFiles(event.payload.paths))
     })
 }
 main()

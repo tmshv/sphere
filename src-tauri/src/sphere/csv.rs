@@ -9,13 +9,16 @@ use super::Bounds;
 
 #[derive(Debug)]
 pub enum CsvError {
-    FS(std::io::Error),
+    // FS(std::io::Error),
+    FS,
     // Serialize,
 }
 
 impl From<std::io::Error> for CsvError {
-    fn from(err: std::io::Error) -> Self {
-        CsvError::FS(err)
+    // fn from(err: std::io::Error) -> Self {
+    fn from(_: std::io::Error) -> Self {
+        // CsvError::FS(err)
+        CsvError::FS
     }
 }
 
@@ -58,7 +61,7 @@ impl CsvGeometry {
 
 #[derive(Debug)]
 pub struct Csv {
-    pub delimiter: String,
+    // pub delimiter: String,
     pub geometry: CsvGeometry,
     pub path: String,
 }

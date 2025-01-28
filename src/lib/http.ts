@@ -1,4 +1,4 @@
-import { getClient } from "@tauri-apps/api/http"
+import { fetch } from "@tauri-apps/plugin-http"
 
 type OkResponse<T> = {
     ok: true
@@ -12,13 +12,13 @@ type ErrorResponse = {
 
 export async function get<T>(url: string): Promise<ErrorResponse | OkResponse<T>> {
     try {
-        const client = await getClient()
-        const response = await client.get<T>(url)
+        const response = await fetch(url)
 
         if (response.ok) {
+            const data: T = await response.json()
             return {
                 ok: true,
-                data: response.data,
+                data,
             }
         } else if (response.status === 404) {
             return {
@@ -47,4 +47,3 @@ export async function get<T>(url: string): Promise<ErrorResponse | OkResponse<T>
         }
     }
 }
-

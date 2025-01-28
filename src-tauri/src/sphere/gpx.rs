@@ -11,13 +11,16 @@ use super::Bounds;
 
 #[derive(Debug)]
 pub enum GpxError {
-    FS(std::io::Error),
+    // FS(std::io::Error),
+    FS,
     // Serialize,
 }
 
 impl From<std::io::Error> for GpxError {
-    fn from(err: std::io::Error) -> Self {
-        GpxError::FS(err)
+    // fn from(err: std::io::Error) -> Self {
+    fn from(_: std::io::Error) -> Self {
+        // GpxError::FS(err)
+        GpxError::FS
     }
 }
 

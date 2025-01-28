@@ -1,95 +1,16 @@
 {
+    "$schema": "https://schema.tauri.app/config/2.0.0",
+    "identifier": "com.tmshv.sphere",
     "build": {
         "beforeDevCommand": "npm run dev",
+        "devUrl": "http://localhost:1420",
         "beforeBuildCommand": "npm run build",
-        "devPath": "http://localhost:1420",
-        "distDir": "../dist"
+        "frontendDist": "../dist"
     },
-    "package": {
-        "productName": "Sphere",
-        "version": "0.4.4"
-    },
-    "tauri": {
-        "allowlist": {
-            "window": {
-                "create": true,
-                "startDragging": true
-            },
-            "http": {
-                "all": true,
-                "request": true,
-                "scope": [
-                    "http://**",
-                    "https://**"
-                ]
-            },
-            "dialog": {
-                "open": true
-            },
-            "fs": {
-                "all": true,
-                "scope": [
-                    "$APP/*",
-                    "$DESKTOP/*",
-                    "$HOME/*"
-                ]
-            },
-            "path": {
-                "all": true
-            },
-            "notification": {
-                "all": true
-            },
-            "globalShortcut": {
-                "all": true
-            },
-            "clipboard": {
-                "writeText": true,
-                "readText": true
-            },
-            "shell": {
-                "open": true
-            }
-        },
-        "bundle": {
-            "active": true,
-            "category": "DeveloperTool",
-            "copyright": "",
-            "deb": {
-                "depends": []
-            },
-            "externalBin": [],
-            "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
-            ],
-            "identifier": "com.tmshv.sphere",
-            "longDescription": "",
-            "macOS": {
-                "entitlements": null,
-                "exceptionDomain": "",
-                "frameworks": [],
-                "providerShortName": null,
-                "signingIdentity": null
-            },
-            "resources": [],
-            "shortDescription": "",
-            "targets": "all",
-            "windows": {
-                "certificateThumbprint": null,
-                "digestAlgorithm": "sha256",
-                "timestampUrl": ""
-            }
-        },
-        "security": {
-            "csp": null
-        },
-        "updater": {
-            "active": false
-        },
+    "productName": "Sphere",
+    "version": "0.4.4",
+    "app": {
+        "withGlobalTauri": true,
         "windows": [
             {
                 "hiddenTitle": true,
@@ -103,6 +24,20 @@
                 "minWidth": 300,
                 "minHeight": 300
             }
+        ],
+        "security": {
+            "csp": null
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all",
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
         ]
     }
 }

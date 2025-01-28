@@ -1,11 +1,12 @@
-import { jest, describe, expect, test } from "@jest/globals"
-import { invoke as _invoke } from "@tauri-apps/api"
+import { vi, describe, expect, test } from "vitest"
+import type { MockedFunction } from "vitest"
+import { invoke as _invoke } from "@tauri-apps/api/core"
 import { SourceReader } from "./source-reader"
 
 type InvokeFn = typeof _invoke<string>
-jest.mock("@tauri-apps/api")
+const invoke = _invoke as MockedFunction<InvokeFn>
 
-const invoke = _invoke as jest.MockedFunction<InvokeFn>
+vi.mock("@tauri-apps/api/core", { spy: true })
 
 describe("SourceReader", () => {
     test("should store input value in path property", () => {
@@ -38,26 +39,28 @@ describe("SourceReader::getGeojson", () => {
                 },
             ],
         }
-        const mock: InvokeFn = jest.fn<InvokeFn>().mockResolvedValueOnce(JSON.stringify(geojson))
-        invoke.mockImplementation(mock)
+        const mockInvoke = vi.fn<InvokeFn>().mockResolvedValue(JSON.stringify(geojson))
+        invoke.mockImplementation(mockInvoke)
 
         const reader = new SourceReader("sphere://source/XXX")
         const result = await reader.getGeojson()
 
         expect(result).toEqual(geojson)
-        expect(mock).toHaveBeenCalledWith("source_get", {
+        expect(mockInvoke).toHaveBeenCalledTimes(1)
+        expect(mockInvoke).toHaveBeenCalledWith("source_get", {
             id: "XXX",
         })
     })
 
     test("should return null if invoke function throws error", async () => {
-        const mockInvoke = jest.fn<InvokeFn>().mockRejectedValueOnce(new Error("test error"))
+        const mockInvoke = vi.fn<InvokeFn>().mockRejectedValueOnce(new Error("test error"))
         invoke.mockImplementation(mockInvoke)
 
         const reader = new SourceReader("sphere://source/XXX")
         const result = await reader.getGeojson()
 
         expect(result).toBeNull()
+        expect(mockInvoke).toHaveBeenCalledTimes(1)
         expect(mockInvoke).toHaveBeenCalledWith("source_get", {
             id: "XXX",
         })

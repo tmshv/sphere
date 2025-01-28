@@ -14,14 +14,14 @@ use super::mbtiles::Mbtiles;
 use super::shape::Shapefile;
 use super::Bounds;
 
-#[derive(Debug)]
-pub enum SourceError {
-    // DB(RusqliteError),
-    // Serialize(SerdeError),
-    // NotFound,
-    // BadGeometry,
-    // UnknownType,
-}
+// #[derive(Debug)]
+// pub enum SourceError {
+// DB(RusqliteError),
+// Serialize(SerdeError),
+// NotFound,
+// BadGeometry,
+// UnknownType,
+// }
 
 // impl From<RusqliteError> for MbtilesError {
 //     fn from(err: RusqliteError) -> Self {
@@ -124,7 +124,7 @@ impl Source {
                 let source = Csv {
                     path: source_path,
                     geometry: CsvGeometry::XY(("lng".into(), "lat".into())),
-                    delimiter: ",".into(),
+                    // delimiter: ",".into(),
                 };
                 Ok((SourceData::Csv(source), format!("sphere://source/{}", id)))
             }

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals"
+import { describe, expect, test } from "vitest"
 import { isDate, isInt, isNumeric, isUrl, predictType } from "./predict-data-type"
 
 describe("isInt", () => {
@@ -178,4 +178,3 @@ describe("predictType", () => {
         expect(predictType("k", samples)).toBe("unknown")
     })
 })
-
