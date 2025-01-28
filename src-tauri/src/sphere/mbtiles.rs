@@ -76,20 +76,26 @@ impl Tile {
 
 #[derive(Debug)]
 pub enum MbtilesError {
-    DB(RusqliteError),
-    Serialize(SerdeError),
+    // DB(RusqliteError),
+    DB,
+    // Serialize(SerdeError),
+    Serialize,
     // Unknown,
 }
 
 impl From<RusqliteError> for MbtilesError {
-    fn from(err: RusqliteError) -> Self {
-        MbtilesError::DB(err)
+    // fn from(err: RusqliteError) -> Self {
+    fn from(_: RusqliteError) -> Self {
+        // MbtilesError::DB(err)
+        MbtilesError::DB
     }
 }
 
 impl From<SerdeError> for MbtilesError {
-    fn from(err: SerdeError) -> Self {
-        MbtilesError::Serialize(err)
+    // fn from(err: SerdeError) -> Self {
+    fn from(_: SerdeError) -> Self {
+        // MbtilesError::Serialize(err)
+        MbtilesError::Serialize
     }
 }
 

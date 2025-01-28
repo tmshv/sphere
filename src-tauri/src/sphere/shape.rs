@@ -9,13 +9,16 @@ use super::Bounds;
 
 #[derive(Debug)]
 pub enum ShapeError {
-    Shape(geozero_shp::Error),
+    // Shape(geozero_shp::Error),
+    Shape,
     Serialize,
 }
 
 impl From<geozero_shp::Error> for ShapeError {
-    fn from(err: geozero_shp::Error) -> Self {
-        ShapeError::Shape(err)
+    // fn from(err: geozero_shp::Error) -> Self {
+    fn from(_: geozero_shp::Error) -> Self {
+        // ShapeError::Shape(err)
+        ShapeError::Shape
     }
 }
 
