@@ -108,7 +108,7 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                         if (!map) {
                             return
                         }
-                        
+
                         const center = map.getCenter()
                         const zoom = map.getZoom()
                         const pitch = map.getPitch()
