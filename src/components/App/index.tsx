@@ -1,5 +1,5 @@
 import { StrictMode } from "react"
-import { MapProvider } from "react-map-gl"
+import { MapProvider } from "react-map-gl/maplibre"
 import { Center, Container, Paper, Title } from "@mantine/core"
 import { MapStatusbar } from "../MapStatusbar"
 import { AppLayout } from "@/ui/AppLayout"

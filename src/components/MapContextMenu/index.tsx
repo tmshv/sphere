@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-redeclare
 import { CopyButton, Menu, Text } from "@mantine/core"
 import { IconCopy, IconSearch } from "@tabler/icons"
-import { useMap } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
 import { useCursor } from "@/hooks/useCursor"
 import { ContextMenu } from "@/ui/ContextMenu"
 

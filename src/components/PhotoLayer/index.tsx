@@ -1,6 +1,6 @@
 import { ImageMarker, ImageMarkerLayout } from "@/ui/ImageMarker"
 import { useCallback, useEffect, useState } from "react"
-import { Marker, useMap } from "react-map-gl"
+import { Marker, useMap } from "react-map-gl/maplibre"
 import { Badge } from "./Badge"
 import { PhotoCluster, RenderPhotoFunction } from "./PhotoCluster"
 import { useDispatch } from "react-redux"

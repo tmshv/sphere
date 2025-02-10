@@ -1,6 +1,6 @@
 import type { Feature, Point, BBox } from "geojson"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useMap } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
 import Supercluster from "supercluster"
 import { useMapboxEvent } from "./useMapboxEvent"
 import logger from "@/logger"

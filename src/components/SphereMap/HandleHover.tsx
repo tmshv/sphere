@@ -1,4 +1,4 @@
-import { useMap } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"

@@ -1,4 +1,4 @@
-import { Layer } from "react-map-gl"
+import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
 import { FillPaint, LinePaint } from "mapbox-gl"
 

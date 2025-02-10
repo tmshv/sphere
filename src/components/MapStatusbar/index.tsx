@@ -1,4 +1,4 @@
-import { useMap } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
 import { ActionIcon, Badge, MantineProvider, createStyles } from "@mantine/core"
 import { Statusbar } from "@/ui/Statusbar"
 import { useCursor } from "@/hooks/useCursor"

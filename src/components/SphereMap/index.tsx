@@ -1,4 +1,4 @@
-import { Source } from "react-map-gl"
+import { Source } from "react-map-gl/maplibre"
 import Maplibre, { AttributionControl } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 // import { selectProjection } from "@/store/projection"

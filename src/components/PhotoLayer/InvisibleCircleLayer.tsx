@@ -1,4 +1,4 @@
-import { Layer } from "react-map-gl"
+import { Layer } from "react-map-gl/maplibre"
 
 export type InvisibleCircleLayerProps = {
     layerId: string
