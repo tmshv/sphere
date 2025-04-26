@@ -1,8 +1,9 @@
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css"
 
 import MapboxDraw from "@mapbox/mapbox-gl-draw"
-import { useControl, useMap } from "react-map-gl"
-import type { ControlPosition } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
+import { useControl } from "react-map-gl/mapbox"
+import type { ControlPosition } from "react-map-gl/maplibre"
 import { useCallback, useEffect } from "react"
 
 type Handler = (ev: any) => void

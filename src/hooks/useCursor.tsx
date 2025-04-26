@@ -1,4 +1,4 @@
-import { MapLayerMouseEvent, MapRef } from "react-map-gl"
+import { MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre"
 import { useEffect, useState } from "react"
 
 export function useCursor(ref?: MapRef): [number, number] {

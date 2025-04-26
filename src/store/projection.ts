@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit"
 import { RootState } from "."
 import { selectIsDrawing } from "./draw"
+import type { Projection } from "@/types"
 
 // Define a type for the slice state
 type ProjectionState = {
-    value: string
+    value: Projection
 }
 
 // Define the initial state using that type
@@ -36,10 +37,7 @@ export const selectProjection = (state: RootState) => {
 }
 
 export const selectChangeProjectionAvailable = (state: RootState) => {
-    // disabled forever after mapboxgl -> maplibregl switch
-    return false
-    // old:
-    // return !selectIsDrawing(state)
+    return !selectIsDrawing(state)
 }
 
 export default projectionSlice.reducer

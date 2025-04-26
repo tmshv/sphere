@@ -1,6 +1,6 @@
 import { projectionSlice } from "./projection"
 import { mapStyleSlice } from "./mapStyle"
-import { fogSlice } from "./fog"
+import { skySlice } from "./sky"
 import { terrainSlice } from "./terrain"
 import { actions as sourceActions } from "./source"
 import { actions as layerActions } from "./layer"
@@ -17,7 +17,7 @@ export const actions = {
     error: errorActions,
     projection: projectionSlice.actions,
     mapStyle: mapStyleSlice.actions,
-    fog: fogSlice.actions,
+    sky: skySlice.actions,
     terrain: terrainSlice.actions,
     source: sourceActions,
     layer: layerActions,

@@ -1,3 +1,5 @@
+export type Projection = "mercator" | "globe"
+
 export enum SourceType {
     FeatureCollection = "FeatureCollection",
     Geojson = "GeoJSON",
@@ -48,4 +50,3 @@ export type DatasetRow<G> = {
 // export type Dataset<T extends SourceType, G = PointLike | LineStringLike | PolygonLike> = {
 //     data: DatasetRow<G>[]
 // }
-

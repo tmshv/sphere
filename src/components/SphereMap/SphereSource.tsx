@@ -1,5 +1,5 @@
 import { memo } from "react"
-import { Source, SourceProps } from "react-map-gl"
+import { Source, SourceProps } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { assertUnreachable } from "@/lib"

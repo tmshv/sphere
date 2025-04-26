@@ -1,11 +1,11 @@
-import { useMap } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 
-export type FogProps = {
+export type SkyProps = {
     mapId: string
 }
 
-export const Fog: React.FC<FogProps> = ({ mapId }) => {
+export const Sky: React.FC<SkyProps> = ({ mapId }) => {
     const { [mapId]: ref } = useMap()
 
     useEffect(() => {
@@ -15,13 +15,13 @@ export const Fog: React.FC<FogProps> = ({ mapId }) => {
         }
 
         const cb = () => {
-            // add sky styling with `setFog` that will show when the map is highly pitched
-            map.setFog({
-                // 'horizon-blend': 0.3,
-                // 'color': '#f8f0e3',
-                // 'high-color': '#add8e6',
-                // 'space-color': '#d8f2ff',
-                // 'star-intensity': 0.0
+            map.setSky({
+                "sky-color": "#0d7fca",
+                "sky-horizon-blend": 0.5,
+                "horizon-color": "#abf8ff",
+                "horizon-fog-blend": 0.5,
+                "fog-color": "#545669",
+                "fog-ground-blend": 0,
             })
         }
 
@@ -29,17 +29,18 @@ export const Fog: React.FC<FogProps> = ({ mapId }) => {
             cb()
             return () => {
                 if (map.isStyleLoaded()) {
-                    map.setFog(null as any)
+                    // @ts-ignore
+                    map.setSky(undefined)
                 }
             }
         }
 
         map.on("load", cb)
-
         return () => {
             map.off("load", cb)
             if (map.isStyleLoaded()) {
-                map.setFog(null as any)
+                // @ts-ignore
+                map.setSky(undefined)
             }
         }
     }, [ref])

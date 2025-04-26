@@ -1,7 +1,7 @@
 import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { SpotlightProvider } from "@mantine/spotlight"
 import { IconSearch, IconCopy, IconZoomReset } from "@tabler/icons"
-import { useMap } from "react-map-gl"
+import { useMap } from "react-map-gl/maplibre"
 import { useAppDispatch } from "../../store/hooks"
 import { actions } from "../../store"
 
@@ -43,7 +43,7 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     description: "Set Earth map view",
                     onTrigger: () => {
                         dispatch(actions.terrain.show())
-                        dispatch(actions.fog.show())
+                        dispatch(actions.sky.show())
                         dispatch(actions.projection.setGlobe())
                         dispatch(actions.mapStyle.setSatellite())
                     },
@@ -53,16 +53,16 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     description: "Set simple map view",
                     onTrigger: () => {
                         dispatch(actions.terrain.hide())
-                        dispatch(actions.fog.hide())
+                        dispatch(actions.sky.hide())
                         dispatch(actions.projection.setFlat())
                         dispatch(actions.mapStyle.setVector())
                     },
                 },
                 {
-                    title: "Fog",
-                    description: "Toggle fog",
+                    title: "Sky",
+                    description: "Toggle sky",
                     onTrigger: () => {
-                        dispatch(actions.fog.toggle())
+                        dispatch(actions.sky.toggle())
                     },
                 },
                 {
@@ -108,7 +108,7 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                         if (!map) {
                             return
                         }
-                        
+
                         const center = map.getCenter()
                         const zoom = map.getZoom()
                         const pitch = map.getPitch()
