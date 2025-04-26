@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit"
 import projection from "./projection"
 import mapStyle from "./mapStyle"
-import fog from "./fog"
+import sky from "./sky"
 import terrain from "./terrain"
 import source from "./source"
 import layer from "./layer"
@@ -21,7 +21,7 @@ export const store = configureStore({
         error,
         projection,
         mapStyle,
-        fog,
+        sky,
         terrain,
         source,
         layer,

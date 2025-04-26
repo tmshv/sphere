@@ -2,17 +2,17 @@ import { createSlice } from "@reduxjs/toolkit"
 import { RootState } from "."
 
 // Define a type for the slice state
-export type FogState = {
+export type SkyState = {
     show: boolean
 }
 
 // Define the initial state using that type
-const initialState: FogState = {
+const initialState: SkyState = {
     show: true,
 }
 
-export const fogSlice = createSlice({
-    name: "fog",
+export const skySlice = createSlice({
+    name: "sky",
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
@@ -29,6 +29,6 @@ export const fogSlice = createSlice({
 })
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectIsShowFog = (state: RootState) => state.fog.show
+export const selectIsShowSky = (state: RootState) => state.sky.show
 
-export default fogSlice.reducer
+export default skySlice.reducer

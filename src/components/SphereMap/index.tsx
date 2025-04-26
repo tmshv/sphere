@@ -2,10 +2,10 @@ import { Source } from "react-map-gl/maplibre"
 import Maplibre, { AttributionControl } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { selectMapStyle } from "@/store/mapStyle"
-// import { selectIsShowFog } from "@/store/fog"
+import { selectIsShowSky } from "@/store/sky"
 import { selectIsShowTerrain } from "@/store/terrain"
 import { Terrain } from "./Terrain"
-// import { Fog } from "./Fog"
+import { Sky } from "./Sky"
 import { SphereSource } from "./SphereSource"
 import { SetupStore } from "./SetupStore"
 import { HandleClick } from "./HandleClick"
@@ -33,7 +33,7 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectMapStyle)
-    // const fog = useAppSelector(selectIsShowFog)
+    const sky = useAppSelector(selectIsShowSky)
     const terrain = useAppSelector(selectIsShowTerrain)
     const draw = useAppSelector(selectIsDrawing)
     const sourceIds = useAppSelector(state => state.source.allIds)
@@ -83,11 +83,11 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             />
             <HandleClick />
             <PropertiesPopup id={id} />
-            {/* {!fog ? null : (
-                <Fog
+            {!sky ? null : (
+                <Sky
                     mapId={id}
                 />
-            )} */}
+            )}
             {!terrain ? null : (
                 <Terrain
                     mapId={id}
