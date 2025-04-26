@@ -35,7 +35,7 @@
         "@visx/scale": "^3.0.0",
         "@visx/shape": "^3.0.0",
         "date-fns": "^2.30.0",
-        "maplibre-gl": "^5.1.0",
+        "maplibre-gl": "^5.4.0",
         "pino": "^8.19.0",
         "react": "^18.2.0",
         "react-dnd": "^16.0.1",
