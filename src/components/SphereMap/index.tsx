@@ -93,16 +93,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     mapId={id}
                 />
             )}
-            {/* <Layer
-                id="sky"
-                type="sky"
-                paint={{
-                    "sky-type": "atmosphere",
-                    "sky-atmosphere-sun": [0.0, 65.0],
-                    "sky-atmosphere-sun-intensity": 15,
-                }}
-            /> */}
-
             {sourceIds.map(id => (
                 <SphereSource
                     key={id}
