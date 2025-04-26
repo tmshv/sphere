@@ -1,7 +1,6 @@
 import { Source } from "react-map-gl/maplibre"
 import Maplibre, { AttributionControl } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
-// import { selectProjection } from "@/store/projection"
 import { selectMapStyle } from "@/store/mapStyle"
 // import { selectIsShowFog } from "@/store/fog"
 import { selectIsShowTerrain } from "@/store/terrain"
@@ -10,6 +9,7 @@ import { Terrain } from "./Terrain"
 import { SphereSource } from "./SphereSource"
 import { SetupStore } from "./SetupStore"
 import { HandleClick } from "./HandleClick"
+import { Projection } from "./Projection"
 import { SphereLayer } from "./SphereLayer"
 import { HandleHover } from "./HandleHover"
 import { selectIsDrawing } from "@/store/draw"
@@ -32,7 +32,6 @@ export type SphereMapProps = {
 }
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
-    // const projection = useAppSelector(selectProjection)
     const mapStyle = useAppSelector(selectMapStyle)
     // const fog = useAppSelector(selectIsShowFog)
     const terrain = useAppSelector(selectIsShowTerrain)
@@ -63,13 +62,13 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             }}
             maxPitch={85}
             mapStyle={mapStyle}
-            // projection={projection}
             logoPosition={"bottom-right"}
             attributionControl={false}
             onError={(error) => {
                 logger.error("Got maplibre error", error)
             }}
         >
+            <Projection fallback="mercator" />
             <AttributionControl compact />
             <SetupStore
                 mapId={id}
