@@ -18,11 +18,13 @@ import addBlankLayer from "./add-blank-layer"
 
 export const failMiddleware = createListenerMiddleware()
 failMiddleware.startListening({
-    matcher: isAnyOf(
-        actions.source.addFromUrl.rejected,
-    ),
+    // matcher: isAnyOf(
+    //     actions.source.addFromUrl.rejected,
+    // ),
+    actionCreator: actions.source.addFromUrl.rejected,
     effect: async (action, listenerApi) => {
-        listenerApi.dispatch(actions.error.setError(action.error.message))
+        const msg = action.error.message ?? "Unknown error"
+        listenerApi.dispatch(actions.error.setError(msg))
     },
 })
 
