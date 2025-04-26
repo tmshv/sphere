@@ -1,6 +1,9 @@
 import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
-import { FillPaint, LinePaint } from "mapbox-gl"
+import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
+
+type FillPaint = FillLayerSpecification["paint"]
+type LinePaint = LineLayerSpecification["paint"]
 
 export type SpherePolygonLayerProps = {
     layerId: string
