@@ -1,7 +1,7 @@
 import { useMap } from "react-map-gl/maplibre"
 import { useEffect } from "react"
-import { useAppSelector } from "../../store/hooks"
-import { selectExaggeration } from "../../store/terrain"
+import { useAppSelector } from "@/store/hooks"
+import { selectExaggeration } from "@/store/terrain"
 
 export type TerrainProps = {
     mapId: string
@@ -30,7 +30,7 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
 
             return () => {
                 if (map.isStyleLoaded()) {
-                    map.setTerrain()
+                    map.setTerrain(null)
                 }
             }
         }
@@ -40,7 +40,7 @@ export const Terrain: React.FC<TerrainProps> = ({ mapId }) => {
         return () => {
             map.off("load", setupTerrain)
             if (map.isStyleLoaded()) {
-                map.setTerrain()
+                map.setTerrain(null)
             }
         }
     }, [ref, exaggeration])
