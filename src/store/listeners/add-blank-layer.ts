@@ -28,7 +28,7 @@ listener.startListening({
         const source = sourceId
             ? state.source.items[sourceId]
             : null
-        let name = source
+        const name = source
             ? source.name
             : "Layer"
 

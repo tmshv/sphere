@@ -59,7 +59,7 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
         // Not working if call upd immideatly
         // timeout 500 is reasonable value
         // but can be changed in the future
-        let t = setTimeout(upd, 500)
+        const t = setTimeout(upd, 500)
 
         return () => {
             clearTimeout(t)

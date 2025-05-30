@@ -26,7 +26,8 @@ export const addFromUrl = createAsyncThunk(
                 sourceUrl: url,
             })
             logger.info("Got url source", s)
-            let { id, name, location } = s
+            const { id, location } = s
+            let { name } = s
 
             switch (type) {
                 case SourceType.MVT: {
