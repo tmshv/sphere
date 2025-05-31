@@ -51,7 +51,7 @@ async function handleVersion() {
     store.dispatch(actions.app.setVersion(version))
 }
 
-async function main() {
+async function handleDragDrop() {
     const e = "tauri://drag-drop"
     // const e = "tauri://file-drop-hover"
     // const e = "tauri://file-drop-cancelled"
@@ -65,7 +65,7 @@ async function main() {
         store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }
-main()
+handleDragDrop()
 handleTheme()
 handleVersion()
 handleHotkey()
