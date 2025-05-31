@@ -62,7 +62,7 @@ async function main() {
 
     // const unlisten =
     await listen<DragPayload>(e, (event) => {
-        store.dispatch(actions.source.addFromFiles(event.payload.paths))
+        store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }
 main()

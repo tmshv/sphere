@@ -1,6 +1,5 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { addFromFiles } from "./add"
 import { addFromUrl } from "./addFromUrl"
 import { showProperties } from "./showProperties"
 import { RootState } from ".."
@@ -247,7 +246,6 @@ export const zoomTo = createAction<string>("source/zoomTo")
 export const actions = {
     ...sourceSlice.actions,
     zoomTo,
-    addFromFiles,
     addFromUrl,
     showProperties,
 }
