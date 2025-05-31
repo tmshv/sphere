@@ -29,7 +29,7 @@ export const Sky: React.FC<SkyProps> = ({ mapId }) => {
             cb()
             return () => {
                 if (map.isStyleLoaded()) {
-                    // @ts-ignore
+                    // @ts-expect-error this is official api for reseting sky settings
                     map.setSky(undefined)
                 }
             }
@@ -39,7 +39,7 @@ export const Sky: React.FC<SkyProps> = ({ mapId }) => {
         return () => {
             map.off("load", cb)
             if (map.isStyleLoaded()) {
-                // @ts-ignore
+                // @ts-expect-error this is official api for reseting sky settings
                 map.setSky(undefined)
             }
         }

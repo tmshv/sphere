@@ -22,7 +22,7 @@ export function useDrawControl({ id, onChange, ...props }: DrawControlProps): Ma
         () => new MapboxDraw(props),
         {
             position: props.position,
-        }
+        },
     )
 
     const handler = useCallback<Handler>(event => {

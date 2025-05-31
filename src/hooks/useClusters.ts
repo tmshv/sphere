@@ -16,8 +16,7 @@ export function useClusters<
     type Clusters = Array<Supercluster.PointFeature<P> | Supercluster.ClusterFeature<C>>
 
     const { [mapId]: ref } = useMap()
-    const map = ref?.getMap()!
-
+    const map = ref?.getMap()
     const [clusters, setClusters] = useState<Clusters>([])
     const cluster = useRef<Supercluster<P, C>>(new Supercluster<P, C>(options))
 
@@ -26,6 +25,9 @@ export function useClusters<
     }, [options])
 
     const update = useCallback(() => {
+        if (!map) {
+            return
+        }
         const zoom = map.getZoom()
         const bounds = map.getBounds() // sw ne
         const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()] as BBox

@@ -41,7 +41,7 @@ export const HandleClick: React.FC<HandleClickProps> = () => {
             if (features.length > 0) {
                 const f = features[0]
                 dispatch(actions.selection.selectOne({
-                    layerId: f.layer.id,
+                    layerId: f.layer!.id,
                     featureId: f.id as number,
                 }))
             } else {

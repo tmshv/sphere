@@ -2,7 +2,7 @@ import { CirclePaint, FillPaint, LinePaint } from "mapbox-gl"
 import { MantineTheme, useMantineTheme } from "@mantine/core"
 
 export function createFillPaint<Key extends string>(
-    factory: (colors: MantineTheme["colors"]) => Record<Key, FillPaint>
+    factory: (colors: MantineTheme["colors"]) => Record<Key, FillPaint>,
 ) {
     function usePaint() {
         const theme = useMantineTheme()
@@ -14,7 +14,7 @@ export function createFillPaint<Key extends string>(
 }
 
 export function createLinePaint<Key extends string>(
-    factory: (colors: MantineTheme["colors"]) => Record<Key, LinePaint>
+    factory: (colors: MantineTheme["colors"]) => Record<Key, LinePaint>,
 ) {
     function usePaint() {
         const theme = useMantineTheme()
@@ -26,7 +26,7 @@ export function createLinePaint<Key extends string>(
 }
 
 export function createCirclePaint<Key extends string>(
-    factory: (colors: MantineTheme["colors"]) => Record<Key, CirclePaint>
+    factory: (colors: MantineTheme["colors"]) => Record<Key, CirclePaint>,
 ) {
     function usePaint() {
         const theme = useMantineTheme()
