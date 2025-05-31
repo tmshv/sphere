@@ -77,5 +77,5 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                 <App />
             </SphereThemeProvider>
         </Provider>
-    </React.StrictMode>
+    </React.StrictMode>,
 )

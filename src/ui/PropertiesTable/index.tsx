@@ -197,7 +197,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                         }[header.column.getIsSorted() as string] ?? null}
                                         {header.isPlaceholder ? null : flexRender(
                                             header.column.columnDef.header,
-                                            header.getContext()
+                                            header.getContext(),
                                         )}
                                         <Box style={{ flex: 1 }} />
                                         {meta[header.column.id].type !== "url" ? null : (
@@ -465,7 +465,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                         ? null
                                         : flexRender(
                                             header.column.columnDef.footer,
-                                            header.getContext()
+                                            header.getContext(),
                                         )}
                                 </th>
                             ))}

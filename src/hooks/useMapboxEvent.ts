@@ -8,15 +8,20 @@ type OnEvent = (event: MapboxEvent) => void
 
 export function useMapboxEvent(eventName: string, callback: MapboxEventCallback) {
     const { current } = useMap()
-    const map = current?.getMap()!
+    const map = current?.getMap()
 
     const onEvent = useCallback<OnEvent>(event => {
+        if (!map) {
+            return
+        }
         callback(map, event)
     }, [callback, map])
 
     useEffect(() => {
+        if (!map) {
+            return
+        }
         map.on(eventName, onEvent)
-
         return () => {
             map.off(eventName, onEvent)
         }

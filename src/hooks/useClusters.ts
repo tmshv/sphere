@@ -25,7 +25,7 @@ export function useClusters<
     }, [options])
 
     const update = useCallback(() => {
-        if(!map) {
+        if (!map) {
             return
         }
         const zoom = map.getZoom()
