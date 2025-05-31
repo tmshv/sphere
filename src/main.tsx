@@ -65,17 +65,22 @@ async function handleDragDrop() {
         store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }
-handleDragDrop()
-handleTheme()
-handleVersion()
-handleHotkey()
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <SphereThemeProvider>
-                <App />
-            </SphereThemeProvider>
-        </Provider>
-    </React.StrictMode>,
-)
+function main() {
+    handleDragDrop()
+    handleTheme()
+    handleVersion()
+    handleHotkey()
+
+    ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+        <React.StrictMode>
+            <Provider store={store}>
+                <SphereThemeProvider>
+                    <App />
+                </SphereThemeProvider>
+            </Provider>
+        </React.StrictMode>,
+    )
+}
+
+main()
