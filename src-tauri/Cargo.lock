@@ -4047,6 +4047,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin",
  "tauri-plugin-dialog",
+ "tauri-plugin-fs",
  "tauri-plugin-http",
  "tauri-plugin-shell",
  "tokio",

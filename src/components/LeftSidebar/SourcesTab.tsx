@@ -38,7 +38,7 @@ export const SourcesTab: React.FC = () => {
                 break
             }
             case "new": {
-                dispatch(actions.source.addFromFiles([]))
+                dispatch(actions.openFiles())
                 break
             }
             default: {

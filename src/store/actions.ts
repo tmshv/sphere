@@ -10,6 +10,9 @@ import { propertiesSlice } from "./properties"
 import { appSlice } from "./app"
 import { actions as drawActions } from "./draw"
 import { actions as mapActions } from "./map"
+import addFile from "./effects/add-file"
+import addMultipleFiles from "./effects/add-multiple-files"
+import openFiles from "./effects/open-files"
 
 export const actions = {
     app: appSlice.actions,
@@ -24,4 +27,7 @@ export const actions = {
     map: mapActions,
     selection: selectionSlice.actions,
     properties: propertiesSlice.actions,
+    addFile,
+    addMultipleFiles,
+    openFiles,
 }

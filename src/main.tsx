@@ -51,7 +51,7 @@ async function handleVersion() {
     store.dispatch(actions.app.setVersion(version))
 }
 
-async function main() {
+async function handleDragDrop() {
     const e = "tauri://drag-drop"
     // const e = "tauri://file-drop-hover"
     // const e = "tauri://file-drop-cancelled"
@@ -62,20 +62,25 @@ async function main() {
 
     // const unlisten =
     await listen<DragPayload>(e, (event) => {
-        store.dispatch(actions.source.addFromFiles(event.payload.paths))
+        store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }
-main()
-handleTheme()
-handleVersion()
-handleHotkey()
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <SphereThemeProvider>
-                <App />
-            </SphereThemeProvider>
-        </Provider>
-    </React.StrictMode>,
-)
+function main() {
+    handleDragDrop()
+    handleTheme()
+    handleVersion()
+    handleHotkey()
+
+    ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+        <React.StrictMode>
+            <Provider store={store}>
+                <SphereThemeProvider>
+                    <App />
+                </SphereThemeProvider>
+            </Provider>
+        </React.StrictMode>,
+    )
+}
+
+main()
