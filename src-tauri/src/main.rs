@@ -89,7 +89,6 @@ async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result<Str
     }
 }
 
-
 #[tauri::command]
 async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) -> Result<HashMap<String, String>, String> {
     let store = storage.store.lock().unwrap();
