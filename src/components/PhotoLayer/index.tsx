@@ -69,6 +69,9 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
                                 values: feature.properties!,
                             }))
                         }}
+                        onLeaveHover={() => {
+                            dispatch(actions.properties.reset())
+                        }}
                     >
                         <Badge
                             top={-12}
@@ -108,6 +111,9 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
                             dispatch(actions.properties.set({
                                 values: feature.properties!,
                             }))
+                        }}
+                        onLeaveHover={() => {
+                            dispatch(actions.properties.reset())
                         }}
                     />
                 </Marker>
