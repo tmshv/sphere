@@ -31,9 +31,10 @@ export type ImageMarkerProps = {
     style?: React.CSSProperties
     children?: React.ReactNode
     onHover?: () => void
+    onLeaveHover?: () => void
 }
 
-export const ImageMarker: React.FC<ImageMarkerProps> = memo(({ src, size, layout, style, children, onHover }) => {
+export const ImageMarker: React.FC<ImageMarkerProps> = memo(({ src, size, layout, style, children, onHover, onLeaveHover }) => {
     const { classes: s, cx } = useStyle()
     return (
         <span
@@ -45,6 +46,7 @@ export const ImageMarker: React.FC<ImageMarkerProps> = memo(({ src, size, layout
                 backgroundImage: `url(${src})`,
             }}
             onMouseEnter={onHover}
+            onMouseLeave={onLeaveHover}
         >
             {children}
         </span>
