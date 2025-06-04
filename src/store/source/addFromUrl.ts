@@ -67,11 +67,13 @@ export const addFromUrl = createAsyncThunk(
                 case SourceType.Geojson: {
                     const r = new SourceReader(location)
                     const metadata = await r.getSchema() ?? {}
+                    const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.addGeojsonSource({
                         id,
                         name,
                         location,
                         metadata,
+                        dataset,
                     }))
                     break
                 }

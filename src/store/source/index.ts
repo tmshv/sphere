@@ -15,7 +15,7 @@ type GeojsonSource = {
     metadata: GeojsonMetadata
     location: string
     dataset?: GeoJSON.FeatureCollection
-    editable: false
+    editable: true
     pending: false
 }
 
@@ -159,8 +159,9 @@ export const sourceSlice = createSlice({
             name: string,
             location: string,
             metadata: GeojsonMetadata,
+            dataset?: GeoJSON.FeatureCollection,
         }>) => {
-            const { id, name, location, metadata } = action.payload
+            const { id, name, location, metadata, dataset } = action.payload
             state.items[id] = {
                 id,
                 name,
@@ -170,6 +171,7 @@ export const sourceSlice = createSlice({
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: false,
                 metadata: metadata,
+                dataset,
             }
             state.allIds.push(id)
             state.lastAdded = id
@@ -231,10 +233,13 @@ export const sourceSlice = createSlice({
     },
     extraReducers: builder => {
         builder
-            .addCase(drawSlice.actions.stop, (state, action) => {
+            .addCase(drawSlice.actions.done, (state, action) => {
                 const { sourceId: id, featureCollection } = action.payload
                 const source = state.items[id]
                 if (source.type === SourceType.FeatureCollection) {
+                    source.dataset = featureCollection
+                }
+                if (source.type === SourceType.Geojson) {
                     source.dataset = featureCollection
                 }
             })

@@ -24,7 +24,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
                 return {
                     id,
                     type: "geojson",
-                    data: s.location,
+                    data: s.dataset,
                 } as SourceProps
             }
             case SourceType.MVT: {

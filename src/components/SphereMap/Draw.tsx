@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react"
-import { OnChangeDraw, useDrawControl } from "@/hooks/useDrawControl"
+import { useDrawControl } from "@/hooks/useDrawControl"
+import type { OnChangeDraw } from "@/hooks/useDrawControl"
 import { Button, Flex } from "@mantine/core"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
@@ -20,7 +21,7 @@ export const Draw: React.FC<DrawProps> = () => {
 
         const source = state.source.items[sourceId]
         switch (source.type) {
-            case SourceType.FeatureCollection: {
+            case SourceType.Geojson: {
                 return source.dataset
             }
             default: {
@@ -54,12 +55,12 @@ export const Draw: React.FC<DrawProps> = () => {
     }, [data, draw])
 
     const onCancel = useCallback(() => {
-        dispatch(actions.draw.cancel())
+        dispatch(actions.draw.reset())
     }, [])
 
     const onDone = useCallback(() => {
         const featureCollection = draw.getAll()
-        dispatch(actions.draw.stop({
+        dispatch(actions.draw.done({
             sourceId: sourceId!,
             featureCollection,
         }))

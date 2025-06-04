@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "."
-import { Id } from "@turf/helpers"
+import type { Id } from "@turf/helpers"
 
 // Define a type for the slice state
 type DrawState = {
@@ -21,10 +21,10 @@ export const drawSlice = createSlice({
         start: (state, action: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = action.payload.sourceId
         },
-        stop: (state, action: PayloadAction<{ sourceId: Id, featureCollection: GeoJSON.FeatureCollection }>) => {
+        done: (state, _: PayloadAction<{ sourceId: Id, featureCollection: GeoJSON.FeatureCollection }>) => {
             state.sourceId = undefined
         },
-        cancel: state => {
+        reset: state => {
             state.sourceId = undefined
         },
     },
