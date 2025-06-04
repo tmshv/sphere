@@ -59,11 +59,13 @@ zoomToMiddleware.startListening({
         const { type } = source
         switch (type) {
             case SourceType.FeatureCollection: {
-                const bbox = turf.bbox(source.dataset)
-                listenerApi.dispatch(actions.map.fitBounds({
-                    mapId,
-                    bounds: bbox as LngLatBoundsLike,
-                }))
+                if (source.dataset) {
+                    const bbox = turf.bbox(source.dataset)
+                    listenerApi.dispatch(actions.map.fitBounds({
+                        mapId,
+                        bounds: bbox as LngLatBoundsLike,
+                    }))
+                }
                 break
             }
             case SourceType.Geojson: {
