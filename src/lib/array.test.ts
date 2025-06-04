@@ -1,4 +1,3 @@
-import { expect, test, describe } from "vitest"
 import { head, init, last, tail, zip } from "./array"
 
 describe("lib/array/head", () => {

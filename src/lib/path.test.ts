@@ -1,4 +1,3 @@
-import { describe, expect, test } from "vitest"
 import { getStem } from "./path"
 
 describe("getStem function", () => {

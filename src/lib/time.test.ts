@@ -1,4 +1,3 @@
-import { describe, expect, test } from "vitest"
 import { sleep } from "./time"
 
 describe("lib/time/sleep", () => {

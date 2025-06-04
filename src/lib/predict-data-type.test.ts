@@ -1,4 +1,3 @@
-import { describe, expect, test } from "vitest"
 import { isDate, isInt, isNumeric, isUrl, predictType } from "./predict-data-type"
 
 describe("isInt", () => {
