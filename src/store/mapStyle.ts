@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "."
 import { selectIsDrawing } from "./draw"
-import { selectIsDark } from "./app"
 import type { StyleSpecification } from "maplibre-gl"
 // import type { RootState } from '../../app/store'
 
@@ -66,12 +65,8 @@ export const mapStyleSlice = createSlice({
 // Other code such as selectors can use the imported `RootState` type
 export const selectMapStyle = (state: RootState) => {
     const draw = selectIsDrawing(state)
-    const dark = selectIsDark(state)
-
     if (draw) {
-        return dark
-            ? "mapbox://styles/mapbox/dark-v10"
-            : "mapbox://styles/mapbox/light-v10"
+        return OSM
     }
 
     return state.mapStyle.value

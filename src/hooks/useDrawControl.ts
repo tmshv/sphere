@@ -1,25 +1,23 @@
-import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css"
+import "@hyvilo/maplibre-gl-draw/dist/maplibre-gl-draw.css"
 
-import MapboxDraw from "@mapbox/mapbox-gl-draw"
-import { useMap } from "react-map-gl/maplibre"
-import { useControl } from "react-map-gl/mapbox"
-import type { ControlPosition } from "react-map-gl/maplibre"
 import { useCallback, useEffect } from "react"
+import { useControl, useMap } from "react-map-gl/maplibre"
+import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
+import type { ControlPosition } from "react-map-gl/maplibre"
 
 type Handler = (ev: any) => void
 
-export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapboxDraw) => void
+export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapLibreDraw) => void
 
-export type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
+export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
     id?: string
     position?: ControlPosition
     onChange?: OnChangeDraw
 };
 
-export function useDrawControl({ id, onChange, ...props }: DrawControlProps): MapboxDraw {
+export function useDrawControl({ id, onChange, ...props }: DrawControlProps): MapLibreDraw {
     const { [id ?? "current"]: map } = useMap()
-    const draw = useControl<MapboxDraw>(
-        () => new MapboxDraw(props),
+    const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props),
         {
             position: props.position,
         },
