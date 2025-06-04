@@ -1,13 +1,13 @@
 import { useMap } from "react-map-gl/maplibre"
 import { useEffect } from "react"
-import mapboxgl, { Point } from "mapbox-gl"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectVisibleLayerIds } from "@/store/layer"
+import type { Map, Point, PointLike, MapMouseEvent } from "maplibre-gl"
 
-export function queryFeaturesInPoint(map: mapboxgl.Map, point: Point, layers: string[]) {
+export function queryFeaturesInPoint(map: Map, point: Point, layers: string[]) {
     const size = 8
-    const bbox: [mapboxgl.PointLike, mapboxgl.PointLike] = [
+    const bbox: [PointLike, PointLike] = [
         [point.x - size / 2, point.y - size / 2],
         [point.x + size / 2, point.y + size / 2],
     ]
@@ -36,7 +36,7 @@ export const HandleClick: React.FC<HandleClickProps> = () => {
             return
         }
 
-        const handler = (event: mapboxgl.MapMouseEvent) => {
+        const handler = (event: MapMouseEvent) => {
             const features = queryFeaturesInPoint(event.target, event.point, layerIds)
             if (features.length > 0) {
                 const f = features[0]

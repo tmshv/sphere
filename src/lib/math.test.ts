@@ -1,4 +1,3 @@
-import { describe, expect, test } from "vitest"
 import { lerp } from "./math"
 
 describe("lib/math/lerp", () => {
