@@ -40,7 +40,7 @@ type FeatureCollecionSource = {
     type: SourceType.FeatureCollection
     location?: string
     dataset: GeoJSON.FeatureCollection
-    editable: false
+    editable: true
     pending: false
     meta: SourceMetadata
 }
@@ -169,7 +169,7 @@ export const sourceSlice = createSlice({
                 type: SourceType.Geojson,
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
-                editable: false,
+                editable: true,
                 metadata: metadata,
                 dataset,
             }
