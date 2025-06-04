@@ -1,22 +1,10 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { LayerType, SourceMetadata, SourceType } from "@/types"
+import { SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { nextColor } from "@/lib/color-scheme"
 import { actions } from "../actions"
 import { RootState } from ".."
-
-function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | null {
-    if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
-        return LayerType.Point
-    }
-    if (pointsCount === 0 && linesCount > 0 && polygonsCount === 0) {
-        return LayerType.Line
-    }
-    if (pointsCount === 0 && linesCount === 0 && polygonsCount > 0) {
-        return LayerType.Polygon
-    }
-    return null
-}
+import predictLayerType from "@/lib/predict-layer-type"
 
 const listener = createListenerMiddleware()
 listener.startListening({
