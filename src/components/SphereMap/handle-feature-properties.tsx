@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectCurrentLayer } from "@/store/selection"
 import type { Map, MapMouseEvent, MapGeoJSONFeature } from "maplibre-gl"
+import useFeatureClick from "@/hooks/useFeatureClick"
 
 export type HandleFeaturePropertiesProps = {
     id: string
@@ -14,6 +15,17 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
     const { [id]: ref } = useMap()
     const dispatch = useAppDispatch()
     const layerId = useAppSelector(selectCurrentLayer)
+    const features = useFeatureClick(id, layerId, delay)
+
+    useEffect(() => {
+        if (!features) {
+            dispatch(actions.properties.reset())
+            return
+        }
+        dispatch(actions.properties.set({
+            values: features.map(f => f.properties),
+        }))
+    }, [features])
 
     useEffect(() => {
         const map = ref?.getMap() as Map | undefined
@@ -25,11 +37,8 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
             return
         }
 
-        let stick = false
-        let clickTime = Date.now()
-
         const enter = (event: MapMouseEvent & { features?: MapGeoJSONFeature[] }) => {
-            if (stick) {
+            if (features) {
                 return
             }
             if (!event.features) {
@@ -46,37 +55,20 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
         }
 
         const leave = () => {
-            if (stick) {
+            if (features) {
                 return
             }
-            dispatch(actions.properties.reset())
-        }
-
-        const click = () => {
-            stick = true
-            clickTime = Date.now()
-        }
-
-        const clickOutside = () => {
-            if (Date.now() - clickTime < delay) {
-                return
-            }
-            stick = false
             dispatch(actions.properties.reset())
         }
 
         map.on("mousemove", layerId, enter)
         map.on("mouseout", layerId, leave)
-        map.on("click", layerId, click)
-        map.on("click", clickOutside)
 
         return () => {
             map.off("mousemove", layerId, enter)
             map.off("mouseout", layerId, leave)
-            map.off("click", layerId, click)
-            map.off("click", clickOutside)
         }
-    }, [ref, layerId, delay])
+    }, [ref, layerId, features])
 
     return null
 }
