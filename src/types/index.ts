@@ -18,6 +18,7 @@ export enum LayerType {
     Photo = "Photo",
     Heatmap = "Heatmap",
     Raster = "Raster",
+    Extrusion = "Extrusion",
 }
 
 export type SourceMetadata = {
