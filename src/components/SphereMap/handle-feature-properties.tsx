@@ -3,7 +3,6 @@ import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectCurrentLayer } from "@/store/selection"
-import type { Map, MapMouseEvent, MapGeoJSONFeature } from "maplibre-gl"
 import useFeatureClick from "@/hooks/useFeatureClick"
 
 export type HandleFeaturePropertiesProps = {
@@ -28,7 +27,7 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
     }, [features])
 
     useEffect(() => {
-        const map = ref?.getMap() as Map | undefined
+        const map = ref?.getMap()
         if (!map) {
             return
         }
@@ -37,7 +36,7 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
             return
         }
 
-        const enter = (event: MapMouseEvent & { features?: MapGeoJSONFeature[] }) => {
+        const enter = map.on("mousemove", layerId, (event) => {
             if (features) {
                 return
             }
@@ -52,21 +51,17 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
             dispatch(actions.properties.set({
                 values: event.features.map(f => f.properties),
             }))
-        }
-
-        const leave = () => {
+        })
+        const leave = map.on("mouseout", layerId, () => {
             if (features) {
                 return
             }
             dispatch(actions.properties.reset())
-        }
-
-        map.on("mousemove", layerId, enter)
-        map.on("mouseout", layerId, leave)
+        })
 
         return () => {
-            map.off("mousemove", layerId, enter)
-            map.off("mouseout", layerId, leave)
+            enter.unsubscribe()
+            leave.unsubscribe()
         }
     }, [ref, layerId, features])
 
