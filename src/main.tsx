@@ -65,8 +65,10 @@ async function handleDragDrop() {
         store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }
+import setupMaplibre from "@/maplibre"
 
 function main() {
+    setupMaplibre()
     handleDragDrop()
     handleTheme()
     handleVersion()

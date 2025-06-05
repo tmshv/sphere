@@ -1,5 +1,3 @@
-import "@hyvilo/maplibre-gl-draw/dist/maplibre-gl-draw.css"
-
 import { useCallback, useEffect } from "react"
 import { useControl, useMap } from "react-map-gl/maplibre"
 import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
