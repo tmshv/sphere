@@ -16,6 +16,7 @@ import { selectIsDrawing } from "@/store/draw"
 import { Draw } from "./Draw"
 import logger from "@/logger"
 import { PropertiesPopup } from "./PropertiesPopup"
+import { selectShowAttribution } from "@/store/app"
 
 export type SphereMapProps = {
     id: string
