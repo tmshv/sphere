@@ -79,13 +79,14 @@ export const LayerPanel: React.FC = () => {
             heatmapIntensity: s.heatmap?.intensity ?? 1,
             icon: s.photo?.icon,
             clusterRadius: s.photo?.clusterRadius ?? 100,
+            extrusionHeight: s.extrusion?.height ?? 0,
         }
     })
 
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity, extrusionHeight } = layer
 
     let icon: React.ReactNode = null
     if (type === LayerType.Point) {
@@ -227,6 +228,7 @@ export const LayerPanel: React.FC = () => {
                     { value: LayerType.Photo, label: "Photos" },
                     { value: LayerType.Heatmap, label: "Heatmap" },
                     { value: LayerType.Raster, label: "Raster" },
+                    { value: LayerType.Extrusion, label: "Extrusion" },
                 ]}
                 onChange={value => {
                     if (value) {
@@ -238,7 +240,7 @@ export const LayerPanel: React.FC = () => {
                 }}
             />
 
-            {!(type === LayerType.Point || type === LayerType.Line || type === LayerType.Polygon) ? null : (
+            {!(type === LayerType.Point || type === LayerType.Line || type === LayerType.Polygon || type === LayerType.Extrusion) ? null : (
                 <>
                     <Input.Wrapper label={(
                         <>
@@ -389,6 +391,26 @@ export const LayerPanel: React.FC = () => {
                             }
                         }}
                     />
+                </>
+            )}
+
+            {!(type === LayerType.Extrusion) ? null : (
+                <>
+                    <Input.Wrapper label="Height" size="xs">
+                        <Slider
+                            label={"Height"}
+                            size={"xs"}
+                            min={0}
+                            max={100}
+                            value={extrusionHeight}
+                            onChange={value => {
+                                dispatch(actions.layer.setExtrusionOptions({
+                                    id: layerId,
+                                    height: value,
+                                }))
+                            }}
+                        />
+                    </Input.Wrapper>
                 </>
             )}
         </Flex>
