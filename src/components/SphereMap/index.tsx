@@ -26,6 +26,7 @@ const mb = new MapboxProtocol(MAPBOX_ACCESS_TOKEN)
 maplibregl.addProtocol(mb.name, mb.createHandler())
 const sp = new SphereProtocol()
 maplibregl.addProtocol(sp.name, sp.createHandler())
+import { selectShowAttribution } from "@/store/app"
 
 export type SphereMapProps = {
     id: string
@@ -36,6 +37,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const sky = useAppSelector(selectIsShowSky)
     const terrain = useAppSelector(selectIsShowTerrain)
     const draw = useAppSelector(selectIsDrawing)
+    const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layers = useAppSelector(state => {
         return state.layer.allIds
@@ -69,7 +71,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             }}
         >
             <Projection fallback="mercator" />
-            <AttributionControl compact />
+            {!showAttribution ? null : (
+                <AttributionControl compact />
+            )}
             <SetupStore
                 mapId={id}
             />

@@ -7,6 +7,7 @@ type AppState = {
     version: string
     zenMode: boolean
     darkTheme: boolean
+    showAttribution: boolean
     showLeftSidebar: boolean
     showRightSidebar: boolean
 }
@@ -16,6 +17,7 @@ const initialState: AppState = {
     version: "",
     zenMode: false,
     darkTheme: false,
+    showAttribution: false,
     showLeftSidebar: true,
     showRightSidebar: true,
 }
@@ -55,6 +57,7 @@ export const appSlice = createSlice({
 // Other code such as selectors can use the imported `RootState` type
 export const selectIsZen = (state: RootState) => state.app.zenMode
 export const selectIsDark = (state: RootState) => state.app.darkTheme
+export const selectShowAttribution = (state: RootState) => state.app.showAttribution
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar
 export const selectVersion = (state: RootState) => state.app.version
