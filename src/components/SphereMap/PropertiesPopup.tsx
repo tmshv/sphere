@@ -33,9 +33,9 @@ export const PropertiesPopup: React.FC<PropertiesPopupProps> = ({ id }) => {
                 dispatch(actions.properties.reset())
                 return
             }
-
-            const f = event.features[0]
-            dispatch(actions.properties.set({ values: f.properties }))
+            dispatch(actions.properties.set({
+                values: event.features.map(f => f.properties),
+            }))
         }
 
         const leave = () => {

@@ -88,7 +88,7 @@ export const App: React.FC<AppProps> = () => {
                                             Properties
                                         </Title>
                                         <PropertiesViewer
-                                            properties={props}
+                                            properties={props[0]}
                                         />
                                     </Paper>
                                 </Container>
