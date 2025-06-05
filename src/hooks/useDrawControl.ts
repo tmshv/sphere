@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from "react"
+import { useEffect } from "react"
 import { useControl, useMap } from "react-map-gl/maplibre"
 import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
 import type { ControlPosition } from "react-map-gl/maplibre"
-
-type Handler = (ev: any) => void
+import type { Listener } from "maplibre-gl"
 
 export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapLibreDraw) => void
 
@@ -21,31 +20,31 @@ export function useDrawControl({ id, onChange, ...props }: DrawControlProps): Ma
         },
     )
 
-    const handler = useCallback<Handler>(event => {
-        if (typeof onChange === "function") {
-            onChange(event, draw)
-        }
-    }, [onChange, draw])
-
     useEffect(() => {
         if (!map) {
             return
         }
 
-        map.on("draw.create", handler)
-        map.on("draw.update", handler)
-        map.on("draw.delete", handler)
-        map.on("draw.combine", handler)
-        map.on("draw.uncombine", handler)
+        const listener: Listener = event => {
+            if (typeof onChange === "function") {
+                onChange(event, draw)
+            }
+        }
+
+        const create = map.on("draw.create", listener)
+        const update = map.on("draw.update", listener)
+        const delete_ = map.on("draw.delete", listener)
+        const combine = map.on("draw.combine", listener)
+        const uncombine = map.on("draw.uncombine", listener)
 
         return () => {
-            map.off("draw.create", handler)
-            map.off("draw.update", handler)
-            map.off("draw.delete", handler)
-            map.off("draw.combine", handler)
-            map.off("draw.uncombine", handler)
+            create.unsubscribe()
+            update.unsubscribe()
+            delete_.unsubscribe()
+            combine.unsubscribe()
+            uncombine.unsubscribe()
         }
-    }, [map, handler, draw])
+    }, [map, onChange, draw])
 
     return draw
 }
