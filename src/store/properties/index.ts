@@ -7,12 +7,10 @@ type Properties = Record<string, any>
 // Define a type for the slice state
 type PropertiesState = {
     values?: Properties[]
-    blacklist: Set<string>
 }
 
 // Define the initial state using that type
 const initialState: PropertiesState = {
-    blacklist: new Set()
 }
 
 export const propertiesSlice = createSlice({
@@ -30,13 +28,14 @@ export const propertiesSlice = createSlice({
     },
 })
 
+const blacklist = new Set<string>()
 export const selectProperties = (state: RootState) => {
     if (!state.properties.values) {
         return null
     }
     return state.properties.values.map(values => {
         return Object.keys(values)
-            .filter(key => !state.properties.blacklist.has(key))
+            .filter(key => !blacklist.has(key))
             .map(key => ({
                 key,
                 value: values![key],
