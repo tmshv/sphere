@@ -4,7 +4,7 @@ import { actions } from "."
 import { MbtilesReader } from "@/lib/mbtiles"
 import { invoke } from "@tauri-apps/api/core"
 import logger from "@/logger"
-import { SourceReader } from "@/lib/source-reader"
+import SourceReaderFixId from "@/lib/source-reader-fix-id"
 
 type NewSource = {
     id: string,
@@ -65,7 +65,7 @@ export const addFromUrl = createAsyncThunk(
                     break
                 }
                 case SourceType.Geojson: {
-                    const r = new SourceReader(location)
+                    const r = new SourceReaderFixId(location)
                     const metadata = await r.getSchema() ?? {}
                     const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.addGeojsonSource({
