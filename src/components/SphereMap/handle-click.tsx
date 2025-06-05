@@ -22,10 +22,7 @@ export function queryFeaturesInPoint(map: Map, point: Point, layers: string[]) {
     return features
 }
 
-export type HandleClickProps = {
-}
-
-export const HandleClick: React.FC<HandleClickProps> = () => {
+export default function HandleClick() {
     const { current: ref } = useMap()
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectVisibleLayerIds)
