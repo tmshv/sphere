@@ -10,6 +10,7 @@ import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
 import { RasterLayer } from "./RasterLayer"
 import type { GetImageFunction } from "../PhotoLayer/types"
+import ExtrusionLayer from "./extrustion-layer"
 
 function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
     return propetries => {
@@ -27,7 +28,7 @@ export type SphereLayerProps = {
 }
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
-    const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap, photo } = useAppSelector(state => state.layer.items[id])
+    const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap, photo, extrusion } = useAppSelector(state => state.layer.items[id])
     if (!sourceId || !type) {
         return null
     }
@@ -84,6 +85,18 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     layerId={layerId}
                     sourceId={sourceId}
                     color={color}
+                    visible={visible}
+                />
+            )
+        }
+        case LayerType.Extrusion: {
+            return (
+                <ExtrusionLayer
+                    layerId={layerId}
+                    sourceId={sourceId}
+                    sourceLayer={sourceLayer}
+                    color={color}
+                    height={extrusion?.height ?? 0}
                     visible={visible}
                 />
             )

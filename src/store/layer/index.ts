@@ -36,6 +36,9 @@ type Layer = {
         icon: PhotoIconLayout
         clusterRadius: number
     }
+    extrusion?: {
+        height: number
+    }
 }
 
 // Define a type for the slice state
@@ -117,6 +120,14 @@ export const layerSlice = createSlice({
                     }
                     break
                 }
+                case LayerType.Extrusion: {
+                    if (!layer.extrusion) {
+                        layer.extrusion = {
+                            height: 0,
+                        }
+                    }
+                    break
+                }
                 default: {
                     break
                 }
@@ -163,6 +174,13 @@ export const layerSlice = createSlice({
             }
             if (count) {
                 layer.photo!.countField = count
+            }
+        },
+        setExtrusionOptions: (state, action: PayloadAction<{ id: Id, height?: number }>) => {
+            const { id, height } = action.payload
+            const layer = state.items[id]
+            if (typeof height !== "undefined") {
+                layer.extrusion!.height = height
             }
         },
     },
