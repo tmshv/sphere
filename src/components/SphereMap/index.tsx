@@ -15,7 +15,7 @@ import { HandleHover } from "./HandleHover"
 import { selectIsDrawing } from "@/store/draw"
 import { Draw } from "./Draw"
 import logger from "@/logger"
-import { PropertiesPopup } from "./PropertiesPopup"
+import HandleFeatureProperties from "./handle-feature-properties"
 import { selectShowAttribution } from "@/store/app"
 
 export type SphereMapProps = {
@@ -76,7 +76,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 mapId={id}
             />
             <HandleClick />
-            <PropertiesPopup id={id} />
+            <HandleFeatureProperties id={id} />
             {!sky ? null : (
                 <Sky
                     mapId={id}

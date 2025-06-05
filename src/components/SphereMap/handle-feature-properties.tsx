@@ -5,11 +5,11 @@ import { actions } from "@/store"
 import { selectCurrentLayer } from "@/store/selection"
 import type { Map, MapMouseEvent, MapGeoJSONFeature } from "maplibre-gl"
 
-export type PropertiesPopupProps = {
+export type HandleFeaturePropertiesProps = {
     id: string
 }
 
-export const PropertiesPopup: React.FC<PropertiesPopupProps> = ({ id }) => {
+export default function HandleFeatureProperties({ id }: HandleFeaturePropertiesProps) {
     const { [id]: ref } = useMap()
     const dispatch = useAppDispatch()
     const layerId = useAppSelector(selectCurrentLayer)
