@@ -14,7 +14,7 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
     const { [id]: ref } = useMap()
     const dispatch = useAppDispatch()
     const layerId = useAppSelector(selectCurrentLayer)
-    const features = useFeatureClick(id, layerId, delay)
+    const features = useFeatureClick(ref, layerId, delay)
 
     useEffect(() => {
         if (!features) {

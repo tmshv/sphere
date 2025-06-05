@@ -1,9 +1,8 @@
-import { useMap } from "react-map-gl/maplibre"
 import { useEffect, useState } from "react"
 import type { Map, MapGeoJSONFeature } from "maplibre-gl"
+import type { MapRef } from "react-map-gl/maplibre"
 
-export default function useFeatureClick(mapId: string, layerId: string | undefined, delay: number) {
-    const { [mapId]: ref } = useMap()
+export default function useFeatureClick(ref: MapRef | undefined, layerId: string | undefined, delay: number) {
     const [features, setFeatures] = useState<MapGeoJSONFeature[] | undefined>()
 
     useEffect(() => {
