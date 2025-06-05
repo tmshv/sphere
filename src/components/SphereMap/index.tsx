@@ -76,7 +76,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 mapId={id}
             />
             <HandleClick />
-            <HandleFeatureProperties id={id} />
+            <HandleFeatureProperties id={id} delay={50} />
             {!sky ? null : (
                 <Sky
                     mapId={id}
