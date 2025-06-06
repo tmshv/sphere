@@ -1,6 +1,5 @@
-import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from ".."
+import { createAction, createSlice } from "@reduxjs/toolkit"
 import { Id, LayerType } from "@/types"
 import { sourceSlice } from "../source"
 
@@ -195,6 +194,10 @@ export const layerSlice = createSlice({
                 }
             })
     },
+    selectors: {
+        selectLayerIds: state => state.allIds,
+        selectVisibleLayerIds: state => state.allIds.filter(id => state.items[id].visible),
+    },
 })
 
 export const addBlankLayer = createAction<string | undefined>("layer/addBlankLayer")
@@ -206,10 +209,7 @@ export const actions = {
     duplicate,
 }
 
-export const selectLayerIds = (state: RootState) => state.layer.allIds
-export const selectVisibleLayerIds = (state: RootState) => state.layer.allIds.filter(id => {
-    const layer = state.layer.items[id]
-    return layer.visible
-})
+export const selectLayerIds = layerSlice.selectors.selectLayerIds
+export const selectVisibleLayerIds = layerSlice.selectors.selectVisibleLayerIds
 
 export default layerSlice.reducer
