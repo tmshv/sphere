@@ -154,7 +154,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 }}>
                     <IconNorthStar size={16} />
                 </ActionIcon>
-                <ActionIcon onClick={() => {
+                <ActionIcon disabled onClick={() => {
                     dispatch(actions.mapStyle.setSatellite())
                 }}>
                     <IconSatellite size={16} />

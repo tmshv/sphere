@@ -1,17 +1,11 @@
-import { useMap } from "react-map-gl/maplibre"
+import { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectCurrentLayer } from "@/store/selection"
 import useFeatureClick from "@/hooks/useFeatureClick"
 
-export type HandleFeaturePropertiesProps = {
-    id: string
-    delay: number
-}
-
-export default function HandleFeatureProperties({ id, delay }: HandleFeaturePropertiesProps) {
-    const { [id]: ref } = useMap()
+export default function useFeatureProperties(ref: MapRef | undefined, delay: number) {
     const dispatch = useAppDispatch()
     const layerId = useAppSelector(selectCurrentLayer)
     const features = useFeatureClick(ref, layerId, delay)
@@ -64,6 +58,4 @@ export default function HandleFeatureProperties({ id, delay }: HandleFeatureProp
             leave.unsubscribe()
         }
     }, [ref, layerId, features])
-
-    return null
 }

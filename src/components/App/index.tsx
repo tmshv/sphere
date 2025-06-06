@@ -14,17 +14,11 @@ import { actions } from "@/store"
 import { WorkingIndicator } from "../WorkingIndicator"
 import PropertiesPopup from "../PropertiesPopup"
 
-export type AppProps = {
-
-}
-
-export const App: React.FC<AppProps> = () => {
-    const dispatch = useAppDispatch()
+export default function App() {
     const id = "spheremap"
+    const dispatch = useAppDispatch()
     const zen = useAppSelector(selectIsZen)
     const left = useAppSelector(selectShowLeftSidebar)
-
-    const showLeft = left && !zen
 
     return (
         <StrictMode>
@@ -38,7 +32,7 @@ export const App: React.FC<AppProps> = () => {
                                 id={id}
                             />
                         )}
-                        leftSidebar={!showLeft ? null : (
+                        leftSidebar={!left ? null : (
                             <Sidebar
                                 startWidth={300}
                                 minWidth={265}
