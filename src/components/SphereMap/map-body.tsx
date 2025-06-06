@@ -1,15 +1,10 @@
-import { HandleHover } from "./HandleHover"
+import usePointerHover from "@/sphere-hooks/usePointerHover"
 
 export type MapBodyProps = {
     mapId: string
 }
 
 export default function MapBody({ mapId }: MapBodyProps) {
-    return (
-        <>
-            <HandleHover
-                mapId={mapId}
-            />
-        </>
-    )
+    usePointerHover(mapId)
+    return null
 }
