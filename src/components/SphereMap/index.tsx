@@ -13,9 +13,9 @@ import { Projection } from "./Projection"
 import { SphereLayer } from "./SphereLayer"
 import { HandleHover } from "./HandleHover"
 import { selectIsDrawing } from "@/store/draw"
-import { Draw } from "./Draw"
+import Draw from "./Draw"
 import logger from "@/logger"
-import { PropertiesPopup } from "./PropertiesPopup"
+import HandleFeatureProperties from "./handle-feature-properties"
 import { selectShowAttribution } from "@/store/app"
 
 export type SphereMapProps = {
@@ -30,6 +30,10 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layers = useAppSelector(state => {
+        // Do not show layers in draw mode
+        if (draw) {
+            return []
+        }
         return state.layer.allIds
             .map(id => {
                 const layer = state.layer.items[id]
@@ -76,7 +80,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 mapId={id}
             />
             <HandleClick />
-            <PropertiesPopup id={id} />
+            <HandleFeatureProperties id={id} delay={50} />
             {!sky ? null : (
                 <Sky
                     mapId={id}
@@ -93,7 +97,10 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-            {draw ? (<Draw />) : layers.map(({ id }) => (
+            {!draw ? null : (
+                <Draw mapId={id} />
+            )}
+            {layers.map(({ id }) => (
                 <SphereLayer
                     key={id}
                     id={id}

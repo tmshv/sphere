@@ -6,11 +6,13 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { Overlay } from "@/ui/Overlay"
 import { actions } from "@/store"
+import { useMap } from "react-map-gl/maplibre"
 
 export type DrawProps = {
+    mapId: string
 }
 
-export const Draw: React.FC<DrawProps> = () => {
+export default function Draw({ mapId }: DrawProps){
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(state => state.draw.sourceId)
     const data = useAppSelector(state => {
@@ -33,8 +35,9 @@ export const Draw: React.FC<DrawProps> = () => {
         // console.log(event.type, event.features)
     }, [])
 
+    const { [mapId]: ref } = useMap()
     const draw = useDrawControl({
-        id: "spheremap",
+        ref,
         onChange,
         position: "top-left",
         controls: {
