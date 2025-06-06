@@ -21,21 +21,20 @@ export default function usePointerHover(mapId: string) {
             return
         }
 
-        const subscriptions = layerIds.flatMap(layerId => {
-            const enter = map.on("mouseenter", layerId, () => {
+        const subscriptions = layerIds.flatMap(layerId => [
+            map.on("mouseenter", layerId, () => {
                 dispatch(actions.map.setInteractive({
                     mapId,
                     value: true,
                 }))
-            })
-            const  leave = map.on("mouseleave", layerId, () => {
+            }),
+            map.on("mouseleave", layerId, () => {
                 dispatch(actions.map.setInteractive({
                     mapId,
                     value: false,
                 }))
-            })
-            return [enter, leave]
-        })
+            }),
+        ])
 
         return () => {
             for (const s of subscriptions) {
