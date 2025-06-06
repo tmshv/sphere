@@ -5,10 +5,10 @@ const useStyles = createStyles(theme => ({
     table: {
         minWidth: 300,
         width: "100%",
+        paddingBottom: theme.spacing.sm,
+        fontSize: 12,
     },
     key: {
-        fontWeight: 700,
-        paddingRight: theme.spacing.sm,
         display: "flex",
     },
     value: {

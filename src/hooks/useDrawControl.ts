@@ -1,51 +1,50 @@
-import { useCallback, useEffect } from "react"
-import { useControl, useMap } from "react-map-gl/maplibre"
+import { useEffect } from "react"
+import { useControl } from "react-map-gl/maplibre"
 import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
-import type { ControlPosition } from "react-map-gl/maplibre"
-
-type Handler = (ev: any) => void
+import type { ControlPosition, MapRef } from "react-map-gl/maplibre"
+import type { Listener } from "maplibre-gl"
 
 export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapLibreDraw) => void
 
 export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
-    id?: string
+    ref: MapRef | undefined
     position?: ControlPosition
     onChange?: OnChangeDraw
 };
 
-export function useDrawControl({ id, onChange, ...props }: DrawControlProps): MapLibreDraw {
-    const { [id ?? "current"]: map } = useMap()
+export function useDrawControl({ ref, onChange, ...props }: DrawControlProps): MapLibreDraw {
     const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props),
         {
             position: props.position,
         },
     )
 
-    const handler = useCallback<Handler>(event => {
-        if (typeof onChange === "function") {
-            onChange(event, draw)
-        }
-    }, [onChange, draw])
-
     useEffect(() => {
-        if (!map) {
+        if (!ref) {
             return
         }
+        const map = ref.getMap()
 
-        map.on("draw.create", handler)
-        map.on("draw.update", handler)
-        map.on("draw.delete", handler)
-        map.on("draw.combine", handler)
-        map.on("draw.uncombine", handler)
+        const listener: Listener = event => {
+            if (typeof onChange === "function") {
+                onChange(event, draw)
+            }
+        }
+
+        const create = map.on("draw.create", listener)
+        const update = map.on("draw.update", listener)
+        const delete_ = map.on("draw.delete", listener)
+        const combine = map.on("draw.combine", listener)
+        const uncombine = map.on("draw.uncombine", listener)
 
         return () => {
-            map.off("draw.create", handler)
-            map.off("draw.update", handler)
-            map.off("draw.delete", handler)
-            map.off("draw.combine", handler)
-            map.off("draw.uncombine", handler)
+            create.unsubscribe()
+            update.unsubscribe()
+            delete_.unsubscribe()
+            combine.unsubscribe()
+            uncombine.unsubscribe()
         }
-    }, [map, handler, draw])
+    }, [ref, onChange, draw])
 
     return draw
 }

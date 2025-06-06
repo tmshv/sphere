@@ -1,6 +1,6 @@
 import { StrictMode } from "react"
 import { MapProvider } from "react-map-gl/maplibre"
-import { Center, Container, Paper, Title } from "@mantine/core"
+import { Center } from "@mantine/core"
 import { MapStatusbar } from "../MapStatusbar"
 import { AppLayout } from "@/ui/AppLayout"
 import { SphereMap } from "../SphereMap"
@@ -8,12 +8,11 @@ import { Spotlight } from "../Spotlight"
 import { LeftSidebar } from "../LeftSidebar"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectIsZen, selectShowLeftSidebar } from "@/store/app"
-import { selectProperties } from "@/store/properties"
-import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Overlay } from "@/ui/Overlay"
 import { Sidebar } from "@/ui/Sidebar"
 import { actions } from "@/store"
 import { WorkingIndicator } from "../WorkingIndicator"
+import PropertiesPopup from "../PropertiesPopup"
 
 export type AppProps = {
 
@@ -24,7 +23,6 @@ export const App: React.FC<AppProps> = () => {
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
     const left = useAppSelector(selectShowLeftSidebar)
-    const props = useAppSelector(selectProperties)
 
     const showLeft = left && !zen
 
@@ -76,24 +74,7 @@ export const App: React.FC<AppProps> = () => {
                             // )}
                             />
                         )}
-
-                        {!props ? null : (
-                            <Overlay topRight={(
-                                <Container pt={"lg"} style={{
-                                    minWidth: 300,
-                                    overflow: "hidden",
-                                }}>
-                                    <Paper p={"sm"}>
-                                        <Title order={3}>
-                                            Properties
-                                        </Title>
-                                        <PropertiesViewer
-                                            properties={props}
-                                        />
-                                    </Paper>
-                                </Container>
-                            )} />
-                        )}
+                        <PropertiesPopup />
                     </AppLayout>
                 </Spotlight>
             </MapProvider>
