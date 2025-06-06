@@ -58,7 +58,7 @@ export const appSlice = createSlice({
 export const selectIsZen = (state: RootState) => state.app.zenMode
 export const selectIsDark = (state: RootState) => state.app.darkTheme
 export const selectShowAttribution = (state: RootState) => state.app.showAttribution
-export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar
+export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar
 export const selectVersion = (state: RootState) => state.app.version
 

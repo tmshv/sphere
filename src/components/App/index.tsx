@@ -15,12 +15,10 @@ import { WorkingIndicator } from "../WorkingIndicator"
 import PropertiesPopup from "../PropertiesPopup"
 
 export default function App() {
-    const dispatch = useAppDispatch()
     const id = "spheremap"
+    const dispatch = useAppDispatch()
     const zen = useAppSelector(selectIsZen)
     const left = useAppSelector(selectShowLeftSidebar)
-
-    const showLeft = left && !zen
 
     return (
         <StrictMode>
@@ -34,7 +32,7 @@ export default function App() {
                                 id={id}
                             />
                         )}
-                        leftSidebar={!showLeft ? null : (
+                        leftSidebar={!left ? null : (
                             <Sidebar
                                 startWidth={300}
                                 minWidth={265}
