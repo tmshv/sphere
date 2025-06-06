@@ -18,7 +18,7 @@ const initialState: SkyState = {
         "horizon-fog-blend": 0.5,
         "fog-color": "#545669",
         "fog-ground-blend": 0,
-    }
+    },
 }
 
 export const skySlice = createSlice({
