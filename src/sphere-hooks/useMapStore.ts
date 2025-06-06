@@ -11,21 +11,19 @@ export default function useMapStore(mapId: string) {
             return
         }
 
-        const handler = () => {
-            setMap(mapId, map)
-        }
-
         if (map.isStyleLoaded()) {
-            handler()
+            setMap(mapId, map)
             return () => {
                 removeMap(mapId)
             }
         }
 
-        map.on("load", handler)
+        const load = map.on("load", () => {
+            setMap(mapId, map)
+        })
 
         return () => {
-            map.off("load", handler)
+            load.unsubscribe()
             removeMap(mapId)
         }
     }, [ref, mapId])
