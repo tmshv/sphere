@@ -1,4 +1,5 @@
 import useTerrain from "@/hooks/useTerrain"
+import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
 import useFeatureSelect from "@/sphere-hooks/useFeatureSelect"
 import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
@@ -19,5 +20,6 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useProjection(map, "mercator")
     usePointerHover(mapId)
     useFeatureSelect(map)
+    useFeatureProperties(map, 50)
     return null
 }
