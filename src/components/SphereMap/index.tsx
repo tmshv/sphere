@@ -1,13 +1,8 @@
 import { Source } from "react-map-gl/maplibre"
-import Maplibre, { AttributionControl } from "react-map-gl/maplibre"
+import Map from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { selectMapStyle } from "@/store/mapStyle"
-import { SphereSource } from "./SphereSource"
-import { SphereLayer } from "./SphereLayer"
-import { selectIsDrawing } from "@/store/draw"
-import Draw from "./Draw"
 import logger from "@/logger"
-import { selectShowAttribution } from "@/store/app"
 import MapBody from "./map-body"
 
 export type SphereMapProps = {
@@ -16,27 +11,9 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectMapStyle)
-    const draw = useAppSelector(selectIsDrawing)
-    const showAttribution = useAppSelector(selectShowAttribution)
-    const sourceIds = useAppSelector(state => state.source.allIds)
-    const layers = useAppSelector(state => {
-        // Do not show layers in draw mode
-        if (draw) {
-            return []
-        }
-        return state.layer.allIds
-            .map(id => {
-                const layer = state.layer.items[id]
-                return {
-                    id: layer.id,
-                    index: layer.fractionIndex,
-                }
-            })
-            .sort((a, b) => a.index - b.index)
-    })
 
     return (
-        <Maplibre
+        <Map
             id={id}
             trackResize
             initialViewState={{
@@ -54,9 +31,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 logger.error("Got maplibre error", error)
             }}
         >
-            {!showAttribution ? null : (
-                <AttributionControl compact />
-            )}
             <Source
                 id={"mapbox-dem"}
                 type={"raster-dem"}
@@ -65,21 +39,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             <MapBody
                 mapId={id}
             />
-            {sourceIds.map(id => (
-                <SphereSource
-                    key={id}
-                    id={id}
-                />
-            ))}
-            {!draw ? null : (
-                <Draw mapId={id} />
-            )}
-            {layers.map(({ id }) => (
-                <SphereLayer
-                    key={id}
-                    id={id}
-                />
-            ))}
-        </Maplibre>
+        </Map>
     )
 }
