@@ -2,8 +2,6 @@ import { Source } from "react-map-gl/maplibre"
 import Maplibre, { AttributionControl } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { selectMapStyle } from "@/store/mapStyle"
-import { selectIsShowSky } from "@/store/sky"
-import { Sky } from "./Sky"
 import { SphereSource } from "./SphereSource"
 import { SphereLayer } from "./SphereLayer"
 import { selectIsDrawing } from "@/store/draw"
@@ -18,7 +16,6 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectMapStyle)
-    const sky = useAppSelector(selectIsShowSky)
     const draw = useAppSelector(selectIsDrawing)
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(state => state.source.allIds)
@@ -68,11 +65,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             <MapBody
                 mapId={id}
             />
-            {!sky ? null : (
-                <Sky
-                    mapId={id}
-                />
-            )}
             {sourceIds.map(id => (
                 <SphereSource
                     key={id}
