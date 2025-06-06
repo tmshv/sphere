@@ -13,7 +13,7 @@ import { Projection } from "./Projection"
 import { SphereLayer } from "./SphereLayer"
 import { HandleHover } from "./HandleHover"
 import { selectIsDrawing } from "@/store/draw"
-import { Draw } from "./Draw"
+import Draw from "./Draw"
 import logger from "@/logger"
 import HandleFeatureProperties from "./handle-feature-properties"
 import { selectShowAttribution } from "@/store/app"
@@ -93,7 +93,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-            {draw ? (<Draw />) : layers.map(({ id }) => (
+            {draw ? (<Draw mapId={id} />) : layers.map(({ id }) => (
                 <SphereLayer
                     key={id}
                     id={id}

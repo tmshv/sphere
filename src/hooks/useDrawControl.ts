@@ -1,19 +1,18 @@
 import { useEffect } from "react"
-import { useControl, useMap } from "react-map-gl/maplibre"
+import { useControl } from "react-map-gl/maplibre"
 import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
-import type { ControlPosition } from "react-map-gl/maplibre"
+import type { ControlPosition, MapRef } from "react-map-gl/maplibre"
 import type { Listener } from "maplibre-gl"
 
 export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapLibreDraw) => void
 
 export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
-    id?: string
+    ref: MapRef | undefined
     position?: ControlPosition
     onChange?: OnChangeDraw
 };
 
-export function useDrawControl({ id, onChange, ...props }: DrawControlProps): MapLibreDraw {
-    const { [id ?? "current"]: map } = useMap()
+export function useDrawControl({ ref, onChange, ...props }: DrawControlProps): MapLibreDraw {
     const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props),
         {
             position: props.position,
@@ -21,9 +20,10 @@ export function useDrawControl({ id, onChange, ...props }: DrawControlProps): Ma
     )
 
     useEffect(() => {
-        if (!map) {
+        if (!ref) {
             return
         }
+        const map = ref.getMap()
 
         const listener: Listener = event => {
             if (typeof onChange === "function") {
@@ -44,7 +44,7 @@ export function useDrawControl({ id, onChange, ...props }: DrawControlProps): Ma
             combine.unsubscribe()
             uncombine.unsubscribe()
         }
-    }, [map, onChange, draw])
+    }, [ref, onChange, draw])
 
     return draw
 }
