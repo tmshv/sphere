@@ -1,26 +1,9 @@
-import type { Map, Point, PointLike } from "maplibre-gl"
 import type { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectVisibleLayerIds } from "@/store/layer"
-
-export function queryFeaturesInPoint(map: Map, point: Point, layers: string[]) {
-    const size = 8
-    const bbox: [PointLike, PointLike] = [
-        [point.x - size / 2, point.y - size / 2],
-        [point.x + size / 2, point.y + size / 2],
-    ]
-    const features = map.queryRenderedFeatures(bbox, {
-        layers,
-    })
-
-    if (features.length === 0) {
-        return []
-    }
-
-    return features
-}
+import { queryFeaturesInPoint } from "@/maplibre"
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()

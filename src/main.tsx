@@ -7,7 +7,7 @@ import { App } from "@/components/App"
 import { store } from "@/store"
 import { SphereThemeProvider } from "@/components/SphereThemeProvider"
 import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
-import setupMaplibre from "@/maplibre"
+import { setupMaplibre } from "@/maplibre"
 
 function main() {
     setupMaplibre()
