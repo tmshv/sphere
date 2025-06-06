@@ -11,12 +11,12 @@ import { SetupStore } from "./SetupStore"
 import HandleClick from "./handle-click"
 import { Projection } from "./Projection"
 import { SphereLayer } from "./SphereLayer"
-import { HandleHover } from "./HandleHover"
 import { selectIsDrawing } from "@/store/draw"
 import Draw from "./Draw"
 import logger from "@/logger"
 import HandleFeatureProperties from "./handle-feature-properties"
 import { selectShowAttribution } from "@/store/app"
+import MapBody from "./map-body"
 
 export type SphereMapProps = {
     id: string
@@ -76,7 +76,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 type={"raster-dem"}
                 url={"mapbox://mapbox.mapbox-terrain-dem-v1"}
             />
-            <HandleHover
+            <MapBody
                 mapId={id}
             />
             <HandleClick />
