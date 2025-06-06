@@ -5,7 +5,6 @@ import { selectMapStyle } from "@/store/mapStyle"
 import { selectIsShowSky } from "@/store/sky"
 import { Sky } from "./Sky"
 import { SphereSource } from "./SphereSource"
-import HandleClick from "./handle-click"
 import { SphereLayer } from "./SphereLayer"
 import { selectIsDrawing } from "@/store/draw"
 import Draw from "./Draw"
@@ -70,7 +69,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             <MapBody
                 mapId={id}
             />
-            <HandleClick />
             <HandleFeatureProperties id={id} delay={50} />
             {!sky ? null : (
                 <Sky
