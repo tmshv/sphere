@@ -2,11 +2,7 @@ import { useMap } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { removeMap, setMap } from "@/map"
 
-export type SetupStoreProps = {
-    mapId: string
-}
-
-export const SetupStore: React.FC<SetupStoreProps> = ({ mapId }) => {
+export default function useMapStore(mapId: string) {
     const { [mapId]: ref } = useMap()
 
     useEffect(() => {
@@ -33,6 +29,4 @@ export const SetupStore: React.FC<SetupStoreProps> = ({ mapId }) => {
             removeMap(mapId)
         }
     }, [ref, mapId])
-
-    return null
 }

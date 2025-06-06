@@ -5,7 +5,6 @@ import { selectMapStyle } from "@/store/mapStyle"
 import { selectIsShowSky } from "@/store/sky"
 import { Sky } from "./Sky"
 import { SphereSource } from "./SphereSource"
-import { SetupStore } from "./SetupStore"
 import HandleClick from "./handle-click"
 import { Projection } from "./Projection"
 import { SphereLayer } from "./SphereLayer"
@@ -65,9 +64,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             {!showAttribution ? null : (
                 <AttributionControl compact />
             )}
-            <SetupStore
-                mapId={id}
-            />
             <Source
                 id={"mapbox-dem"}
                 type={"raster-dem"}
