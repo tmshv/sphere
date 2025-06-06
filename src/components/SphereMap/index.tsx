@@ -30,6 +30,10 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layers = useAppSelector(state => {
+        // Do not show layers in draw mode
+        if (draw) {
+            return []
+        }
         return state.layer.allIds
             .map(id => {
                 const layer = state.layer.items[id]
@@ -93,7 +97,10 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                     id={id}
                 />
             ))}
-            {draw ? (<Draw mapId={id} />) : layers.map(({ id }) => (
+            {!draw ? null : (
+                <Draw mapId={id} />
+            )}
+            {layers.map(({ id }) => (
                 <SphereLayer
                     key={id}
                     id={id}
