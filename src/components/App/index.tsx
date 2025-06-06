@@ -14,11 +14,7 @@ import { actions } from "@/store"
 import { WorkingIndicator } from "../WorkingIndicator"
 import PropertiesPopup from "../PropertiesPopup"
 
-export type AppProps = {
-
-}
-
-export const App: React.FC<AppProps> = () => {
+export default function App() {
     const dispatch = useAppDispatch()
     const id = "spheremap"
     const zen = useAppSelector(selectIsZen)
