@@ -3,19 +3,17 @@ import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
 import { selectVisibleLayerIds } from "@/store/layer"
-import type { Map as MapGL } from "maplibre-gl"
 
 export type HandleHoverProps = {
     mapId: string
 }
 
 export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
-    const { [mapId]: ref } = useMap()
+    const { [mapId]: map } = useMap()
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectVisibleLayerIds)
 
     useEffect(() => {
-        const map = ref?.getMap() as MapGL | undefined
         if (!map) {
             return
         }
@@ -27,32 +25,28 @@ export const HandleHover: React.FC<HandleHoverProps> = ({ mapId }) => {
             return
         }
 
-        const enter = () => {
-            dispatch(actions.map.setInteractive({
-                mapId,
-                value: true,
-            }))
-        }
-
-        const leave = () => {
-            dispatch(actions.map.setInteractive({
-                mapId,
-                value: false,
-            }))
-        }
-
-        for (const layerId of layerIds) {
-            map.on("mouseenter", layerId, enter)
-            map.on("mouseleave", layerId, leave)
-        }
+        const subscriptions = layerIds.flatMap(layerId => {
+            const enter = map.on("mouseenter", layerId, () => {
+                dispatch(actions.map.setInteractive({
+                    mapId,
+                    value: true,
+                }))
+            })
+            const  leave = map.on("mouseleave", layerId, () => {
+                dispatch(actions.map.setInteractive({
+                    mapId,
+                    value: false,
+                }))
+            })
+            return [enter, leave]
+        })
 
         return () => {
-            for (const layerId of layerIds) {
-                map.off("mouseenter", layerId, enter)
-                map.off("mouseleave", layerId, leave)
+            for (const s of subscriptions) {
+                s.unsubscribe()
             }
         }
-    }, [ref, mapId, layerIds])
+    }, [map, mapId, layerIds])
 
     return null
 }
