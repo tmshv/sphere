@@ -57,6 +57,6 @@ export default defineConfig({
             "**/*.test.ts",
             "**/*.test.tsx",
         ],
-        globals: true
+        globals: true,
     },
 })
