@@ -6,7 +6,6 @@ import { selectIsShowSky } from "@/store/sky"
 import { Sky } from "./Sky"
 import { SphereSource } from "./SphereSource"
 import HandleClick from "./handle-click"
-import { Projection } from "./Projection"
 import { SphereLayer } from "./SphereLayer"
 import { selectIsDrawing } from "@/store/draw"
 import Draw from "./Draw"
@@ -60,7 +59,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 logger.error("Got maplibre error", error)
             }}
         >
-            <Projection fallback="mercator" />
             {!showAttribution ? null : (
                 <AttributionControl compact />
             )}

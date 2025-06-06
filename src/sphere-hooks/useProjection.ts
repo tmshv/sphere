@@ -1,15 +1,14 @@
-import { useMap } from "react-map-gl/maplibre"
+import { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppSelector } from "@/store/hooks"
 import { selectProjection } from "@/store/projection"
-import type { Projection as ProjectionT } from "@/types"
+import type { Projection } from "@/types"
 
 export type ProjectionProps = {
-    fallback: ProjectionT
+    fallback: Projection
 }
 
-export const Projection: React.FC<ProjectionProps> = ({ fallback: fallbackProjection }) => {
-    const { current: ref } = useMap()
+export default function useProjection(ref: MapRef | undefined, fallback: Projection) {
     const projection = useAppSelector(selectProjection)
 
     useEffect(() => {
@@ -24,10 +23,10 @@ export const Projection: React.FC<ProjectionProps> = ({ fallback: fallbackProjec
 
         return () => {
             map.setProjection({
-                type: fallbackProjection,
+                type: fallback,
             })
         }
-    }, [projection, fallbackProjection])
+    }, [ref, projection, fallback])
 
     return null
 }
