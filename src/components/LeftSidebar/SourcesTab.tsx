@@ -1,7 +1,7 @@
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
-import { IconCrosshair, IconLink, IconPlus, IconTrash } from "@tabler/icons"
+import { IconCrosshair, IconLink, IconPlus, IconFile, IconTrash } from "@tabler/icons"
 import { useForm } from "@mantine/form"
 import { useCallback, useState } from "react"
 import { ActionBar, ActionBarOnClick } from "@/ui/ActionBar"
@@ -37,8 +37,12 @@ export const SourcesTab: React.FC = () => {
                 setShowModal(true)
                 break
             }
-            case "new": {
+            case "open-file": {
                 dispatch(actions.openFiles())
+                break
+            }
+            case "new": {
+                // dispatch(actions.openFiles())
                 break
             }
             default: {
@@ -102,6 +106,11 @@ export const SourcesTab: React.FC = () => {
                         name: "add-from-url",
                         label: "Add from URL",
                         icon: IconLink,
+                    },
+                    {
+                        name: "open-file",
+                        label: "Open file",
+                        icon: IconFile,
                     },
                     {
                         name: "new",
