@@ -7,16 +7,14 @@ import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline"
 import { useCallback } from "react"
 import { OutlineItem } from "@/ui/Outline/OutlineItem"
 import { Icon } from "./Icon"
+import { createSelector } from "@reduxjs/toolkit"
 
-export const LayersOutline: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const items = useAppSelector(state => {
-        const selectedLayerId = selectCurrentLayer(state)
-        const dark = selectors.app.isDark(state)
-
-        return state.layer.allIds
+const selectLayers = createSelector(
+    [selectCurrentLayer, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
+    (selectedLayerId, dark, items, allIds) => {
+        return allIds
             .map(id => {
-                const item = state.layer.items[id]
+                const item = items[id]
 
                 let bulbIconColor: string | undefined = undefined
                 if (dark && !!item.sourceId) {
@@ -35,7 +33,12 @@ export const LayersOutline: React.FC = () => {
                 }
             })
             .sort((a, b) => a.index - b.index)
-    })
+    },
+)
+
+export const LayersOutline: React.FC = () => {
+    const dispatch = useAppDispatch()
+    const items = useAppSelector(selectLayers)
 
     const moveLayerItem = useCallback<OutlineOnMove<typeof items[0]>>((drag, hover) => {
         if (drag.index < hover.index) {
