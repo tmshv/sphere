@@ -5,29 +5,7 @@ import { selectIsDrawing } from "./draw"
 import type { StyleSpecification } from "maplibre-gl"
 // import type { RootState } from '../../app/store'
 
-const VECTOR = "mapbox://styles/mapbox/streets-v9"
-const SATELLITE = "mapbox://styles/mapbox/satellite-streets-v12"
-const OSM: StyleSpecification = {
-    name: "osm",
-    version: 8,
-    sources: {
-        "osm-raster-tiles": {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-            tileSize: 256,
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
-        },
-    },
-    layers: [
-        {
-            id: "osm-raster-layer",
-            type: "raster",
-            source: "osm-raster-tiles",
-            minzoom: 0,
-            maxzoom: 22,
-        },
-    ],
-}
+import { STYLE_OSM, STYLE_VECTOR, STYLE_SATELLITE } from "@/const"
 
 type MapStyle = string | StyleSpecification
 
@@ -38,7 +16,7 @@ type MapStyleState = {
 
 // Define the initial state using that type
 const initialState: MapStyleState = {
-    value: OSM,
+    value: STYLE_OSM,
 }
 
 export const mapStyleSlice = createSlice({
@@ -47,13 +25,13 @@ export const mapStyleSlice = createSlice({
     initialState,
     reducers: {
         setVector: state => {
-            state.value = VECTOR
+            state.value = STYLE_VECTOR
         },
         setSatellite: state => {
-            state.value = SATELLITE
+            state.value = STYLE_SATELLITE
         },
         setOsm: state => {
-            state.value = OSM as any
+            state.value = STYLE_OSM as any
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
         setMapStyle: (state, action: PayloadAction<MapStyle>) => {
