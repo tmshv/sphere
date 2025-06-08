@@ -55,7 +55,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
 
     const drawing = useAppSelector(selectors.draw.isDrawing)
     const showAttribution = useAppSelector(selectShowAttribution)
-    const sourceIds = useAppSelector(state => state.source.allIds)
+    const sourceIds = useAppSelector(selectors.source.allIds)
     const layers = useAppSelector(selectLayers)
 
     return (
