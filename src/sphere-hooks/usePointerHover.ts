@@ -1,13 +1,12 @@
 import { useEffect } from "react"
 import { useMap } from "react-map-gl/maplibre"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { actions } from "@/store"
-import { selectVisibleLayerIds } from "@/store/layer"
+import { actions, selectors } from "@/store"
 
 export default function usePointerHover(mapId: string) {
     const { [mapId]: map } = useMap()
     const dispatch = useAppDispatch()
-    const layerIds = useAppSelector(selectVisibleLayerIds)
+    const layerIds = useAppSelector(selectors.layer.visibleIds)
 
     useEffect(() => {
         if (!map) {
