@@ -3,49 +3,58 @@ import { Source, SourceProps } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { assertUnreachable } from "@/lib"
-export type SphereSourceProps = {
-    id: string
-}
+import { createSelector } from "@reduxjs/toolkit"
+import type { RootState } from "@/store"
 
-export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
-    const source = useAppSelector(state => {
-        const s = state.source.items[id]
-        const { type } = s
-
+const selectSource = createSelector(
+    [(state: RootState, id: string) => state.source.items[id]],
+    source => {
+        if (!source) {
+            return null
+        }
+        const { type, id } = source
         switch (type) {
             case SourceType.FeatureCollection: {
                 return {
                     id,
                     type: "geojson",
-                    data: s.dataset,
+                    data: source.dataset,
                 } as SourceProps
             }
             case SourceType.Geojson: {
                 return {
                     id,
                     type: "geojson",
-                    data: s.dataset,
+                    data: source.dataset,
                 } as SourceProps
             }
             case SourceType.MVT: {
                 return {
                     id,
                     type: "vector",
-                    url: s.location,
+                    url: source.location,
                 } as SourceProps
             }
             case SourceType.Raster: {
                 return {
                     id,
                     type: "raster",
-                    url: s.location,
+                    url: source.location,
                 } as SourceProps
             }
             default: {
                 assertUnreachable(type)
             }
         }
-    })
+    }
+)
+
+export type SphereSourceProps = {
+    id: string
+}
+
+export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
+    const source = useAppSelector(state => selectSource(state, id))
     if (!source) {
         return null
     }
