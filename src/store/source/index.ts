@@ -188,6 +188,10 @@ export const sourceSlice = createSlice({
                 }
             })
     },
+    selectors: {
+        allIds: state => state.allIds,
+        items: state => state.items,
+    }
 })
 
 export const zoomTo = createAction<string>("source/zoomTo")

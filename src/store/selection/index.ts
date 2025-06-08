@@ -50,9 +50,11 @@ export const selectionSlice = createSlice({
                 state.layerId = undefined
             })
     },
+    selectors: {
+        currentSourceId: state => state.sourceId,
+    },
 })
 
-export const selectCurrentSource = (state: RootState) => state.selection.sourceId
 export const selectCurrentLayer = (state: RootState) => state.selection.layerId
 export const selectProperties = (state: RootState) => {
     const layerId = state.selection.layerId
