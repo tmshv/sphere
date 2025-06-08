@@ -52,6 +52,7 @@ export const selectionSlice = createSlice({
     },
     selectors: {
         currentSourceId: state => state.sourceId,
+        currentLayerId: state => state.layerId,
     },
 })
 
