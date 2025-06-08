@@ -6,7 +6,7 @@ import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
 import { selectShowAttribution } from "@/store/app"
-import { selectIsDrawing } from "@/store/draw"
+import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
@@ -34,7 +34,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useFeatureSelect(map)
     useFeatureProperties(map, 50)
 
-    const drawing = useAppSelector(selectIsDrawing)
+    const drawing = useAppSelector(selectors.draw.isDrawing)
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(state => state.source.allIds)
     const layers = useAppSelector(state => {

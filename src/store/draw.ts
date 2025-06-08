@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from "."
 import type { Id } from "@turf/helpers"
 
 // Define a type for the slice state
@@ -28,12 +27,13 @@ export const drawSlice = createSlice({
             state.sourceId = undefined
         },
     },
+    selectors: {
+        isDrawing: state => !!state.sourceId,
+    },
 })
 
 export const actions = {
     ...drawSlice.actions,
 }
-
-export const selectIsDrawing = (state: RootState) => !!state.draw.sourceId
 
 export default drawSlice.reducer

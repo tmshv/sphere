@@ -1,10 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from "."
-import { selectIsDrawing } from "./draw"
 import type { StyleSpecification } from "maplibre-gl"
-// import type { RootState } from '../../app/store'
-
 import { STYLE_OSM, STYLE_VECTOR, STYLE_SATELLITE } from "@/const"
 
 type MapStyle = string | StyleSpecification
@@ -40,15 +36,6 @@ export const mapStyleSlice = createSlice({
     },
 })
 
-// Other code such as selectors can use the imported `RootState` type
-export const selectMapStyle = (state: RootState) => {
-    const draw = selectIsDrawing(state)
-    if (draw) {
-        return OSM
-    }
-
-    return state.mapStyle.value
-}
 export const actions = mapStyleSlice.actions
 
 export default mapStyleSlice.reducer

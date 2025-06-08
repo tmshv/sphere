@@ -13,6 +13,7 @@ import { listener as mapListener } from "./map"
 import error from "./error"
 import * as listeners from "./listeners"
 export { actions } from "./actions"
+export { selectors } from "./selectors"
 
 export const store = configureStore({
     reducer: {
