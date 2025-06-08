@@ -35,6 +35,5 @@ export const actions = {
 }
 
 export const selectIsDrawing = (state: RootState) => !!state.draw.sourceId
-export const selectErrorMessage = (state: RootState) => state.error.message
 
 export default drawSlice.reducer
