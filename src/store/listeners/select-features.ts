@@ -1,6 +1,6 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { getMap } from "@/map"
-import { actions } from "../"
+import { actions } from "../actions"
 import type { RootState } from ".."
 
 const listener = createListenerMiddleware()

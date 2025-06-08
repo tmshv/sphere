@@ -1,6 +1,6 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { getMap } from "@/map"
-import { actions } from "../"
+import { actions } from "../actions"
 
 const listener = createListenerMiddleware()
 listener.startListening({
