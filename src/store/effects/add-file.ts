@@ -2,7 +2,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit"
 import { extname } from "@tauri-apps/api/path"
 import { readTextFile } from "@tauri-apps/plugin-fs"
 import { SourceType } from "@/types"
-import { actions } from "@/store/actions"
+import { actions as mapStyle } from "../mapStyle"
+import { actions as source } from "../source"
 
 function isStyle(value: object): boolean {
     // TODO check the value is real maplibre style
@@ -19,13 +20,13 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             const contents = await readTextFile(path)
             const data = JSON.parse(contents)
             if (isStyle(data)) {
-                thunkAPI.dispatch(actions.mapStyle.setMapStyle(data))
+                thunkAPI.dispatch(mapStyle.setMapStyle(data))
             }
             break
         }
         case "mbtiles": {
             const url = `sphere://mbtiles${path}`
-            thunkAPI.dispatch(actions.source.addFromUrl({
+            thunkAPI.dispatch(source.addFromUrl({
                 url,
                 type: SourceType.MVT,
                 // type: SourceType.Raster,
@@ -34,7 +35,7 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
         }
         default: {
             const url = `sphere://source${path}`
-            thunkAPI.dispatch(actions.source.addFromUrl({
+            thunkAPI.dispatch(source.addFromUrl({
                 url,
                 type: SourceType.Geojson,
             }))

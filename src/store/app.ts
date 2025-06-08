@@ -54,6 +54,10 @@ export const appSlice = createSlice({
     },
 })
 
+export const actions = {
+    ...appSlice.actions,
+}
+
 // Other code such as selectors can use the imported `RootState` type
 export const selectIsZen = (state: RootState) => state.app.zenMode
 export const selectIsDark = (state: RootState) => state.app.darkTheme

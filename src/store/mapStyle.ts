@@ -49,5 +49,6 @@ export const selectMapStyle = (state: RootState) => {
 
     return state.mapStyle.value
 }
+export const actions = mapStyleSlice.actions
 
 export default mapStyleSlice.reducer
