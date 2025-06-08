@@ -46,7 +46,7 @@ const selectSource = createSelector(
                 assertUnreachable(type)
             }
         }
-    }
+    },
 )
 
 export type SphereSourceProps = {

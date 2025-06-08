@@ -26,7 +26,7 @@ const sourcesSelector = createSelector([selectors.source.items, selectors.source
             }
             return acc
         }, [] as Array<Option & { type: SourceType }>)
-    }
+    },
 )
 
 const layerSelector = createSelector([selectors.source.items, selectors.layer.items, selectors.selection.currentLayerId],
