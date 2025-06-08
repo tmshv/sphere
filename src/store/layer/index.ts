@@ -195,7 +195,8 @@ export const layerSlice = createSlice({
             })
     },
     selectors: {
-        selectLayerIds: state => state.allIds,
+        allIds: state => state.allIds,
+        items: state => state.items,
         selectVisibleLayerIds: state => state.allIds.filter(id => state.items[id].visible),
     },
 })
@@ -209,7 +210,6 @@ export const actions = {
     duplicate,
 }
 
-export const selectLayerIds = layerSlice.selectors.selectLayerIds
 export const selectVisibleLayerIds = layerSlice.selectors.selectVisibleLayerIds
 
 export default layerSlice.reducer

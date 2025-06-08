@@ -1,3 +1,4 @@
+import { layerSlice as layer } from "./layer"
 import { selectionSlice as selection } from "./selection"
 import { STYLE_OSM } from "@/const"
 import type { RootState } from "."
@@ -37,5 +38,6 @@ export const selectors = {
         style: selectMapStyle,
     },
     source: source.selectors,
+    layer: layer.selectors,
     selection: selection.selectors,
 }
