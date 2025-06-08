@@ -1,7 +1,7 @@
 import { Source } from "react-map-gl/maplibre"
 import Map from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
-import { selectMapStyle } from "@/store/mapStyle"
+import { selectors } from "@/store"
 import logger from "@/logger"
 import MapBody from "./map-body"
 
@@ -10,7 +10,7 @@ export type SphereMapProps = {
 }
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
-    const mapStyle = useAppSelector(selectMapStyle)
+    const mapStyle = useAppSelector(selectors.mapStyle.style)
 
     return (
         <Map

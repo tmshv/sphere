@@ -1,21 +1,20 @@
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { useAppDispatch } from "@/store/hooks"
 import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable } from "@tabler/icons"
 import { useMantineTheme } from "@mantine/core"
-import { actions } from "@/store"
+import { actions, selectors } from "@/store"
 import { ActionBar } from "@/ui/ActionBar"
 import { SourceMetadata, SourceType } from "@/types"
+import { createSelector } from "@reduxjs/toolkit"
+import { useSelector } from "react-redux"
 
-export const SourcePanel: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const drawing = useAppSelector(state => !!state.draw.sourceId)
-    const source = useAppSelector(state => {
-        const id = state.selection.sourceId
+const selector = createSelector([selectors.selection.currentSourceId, selectors.source.items],
+    (id, items) => {
         if (!id) {
             return null
         }
 
-        const source = state.source.items[id]
+        const source = items[id]
         if (!source) {
             return null
         }
@@ -35,7 +34,13 @@ export const SourcePanel: React.FC = () => {
             editable: source.editable,
             meta,
         }
-    })
+    },
+)
+
+export const SourcePanel: React.FC = () => {
+    const dispatch = useAppDispatch()
+    const drawing = useSelector(selectors.draw.isDrawing)
+    const source = useSelector(selector)
     const theme = useMantineTheme()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]

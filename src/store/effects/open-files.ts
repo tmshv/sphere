@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { open } from "@tauri-apps/plugin-dialog"
-import { actions } from "@/store/actions"
+import addMultipleFiles from "./add-multiple-files"
 
 const openFiles = createAsyncThunk("openFiles", async (_, thunkAPI) => {
     const selected = await open({
@@ -18,7 +18,7 @@ const openFiles = createAsyncThunk("openFiles", async (_, thunkAPI) => {
         ? selected
         : [selected]
 
-    thunkAPI.dispatch(actions.addMultipleFiles(paths))
+    thunkAPI.dispatch(addMultipleFiles(paths))
 })
 
 export default openFiles

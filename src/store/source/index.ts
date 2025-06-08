@@ -2,69 +2,13 @@ import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { addFromUrl } from "./addFromUrl"
 import { showProperties } from "./showProperties"
-import { RootState } from ".."
+import type { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
-import { TileJSON } from "@/types/tilejson"
+import type { TileJSON } from "@/types/tilejson"
+import type { FeatureCollecionSource, GeojsonMetadata, Source } from "@/types/source"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
-
-type GeojsonMetadata = Record<string, any>
-type GeojsonSource = {
-    type: SourceType.Geojson
-    metadata: GeojsonMetadata
-    location: string
-    dataset?: GeoJSON.FeatureCollection
-    editable: true
-    pending: false
-}
-
-type VectorSource = {
-    type: SourceType.MVT
-    tilejson: TileJSON
-    location: string
-    // layers:
-    editable: false
-    sourceLayers: { id: string, name: string }[]
-    pending: false
-}
-
-type RasterSource = {
-    type: SourceType.Raster
-    location: string
-    editable: false
-    pending: false
-}
-
-type FeatureCollecionSource = {
-    type: SourceType.FeatureCollection
-    location?: string
-    dataset: GeoJSON.FeatureCollection
-    editable: true
-    pending: false
-    meta: SourceMetadata
-}
-
-type PendingFeatureCollecionSource = {
-    type: SourceType.FeatureCollection
-    location?: string
-    dataset?: GeoJSON.FeatureCollection
-    editable: true
-    pending: true
-}
-
-export type Source = (GeojsonSource | VectorSource | RasterSource | PendingFeatureCollecionSource | FeatureCollecionSource) & {
-    id: Id
-    name: string
-    fractionIndex: number
-    error?: string
-}
-
-// type PendingSource = {
-//     id: Id
-//     name: string
-//     status: LoadingStatus
-// }
 
 // Define a type for the slice state
 type SourceState = {
@@ -243,6 +187,10 @@ export const sourceSlice = createSlice({
                     source.dataset = featureCollection
                 }
             })
+    },
+    selectors: {
+        allIds: state => state.allIds,
+        items: state => state.items,
     },
 })
 

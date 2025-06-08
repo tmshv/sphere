@@ -1,29 +1,29 @@
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 import { IconBraces } from "@tabler/icons"
 import { useMantineTheme } from "@mantine/core"
-import { actions } from "@/store"
-import { selectCurrentSource } from "@/store/selection"
+import { actions, selectors } from "@/store"
 import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline"
 import { useCallback } from "react"
 import { OutlineItem } from "@/ui/Outline/OutlineItem"
+import { createSelector } from "@reduxjs/toolkit"
+
+const selector = createSelector([ selectors.selection.currentSourceId, selectors.source.items, selectors.source.allIds ],
+    (currentId, items, allIds) => allIds.map(id => {
+        const s = items[id]
+        return {
+            id,
+            active: id === currentId,
+            name: s.name,
+            type: s.type,
+        }
+    }),
+)
 
 export const SourcesOutline: React.FC = () => {
     const theme = useMantineTheme()
     const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
     const dispatch = useAppDispatch()
-    const items = useAppSelector(state => {
-        const currentId = selectCurrentSource(state)
-        return state.source.allIds.map(id => {
-            const s = state.source.items[id]
-
-            return {
-                id,
-                active: id === currentId,
-                name: s.name,
-                type: s.type,
-            }
-        })
-    })
+    const items = useAppSelector(selector)
 
     const moveItem = useCallback<OutlineOnMove<typeof items[0]>>((drag, hover) => {
         // if (drag.index < hover.index) {

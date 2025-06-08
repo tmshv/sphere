@@ -1,13 +1,12 @@
 import type { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { actions } from "@/store"
-import { selectVisibleLayerIds } from "@/store/layer"
+import { actions, selectors } from "@/store"
 import { queryFeaturesInPoint } from "@/maplibre"
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
-    const layerIds = useAppSelector(selectVisibleLayerIds)
+    const layerIds = useAppSelector(selectors.layer.visibleIds)
 
     useEffect(() => {
         const map = ref?.getMap()

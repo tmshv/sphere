@@ -1,5 +1,5 @@
 import { actions } from "@/store"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { useAppDispatch } from "@/store/hooks"
 import { Accordion } from "@mantine/core"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
 import { useCallback, useState } from "react"
@@ -10,14 +10,6 @@ import { StyledAccordion } from "./StyledAccordion"
 
 export const LayersTab: React.FC = () => {
     const dispatch = useAppDispatch()
-    const [layerId, sourceId] = useAppSelector(state => {
-        const layerId = state.selection.layerId
-        if (!layerId) {
-            return [undefined, undefined]
-        }
-        const sourceId = state.layer.items[layerId].sourceId
-        return [layerId, sourceId]
-    })
     const [value, setValue] = useState<string[]>(["outline", "layer-properties"])
 
     const onClick = useCallback<ActionBarOnClick>(name => {
@@ -34,7 +26,7 @@ export const LayersTab: React.FC = () => {
                 break
             }
         }
-    }, [layerId, sourceId])
+    }, [])
 
     return (
         <>

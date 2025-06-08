@@ -1,9 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
-import { actions } from "@/store/actions"
+import addFile from "./add-file"
 
 const addMultipleFiles = createAsyncThunk("addMultipleFiles", async (paths: string[], thunkAPI) => {
     for (const path of paths) {
-        thunkAPI.dispatch(actions.addFile(path))
+        thunkAPI.dispatch(addFile(path))
     }
 })
 

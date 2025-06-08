@@ -6,7 +6,7 @@ import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
 import { selectShowAttribution } from "@/store/app"
-import { selectIsDrawing } from "@/store/draw"
+import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
@@ -14,6 +14,25 @@ import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import { SphereSource } from "./SphereSource"
 import { SphereLayer } from "./SphereLayer"
 import Draw from "./Draw"
+import { createSelector } from "@reduxjs/toolkit"
+
+const selectLayers = createSelector([selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
+    (drawing, items, allIds) => {
+        // Do not show layers in draw mode
+        if (drawing) {
+            return []
+        }
+        return allIds
+            .map(id => {
+                const layer = items[id]
+                return {
+                    id: layer.id,
+                    index: layer.fractionIndex,
+                }
+            })
+            .sort((a, b) => a.index - b.index)
+    },
+)
 
 export type MapBodyProps = {
     mapId: string
@@ -34,24 +53,10 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useFeatureSelect(map)
     useFeatureProperties(map, 50)
 
-    const drawing = useAppSelector(selectIsDrawing)
+    const drawing = useAppSelector(selectors.draw.isDrawing)
     const showAttribution = useAppSelector(selectShowAttribution)
-    const sourceIds = useAppSelector(state => state.source.allIds)
-    const layers = useAppSelector(state => {
-        // Do not show layers in draw mode
-        if (drawing) {
-            return []
-        }
-        return state.layer.allIds
-            .map(id => {
-                const layer = state.layer.items[id]
-                return {
-                    id: layer.id,
-                    index: layer.fractionIndex,
-                }
-            })
-            .sort((a, b) => a.index - b.index)
-    })
+    const sourceIds = useAppSelector(selectors.source.allIds)
+    const layers = useAppSelector(selectLayers)
 
     return (
         <>

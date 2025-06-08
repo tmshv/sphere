@@ -1,52 +1,53 @@
 import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { useAppDispatch } from "@/store/hooks"
 import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy } from "@tabler/icons"
 import { LayerType, SourceType } from "@/types"
-import { actions } from "@/store"
+import { actions, selectors } from "@/store"
 import { ActionBar } from "@/ui/ActionBar"
 import { PhotoIconLayout } from "@/store/layer"
+import { createSelector } from "@reduxjs/toolkit"
+import { useSelector } from "react-redux"
 
 type Option = {
     value: string
     label: string
 }
 
-export const LayerPanel: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const sources = useAppSelector(state => {
-        return state.source.allIds.reduce((acc, id) => {
-            const source = state.source.items[id]
+const sourcesSelector = createSelector([selectors.source.items, selectors.source.allIds],
+    (items, allIds) => {
+        return allIds.reduce((acc, id) => {
+            const source = items[id]
             if (!source.pending) {
                 acc.push({
                     value: id,
-                    label: state.source.items[id].name,
-                    type: state.source.items[id].type,
+                    label: items[id].name,
+                    type: items[id].type,
                 })
             }
             return acc
         }, [] as Array<Option & { type: SourceType }>)
-    })
+    },
+)
 
-    const layer = useAppSelector(state => {
-        const { layerId } = state.selection
+const layerSelector = createSelector([selectors.source.items, selectors.layer.items, selectors.selection.currentLayerId],
+    (sources, layers, layerId) => {
         if (!layerId) {
             return null
         }
 
-        const s = state.layer.items[layerId]
-
-        const sourceId = s.sourceId
+        const layer = layers[layerId]
+        const sourceId = layer.sourceId
         let sourceLayers: Option[] | undefined
         let fields: string[] | undefined
         if (sourceId) {
-            const source = state.source.items[sourceId]
+            const source = sources[sourceId]
             switch (source.type) {
                 case SourceType.MVT: {
                     sourceLayers = source.sourceLayers.map(({ id, name }) => ({
                         value: id,
                         label: id,
                     }))
-                    const vl = source.tilejson.vector_layers.find(x => x.id === s.sourceLayer)
+                    const vl = source.tilejson.vector_layers.find(x => x.id === layer.sourceLayer)
                     if (vl) {
                         fields = Object.keys(vl.fields)
                     }
@@ -64,25 +65,30 @@ export const LayerPanel: React.FC = () => {
 
         return {
             id: layerId,
-            name: s.name,
-            type: s.type,
-            visible: s.visible,
-            sourceId: s.sourceId,
-            sourceLayer: s.sourceLayer,
+            name: layer.name,
+            type: layer.type,
+            visible: layer.visible,
+            sourceId: layer.sourceId,
+            sourceLayer: layer.sourceLayer,
             sourceLayers,
-            srcField: s.photo?.srcField,
-            valueField: s.photo?.valueField,
+            srcField: layer.photo?.srcField,
+            valueField: layer.photo?.valueField,
             fields: fields ?? [],
-            color: s.color,
-            circleRange: [s.circle?.minRadius ?? 2, s.circle?.maxRadius ?? 6] as [number, number],
-            heatmapRadius: s.heatmap?.radius ?? 10,
-            heatmapIntensity: s.heatmap?.intensity ?? 1,
-            icon: s.photo?.icon,
-            clusterRadius: s.photo?.clusterRadius ?? 100,
-            extrusionHeight: s.extrusion?.height ?? 0,
+            color: layer.color,
+            circleRange: [layer.circle?.minRadius ?? 2, layer.circle?.maxRadius ?? 6] as [number, number],
+            heatmapRadius: layer.heatmap?.radius ?? 10,
+            heatmapIntensity: layer.heatmap?.intensity ?? 1,
+            icon: layer.photo?.icon,
+            clusterRadius: layer.photo?.clusterRadius ?? 100,
+            extrusionHeight: layer.extrusion?.height ?? 0,
         }
-    })
+    },
+)
 
+export const LayerPanel: React.FC = () => {
+    const dispatch = useAppDispatch()
+    const sources = useSelector(sourcesSelector)
+    const layer = useSelector(layerSelector)
     if (!layer) {
         return null
     }
