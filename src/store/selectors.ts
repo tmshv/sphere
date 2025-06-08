@@ -1,6 +1,7 @@
 import { STYLE_OSM } from "@/const"
 import type { RootState } from "."
 import { drawSlice as draw } from "./draw"
+import { appSlice as app } from "./app"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -24,6 +25,7 @@ export const selectMapStyle = (state: RootState) => {
 }
 
 export const selectors = {
+    app: app.selectors,
     draw: draw.selectors,
     projection: {
         projection: selectProjection,

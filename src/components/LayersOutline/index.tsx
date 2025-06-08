@@ -1,11 +1,10 @@
 import { IconBulb, IconBulbOff } from "@tabler/icons"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { ActionIcon } from "@mantine/core"
-import { actions } from "@/store"
+import { actions, selectors } from "@/store"
 import { selectCurrentLayer } from "@/store/selection"
 import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline"
 import { useCallback } from "react"
-import { selectIsDark } from "@/store/app"
 import { OutlineItem } from "@/ui/Outline/OutlineItem"
 import { Icon } from "./Icon"
 
@@ -13,7 +12,7 @@ export const LayersOutline: React.FC = () => {
     const dispatch = useAppDispatch()
     const items = useAppSelector(state => {
         const selectedLayerId = selectCurrentLayer(state)
-        const dark = selectIsDark(state)
+        const dark = selectors.app.isDark(state)
 
         return state.layer.allIds
             .map(id => {
