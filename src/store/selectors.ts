@@ -5,6 +5,7 @@ import type { RootState } from "."
 import { drawSlice as draw } from "./draw"
 import { appSlice as app } from "./app"
 import { sourceSlice as source } from "./source"
+import { createSelector } from "@reduxjs/toolkit"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -27,6 +28,10 @@ export const selectMapStyle = (state: RootState) => {
     return state.mapStyle.value
 }
 
+const visibleIds = createSelector([layer.selectors.items, layer.selectors.allIds],
+    (items, allIds) => allIds.filter(id => items[id].visible),
+)
+
 export const selectors = {
     app: app.selectors,
     draw: draw.selectors,
@@ -38,6 +43,9 @@ export const selectors = {
         style: selectMapStyle,
     },
     source: source.selectors,
-    layer: layer.selectors,
+    layer: {
+        ...layer.selectors,
+        visibleIds,
+    },
     selection: selection.selectors,
 }

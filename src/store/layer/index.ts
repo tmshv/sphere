@@ -197,7 +197,6 @@ export const layerSlice = createSlice({
     selectors: {
         allIds: state => state.allIds,
         items: state => state.items,
-        visibleIds: state => state.allIds.filter(id => state.items[id].visible),
     },
 })
 
