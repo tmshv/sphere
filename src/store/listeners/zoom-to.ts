@@ -1,0 +1,80 @@
+import * as turf from "@turf/turf"
+import { createListenerMiddleware } from "@reduxjs/toolkit"
+import { getMap } from "@/map"
+import { SourceType } from "@/types"
+import { actions } from "../"
+import type { RootState } from ".."
+import type { LngLatBoundsLike } from "maplibre-gl"
+import { assertUnreachable } from "@/lib"
+import { MbtilesReader } from "@/lib/mbtiles"
+import { SourceReader } from "@/lib/source-reader"
+import logger from "@/logger"
+
+const listener = createListenerMiddleware()
+listener.startListening({
+    actionCreator: actions.source.zoomTo,
+    effect: async (action, listenerApi) => {
+        const mapId = "spheremap"
+        const map = getMap(mapId)
+        if (!map) {
+            logger.info("No map")
+            return
+        }
+
+        const sourceId = action.payload
+        const state = listenerApi.getOriginalState() as RootState
+        const source = state.source.items[sourceId]
+        if (!source) {
+            logger.info("No source", sourceId)
+            return
+        }
+
+        const { type } = source
+        switch (type) {
+            case SourceType.FeatureCollection: {
+                if (source.dataset) {
+                    const bbox = turf.bbox(source.dataset)
+                    listenerApi.dispatch(actions.map.fitBounds({
+                        mapId,
+                        bounds: bbox as LngLatBoundsLike,
+                    }))
+                }
+                break
+            }
+            case SourceType.Geojson: {
+                const reader = new SourceReader(source.location)
+                const bounds = await reader.getBounds()
+                if (bounds) {
+                    logger.info("Got bbox", bounds)
+                    listenerApi.dispatch(actions.map.fitBounds({
+                        mapId,
+                        bounds,
+                    }))
+                } else {
+                    logger.info("No bounds", bounds)
+                }
+                break
+            }
+            case SourceType.MVT: {
+                const r = new MbtilesReader(source.location)
+                const tilejson = await r.getTileJson()
+                if (tilejson?.bounds) {
+                    const bounds = tilejson.bounds
+                    listenerApi.dispatch(actions.map.fitBounds({
+                        mapId,
+                        bounds,
+                    }))
+                }
+                break
+            }
+            case SourceType.Raster: {
+                break
+            }
+            default: {
+                assertUnreachable(type)
+            }
+        }
+    },
+})
+
+export default listener
