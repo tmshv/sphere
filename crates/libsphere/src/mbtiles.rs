@@ -4,7 +4,7 @@ use mbtiles::{
 };
 use serde::{Deserialize, Serialize};
 
-fn sphere_url(name: String) -> String {
+fn sphere_url(name: &str) -> String {
     format!("sphere://mbtiles/{}?z={{z}}&x={{x}}&y={{y}}", name)
 }
 
@@ -18,7 +18,7 @@ impl Tiles {
     pub fn new(name: String, path: String) -> Tiles {
         let mbtiles = MBTiles {
             path: path.clone(),
-            source: sphere_url(name.clone()),
+            source: sphere_url(name.as_str()),
         };
         Tiles { name, mbtiles }
     }
