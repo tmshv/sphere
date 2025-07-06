@@ -5,7 +5,7 @@ import logger from "@/logger"
 import SourceReaderFixId from "@/lib/source-reader-fix-id"
 import { RootState } from ".."
 
-export const reload = createAsyncThunk(
+const action = createAsyncThunk(
     "source/reload",
     async (id: Id, thunkAPI) => {
         const state = thunkAPI.getState() as RootState
@@ -33,3 +33,5 @@ export const reload = createAsyncThunk(
         }
     },
 )
+
+export default action

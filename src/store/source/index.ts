@@ -1,13 +1,14 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { addFromUrl } from "./addFromUrl"
+import addFromUrl from "./addFromUrl"
+import reload from "./reload"
+import empty from "./empty"
 import { showProperties } from "./showProperties"
 import type { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
 import type { FeatureCollecionSource, GeojsonMetadata, GeojsonSource, Source } from "@/types/source"
-import { reload } from "./reload"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
@@ -36,62 +37,29 @@ export const sourceSlice = createSlice({
             state.allIds = []
             state.lastAdded = undefined
         },
-        // addFeatureCollection: (state, action: PayloadAction<{ id: Id, name: string, location?: string, dataset: GeoJSON.FeatureCollection }>) => {
-        //     const { id: sourceId, name, location, dataset } = action.payload
-        //     state.items[sourceId] = {
-        //         id: sourceId,
-        //         type: SourceType.FeatureCollection,
-        //         name,
-        //         location: location ?? "<unknown>",
-        //         dataset,
-        //         fractionIndex: 0,
-        //         // status: "init",
-        //         pending: false,
-        //         editable: true,
-        //     }
-        //     state.allIds.push(sourceId)
-        //     state.lastAdded = sourceId
-        // },
         addFeatureCollection: (state, action: PayloadAction<{
             id: Id,
             name: string,
-            // dataset: GeoJSON.FeatureCollection,
-            location?: string,
+            dataset: GeoJSON.FeatureCollection,
         }>) => {
-            const { id: sourceId, name, location } = action.payload
+            const { id: sourceId, name, dataset } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
                 type: SourceType.FeatureCollection,
                 name,
-                location,
+                dataset,
                 fractionIndex: NEW_SOURCE_INDEX,
-                pending: true,
+                pending: false,
                 editable: true,
+                meta: {
+                    pointsCount: 0,
+                    linesCount: 0,
+                    polygonsCount: 0,
+                },
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
-        // createFeatureCollection: (state, action: PayloadAction<{
-        //     id: Id,
-        //     name: string,
-        //     location: string,
-        //     dataset: GeoJSON.FeatureCollection,
-        // }>) => {
-        //     const { id: sourceId, name, location, dataset } = action.payload
-        //     state.items[sourceId] = {
-        //         id: sourceId,
-        //         type: SourceType.FeatureCollection,
-        //         name,
-        //         location,
-        //         dataset,
-        //         fractionIndex: 0,
-        //         // status: "init",
-        //         pending: false,
-        //         editable: true,
-        //     }
-        //     state.allIds.push(sourceId)
-        //     state.lastAdded = sourceId
-        // },
         setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection, meta: SourceMetadata }>) => {
             const { id, dataset, meta } = action.payload
             const source = state.items[id] as FeatureCollecionSource
@@ -217,6 +185,7 @@ export const actions = {
     addFromUrl,
     showProperties,
     reload,
+    empty,
 }
 
 // Other code such as selectors can use the imported `RootState` type

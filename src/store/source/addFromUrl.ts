@@ -17,7 +17,7 @@ export type AddFromUrlOptions = {
     type: SourceType.Geojson | SourceType.MVT | SourceType.Raster
 }
 
-export const addFromUrl = createAsyncThunk(
+const action = createAsyncThunk(
     "source/addFromUrl",
     async ({ url, type }: AddFromUrlOptions, thunkAPI) => {
         try {
@@ -86,3 +86,5 @@ export const addFromUrl = createAsyncThunk(
         }
     },
 )
+
+export default action
