@@ -2325,7 +2325,6 @@ name = "libsphere"
 version = "0.1.0"
 dependencies = [
  "csv",
- "flate2",
  "geo",
  "geojson",
  "geozero",
@@ -2333,7 +2332,6 @@ dependencies = [
  "gpx",
  "lazy_static",
  "mbtiles",
- "rusqlite",
  "serde",
  "serde_json",
  "sha256",
