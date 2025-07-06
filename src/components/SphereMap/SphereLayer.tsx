@@ -6,15 +6,18 @@ import { PhotoLayer, PhotoLayerProps } from "@/components/PhotoLayer"
 import { HeatmapLayer } from "./HeatmapLayer"
 import { SphereLineStringLayer, SphereLineStringLayerProps } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer, SpherePolygonLayerProps } from "./SpherePolygonLayer"
-import { RasterLayer } from "./RasterLayer"
 import ExtrusionLayer from "./extrustion-layer"
 import { createSelector } from "@reduxjs/toolkit"
 import type { GetImageFunction } from "../PhotoLayer/types"
 import type { RootState } from "@/store"
 import type { PointLayerProps } from "./PointLayer"
-import type { RasterLayerProps } from "./RasterLayer"
 import type { HeatmapLayerProps } from "./HeatmapLayer"
 import type { ExtrusionLayerProps } from "./extrustion-layer"
+import { Layer, type LayerProps } from "react-map-gl/maplibre"
+
+function v(visible: boolean): "visible" | "none" {
+    return visible ? "visible" : "none"
+}
 
 function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
     return propetries => {
@@ -130,13 +133,16 @@ const select = createSelector(
                 return [type, props] as SelectTuple<HeatmapLayerProps>
             }
             case LayerType.Raster: {
-                const props: RasterLayerProps = {
-                    layerId,
-                    sourceId,
-                    sourceLayer,
-                    visible,
+                const props: LayerProps = {
+                    id: layerId,
+                    source: sourceId,
+                    "source-layer": sourceLayer,
+                    type: "raster",
+                    layout: {
+                        visibility: v(visible),
+                    },
                 }
-                return [type, props] as SelectTuple<RasterLayerProps>
+                return [type, props] as SelectTuple<LayerProps>
             }
             default: {
                 assertUnreachable(type)
@@ -193,8 +199,8 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         }
         case LayerType.Raster: {
             return (
-                <RasterLayer
-                    {...props as RasterLayerProps}
+                <Layer
+                    {...props as LayerProps}
                 />
             )
         }
