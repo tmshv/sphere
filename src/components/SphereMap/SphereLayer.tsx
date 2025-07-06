@@ -102,29 +102,6 @@ const select = createSelector(
                 }
                 return ["layer", props] as SelectTuple<LayerProps>
             }
-            case LayerType.Photo: {
-                let vis = visible
-                const srcField = photo?.srcField
-                const valueField = photo?.valueField ?? "value"
-                if (!srcField) {
-                    vis = false
-                }
-                const props: PhotoLayerProps & { visible: boolean } = {
-                    layerId,
-                    sourceId,
-                    sourceLayer,
-                    visible: vis,
-                    clusterRadius: photo?.clusterRadius ?? 100,
-                    iconSize: 100,
-                    iconSizeCluster: 50,
-                    iconLayout: photo?.icon ?? "square",
-                    getImage: createGetImageFunction({
-                        srcField: srcField!,
-                        valueField,
-                    }),
-                }
-                return ["photo", props] as SelectTuple<PhotoLayerProps & { visible: boolean }>
-            }
             case LayerType.Heatmap: {
                 const intensity = heatmap?.intensity ?? 0
                 const radius = heatmap?.radius ?? 0
@@ -209,6 +186,29 @@ const select = createSelector(
                     ...sourceLayerProp(sourceLayer),
                 }
                 return ["layer", props] as SelectTuple<LayerProps>
+            }
+            case LayerType.Photo: {
+                let vis = visible
+                const srcField = photo?.srcField
+                const valueField = photo?.valueField ?? "value"
+                if (!srcField) {
+                    vis = false
+                }
+                const props: PhotoLayerProps & { visible: boolean } = {
+                    layerId,
+                    sourceId,
+                    sourceLayer,
+                    visible: vis,
+                    clusterRadius: photo?.clusterRadius ?? 100,
+                    iconSize: 100,
+                    iconSizeCluster: 50,
+                    iconLayout: photo?.icon ?? "square",
+                    getImage: createGetImageFunction({
+                        srcField: srcField!,
+                        valueField,
+                    }),
+                }
+                return ["photo", props] as SelectTuple<PhotoLayerProps & { visible: boolean }>
             }
             default: {
                 assertUnreachable(type)
