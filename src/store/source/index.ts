@@ -6,7 +6,8 @@ import type { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
-import type { FeatureCollecionSource, GeojsonMetadata, Source } from "@/types/source"
+import type { FeatureCollecionSource, GeojsonMetadata, GeojsonSource, Source } from "@/types/source"
+import { reload } from "./reload"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
@@ -120,6 +121,20 @@ export const sourceSlice = createSlice({
             state.allIds.push(id)
             state.lastAdded = id
         },
+        setGeojsonData: (state, action: PayloadAction<{
+            id: Id,
+            metadata?: GeojsonMetadata,
+            dataset?: GeoJSON.FeatureCollection,
+        }>) => {
+            const { id, metadata, dataset } = action.payload
+            const s = state.items[id] as GeojsonSource
+            if (metadata) {
+                s.metadata = metadata
+            }
+            if (dataset) {
+                s.dataset = dataset
+            }
+        },
         addMVTSource: (state, action: PayloadAction<{
             id: Id,
             name: string,
@@ -201,6 +216,7 @@ export const actions = {
     zoomTo,
     addFromUrl,
     showProperties,
+    reload,
 }
 
 // Other code such as selectors can use the imported `RootState` type
