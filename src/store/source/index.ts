@@ -2,6 +2,7 @@ import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import addFromUrl from "./addFromUrl"
 import reload from "./reload"
+import empty from "./empty"
 import { showProperties } from "./showProperties"
 import type { RootState } from ".."
 import { drawSlice } from "../draw"
@@ -184,6 +185,7 @@ export const actions = {
     addFromUrl,
     showProperties,
     reload,
+    empty,
 }
 
 // Other code such as selectors can use the imported `RootState` type
