@@ -141,7 +141,6 @@ const select = createSelector(
                 const props: LayerProps = {
                     id: layerId,
                     source: sourceId,
-                    "source-layer": sourceLayer,
                     type: "heatmap",
                     layout: {
                         visibility: v(visible),
@@ -205,6 +204,7 @@ const select = createSelector(
                         //     0
                         // ]
                     },
+                    ...p(sourceLayer),
                 }
                 return [type, props] as SelectTuple<LayerProps>
             }
@@ -212,11 +212,11 @@ const select = createSelector(
                 const props: LayerProps = {
                     id: layerId,
                     source: sourceId,
-                    "source-layer": sourceLayer,
                     type: "raster",
                     layout: {
                         visibility: v(visible),
                     },
+                    ...p(sourceLayer),
                 }
                 return [type, props] as SelectTuple<LayerProps>
             }
