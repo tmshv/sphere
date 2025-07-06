@@ -1,15 +1,13 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
-mod sphere;
-
+use libsphere::Bounds;
 use serde::Serialize;
-use sphere::Bounds;
 use tauri::State;
 // use tokio::sync::mpsc;
 use url::Url;
 
-use sphere::mbtiles::Tile;
-use sphere::source::{Source, SourceData};
+use libsphere::mbtiles::Tile;
+use libsphere::source::{Source, SourceData};
 
 use std::collections::HashMap;
 use std::sync::Mutex;
