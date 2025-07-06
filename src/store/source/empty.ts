@@ -11,7 +11,7 @@ const action = createAsyncThunk("source/empty", async (_, thunkAPI) => {
         dataset: {
             type: "FeatureCollection",
             features: [],
-        }
+        },
     }))
 })
 
