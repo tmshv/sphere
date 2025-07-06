@@ -1,5 +1,6 @@
 pub mod csv;
 pub mod geojson;
+pub mod geojsonl;
 pub mod gpx;
 pub mod mbtiles;
 pub mod shape;

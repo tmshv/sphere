@@ -110,6 +110,7 @@ async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Resu
                 name: source.name.clone(),
                 source_type: match &source.data {
                     SourceData::Geojson(_) => "geojson".into(),
+                    SourceData::Geojsonl(_) => "geojsonl".into(),
                     SourceData::Mbtiles(_) => "mbtiles".into(),
                     SourceData::Shapefile(_) => "shapefile".into(),
                     SourceData::Csv(_) => "csv".into(),
