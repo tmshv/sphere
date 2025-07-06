@@ -2321,6 +2321,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "libsphere"
+version = "0.1.0"
+dependencies = [
+ "csv",
+ "flate2",
+ "geo",
+ "geojson",
+ "geozero",
+ "geozero-shp",
+ "gpx",
+ "lazy_static",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha256",
+ "shapefile",
+ "url",
+ "urlencoding",
+]
+
+[[package]]
 name = "libsqlite3-sys"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4038,6 +4059,7 @@ dependencies = [
  "geozero-shp",
  "gpx",
  "lazy_static",
+ "libsphere",
  "rusqlite",
  "serde",
  "serde_json",
