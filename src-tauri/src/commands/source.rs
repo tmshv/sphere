@@ -29,7 +29,7 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
                 name: source.name.clone(),
                 source_type: match &source.data {
                     SourceData::Geojson(_) => "geojson".into(),
-                    SourceData::GeojsonSeq(_) => "geojsonl".into(),
+                    SourceData::GeojsonSeq(_) => "geojson".into(),
                     SourceData::Mbtiles(_) => "mbtiles".into(),
                     SourceData::Shapefile(_) => "shapefile".into(),
                     SourceData::Csv(_) => "csv".into(),
