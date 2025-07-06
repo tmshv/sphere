@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { addFromUrl } from "../source/addFromUrl"
+import addFromUrl from "../source/addFromUrl"
 import { actions } from "../actions"
 
 const listener = createListenerMiddleware()

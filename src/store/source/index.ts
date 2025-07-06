@@ -1,13 +1,13 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { addFromUrl } from "./addFromUrl"
+import addFromUrl from "./addFromUrl"
+import reload from "./reload"
 import { showProperties } from "./showProperties"
 import type { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
 import type { FeatureCollecionSource, GeojsonMetadata, GeojsonSource, Source } from "@/types/source"
-import { reload } from "./reload"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
