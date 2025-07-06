@@ -7,12 +7,13 @@ type LinePaint = LineLayerSpecification["paint"]
 export type SphereLineStringLayerProps = {
     layerId: string
     sourceId: string
+    sourceLayer?: string
     color: string
     visible: boolean
     thick: boolean
 }
 
-export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ layerId, sourceId, color, visible, thick }) => {
+export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible, thick }) => {
     const [outline, line, selected] = useMemo(() => {
         const outline: LinePaint = {
             "line-color": "#fff",
@@ -43,6 +44,9 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["==", ["geometry-type"], "LineString"]}
+                {...{
+                    "source-layer": sourceLayer,
+                }}
             />
             <Layer
                 id={layerId}
@@ -55,6 +59,9 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["==", ["geometry-type"], "LineString"]}
+                {...{
+                    "source-layer": sourceLayer,
+                }}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -67,6 +74,9 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["in", "id", ""]}
+                {...{
+                    "source-layer": sourceLayer,
+                }}
             />
         </>
     )

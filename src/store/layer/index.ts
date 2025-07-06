@@ -37,6 +37,10 @@ type Layer = {
     }
     extrusion?: {
         height: number
+        base: number
+
+        heightField?: string
+        baseField?: string
     }
 }
 
@@ -123,6 +127,7 @@ export const layerSlice = createSlice({
                     if (!layer.extrusion) {
                         layer.extrusion = {
                             height: 0,
+                            base: 0,
                         }
                     }
                     break
@@ -175,11 +180,20 @@ export const layerSlice = createSlice({
                 layer.photo!.countField = count
             }
         },
-        setExtrusionOptions: (state, action: PayloadAction<{ id: Id, height?: number }>) => {
-            const { id, height } = action.payload
+        setExtrusionOptions: (state, action: PayloadAction<{ id: Id, base?: number, height?: number, baseField?: string, heightField?: string }>) => {
+            const { id, base, height, baseField, heightField } = action.payload
             const layer = state.items[id]
+            if (typeof base !== "undefined") {
+                layer.extrusion!.base = base
+            }
             if (typeof height !== "undefined") {
                 layer.extrusion!.height = height
+            }
+            if (typeof baseField !== "undefined") {
+                layer.extrusion!.baseField = baseField
+            }
+            if (typeof heightField !== "undefined") {
+                layer.extrusion!.heightField = heightField
             }
         },
     },

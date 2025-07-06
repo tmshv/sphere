@@ -54,7 +54,7 @@ const layerSelector = createSelector([selectors.source.items, selectors.layer.it
                     break
                 }
                 case SourceType.Geojson: {
-                    fields = Object.keys(source.metadata)
+                    fields = [...new Set(source.dataset?.features.flatMap(f => Object.keys(f.properties!)))]
                     break
                 }
                 default: {
@@ -80,7 +80,10 @@ const layerSelector = createSelector([selectors.source.items, selectors.layer.it
             heatmapIntensity: layer.heatmap?.intensity ?? 1,
             icon: layer.photo?.icon,
             clusterRadius: layer.photo?.clusterRadius ?? 100,
+            extrusionBase: layer.extrusion?.base ?? 0,
             extrusionHeight: layer.extrusion?.height ?? 0,
+            extrusionBaseField: layer.extrusion?.baseField,
+            extrusionHeightField: layer.extrusion?.heightField,
         }
     },
 )
@@ -92,7 +95,7 @@ export const LayerPanel: React.FC = () => {
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity, extrusionHeight } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity } = layer
 
     let icon: React.ReactNode = null
     if (type === LayerType.Point) {
@@ -407,8 +410,8 @@ export const LayerPanel: React.FC = () => {
                             label={"Height"}
                             size={"xs"}
                             min={0}
-                            max={100}
-                            value={extrusionHeight}
+                            max={10}
+                            value={layer.extrusionHeight}
                             onChange={value => {
                                 dispatch(actions.layer.setExtrusionOptions({
                                     id: layerId,
@@ -417,6 +420,51 @@ export const LayerPanel: React.FC = () => {
                             }}
                         />
                     </Input.Wrapper>
+                    <Select
+                        size="xs"
+                        label="Height field"
+                        placeholder="Pick one"
+                        value={layer.extrusionHeightField}
+                        data={layer.fields}
+                        onChange={value => {
+                            if (value) {
+                                dispatch(actions.layer.setExtrusionOptions({
+                                    id: layerId,
+                                    heightField: value,
+                                }))
+                            }
+                        }}
+                    />
+                    <Input.Wrapper label="Base" size="xs">
+                        <Slider
+                            label={"Base"}
+                            size={"xs"}
+                            min={0}
+                            max={10}
+                            value={layer.extrusionBase}
+                            onChange={value => {
+                                dispatch(actions.layer.setExtrusionOptions({
+                                    id: layerId,
+                                    base: value,
+                                }))
+                            }}
+                        />
+                    </Input.Wrapper>
+                    <Select
+                        size="xs"
+                        label="Base field"
+                        placeholder="Pick one"
+                        value={layer.extrusionBaseField}
+                        data={layer.fields}
+                        onChange={value => {
+                            if (value) {
+                                dispatch(actions.layer.setExtrusionOptions({
+                                    id: layerId,
+                                    baseField: value,
+                                }))
+                            }
+                        }}
+                    />
                 </>
             )}
         </Flex>
