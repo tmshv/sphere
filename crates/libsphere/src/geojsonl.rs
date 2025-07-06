@@ -142,9 +142,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_valid_jsonfile() {
+    fn test_valid_geojsonseq() {
         let val = Geojsonl {
             path: "./assets/geojson-files/osm-countries.geojsonl".to_string(),
+        };
+        assert!(val.to_geojson().is_ok());
+    }
+
+    #[test]
+    fn test_valid_geojson() {
+        let val = Geojsonl {
+            path: "./assets/geojson-files/ne_10m_airports.geojsonl".to_string(),
         };
         assert!(val.to_geojson().is_ok());
     }
