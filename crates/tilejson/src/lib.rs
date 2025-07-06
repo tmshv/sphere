@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 pub const MINZOOM: i32 = 0;
 pub const MAXZOOM: i32 = 30;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum TileScheme {
     XYZ,
     TMS,
@@ -35,23 +35,23 @@ pub struct VectorLayer {
     pub maxzoom: Option<i32>,
 }
 
-// impl VectorLayer {
-//     pub fn new(id: String, fields: Value) -> VectorLayer {
-//         VectorLayer {
-//             id,
-//             fields,
-//             description: None,
-//             minzoom: None,
-//             maxzoom: None,
-//         }
-//     }
-// }
+impl VectorLayer {
+    pub fn new(id: String, fields: Value) -> VectorLayer {
+        VectorLayer {
+            id,
+            fields,
+            description: None,
+            minzoom: None,
+            maxzoom: None,
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Tilejson3 {
     // A semver.org style version number as a string.
     // Describes the version of the TileJSON spec that is implemented by this JSON object.
-    pub tilejson: String,
+    tilejson: String,
 
     // An array of tile endpoints.
     // {z}, {x} and {y}, if present, are replaced with the corresponding integers.
@@ -75,7 +75,7 @@ pub struct Tilejson3 {
     // Contains an attribution to be displayed when the map is shown to a user.
     // Implementations MAY decide to treat this as HTML or literal text.
     // For security reasons, make absolutely sure that this content can't be abused as a vector for XSS or beacon tracking.
-    pub attribution: Option<String>,
+    attribution: Option<String>,
 
     // The maximum extent of available map tiles.
     // Bounds MUST define an area covered by all zoom levels.
@@ -85,14 +85,14 @@ pub struct Tilejson3 {
     // Bounds MUST NOT "wrap" around the ante-meridian.
     // If bounds are not present, the default value MAY assume the set of tiles is globally distributed.
     // Default: [ -180, -85.05112877980659, 180, 85.0511287798066 ] (xyz-compliant tile bounds)
-    pub bounds: Option<Vec<f32>>,
+    bounds: Option<Vec<f32>>,
 
     // The first value is the longitude, the second is latitude (both in WGS:84 values), the third value is the zoom level as an integer.
     // Longitude and latitude MUST be within the specified bounds.
     // The zoom level MUST be between minzoom and maxzoom.
     // Implementations MAY use this center value to set the default location.
     // If the value is null, implementations MAY use their own algorithm for determining a default location.
-    pub center: Option<Vec<f32>>,
+    center: Option<Vec<f32>>,
 
     // TODO Not implemented
     // An array of data files in GeoJSON format.
@@ -106,7 +106,7 @@ pub struct Tilejson3 {
     // A text description of the set of tiles.
     // The description can contain any valid unicode character as described by the JSON specification RFC 8259
     // (https://tools.ietf.org/html/rfc8259).
-    pub description: Option<String>,
+    description: Option<String>,
 
     // TODO Not implemented
     // An integer specifying the zoom level from which to generate overzoomed tiles.
@@ -134,34 +134,34 @@ pub struct Tilejson3 {
     // Contains a legend to be displayed with the map.
     // Implementations MAY decide to treat this as HTML or literal text.
     // For security reasons, make absolutely sure that this field can't be abused as a vector for XSS or beacon tracking.
-    pub legend: Option<String>,
+    legend: Option<String>,
 
     // TODO Add checks according to this spec
     // An integer specifying the maximum zoom level.
     // MUST be in range: 0 <= minzoom <= maxzoom <= 30.
     // A client or server MAY request tiles outside of the zoom range,
     // but the availability of these tiles is dependent on how the the tile server or renderer handles the request (such as overzooming tiles).
-    pub maxzoom: i32,
+    maxzoom: i32,
 
     // TODO Add checks according to this spec
     // An integer specifying the minimum zoom level.
     // MUST be in range: 0 <= minzoom <= maxzoom <= 30.
-    pub minzoom: i32,
+    minzoom: i32,
 
     // A name describing the set of tiles.
     // The name can contain any legal character.
     // Implementations SHOULD NOT interpret the name as HTML.
-    pub name: Option<String>,
+    name: Option<String>,
 
     // Either "xyz" or "tms".
     // Influences the y direction of the tile coordinates.
     // The global-mercator (aka Spherical Mercator) profile is assumed.
-    pub scheme: TileScheme,
+    scheme: TileScheme,
 
     // Contains a mustache template to be used to format data from grids for interaction.
     // See https://github.com/mapbox/utfgrid-spec/tree/master/1.2 for the interactivity specification.
     // Example: "{{#__teaser__}}{{NAME}}{{/__teaser__}}"
-    pub template: Option<String>,
+    template: Option<String>,
 
     // A semver.org style version number of the tiles.
     // When changes across tiles are introduced the minor version MUST change.
@@ -170,7 +170,7 @@ pub struct Tilejson3 {
     // Changes to the patch level MUST only have changes to tiles that are contained within one tile.
     // When tiles change significantly, such as updating a vector tile layer name, the major version MUST be increased.
     // Implementations MUST NOT use tiles with different major versions.
-    pub version: Option<String>,
+    version: Option<String>,
 }
 
 impl Tilejson3 {
@@ -198,10 +198,10 @@ impl Tilejson3 {
         self
     }
 
-    // pub fn add_layer(&mut self, value: VectorLayer) -> &Tilejson3 {
-    //     self.vector_layers.push(value);
-    //     self
-    // }
+    pub fn add_layer(&mut self, value: VectorLayer) -> &Tilejson3 {
+        self.vector_layers.push(value);
+        self
+    }
 
     pub fn set_scheme(&mut self, value: TileScheme) -> &Tilejson3 {
         self.scheme = value;
@@ -283,5 +283,140 @@ impl Tilejson3 {
             "version": self.version,
             "vector_layers": self.vector_layers,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tilejson3_creation() {
+        let tilejson = Tilejson3::new();
+        assert_eq!(tilejson.tilejson, "3.0.0");
+        assert_eq!(tilejson.tiles.len(), 0);
+        assert_eq!(tilejson.minzoom, 0);
+        assert_eq!(tilejson.maxzoom, 30);
+    }
+
+    #[test]
+    fn test_add_tile() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.add_tile("http://example.com/{z}/{x}/{y}.png".into());
+        assert_eq!(tilejson.tiles.len(), 1);
+        assert_eq!(tilejson.tiles[0], "http://example.com/{z}/{x}/{y}.png");
+    }
+
+    #[test]
+    fn test_add_layer() {
+        let mut tilejson = Tilejson3::new();
+        let layer = VectorLayer::new("layer_id".into(), json!({}));
+        tilejson.add_layer(layer);
+        assert_eq!(tilejson.vector_layers.len(), 1);
+        assert_eq!(tilejson.vector_layers[0].id, "layer_id");
+    }
+
+    #[test]
+    fn test_set_scheme() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_scheme(TileScheme::TMS);
+        assert_eq!(tilejson.scheme, TileScheme::TMS);
+    }
+
+    #[test]
+    fn test_set_name() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_name("My Tile Set".into());
+        assert!(tilejson.name.is_some());
+        assert_eq!(tilejson.name.unwrap(), "My Tile Set");
+    }
+
+    #[test]
+    fn test_set_description() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_description("A description of the tile set".into());
+        assert!(tilejson.description.is_some());
+        assert_eq!(
+            tilejson.description.unwrap(),
+            "A description of the tile set"
+        );
+    }
+
+    #[test]
+    fn test_set_version() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_version("1.2.3".into());
+        assert!(tilejson.version.is_some());
+        assert_eq!(tilejson.version.unwrap(), "1.2.3");
+    }
+
+    #[test]
+    fn test_set_attribution() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_attribution("Attribution text".into());
+        assert!(tilejson.attribution.is_some());
+        assert_eq!(tilejson.attribution.unwrap(), "Attribution text");
+    }
+
+    #[test]
+    fn test_set_template() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_template("Template string".into());
+        assert!(tilejson.template.is_some());
+        assert_eq!(tilejson.template.unwrap(), "Template string");
+    }
+
+    #[test]
+    fn test_set_legend() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_legend("Legend text".into());
+        assert!(tilejson.legend.is_some());
+        assert_eq!(tilejson.legend.unwrap(), "Legend text");
+    }
+
+    #[test]
+    fn test_set_center() {
+        let mut tilejson = Tilejson3::new();
+        let center = vec![0.0, 0.0, 5.0];
+        tilejson.set_center(center);
+        assert!(tilejson.center.is_some());
+        assert_eq!(tilejson.center.unwrap(), vec![0.0, 0.0, 5.0]);
+    }
+
+    #[test]
+    fn test_set_bounds() {
+        let mut tilejson = Tilejson3::new();
+        let bounds = vec![-180.0, -85.0, 180.0, 85.0];
+        tilejson.set_bounds(bounds);
+        assert!(tilejson.bounds.is_some());
+        assert_eq!(tilejson.bounds.unwrap(), vec![-180.0, -85.0, 180.0, 85.0]);
+    }
+
+    #[test]
+    fn test_set_zoom() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_zoom(5, 10);
+        assert_eq!(tilejson.minzoom, 5);
+        assert_eq!(tilejson.maxzoom, 10);
+    }
+
+    #[test]
+    fn test_set_zoom_invalid_range() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_zoom(10, 5);
+        assert_eq!(tilejson.minzoom, 0);
+        assert_eq!(tilejson.maxzoom, 30);
+    }
+
+    #[test]
+    fn test_as_json() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.add_tile("http://example.com/{z}/{x}/{y}.png".into());
+        tilejson.set_name("My Tile Set".into());
+        let json_value = tilejson.as_json();
+
+        assert_eq!(json_value["tilejson"].as_str(), Some("3.0.0"));
+        assert_eq!(json_value["tiles"].as_array().unwrap().len(), 1);
+        assert_eq!(json_value["name"].as_str(), Some("My Tile Set"));
     }
 }

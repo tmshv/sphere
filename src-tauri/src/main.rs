@@ -6,8 +6,8 @@ use tauri::State;
 // use tokio::sync::mpsc;
 use url::Url;
 
-use libsphere::mbtiles::Tile;
 use libsphere::source::{Source, SourceData};
+use mbtiles::tile::Tile;
 
 use std::collections::HashMap;
 use std::sync::Mutex;

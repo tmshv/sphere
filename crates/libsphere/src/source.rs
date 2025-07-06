@@ -10,7 +10,7 @@ use urlencoding;
 use super::csv::{Csv, CsvGeometry};
 use super::geojson::Geojson;
 use super::gpx::Gpx;
-use super::mbtiles::Mbtiles;
+use super::mbtiles::Tiles;
 use super::shape::Shapefile;
 use super::Bounds;
 
@@ -35,7 +35,7 @@ use super::Bounds;
 pub enum SourceData {
     Geojson(Geojson),
     Shapefile(Shapefile),
-    Mbtiles(Mbtiles),
+    Mbtiles(Tiles),
     Csv(Csv),
     Gpx(Gpx),
     // Pmtiles,
@@ -102,23 +102,32 @@ impl Source {
     }
 
     fn create_data(id: &String, path: &Path) -> Result<(SourceData, String), String> {
-        let source_path = path.to_str().expect("Failed to convert path to string").to_string();
+        let source_path = path
+            .to_str()
+            .expect("Failed to convert path to string")
+            .to_string();
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
             "shp" => {
                 let source = Shapefile { path: source_path };
-                Ok((SourceData::Shapefile(source), format!("sphere://source/{}", id)))
+                Ok((
+                    SourceData::Shapefile(source),
+                    format!("sphere://source/{}", id),
+                ))
             }
             "geojson" => {
                 let source = Geojson { path: source_path };
-                Ok((SourceData::Geojson(source), format!("sphere://source/{}", id)))
+                Ok((
+                    SourceData::Geojson(source),
+                    format!("sphere://source/{}", id),
+                ))
             }
             "mbtiles" => {
-                let source = Mbtiles {
-                    name: id.clone(),
-                    path: source_path,
-                };
-                Ok((SourceData::Mbtiles(source), format!("sphere://mbtiles/{}", id)))
+                let source = Tiles::new(id.clone(), source_path);
+                Ok((
+                    SourceData::Mbtiles(source),
+                    format!("sphere://mbtiles/{}", id),
+                ))
             }
             "csv" => {
                 let source = Csv {
@@ -209,7 +218,7 @@ impl Source {
     //     }
     // }
 
-    pub fn get_mbtiles(&self) -> Option<&Mbtiles> {
+    pub fn get_mbtiles(&self) -> Option<&Tiles> {
         match &self.data {
             SourceData::Mbtiles(val) => Some(&val),
             _ => None,
