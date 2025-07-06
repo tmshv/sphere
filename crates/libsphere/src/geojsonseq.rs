@@ -21,11 +21,11 @@ enum JSONStreamType {
 }
 
 #[derive(Debug)]
-pub struct Geojsonl {
+pub struct GeojsonSeq {
     pub path: String,
 }
 
-impl Bounds for Geojsonl {
+impl Bounds for GeojsonSeq {
     fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
         match self.to_geojson() {
             Ok(geojson_str) => {
@@ -45,7 +45,7 @@ impl Bounds for Geojsonl {
     }
 }
 
-impl Geojsonl {
+impl GeojsonSeq {
     fn get_stream_type(&self) -> Result<JSONStreamType> {
         let mut file = File::open(self.path.clone())?;
         let mut head = [0u8; 1];
@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_valid_geojsonseq() {
-        let val = Geojsonl {
+        let val = GeojsonSeq {
             path: "./assets/geojson-files/osm-countries.geojsonl".to_string(),
         };
         assert!(val.to_geojson().is_ok());
@@ -151,7 +151,7 @@ mod tests {
 
     #[test]
     fn test_valid_geojson() {
-        let val = Geojsonl {
+        let val = GeojsonSeq {
             path: "./assets/geojson-files/ne_10m_airports.geojsonl".to_string(),
         };
         assert!(val.to_geojson().is_ok());
@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn test_valid_bounds() {
-        let val = Geojsonl {
+        let val = GeojsonSeq {
             path: "./assets/geojson-files/osm-countries.geojsonl".to_string(),
         };
         let bounds = val.get_bounds().unwrap_or_default();

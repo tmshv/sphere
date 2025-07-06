@@ -9,7 +9,7 @@ use urlencoding;
 
 use super::csv::{Csv, CsvGeometry};
 use super::geojson::Geojson;
-use super::geojsonl::Geojsonl;
+use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
 use super::mbtiles::Tiles;
 use super::shape::Shapefile;
@@ -35,7 +35,7 @@ use super::Bounds;
 #[derive(Debug)]
 pub enum SourceData {
     Geojson(Geojson),
-    Geojsonl(Geojsonl),
+    GeojsonSeq(GeojsonSeq),
     Shapefile(Shapefile),
     Mbtiles(Tiles),
     Csv(Csv),
@@ -55,7 +55,7 @@ impl Bounds for Source {
     fn get_bounds(&self) -> Option<(f64, f64, f64, f64)> {
         match &self.data {
             SourceData::Geojson(val) => val.get_bounds(),
-            SourceData::Geojsonl(val) => val.get_bounds(),
+            SourceData::GeojsonSeq(val) => val.get_bounds(),
             SourceData::Shapefile(val) => val.get_bounds(),
             SourceData::Csv(val) => val.get_bounds(),
             SourceData::Gpx(val) => val.get_bounds(),
@@ -126,9 +126,9 @@ impl Source {
                 ))
             }
             "geojsonl" => {
-                let source = Geojsonl { path: source_path };
+                let source = GeojsonSeq { path: source_path };
                 Ok((
-                    SourceData::Geojsonl(source),
+                    SourceData::GeojsonSeq(source),
                     format!("sphere://source/{}", id),
                 ))
             }
@@ -165,7 +165,7 @@ impl Source {
                 let val = src.read().expect("No geojson".into());
                 Ok(val)
             }
-            SourceData::Geojsonl(src) => {
+            SourceData::GeojsonSeq(src) => {
                 let val = src.to_geojson().expect("No geojson".into());
                 Ok(val)
             }
@@ -191,7 +191,7 @@ impl Source {
                 let val = src.get_schema().expect("No schema".into());
                 Ok(val)
             }
-            SourceData::Geojsonl(src) => {
+            SourceData::GeojsonSeq(src) => {
                 let val = src.get_schema().expect("No schema".into());
                 Ok(val)
             }
