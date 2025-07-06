@@ -11,19 +11,7 @@ import type { RootState } from "@/store"
 import type { PointLayerProps } from "./PointLayer"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
 import { DataDrivenPropertyValueSpecification } from "maplibre-gl"
-
-function v(visible: boolean): "visible" | "none" {
-    return visible ? "visible" : "none"
-}
-
-function p(sourceLayer?: string): object {
-    if (!sourceLayer) {
-        return {}
-    }
-    return {
-        "source-layer": sourceLayer,
-    }
-}
+import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
     return propetries => {
@@ -99,7 +87,7 @@ const select = createSelector(
                     source: sourceId,
                     type: "fill-extrusion",
                     layout: {
-                        visibility: v(visible),
+                        visibility: visibility(visible),
                     },
                     filter: ["==", ["geometry-type"], "Polygon"],
                     paint: {
@@ -108,7 +96,7 @@ const select = createSelector(
                         "fill-extrusion-height": height,
                         "fill-extrusion-base": base,
                     },
-                    ...p(sourceLayer),
+                    ...sourceLayerProp(sourceLayer),
                 }
                 return [type, props] as SelectTuple<LayerProps>
             }
@@ -143,7 +131,7 @@ const select = createSelector(
                     source: sourceId,
                     type: "heatmap",
                     layout: {
-                        visibility: v(visible),
+                        visibility: visibility(visible),
                     },
                     paint: {
                         // Increase the heatmap weight based on frequency and property magnitude
@@ -204,7 +192,7 @@ const select = createSelector(
                         //     0
                         // ]
                     },
-                    ...p(sourceLayer),
+                    ...sourceLayerProp(sourceLayer),
                 }
                 return [type, props] as SelectTuple<LayerProps>
             }
@@ -214,9 +202,9 @@ const select = createSelector(
                     source: sourceId,
                     type: "raster",
                     layout: {
-                        visibility: v(visible),
+                        visibility: visibility(visible),
                     },
-                    ...p(sourceLayer),
+                    ...sourceLayerProp(sourceLayer),
                 }
                 return [type, props] as SelectTuple<LayerProps>
             }

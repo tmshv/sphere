@@ -18,3 +18,15 @@ export function queryFeaturesInPoint(map: Map, point: Point, layers: string[]) {
     return features
 }
 
+export function visibility(value: boolean): "visible" | "none" {
+    return value ? "visible" : "none"
+}
+
+export function sourceLayerProp(value?: string | null): object {
+    if (!value) {
+        return {}
+    }
+    return {
+        "source-layer": value,
+    }
+}
