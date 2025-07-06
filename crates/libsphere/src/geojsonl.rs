@@ -8,9 +8,17 @@ use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::path::Path;
 
-use crate::geojson::Result;
-
 use super::Bounds;
+use crate::geojson::{GeojsonError, Result};
+
+// Read more about this delimiter
+// https://datatracker.ietf.org/doc/html/rfc8142
+const RS: u8 = b'\x1e';
+
+enum JSONStreamType {
+    NDJSON,
+    JSONSeq,
+}
 
 #[derive(Debug)]
 pub struct Geojsonl {
@@ -38,6 +46,37 @@ impl Bounds for Geojsonl {
 }
 
 impl Geojsonl {
+    fn get_stream_type(&self) -> Result<JSONStreamType> {
+        let mut file = File::open(self.path.clone())?;
+        let mut head = [0u8; 1];
+        let _ = file.read(&mut head);
+        match head[0] {
+            RS => Ok(JSONStreamType::JSONSeq),
+            _ => Ok(JSONStreamType::NDJSON),
+        }
+    }
+
+    fn geojsonseq_to_geojson<P: AsRef<Path>>(&self, path: P) -> Result<String> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let mut features = Vec::new();
+        for chunk in reader.split(RS) {
+            let chunk = chunk?;
+            if chunk.len() < 1 {
+                continue;
+            }
+            let feature = String::from_utf8(chunk).unwrap();
+            let feature: Value = serde_json::from_str(&feature).unwrap();
+            features.push(feature);
+        }
+        let feature_collection = serde_json::json!({
+            "type": "FeatureCollection",
+            "features": features,
+        });
+        let result = serde_json::to_string(&feature_collection);
+        Ok(result.unwrap())
+    }
+
     fn geojsonl_to_geojson<P: AsRef<Path>>(&self, path: P) -> Result<String> {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
@@ -60,7 +99,11 @@ impl Geojsonl {
     }
 
     pub fn to_geojson(&self) -> Result<String> {
-        self.geojsonl_to_geojson(self.path.as_str())
+        match self.get_stream_type() {
+            Ok(JSONStreamType::NDJSON) => self.geojsonl_to_geojson(self.path.as_str()),
+            Ok(JSONStreamType::JSONSeq) => self.geojsonseq_to_geojson(self.path.as_str()),
+            Err(_) => Err(GeojsonError::FS),
+        }
     }
 
     pub fn get_schema(&self) -> Result<HashMap<String, String>> {
@@ -100,18 +143,18 @@ mod tests {
 
     #[test]
     fn test_valid_jsonfile() {
-        // let geojson = Geojsonl {
-        //     path: "./assets/geojson-files/ne_10m_airports.geojson".to_string(),
-        // };
-        // assert!(geojson.read().is_ok());
+        let val = Geojsonl {
+            path: "./assets/geojson-files/osm-countries.geojsonl".to_string(),
+        };
+        assert!(val.to_geojson().is_ok());
     }
 
     #[test]
     fn test_valid_bounds() {
-        // let geojson = Geojsonl {
-        //     path: "./assets/geojson-files/ne_10m_airports.geojson".to_string(),
-        // };
-        // let bounds = geojson.get_bounds().unwrap_or_default();
-        // assert!(bounds == (-175.135635, -53.7814746058316, 179.19544202302, 78.246717));
+        let val = Geojsonl {
+            path: "./assets/geojson-files/osm-countries.geojsonl".to_string(),
+        };
+        let bounds = val.get_bounds().unwrap_or_default();
+        assert!(bounds == (-175.202642, -54.8432857, 179.0122737, 77.6192349));
     }
 }
