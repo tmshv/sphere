@@ -24,7 +24,9 @@ function createGetImageFunction({ srcField, valueField }: { srcField: string, va
     }
 }
 
-type SelectTuple<T> = [LayerType, T | null]
+type Type = "Point" | "LineString" | "Polygon" | "photo" | "layer"
+
+type SelectTuple<T> = [Type, T | null]
 
 const select = createSelector(
     [
@@ -47,7 +49,7 @@ const select = createSelector(
                     visible,
                     options: circle,
                 }
-                return [type, props] as SelectTuple<PointLayerProps>
+                return ["Point", props] as SelectTuple<PointLayerProps>
             }
             case LayerType.Line: {
                 const props: SphereLineStringLayerProps = {
@@ -58,7 +60,7 @@ const select = createSelector(
                     visible,
                     thick: false,
                 }
-                return [type, props] as SelectTuple<SphereLineStringLayerProps>
+                return ["LineString", props] as SelectTuple<SphereLineStringLayerProps>
             }
             case LayerType.Polygon: {
                 const props: SpherePolygonLayerProps = {
@@ -68,7 +70,7 @@ const select = createSelector(
                     color,
                     visible,
                 }
-                return [type, props] as SelectTuple<SpherePolygonLayerProps>
+                return ["Polygon", props] as SelectTuple<SpherePolygonLayerProps>
             }
             case LayerType.Extrusion: {
                 const h = extrusion?.height ?? 1
@@ -98,7 +100,7 @@ const select = createSelector(
                     },
                     ...sourceLayerProp(sourceLayer),
                 }
-                return [type, props] as SelectTuple<LayerProps>
+                return ["layer", props] as SelectTuple<LayerProps>
             }
             case LayerType.Photo: {
                 let vis = visible
@@ -121,7 +123,7 @@ const select = createSelector(
                         valueField,
                     }),
                 }
-                return [type, props] as SelectTuple<PhotoLayerProps & { visible: boolean }>
+                return ["photo", props] as SelectTuple<PhotoLayerProps & { visible: boolean }>
             }
             case LayerType.Heatmap: {
                 const intensity = heatmap?.intensity ?? 0
@@ -194,7 +196,7 @@ const select = createSelector(
                     },
                     ...sourceLayerProp(sourceLayer),
                 }
-                return [type, props] as SelectTuple<LayerProps>
+                return ["layer", props] as SelectTuple<LayerProps>
             }
             case LayerType.Raster: {
                 const props: LayerProps = {
@@ -206,7 +208,7 @@ const select = createSelector(
                     },
                     ...sourceLayerProp(sourceLayer),
                 }
-                return [type, props] as SelectTuple<LayerProps>
+                return ["layer", props] as SelectTuple<LayerProps>
             }
             default: {
                 assertUnreachable(type)
@@ -222,49 +224,35 @@ export type SphereLayerProps = {
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
     const [type, props] = useAppSelector(state => select(state, id))
     switch (type) {
-        case LayerType.Point: {
+        case "Point": {
             return (
                 <PointLayer
                     {...props as PointLayerProps}
                 />
             )
         }
-        case LayerType.Line: {
+        case "LineString": {
             return (
                 <SphereLineStringLayer
                     {...props as SphereLineStringLayerProps}
                 />
             )
         }
-        case LayerType.Polygon: {
+        case "Polygon": {
             return (
                 <SpherePolygonLayer
                     {...props as SpherePolygonLayerProps}
                 />
             )
         }
-        case LayerType.Extrusion: {
+        case "layer": {
             return (
                 <Layer
                     {...props as LayerProps}
                 />
             )
         }
-        case LayerType.Heatmap: {
-            return (
-                <Layer
-                    {...props as LayerProps}
-                />
-            )
-        }
-        case LayerType.Raster: {
-            return (
-                <Layer
-                    {...props as LayerProps}
-                />
-            )
-        }
-        case LayerType.Photo: {
+        case "photo": {
             const { visible, ...rest } = props as PhotoLayerProps & { visible: boolean }
             if (!visible) {
                 return null
