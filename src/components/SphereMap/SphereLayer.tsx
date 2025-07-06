@@ -24,7 +24,7 @@ function createGetImageFunction({ srcField, valueField }: { srcField: string, va
     }
 }
 
-type Type = "Point" | "LineString" | "Polygon" | "photo" | "layer"
+type Type = "Point" | "LineString" | "Polygon" | "photo" | "layer" | "unknown"
 
 type SelectTuple<T> = [Type, T | null]
 
@@ -36,7 +36,7 @@ const select = createSelector(
     (layer) => {
         const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap, photo, extrusion } = layer
         if (!sourceId || !type) {
-            return [type, null] as SelectTuple<object>
+            return ["unknown", null] as SelectTuple<object>
         }
 
         switch (type) {
@@ -262,6 +262,9 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
                     {...rest as PhotoLayerProps}
                 />
             )
+        }
+        case "unknown": {
+            return null
         }
         default: {
             assertUnreachable(type)
