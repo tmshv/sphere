@@ -221,10 +221,6 @@ export type SphereLayerProps = {
 
 export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
     const [type, props] = useAppSelector(state => select(state, id))
-    if (!type) {
-        return null
-    }
-
     switch (type) {
         case LayerType.Point: {
             return (
