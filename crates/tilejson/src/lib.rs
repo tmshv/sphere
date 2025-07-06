@@ -285,3 +285,138 @@ impl Tilejson3 {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tilejson3_creation() {
+        let tilejson = Tilejson3::new();
+        assert_eq!(tilejson.tilejson, "3.0.0");
+        assert_eq!(tilejson.tiles.len(), 0);
+        assert_eq!(tilejson.minzoom, 0);
+        assert_eq!(tilejson.maxzoom, 30);
+    }
+
+    #[test]
+    fn test_add_tile() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.add_tile("http://example.com/{z}/{x}/{y}.png".into());
+        assert_eq!(tilejson.tiles.len(), 1);
+        assert_eq!(tilejson.tiles[0], "http://example.com/{z}/{x}/{y}.png");
+    }
+
+    #[test]
+    fn test_add_layer() {
+        let mut tilejson = Tilejson3::new();
+        let layer = VectorLayer::new("layer_id".into(), json!({}));
+        tilejson.add_layer(layer);
+        assert_eq!(tilejson.vector_layers.len(), 1);
+        assert_eq!(tilejson.vector_layers[0].id, "layer_id");
+    }
+
+    #[test]
+    fn test_set_scheme() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_scheme(TileScheme::TMS);
+        assert_eq!(tilejson.scheme, TileScheme::TMS);
+    }
+
+    #[test]
+    fn test_set_name() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_name("My Tile Set".into());
+        assert!(tilejson.name.is_some());
+        assert_eq!(tilejson.name.unwrap(), "My Tile Set");
+    }
+
+    #[test]
+    fn test_set_description() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_description("A description of the tile set".into());
+        assert!(tilejson.description.is_some());
+        assert_eq!(
+            tilejson.description.unwrap(),
+            "A description of the tile set"
+        );
+    }
+
+    #[test]
+    fn test_set_version() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_version("1.2.3".into());
+        assert!(tilejson.version.is_some());
+        assert_eq!(tilejson.version.unwrap(), "1.2.3");
+    }
+
+    #[test]
+    fn test_set_attribution() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_attribution("Attribution text".into());
+        assert!(tilejson.attribution.is_some());
+        assert_eq!(tilejson.attribution.unwrap(), "Attribution text");
+    }
+
+    #[test]
+    fn test_set_template() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_template("Template string".into());
+        assert!(tilejson.template.is_some());
+        assert_eq!(tilejson.template.unwrap(), "Template string");
+    }
+
+    #[test]
+    fn test_set_legend() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_legend("Legend text".into());
+        assert!(tilejson.legend.is_some());
+        assert_eq!(tilejson.legend.unwrap(), "Legend text");
+    }
+
+    #[test]
+    fn test_set_center() {
+        let mut tilejson = Tilejson3::new();
+        let center = vec![0.0, 0.0, 5.0];
+        tilejson.set_center(center);
+        assert!(tilejson.center.is_some());
+        assert_eq!(tilejson.center.unwrap(), vec![0.0, 0.0, 5.0]);
+    }
+
+    #[test]
+    fn test_set_bounds() {
+        let mut tilejson = Tilejson3::new();
+        let bounds = vec![-180.0, -85.0, 180.0, 85.0];
+        tilejson.set_bounds(bounds);
+        assert!(tilejson.bounds.is_some());
+        assert_eq!(tilejson.bounds.unwrap(), vec![-180.0, -85.0, 180.0, 85.0]);
+    }
+
+    #[test]
+    fn test_set_zoom() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_zoom(5, 10);
+        assert_eq!(tilejson.minzoom, 5);
+        assert_eq!(tilejson.maxzoom, 10);
+    }
+
+    #[test]
+    fn test_set_zoom_invalid_range() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.set_zoom(10, 5);
+        assert_eq!(tilejson.minzoom, 0);
+        assert_eq!(tilejson.maxzoom, 30);
+    }
+
+    #[test]
+    fn test_as_json() {
+        let mut tilejson = Tilejson3::new();
+        tilejson.add_tile("http://example.com/{z}/{x}/{y}.png".into());
+        tilejson.set_name("My Tile Set".into());
+        let json_value = tilejson.as_json();
+
+        assert_eq!(json_value["tilejson"].as_str(), Some("3.0.0"));
+        assert_eq!(json_value["tiles"].as_array().unwrap().len(), 1);
+        assert_eq!(json_value["name"].as_str(), Some("My Tile Set"));
+    }
+}
