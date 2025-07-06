@@ -5,6 +5,7 @@ import { SourceType } from "@/types"
 import { assertUnreachable } from "@/lib"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "@/store"
+import { EMPTY_GEOJSON } from "@/const"
 
 const selectSource = createSelector(
     [(state: RootState, id: string) => state.source.items[id]],
@@ -25,7 +26,7 @@ const selectSource = createSelector(
                 return {
                     id,
                     type: "geojson",
-                    data: source.dataset,
+                    data: source.dataset ?? EMPTY_GEOJSON,
                 } as SourceProps
             }
             case SourceType.MVT: {
