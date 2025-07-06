@@ -8,6 +8,7 @@ rust-version = "1.57"
 
 [dependencies]
 tilejson = { path = "../tilejson" }
+mbtiles = { path = "../mbtiles" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 
