@@ -2337,6 +2337,7 @@ dependencies = [
  "serde_json",
  "sha256",
  "shapefile",
+ "tilejson",
  "url",
  "urlencoding",
 ]
@@ -4662,6 +4663,14 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.96",
+]
+
+[[package]]
+name = "tilejson"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

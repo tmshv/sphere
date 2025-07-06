@@ -1,4 +1,3 @@
-use super::tilejson;
 use flate2::read::{GzDecoder, ZlibDecoder};
 use rusqlite::{params, Connection, Error as RusqliteError};
 use serde::{Deserialize, Serialize};
@@ -6,8 +5,7 @@ use serde_json::{Error as SerdeError, Value};
 use std::io;
 use std::io::Read;
 use std::result;
-
-use super::tilejson::{TileScheme, MAXZOOM, MINZOOM};
+use tilejson::{TileScheme, Tilejson3, MAXZOOM, MINZOOM};
 
 fn merge(a: &mut Value, b: Value) {
     match (a, b) {
@@ -133,7 +131,7 @@ impl Mbtiles {
             json: None,
             mbtiles_type: None,
         };
-        let mut tilejson = tilejson::Tilejson3::new();
+        let mut tilejson = Tilejson3::new();
         let mut meta_rows = statement.query([])?;
         let mut minzoom: i32 = MINZOOM;
         let mut maxzoom: i32 = MAXZOOM;
