@@ -1,6 +1,7 @@
 import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
 import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
+import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 type FillPaint = FillLayerSpecification["paint"]
 type LinePaint = LineLayerSpecification["paint"]
@@ -50,6 +51,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                     visibility: visible ? "visible" : "none",
                 }}
                 filter={["==", ["geometry-type"], "Polygon"]}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={`${layerId}-outline-0`}
@@ -59,9 +61,10 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "Polygon"]}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={`${layerId}-outline-1`}
@@ -71,7 +74,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "Polygon"]}
             />
@@ -83,9 +86,10 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId,
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["in", "id", ""]}
+                {...sourceLayerProp(sourceLayer)}
             />
         </>
     )
