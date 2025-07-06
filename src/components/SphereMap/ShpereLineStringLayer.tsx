@@ -1,6 +1,7 @@
 import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
 import { LineLayerSpecification } from "maplibre-gl"
+import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 type LinePaint = LineLayerSpecification["paint"]
 
@@ -41,12 +42,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "LineString"]}
-                {...{
-                    "source-layer": sourceLayer,
-                }}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={layerId}
@@ -56,12 +55,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "LineString"]}
-                {...{
-                    "source-layer": sourceLayer,
-                }}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -71,12 +68,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["in", "id", ""]}
-                {...{
-                    "source-layer": sourceLayer,
-                }}
+                {...sourceLayerProp(sourceLayer)}
             />
         </>
     )
