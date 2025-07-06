@@ -1,6 +1,7 @@
 import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
 import { CircleLayerSpecification } from "maplibre-gl"
+import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 type CirclePaint = CircleLayerSpecification["paint"]
 
@@ -41,10 +42,10 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                 type="circle"
                 paint={circle}
                 layout={{
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "Point"]}
-                source-layer={sourceLayer ?? ""}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -52,10 +53,10 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                 type={"circle"}
                 paint={selected}
                 layout={{
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["in", "id", ""]}
-                source-layer={sourceLayer ?? ""}
+                {...sourceLayerProp(sourceLayer)}
             />
         </>
     )

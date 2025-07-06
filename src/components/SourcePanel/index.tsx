@@ -1,21 +1,24 @@
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable } from "@tabler/icons"
+import { useAppDispatch } from "@/store/hooks"
+import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable, IconReload } from "@tabler/icons"
 import { useMantineTheme } from "@mantine/core"
-import { actions } from "@/store"
+import { actions, selectors } from "@/store"
 import { ActionBar } from "@/ui/ActionBar"
 import { SourceMetadata, SourceType } from "@/types"
+import { createSelector } from "@reduxjs/toolkit"
+import { useSelector } from "react-redux"
 
-export const SourcePanel: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const drawing = useAppSelector(state => !!state.draw.sourceId)
-    const source = useAppSelector(state => {
-        const id = state.selection.sourceId
+const reloadAvailable = new Set([
+    SourceType.Geojson,
+])
+
+const selector = createSelector([selectors.selection.currentSourceId, selectors.source.items],
+    (id, items) => {
         if (!id) {
             return null
         }
 
-        const source = state.source.items[id]
+        const source = items[id]
         if (!source) {
             return null
         }
@@ -34,8 +37,15 @@ export const SourcePanel: React.FC = () => {
             location: source.location,
             editable: source.editable,
             meta,
+            reloadDisabled: !reloadAvailable.has(source.type),
         }
-    })
+    },
+)
+
+export const SourcePanel: React.FC = () => {
+    const dispatch = useAppDispatch()
+    const drawing = useSelector(selectors.draw.isDrawing)
+    const source = useSelector(selector)
     const theme = useMantineTheme()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
@@ -101,6 +111,10 @@ export const SourcePanel: React.FC = () => {
                             }
                             break
                         }
+                        case "reload": {
+                            dispatch(actions.source.reload(source.id))
+                            break
+                        }
                         default: {
                             break
                         }
@@ -134,6 +148,12 @@ export const SourcePanel: React.FC = () => {
                         name: "zoom",
                         label: "Zoom to source",
                         icon: IconCrosshair,
+                    },
+                    {
+                        name: "reload",
+                        label: "Reload",
+                        icon: IconReload,
+                        disabled: source.reloadDisabled,
                     },
                 ]}
             />

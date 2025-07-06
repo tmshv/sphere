@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
 import { IconLayoutSidebar, IconLiveView, IconMountain, IconMountainOff, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons"
 import { actions } from "@/store"
-import { selectChangeProjectionAvailable, selectProjection } from "@/store/projection"
+import { selectors } from "@/store"
 import { selectShowLeftSidebar, selectVersion } from "@/store/app"
 import { selectIsShowTerrain } from "@/store/terrain"
 import { selectErrorMessage } from "@/store/error"
@@ -92,8 +92,8 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const sidebar = useAppSelector(selectShowLeftSidebar)
     const version = useAppSelector(selectVersion)
     const sources = useAppSelector(selectSourcesAmount)
-    const projection = useAppSelector(selectProjection)
-    const changeProjection = useAppSelector(selectChangeProjectionAvailable)
+    const projection = useAppSelector(selectors.projection.projection)
+    const changeProjection = useAppSelector(selectors.projection.changeProjectionAvailable)
     const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
     const isGlobe = projection === "globe"

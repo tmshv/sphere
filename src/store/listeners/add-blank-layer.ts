@@ -3,7 +3,7 @@ import { SourceType } from "@/types"
 import { nextId } from "@/lib/nextId"
 import { nextColor } from "@/lib/color-scheme"
 import { actions } from "../actions"
-import { RootState } from ".."
+import type { RootState } from ".."
 import predictLayerType from "@/lib/predict-layer-type"
 import { createSourceMetadataFromFeatureCollection } from "@/lib/source-metadata"
 

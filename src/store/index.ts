@@ -13,6 +13,7 @@ import { listener as mapListener } from "./map"
 import error from "./error"
 import * as listeners from "./listeners"
 export { actions } from "./actions"
+export { selectors } from "./selectors"
 
 export const store = configureStore({
     reducer: {
@@ -32,15 +33,15 @@ export const store = configureStore({
         return getDefaultMiddleWare()
             .prepend(mapListener.middleware)
             .prepend(listeners.addBlankLayer.middleware)
-            .prepend(listeners.forceResizeMapMiddleware.middleware)
-            .prepend(listeners.clearSelectionMiddleware.middleware)
-            .prepend(listeners.selectFeaturesMiddleware.middleware)
-            .prepend(listeners.zoomToMiddleware.middleware)
-            .prepend(listeners.addSourceMiddleware.middleware)
-            .prepend(listeners.duplicateLayerMiddleware.middleware)
-            .prepend(listeners.failMiddleware.middleware)
-            .prepend(listeners.clearErrorMiddleware.middleware)
-            .prepend(listeners.mapInteractiveMiddleware.middleware)
+            .prepend(listeners.forceResizeMap.middleware)
+            .prepend(listeners.clearSelection.middleware)
+            .prepend(listeners.selectFeatures.middleware)
+            .prepend(listeners.zoomTo.middleware)
+            .prepend(listeners.addSource.middleware)
+            .prepend(listeners.duplicateLayer.middleware)
+            .prepend(listeners.fail.middleware)
+            .prepend(listeners.clearError.middleware)
+            .prepend(listeners.mapInteractive.middleware)
     },
 })
 

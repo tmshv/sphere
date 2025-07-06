@@ -1,7 +1,7 @@
 import { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppSelector } from "@/store/hooks"
-import { selectProjection } from "@/store/projection"
+import { selectors } from "@/store"
 import type { Projection } from "@/types"
 
 export type ProjectionProps = {
@@ -9,7 +9,7 @@ export type ProjectionProps = {
 }
 
 export default function useProjection(ref: MapRef | undefined, fallback: Projection) {
-    const projection = useAppSelector(selectProjection)
+    const projection = useAppSelector(selectors.projection.projection)
 
     useEffect(() => {
         const map = ref?.getMap()

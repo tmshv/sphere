@@ -2,7 +2,6 @@ import { listen } from "@tauri-apps/api/event"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { getVersion } from "@tauri-apps/api/app"
 import { actions, store } from "@/store"
-import { sleep } from "@/lib/time"
 
 export async function handleHotkey() {
     // await register('CommandOrControl+Shift+C', () => {
@@ -57,21 +56,4 @@ export async function handleDragDrop() {
     await listen<DragPayload>(e, (event) => {
         store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
-}
-
-export async function waitEvent<T>(event: string): Promise<T> {
-    let wait = true
-    let payload: T | undefined = undefined
-    const unlisten = await listen<T>(event, e => {
-        wait = false
-        payload = e.payload
-    })
-
-    while (wait) {
-        await sleep(0)
-    }
-
-    unlisten()
-
-    return payload as T
 }

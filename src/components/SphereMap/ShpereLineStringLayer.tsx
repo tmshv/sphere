@@ -1,18 +1,20 @@
 import { Layer } from "react-map-gl/maplibre"
 import { useMemo } from "react"
 import { LineLayerSpecification } from "maplibre-gl"
+import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 type LinePaint = LineLayerSpecification["paint"]
 
 export type SphereLineStringLayerProps = {
     layerId: string
     sourceId: string
+    sourceLayer?: string
     color: string
     visible: boolean
     thick: boolean
 }
 
-export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ layerId, sourceId, color, visible, thick }) => {
+export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible, thick }) => {
     const [outline, line, selected] = useMemo(() => {
         const outline: LinePaint = {
             "line-color": "#fff",
@@ -40,9 +42,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "LineString"]}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={layerId}
@@ -52,9 +55,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["==", ["geometry-type"], "LineString"]}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={`${layerId}-selected`}
@@ -64,9 +68,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ la
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["in", "id", ""]}
+                {...sourceLayerProp(sourceLayer)}
             />
         </>
     )

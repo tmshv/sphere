@@ -52,11 +52,17 @@ export const appSlice = createSlice({
             state.showRightSidebar = false
         },
     },
+    selectors: {
+        isZen: state => state.zenMode,
+        isDark: state => state.darkTheme,
+    },
 })
 
+export const actions = {
+    ...appSlice.actions,
+}
+
 // Other code such as selectors can use the imported `RootState` type
-export const selectIsZen = (state: RootState) => state.app.zenMode
-export const selectIsDark = (state: RootState) => state.app.darkTheme
 export const selectShowAttribution = (state: RootState) => state.app.showAttribution
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar
