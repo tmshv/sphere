@@ -1,12 +1,16 @@
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
 import { useAppDispatch } from "@/store/hooks"
-import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable } from "@tabler/icons"
+import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable, IconReload } from "@tabler/icons"
 import { useMantineTheme } from "@mantine/core"
 import { actions, selectors } from "@/store"
 import { ActionBar } from "@/ui/ActionBar"
 import { SourceMetadata, SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
 import { useSelector } from "react-redux"
+
+const reloadAvailable = new Set([
+    SourceType.Geojson,
+])
 
 const selector = createSelector([selectors.selection.currentSourceId, selectors.source.items],
     (id, items) => {
@@ -33,6 +37,7 @@ const selector = createSelector([selectors.selection.currentSourceId, selectors.
             location: source.location,
             editable: source.editable,
             meta,
+            reloadDisabled: !reloadAvailable.has(source.type),
         }
     },
 )
@@ -106,6 +111,10 @@ export const SourcePanel: React.FC = () => {
                             }
                             break
                         }
+                        case "reload": {
+                            dispatch(actions.source.reload(source.id))
+                            break
+                        }
                         default: {
                             break
                         }
@@ -139,6 +148,12 @@ export const SourcePanel: React.FC = () => {
                         name: "zoom",
                         label: "Zoom to source",
                         icon: IconCrosshair,
+                    },
+                    {
+                        name: "reload",
+                        label: "Reload",
+                        icon: IconReload,
+                        disabled: source.reloadDisabled,
                     },
                 ]}
             />
