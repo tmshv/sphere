@@ -5,16 +5,24 @@ import { assertUnreachable } from "@/lib"
 import { PhotoLayer, PhotoLayerProps } from "@/components/PhotoLayer"
 import { SphereLineStringLayer, SphereLineStringLayerProps } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer, SpherePolygonLayerProps } from "./SpherePolygonLayer"
-import ExtrusionLayer from "./extrustion-layer"
 import { createSelector } from "@reduxjs/toolkit"
 import type { GetImageFunction } from "../PhotoLayer/types"
 import type { RootState } from "@/store"
 import type { PointLayerProps } from "./PointLayer"
-import type { ExtrusionLayerProps } from "./extrustion-layer"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
+import { DataDrivenPropertyValueSpecification } from "maplibre-gl"
 
 function v(visible: boolean): "visible" | "none" {
     return visible ? "visible" : "none"
+}
+
+function p(sourceLayer?: string): object {
+    if (!sourceLayer) {
+        return {}
+    }
+    return {
+        "source-layer": sourceLayer,
+    }
 }
 
 function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
@@ -76,26 +84,33 @@ const select = createSelector(
             }
             case LayerType.Extrusion: {
                 const h = extrusion?.height ?? 1
-                let height: ExtrusionLayerProps["height"] = extrusion?.height ?? h
+                let height: DataDrivenPropertyValueSpecification<number> = extrusion?.height ?? h
                 if (extrusion?.heightField) {
                     height = ["*", ["to-number", [ "get", extrusion.heightField ]], h]
                 }
                 const b = extrusion?.base ?? 1
-                let base: ExtrusionLayerProps["base"] = extrusion?.base ?? b
+                let base: DataDrivenPropertyValueSpecification<number> = extrusion?.base ?? b
                 if (extrusion?.baseField) {
                     base = ["*", ["to-number", [ "get", extrusion.baseField ]], b]
                 }
-                const props: ExtrusionLayerProps = {
-                    layerId,
-                    sourceId,
-                    sourceLayer,
-                    visible,
-                    opacity: 1,
-                    color,
-                    base,
-                    height,
+                const opacity = 1
+                const props: LayerProps = {
+                    id: layerId,
+                    source: sourceId,
+                    type: "fill-extrusion",
+                    layout: {
+                        visibility: v(visible),
+                    },
+                    filter: ["==", ["geometry-type"], "Polygon"],
+                    paint: {
+                        "fill-extrusion-color": color,
+                        "fill-extrusion-opacity": opacity,
+                        "fill-extrusion-height": height,
+                        "fill-extrusion-base": base,
+                    },
+                    ...p(sourceLayer),
                 }
-                return [type, props] as SelectTuple<ExtrusionLayerProps>
+                return [type, props] as SelectTuple<LayerProps>
             }
             case LayerType.Photo: {
                 let vis = visible
@@ -246,8 +261,8 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
         }
         case LayerType.Extrusion: {
             return (
-                <ExtrusionLayer
-                    {...props as ExtrusionLayerProps}
+                <Layer
+                    {...props as LayerProps}
                 />
             )
         }
