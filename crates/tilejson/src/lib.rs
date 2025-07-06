@@ -51,7 +51,7 @@ impl VectorLayer {
 pub struct Tilejson3 {
     // A semver.org style version number as a string.
     // Describes the version of the TileJSON spec that is implemented by this JSON object.
-    pub tilejson: String,
+    tilejson: String,
 
     // An array of tile endpoints.
     // {z}, {x} and {y}, if present, are replaced with the corresponding integers.
@@ -75,7 +75,7 @@ pub struct Tilejson3 {
     // Contains an attribution to be displayed when the map is shown to a user.
     // Implementations MAY decide to treat this as HTML or literal text.
     // For security reasons, make absolutely sure that this content can't be abused as a vector for XSS or beacon tracking.
-    pub attribution: Option<String>,
+    attribution: Option<String>,
 
     // The maximum extent of available map tiles.
     // Bounds MUST define an area covered by all zoom levels.
@@ -85,14 +85,14 @@ pub struct Tilejson3 {
     // Bounds MUST NOT "wrap" around the ante-meridian.
     // If bounds are not present, the default value MAY assume the set of tiles is globally distributed.
     // Default: [ -180, -85.05112877980659, 180, 85.0511287798066 ] (xyz-compliant tile bounds)
-    pub bounds: Option<Vec<f32>>,
+    bounds: Option<Vec<f32>>,
 
     // The first value is the longitude, the second is latitude (both in WGS:84 values), the third value is the zoom level as an integer.
     // Longitude and latitude MUST be within the specified bounds.
     // The zoom level MUST be between minzoom and maxzoom.
     // Implementations MAY use this center value to set the default location.
     // If the value is null, implementations MAY use their own algorithm for determining a default location.
-    pub center: Option<Vec<f32>>,
+    center: Option<Vec<f32>>,
 
     // TODO Not implemented
     // An array of data files in GeoJSON format.
@@ -106,7 +106,7 @@ pub struct Tilejson3 {
     // A text description of the set of tiles.
     // The description can contain any valid unicode character as described by the JSON specification RFC 8259
     // (https://tools.ietf.org/html/rfc8259).
-    pub description: Option<String>,
+    description: Option<String>,
 
     // TODO Not implemented
     // An integer specifying the zoom level from which to generate overzoomed tiles.
@@ -134,34 +134,34 @@ pub struct Tilejson3 {
     // Contains a legend to be displayed with the map.
     // Implementations MAY decide to treat this as HTML or literal text.
     // For security reasons, make absolutely sure that this field can't be abused as a vector for XSS or beacon tracking.
-    pub legend: Option<String>,
+    legend: Option<String>,
 
     // TODO Add checks according to this spec
     // An integer specifying the maximum zoom level.
     // MUST be in range: 0 <= minzoom <= maxzoom <= 30.
     // A client or server MAY request tiles outside of the zoom range,
     // but the availability of these tiles is dependent on how the the tile server or renderer handles the request (such as overzooming tiles).
-    pub maxzoom: i32,
+    maxzoom: i32,
 
     // TODO Add checks according to this spec
     // An integer specifying the minimum zoom level.
     // MUST be in range: 0 <= minzoom <= maxzoom <= 30.
-    pub minzoom: i32,
+    minzoom: i32,
 
     // A name describing the set of tiles.
     // The name can contain any legal character.
     // Implementations SHOULD NOT interpret the name as HTML.
-    pub name: Option<String>,
+    name: Option<String>,
 
     // Either "xyz" or "tms".
     // Influences the y direction of the tile coordinates.
     // The global-mercator (aka Spherical Mercator) profile is assumed.
-    pub scheme: TileScheme,
+    scheme: TileScheme,
 
     // Contains a mustache template to be used to format data from grids for interaction.
     // See https://github.com/mapbox/utfgrid-spec/tree/master/1.2 for the interactivity specification.
     // Example: "{{#__teaser__}}{{NAME}}{{/__teaser__}}"
-    pub template: Option<String>,
+    template: Option<String>,
 
     // A semver.org style version number of the tiles.
     // When changes across tiles are introduced the minor version MUST change.
@@ -170,7 +170,7 @@ pub struct Tilejson3 {
     // Changes to the patch level MUST only have changes to tiles that are contained within one tile.
     // When tiles change significantly, such as updating a vector tile layer name, the major version MUST be increased.
     // Implementations MUST NOT use tiles with different major versions.
-    pub version: Option<String>,
+    version: Option<String>,
 }
 
 impl Tilejson3 {
