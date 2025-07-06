@@ -2,7 +2,7 @@ import type { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions, selectors } from "@/store"
-import { queryFeaturesInPoint } from "@/maplibre"
+import { queryFeaturesInPoint } from "@/lib/maplibre"
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
