@@ -20,7 +20,7 @@ export class SourceReader {
             })
             return this.parse(res)
         } catch (error) {
-            logger.error("Failed to read shape as geojson", error)
+            logger.error("Failed to read geojson", error)
             return null
         }
     }
