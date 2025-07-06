@@ -36,62 +36,29 @@ export const sourceSlice = createSlice({
             state.allIds = []
             state.lastAdded = undefined
         },
-        // addFeatureCollection: (state, action: PayloadAction<{ id: Id, name: string, location?: string, dataset: GeoJSON.FeatureCollection }>) => {
-        //     const { id: sourceId, name, location, dataset } = action.payload
-        //     state.items[sourceId] = {
-        //         id: sourceId,
-        //         type: SourceType.FeatureCollection,
-        //         name,
-        //         location: location ?? "<unknown>",
-        //         dataset,
-        //         fractionIndex: 0,
-        //         // status: "init",
-        //         pending: false,
-        //         editable: true,
-        //     }
-        //     state.allIds.push(sourceId)
-        //     state.lastAdded = sourceId
-        // },
         addFeatureCollection: (state, action: PayloadAction<{
             id: Id,
             name: string,
-            // dataset: GeoJSON.FeatureCollection,
-            location?: string,
+            dataset: GeoJSON.FeatureCollection,
         }>) => {
-            const { id: sourceId, name, location } = action.payload
+            const { id: sourceId, name, dataset } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
                 type: SourceType.FeatureCollection,
                 name,
-                location,
+                dataset,
                 fractionIndex: NEW_SOURCE_INDEX,
-                pending: true,
+                pending: false,
                 editable: true,
+                meta: {
+                    pointsCount: 0,
+                    linesCount: 0,
+                    polygonsCount: 0,
+                },
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
-        // createFeatureCollection: (state, action: PayloadAction<{
-        //     id: Id,
-        //     name: string,
-        //     location: string,
-        //     dataset: GeoJSON.FeatureCollection,
-        // }>) => {
-        //     const { id: sourceId, name, location, dataset } = action.payload
-        //     state.items[sourceId] = {
-        //         id: sourceId,
-        //         type: SourceType.FeatureCollection,
-        //         name,
-        //         location,
-        //         dataset,
-        //         fractionIndex: 0,
-        //         // status: "init",
-        //         pending: false,
-        //         editable: true,
-        //     }
-        //     state.allIds.push(sourceId)
-        //     state.lastAdded = sourceId
-        // },
         setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection, meta: SourceMetadata }>) => {
             const { id, dataset, meta } = action.payload
             const source = state.items[id] as FeatureCollecionSource
