@@ -1,4 +1,4 @@
-import { MapRef } from "react-map-gl/maplibre"
+import { MapGeoJSONFeature, MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { actions } from "@/store"
@@ -42,8 +42,23 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
                 dispatch(actions.properties.reset())
                 return
             }
+            // Collect values from all selected features
+            // Drop duplicates and undefined ids
+            const seen = new Set<MapGeoJSONFeature["id"]>()
+            const values = event.features
+                .reduce((acc, f) => {
+                    if (f.id === undefined) {
+                        return [...acc, f]
+                    }
+                    if (seen.has(f.id)) {
+                        return acc
+                    }
+                    seen.add(f.id)
+                    return [...acc, f]
+                }, [] as MapGeoJSONFeature[])
+                .map(f => f.properties)
             dispatch(actions.properties.set({
-                values: event.features.map(f => f.properties),
+                values,
             }))
         })
         const leave = map.on("mouseout", layerId, () => {
