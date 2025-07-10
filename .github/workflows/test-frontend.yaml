@@ -1,0 +1,24 @@
+name: "test-frontend"
+on:
+    pull_request:
+        paths:
+            - "src/**"
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: setup node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 22
+
+            - name: install npm dependencies
+              run: npm ci
+
+            - name: run npm tests and lint
+              run: |
+                  npm test
+                  npm run lint
