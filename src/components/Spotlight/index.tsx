@@ -141,6 +141,13 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     },
                     icon: <IconZoomReset size={18} />,
                 },
+                {
+                    title: "Toggle Show Tile Boundaries",
+                    description: "Toggle visibility of tile boundaries",
+                    onTrigger: async () => {
+                        dispatch(actions.tileBoundaries.toggle())
+                    },
+                },
             ]}
             searchIcon={<IconSearch size={18} />}
             searchPlaceholder="Search..."

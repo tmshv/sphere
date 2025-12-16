@@ -6,6 +6,7 @@ import { drawSlice as draw } from "./draw"
 import { appSlice as app } from "./app"
 import { sourceSlice as source } from "./source"
 import { createSelector } from "@reduxjs/toolkit"
+import { tileBoundariesSlice } from "./tile-boundaries"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -28,6 +29,10 @@ export const selectMapStyle = (state: RootState) => {
     return state.mapStyle.value
 }
 
+const viewTileBoundaries = (state: RootState) => {
+    return state.tileBoundaries.value
+}
+
 const visibleIds = createSelector([layer.selectors.items, layer.selectors.allIds],
     (items, allIds) => allIds.filter(id => items[id].visible),
 )
@@ -48,4 +53,7 @@ export const selectors = {
         visibleIds,
     },
     selection: selection.selectors,
+    tileBoundaries: {
+        view: viewTileBoundaries,
+    }
 }

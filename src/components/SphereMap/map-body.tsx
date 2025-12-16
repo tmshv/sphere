@@ -15,6 +15,7 @@ import { SphereSource } from "./SphereSource"
 import { SphereLayer } from "./SphereLayer"
 import Draw from "./Draw"
 import { createSelector } from "@reduxjs/toolkit"
+import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
 
 const selectLayers = createSelector([selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
     (drawing, items, allIds) => {
@@ -52,6 +53,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     usePointerHover(mapId)
     useFeatureSelect(map)
     useFeatureProperties(map, 50)
+    useTileBoundaries(map)
 
     const drawing = useAppSelector(selectors.draw.isDrawing)
     const showAttribution = useAppSelector(selectShowAttribution)
