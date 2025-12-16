@@ -56,7 +56,7 @@ export const showProperties = createAsyncThunk(
         })
 
         const status = await waitEvent("properties-init")
-        logger.info("Got properties-init", status)
+        logger.info({ status }, "Got properties-init")
 
         emit("properties-set", { properties })
     },

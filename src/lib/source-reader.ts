@@ -20,7 +20,7 @@ export class SourceReader {
             })
             return this.parse(res)
         } catch (error) {
-            logger.error("Failed to read geojson", error)
+            logger.error("Failed to read geojson %s", error)
             return null
         }
     }
@@ -32,7 +32,7 @@ export class SourceReader {
             })
             return bounds
         } catch (error) {
-            logger.error("Failed to get bounds", error)
+            logger.error("Failed to get bounds %s", error)
             return null
         }
     }
@@ -43,7 +43,7 @@ export class SourceReader {
                 id: this.getId(),
             })
         } catch (error) {
-            logger.error("Failed to get schema", error)
+            logger.error("Failed to get schema %s", error)
             return null
         }
     }

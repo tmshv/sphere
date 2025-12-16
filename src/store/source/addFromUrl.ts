@@ -25,7 +25,7 @@ const action = createAsyncThunk(
             const s = await invoke<NewSource>("source_add", {
                 sourceUrl: url,
             })
-            logger.info("Got url source", s)
+            logger.info("Got url source %s", s)
             const { id, location } = s
             let { name } = s
 
@@ -34,7 +34,7 @@ const action = createAsyncThunk(
                     const r = new MbtilesReader(location)
                     const tilejson = await r.getTileJson()
                     if (tilejson) {
-                        logger.info("Got tilejson", tilejson)
+                        logger.info({ tilejson }, "Got tilejson")
                         if (tilejson.name) {
                             name = tilejson.name
                         }
@@ -82,7 +82,7 @@ const action = createAsyncThunk(
                 }
             }
         } catch (error) {
-            logger.error("Failed to add Source", error)
+            logger.error("Failed to add Source %s", error)
         }
     },
 )

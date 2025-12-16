@@ -28,7 +28,7 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             logoPosition={"bottom-right"}
             attributionControl={false}
             onError={(error) => {
-                logger.error("Got maplibre error", error)
+                logger.error("Got maplibre error %s" , error)
             }}
         >
             <Source
