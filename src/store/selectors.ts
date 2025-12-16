@@ -55,5 +55,5 @@ export const selectors = {
     selection: selection.selectors,
     tileBoundaries: {
         show: showTileBoundaries,
-    }
+    },
 }
