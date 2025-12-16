@@ -25,7 +25,7 @@ listener.startListening({
         const state = listenerApi.getOriginalState() as RootState
         const source = state.source.items[sourceId]
         if (!source) {
-            logger.info("No source", sourceId)
+            logger.info("No source %s", sourceId)
             return
         }
 
@@ -45,13 +45,13 @@ listener.startListening({
                 const reader = new SourceReader(source.location)
                 const bounds = await reader.getBounds()
                 if (bounds) {
-                    logger.info("Got bbox", bounds)
+                    logger.info({ bounds }, "Got bbox")
                     listenerApi.dispatch(actions.map.fitBounds({
                         mapId,
                         bounds,
                     }))
                 } else {
-                    logger.info("No bounds", bounds)
+                    logger.info("No bounds")
                 }
                 break
             }

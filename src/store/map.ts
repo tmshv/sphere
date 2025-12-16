@@ -85,6 +85,6 @@ listener.startListening({
             bbox: map.getBounds().toArray(),
         }
 
-        logger.info("viewport", viewport)
+        logger.info({viewport}, "viewport")
     },
 })

@@ -6,7 +6,7 @@ const listener = createListenerMiddleware()
 listener.startListening({
     actionCreator: actions.source.addFromUrl.fulfilled,
     effect: async action => {
-        logger.info("Source was added", action)
+        logger.info({ action }, "Source was added")
         // const { sourceId, name, meta } = action.payload
         //
         // const layerType = predictLayerType(meta)
