@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit"
 import projection from "./projection"
+import tileBoundaries from "./tile-boundaries"
 import mapStyle from "./mapStyle"
 import sky from "./sky"
 import terrain from "./terrain"
@@ -21,6 +22,7 @@ export const store = configureStore({
         draw,
         error,
         projection,
+        tileBoundaries,
         mapStyle,
         sky,
         terrain,

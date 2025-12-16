@@ -1,4 +1,5 @@
 import { projectionSlice } from "./projection"
+import { tileBoundariesSlice } from "./tile-boundaries"
 import { mapStyleSlice } from "./mapStyle"
 import { skySlice } from "./sky"
 import { terrainSlice } from "./terrain"
@@ -19,6 +20,7 @@ export const actions = {
     draw: drawActions,
     error: errorActions,
     projection: projectionSlice.actions,
+    tileBoundaries: tileBoundariesSlice.actions,
     mapStyle: mapStyleSlice.actions,
     sky: skySlice.actions,
     terrain: terrainSlice.actions,
