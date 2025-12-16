@@ -4,7 +4,7 @@ import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store"
 
 export default function useTileBoundaries(ref: MapRef | undefined) {
-    const val = useAppSelector(selectors.tileBoundaries.view)
+    const val = useAppSelector(selectors.tileBoundaries.show)
 
     useEffect(() => {
         const map = ref?.getMap()

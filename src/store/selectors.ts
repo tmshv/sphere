@@ -29,7 +29,7 @@ export const selectMapStyle = (state: RootState) => {
     return state.mapStyle.value
 }
 
-const viewTileBoundaries = (state: RootState) => {
+const showTileBoundaries = (state: RootState) => {
     return state.tileBoundaries.value
 }
 
@@ -54,6 +54,6 @@ export const selectors = {
     },
     selection: selection.selectors,
     tileBoundaries: {
-        view: viewTileBoundaries,
+        show: showTileBoundaries,
     }
 }
