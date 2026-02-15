@@ -12,6 +12,7 @@ import { selectors } from "@/store"
 import { selectShowLeftSidebar, selectVersion } from "@/store/app"
 import { selectIsShowTerrain } from "@/store/terrain"
 import { selectErrorMessage } from "@/store/error"
+import { MAP_ID } from "@/const"
 import type { ActionIconProps } from "@mantine/core"
 
 const useStyle = createStyles(theme => ({
@@ -144,13 +145,13 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 <div className={s.s} />
 
                 <ActionIcon onClick={() => {
-                    dispatch(actions.map.printViewport({ mapId: "spheremap" }))
+                    dispatch(actions.map.printViewport({ mapId: MAP_ID }))
                 }}>
                     <IconLiveView size={16} />
                 </ActionIcon>
 
                 <ActionIcon onClick={() => {
-                    dispatch(actions.map.resetNorth({ mapId: "spheremap" }))
+                    dispatch(actions.map.resetNorth({ mapId: MAP_ID }))
                 }}>
                     <IconNorthStar size={16} />
                 </ActionIcon>

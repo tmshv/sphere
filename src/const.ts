@@ -1,5 +1,6 @@
 import type { StyleSpecification } from "maplibre-gl"
 
+export const MAP_ID = "spheremap"
 export const STYLE_VECTOR = "mapbox://styles/mapbox/streets-v9"
 export const STYLE_SATELLITE = "mapbox://styles/mapbox/satellite-streets-v12"
 export const STYLE_OSM: StyleSpecification = {
