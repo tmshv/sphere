@@ -1,5 +1,6 @@
 import { ClustersOptions, useClusters } from "@/hooks/useClusters"
 import { useMemo } from "react"
+import { MAP_ID } from "@/const"
 
 export type RenderPhotoFunction = (feature: GeoJSON.Feature<GeoJSON.Point>, isCluster: boolean) => React.ReactNode
 export type MapPropertiesFunction = (properties: GeoJSON.GeoJsonProperties) => { src: string, value: number }
@@ -30,7 +31,7 @@ export const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapPro
             }
         },
     }), [radius, mapProperties])
-    const { clusters } = useClusters<GeojsonProps, GeojsonProps>("spheremap", data, "moveend", options)
+    const { clusters } = useClusters<GeojsonProps, GeojsonProps>(MAP_ID, data, "moveend", options)
 
     return (
         <>

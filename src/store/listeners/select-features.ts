@@ -1,5 +1,6 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { getMap } from "@/map"
+import { MAP_ID } from "@/const"
 import { actions } from "../actions"
 import type { RootState } from ".."
 
@@ -7,7 +8,7 @@ const listener = createListenerMiddleware()
 listener.startListening({
     actionCreator: actions.selection.selectOne,
     effect: async (action, listenerApi) => {
-        const map = getMap("spheremap")
+        const map = getMap(MAP_ID)
         if (!map) {
             return
         }

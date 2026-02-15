@@ -9,12 +9,13 @@ import { assertUnreachable } from "@/lib"
 import { MbtilesReader } from "@/lib/mbtiles"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
+import { MAP_ID } from "@/const"
 
 const listener = createListenerMiddleware()
 listener.startListening({
     actionCreator: actions.source.zoomTo,
     effect: async (action, listenerApi) => {
-        const mapId = "spheremap"
+        const mapId = MAP_ID
         const map = getMap(mapId)
         if (!map) {
             logger.info("No map")

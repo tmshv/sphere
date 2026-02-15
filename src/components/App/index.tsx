@@ -8,6 +8,7 @@ import { Spotlight } from "../Spotlight"
 import { LeftSidebar } from "../LeftSidebar"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectShowLeftSidebar } from "@/store/app"
+import { MAP_ID } from "@/const"
 import { Overlay } from "@/ui/Overlay"
 import { Sidebar } from "@/ui/Sidebar"
 import { actions, selectors } from "@/store"
@@ -15,7 +16,7 @@ import { WorkingIndicator } from "../WorkingIndicator"
 import PropertiesPopup from "../PropertiesPopup"
 
 export default function App() {
-    const id = "spheremap"
+    const id = MAP_ID
     const dispatch = useAppDispatch()
     const zen = useAppSelector(selectors.app.isZen)
     const left = useAppSelector(selectShowLeftSidebar)

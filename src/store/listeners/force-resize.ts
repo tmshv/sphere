@@ -3,6 +3,7 @@ import { selectionSlice } from "../selection"
 import { actions } from "../app"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { getMap } from "@/map"
+import { MAP_ID } from "@/const"
 
 const listener = createListenerMiddleware()
 listener.startListening({
@@ -15,7 +16,7 @@ listener.startListening({
         selectionSlice.actions.reset, // I'm not sure about this
     ),
     effect: async (_, listenerApi) => {
-        const map = getMap("spheremap")
+        const map = getMap(MAP_ID)
         if (!map) {
             return
         }
