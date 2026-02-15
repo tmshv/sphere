@@ -5,6 +5,8 @@ on:
             - "src/**"
             - "package.json"
             - "tsconfig.json"
+            - "vite.config.ts"
+            - "package-lock.json"
 
 jobs:
     test:
@@ -61,6 +63,9 @@ jobs:
             # in vite.config.ts prevents this by using native class fields instead.
             # This step catches regressions from config changes, Vite/esbuild upgrades,
             # or new dependencies that might reintroduce the problem.
+            # This check can be removed once maplibre-gl no longer creates Web Workers
+            # from inline blobs, or once Vite drops esbuild pre-bundling entirely.
+            # See https://github.com/tmshv/sphere/issues/102
             - name: Check for __publicField regression
               run: |
                   if grep -r '__publicField' dist/assets/*.js; then
