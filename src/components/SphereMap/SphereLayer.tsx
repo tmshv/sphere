@@ -14,12 +14,12 @@ import { DataDrivenPropertyValueSpecification } from "maplibre-gl"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
-    return propetries => {
-        const src = propetries![srcField] as string
+    return properties => {
+        const src = properties![srcField] as string
 
         return {
             src,
-            value: propetries![valueField] ?? 0,
+            value: properties![valueField] ?? 0,
         }
     }
 }
