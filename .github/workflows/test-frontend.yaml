@@ -55,3 +55,17 @@ jobs:
                   cache: npm
             - run: npm ci
             - run: npm run build
+            # Vite's esbuild pre-bundling can inject __publicField helper calls
+            # into maplibre-gl, breaking its Web Worker blob creation at runtime.
+            # Setting build.target and optimizeDeps.esbuildOptions.target to es2022+
+            # in vite.config.ts prevents this by using native class fields instead.
+            # This step catches regressions from config changes, Vite/esbuild upgrades,
+            # or new dependencies that might reintroduce the problem.
+            - name: Check for __publicField regression
+              run: |
+                  if grep -r '__publicField' dist/assets/*.js; then
+                      echo "ERROR: __publicField found in build output."
+                      echo "Ensure build.target and optimizeDeps.esbuildOptions.target"
+                      echo "are set to es2022 or higher in vite.config.ts."
+                      exit 1
+                  fi
