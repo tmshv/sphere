@@ -2,7 +2,7 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
         },
         "target": "ESNext",
         "useDefineForClassFields": true,
@@ -19,7 +19,7 @@
         "isolatedModules": true,
         "noEmit": true,
         "types": ["vitest/globals"],
-        "jsx": "react-jsx"
+        "jsx": "react-jsx",
     },
-    "include": ["src"]
+    "include": ["src"],
 }
