@@ -4,8 +4,8 @@
         "paths": {
             "@/*": ["src/*"],
         },
-        "target": "ESNext",
         "useDefineForClassFields": true,
+        "target": "ES2022",
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "allowJs": false,
         "skipLibCheck": true,
