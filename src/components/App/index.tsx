@@ -1,5 +1,6 @@
 import { StrictMode } from "react"
 import { MapProvider } from "react-map-gl/maplibre"
+import { ErrorBoundary } from "react-error-boundary"
 import { Center } from "@mantine/core"
 import { MapStatusbar } from "../MapStatusbar"
 import { AppLayout } from "@/ui/AppLayout"
@@ -14,6 +15,8 @@ import { Sidebar } from "@/ui/Sidebar"
 import { actions, selectors } from "@/store"
 import { WorkingIndicator } from "../WorkingIndicator"
 import PropertiesPopup from "../PropertiesPopup"
+import { ErrorFallback } from "@/ui/ErrorFallback"
+import logger from "@/logger"
 
 export default function App() {
     const id = MAP_ID
@@ -51,13 +54,23 @@ export default function App() {
                                 }}>
                                     <WorkingIndicator />
                                 </Center>
-                                <LeftSidebar />
+                                <ErrorBoundary
+                                    fallbackRender={(props) => <ErrorFallback {...props} variant="sidebar" />}
+                                    onError={(error) => logger.error("LeftSidebar crashed: %s", error instanceof Error ? error.message : error)}
+                                >
+                                    <LeftSidebar />
+                                </ErrorBoundary>
                             </Sidebar>
                         )}
                     >
-                        <SphereMap
-                            id={id}
-                        />
+                        <ErrorBoundary
+                            fallbackRender={(props) => <ErrorFallback {...props} variant="fullscreen" />}
+                            onError={(error) => logger.error("SphereMap crashed: %s", error instanceof Error ? error.message : error)}
+                        >
+                            <SphereMap
+                                id={id}
+                            />
+                        </ErrorBoundary>
                         {/* <MapContextMenu
                             id={id}
                             copyLocationValue={copy}
