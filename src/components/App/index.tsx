@@ -1,4 +1,3 @@
-import { StrictMode } from "react"
 import { MapProvider } from "react-map-gl/maplibre"
 import { ErrorBoundary } from "react-error-boundary"
 import { Center } from "@mantine/core"
@@ -25,67 +24,65 @@ export default function App() {
     const left = useAppSelector(selectShowLeftSidebar)
 
     return (
-        <StrictMode>
-            <MapProvider>
-                <Spotlight
-                    mapId={id}
-                >
-                    <AppLayout
-                        footer={(
-                            <MapStatusbar
-                                id={id}
-                            />
-                        )}
-                        leftSidebar={!left ? null : (
-                            <Sidebar
-                                startWidth={300}
-                                minWidth={265}
-                                maxWidth={500}
-                                onResize={() => {
-                                    dispatch(actions.map.resize(id))
-                                }}
-                            >
-                                <Center style={{
-                                    position: "absolute",
-                                    top: 0,
-                                    right: 0,
-                                    width: 28,
-                                    height: 28,
-                                }}>
-                                    <WorkingIndicator />
-                                </Center>
-                                <ErrorBoundary
-                                    fallbackRender={(props) => <ErrorFallback {...props} variant="sidebar" />}
-                                    onError={(error) => logger.error("LeftSidebar crashed: %s", error instanceof Error ? error.message : error)}
-                                >
-                                    <LeftSidebar />
-                                </ErrorBoundary>
-                            </Sidebar>
-                        )}
-                    >
-                        <ErrorBoundary
-                            fallbackRender={(props) => <ErrorFallback {...props} variant="fullscreen" />}
-                            onError={(error) => logger.error("SphereMap crashed: %s", error instanceof Error ? error.message : error)}
-                        >
-                            <SphereMap
-                                id={id}
-                            />
-                        </ErrorBoundary>
-                        {/* <MapContextMenu
+        <MapProvider>
+            <Spotlight
+                mapId={id}
+            >
+                <AppLayout
+                    footer={(
+                        <MapStatusbar
                             id={id}
-                            copyLocationValue={copy}
-                        /> */}
-                        {zen ? null : (
-                            <Overlay
-                            // right={(
-                            //     <Toolbar></Toolbar>
-                            // )}
-                            />
-                        )}
-                        <PropertiesPopup />
-                    </AppLayout>
-                </Spotlight>
-            </MapProvider>
-        </StrictMode>
+                        />
+                    )}
+                    leftSidebar={!left ? null : (
+                        <Sidebar
+                            startWidth={300}
+                            minWidth={265}
+                            maxWidth={500}
+                            onResize={() => {
+                                dispatch(actions.map.resize(id))
+                            }}
+                        >
+                            <Center style={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                width: 28,
+                                height: 28,
+                            }}>
+                                <WorkingIndicator />
+                            </Center>
+                            <ErrorBoundary
+                                fallbackRender={(props) => <ErrorFallback {...props} variant="sidebar" />}
+                                onError={(error) => logger.error("LeftSidebar crashed: %s", error instanceof Error ? error.message : error)}
+                            >
+                                <LeftSidebar />
+                            </ErrorBoundary>
+                        </Sidebar>
+                    )}
+                >
+                    <ErrorBoundary
+                        fallbackRender={(props) => <ErrorFallback {...props} variant="fullscreen" />}
+                        onError={(error) => logger.error("SphereMap crashed: %s", error instanceof Error ? error.message : error)}
+                    >
+                        <SphereMap
+                            id={id}
+                        />
+                    </ErrorBoundary>
+                    {/* <MapContextMenu
+                        id={id}
+                        copyLocationValue={copy}
+                    /> */}
+                    {zen ? null : (
+                        <Overlay
+                        // right={(
+                        //     <Toolbar></Toolbar>
+                        // )}
+                        />
+                    )}
+                    <PropertiesPopup />
+                </AppLayout>
+            </Spotlight>
+        </MapProvider>
     )
 }
