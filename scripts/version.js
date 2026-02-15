@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "fs"
+import { execSync } from "child_process"
 
 const version = process.env.npm_package_version
 
@@ -14,4 +15,9 @@ let cargo = readFileSync(cargoPath, "utf8")
 cargo = cargo.replace(/^version = ".*"$/m, `version = "${version}"`)
 writeFileSync(cargoPath, cargo)
 
-console.log(`Synced version ${version} to tauri.conf.json and Cargo.toml`)
+// Update Cargo.lock via cargo
+execSync("cargo update --workspace --manifest-path src-tauri/Cargo.toml", {
+    stdio: "inherit",
+})
+
+console.log(`Synced version ${version} to tauri.conf.json, Cargo.toml, and Cargo.lock`)

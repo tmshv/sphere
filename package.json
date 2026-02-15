@@ -4,7 +4,7 @@
     "version": "0.9.5",
     "type": "module",
     "scripts": {
-        "version": "node scripts/version.js && git add src-tauri/tauri.conf.json src-tauri/Cargo.toml",
+        "version": "node scripts/version.js && git add src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock",
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",

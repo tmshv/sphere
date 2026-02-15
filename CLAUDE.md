@@ -20,6 +20,9 @@ npm run coverage         # Test coverage report
 # Tauri (full app)
 npm run tauri dev        # Run app in development mode
 npm run tauri build      # Build production app
+
+# Versioning
+npm version patch         # Bump version in package.json, tauri.conf.json, Cargo.toml, and Cargo.lock
 ```
 
 ## Code Style
