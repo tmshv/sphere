@@ -1,0 +1,116 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend) using MapLibre GL for map rendering. It supports loading GeoJSON, Shapefile, CSV, GPX, and MBTiles formats.
+
+## Build & Development Commands
+
+```bash
+# Frontend development
+npm run dev              # Start Vite dev server (port 1420)
+npm run build            # Build frontend (tsc && vite build)
+npm run lint             # Run ESLint
+npm run lint:fix         # Fix ESLint issues
+npm test                 # Run Vitest tests
+npm run coverage         # Test coverage report
+
+# Tauri (full app)
+npm run tauri dev        # Run app in development mode
+npm run tauri build      # Build production app
+```
+
+## Code Style
+
+- Double quotes, no semicolons, 4-space indentation
+- Trailing commas in multiline structures
+- Unix line endings
+
+## Architecture
+
+### Frontend (`src/`)
+
+**State Management**: Redux Toolkit with listener middleware for side effects. Key slices:
+- `app` - UI state (dark theme, sidebar visibility)
+- `layer` - Layer management and styling
+- `source` - Data source management
+- `selection` - Selected map features
+- `draw` - Drawing mode state
+- `map` / `mapStyle` / `projection` - Map viewport and rendering
+
+**Component Structure**:
+- `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
+- `components/LeftSidebar/` - Sources and layers management
+- `store/effects/` - Side effects (file loading, etc.)
+- `ui/` - Reusable UI components (built on Mantine)
+
+### Backend (`src-tauri/`)
+
+Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles
+- `system.rs` - System utilities (show in finder)
+
+State stored in `SourceStorage` (thread-safe HashMap with Mutex).
+
+### Rust Libraries (`crates/`)
+
+- `libsphere` - Geospatial processing (format parsing, bounds calculation)
+- `mbtiles` - MBTiles tile database reader
+- `tilejson` - TileJSON spec support
+
+### Data Flow
+
+1. Files loaded via Tauri dialog → processed in Rust (`add-file.ts` effect)
+2. Sources stored in `SourceStorage`, sent to frontend as GeoJSON
+3. Redux state drives React rendering → MapLibre renders layers
+
+## Key Dependencies
+
+- **Frontend**: React 18, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Mantine 5, Turf.js
+- **Backend**: Tauri 2.9, rusqlite (bundled SQLite), geo/geojson/geozero crates
+
+## Runtime Requirements
+
+- Node 22 (managed via Mise)
+- Rust 1.92
+
+## Tauri Integration Patterns
+
+**IPC Communication**: Frontend invokes Rust commands via `@tauri-apps/api` `invoke()` function.
+
+**Custom Protocols**: The app registers custom URL protocols for accessing sources:
+- `sphere://source{path}` - Access loaded geospatial sources
+- `sphere://mbtiles{path}` - Access MBTiles tile data
+
+**Event System**: Tauri events handle:
+- Theme changes (system dark/light mode)
+- Drag-and-drop file handling
+
+**Plugins Used**: fs, dialog, http, clipboard
+
+## IPC Commands
+
+Available Tauri commands (invoked from frontend via `invoke()`):
+
+| Command | Description |
+|---------|-------------|
+| `source_add` | Load a source from URL/path |
+| `source_get` | Get source as GeoJSON string |
+| `source_bounds` | Get geographic bounds [west, south, east, north] |
+| `source_get_schema` | Get property schema for source |
+| `mbtiles_get_tile` | Get single tile from MBTiles |
+| `mbtiles_get_metadata` | Get MBTiles metadata/TileJSON |
+| `show_in_finder` | Open file location in system explorer |
+
+## Known Issues / Technical Debt
+
+1. **Error handling** - Error types discard context (e.g., `From<io::Error>` returns generic variant without details)
+2. **Unsafe unwraps** - URL parsing and UTF-8 conversion use `.unwrap()` which can panic
+3. **Fake async** - Some commands marked `async` but perform blocking I/O
+4. **Memory leaks** - Event listeners in `src/tauri.ts` don't store unlisten functions for cleanup
+5. **Missing plugin** - `tauri_plugin_shell` in Cargo.toml but not registered in main.rs
+6. **CSP disabled** - `tauri.conf.json` has `"csp": null` (security concern for production)
+7. **No type sharing** - TypeScript and Rust types are duplicated and can drift out of sync
+8. **Busy-wait polling** - `waitEvent()` in `src/lib/tauri.ts` uses inefficient polling loop
