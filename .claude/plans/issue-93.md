@@ -279,10 +279,10 @@ Expected: ~100+ new test cases across 3 categories. All existing tests continue 
 - [x] Add comment to src/lib/predict-data-type.test.ts about dormant tests
 
 ### Task 3: Redux Slice Tests (part 1)
-- [ ] Create src/store/app.test.ts
-- [ ] Create src/store/draw.test.ts
-- [ ] Create src/store/error.test.ts
-- [ ] Create src/store/projection.test.ts
+- [x] Create src/store/app.test.ts
+- [x] Create src/store/draw.test.ts
+- [x] Create src/store/error.test.ts
+- [x] Create src/store/projection.test.ts
 
 ### Task 4: Redux Slice Tests (part 2)
 - [ ] Create src/store/selection/index.test.ts
