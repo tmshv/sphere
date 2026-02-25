@@ -15,7 +15,7 @@ vi.mock("../actions", () => {
         {
             type: "source/addFromUrl/fulfilled",
             match: (action: { type: string }) => action.type === "source/addFromUrl/fulfilled",
-        }
+        },
     )
     return {
         actions: {
@@ -61,7 +61,7 @@ describe("add-source listener middleware", () => {
 
         expect(vi.mocked(logger.info)).toHaveBeenCalledWith(
             { action },
-            "Source was added"
+            "Source was added",
         )
     })
 })

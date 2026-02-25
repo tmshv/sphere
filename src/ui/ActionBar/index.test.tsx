@@ -25,7 +25,7 @@ describe("ActionBar", () => {
                 items={[makeItem("a"), makeItem("b"), makeItem("c")]}
                 onClick={vi.fn()}
                 tooltipPosition="bottom"
-            />
+            />,
         )
         const buttons = screen.getAllByRole("button")
         expect(buttons).toHaveLength(3)
@@ -38,7 +38,7 @@ describe("ActionBar", () => {
                 items={[makeItem("save"), makeItem("delete")]}
                 onClick={onClick}
                 tooltipPosition="bottom"
-            />
+            />,
         )
         const buttons = screen.getAllByRole("button")
         fireEvent.click(buttons[0])
@@ -53,7 +53,7 @@ describe("ActionBar", () => {
                 items={[makeItem("a"), null, makeItem("b")]}
                 onClick={vi.fn()}
                 tooltipPosition="bottom"
-            />
+            />,
         )
         const buttons = screen.getAllByRole("button")
         expect(buttons).toHaveLength(2)
@@ -65,7 +65,7 @@ describe("ActionBar", () => {
                 items={[makeItem("action", true)]}
                 onClick={vi.fn()}
                 tooltipPosition="bottom"
-            />
+            />,
         )
         const button = screen.getByRole("button")
         expect(button).toBeDisabled()

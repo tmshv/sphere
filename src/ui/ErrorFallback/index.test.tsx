@@ -11,7 +11,7 @@ describe("ErrorFallback", () => {
                 error={new Error("test error")}
                 resetErrorBoundary={vi.fn()}
                 variant="fullscreen"
-            />
+            />,
         )
         expect(screen.getByText("Something went wrong")).toBeInTheDocument()
     })
@@ -22,7 +22,7 @@ describe("ErrorFallback", () => {
                 error={new Error("specific error message")}
                 resetErrorBoundary={vi.fn()}
                 variant="fullscreen"
-            />
+            />,
         )
         expect(screen.getByText("specific error message")).toBeInTheDocument()
     })
@@ -33,7 +33,7 @@ describe("ErrorFallback", () => {
                 error="string error message"
                 resetErrorBoundary={vi.fn()}
                 variant="fullscreen"
-            />
+            />,
         )
         expect(screen.getByText("string error message")).toBeInTheDocument()
     })
@@ -45,7 +45,7 @@ describe("ErrorFallback", () => {
                 error={new Error("test")}
                 resetErrorBoundary={resetErrorBoundary}
                 variant="fullscreen"
-            />
+            />,
         )
         fireEvent.click(screen.getByText("Try Again"))
         expect(resetErrorBoundary).toHaveBeenCalledTimes(1)
@@ -57,7 +57,7 @@ describe("ErrorFallback", () => {
                 error={new Error("test")}
                 resetErrorBoundary={vi.fn()}
                 variant="fullscreen"
-            />
+            />,
         )
         expect(container.firstChild).not.toBeNull()
     })
@@ -68,7 +68,7 @@ describe("ErrorFallback", () => {
                 error={new Error("test")}
                 resetErrorBoundary={vi.fn()}
                 variant="sidebar"
-            />
+            />,
         )
         expect(container.firstChild).not.toBeNull()
     })

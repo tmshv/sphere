@@ -31,7 +31,7 @@ describe("Outline", () => {
                 items={items}
                 onMove={vi.fn()}
                 renderItem={(item) => <div>{item.label}</div>}
-            />
+            />,
         )
         expect(screen.getByText("Item One")).toBeInTheDocument()
         expect(screen.getByText("Item Two")).toBeInTheDocument()
@@ -44,7 +44,7 @@ describe("Outline", () => {
                 items={[] as TestItem[]}
                 onMove={vi.fn()}
                 renderItem={(item) => <div>{item.label}</div>}
-            />
+            />,
         )
         expect(container.firstChild).not.toBeNull()
     })
@@ -60,7 +60,7 @@ describe("Outline", () => {
                 onMove={vi.fn()}
                 renderItem={(item) => <div>{item.label}</div>}
                 draggable
-            />
+            />,
         )
         expect(screen.getByText("Drag Item One")).toBeInTheDocument()
         expect(screen.getByText("Drag Item Two")).toBeInTheDocument()

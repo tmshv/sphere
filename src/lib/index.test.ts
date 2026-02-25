@@ -8,7 +8,7 @@ describe("assertUnreachable", () => {
         // is only called with type `never`, but we cast here to exercise the
         // runtime behavior.
         expect(() => assertUnreachable("unexpected" as never)).toThrow(
-            "Didn't expect to get here"
+            "Didn't expect to get here",
         )
     })
 
