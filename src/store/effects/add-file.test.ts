@@ -1,5 +1,8 @@
-import { vi, describe, test, expect, beforeEach } from "vitest"
+import { vi, describe, test, expect, beforeEach, type MockInstance } from "vitest"
+import { configureStore } from "@reduxjs/toolkit"
 import { SourceType } from "@/types"
+
+const makeStore = () => configureStore({ reducer: (state: Record<string, never> = {}) => state })
 
 vi.mock("@tauri-apps/api/path", () => ({
     extname: vi.fn(),
@@ -11,13 +14,16 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
 
 vi.mock("../source", () => ({
     actions: {
-        addFromUrl: vi.fn(),
+        addFromUrl: vi.fn().mockReturnValue({ type: "source/addFromUrl" }),
     },
 }))
 
 vi.mock("../mapStyle", () => ({
     actions: {
-        setMapStyle: vi.fn(),
+        setMapStyle: vi.fn().mockImplementation((payload: unknown) => ({
+            type: "mapStyle/setMapStyle",
+            payload,
+        })),
     },
 }))
 
@@ -33,75 +39,73 @@ const mockAddFromUrl = vi.mocked(sourceActions.addFromUrl)
 const mockSetMapStyle = vi.mocked(mapStyleActions.setMapStyle)
 
 describe("addFile thunk", () => {
-    let dispatch: ReturnType<typeof vi.fn>
-    let getState: ReturnType<typeof vi.fn>
+    let store: ReturnType<typeof makeStore>
+    let dispatchSpy: MockInstance
 
     beforeEach(() => {
         vi.clearAllMocks()
-        dispatch = vi.fn()
-        getState = vi.fn().mockReturnValue({})
+        store = makeStore()
+        dispatchSpy = vi.spyOn(store, "dispatch")
     })
 
     test(".json ext reads file and dispatches setMapStyle with parsed JSON", async () => {
         const styleData = { version: 8, layers: [] }
         mockExtname.mockResolvedValue("json")
         mockReadTextFile.mockResolvedValue(JSON.stringify(styleData))
-        const mockAction = { type: "mapStyle/setMapStyle", payload: styleData }
-        mockSetMapStyle.mockReturnValue(mockAction as any)
 
-        await addFile("/path/to/style.json")(dispatch, getState, undefined)
+        await addFile("/path/to/style.json")(store.dispatch, store.getState, undefined)
 
         expect(mockSetMapStyle).toHaveBeenCalledWith(styleData)
-        expect(dispatch).toHaveBeenCalledWith(mockAction)
+        expect(dispatchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "mapStyle/setMapStyle", payload: styleData }),
+        )
     })
 
     test(".JSON ext (uppercase) is lowercased and treated as json", async () => {
         const styleData = { version: 8 }
         mockExtname.mockResolvedValue("JSON")
         mockReadTextFile.mockResolvedValue(JSON.stringify(styleData))
-        const mockAction = { type: "mapStyle/setMapStyle", payload: styleData }
-        mockSetMapStyle.mockReturnValue(mockAction as any)
 
-        await addFile("/path/to/style.JSON")(dispatch, getState, undefined)
+        await addFile("/path/to/style.JSON")(store.dispatch, store.getState, undefined)
 
         expect(mockSetMapStyle).toHaveBeenCalledWith(styleData)
-        expect(dispatch).toHaveBeenCalledWith(mockAction)
+        expect(dispatchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "mapStyle/setMapStyle", payload: styleData }),
+        )
     })
 
     test(".mbtiles ext dispatches addFromUrl with MVT type and mbtiles URL", async () => {
         mockExtname.mockResolvedValue("mbtiles")
-        const mockThunk = { type: "source/addFromUrl/thunk" }
-        mockAddFromUrl.mockReturnValue(mockThunk as any)
 
-        await addFile("/path/to/data.mbtiles")(dispatch, getState, undefined)
+        await addFile("/path/to/data.mbtiles")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
             url: "sphere://mbtiles/path/to/data.mbtiles",
             type: SourceType.MVT,
         })
-        expect(dispatch).toHaveBeenCalledWith(mockThunk)
+        expect(dispatchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "source/addFromUrl" }),
+        )
     })
 
     test("unknown ext dispatches addFromUrl with Geojson type and source URL", async () => {
         mockExtname.mockResolvedValue("geojson")
-        const mockThunk = { type: "source/addFromUrl/thunk" }
-        mockAddFromUrl.mockReturnValue(mockThunk as any)
 
-        await addFile("/path/to/data.geojson")(dispatch, getState, undefined)
+        await addFile("/path/to/data.geojson")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
             url: "sphere://source/path/to/data.geojson",
             type: SourceType.Geojson,
         })
-        expect(dispatch).toHaveBeenCalledWith(mockThunk)
+        expect(dispatchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ type: "source/addFromUrl" }),
+        )
     })
 
     test("shp ext dispatches addFromUrl with Geojson type", async () => {
         mockExtname.mockResolvedValue("shp")
-        const mockThunk = { type: "source/addFromUrl/thunk" }
-        mockAddFromUrl.mockReturnValue(mockThunk as any)
 
-        await addFile("/data/shape.shp")(dispatch, getState, undefined)
+        await addFile("/data/shape.shp")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
             url: "sphere://source/data/shape.shp",
@@ -111,10 +115,8 @@ describe("addFile thunk", () => {
 
     test("csv ext dispatches addFromUrl with Geojson type", async () => {
         mockExtname.mockResolvedValue("csv")
-        const mockThunk = { type: "source/addFromUrl/thunk" }
-        mockAddFromUrl.mockReturnValue(mockThunk as any)
 
-        await addFile("/data/table.csv")(dispatch, getState, undefined)
+        await addFile("/data/table.csv")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
             url: "sphere://source/data/table.csv",
