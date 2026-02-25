@@ -273,10 +273,10 @@ Expected: ~100+ new test cases across 3 categories. All existing tests continue 
 - [x] Create src/test-utils.tsx
 
 ### Task 2: Missing Lib Tests
-- [ ] Create src/lib/stat.test.ts
-- [ ] Create src/lib/source-reader-fix-id.test.ts
-- [ ] Create src/lib/index.test.ts
-- [ ] Add comment to src/lib/predict-data-type.test.ts about dormant tests
+- [x] Create src/lib/stat.test.ts
+- [x] Create src/lib/source-reader-fix-id.test.ts
+- [x] Create src/lib/index.test.ts
+- [x] Add comment to src/lib/predict-data-type.test.ts about dormant tests
 
 ### Task 3: Redux Slice Tests (part 1)
 - [ ] Create src/store/app.test.ts
