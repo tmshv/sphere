@@ -227,29 +227,29 @@ Tests `Outline` from `src/ui/Outline/index.tsx`:
 
 ## File Summary
 
-| File                                            | Type      | Status |
-|-------------------------------------------------|-----------|--------|
-| `package.json`                                  | config    | modify |
-| `vite.config.ts`                                | config    | modify |
-| `src/setupTests.ts`                             | new       | create |
-| `src/test-utils.tsx`                            | new       | create |
+| File                                            | Type      | Status                     |
+|-------------------------------------------------|-----------|----------------------------|
+| `package.json`                                  | config    | modify                     |
+| `vite.config.ts`                                | config    | modify                     |
+| `src/setupTests.ts`                             | new       | create                     |
+| `src/test-utils.tsx`                            | new       | create                     |
 | `src/lib/predict-data-type.test.ts`             | lib test  | comment clarification only |
-| `src/lib/stat.test.ts`                          | lib test  | create |
-| `src/lib/source-reader-fix-id.test.ts`          | lib test  | create |
-| `src/lib/index.test.ts`                         | lib test  | create |
-| `src/store/app.test.ts`                         | store     | create |
-| `src/store/draw.test.ts`                        | store     | create |
-| `src/store/error.test.ts`                       | store     | create |
-| `src/store/projection.test.ts`                  | store     | create |
-| `src/store/selection/index.test.ts`             | store     | create |
-| `src/store/source/index.test.ts`                | store     | create |
-| `src/store/layer/index.test.ts`                 | store     | create |
-| `src/store/selectors.test.ts`                   | store     | create |
-| `src/store/effects/add-file.test.ts`            | effect    | create |
-| `src/store/listeners/add-source.test.ts`        | listener  | create |
-| `src/ui/ErrorFallback/index.test.tsx`           | component | create |
-| `src/ui/ActionBar/index.test.tsx`               | component | create |
-| `src/ui/Outline/index.test.tsx`                 | component | create |
+| `src/lib/stat.test.ts`                          | lib test  | create                     |
+| `src/lib/source-reader-fix-id.test.ts`          | lib test  | create                     |
+| `src/lib/index.test.ts`                         | lib test  | create                     |
+| `src/store/app.test.ts`                         | store     | create                     |
+| `src/store/draw.test.ts`                        | store     | create                     |
+| `src/store/error.test.ts`                       | store     | create                     |
+| `src/store/projection.test.ts`                  | store     | create                     |
+| `src/store/selection/index.test.ts`             | store     | create                     |
+| `src/store/source/index.test.ts`                | store     | create                     |
+| `src/store/layer/index.test.ts`                 | store     | create                     |
+| `src/store/selectors.test.ts`                   | store     | create                     |
+| `src/store/effects/add-file.test.ts`            | effect    | create                     |
+| `src/store/listeners/add-source.test.ts`        | listener  | create                     |
+| `src/ui/ErrorFallback/index.test.tsx`           | component | create                     |
+| `src/ui/ActionBar/index.test.tsx`               | component | create                     |
+| `src/ui/Outline/index.test.tsx`                 | component | create                     |
 
 ---
 
@@ -261,3 +261,40 @@ npm run coverage       # review coverage report
 ```
 
 Expected: ~100+ new test cases across 3 categories. All existing tests continue to pass unchanged.
+
+---
+
+## Tasks
+
+### Task 1: Install Dependencies & Configure Test Environment
+- [x] Install @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, jsdom
+- [x] Update vite.config.ts with environmentMatchGlobs and setupFiles
+- [x] Create src/setupTests.ts
+- [x] Create src/test-utils.tsx
+
+### Task 2: Missing Lib Tests
+- [ ] Create src/lib/stat.test.ts
+- [ ] Create src/lib/source-reader-fix-id.test.ts
+- [ ] Create src/lib/index.test.ts
+- [ ] Add comment to src/lib/predict-data-type.test.ts about dormant tests
+
+### Task 3: Redux Slice Tests (part 1)
+- [ ] Create src/store/app.test.ts
+- [ ] Create src/store/draw.test.ts
+- [ ] Create src/store/error.test.ts
+- [ ] Create src/store/projection.test.ts
+
+### Task 4: Redux Slice Tests (part 2)
+- [ ] Create src/store/selection/index.test.ts
+- [ ] Create src/store/source/index.test.ts
+- [ ] Create src/store/layer/index.test.ts
+- [ ] Create src/store/selectors.test.ts
+
+### Task 5: Effect & Listener Middleware Tests
+- [ ] Create src/store/effects/add-file.test.ts
+- [ ] Create src/store/listeners/add-source.test.ts
+
+### Task 6: Component Tests
+- [ ] Create src/ui/ErrorFallback/index.test.tsx
+- [ ] Create src/ui/ActionBar/index.test.tsx
+- [ ] Create src/ui/Outline/index.test.tsx
