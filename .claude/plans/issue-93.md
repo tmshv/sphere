@@ -285,10 +285,10 @@ Expected: ~100+ new test cases across 3 categories. All existing tests continue 
 - [x] Create src/store/projection.test.ts
 
 ### Task 4: Redux Slice Tests (part 2)
-- [ ] Create src/store/selection/index.test.ts
-- [ ] Create src/store/source/index.test.ts
-- [ ] Create src/store/layer/index.test.ts
-- [ ] Create src/store/selectors.test.ts
+- [x] Create src/store/selection/index.test.ts
+- [x] Create src/store/source/index.test.ts
+- [x] Create src/store/layer/index.test.ts
+- [x] Create src/store/selectors.test.ts
 
 ### Task 5: Effect & Listener Middleware Tests
 - [ ] Create src/store/effects/add-file.test.ts
