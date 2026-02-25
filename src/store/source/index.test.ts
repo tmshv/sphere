@@ -39,7 +39,16 @@ describe("sourceSlice reducer", () => {
             id: "s2",
             name: "MVT Source",
             location: "tiles.mbtiles",
-            tilejson: { tilejson: "2.0.0", tiles: [] },
+            tilejson: {
+                tilejson: "3.0.0",
+                tiles: [],
+                vector_layers: [],
+                attribution: null,
+                description: null,
+                legend: null,
+                template: null,
+                name: null,
+            },
         }))
         expect(state.allIds).toContain("s2")
         expect(state.items["s2"].type).toBe(SourceType.MVT)
@@ -127,7 +136,7 @@ describe("sourceSlice reducer", () => {
         }))
         const newDataset: GeoJSON.FeatureCollection = {
             type: "FeatureCollection",
-            features: [{ type: "Feature", geometry: null, properties: {} }],
+            features: [{ type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: {} }],
         }
         const state = reducer(prev, setData({
             id: "s1",
