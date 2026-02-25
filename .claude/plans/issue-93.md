@@ -291,8 +291,8 @@ Expected: ~100+ new test cases across 3 categories. All existing tests continue 
 - [x] Create src/store/selectors.test.ts
 
 ### Task 5: Effect & Listener Middleware Tests
-- [ ] Create src/store/effects/add-file.test.ts
-- [ ] Create src/store/listeners/add-source.test.ts
+- [x] Create src/store/effects/add-file.test.ts
+- [x] Create src/store/listeners/add-source.test.ts
 
 ### Task 6: Component Tests
 - [ ] Create src/ui/ErrorFallback/index.test.tsx
