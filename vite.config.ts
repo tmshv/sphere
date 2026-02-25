@@ -64,7 +64,7 @@ export default defineConfig({
         ],
         globals: true,
         environmentMatchGlobs: [
-            ["**/*.test.tsx", "jsdom"],
+            ["**/*.test.tsx", "happy-dom"],
         ],
         setupFiles: ["./src/setupTests.ts"],
         coverage: {

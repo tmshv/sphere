@@ -295,6 +295,6 @@ Expected: ~100+ new test cases across 3 categories. All existing tests continue 
 - [x] Create src/store/listeners/add-source.test.ts
 
 ### Task 6: Component Tests
-- [ ] Create src/ui/ErrorFallback/index.test.tsx
-- [ ] Create src/ui/ActionBar/index.test.tsx
-- [ ] Create src/ui/Outline/index.test.tsx
+- [x] Create src/ui/ErrorFallback/index.test.tsx
+- [x] Create src/ui/ActionBar/index.test.tsx
+- [x] Create src/ui/Outline/index.test.tsx
