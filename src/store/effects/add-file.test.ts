@@ -123,4 +123,30 @@ describe("addFile thunk", () => {
             type: SourceType.Geojson,
         })
     })
+
+    test("empty extension falls through to default and dispatches addFromUrl with Geojson type", async () => {
+        mockExtname.mockResolvedValue("")
+
+        await addFile("/data/noextension")(store.dispatch, store.getState, undefined)
+
+        expect(mockAddFromUrl).toHaveBeenCalledWith({
+            url: "sphere://source/data/noextension",
+            type: SourceType.Geojson,
+        })
+        expect(mockSetMapStyle).not.toHaveBeenCalled()
+    })
+
+    test(".json ext with invalid JSON does not dispatch anything", async () => {
+        mockExtname.mockResolvedValue("json")
+        mockReadTextFile.mockResolvedValue("not valid json{{{")
+
+        await addFile("/path/to/bad.json")(store.dispatch, store.getState, undefined)
+
+        expect(mockSetMapStyle).not.toHaveBeenCalled()
+        expect(mockAddFromUrl).not.toHaveBeenCalled()
+    })
+
+    // NOTE: isStyle() is a private function that currently always returns true.
+    // The branch where isStyle() returns false (no dispatch) is unreachable until
+    // that function is fully implemented. Add a test here once it is exported/mockable.
 })

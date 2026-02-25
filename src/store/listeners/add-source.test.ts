@@ -1,4 +1,4 @@
-import { vi, describe, test, expect } from "vitest"
+import { vi, describe, test, expect, beforeEach, afterEach } from "vitest"
 import { configureStore } from "@reduxjs/toolkit"
 
 vi.mock("@/logger", () => ({
@@ -34,6 +34,14 @@ import listener from "./add-source"
 const FULFILLED_TYPE = "source/addFromUrl/fulfilled"
 
 describe("add-source listener middleware", () => {
+    beforeEach(() => {
+        vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
     test("exports a listener middleware instance", () => {
         expect(listener).toBeDefined()
         expect(typeof listener.middleware).toBe("function")
@@ -56,8 +64,8 @@ describe("add-source listener middleware", () => {
         }
         store.dispatch(action)
 
-        // Wait for async effect to run
-        await new Promise(resolve => setTimeout(resolve, 0))
+        // Flush all pending timers/microtasks so the async listener effect runs
+        await vi.runAllTimersAsync()
 
         expect(vi.mocked(logger.info)).toHaveBeenCalledWith(
             { action },
