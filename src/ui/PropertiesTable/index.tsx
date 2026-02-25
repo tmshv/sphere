@@ -37,7 +37,7 @@ export type FilterProps = {
     table: Table<PropertyItem>
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Filter: React.FC<FilterProps> = ({ column, table }) => {
     const firstValue = table
         .getPreFilteredRowModel()

@@ -63,5 +63,17 @@ export default defineConfig({
             "**/*.test.tsx",
         ],
         globals: true,
+        environmentMatchGlobs: [
+            ["**/*.test.tsx", "happy-dom"],
+        ],
+        setupFiles: ["./src/setupTests.ts"],
+        coverage: {
+            provider: "v8",
+            thresholds: {
+                lines: 50,
+                functions: 50,
+                branches: 40,
+            },
+        },
     },
 })

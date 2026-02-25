@@ -61,6 +61,10 @@ describe("isDate", () => {
     //     expect(isDate("20000101")).toBeTruthy()
     //     expect(isDate("20220224")).toBeTruthy()
     // })
+    // NOTE: The YYYYmmdd tests above are intentionally commented out. The
+    // corresponding implementation branch in isDate() is also commented out
+    // (lines 12–24 of predict-data-type.ts). These represent dormant feature
+    // work and should be re-enabled together when that format is implemented.
 
     test("should return false for an invalid date string", () => {
         expect(isDate("not a date")).toBeFalsy()
@@ -78,6 +82,7 @@ describe("isDate", () => {
     //     expect(isDate("20201501")).toBeFalsy()
     //     expect(isDate("20220284")).toBeFalsy()
     // })
+    // NOTE: Paired with the dormant YYYYmmdd feature tests above.
 
     test("should return false for bad date of form YYYY-mm-dd", () => {
         expect(isDate("2020-15-01")).toBeFalsy()
