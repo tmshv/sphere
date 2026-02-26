@@ -31,6 +31,10 @@ npm run tauri build      # Build production app
 npm version patch         # Bump version in package.json, tauri.conf.json, Cargo.toml, and Cargo.lock
 ```
 
+## Testing Policy
+
+Before modifying any code file, check whether it has tests. All code must be covered by tests before making changes. If tests are missing, write them first, then implement the change.
+
 ## Code Style
 
 - Double quotes, no semicolons, 4-space indentation
