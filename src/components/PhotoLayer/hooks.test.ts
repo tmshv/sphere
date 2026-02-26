@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
 import { SourceType } from "@/types"
-import type { Listener } from "maplibre-gl"
+import type { Listener, MapEventType, MapLayerEventType } from "maplibre-gl"
 
 vi.mock("@/store/hooks", () => ({
     useAppSelector: vi.fn(),
@@ -20,19 +20,21 @@ import { useFeatures } from "./hooks"
 const SOURCE_ID = "test-source"
 const LAYER_ID = "test-layer"
 
+type MapEventKey = keyof MapEventType | keyof MapLayerEventType
+
 function makeMockMap() {
-    const _handlers: Record<string, Listener[]> = {}
+    const handlers: Partial<Record<MapEventKey, Listener[]>> = {}
     return {
-        on: vi.fn((event: string, fn: Listener) => {
-            if (!_handlers[event]) _handlers[event] = []
-            _handlers[event].push(fn)
+        on: vi.fn((event: MapEventKey, fn: Listener) => {
+            if (!handlers[event]) handlers[event] = []
+            handlers[event].push(fn)
         }),
-        off: vi.fn((event: string, fn: Listener) => {
-            _handlers[event] = (_handlers[event] ?? []).filter(h => h !== fn)
+        off: vi.fn((event: MapEventKey, fn: Listener) => {
+            handlers[event] = (handlers[event] ?? []).filter(h => h !== fn)
         }),
         queryRenderedFeatures: vi.fn().mockReturnValue([]),
-        fire(event: string) {
-            ;(_handlers[event] ?? []).slice().forEach(fn => fn(undefined))
+        fire(event: MapEventKey) {
+            ;(handlers[event] ?? []).slice().forEach(fn => fn(undefined))
         },
     }
 }
