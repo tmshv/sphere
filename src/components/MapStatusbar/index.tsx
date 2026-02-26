@@ -1,5 +1,6 @@
+import { useCallback, useMemo } from "react"
 import { useMap } from "react-map-gl/maplibre"
-import { ActionIcon, Badge, MantineProvider, createStyles } from "@mantine/core"
+import { ActionIcon, Badge, MantineProvider, MantineTheme, createStyles } from "@mantine/core"
 import { Statusbar } from "@/ui/Statusbar"
 import { useCursor } from "@/hooks/useCursor"
 import { useZoom } from "@/hooks/useZoom"
@@ -99,32 +100,60 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const errorMessage = useAppSelector(selectErrorMessage)
     const isGlobe = projection === "globe"
 
+    const toggleSidebar = useCallback(() => {
+        if (sidebar) {
+            dispatch(actions.app.hideLeftSidebar())
+        } else {
+            dispatch(actions.app.showLeftSidebar())
+        }
+    }, [dispatch, sidebar])
+
+    const printViewport = useCallback(() => {
+        dispatch(actions.map.printViewport({ mapId: MAP_ID }))
+    }, [dispatch])
+
+    const resetNorth = useCallback(() => {
+        dispatch(actions.map.resetNorth({ mapId: MAP_ID }))
+    }, [dispatch])
+
+    const setSatellite = useCallback(() => {
+        dispatch(actions.mapStyle.setSatellite())
+    }, [dispatch])
+
+    const toggleTerrain = useCallback(() => {
+        dispatch(actions.terrain.toggle())
+    }, [dispatch])
+
+    const toggleProjection = useCallback(() => {
+        if (isGlobe) {
+            dispatch(actions.projection.setFlat())
+        } else {
+            dispatch(actions.projection.setGlobe())
+        }
+    }, [dispatch, isGlobe])
+
+    const mantineTheme = useMemo(() => ({
+        components: {
+            ActionIcon: {
+                defaultProps: (theme: MantineTheme) => ({
+                    ...actionIconDefaultProps,
+                    className: s.icon,
+                    sx: {
+                        "&[data-disabled]": {
+                            backgroundColor: "#00000000",
+                            color: theme.colors.gray[8],
+                            border: "none",
+                        },
+                    },
+                }),
+            },
+        },
+    }), [s.icon])
+
     return (
         <Statusbar>
-            <MantineProvider theme={{
-                components: {
-                    ActionIcon: {
-                        defaultProps: theme => ({
-                            ...actionIconDefaultProps,
-                            className: s.icon,
-                            sx: {
-                                "&[data-disabled]": {
-                                    backgroundColor: "#00000000",
-                                    color: theme.colors.gray[8],
-                                    border: "none",
-                                },
-                            },
-                        }),
-                    },
-                },
-            }}>
-                <ActionIcon className={cx(s.icon, { [s.active]: sidebar })} onClick={() => {
-                    if (sidebar) {
-                        dispatch(actions.app.hideLeftSidebar())
-                    } else {
-                        dispatch(actions.app.showLeftSidebar())
-                    }
-                }}>
+            <MantineProvider theme={mantineTheme}>
+                <ActionIcon className={cx(s.icon, { [s.active]: sidebar })} onClick={toggleSidebar}>
                     <IconLayoutSidebar size={16} />
                 </ActionIcon>
 
@@ -144,25 +173,17 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
                 <div className={s.s} />
 
-                <ActionIcon onClick={() => {
-                    dispatch(actions.map.printViewport({ mapId: MAP_ID }))
-                }}>
+                <ActionIcon onClick={printViewport}>
                     <IconLiveView size={16} />
                 </ActionIcon>
 
-                <ActionIcon onClick={() => {
-                    dispatch(actions.map.resetNorth({ mapId: MAP_ID }))
-                }}>
+                <ActionIcon onClick={resetNorth}>
                     <IconNorthStar size={16} />
                 </ActionIcon>
-                <ActionIcon disabled onClick={() => {
-                    dispatch(actions.mapStyle.setSatellite())
-                }}>
+                <ActionIcon disabled onClick={setSatellite}>
                     <IconSatellite size={16} />
                 </ActionIcon>
-                <ActionIcon disabled onClick={() => {
-                    dispatch(actions.terrain.toggle())
-                }}>
+                <ActionIcon disabled onClick={toggleTerrain}>
                     {terrain ? (
                         <IconMountain size={16} />
                     ) : (
@@ -172,13 +193,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 <ActionIcon
                     color={isGlobe ? "yellow" : undefined}
                     disabled={!changeProjection}
-                    onClick={() => {
-                        if (isGlobe) {
-                            dispatch(actions.projection.setFlat())
-                        } else {
-                            dispatch(actions.projection.setGlobe())
-                        }
-                    }}
+                    onClick={toggleProjection}
                 >
                     {isGlobe ? (
                         <IconWorld size={16} />

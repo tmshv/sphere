@@ -3,6 +3,11 @@ import { IconDatabase, IconSquaresFilled, IconStack } from "@tabler/icons"
 import { LayersTab } from "./LayersTab"
 import { SourcesTab } from "./SourcesTab"
 
+const PANEL_STYLE: React.CSSProperties = {
+    width: 300,
+    overflow: "hidden",
+}
+
 export function StyledTabs(props: TabsProps) {
     return (
         <Tabs unstyled styles={(theme) => ({
@@ -91,19 +96,13 @@ export const LeftSidebar: React.FC = () => {
             </Tabs.Panel>
 
             <Tabs.Panel value="map-styles">
-                <Paper p={"sm"} style={{
-                    width: 300,
-                    overflow: "hidden",
-                }}>
+                <Paper p={"sm"} style={PANEL_STYLE}>
                     Map Styles
                 </Paper>
             </Tabs.Panel>
 
             <Tabs.Panel value="settings">
-                <Paper p={"sm"} style={{
-                    width: 300,
-                    overflow: "hidden",
-                }}>
+                <Paper p={"sm"} style={PANEL_STYLE}>
                     Settings
                 </Paper>
             </Tabs.Panel>

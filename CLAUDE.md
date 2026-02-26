@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend) using MapLibre GL for map rendering. It supports loading GeoJSON, Shapefile, CSV, GPX, and MBTiles formats.
 
+## Git Conventions
+
+- Branch names use the format `issue-XX` (e.g. `issue-79`)
+
 ## Build & Development Commands
 
 ```bash
