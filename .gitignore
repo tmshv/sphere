@@ -26,3 +26,6 @@ dist-ssr
 
 # ralphex progress logs
 .ralphex/progress/
+
+# git worktrees
+.worktrees/
