@@ -12,14 +12,15 @@ const reloadAvailable = new Set([
     SourceType.Geojson,
 ])
 
-const selector = createSelector([selectors.selection.currentSourceId, selectors.source.items],
-    (id, items) => {
-        if (!id) {
-            return null
-        }
+export const selectCurrentSourceItem = createSelector(
+    [selectors.selection.currentSourceId, selectors.source.items],
+    (id, items) => id ? items[id] ?? null : null,
+)
 
-        const source = items[id]
-        if (!source) {
+export const selector = createSelector(
+    [selectors.selection.currentSourceId, selectCurrentSourceItem],
+    (id, source) => {
+        if (!id || !source) {
             return null
         }
 

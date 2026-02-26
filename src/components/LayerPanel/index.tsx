@@ -29,21 +29,29 @@ const sourcesSelector = createSelector([selectors.source.items, selectors.source
     },
 )
 
-const layerSelector = createSelector([selectors.source.items, selectors.layer.items, selectors.selection.currentLayerId],
-    (sources, layers, layerId) => {
-        if (!layerId) {
+export const selectCurrentLayerItem = createSelector(
+    [selectors.selection.currentLayerId, selectors.layer.items],
+    (id, items) => id ? items[id] ?? null : null,
+)
+
+export const selectCurrentLayerSourceItem = createSelector(
+    [selectCurrentLayerItem, selectors.source.items],
+    (layer, items) => layer?.sourceId ? items[layer.sourceId] ?? null : null,
+)
+
+export const layerSelector = createSelector(
+    [selectors.selection.currentLayerId, selectCurrentLayerItem, selectCurrentLayerSourceItem],
+    (layerId, layer, source) => {
+        if (!layerId || !layer) {
             return null
         }
 
-        const layer = layers[layerId]
-        const sourceId = layer.sourceId
         let sourceLayers: Option[] | undefined
         let fields: string[] | undefined
-        if (sourceId) {
-            const source = sources[sourceId]
+        if (source) {
             switch (source.type) {
                 case SourceType.MVT: {
-                    sourceLayers = source.sourceLayers.map(({ id, name }) => ({
+                    sourceLayers = source.sourceLayers.map(({ id }) => ({
                         value: id,
                         label: id,
                     }))
