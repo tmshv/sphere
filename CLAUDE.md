@@ -30,6 +30,8 @@ npm version patch         # Bump version in package.json, tauri.conf.json, Cargo
 - Double quotes, no semicolons, 4-space indentation
 - Trailing commas in multiline structures
 - Unix line endings
+- No `_underscore` prefix for private/local variables
+- Use maplibre types (`MapEventType`, `MapLayerEventType`, `Listener`, etc.) when working with map event handlers
 
 ## Architecture
 
