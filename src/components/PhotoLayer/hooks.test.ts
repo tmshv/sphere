@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
 import { SourceType } from "@/types"
+import type { Listener } from "maplibre-gl"
 
 vi.mock("@/store/hooks", () => ({
     useAppSelector: vi.fn(),
@@ -19,16 +20,14 @@ import { useFeatures } from "./hooks"
 const SOURCE_ID = "test-source"
 const LAYER_ID = "test-layer"
 
-type MapHandler = (...args: unknown[]) => unknown
-
 function makeMockMap() {
-    const _handlers: Record<string, MapHandler[]> = {}
+    const _handlers: Record<string, Listener[]> = {}
     return {
-        on: vi.fn((event: string, fn: MapHandler) => {
+        on: vi.fn((event: string, fn: Listener) => {
             if (!_handlers[event]) _handlers[event] = []
             _handlers[event].push(fn)
         }),
-        off: vi.fn((event: string, fn: MapHandler) => {
+        off: vi.fn((event: string, fn: Listener) => {
             _handlers[event] = (_handlers[event] ?? []).filter(h => h !== fn)
         }),
         queryRenderedFeatures: vi.fn().mockReturnValue([]),
