@@ -25,28 +25,28 @@ commented-out blocks in 3 files.
 **Files:**
 - Modify: `src/components/SphereMap/Draw.tsx`
 
-- [ ] Remove line 35: `// console.log(event.type, event.features)` from the onChange callback body (leave the empty callback body `{}` intact as the noop is intentional)
-- [ ] Run lint: `npm run lint`
+- [x] Remove line 35: `// console.log(event.type, event.features)` from the onChange callback body (leave the empty callback body `{}` intact as the noop is intentional)
+- [x] Run lint: `npm run lint`
 
 ### Task 2: Remove commented-out console.log block in select-features.ts
 
 **Files:**
 - Modify: `src/store/listeners/select-features.ts`
 
-- [ ] Remove lines 24-34: the entire commented-out block containing source lookup and two console.log calls
-- [ ] Run lint: `npm run lint`
+- [x] Remove lines 24-34: the entire commented-out block containing source lookup and two console.log calls
+- [x] Run lint: `npm run lint`
 
 ### Task 3: Remove commented-out console.log block in tauri.ts
 
 **Files:**
 - Modify: `src/tauri.ts`
 
-- [ ] Remove lines 7-24: the commented-out hotkey registration block containing two console.log calls from inside `handleHotkey()` (leave the empty function body intact)
-- [ ] Run lint: `npm run lint`
+- [x] Remove lines 7-24: the commented-out hotkey registration block containing two console.log calls from inside `handleHotkey()` (leave the empty function body intact)
+- [x] Run lint: `npm run lint`
 
 ### Task 4: Verify and close
 
-- [ ] Run `rg "console\.log" src/` to confirm no active console.log calls remain
-- [ ] Run full test suite: `npm test`
-- [ ] Run linter: `npm run lint`
-- [ ] Move this plan to `docs/plans/completed/`
+- [x] Run `rg "console\.log" src/` to confirm no active console.log calls remain
+- [x] Run full test suite: `npm test`
+- [x] Run linter: `npm run lint`
+- [x] Move this plan to `docs/plans/completed/`
