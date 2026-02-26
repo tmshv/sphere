@@ -56,13 +56,16 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
         }
         map.on("moveend", upd)
 
-        // Not working if call upd immideatly
-        // timeout 500 is reasonable value
-        // but can be changed in the future
-        const t = setTimeout(upd, 500)
+        // Wait for the map to become idle so the layer and its tiles
+        // are fully rendered before querying (replaces arbitrary setTimeout).
+        const onIdle = () => {
+            map.off("idle", onIdle)
+            upd()
+        }
+        map.on("idle", onIdle)
 
         return () => {
-            clearTimeout(t)
+            map.off("idle", onIdle)
             map.off("moveend", upd)
         }
     }, [ok, sourceId, layerId, map])
