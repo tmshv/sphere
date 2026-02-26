@@ -19,14 +19,16 @@ import { useFeatures } from "./hooks"
 const SOURCE_ID = "test-source"
 const LAYER_ID = "test-layer"
 
+type MapHandler = (...args: unknown[]) => unknown
+
 function makeMockMap() {
-    const _handlers: Record<string, Function[]> = {}
+    const _handlers: Record<string, MapHandler[]> = {}
     return {
-        on: vi.fn((event: string, fn: Function) => {
+        on: vi.fn((event: string, fn: MapHandler) => {
             if (!_handlers[event]) _handlers[event] = []
             _handlers[event].push(fn)
         }),
-        off: vi.fn((event: string, fn: Function) => {
+        off: vi.fn((event: string, fn: MapHandler) => {
             _handlers[event] = (_handlers[event] ?? []).filter(h => h !== fn)
         }),
         queryRenderedFeatures: vi.fn().mockReturnValue([]),
@@ -45,7 +47,7 @@ describe("useTileFeatures event listener behavior", () => {
                         [SOURCE_ID]: { type: SourceType.MVT },
                     },
                 },
-            })
+            }),
         )
     })
 
@@ -99,7 +101,7 @@ describe("useTileFeatures event listener behavior", () => {
     it("removes idle and moveend listeners on unmount", () => {
         const map = makeMockMap()
         const { unmount } = renderHook(() =>
-            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any })
+            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }),
         )
 
         unmount()
@@ -119,7 +121,7 @@ describe("useTileFeatures event listener behavior", () => {
         map.queryRenderedFeatures.mockReturnValue([feature])
 
         const { result } = renderHook(() =>
-            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any })
+            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }),
         )
 
         expect(result.current).toEqual([])
@@ -131,7 +133,7 @@ describe("useTileFeatures event listener behavior", () => {
 
     it("does not register listeners when map is undefined", () => {
         const { result } = renderHook(() =>
-            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: undefined })
+            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: undefined }),
         )
         expect(result.current).toEqual([])
     })
