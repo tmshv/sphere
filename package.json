@@ -62,6 +62,7 @@
         "@vitest/coverage-v8": "^4.0.0",
         "eslint": "^9.28.0",
         "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^7.0.1",
         "globals": "^16.2.0",
         "happy-dom": "^20.7.0",
         "typescript": "^5.8.3",

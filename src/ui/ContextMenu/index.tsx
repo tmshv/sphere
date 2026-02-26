@@ -30,7 +30,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
                 capture: true,
             })
         }
-    }, [])
+    }, [toggleShowContext])
 
     return (
         <Menu

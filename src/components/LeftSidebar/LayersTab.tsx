@@ -26,7 +26,7 @@ export const LayersTab: React.FC = () => {
                 break
             }
         }
-    }, [])
+    }, [dispatch])
 
     return (
         <>

@@ -58,7 +58,7 @@ export default function Draw({ mapId }: DrawProps){
 
     const onCancel = useCallback(() => {
         dispatch(actions.draw.reset())
-    }, [])
+    }, [dispatch])
 
     const onDone = useCallback(() => {
         const featureCollection = draw.getAll()
@@ -66,7 +66,7 @@ export default function Draw({ mapId }: DrawProps){
             sourceId: sourceId!,
             featureCollection,
         }))
-    }, [sourceId, draw])
+    }, [dispatch, sourceId, draw])
 
     return (
         <Overlay
