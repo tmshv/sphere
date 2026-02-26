@@ -18,7 +18,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
         dispatch(actions.properties.set({
             values: features.map(f => f.properties),
         }))
-    }, [features])
+    }, [dispatch, features])
 
     useEffect(() => {
         const map = ref?.getMap()
@@ -72,5 +72,5 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             enter.unsubscribe()
             leave.unsubscribe()
         }
-    }, [ref, layerId, features])
+    }, [dispatch, ref, layerId, features])
 }

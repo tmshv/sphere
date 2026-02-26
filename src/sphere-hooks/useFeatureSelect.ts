@@ -30,7 +30,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
         return () => {
             click.unsubscribe()
         }
-    }, [ref, layerIds])
+    }, [dispatch, ref, layerIds])
 
     return null
 }

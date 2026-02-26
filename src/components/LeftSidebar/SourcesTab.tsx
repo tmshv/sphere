@@ -49,7 +49,7 @@ export const SourcesTab: React.FC = () => {
                 break
             }
         }
-    }, [sourceId])
+    }, [dispatch, sourceId])
 
     return (
         <>

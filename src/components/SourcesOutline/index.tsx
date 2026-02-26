@@ -21,7 +21,10 @@ const selector = createSelector([ selectors.selection.currentSourceId, selectors
 
 export const SourcesOutline: React.FC = () => {
     const theme = useMantineTheme()
-    const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
+    const getColor = useCallback(
+        (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7],
+        [theme],
+    )
     const dispatch = useAppDispatch()
     const items = useAppSelector(selector)
 
@@ -54,7 +57,7 @@ export const SourcesOutline: React.FC = () => {
                 )}
             />
         )
-    }, [])
+    }, [dispatch, getColor])
 
     return (
         <Outline

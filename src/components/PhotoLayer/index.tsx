@@ -119,7 +119,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
                 </Marker>
             </div>
         )
-    }, [iconSize, getImage, activeImage])
+    }, [dispatch, iconSize, iconSizeCluster, iconLayout, getImage, activeImage])
 
     return (
         <>

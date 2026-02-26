@@ -40,5 +40,5 @@ export default function usePointerHover(mapId: string) {
                 s.unsubscribe()
             }
         }
-    }, [map, mapId, layerIds])
+    }, [dispatch, map, mapId, layerIds])
 }

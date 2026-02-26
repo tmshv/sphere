@@ -28,7 +28,7 @@ function useEvent<T>(eventName: string) {
                 stop()
             }
         }
-    }, [])
+    }, [eventName])
 
     return payload
 }

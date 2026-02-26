@@ -66,7 +66,7 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
             document.removeEventListener("mouseup", up, true)
             document.removeEventListener("mousemove", move, true)
         }
-    }, [startWidth, minWidth, maxWidth])
+    }, [up, startWidth, minWidth, maxWidth])
 
     return { ref, width }
 }

@@ -29,7 +29,7 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
         range: [radius, xMax-radius],
         round: true,
         domain: [0, size],
-    }), [yMax, size, radius])
+    }), [xMax, size, radius])
     const yScale = useMemo(() => scaleLinear<number>({
         range: [yMax, 0],
         round: true,

@@ -52,7 +52,7 @@ export const LayersOutline: React.FC = () => {
                 otherLayerId: hover.id,
             }))
         }
-    }, [])
+    }, [dispatch])
 
     const renderLayerItem = useCallback<OutlineRenderItem<typeof items[0]>>(({ id, name, type, color, visible, active, bulbIconColor }) => {
         return (
@@ -83,7 +83,7 @@ export const LayersOutline: React.FC = () => {
                 )}
             />
         )
-    }, [])
+    }, [dispatch])
 
     return (
         <Outline
