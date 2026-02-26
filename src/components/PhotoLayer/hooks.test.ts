@@ -32,7 +32,7 @@ function makeMockMap() {
         }),
         queryRenderedFeatures: vi.fn().mockReturnValue([]),
         fire(event: string) {
-            ;(_handlers[event] ?? []).slice().forEach(fn => fn())
+            ;(_handlers[event] ?? []).slice().forEach(fn => fn(undefined))
         },
     }
 }
