@@ -9,6 +9,7 @@ Sphere is a geospatial data visualization and editing desktop application built 
 ## Git Conventions
 
 - Branch names use the format `issue-XX` (e.g. `issue-79`)
+- Commit messages are single-line
 
 ## Build & Development Commands
 
