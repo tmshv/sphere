@@ -11,10 +11,10 @@ import { RootErrorFallback } from "@/ui/ErrorFallback/RootErrorFallback"
 import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
 import { setupMaplibre } from "@/maplibre"
 
-function main() {
+async function main() {
     setupMaplibre()
-    handleDragDrop()
-    handleTheme()
+    await handleDragDrop()
+    await handleTheme()
     handleVersion()
     handleHotkey()
 

@@ -1,4 +1,4 @@
-import { listen } from "@tauri-apps/api/event"
+import { listen, type UnlistenFn } from "@tauri-apps/api/event"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { getVersion } from "@tauri-apps/api/app"
 import { actions, store } from "@/store"
@@ -24,15 +24,14 @@ export async function handleHotkey() {
     // }
 }
 
-export async function handleTheme() {
+export async function handleTheme(): Promise<UnlistenFn> {
     const w = getCurrentWindow()
     const theme = await w.theme()
     if (theme) {
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     }
 
-    // const unlisten =
-    await listen("tauri://theme-changed", (event) => {
+    return listen("tauri://theme-changed", (event) => {
         const theme = event.payload as string
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     })
@@ -43,7 +42,7 @@ export async function handleVersion() {
     store.dispatch(actions.app.setVersion(version))
 }
 
-export async function handleDragDrop() {
+export async function handleDragDrop(): Promise<UnlistenFn> {
     const e = "tauri://drag-drop"
     // const e = "tauri://file-drop-hover"
     // const e = "tauri://file-drop-cancelled"
@@ -52,8 +51,7 @@ export async function handleDragDrop() {
         paths: string[]
     }
 
-    // const unlisten =
-    await listen<DragPayload>(e, (event) => {
+    return listen<DragPayload>(e, (event) => {
         store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }
