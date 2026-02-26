@@ -32,7 +32,6 @@ export default function Draw({ mapId }: DrawProps){
         }
     })
     const onChange = useCallback<OnChangeDraw>(async (event, draw) => {
-        // console.log(event.type, event.features)
     }, [])
 
     const { [mapId]: ref } = useMap()
