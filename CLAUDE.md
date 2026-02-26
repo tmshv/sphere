@@ -10,6 +10,7 @@ Sphere is a geospatial data visualization and editing desktop application built 
 
 - Branch names use the format `issue-XX` (e.g. `issue-79`)
 - Commit messages are single-line
+- PR descriptions contain only a short summary of what was done (no test plan section)
 
 ## Build & Development Commands
 
