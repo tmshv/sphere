@@ -10,6 +10,10 @@ import { InvisibleCircleLayer } from "./InvisibleCircleLayer"
 import type { GetImageFunction } from "./types"
 import { useFeatures } from "./hooks"
 
+const PHOTO_CONTAINER_STYLE: React.CSSProperties = { position: "relative", zIndex: 0 }
+const MARKER_STYLE_ACTIVE: React.CSSProperties = { zIndex: 100 }
+const MARKER_STYLE_INACTIVE: React.CSSProperties = { zIndex: 1 }
+
 export type PhotoLayerProps = {
     layerId: string
     sourceId: string
@@ -88,7 +92,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
         const active = activeImage === id
 
         return (
-            <div key={id} style={{ position: "relative", zIndex: 0 }}>
+            <div key={id} style={PHOTO_CONTAINER_STYLE}>
                 <Marker
                     longitude={lng}
                     latitude={lat}
@@ -97,11 +101,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
 
                         setActiveImage(id)
                     }}
-                    style={{
-                        zIndex: active
-                            ? 100
-                            : 1,
-                    }}
+                    style={active ? MARKER_STYLE_ACTIVE : MARKER_STYLE_INACTIVE}
                 >
                     <ImageMarker
                         src={src}

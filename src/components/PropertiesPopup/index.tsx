@@ -4,6 +4,11 @@ import { selectProperties } from "@/store/properties"
 import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Overlay } from "@/ui/Overlay"
 
+const CONTAINER_STYLE: React.CSSProperties = {
+    minWidth: 300,
+    overflow: "hidden",
+}
+
 export default function PropertiesPopup() {
     const props = useAppSelector(selectProperties)
     if (!props) {
@@ -12,10 +17,7 @@ export default function PropertiesPopup() {
 
     return (
         <Overlay topRight={(
-            <Container pt={"lg"} style={{
-                minWidth: 300,
-                overflow: "hidden",
-            }}>
+            <Container pt={"lg"} style={CONTAINER_STYLE}>
                 <Paper p={"sm"}>
                     <Title order={3}>
                         Properties
