@@ -21,17 +21,7 @@ listener.startListening({
             map.setFilter(`${prevLayerId}-selected`, ["in", "id", ""])
         }
 
-        // const source = state.source.items[sourceId]
-        // const f = source.data.data.find(f => f.id === featureId)
-        // if (!f) {
-        //     return
-        // }
-
-        // console.log("select!", featureId, sourceId);
-
         map.setFilter(`${layerId}-selected`, ["in", "id", ...[featureId]])
-
-        // console.log(f.properties);
     },
 })
 
