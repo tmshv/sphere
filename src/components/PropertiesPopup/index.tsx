@@ -6,7 +6,18 @@ import { Overlay } from "@/ui/Overlay"
 
 const CONTAINER_STYLE: React.CSSProperties = {
     minWidth: 300,
+    height: "100%",
+}
+
+const PAPER_STYLE: React.CSSProperties = {
+    maxHeight: "100%",
+    display: "flex",
+    flexDirection: "column",
     overflow: "hidden",
+}
+
+const BODY_STYLE: React.CSSProperties = {
+    overflowY: "auto",
 }
 
 export default function PropertiesPopup() {
@@ -18,16 +29,18 @@ export default function PropertiesPopup() {
     return (
         <Overlay topRight={(
             <Container pt={"lg"} style={CONTAINER_STYLE}>
-                <Paper p={"sm"}>
+                <Paper p={"sm"} style={PAPER_STYLE}>
                     <Title order={3}>
                         Properties
                     </Title>
-                    {props.map((x, i) => (
-                        <PropertiesViewer
-                            key={i}
-                            properties={x}
-                        />
-                    ))}
+                    <div style={BODY_STYLE}>
+                        {props.map((x, i) => (
+                            <PropertiesViewer
+                                key={i}
+                                properties={x}
+                            />
+                        ))}
+                    </div>
                 </Paper>
             </Container>
         )} />
