@@ -56,5 +56,3 @@ The script `scripts/version.js` copies the version from `package.json` into the 
 - [gpxstudio.github.io](https://github.com/gpxstudio/gpxstudio.github.io)
 - [geojson.io](https://geojson.io)
 - [mapshaper](https://mapshaper.org)
-
-
