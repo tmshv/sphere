@@ -19,6 +19,7 @@ const useStyles = createStyles(theme => ({
     topLeft: {
         top: theme.spacing.sm + theme.spacing.xl,
         left: theme.spacing.md,
+        bottom: theme.spacing.sm,
     },
 
     left: {
@@ -36,6 +37,7 @@ const useStyles = createStyles(theme => ({
     topRight: {
         top: theme.spacing.sm,
         right: theme.spacing.sm,
+        bottom: theme.spacing.sm,
     },
 
     top: {
