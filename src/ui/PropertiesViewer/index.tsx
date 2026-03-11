@@ -1,5 +1,5 @@
-import { isUrl } from "@/lib/predict-data-type"
 import { createStyles, Image } from "@mantine/core"
+import { isUrl } from "@/lib/predict-data-type"
 import { CopyButton } from "./CopyButton"
 
 const useStyles = createStyles(theme => ({
