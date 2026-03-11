@@ -42,7 +42,7 @@ The script `scripts/version.js` copies the version from `package.json` into the 
 2. Push the tag:
 
    ```bash
-   git push origin main --tags
+   git push --tags
    ```
 
 3. GitHub Actions (`publish.yaml`) picks up the `v*` tag and builds macOS and Windows binaries using `tauri-apps/tauri-action`. A **draft** GitHub Release is created with the build artifacts attached.
