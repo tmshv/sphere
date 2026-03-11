@@ -18,7 +18,7 @@ const useStyles = createStyles(theme => ({
 }))
 
 export type PropertiesViewerProps = {
-    properties: { key: string, value: any }[]
+    properties: { key: string, value: string }[]
     checkUrls?: boolean
 }
 
