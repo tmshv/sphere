@@ -73,7 +73,7 @@ describe("addFromClipboard thunk", () => {
         expect(call.name).toBe("Pasted GeoJSON")
         expect(call.location).toBe("")
         expect(call.dataset).toMatchObject({ type: "FeatureCollection" })
-        expect(call.dataset.features).toHaveLength(1)
+        expect(call.dataset!.features).toHaveLength(1)
         expect(dispatchSpy).toHaveBeenCalledWith(
             expect.objectContaining({ type: "source/addGeojsonSource" }),
         )
@@ -86,9 +86,9 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
         const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.dataset.type).toBe("FeatureCollection")
-        expect(call.dataset.features).toHaveLength(1)
-        expect(call.dataset.features[0]).toEqual(feature)
+        expect(call.dataset!.type).toBe("FeatureCollection")
+        expect(call.dataset!.features).toHaveLength(1)
+        expect(call.dataset!.features[0]).toEqual(feature)
     })
 
     test("wraps a Geometry into a FeatureCollection", async () => {
@@ -98,9 +98,9 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
         const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.dataset.type).toBe("FeatureCollection")
-        expect(call.dataset.features).toHaveLength(1)
-        expect(call.dataset.features[0].geometry).toEqual(geometry)
+        expect(call.dataset!.type).toBe("FeatureCollection")
+        expect(call.dataset!.features).toHaveLength(1)
+        expect(call.dataset!.features[0].geometry).toEqual(geometry)
     })
 
     test("derives schema from feature properties using typeof", async () => {
@@ -126,7 +126,7 @@ describe("addFromClipboard thunk", () => {
     })
 
     test("does nothing when clipboard is empty", async () => {
-        mockReadText.mockResolvedValue(null)
+        mockReadText.mockResolvedValue(null as unknown as string)
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
