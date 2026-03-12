@@ -1,4 +1,5 @@
 import { useCallback } from "react"
+import { useHotkeys } from "@mantine/hooks"
 import { MapProvider } from "react-map-gl/maplibre"
 import { ErrorBoundary } from "react-error-boundary"
 import { Center } from "@mantine/core"
@@ -13,6 +14,7 @@ import { MAP_ID } from "@/const"
 import { Overlay } from "@/ui/Overlay"
 import { Sidebar } from "@/ui/Sidebar"
 import { actions, selectors } from "@/store"
+import addFromClipboard from "@/store/source/addFromClipboard"
 import { WorkingIndicator } from "../WorkingIndicator"
 import PropertiesPopup from "../PropertiesPopup"
 import { ErrorFallback } from "@/ui/ErrorFallback"
@@ -33,6 +35,8 @@ export default function App() {
     const onResize = useCallback(() => {
         dispatch(actions.map.resize(id))
     }, [dispatch, id])
+
+    useHotkeys([["mod+V", () => dispatch(addFromClipboard())]])
     const zen = useAppSelector(selectors.app.isZen)
     const left = useAppSelector(selectShowLeftSidebar)
 
