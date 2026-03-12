@@ -19,6 +19,8 @@
         }
       ]
     },
-    "fs:default"
+    "fs:default",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-text"
   ]
 }

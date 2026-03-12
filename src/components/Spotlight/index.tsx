@@ -1,9 +1,10 @@
 import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { SpotlightProvider } from "@mantine/spotlight"
-import { IconSearch, IconCopy, IconZoomReset } from "@tabler/icons"
+import { IconSearch, IconCopy, IconZoomReset, IconClipboard } from "@tabler/icons"
 import { useMap } from "react-map-gl/maplibre"
 import { useAppDispatch } from "../../store/hooks"
 import { actions } from "../../store"
+import addFromClipboard from "../../store/source/addFromClipboard"
 
 export type SpotlightProps = {
     mapId: string
@@ -146,6 +147,14 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     description: "Toggle visibility of tile boundaries",
                     onTrigger: async () => {
                         dispatch(actions.tileBoundaries.toggle())
+                    },
+                },
+                {
+                    title: "Paste GeoJSON",
+                    description: "Create source from GeoJSON in clipboard",
+                    icon: <IconClipboard size={18} />,
+                    onTrigger: () => {
+                        dispatch(addFromClipboard())
                     },
                 },
             ]}
