@@ -16,8 +16,7 @@
         "tauri": "tauri"
     },
     "dependencies": {
-        "@emotion/react": "^11.14.0",
-        "@hyvilo/maplibre-gl-draw": "^1.0.0",
+"@hyvilo/maplibre-gl-draw": "^1.0.0",
         "@mantine/core": "^5.10.5",
         "@mantine/form": "^5.10.5",
         "@mantine/hooks": "^5.10.5",
