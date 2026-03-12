@@ -5,7 +5,6 @@ import { Badge } from "./Badge"
 import { PhotoCluster, RenderPhotoFunction } from "./PhotoCluster"
 import { useDispatch } from "react-redux"
 import { actions } from "@/store"
-import * as maplibregl from "maplibre-gl"
 import { InvisibleCircleLayer } from "./InvisibleCircleLayer"
 import type { GetImageFunction } from "./types"
 import { useFeatures } from "./hooks"
@@ -33,7 +32,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
     const features = useFeatures({
         sourceId,
         layerId: invisiblePointsLayer,
-        map: current?.getMap() as unknown as maplibregl.Map,
+        map: current?.getMap(),
     })
 
     useEffect(() => {
@@ -58,9 +57,9 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
         let id = feature.id! // useFeatures hook makes sure feature has id
 
         if (isCluster) {
-            const src = feature.properties!.src
-            id = feature.properties!.cluster_id
-            const clusterSize = feature.properties!.point_count
+            const src = feature.properties?.src
+            id = feature.properties?.cluster_id
+            const clusterSize = feature.properties?.point_count
 
             return (
                 <Marker key={id} longitude={lng} latitude={lat}>
@@ -70,7 +69,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
                         layout={iconLayout}
                         onHover={() => {
                             dispatch(actions.properties.set({
-                                values: feature.properties!,
+                                values: feature.properties ?? {},
                             }))
                         }}
                         onLeaveHover={() => {
@@ -88,7 +87,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
             )
         }
 
-        const { src } = getImage(feature.properties!)
+        const { src } = getImage(feature.properties)
         const active = activeImage === id
 
         return (
@@ -109,7 +108,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
                         layout={iconLayout}
                         onHover={() => {
                             dispatch(actions.properties.set({
-                                values: feature.properties!,
+                                values: feature.properties ?? {},
                             }))
                         }}
                         onLeaveHover={() => {
@@ -131,9 +130,9 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({ sourceId, layerId, sourc
             <PhotoCluster
                 radius={clusterRadius}
                 data={features.filter(f => {
-                    const { src } = getImage(f.properties!)
+                    const { src } = getImage(f.properties)
                     return !!src
-                }) as any}
+                }) as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string | number }>[]}
                 renderPhoto={renderPhoto}
                 mapProperties={getImage}
             />

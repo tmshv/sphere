@@ -15,11 +15,11 @@ import { sourceLayerProp, visibility } from "@/lib/maplibre"
 
 function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
     return properties => {
-        const src = properties![srcField] as string
+        const src = properties?.[srcField] as string
 
         return {
             src,
-            value: properties![valueField] ?? 0,
+            value: properties?.[valueField] ?? 0,
         }
     }
 }

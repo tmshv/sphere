@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
+import { castDraft } from "immer"
 import type { StyleSpecification } from "maplibre-gl"
 import { STYLE_OSM, STYLE_VECTOR, STYLE_SATELLITE } from "@/const"
 
@@ -27,11 +28,11 @@ export const mapStyleSlice = createSlice({
             state.value = STYLE_SATELLITE
         },
         setOsm: state => {
-            state.value = STYLE_OSM as any
+            state.value = castDraft(STYLE_OSM)
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
         setMapStyle: (state, action: PayloadAction<MapStyle>) => {
-            state.value = action.payload as any
+            state.value = castDraft(action.payload)
         },
     },
 })

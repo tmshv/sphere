@@ -5,9 +5,7 @@ import Supercluster from "supercluster"
 import { useMapboxEvent } from "./useMapboxEvent"
 import logger from "@/logger"
 
-type DefaultFeatureProperties = {
-    [key: string]: any
-}
+type DefaultFeatureProperties = Supercluster.AnyProps
 export type ClustersOptions<P extends Supercluster.AnyProps, C> = Supercluster.Options<P, C>
 export function useClusters<
     P extends Supercluster.AnyProps = DefaultFeatureProperties,

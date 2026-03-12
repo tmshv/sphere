@@ -144,56 +144,62 @@ export const layerSlice = createSlice({
         setCircleRadius: (state, action: PayloadAction<{ id: Id, min: number, max: number }>) => {
             const { id, min, max } = action.payload
             const layer = state.items[id]
-            layer.circle!.minRadius = min
-            layer.circle!.maxRadius = max
+            if (!layer.circle) return
+            layer.circle.minRadius = min
+            layer.circle.maxRadius = max
         },
         setHeatmapParameters: (state, action: PayloadAction<{ id: Id, radius?: number, intensity?: number }>) => {
             const { id, radius, intensity } = action.payload
             const layer = state.items[id]
+            if (!layer.heatmap) return
             if (typeof radius !== "undefined") {
-                layer.heatmap!.radius = radius
+                layer.heatmap.radius = radius
             }
             if (typeof intensity !== "undefined") {
-                layer.heatmap!.intensity = intensity
+                layer.heatmap.intensity = intensity
             }
         },
         setPhotoIconLayout: (state, action: PayloadAction<{ id: Id, value: PhotoIconLayout }>) => {
             const { id, value } = action.payload
             const layer = state.items[id]
-            layer.photo!.icon = value
+            if (!layer.photo) return
+            layer.photo.icon = value
         },
         setPhotoClusterRadius: (state, action: PayloadAction<{ id: Id, value: number }>) => {
             const { id, value } = action.payload
             const layer = state.items[id]
-            layer.photo!.clusterRadius = value
+            if (!layer.photo) return
+            layer.photo.clusterRadius = value
         },
         setPhotoField: (state, action: PayloadAction<{ id: Id, src?: string, value?: string, count?: string }>) => {
             const { id, src, value, count } = action.payload
             const layer = state.items[id]
+            if (!layer.photo) return
             if (src) {
-                layer.photo!.srcField = src
+                layer.photo.srcField = src
             }
             if (value) {
-                layer.photo!.valueField = value
+                layer.photo.valueField = value
             }
             if (count) {
-                layer.photo!.countField = count
+                layer.photo.countField = count
             }
         },
         setExtrusionOptions: (state, action: PayloadAction<{ id: Id, base?: number, height?: number, baseField?: string, heightField?: string }>) => {
             const { id, base, height, baseField, heightField } = action.payload
             const layer = state.items[id]
+            if (!layer.extrusion) return
             if (typeof base !== "undefined") {
-                layer.extrusion!.base = base
+                layer.extrusion.base = base
             }
             if (typeof height !== "undefined") {
-                layer.extrusion!.height = height
+                layer.extrusion.height = height
             }
             if (typeof baseField !== "undefined") {
-                layer.extrusion!.baseField = baseField
+                layer.extrusion.baseField = baseField
             }
             if (typeof heightField !== "undefined") {
-                layer.extrusion!.heightField = heightField
+                layer.extrusion.heightField = heightField
             }
         },
     },
