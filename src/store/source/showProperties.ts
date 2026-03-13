@@ -48,6 +48,7 @@ export const showProperties = createAsyncThunk(
         } else {
             const window = new WebviewWindow("sphere-properties", {
                 url: "properties.html",
+                title: "Properties",
             })
             // since the webview window is created asynchronously,
             // Tauri emits the `tauri://created` and `tauri://error` to notify you of the creation response
