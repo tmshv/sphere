@@ -31,6 +31,7 @@ async fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::system::greet,
+            commands::system::show_in_finder,
             commands::source::mbtiles_get_tile,
             commands::source::mbtiles_get_metadata,
             commands::source::source_add,
