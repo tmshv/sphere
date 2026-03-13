@@ -13,7 +13,8 @@
         "test": "vitest run",
         "test:watch": "vitest watch",
         "coverage": "vitest run --coverage",
-        "tauri": "tauri"
+        "tauri": "tauri",
+        "build:quicklook": "bash extensions/quicklook/build.sh"
     },
     "dependencies": {
         "@hyvilo/maplibre-gl-draw": "^1.0.0",

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON Preview</title>
+    <link rel="stylesheet" href="maplibre-gl.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        #map { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="maplibre-gl.js"></script>
+    <script>
+        const map = new maplibregl.Map({
+            container: "map",
+            style: {
+                version: 8,
+                sources: {
+                    osm: {
+                        type: "raster",
+                        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                        tileSize: 256,
+                        attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors",
+                        maxzoom: 19
+                    }
+                },
+                layers: [
+                    {
+                        id: "osm",
+                        type: "raster",
+                        source: "osm"
+                    }
+                ]
+            },
+            center: [0, 0],
+            zoom: 1
+        })
+
+        function calcBbox(geojson) {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+
+            function processCoords(coords) {
+                if (typeof coords[0] === "number") {
+                    const [x, y] = coords
+                    if (x < minX) minX = x
+                    if (y < minY) minY = y
+                    if (x > maxX) maxX = x
+                    if (y > maxY) maxY = y
+                } else {
+                    coords.forEach(processCoords)
+                }
+            }
+
+            function processGeometry(geom) {
+                if (!geom) return
+                if (geom.type === "GeometryCollection") {
+                    geom.geometries.forEach(processGeometry)
+                } else if (geom.coordinates) {
+                    processCoords(geom.coordinates)
+                }
+            }
+
+            function processFeature(feature) {
+                if (feature.type === "Feature") {
+                    processGeometry(feature.geometry)
+                } else if (feature.type === "FeatureCollection") {
+                    feature.features.forEach(processFeature)
+                } else {
+                    processGeometry(feature)
+                }
+            }
+
+            processFeature(geojson)
+
+            if (!isFinite(minX)) return [-180, -90, 180, 90]
+            return [minX, minY, maxX, maxY]
+        }
+
+        window.loadGeoJSON = function(input) {
+            let data
+            try {
+                data = typeof input === "string" ? JSON.parse(input) : input
+            } catch (e) {
+                console.error("Failed to parse GeoJSON:", e)
+                return
+            }
+
+            if (map.getSource("geojson-data")) {
+                map.removeLayer("geojson-fill")
+                map.removeLayer("geojson-line")
+                map.removeLayer("geojson-circle")
+                map.removeSource("geojson-data")
+            }
+
+            map.addSource("geojson-data", {
+                type: "geojson",
+                data: data
+            })
+
+            map.addLayer({
+                id: "geojson-fill",
+                type: "fill",
+                source: "geojson-data",
+                filter: ["==", ["geometry-type"], "Polygon"],
+                paint: {
+                    "fill-color": "#3388ff",
+                    "fill-opacity": 0.3
+                }
+            })
+
+            map.addLayer({
+                id: "geojson-line",
+                type: "line",
+                source: "geojson-data",
+                filter: ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString", "Polygon", "MultiPolygon"]]],
+                paint: {
+                    "line-color": "#3388ff",
+                    "line-width": 2
+                }
+            })
+
+            map.addLayer({
+                id: "geojson-circle",
+                type: "circle",
+                source: "geojson-data",
+                filter: ["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]],
+                paint: {
+                    "circle-color": "#3388ff",
+                    "circle-radius": 6,
+                    "circle-stroke-color": "#ffffff",
+                    "circle-stroke-width": 1.5
+                }
+            })
+
+            const [minX, minY, maxX, maxY] = calcBbox(data)
+            const pad = 0.1 * Math.max(maxX - minX, maxY - minY, 0.01)
+
+            map.fitBounds(
+                [[minX - pad, minY - pad], [maxX + pad, maxY + pad]],
+                { padding: 40, duration: 0, maxZoom: 16 }
+            )
+        }
+    </script>
+</body>
+</html>
