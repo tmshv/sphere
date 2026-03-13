@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from "@tanstack/react-table"
-import { ActionIcon, Badge, Box, createStyles, Flex, Image, Pagination, Select, Tooltip } from "@mantine/core"
+import { ActionIcon, Badge, Box, createStyles, Flex, Image, MantineProvider, MantineTheme, Tooltip } from "@mantine/core"
+import { Statusbar } from "@/ui/Statusbar"
 import { format } from "date-fns"
-import { IconArrowDown, IconArrowUp, IconPhoto, IconPhotoOff } from "@tabler/icons"
+import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@tabler/icons"
 import { BarChart } from "./BarChart"
 
 type StringPropertyMeta = {
@@ -131,7 +132,55 @@ const useStyle = createStyles(theme => ({
     mixedItem: {
         marginRight: theme.spacing.xs,
     },
+    icon: {
+        "&:hover": {
+            backgroundColor: theme.colors.gray[8],
+        },
+    },
+    widget: {
+        fontFamily: "monospace",
+        userSelect: "none",
+        cursor: "default",
+        backgroundColor: theme.colors.dark,
+        color: theme.white,
+    },
+    widgetSelect: {
+        cursor: "pointer",
+        "&:hover": {
+            backgroundColor: theme.colors.gray[8],
+        },
+    },
 }))
+
+type PageSizeSelectProps = {
+    value: number
+    options: number[]
+    className?: string
+    onChange: (value: number) => void
+}
+
+const PageSizeSelect: React.FC<PageSizeSelectProps> = ({ value, options, className, onChange }) => (
+    <select
+        value={value}
+        onChange={e => onChange(Number(e.target.value))}
+        className={className}
+        style={{
+            appearance: "none",
+            WebkitAppearance: "none",
+            border: "none",
+            font: "inherit",
+            fontSize: 12,
+            cursor: "pointer",
+            outline: "none",
+            borderRadius: 4,
+            padding: "0 4px",
+        }}
+    >
+        {options.map(x => (
+            <option key={x} value={x}>{x} / page</option>
+        ))}
+    </select>
+)
 
 type PropertyTableProps = {
     data: PropertyItem[]
@@ -153,12 +202,18 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
         state: {
             sorting,
         },
+        initialState: {
+            pagination: {
+                pageSize: 50,
+            },
+        },
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
     })
 
     return (
-        <Flex direction={"column"} gap={"sm"}>
+        <Flex direction={"column"} style={{ flex: 1, overflow: "hidden" }}>
+            <div style={{ flex: 1, overflowX: "auto", overflowY: "auto" }}>
             <table
                 className={s.table}
                 style={{
@@ -473,30 +528,47 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                     ))}
                 </tfoot>
             </table>
+            </div>
 
-            <Flex justify={"space-between"}>
-                <Pagination
-                    page={table.getState().pagination.pageIndex + 1}
-                    // onChange={setPage}
-                    // onClick={page => table.setPageIndex(table.getPageCount() - 1)}
-                    onChange={page => table.setPageIndex(page - 1)}
-                    total={table.getPageCount()}
-                />
+            <Statusbar>
+                <MantineProvider theme={{
+                    components: {
+                        ActionIcon: {
+                            defaultProps: (theme: MantineTheme) => ({
+                                size: "xs",
+                                radius: "sm",
+                                className: s.icon,
+                                sx: {
+                                    "&[data-disabled]": {
+                                        backgroundColor: "#00000000",
+                                        color: theme.colors.gray[8],
+                                        border: "none",
+                                    },
+                                },
+                            }),
+                        },
+                    },
+                }}>
+                    <ActionIcon disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()}>
+                        <IconChevronLeft size={14} />
+                    </ActionIcon>
+                    <Badge className={s.widget} radius="sm" size="sm" variant="light">
+                        {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                    </Badge>
+                    <ActionIcon disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
+                        <IconChevronRight size={14} />
+                    </ActionIcon>
+                </MantineProvider>
 
-                <Select
-                    value={`${table.getState().pagination.pageSize}`}
-                    onChange={value => {
-                        if (!value) {
-                            return
-                        }
-                        table.setPageSize(Number(value))
-                    }}
-                    data={[10, 25, 50, 100].map(x => ({
-                        label: `${x}`,
-                        value: `${x}`,
-                    }))}
+                <Box style={{ flex: 1 }} />
+
+                <PageSizeSelect
+                    className={cx(s.widget, s.widgetSelect)}
+                    value={table.getState().pagination.pageSize}
+                    options={[50, 100, 500, 1000]}
+                    onChange={v => table.setPageSize(v)}
                 />
-            </Flex>
-        </Flex >
+            </Statusbar>
+        </Flex>
     )
 }

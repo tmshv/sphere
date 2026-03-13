@@ -8,10 +8,10 @@ import type { Source } from "@/types/source"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 
-async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | null> {
+async function getProps(source: Source): Promise<{ id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[] | null> {
     switch (source.type) {
         case SourceType.FeatureCollection: {
-            return source.dataset!.features.map(f => f.properties)
+            return source.dataset!.features.map(f => ({ id: f.id, props: f.properties }))
         }
         case SourceType.Geojson: {
             const r = new SourceReader(source.location)
@@ -19,7 +19,7 @@ async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | n
             if (!geojson) {
                 return null
             }
-            return geojson.features.map(f => f.properties)
+            return geojson.features.map(f => ({ id: f.id, props: f.properties }))
         }
         default: {
             return null
