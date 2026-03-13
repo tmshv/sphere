@@ -184,176 +184,21 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
     return (
         <Flex direction={"column"} style={{ flex: 1, overflow: "hidden" }}>
             <div style={{ flex: 1, overflowX: "auto", overflowY: "auto" }}>
-            <table
-                className={s.table}
-                style={{
-                    width: table.getCenterTotalSize(),
-                }}
-                cellPadding={0}
-                cellSpacing={0}
-            >
-                <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <tr
-                            key={headerGroup.id}
-                            className={s.tr}
-                        >
-                            {headerGroup.headers.map(header => (
-                                <th
-                                    key={header.id}
-                                    className={s.th}
-                                    style={{
-                                        width: header.getSize(),
-                                    }}
-                                >
-                                    <Flex
-                                        align={"center"}
-                                        p={"sm"}
-                                        gap={"xs"}
-                                        onClick={header.column.getToggleSortingHandler()}
-                                    >
-                                        {{
-                                            asc: (
-                                                <IconArrowUp size={16} />
-                                            ),
-                                            desc: (
-                                                <IconArrowDown size={16} />
-                                            ),
-                                        }[header.column.getIsSorted() as string] ?? null}
-                                        {header.isPlaceholder ? null : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext(),
-                                        )}
-                                        <Box style={{ flex: 1 }} />
-                                        {meta[header.column.id].type !== "url" ? null : (
-                                            <ActionIcon size={"xs"} onClick={() => {
-                                                setPhotos(photos => ({
-                                                    ...photos,
-                                                    [header.column.id]: !photos[header.column.id],
-                                                }))
-                                            }}>
-                                                {photos[header.column.id] ? (
-                                                    <IconPhoto size={16} />
-                                                ) : (
-                                                    <IconPhotoOff size={16} />
-                                                )}
-                                            </ActionIcon>
-                                        )}
-                                        <Badge size={"xs"} radius={"xs"}>
-                                            {meta[header.column.id].type}
-                                        </Badge>
-                                        {/* {header.column.getCanFilter() ? (
-                                            <div>
-                                                <Filter column={header.column} table={table} />
-                                            </div>
-                                        ) : null} */}
-                                    </Flex>
-                                    <div
-                                        className={cx(s.resizer, {
-                                            [s.resizing]: header.column.getIsResizing(),
-                                        })}
-                                        // style={{
-                                        //     transform:
-                                        //         columnResizeMode === 'onEnd' &&
-                                        //             header.column.getIsResizing()
-                                        //             ? `translateX(${table.getState().columnSizingInfo.deltaOffset
-                                        //             }px)`
-                                        //             : '',
-                                        // }}
-                                        onMouseDown={header.getResizeHandler()}
-                                        onTouchStart={header.getResizeHandler()}
-                                    />
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <tr
-                            key={headerGroup.id}
-                            className={s.tr}
-                        >
-                            {headerGroup.headers.map(header => {
-                                const t = meta[header.column.id]
-                                let content: React.ReactNode = null
-
-                                switch (t.type) {
-                                    case "string": {
-                                        content = (
-                                            <Flex
-                                                align={"center"}
-                                                direction={"row-reverse"}
-                                                p={"sm"}
-                                                gap={"xs"}
-                                            >
-                                                <Badge size={"xs"} radius={"sm"}>unique={t.unique}</Badge>
-                                            </Flex>
-                                        )
-                                        break
-                                    }
-                                    case "int": {
-                                        content = (
-                                            <Flex
-                                                direction={"row"}
-                                                p={"sm"}
-                                                gap={"xs"}
-                                                justify={"space-between"}
-                                            >
-                                                {!t.hist ? null : (
-                                                    <BarChart
-                                                        width={50}
-                                                        height={50}
-                                                        // min={t.min}
-                                                        // max={t.max}
-                                                        data={t.hist}
-                                                        color={"rgb(34, 139, 230)"}
-                                                    />
-                                                )}
-                                                <Flex
-                                                    gap={"xs"}
-                                                    direction={"column"}
-                                                >
-                                                    <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
-                                                    <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
-                                                </Flex>
-                                            </Flex>
-                                        )
-                                        break
-                                    }
-                                    case "float": {
-                                        content = (
-                                            <Flex
-                                                direction={"row"}
-                                                p={"sm"}
-                                                gap={"xs"}
-                                                justify={"space-between"}
-                                            >
-                                                {!t.hist ? null : (
-                                                    <BarChart
-                                                        width={50}
-                                                        height={50}
-                                                        // min={t.min}
-                                                        // max={t.max}
-                                                        data={t.hist}
-                                                        color={"rgb(34, 139, 230)"}
-                                                    />
-                                                )}
-                                                <Flex
-                                                    gap={"xs"}
-                                                    direction={"column"}
-                                                >
-                                                    <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
-                                                    <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
-                                                </Flex>
-                                            </Flex>
-                                        )
-                                        break
-                                    }
-                                    default: {
-                                        break
-                                    }
-                                }
-
-                                return (
+                <table
+                    className={s.table}
+                    style={{
+                        width: table.getCenterTotalSize(),
+                    }}
+                    cellPadding={0}
+                    cellSpacing={0}
+                >
+                    <thead>
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <tr
+                                key={headerGroup.id}
+                                className={s.tr}
+                            >
+                                {headerGroup.headers.map(header => (
                                     <th
                                         key={header.id}
                                         className={s.th}
@@ -361,143 +206,298 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                                             width: header.getSize(),
                                         }}
                                     >
-                                        {content}
-                                        {/* <Flex
+                                        <Flex
+                                            align={"center"}
+                                            p={"sm"}
+                                            gap={"xs"}
+                                            onClick={header.column.getToggleSortingHandler()}
+                                        >
+                                            {{
+                                                asc: (
+                                                    <IconArrowUp size={16} />
+                                                ),
+                                                desc: (
+                                                    <IconArrowDown size={16} />
+                                                ),
+                                            }[header.column.getIsSorted() as string] ?? null}
+                                            {header.isPlaceholder ? null : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext(),
+                                            )}
+                                            <Box style={{ flex: 1 }} />
+                                            {meta[header.column.id].type !== "url" ? null : (
+                                                <ActionIcon size={"xs"} onClick={() => {
+                                                    setPhotos(photos => ({
+                                                        ...photos,
+                                                        [header.column.id]: !photos[header.column.id],
+                                                    }))
+                                                }}>
+                                                    {photos[header.column.id] ? (
+                                                        <IconPhoto size={16} />
+                                                    ) : (
+                                                        <IconPhotoOff size={16} />
+                                                    )}
+                                                </ActionIcon>
+                                            )}
+                                            <Badge size={"xs"} radius={"xs"}>
+                                                {meta[header.column.id].type}
+                                            </Badge>
+                                            {/* {header.column.getCanFilter() ? (
+                                            <div>
+                                                <Filter column={header.column} table={table} />
+                                            </div>
+                                        ) : null} */}
+                                        </Flex>
+                                        <div
+                                            className={cx(s.resizer, {
+                                                [s.resizing]: header.column.getIsResizing(),
+                                            })}
+                                            // style={{
+                                            //     transform:
+                                            //         columnResizeMode === 'onEnd' &&
+                                            //             header.column.getIsResizing()
+                                            //             ? `translateX(${table.getState().columnSizingInfo.deltaOffset
+                                            //             }px)`
+                                            //             : '',
+                                            // }}
+                                            onMouseDown={header.getResizeHandler()}
+                                            onTouchStart={header.getResizeHandler()}
+                                        />
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <tr
+                                key={headerGroup.id}
+                                className={s.tr}
+                            >
+                                {headerGroup.headers.map(header => {
+                                    const t = meta[header.column.id]
+                                    let content: React.ReactNode = null
+
+                                    switch (t.type) {
+                                        case "string": {
+                                            content = (
+                                                <Flex
+                                                    align={"center"}
+                                                    direction={"row-reverse"}
+                                                    p={"sm"}
+                                                    gap={"xs"}
+                                                >
+                                                    <Badge size={"xs"} radius={"sm"}>unique={t.unique}</Badge>
+                                                </Flex>
+                                            )
+                                            break
+                                        }
+                                        case "int": {
+                                            content = (
+                                                <Flex
+                                                    direction={"row"}
+                                                    p={"sm"}
+                                                    gap={"xs"}
+                                                    justify={"space-between"}
+                                                >
+                                                    {!t.hist ? null : (
+                                                        <BarChart
+                                                            width={50}
+                                                            height={50}
+                                                            // min={t.min}
+                                                            // max={t.max}
+                                                            data={t.hist}
+                                                            color={"rgb(34, 139, 230)"}
+                                                        />
+                                                    )}
+                                                    <Flex
+                                                        gap={"xs"}
+                                                        direction={"column"}
+                                                    >
+                                                        <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
+                                                        <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
+                                                    </Flex>
+                                                </Flex>
+                                            )
+                                            break
+                                        }
+                                        case "float": {
+                                            content = (
+                                                <Flex
+                                                    direction={"row"}
+                                                    p={"sm"}
+                                                    gap={"xs"}
+                                                    justify={"space-between"}
+                                                >
+                                                    {!t.hist ? null : (
+                                                        <BarChart
+                                                            width={50}
+                                                            height={50}
+                                                            // min={t.min}
+                                                            // max={t.max}
+                                                            data={t.hist}
+                                                            color={"rgb(34, 139, 230)"}
+                                                        />
+                                                    )}
+                                                    <Flex
+                                                        gap={"xs"}
+                                                        direction={"column"}
+                                                    >
+                                                        <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
+                                                        <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
+                                                    </Flex>
+                                                </Flex>
+                                            )
+                                            break
+                                        }
+                                        default: {
+                                            break
+                                        }
+                                    }
+
+                                    return (
+                                        <th
+                                            key={header.id}
+                                            className={s.th}
+                                            style={{
+                                                width: header.getSize(),
+                                            }}
+                                        >
+                                            {content}
+                                            {/* <Flex
                                             align={'center'}
                                             p={'sm'}
                                             gap={'xs'}
                                         >
                                             <Badge>string</Badge>
                                         </Flex> */}
-                                    </th>
-                                )
-                            })}
-                        </tr>
-                    ))}
-                </thead>
+                                        </th>
+                                    )
+                                })}
+                            </tr>
+                        ))}
+                    </thead>
 
-                <tbody>
-                    {table.getRowModel().rows.map(row => (
-                        <tr
-                            key={row.id}
-                            className={s.tr}
-                        >
-                            {row.getVisibleCells().map(cell => {
-                                let render = (info: CellContext<PropertyItem, any>) => info.getValue()
+                    <tbody>
+                        {table.getRowModel().rows.map(row => (
+                            <tr
+                                key={row.id}
+                                className={s.tr}
+                            >
+                                {row.getVisibleCells().map(cell => {
+                                    let render = (info: CellContext<PropertyItem, any>) => info.getValue()
 
-                                const type = meta[cell.column.id].type
-                                switch (type) {
-                                    case "url": {
-                                        render = info => {
-                                            const value = info.getValue()
-                                            if (photos[info.column.id]) {
+                                    const type = meta[cell.column.id].type
+                                    switch (type) {
+                                        case "url": {
+                                            render = info => {
+                                                const value = info.getValue()
+                                                if (photos[info.column.id]) {
+                                                    return (
+                                                        <Image
+                                                            src={value}
+                                                            width={50}
+                                                            height={50}
+                                                        />
+                                                    )
+                                                }
+                                                const url = new URL(value)
                                                 return (
-                                                    <Image
-                                                        src={value}
-                                                        width={50}
-                                                        height={50}
-                                                    />
+                                                    <Tooltip label={value} openDelay={500}>
+                                                        <Badge size={"sm"} radius={"sm"} variant={"outline"} color={"dark"}>{url.hostname}{url.pathname}</Badge>
+                                                    </Tooltip>
                                                 )
                                             }
-                                            const url = new URL(value)
-                                            return (
-                                                <Tooltip label={value} openDelay={500}>
-                                                    <Badge size={"sm"} radius={"sm"} variant={"outline"} color={"dark"}>{url.hostname}{url.pathname}</Badge>
-                                                </Tooltip>
-                                            )
+                                            break
                                         }
-                                        break
-                                    }
-                                    case "mixed": {
-                                        render = info => {
-                                            const value = info.getValue()
-                                            if (Array.isArray(value)) {
+                                        case "mixed": {
+                                            render = info => {
+                                                const value = info.getValue()
+                                                if (Array.isArray(value)) {
+                                                    return (
+                                                        <>
+                                                            {value.map(x => (
+                                                                <Badge key={x} className={s.mixedItem} size={"sm"} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
+                                                            ))}
+                                                        </>
+                                                    )
+                                                }
+                                            }
+                                            break
+                                        }
+                                        case "date": {
+                                            render = info => {
+                                                const value = info.getValue()
                                                 return (
-                                                    <>
-                                                        {value.map(x => (
-                                                            <Badge key={x} className={s.mixedItem} size={"sm"} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
-                                                        ))}
-                                                    </>
+                                                    <Tooltip label={value} openDelay={500}>
+                                                        <span>
+                                                            {format(new Date(value), "yyyy-MM-dd hh:mm:ss")}
+                                                        </span>
+                                                    </Tooltip>
                                                 )
                                             }
+                                            break
                                         }
-                                        break
-                                    }
-                                    case "date": {
-                                        render = info => {
-                                            const value = info.getValue()
-                                            return (
-                                                <Tooltip label={value} openDelay={500}>
-                                                    <span>
-                                                        {format(new Date(value), "yyyy-MM-dd hh:mm:ss")}
+                                        case "int": {
+                                            render = info => {
+                                                const value = info.getValue()
+                                                return (
+                                                    <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
+                                                        {value}
                                                     </span>
-                                                </Tooltip>
-                                            )
+                                                )
+                                            }
+                                            break
                                         }
-                                        break
-                                    }
-                                    case "int": {
-                                        render = info => {
-                                            const value = info.getValue()
-                                            return (
-                                                <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
-                                                    {value}
-                                                </span>
-                                            )
+                                        case "float": {
+                                            render = info => {
+                                                const value = info.getValue()
+                                                return (
+                                                    <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
+                                                        {value}
+                                                    </span>
+                                                )
+                                            }
+                                            break
                                         }
-                                        break
-                                    }
-                                    case "float": {
-                                        render = info => {
-                                            const value = info.getValue()
-                                            return (
-                                                <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
-                                                    {value}
-                                                </span>
-                                            )
+                                        default: {
+                                            break
                                         }
-                                        break
                                     }
-                                    default: {
-                                        break
-                                    }
-                                }
 
-                                return (
-                                    <td
-                                        key={cell.id}
-                                        className={s.td}
-                                        style={{
-                                            width: cell.column.getSize(),
-                                        }}
-                                    >
-                                        {flexRender(render, cell.getContext())}
-                                    </td>
-                                )
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    {table.getFooterGroups().map(footerGroup => (
-                        <tr
-                            key={footerGroup.id}
-                            className={s.tr}
-                        >
-                            {footerGroup.headers.map(header => (
-                                <th key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.footer,
-                                            header.getContext(),
-                                        )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </tfoot>
-            </table>
+                                    return (
+                                        <td
+                                            key={cell.id}
+                                            className={s.td}
+                                            style={{
+                                                width: cell.column.getSize(),
+                                            }}
+                                        >
+                                            {flexRender(render, cell.getContext())}
+                                        </td>
+                                    )
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot>
+                        {table.getFooterGroups().map(footerGroup => (
+                            <tr
+                                key={footerGroup.id}
+                                className={s.tr}
+                            >
+                                {footerGroup.headers.map(header => (
+                                    <th key={header.id}>
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.footer,
+                                                header.getContext(),
+                                            )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </tfoot>
+                </table>
             </div>
 
             <Statusbar>
