@@ -10,6 +10,7 @@
     "shell:allow-open",
     "core:window:default",
     "core:window:allow-start-dragging",
+    "core:webview:allow-create-webview-window",
     "dialog:default",
     {
       "identifier": "http:default",

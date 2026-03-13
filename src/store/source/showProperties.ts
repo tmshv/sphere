@@ -8,19 +8,18 @@ import type { Source } from "@/types/source"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 
-async function getProps(source: Source): Promise<GeoJSON.GeoJsonProperties[] | null> {
+export async function getProps(source: Source): Promise<{ id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[] | null> {
     switch (source.type) {
         case SourceType.FeatureCollection: {
-            return source.dataset!.features.map(f => f.properties)
+            return source.dataset!.features.map(f => ({ id: f.id, props: f.properties }))
         }
         case SourceType.Geojson: {
-            const url = new URL(source.location)
-            const r = new SourceReader(url.pathname)
+            const r = new SourceReader(source.location)
             const geojson = await r.getGeojson()
             if (!geojson) {
                 return null
             }
-            return geojson.features.map(f => f.properties)
+            return geojson.features.map(f => ({ id: f.id, props: f.properties }))
         }
         default: {
             return null
@@ -43,17 +42,24 @@ export const showProperties = createAsyncThunk(
             throw new Error(`Property table is not available for "${source.name}"`)
         }
 
-        const window = new WebviewWindow("sphere-properties", {
-            url: "properties.html",
-        })
-        // since the webview window is created asynchronously,
-        // Tauri emits the `tauri://created` and `tauri://error` to notify you of the creation response
-        window.once("tauri://created", function() {
-            // webview window successfully created
-        })
-        window.once("tauri://error", function(e) {
-            // an error occurred during webview window creation
-        })
+        const existing = await WebviewWindow.getByLabel("sphere-properties")
+        if (existing) {
+            await existing.setFocus()
+        } else {
+            const window = new WebviewWindow("sphere-properties", {
+                url: "properties.html",
+                title: "Properties",
+            })
+            // since the webview window is created asynchronously,
+            // Tauri emits the `tauri://created` and `tauri://error` to notify you of the creation response
+            window.once("tauri://created", function() {
+                // webview window successfully created
+            })
+            window.once("tauri://error", function(e) {
+                logger.error({ error: e }, "Failed to create properties window")
+                throw new Error("Failed to open properties window")
+            })
+        }
 
         const status = await waitEvent("properties-init")
         logger.info({ status }, "Got properties-init")

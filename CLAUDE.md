@@ -41,6 +41,7 @@ Before modifying any code file, check whether it has tests. All code must be cov
 - Trailing commas in multiline structures
 - Unix line endings
 - No `_underscore` prefix for private/local variables
+- Use `function Component({ prop }: ComponentProps) {}` syntax for React components, not arrow functions
 - Use maplibre types (`MapEventType`, `MapLayerEventType`, `Listener`, etc.) when working with map event handlers
 
 ## Architecture

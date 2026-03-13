@@ -1,0 +1,11 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "properties",
+  "description": "Capability for the properties window",
+  "windows": [
+    "sphere-properties"
+  ],
+  "permissions": [
+    "core:default"
+  ]
+}
