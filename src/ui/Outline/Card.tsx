@@ -1,5 +1,6 @@
 import { useRef } from "react"
 import { useDrag, useDrop } from "react-dnd"
+import type { DragSourceMonitor } from "react-dnd"
 import { ItemTypes } from "./type"
 import type { Identifier, XYCoord } from "dnd-core"
 
@@ -79,7 +80,7 @@ export const Card: React.FC<CardProps> = ({ id, children, index, onMove }) => {
         item: () => {
             return { id, index }
         },
-        collect: (monitor: any) => ({
+        collect: (monitor: DragSourceMonitor) => ({
             isDragging: monitor.isDragging(),
         }),
     })
