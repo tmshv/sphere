@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from "@tanstack/react-table"
 import { ActionIcon, Badge, Box, createStyles, Flex, Image, MantineProvider, MantineTheme, Tooltip } from "@mantine/core"
-import { Statusbar } from "@/ui/Statusbar"
+import { Select, Statusbar } from "@/ui/Statusbar"
 import { format } from "date-fns"
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@tabler/icons"
 import { BarChart } from "./BarChart"
@@ -151,36 +151,6 @@ const useStyle = createStyles(theme => ({
         },
     },
 }))
-
-type PageSizeSelectProps = {
-    value: number
-    options: number[]
-    className?: string
-    onChange: (value: number) => void
-}
-
-const PageSizeSelect: React.FC<PageSizeSelectProps> = ({ value, options, className, onChange }) => (
-    <select
-        value={value}
-        onChange={e => onChange(Number(e.target.value))}
-        className={className}
-        style={{
-            appearance: "none",
-            WebkitAppearance: "none",
-            border: "none",
-            font: "inherit",
-            fontSize: 12,
-            cursor: "pointer",
-            outline: "none",
-            borderRadius: 4,
-            padding: "0 4px",
-        }}
-    >
-        {options.map(x => (
-            <option key={x} value={x}>{x} / page</option>
-        ))}
-    </select>
-)
 
 type PropertyTableProps = {
     data: PropertyItem[]
@@ -562,7 +532,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
 
                 <Box style={{ flex: 1 }} />
 
-                <PageSizeSelect
+                <Select
                     className={cx(s.widget, s.widgetSelect)}
                     value={table.getState().pagination.pageSize}
                     options={[50, 100, 500, 1000]}

@@ -8,7 +8,7 @@ import type { Source } from "@/types/source"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 
-async function getProps(source: Source): Promise<{ id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[] | null> {
+export async function getProps(source: Source): Promise<{ id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[] | null> {
     switch (source.type) {
         case SourceType.FeatureCollection: {
             return source.dataset!.features.map(f => ({ id: f.id, props: f.properties }))

@@ -33,21 +33,19 @@ function useEvent<T>(eventName: string) {
     return payload
 }
 
-const useStyle = createStyles((theme) => ({
+const useStyle = createStyles(() => ({
     container: {
-        overflowX: "auto",
-        height: "100%",
-
-        padding: theme.spacing.sm,
-
-        touchAction: "none",
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        overflow: "hidden",
     },
 }))
 
 const columnHelper = createColumnHelper<PropertyItem>()
 
 type PropertiesSetPayload = {
-    properties: PropertyItem[];
+    properties: { id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[];
 };
 
 function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>, PropertyItem[]] | undefined {
@@ -56,21 +54,34 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
         return undefined
     }
 
-    const head = Object.keys(data.properties[0])
-    const columns = head.map((key) =>
-        columnHelper.accessor(key, {
-            id: key,
-            cell: (info) => info.getValue(),
-            header: () => <span>{key}</span>,
-        }),
-    )
+    const rows: PropertyItem[] = data.properties.map(item => ({ $id: item.id, ...item.props }))
+    const head = Object.keys(data.properties[0].props ?? {})
 
-    const meta = head.reduce((acc, key) => {
+    const columns: ColumnDef<PropertyItem>[] = [
+        columnHelper.accessor("$id", {
+            id: "$id",
+            cell: (info) => info.getValue(),
+            header: () => <span>$id</span>,
+        }),
+        ...head.map((key) =>
+            columnHelper.accessor(key, {
+                id: key,
+                cell: (info) => info.getValue(),
+                header: () => <span>{key}</span>,
+            }),
+        ),
+    ]
+
+    const meta: Record<string, PropertyItemMeta> = {
+        $id: { type: "unknown" },
+    }
+
+    head.reduce((acc, key) => {
         const bins = 11
-        const type = predictType(key, data.properties)
+        const type = predictType(key, rows)
         switch (type) {
             case "string": {
-                const unique = new Set(data.properties.map((p) => p[key]))
+                const unique = new Set(rows.map((p) => p[key]))
                 acc[key] = {
                     type,
                     unique: unique.size,
@@ -78,7 +89,7 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 break
             }
             case "int": {
-                const n = data.properties.map((p) => parseFloat(p[key]))
+                const n = rows.map((p) => parseFloat(p[key]))
                 const min = Math.min(...n)
                 const max = Math.max(...n)
                 const mean = 0
@@ -92,7 +103,7 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
                 break
             }
             case "float": {
-                const n = data.properties.map((p) => parseFloat(p[key]))
+                const n = rows.map((p) => parseFloat(p[key]))
                 const min = Math.min(...n)
                 const max = Math.max(...n)
                 const mean = 0
@@ -113,9 +124,9 @@ function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>
             }
         }
         return acc
-    }, {} as Record<string, PropertyItemMeta>)
+    }, meta)
 
-    return [columns, meta, data.properties]
+    return [columns, meta, rows]
 }
 
 const View: React.FC = () => {
