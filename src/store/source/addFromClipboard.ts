@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
-import { actions } from "."
+import { actions, computeGeometryMeta } from "."
 import logger from "@/logger"
 
 const GEOJSON_TYPES = new Set([
@@ -62,19 +62,6 @@ function deriveSchema(fc: GeoJSON.FeatureCollection): Record<string, string> {
     return schema
 }
 
-function deriveMetaCounts(fc: GeoJSON.FeatureCollection): { pointsCount: number, linesCount: number, polygonsCount: number } {
-    let pointsCount = 0
-    let linesCount = 0
-    let polygonsCount = 0
-    for (const feature of fc.features) {
-        const t = feature.geometry?.type
-        if (t === "Point" || t === "MultiPoint") pointsCount++
-        else if (t === "LineString" || t === "MultiLineString") linesCount++
-        else if (t === "Polygon" || t === "MultiPolygon") polygonsCount++
-    }
-    return { pointsCount, linesCount, polygonsCount }
-}
-
 const action = createAsyncThunk(
     "source/addFromClipboard",
     async (_, thunkAPI) => {
@@ -104,7 +91,7 @@ const action = createAsyncThunk(
 
             const id = crypto.randomUUID()
             const metadata = deriveSchema(dataset)
-            const meta = deriveMetaCounts(dataset)
+            const meta = computeGeometryMeta(dataset)
 
             thunkAPI.dispatch(actions.addGeojsonSource({
                 id,

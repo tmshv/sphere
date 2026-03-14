@@ -12,7 +12,7 @@ import type { FeatureCollecionSource, GeojsonMetadata, GeojsonSource, Source } f
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
-function computeGeometryMeta(fc: GeoJSON.FeatureCollection): SourceMetadata {
+export function computeGeometryMeta(fc: GeoJSON.FeatureCollection): SourceMetadata {
     let pointsCount = 0
     let linesCount = 0
     let polygonsCount = 0

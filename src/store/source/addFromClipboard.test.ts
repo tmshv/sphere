@@ -20,6 +20,7 @@ vi.mock(".", () => ({
             payload,
         })),
     },
+    computeGeometryMeta: vi.fn().mockReturnValue({ pointsCount: 0, linesCount: 0, polygonsCount: 0 }),
 }))
 
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
