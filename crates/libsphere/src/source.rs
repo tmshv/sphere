@@ -189,16 +189,13 @@ impl Source {
             //     Ok(val)
             // }
             SourceData::Geojson(src) => {
-                let val = src.get_schema().expect("No schema");
-                Ok(val)
+                src.get_schema().map_err(|e| format!("{:?}", e))
             }
             SourceData::GeojsonSeq(src) => {
-                let val = src.get_schema().expect("No schema");
-                Ok(val)
+                src.get_schema().map_err(|e| format!("{:?}", e))
             }
             SourceData::Csv(src) => {
-                let val = src.get_schema().expect("No schema");
-                Ok(val)
+                src.get_schema().map_err(|e| format!("{:?}", e))
             }
             // SourceData::Gpx(src) => {
             //     let val = src.to_geojson().expect("No gpx");

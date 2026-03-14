@@ -3,7 +3,7 @@ use geo::BoundingRect;
 use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Position, Value};
 use geozero::geojson::GeoJson;
 use geozero::ToGeo;
-use std::{collections::HashMap, fs::File, result, str::FromStr};
+use std::{fs::File, result, str::FromStr};
 
 use super::Bounds;
 use crate::schema::{infer_source_schema, SourceSchema};
@@ -110,7 +110,10 @@ impl Csv {
         let mut features = Vec::<Feature>::new();
         let mut rdr = csv::Reader::from_reader(file);
         for result in rdr.deserialize() {
-            let record: JsonObject = result.unwrap();
+            let record: JsonObject = match result {
+                Ok(r) => r,
+                Err(_) => continue,
+            };
             let geom = self.geometry.get_value(&record);
             if let Some(geom) = geom {
                 let geometry = Geometry::new(geom);
@@ -139,15 +142,8 @@ impl Csv {
     }
 
     pub fn get_schema(&self) -> Result<SourceSchema> {
-        if let Ok(features) = self.get_features() {
-            return Ok(infer_source_schema(features.iter()));
-        }
-        Ok(SourceSchema {
-            columns: HashMap::new(),
-            points_count: 0,
-            lines_count: 0,
-            polygons_count: 0,
-        })
+        let features = self.get_features()?;
+        Ok(infer_source_schema(features.iter()))
     }
 }
 

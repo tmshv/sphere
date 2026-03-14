@@ -40,7 +40,7 @@ export class SourceReader {
 
     public async getSchema(): Promise<SourceSchema | null> {
         try {
-            return invoke<SourceSchema>("source_get_schema", {
+            return await invoke<SourceSchema>("source_get_schema", {
                 id: this.getId(),
             })
         } catch (error) {

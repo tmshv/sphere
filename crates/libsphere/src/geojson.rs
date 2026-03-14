@@ -63,11 +63,10 @@ impl Geojson {
     }
 
     pub fn get_schema(&self) -> Result<SourceSchema> {
-        if let Ok(geojson_str) = self.read() {
-            let geojson = geojson_str.parse::<GeoJson2>().unwrap();
-            if let GeoJson2::FeatureCollection(val) = geojson {
-                return Ok(infer_source_schema(val.features.iter()));
-            }
+        let geojson_str = self.read()?;
+        let geojson = geojson_str.parse::<GeoJson2>().map_err(|_| GeojsonError::FS)?;
+        if let GeoJson2::FeatureCollection(val) = geojson {
+            return Ok(infer_source_schema(val.features.iter()));
         }
         Ok(SourceSchema {
             columns: HashMap::new(),

@@ -90,26 +90,18 @@ pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> S
     }
 }
 
-pub fn infer_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> HashMap<String, String> {
-    let mut map: HashMap<String, ColumnType> = HashMap::new();
-    for feature in features {
-        if let Some(props) = &feature.properties {
-            for (key, val) in props {
-                map.entry(key.clone())
-                    .and_modify(|existing| {
-                        *existing = merge_type(existing.clone(), val);
-                    })
-                    .or_insert_with(|| value_type(val));
-            }
-        }
-    }
-    map.into_iter()
-        .map(|(k, v)| (k, v.as_str().to_string()))
-        .collect()
-}
 
 pub fn assign_feature_ids(fc: &mut FeatureCollection) {
-    let mut counter: u64 = 1;
+    let max_existing = fc
+        .features
+        .iter()
+        .filter_map(|f| match &f.id {
+            Some(Id::Number(n)) => n.as_u64(),
+            _ => None,
+        })
+        .max()
+        .unwrap_or(0);
+    let mut counter: u64 = max_existing + 1;
     for feature in &mut fc.features {
         if matches!(&feature.id, Some(Id::Number(_))) {
             continue;
@@ -180,7 +172,7 @@ mod tests {
         let f1 = make_feature(json!({"name": "Alice", "score": 10}));
         let f2 = make_feature(json!({"name": "Bob", "score": 20}));
         let features = vec![f1, f2];
-        let schema = infer_schema(features.iter());
+        let schema = infer_source_schema(features.iter()).columns;
         assert_eq!(schema.get("name"), Some(&"String".to_string()));
         assert_eq!(schema.get("score"), Some(&"Number".to_string()));
     }
@@ -190,7 +182,7 @@ mod tests {
         let f1 = make_feature(json!({"name": "Alice", "score": 10}));
         let f2 = make_feature(json!({"name": 99, "score": 20}));
         let features = vec![f1, f2];
-        let schema = infer_schema(features.iter());
+        let schema = infer_source_schema(features.iter()).columns;
         assert_eq!(schema.get("name"), Some(&"Mixed".to_string()));
         assert_eq!(schema.get("score"), Some(&"Number".to_string()));
     }
@@ -198,7 +190,7 @@ mod tests {
     #[test]
     fn test_infer_schema_empty_returns_empty_map() {
         let features: Vec<Feature> = vec![];
-        let schema = infer_schema(features.iter());
+        let schema = infer_source_schema(features.iter()).columns;
         assert!(schema.is_empty());
     }
 

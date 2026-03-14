@@ -94,12 +94,16 @@ export const sourceSlice = createSlice({
         setGeojsonData: (state, action: PayloadAction<{
             id: Id,
             metadata?: GeojsonMetadata,
+            meta?: SourceMetadata,
             dataset?: GeoJSON.FeatureCollection,
         }>) => {
-            const { id, metadata, dataset } = action.payload
+            const { id, metadata, meta, dataset } = action.payload
             const s = state.items[id] as GeojsonSource
             if (metadata) {
                 s.metadata = metadata
+            }
+            if (meta) {
+                s.meta = meta
             }
             if (dataset) {
                 s.dataset = dataset
