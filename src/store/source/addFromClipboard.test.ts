@@ -103,14 +103,14 @@ describe("addFromClipboard thunk", () => {
         expect(call.dataset!.features[0].geometry).toEqual(geometry)
     })
 
-    test("derives schema from feature properties using typeof", async () => {
+    test("derives schema from feature properties using title-case type names", async () => {
         mockReadText.mockResolvedValue(JSON.stringify(featureCollection))
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
         expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
         const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.metadata).toEqual({ name: "string", count: "number" })
+        expect(call.metadata).toEqual({ name: "String", count: "Number" })
     })
 
     test("generates a unique id per call", async () => {

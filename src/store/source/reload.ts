@@ -16,12 +16,12 @@ const action = createAsyncThunk(
                     const { location } = state.source.items[id]
                     const r = new SourceReader(location)
                     const schema = await r.getSchema()
-                    const metadata = schema?.columns ?? {}
-                    const meta = {
-                        pointsCount: schema?.points_count ?? 0,
-                        linesCount: schema?.lines_count ?? 0,
-                        polygonsCount: schema?.polygons_count ?? 0,
-                    }
+                    const metadata = schema ? schema.columns : undefined
+                    const meta = schema ? {
+                        pointsCount: schema.points_count,
+                        linesCount: schema.lines_count,
+                        polygonsCount: schema.polygons_count,
+                    } : undefined
                     const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.setGeojsonData({
                         id,
