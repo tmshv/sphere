@@ -25,7 +25,9 @@ export const selector = createSelector(
         }
 
         let meta: SourceMetadata | undefined = undefined
-        if ((source.type === SourceType.FeatureCollection) && !source.pending) {
+        if (source.type === SourceType.Geojson) {
+            meta = source.meta
+        } else if ((source.type === SourceType.FeatureCollection) && !source.pending) {
             meta = source.meta
         }
 
