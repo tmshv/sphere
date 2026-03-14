@@ -26,6 +26,7 @@ describe("sourceSlice reducer", () => {
             name: "My Source",
             location: "file.geojson",
             metadata: {},
+            meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         }))
         expect(state.allIds).toContain("s1")
         expect(state.items["s1"]).toBeDefined()
@@ -83,6 +84,7 @@ describe("sourceSlice reducer", () => {
             name: "My Source",
             location: "file.geojson",
             metadata: {},
+            meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         }))
         const state = reducer(prev, removeSource("s1"))
         expect(state.allIds).not.toContain("s1")
@@ -95,6 +97,7 @@ describe("sourceSlice reducer", () => {
             name: "My Source",
             location: "file.geojson",
             metadata: {},
+            meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         }))
         const state = reducer(prev, removeSource("s1"))
         expect(state.lastAdded).toBeUndefined()
@@ -106,12 +109,14 @@ describe("sourceSlice reducer", () => {
             name: "Source 1",
             location: "file1.geojson",
             metadata: {},
+            meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         }))
         state = reducer(state, addGeojsonSource({
             id: "s2",
             name: "Source 2",
             location: "file2.geojson",
             metadata: {},
+            meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         }))
         state = reducer(state, removeSource("s1"))
         expect(state.lastAdded).toBe("s2")
@@ -123,6 +128,7 @@ describe("sourceSlice reducer", () => {
             name: "Old Name",
             location: "file.geojson",
             metadata: {},
+            meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         }))
         const state = reducer(prev, setName({ id: "s1", value: "New Name" }))
         expect(state.items["s1"].name).toBe("New Name")

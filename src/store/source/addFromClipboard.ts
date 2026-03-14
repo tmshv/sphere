@@ -86,6 +86,7 @@ const action = createAsyncThunk(
                 name: "Pasted GeoJSON",
                 location: "",
                 metadata,
+                meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
                 dataset,
             }))
         } catch (error) {

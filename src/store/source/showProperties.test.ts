@@ -98,6 +98,7 @@ describe("getProps", () => {
                 type: SourceType.Geojson,
                 location: "path/to/file.geojson",
                 metadata: {},
+                meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
                 editable: true,
                 pending: false,
             }
@@ -122,6 +123,7 @@ describe("getProps", () => {
                 type: SourceType.Geojson,
                 location: "path/to/file.geojson",
                 metadata: {},
+                meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
                 editable: true,
                 pending: false,
             }
