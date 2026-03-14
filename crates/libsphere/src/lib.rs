@@ -3,6 +3,7 @@ pub mod geojson;
 pub mod geojsonseq;
 pub mod gpx;
 pub mod mbtiles;
+pub mod schema;
 pub mod shape;
 pub mod source;
 pub mod uri;

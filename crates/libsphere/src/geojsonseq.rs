@@ -10,6 +10,7 @@ use std::path::Path;
 
 use super::Bounds;
 use crate::geojson::{GeojsonError, Result};
+use crate::schema::infer_schema;
 
 // Read more about this delimiter
 // https://datatracker.ietf.org/doc/html/rfc8142
@@ -107,27 +108,13 @@ impl GeojsonSeq {
     }
 
     pub fn get_schema(&self) -> Result<HashMap<String, String>> {
-        let mut schema = HashMap::<String, String>::new();
         if let Ok(geojson_str) = self.to_geojson() {
             let geojson = geojson_str.parse::<GeoJson2>().unwrap();
             if let GeoJson2::FeatureCollection(val) = geojson {
-                let x = val.features.into_iter().take(1).next().unwrap();
-                let p = x.properties.unwrap();
-                p.keys().for_each(|k| {
-                    let val = p.get(k).unwrap();
-                    match val {
-                        serde_json::Value::String(_) => {
-                            schema.insert(k.clone(), "String".into())
-                        }
-                        serde_json::Value::Number(_) => {
-                            schema.insert(k.clone(), "Number".into())
-                        }
-                        _ => schema.insert(k.clone(), "Mixed".into()),
-                    };
-                });
+                return Ok(infer_schema(val.features.iter()));
             }
         }
-        Ok(schema)
+        Ok(HashMap::new())
     }
 }
 
