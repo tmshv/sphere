@@ -51,8 +51,11 @@ function deriveSchema(fc: GeoJSON.FeatureCollection): Record<string, string> {
             continue
         }
         for (const [key, value] of Object.entries(feature.properties)) {
+            const newType = jsTypeToSchemaType(value)
             if (!(key in schema)) {
-                schema[key] = jsTypeToSchemaType(value)
+                schema[key] = newType
+            } else if (schema[key] !== newType) {
+                schema[key] = "Mixed"
             }
         }
     }

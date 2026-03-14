@@ -82,6 +82,9 @@ impl GeojsonSeq {
         let mut features = Vec::new();
         for line in reader.lines() {
             let line = line?;
+            if line.is_empty() {
+                continue;
+            }
             let feature: Value = serde_json::from_str(&line).map_err(|_| GeojsonError::FS)?;
             features.push(feature);
         }
