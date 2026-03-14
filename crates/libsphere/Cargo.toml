@@ -6,6 +6,10 @@ license = "MIT"
 edition = "2021"
 rust-version = "1.57"
 
+[[bin]]
+name = "sphere"
+path = "example/geojsonl.rs"
+
 [lib]
 name = "libsphere"
 path = "src/lib.rs"
