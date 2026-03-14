@@ -57,6 +57,9 @@ pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> S
     for feature in features {
         if let Some(props) = &feature.properties {
             for (key, val) in props {
+                if val.is_null() {
+                    continue;
+                }
                 col_map
                     .entry(key.clone())
                     .and_modify(|existing| {

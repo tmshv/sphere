@@ -166,11 +166,11 @@ impl Source {
 
     pub fn to_geojson(&self) -> Result<String, String> {
         let raw = match &self.data {
-            SourceData::Shapefile(src) => src.to_geojson().expect("No shape"),
-            SourceData::Geojson(src) => src.read().expect("No geojson"),
-            SourceData::GeojsonSeq(src) => src.to_geojson().expect("No geojson"),
-            SourceData::Csv(src) => src.to_geojson().expect("No csv"),
-            SourceData::Gpx(src) => src.to_geojson().expect("No gpx"),
+            SourceData::Shapefile(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Geojson(src) => src.read().map_err(|e| format!("{:?}", e))?,
+            SourceData::GeojsonSeq(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Csv(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Gpx(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
             _ => return Err("No".into()),
         };
         let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
