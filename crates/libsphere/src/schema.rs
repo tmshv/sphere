@@ -106,15 +106,14 @@ pub fn assign_feature_ids(fc: &mut FeatureCollection) {
         if matches!(&feature.id, Some(Id::Number(_))) {
             continue;
         }
-        let original = match &feature.id {
-            Some(Id::String(s)) => Value::String(s.clone()),
-            _ => Value::Null,
-        };
-        feature
-            .properties
-            .get_or_insert_with(Default::default)
-            .entry("$id".to_string())
-            .or_insert(original);
+        if let Some(Id::String(s)) = &feature.id {
+            let original = Value::String(s.clone());
+            feature
+                .properties
+                .get_or_insert_with(Default::default)
+                .entry("$id".to_string())
+                .or_insert(original);
+        }
         feature.id = Some(Id::Number(counter.into()));
         counter += 1;
     }

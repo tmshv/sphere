@@ -55,10 +55,12 @@ listener.startListening({
             // predict default layer view for GeoJSON
             if (source.type === SourceType.Geojson) {
                 const layerType = predictLayerType(source.meta)
-                listenerApi.dispatch(actions.layer.setType({
-                    id: layerId,
-                    type: layerType,
-                }))
+                if (layerType) {
+                    listenerApi.dispatch(actions.layer.setType({
+                        id: layerId,
+                        type: layerType,
+                    }))
+                }
             }
         }
 
