@@ -176,12 +176,27 @@ impl Source {
             _ => return Err("No".into()),
         };
         let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
-        if let geojson::GeoJson::FeatureCollection(mut fc) = geojson {
-            assign_feature_ids(&mut fc);
-            serde_json::to_string(&fc).map_err(|e| e.to_string())
-        } else {
-            Ok(raw)
-        }
+        let mut fc = match geojson {
+            geojson::GeoJson::FeatureCollection(fc) => fc,
+            geojson::GeoJson::Feature(f) => geojson::FeatureCollection {
+                bbox: None,
+                features: vec![f],
+                foreign_members: None,
+            },
+            geojson::GeoJson::Geometry(g) => geojson::FeatureCollection {
+                bbox: None,
+                features: vec![geojson::Feature {
+                    bbox: None,
+                    geometry: Some(g),
+                    id: None,
+                    properties: None,
+                    foreign_members: None,
+                }],
+                foreign_members: None,
+            },
+        };
+        assign_feature_ids(&mut fc);
+        serde_json::to_string(&fc).map_err(|e| e.to_string())
     }
 
     pub fn get_schema(&self) -> Result<SourceSchema, String> {

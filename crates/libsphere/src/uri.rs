@@ -45,6 +45,15 @@ impl SphereUri {
         self.query_param("wkt")
     }
 
+    pub fn delimiter(&self) -> Option<String> {
+        self.query_param("delimiter")
+    }
+
+    pub fn skip_rows(&self) -> Option<usize> {
+        self.query_param("skip")
+            .and_then(|v| v.parse().ok())
+    }
+
 }
 
 impl fmt::Display for SphereUri {
@@ -64,6 +73,16 @@ mod tests {
         assert_eq!(uri.x_field(), Some("longitude".to_string()));
         assert_eq!(uri.y_field(), Some("latitude".to_string()));
         assert_eq!(uri.wkt_field(), Some("geom".to_string()));
+        assert_eq!(uri.delimiter(), None);
+        assert_eq!(uri.skip_rows(), None);
+    }
+
+    #[test]
+    fn test_parse_csv_uri_with_delimiter_and_skip() {
+        let s = "file:///data/points.csv?x=lng&y=lat&delimiter=%3B&skip=1";
+        let uri = SphereUri::parse(s).expect("should parse");
+        assert_eq!(uri.delimiter(), Some(";".to_string()));
+        assert_eq!(uri.skip_rows(), Some(1usize));
     }
 
     #[test]
@@ -73,6 +92,8 @@ mod tests {
         assert_eq!(uri.x_field(), None);
         assert_eq!(uri.y_field(), None);
         assert_eq!(uri.wkt_field(), None);
+        assert_eq!(uri.delimiter(), None);
+        assert_eq!(uri.skip_rows(), None);
     }
 
     #[test]

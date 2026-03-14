@@ -298,6 +298,20 @@ mod tests {
     }
 
     #[test]
+    fn test_assign_feature_ids_none_id_gets_numeric_no_dollar_id() {
+        let mut fc = FeatureCollection {
+            bbox: None,
+            features: vec![make_feature_with_id(None, json!({}))],
+            foreign_members: None,
+        };
+        assign_feature_ids(&mut fc);
+        let f = &fc.features[0];
+        assert_eq!(f.id, Some(Id::Number(1u64.into())));
+        let props = f.properties.as_ref().unwrap();
+        assert!(!props.contains_key("$id"));
+    }
+
+    #[test]
     fn test_assign_feature_ids_existing_numeric_id_unchanged() {
         let mut fc = FeatureCollection {
             bbox: None,
