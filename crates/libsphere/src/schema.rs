@@ -117,8 +117,7 @@ pub fn assign_feature_ids(fc: &mut FeatureCollection) {
             feature
                 .properties
                 .get_or_insert_with(Default::default)
-                .entry("$id".to_string())
-                .or_insert(original);
+                .insert("$id".to_string(), original);
         }
         feature.id = Some(Id::Number(counter.into()));
         counter += 1;
@@ -278,6 +277,24 @@ mod tests {
         let features = vec![f];
         let schema = infer_source_schema(features.iter()).columns;
         assert!(!schema.contains_key("$id"));
+    }
+
+    #[test]
+    fn test_assign_feature_ids_string_id_overwrites_existing_dollar_id() {
+        let mut fc = FeatureCollection {
+            bbox: None,
+            features: vec![make_feature_with_id(
+                Some(Id::String("abc".into())),
+                json!({ "$id": "existing" }),
+            )],
+            foreign_members: None,
+        };
+        assign_feature_ids(&mut fc);
+        let f = &fc.features[0];
+        assert_eq!(f.id, Some(Id::Number(1u64.into())));
+        let props = f.properties.as_ref().unwrap();
+        // The feature's string id "abc" must overwrite the existing "$id"
+        assert_eq!(props.get("$id"), Some(&json!("abc")));
     }
 
     #[test]

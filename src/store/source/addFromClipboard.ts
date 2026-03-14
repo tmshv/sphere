@@ -51,6 +51,19 @@ function deriveSchema(fc: GeoJSON.FeatureCollection): Record<string, string> {
     return schema
 }
 
+function deriveMetaCounts(fc: GeoJSON.FeatureCollection): { pointsCount: number, linesCount: number, polygonsCount: number } {
+    let pointsCount = 0
+    let linesCount = 0
+    let polygonsCount = 0
+    for (const feature of fc.features) {
+        const t = feature.geometry?.type
+        if (t === "Point" || t === "MultiPoint") pointsCount++
+        else if (t === "LineString" || t === "MultiLineString") linesCount++
+        else if (t === "Polygon" || t === "MultiPolygon") polygonsCount++
+    }
+    return { pointsCount, linesCount, polygonsCount }
+}
+
 const action = createAsyncThunk(
     "source/addFromClipboard",
     async (_, thunkAPI) => {
@@ -80,13 +93,14 @@ const action = createAsyncThunk(
 
             const id = crypto.randomUUID()
             const metadata = deriveSchema(dataset)
+            const meta = deriveMetaCounts(dataset)
 
             thunkAPI.dispatch(actions.addGeojsonSource({
                 id,
                 name: "Pasted GeoJSON",
                 location: "",
                 metadata,
-                meta: { pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                meta,
                 dataset,
             }))
         } catch (error) {

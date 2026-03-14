@@ -12,6 +12,19 @@ import type { FeatureCollecionSource, GeojsonMetadata, GeojsonSource, Source } f
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
+function computeGeometryMeta(fc: GeoJSON.FeatureCollection): SourceMetadata {
+    let pointsCount = 0
+    let linesCount = 0
+    let polygonsCount = 0
+    for (const feature of fc.features) {
+        const t = feature.geometry?.type
+        if (t === "Point" || t === "MultiPoint") pointsCount++
+        else if (t === "LineString" || t === "MultiLineString") linesCount++
+        else if (t === "Polygon" || t === "MultiPolygon") polygonsCount++
+    }
+    return { pointsCount, linesCount, polygonsCount }
+}
+
 // Define a type for the slice state
 type SourceState = {
     items: Record<string, Source>
@@ -171,9 +184,11 @@ export const sourceSlice = createSlice({
                 const source = state.items[id]
                 if (source.type === SourceType.FeatureCollection) {
                     source.dataset = featureCollection
+                    source.meta = computeGeometryMeta(featureCollection)
                 }
                 if (source.type === SourceType.Geojson) {
                     source.dataset = featureCollection
+                    source.meta = computeGeometryMeta(featureCollection)
                 }
             })
     },

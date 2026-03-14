@@ -638,6 +638,7 @@ dependencies = [
  "tilejson",
  "url",
  "urlencoding",
+ "wkt",
 ]
 
 [[package]]
