@@ -29,3 +29,6 @@ dist-ssr
 
 # git worktrees
 .worktrees/
+
+# AI
+.claude
