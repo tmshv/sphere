@@ -55,6 +55,9 @@ pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> S
     let mut lines_count: u32 = 0;
     let mut polygons_count: u32 = 0;
     for feature in features {
+        if matches!(&feature.id, Some(Id::String(_))) {
+            col_map.entry("$id".to_string()).or_insert(ColumnType::Str);
+        }
         if let Some(props) = &feature.properties {
             for (key, val) in props {
                 if val.is_null() {
@@ -258,6 +261,23 @@ mod tests {
         assert_eq!(f.id, Some(Id::Number(1u64.into())));
         let props = f.properties.as_ref().unwrap();
         assert_eq!(props.get("$id"), Some(&json!("abc")));
+    }
+
+    #[test]
+    fn test_infer_schema_string_id_adds_dollar_id_column() {
+        let f = make_feature_with_id(Some(Id::String("abc".into())), json!({"name": "Alice"}));
+        let features = vec![f];
+        let schema = infer_source_schema(features.iter()).columns;
+        assert_eq!(schema.get("$id"), Some(&"String".to_string()));
+        assert_eq!(schema.get("name"), Some(&"String".to_string()));
+    }
+
+    #[test]
+    fn test_infer_schema_numeric_id_no_dollar_id_column() {
+        let f = make_feature_with_id(Some(Id::Number(1u64.into())), json!({"name": "Alice"}));
+        let features = vec![f];
+        let schema = infer_source_schema(features.iter()).columns;
+        assert!(!schema.contains_key("$id"));
     }
 
     #[test]
