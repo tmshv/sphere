@@ -3,7 +3,7 @@ use geo::BoundingRect;
 use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Position, Value};
 use geozero::geojson::GeoJson;
 use geozero::ToGeo;
-use std::{collections::HashMap, fs::File, result};
+use std::{collections::HashMap, fs::File, result, str::FromStr};
 
 use super::Bounds;
 
@@ -26,7 +26,7 @@ pub type Result<T> = result::Result<T, CsvError>;
 
 #[derive(Debug)]
 pub enum CsvGeometry {
-    // WKT(String),
+    WKT(String),
     XY((String, String)),
 }
 
@@ -36,25 +36,33 @@ impl CsvGeometry {
             CsvGeometry::XY((xfield, yfield)) => {
                 let x = record
                     .get(xfield)
-                    .map(|value| match value {
+                    .and_then(|value| match value {
                         serde_json::Value::Number(n) => n.as_f64(),
                         serde_json::Value::String(s) => s.parse::<f64>().ok(),
                         _ => None,
-                    })
-                    .flatten();
+                    });
 
                 let y = record
                     .get(yfield)
-                    .map(|value| match value {
+                    .and_then(|value| match value {
                         serde_json::Value::Number(n) => n.as_f64(),
                         serde_json::Value::String(s) => s.parse::<f64>().ok(),
                         _ => None,
-                    })
-                    .flatten();
+                    });
 
                 let pos: Option<Position> = vec![x, y].into_iter().collect();
-                pos.map(|pos| Value::Point(pos))
-            } // CsvGeometry::WKT(_) => None,
+                pos.map(Value::Point)
+            }
+            CsvGeometry::WKT(wkt_field) => {
+                let wkt_str = record.get(wkt_field).and_then(|v| match v {
+                    serde_json::Value::String(s) => Some(s.clone()),
+                    _ => None,
+                })?;
+                let parsed: wkt::Wkt<f64> = wkt::Wkt::from_str(&wkt_str).ok()?;
+                let geo_geom: geo::Geometry<f64> =
+                    geo::Geometry::try_from(parsed).ok()?;
+                Some(Value::from(&geo_geom))
+            }
         }
     }
 }
@@ -103,20 +111,17 @@ impl Csv {
         for result in rdr.deserialize() {
             let record: JsonObject = result.unwrap();
             let geom = self.geometry.get_value(&record);
-            match geom {
-                Some(geom) => {
-                    let geometry = Geometry::new(geom);
-                    let feature = Feature {
-                        bbox: None,
-                        geometry: Some(geometry),
-                        id: None,
-                        properties: Some(record),
-                        foreign_members: None,
-                    };
-                    features.push(feature);
-                }
-                None => {}
-            };
+            if let Some(geom) = geom {
+                let geometry = Geometry::new(geom);
+                let feature = Feature {
+                    bbox: None,
+                    geometry: Some(geometry),
+                    id: None,
+                    properties: Some(record),
+                    foreign_members: None,
+                };
+                features.push(feature);
+            }
         }
 
         Ok(features)
@@ -134,20 +139,17 @@ impl Csv {
 
     pub fn get_schema(&self) -> Result<HashMap<String, String>> {
         let mut schema = HashMap::new();
-        match self.get_features() {
-            Ok(features) => {
-                let x = features.into_iter().take(1).next().unwrap();
-                let p = x.properties.unwrap();
-                p.keys().for_each(|k| {
-                    let val = p.get(k).unwrap();
-                    match val {
-                        serde_json::Value::String(_) => schema.insert(k.clone(), "String".into()),
-                        serde_json::Value::Number(_) => schema.insert(k.clone(), "Number".into()),
-                        _ => schema.insert(k.clone(), "Mixed".into()),
-                    };
-                });
-            }
-            Err(_) => {}
+        if let Ok(features) = self.get_features() {
+            let x = features.into_iter().take(1).next().unwrap();
+            let p = x.properties.unwrap();
+            p.keys().for_each(|k| {
+                let val = p.get(k).unwrap();
+                match val {
+                    serde_json::Value::String(_) => schema.insert(k.clone(), "String".into()),
+                    serde_json::Value::Number(_) => schema.insert(k.clone(), "Number".into()),
+                    _ => schema.insert(k.clone(), "Mixed".into()),
+                };
+            });
         }
         Ok(schema)
     }

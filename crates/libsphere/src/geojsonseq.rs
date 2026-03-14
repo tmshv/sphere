@@ -16,7 +16,7 @@ use crate::geojson::{GeojsonError, Result};
 const RS: u8 = b'\x1e';
 
 enum JSONStreamType {
-    NDJSON,
+    Ndjson,
     JSONSeq,
 }
 
@@ -52,7 +52,7 @@ impl GeojsonSeq {
         let _ = file.read(&mut head);
         match head[0] {
             RS => Ok(JSONStreamType::JSONSeq),
-            _ => Ok(JSONStreamType::NDJSON),
+            _ => Ok(JSONStreamType::Ndjson),
         }
     }
 
@@ -62,7 +62,7 @@ impl GeojsonSeq {
         let mut features = Vec::new();
         for chunk in reader.split(RS) {
             let chunk = chunk?;
-            if chunk.len() < 1 {
+            if chunk.is_empty() {
                 continue;
             }
             let feature = String::from_utf8(chunk).unwrap();
@@ -100,7 +100,7 @@ impl GeojsonSeq {
 
     pub fn to_geojson(&self) -> Result<String> {
         match self.get_stream_type() {
-            Ok(JSONStreamType::NDJSON) => self.geojsonl_to_geojson(self.path.as_str()),
+            Ok(JSONStreamType::Ndjson) => self.geojsonl_to_geojson(self.path.as_str()),
             Ok(JSONStreamType::JSONSeq) => self.geojsonseq_to_geojson(self.path.as_str()),
             Err(_) => Err(GeojsonError::FS),
         }
@@ -108,31 +108,25 @@ impl GeojsonSeq {
 
     pub fn get_schema(&self) -> Result<HashMap<String, String>> {
         let mut schema = HashMap::<String, String>::new();
-        match self.to_geojson() {
-            Ok(geojson_str) => {
-                let geojson = geojson_str.parse::<GeoJson2>().unwrap();
-                match geojson {
-                    GeoJson2::FeatureCollection(val) => {
-                        let x = val.features.into_iter().take(1).next().unwrap();
-                        let p = x.properties.unwrap();
-                        p.keys().for_each(|k| {
-                            let val = p.get(k).unwrap();
-                            match val {
-                                serde_json::Value::String(_) => {
-                                    schema.insert(k.clone(), "String".into())
-                                }
-                                serde_json::Value::Number(_) => {
-                                    schema.insert(k.clone(), "Number".into())
-                                }
-                                _ => schema.insert(k.clone(), "Mixed".into()),
-                            };
-                        });
-                    }
-                    _ => {}
-                };
+        if let Ok(geojson_str) = self.to_geojson() {
+            let geojson = geojson_str.parse::<GeoJson2>().unwrap();
+            if let GeoJson2::FeatureCollection(val) = geojson {
+                let x = val.features.into_iter().take(1).next().unwrap();
+                let p = x.properties.unwrap();
+                p.keys().for_each(|k| {
+                    let val = p.get(k).unwrap();
+                    match val {
+                        serde_json::Value::String(_) => {
+                            schema.insert(k.clone(), "String".into())
+                        }
+                        serde_json::Value::Number(_) => {
+                            schema.insert(k.clone(), "Number".into())
+                        }
+                        _ => schema.insert(k.clone(), "Mixed".into()),
+                    };
+                });
             }
-            Err(_) => {}
-        };
+        }
         Ok(schema)
     }
 }
