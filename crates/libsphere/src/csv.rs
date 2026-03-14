@@ -6,7 +6,7 @@ use geozero::ToGeo;
 use std::{collections::HashMap, fs::File, result, str::FromStr};
 
 use super::Bounds;
-use crate::schema::infer_schema;
+use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug)]
 pub enum CsvError {
@@ -138,11 +138,16 @@ impl Csv {
         Ok(fc.to_string())
     }
 
-    pub fn get_schema(&self) -> Result<HashMap<String, String>> {
+    pub fn get_schema(&self) -> Result<SourceSchema> {
         if let Ok(features) = self.get_features() {
-            return Ok(infer_schema(features.iter()));
+            return Ok(infer_source_schema(features.iter()));
         }
-        Ok(HashMap::new())
+        Ok(SourceSchema {
+            columns: HashMap::new(),
+            points_count: 0,
+            lines_count: 0,
+            polygons_count: 0,
+        })
     }
 }
 

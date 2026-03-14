@@ -7,7 +7,7 @@ use std::io::prelude::*;
 use std::{fs::File, result};
 
 use super::Bounds;
-use crate::schema::infer_schema;
+use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug)]
 pub enum GeojsonError {
@@ -62,14 +62,19 @@ impl Geojson {
         Ok(contents)
     }
 
-    pub fn get_schema(&self) -> Result<HashMap<String, String>> {
+    pub fn get_schema(&self) -> Result<SourceSchema> {
         if let Ok(geojson_str) = self.read() {
             let geojson = geojson_str.parse::<GeoJson2>().unwrap();
             if let GeoJson2::FeatureCollection(val) = geojson {
-                return Ok(infer_schema(val.features.iter()));
+                return Ok(infer_source_schema(val.features.iter()));
             }
         }
-        Ok(HashMap::new())
+        Ok(SourceSchema {
+            columns: HashMap::new(),
+            points_count: 0,
+            lines_count: 0,
+            polygons_count: 0,
+        })
     }
 }
 

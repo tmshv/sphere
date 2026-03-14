@@ -1,7 +1,6 @@
 // use geozero::geojson::GeoJson;
 // use geozero::ToGeo;
 use sha256::digest;
-use std::collections::HashMap;
 use std::path::Path;
 // use std::result;
 use url::Url;
@@ -12,7 +11,7 @@ use super::geojson::Geojson;
 use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
 use super::mbtiles::Tiles;
-use super::schema::assign_feature_ids;
+use super::schema::{assign_feature_ids, SourceSchema};
 use super::shape::Shapefile;
 use super::uri::SphereUri;
 use super::Bounds;
@@ -183,7 +182,7 @@ impl Source {
         }
     }
 
-    pub fn get_schema(&self) -> Result<HashMap<String, String>, String> {
+    pub fn get_schema(&self) -> Result<SourceSchema, String> {
         match &self.data {
             // SourceData::Shapefile(src) => {
             //     let val = src.to_geojson().expect("No shape");

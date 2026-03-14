@@ -1,5 +1,6 @@
 use geojson::feature::Id;
 use geojson::{Feature, FeatureCollection};
+use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -37,6 +38,55 @@ pub fn merge_type(existing: ColumnType, val: &Value) -> ColumnType {
         existing
     } else {
         ColumnType::Mixed
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct SourceSchema {
+    pub columns: HashMap<String, String>,
+    pub points_count: u32,
+    pub lines_count: u32,
+    pub polygons_count: u32,
+}
+
+pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> SourceSchema {
+    let mut col_map: HashMap<String, ColumnType> = HashMap::new();
+    let mut points_count: u32 = 0;
+    let mut lines_count: u32 = 0;
+    let mut polygons_count: u32 = 0;
+    for feature in features {
+        if let Some(props) = &feature.properties {
+            for (key, val) in props {
+                col_map
+                    .entry(key.clone())
+                    .and_modify(|existing| {
+                        *existing = merge_type(existing.clone(), val);
+                    })
+                    .or_insert_with(|| value_type(val));
+            }
+        }
+        if let Some(geometry) = &feature.geometry {
+            match &geometry.value {
+                geojson::Value::Point(_) | geojson::Value::MultiPoint(_) => points_count += 1,
+                geojson::Value::LineString(_) | geojson::Value::MultiLineString(_) => {
+                    lines_count += 1
+                }
+                geojson::Value::Polygon(_) | geojson::Value::MultiPolygon(_) => {
+                    polygons_count += 1
+                }
+                _ => {}
+            }
+        }
+    }
+    let columns = col_map
+        .into_iter()
+        .map(|(k, v)| (k, v.as_str().to_string()))
+        .collect();
+    SourceSchema {
+        columns,
+        points_count,
+        lines_count,
+        polygons_count,
     }
 }
 
@@ -150,6 +200,43 @@ mod tests {
         let features: Vec<Feature> = vec![];
         let schema = infer_schema(features.iter());
         assert!(schema.is_empty());
+    }
+
+    fn make_feature_with_geometry(geom: GeoValue, props: serde_json::Value) -> Feature {
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(geom)),
+            id: None,
+            properties: props.as_object().cloned(),
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn test_infer_source_schema_counts_geometry_types() {
+        use super::infer_source_schema;
+        let f1 = make_feature_with_geometry(GeoValue::Point(vec![0.0, 0.0]), json!({"a": 1}));
+        let f2 = make_feature_with_geometry(GeoValue::Point(vec![1.0, 1.0]), json!({"a": 2}));
+        let f3 = make_feature_with_geometry(
+            GeoValue::LineString(vec![vec![0.0, 0.0], vec![1.0, 1.0]]),
+            json!({"b": "x"}),
+        );
+        let f4 = make_feature_with_geometry(
+            GeoValue::Polygon(vec![vec![
+                vec![0.0, 0.0],
+                vec![1.0, 0.0],
+                vec![1.0, 1.0],
+                vec![0.0, 0.0],
+            ]]),
+            json!({}),
+        );
+        let features = vec![f1, f2, f3, f4];
+        let schema = infer_source_schema(features.iter());
+        assert_eq!(schema.points_count, 2);
+        assert_eq!(schema.lines_count, 1);
+        assert_eq!(schema.polygons_count, 1);
+        assert_eq!(schema.columns.get("a"), Some(&"Number".to_string()));
+        assert_eq!(schema.columns.get("b"), Some(&"String".to_string()));
     }
 
     fn make_feature_with_id(id: Option<Id>, props: serde_json::Value) -> Feature {
