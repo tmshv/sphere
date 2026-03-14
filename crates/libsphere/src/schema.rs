@@ -1,4 +1,5 @@
-use geojson::Feature;
+use geojson::feature::Id;
+use geojson::{Feature, FeatureCollection};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -57,10 +58,31 @@ pub fn infer_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> HashMap<
         .collect()
 }
 
+pub fn assign_feature_ids(fc: &mut FeatureCollection) {
+    let mut counter: u64 = 1;
+    for feature in &mut fc.features {
+        if matches!(&feature.id, Some(Id::Number(_))) {
+            continue;
+        }
+        let original = match &feature.id {
+            Some(Id::String(s)) => Value::String(s.clone()),
+            _ => Value::Null,
+        };
+        feature
+            .properties
+            .get_or_insert_with(Default::default)
+            .entry("$id".to_string())
+            .or_insert(original);
+        feature.id = Some(Id::Number(counter.into()));
+        counter += 1;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geojson::{Feature, Geometry, Value as GeoValue};
+    use geojson::feature::Id;
+    use geojson::{Feature, FeatureCollection, Geometry, Value as GeoValue};
     use serde_json::json;
 
     fn make_feature(props: serde_json::Value) -> Feature {
@@ -128,5 +150,49 @@ mod tests {
         let features: Vec<Feature> = vec![];
         let schema = infer_schema(features.iter());
         assert!(schema.is_empty());
+    }
+
+    fn make_feature_with_id(id: Option<Id>, props: serde_json::Value) -> Feature {
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::Point(vec![0.0, 0.0]))),
+            id,
+            properties: props.as_object().cloned(),
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn test_assign_feature_ids_string_id_gets_numeric_and_original_preserved() {
+        let mut fc = FeatureCollection {
+            bbox: None,
+            features: vec![make_feature_with_id(
+                Some(Id::String("abc".into())),
+                json!({}),
+            )],
+            foreign_members: None,
+        };
+        assign_feature_ids(&mut fc);
+        let f = &fc.features[0];
+        assert_eq!(f.id, Some(Id::Number(1u64.into())));
+        let props = f.properties.as_ref().unwrap();
+        assert_eq!(props.get("$id"), Some(&json!("abc")));
+    }
+
+    #[test]
+    fn test_assign_feature_ids_existing_numeric_id_unchanged() {
+        let mut fc = FeatureCollection {
+            bbox: None,
+            features: vec![make_feature_with_id(
+                Some(Id::Number(42u64.into())),
+                json!({}),
+            )],
+            foreign_members: None,
+        };
+        assign_feature_ids(&mut fc);
+        let f = &fc.features[0];
+        assert_eq!(f.id, Some(Id::Number(42u64.into())));
+        let props = f.properties.as_ref().unwrap();
+        assert!(!props.contains_key("$id"));
     }
 }

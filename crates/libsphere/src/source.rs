@@ -8,12 +8,13 @@ use url::Url;
 use urlencoding;
 
 use super::csv::{Csv, CsvGeometry};
-use super::uri::SphereUri;
 use super::geojson::Geojson;
 use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
 use super::mbtiles::Tiles;
+use super::schema::assign_feature_ids;
 use super::shape::Shapefile;
+use super::uri::SphereUri;
 use super::Bounds;
 
 // #[derive(Debug)]
@@ -165,28 +166,20 @@ impl Source {
     }
 
     pub fn to_geojson(&self) -> Result<String, String> {
-        match &self.data {
-            SourceData::Shapefile(src) => {
-                let val = src.to_geojson().expect("No shape");
-                Ok(val)
-            }
-            SourceData::Geojson(src) => {
-                let val = src.read().expect("No geojson");
-                Ok(val)
-            }
-            SourceData::GeojsonSeq(src) => {
-                let val = src.to_geojson().expect("No geojson");
-                Ok(val)
-            }
-            SourceData::Csv(src) => {
-                let val = src.to_geojson().expect("No csv");
-                Ok(val)
-            }
-            SourceData::Gpx(src) => {
-                let val = src.to_geojson().expect("No gpx");
-                Ok(val)
-            }
-            _ => Err("No".into()),
+        let raw = match &self.data {
+            SourceData::Shapefile(src) => src.to_geojson().expect("No shape"),
+            SourceData::Geojson(src) => src.read().expect("No geojson"),
+            SourceData::GeojsonSeq(src) => src.to_geojson().expect("No geojson"),
+            SourceData::Csv(src) => src.to_geojson().expect("No csv"),
+            SourceData::Gpx(src) => src.to_geojson().expect("No gpx"),
+            _ => return Err("No".into()),
+        };
+        let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
+        if let geojson::GeoJson::FeatureCollection(mut fc) = geojson {
+            assign_feature_ids(&mut fc);
+            serde_json::to_string(&fc).map_err(|e| e.to_string())
+        } else {
+            Ok(raw)
         }
     }
 
