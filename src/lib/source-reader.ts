@@ -1,6 +1,7 @@
 import logger from "@/logger"
 import { invoke } from "@tauri-apps/api/core"
 import type { LngLatBoundsLike } from "maplibre-gl"
+import type { SourceSchema } from "@/types"
 
 type Bbox = [number, number, number, number]
 
@@ -37,9 +38,9 @@ export class SourceReader {
         }
     }
 
-    public async getSchema(): Promise<object | null> {
+    public async getSchema(): Promise<SourceSchema | null> {
         try {
-            return invoke<object>("source_get_schema", {
+            return invoke<SourceSchema>("source_get_schema", {
                 id: this.getId(),
             })
         } catch (error) {

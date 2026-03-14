@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit"
 import { Id, SourceType } from "@/types"
 import { actions } from "."
 import logger from "@/logger"
-import SourceReaderFixId from "@/lib/source-reader-fix-id"
+import { SourceReader } from "@/lib/source-reader"
 import { RootState } from ".."
 
 const action = createAsyncThunk(
@@ -14,8 +14,9 @@ const action = createAsyncThunk(
             switch (type) {
                 case SourceType.Geojson: {
                     const { location } = state.source.items[id]
-                    const r = new SourceReaderFixId(location)
-                    const metadata = await r.getSchema() ?? {}
+                    const r = new SourceReader(location)
+                    const schema = await r.getSchema()
+                    const metadata = schema?.columns ?? {}
                     const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.setGeojsonData({
                         id,

@@ -27,6 +27,13 @@ export type SourceMetadata = {
     polygonsCount: number
 }
 
+export type SourceSchema = {
+    columns: Record<string, string>
+    points_count: number
+    lines_count: number
+    polygons_count: number
+}
+
 export type PointLike = GeoJSON.Point | GeoJSON.MultiPoint
 export type LineStringLike = GeoJSON.LineString | GeoJSON.MultiLineString
 export type PolygonLike = GeoJSON.Polygon | GeoJSON.MultiPolygon

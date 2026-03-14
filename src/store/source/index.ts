@@ -72,9 +72,10 @@ export const sourceSlice = createSlice({
             name: string,
             location: string,
             metadata: GeojsonMetadata,
+            meta: SourceMetadata,
             dataset?: GeoJSON.FeatureCollection,
         }>) => {
-            const { id, name, location, metadata, dataset } = action.payload
+            const { id, name, location, metadata, meta, dataset } = action.payload
             state.items[id] = {
                 id,
                 name,
@@ -83,7 +84,8 @@ export const sourceSlice = createSlice({
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: true,
-                metadata: metadata,
+                metadata,
+                meta,
                 dataset,
             }
             state.allIds.push(id)

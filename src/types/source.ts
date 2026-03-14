@@ -5,6 +5,7 @@ export type GeojsonMetadata = Record<string, any>
 export type GeojsonSource = {
     type: SourceType.Geojson
     metadata: GeojsonMetadata
+    meta: SourceMetadata
     location: string
     dataset?: GeoJSON.FeatureCollection
     editable: true

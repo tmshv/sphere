@@ -5,7 +5,6 @@ import { nextColor } from "@/lib/color-scheme"
 import { actions } from "../actions"
 import type { RootState } from ".."
 import predictLayerType from "@/lib/predict-layer-type"
-import { createSourceMetadataFromFeatureCollection } from "@/lib/source-metadata"
 
 const listener = createListenerMiddleware()
 listener.startListening({
@@ -54,9 +53,8 @@ listener.startListening({
             }
 
             // predict default layer view for GeoJSON
-            if (source.type === SourceType.Geojson && source.dataset) {
-                const meta = createSourceMetadataFromFeatureCollection(source.dataset)
-                const layerType = predictLayerType(meta)
+            if (source.type === SourceType.Geojson) {
+                const layerType = predictLayerType(source.meta)
                 listenerApi.dispatch(actions.layer.setType({
                     id: layerId,
                     type: layerType,
