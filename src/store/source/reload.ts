@@ -9,8 +9,11 @@ const action = createAsyncThunk(
     "source/reload",
     async (id: Id, thunkAPI) => {
         const state = thunkAPI.getState() as RootState
-        const type = state.source.items[id].type
         try {
+            if (!state.source.items[id]) {
+                return
+            }
+            const type = state.source.items[id].type
             switch (type) {
                 case SourceType.Geojson: {
                     const { location } = state.source.items[id]

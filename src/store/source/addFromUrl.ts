@@ -38,7 +38,7 @@ const action = createAsyncThunk(
                         if (tilejson.name) {
                             name = tilejson.name
                         }
-                        const sourceLayers = tilejson.vector_layers.map(({ id }) => ({ id, name: id })) ?? []
+                        const sourceLayers = (tilejson.vector_layers ?? []).map(({ id }) => ({ id, name: id }))
                         thunkAPI.dispatch(actions.addMVTSource({
                             id,
                             name,

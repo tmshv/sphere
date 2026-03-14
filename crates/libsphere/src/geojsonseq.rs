@@ -49,7 +49,7 @@ impl GeojsonSeq {
     fn get_stream_type(&self) -> Result<JSONStreamType> {
         let mut file = File::open(self.path.clone())?;
         let mut head = [0u8; 1];
-        let _ = file.read(&mut head);
+        file.read(&mut head).map_err(|_| GeojsonError::FS)?;
         match head[0] {
             RS => Ok(JSONStreamType::JSONSeq),
             _ => Ok(JSONStreamType::Ndjson),

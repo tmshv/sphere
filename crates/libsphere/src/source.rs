@@ -112,7 +112,7 @@ impl Source {
     fn create_data(id: &String, path: &Path, uri: &SphereUri) -> Result<(SourceData, String), String> {
         let source_path = path
             .to_str()
-            .expect("Failed to convert path to string")
+            .ok_or_else(|| "Path contains non-UTF-8 characters".to_string())?
             .to_string();
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
