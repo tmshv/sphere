@@ -16,8 +16,7 @@ const action = createAsyncThunk(
             const type = state.source.items[id].type
             switch (type) {
                 case SourceType.Geojson: {
-                    const { location } = state.source.items[id]
-                    const r = new SourceReader(location)
+                    const r = new SourceReader(id)
                     const schema = await r.getSchema()
                     const metadata = schema ? schema.columns : undefined
                     const meta = schema ? {

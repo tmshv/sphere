@@ -65,7 +65,7 @@ const action = createAsyncThunk(
                     break
                 }
                 case SourceType.Geojson: {
-                    const r = new SourceReader(location)
+                    const r = new SourceReader(id)
                     const schema = await r.getSchema()
                     const metadata = schema?.columns ?? {}
                     const meta = {

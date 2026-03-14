@@ -80,7 +80,7 @@ describe("addFile thunk", () => {
         await addFile("/path/to/data.mbtiles")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
-            url: "sphere://mbtiles/path/to/data.mbtiles",
+            url: "file:///path/to/data.mbtiles",
             type: SourceType.MVT,
         })
         expect(dispatchSpy).toHaveBeenCalledWith(
@@ -94,7 +94,7 @@ describe("addFile thunk", () => {
         await addFile("/path/to/data.geojson")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
-            url: "sphere://source/path/to/data.geojson",
+            url: "file:///path/to/data.geojson",
             type: SourceType.Geojson,
         })
         expect(dispatchSpy).toHaveBeenCalledWith(
@@ -108,7 +108,7 @@ describe("addFile thunk", () => {
         await addFile("/data/shape.shp")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
-            url: "sphere://source/data/shape.shp",
+            url: "file:///data/shape.shp",
             type: SourceType.Geojson,
         })
     })
@@ -119,7 +119,7 @@ describe("addFile thunk", () => {
         await addFile("/data/table.csv")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
-            url: "sphere://source/data/table.csv",
+            url: "file:///data/table.csv",
             type: SourceType.Geojson,
         })
     })
@@ -130,7 +130,7 @@ describe("addFile thunk", () => {
         await addFile("/data/noextension")(store.dispatch, store.getState, undefined)
 
         expect(mockAddFromUrl).toHaveBeenCalledWith({
-            url: "sphere://source/data/noextension",
+            url: "file:///data/noextension",
             type: SourceType.Geojson,
         })
         expect(mockSetMapStyle).not.toHaveBeenCalled()

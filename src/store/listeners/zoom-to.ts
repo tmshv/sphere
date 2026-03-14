@@ -43,7 +43,7 @@ listener.startListening({
                 break
             }
             case SourceType.Geojson: {
-                const reader = new SourceReader(source.location)
+                const reader = new SourceReader(sourceId)
                 const bounds = await reader.getBounds()
                 if (bounds) {
                     logger.info({ bounds }, "Got bbox")

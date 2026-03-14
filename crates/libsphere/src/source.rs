@@ -75,6 +75,9 @@ impl Source {
                     &source_url.domain().unwrap_or("unknown")
                 );
             }
+            "file" => {
+                println!("Found file source. Will load {} from FS", &source_url);
+            }
             "http" => {
                 println!("Found HTTP source. Will load remote {}", &source_url);
             }
@@ -114,28 +117,20 @@ impl Source {
             .to_str()
             .ok_or_else(|| "Path contains non-UTF-8 characters".to_string())?
             .to_string();
+        let file_url = format!("file://{}", source_path);
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
             "shp" => {
                 let source = Shapefile { path: source_path };
-                Ok((
-                    SourceData::Shapefile(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::Shapefile(source), file_url))
             }
             "geojson" => {
                 let source = Geojson { path: source_path };
-                Ok((
-                    SourceData::Geojson(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::Geojson(source), file_url))
             }
             "geojsonl" => {
                 let source = GeojsonSeq { path: source_path };
-                Ok((
-                    SourceData::GeojsonSeq(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::GeojsonSeq(source), file_url))
             }
             "mbtiles" => {
                 let source = Tiles::new(id.clone(), source_path);
@@ -156,11 +151,11 @@ impl Source {
                     path: source_path,
                     geometry,
                 };
-                Ok((SourceData::Csv(source), format!("sphere://source/{}", id)))
+                Ok((SourceData::Csv(source), file_url))
             }
             "gpx" => {
                 let source = Gpx { path: source_path };
-                Ok((SourceData::Gpx(source), format!("sphere://source/{}", id)))
+                Ok((SourceData::Gpx(source), file_url))
             }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }

@@ -63,7 +63,8 @@ export class SphereProtocol {
                     return { data }
                 }
                 case "source": {
-                    const reader = new SourceReader(params.url)
+                    const id = url.pathname.substring(1)
+                    const reader = new SourceReader(id)
                     const data = await this.handleSource(reader, params.type, abort.signal)
                     return { data }
                 }
