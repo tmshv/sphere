@@ -31,12 +31,11 @@ impl Bounds for GeojsonSeq {
         match self.to_geojson() {
             Ok(geojson_str) => {
                 let geojson = GeoJson(geojson_str.as_str());
-                let b = geojson.to_geo().unwrap();
-                let bounds = b.bounding_rect().unwrap();
+                let b = geojson.to_geo().ok()?;
+                let bounds = b.bounding_rect()?;
                 let min = bounds.min();
                 let max = bounds.max();
-                let bounds = (min.x, min.y, max.x, max.y);
-                Some(bounds)
+                Some((min.x, min.y, max.x, max.y))
             }
             Err(err) => {
                 println!("{:?}", err);
@@ -66,16 +65,15 @@ impl GeojsonSeq {
             if chunk.is_empty() {
                 continue;
             }
-            let feature = String::from_utf8(chunk).unwrap();
-            let feature: Value = serde_json::from_str(&feature).unwrap();
+            let feature = String::from_utf8(chunk).map_err(|_| GeojsonError::FS)?;
+            let feature: Value = serde_json::from_str(&feature).map_err(|_| GeojsonError::FS)?;
             features.push(feature);
         }
         let feature_collection = serde_json::json!({
             "type": "FeatureCollection",
             "features": features,
         });
-        let result = serde_json::to_string(&feature_collection);
-        Ok(result.unwrap())
+        serde_json::to_string(&feature_collection).map_err(|_| GeojsonError::FS)
     }
 
     fn geojsonl_to_geojson<P: AsRef<Path>>(&self, path: P) -> Result<String> {
@@ -84,19 +82,14 @@ impl GeojsonSeq {
         let mut features = Vec::new();
         for line in reader.lines() {
             let line = line?;
-            let feature: Value = serde_json::from_str(&line).unwrap();
+            let feature: Value = serde_json::from_str(&line).map_err(|_| GeojsonError::FS)?;
             features.push(feature);
         }
         let feature_collection = serde_json::json!({
             "type": "FeatureCollection",
             "features": features,
         });
-        let result = serde_json::to_string(&feature_collection);
-        // match result {
-        //     Ok(result) => Ok(result),
-        //     Err(err) => GeojsonError::FS(err),
-        // }
-        Ok(result.unwrap())
+        serde_json::to_string(&feature_collection).map_err(|_| GeojsonError::FS)
     }
 
     pub fn to_geojson(&self) -> Result<String> {

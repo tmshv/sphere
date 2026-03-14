@@ -36,12 +36,11 @@ impl Bounds for Geojson {
         match self.read() {
             Ok(geojson_str) => {
                 let geojson = GeoJson(geojson_str.as_str());
-                let b = geojson.to_geo().unwrap();
-                let bounds = b.bounding_rect().unwrap();
+                let b = geojson.to_geo().ok()?;
+                let bounds = b.bounding_rect()?;
                 let min = bounds.min();
                 let max = bounds.max();
-                let bounds = (min.x, min.y, max.x, max.y);
-                Some(bounds)
+                Some((min.x, min.y, max.x, max.y))
             }
             Err(err) => {
                 println!("{:?}", err);

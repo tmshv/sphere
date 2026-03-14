@@ -36,7 +36,7 @@ const action = createAsyncThunk(
                 }
             }
         } catch (error) {
-            logger.error("Failed to add Source %s", error)
+            logger.error("Failed to reload Source %s", error)
         }
     },
 )

@@ -72,7 +72,7 @@ impl Source {
             "sphere" => {
                 println!(
                     "Found Sphere source. Will load {} from FS",
-                    &source_url.domain().unwrap()
+                    &source_url.domain().unwrap_or("unknown")
                 );
             }
             "http" => {
@@ -88,7 +88,9 @@ impl Source {
 
         let id = digest(source_url.to_string());
 
-        let path = urlencoding::decode(source_url.path()).unwrap().to_string();
+        let path = urlencoding::decode(source_url.path())
+            .map_err(|e| format!("Invalid URL path encoding: {}", e))?
+            .to_string();
         let path = Path::new(path.as_str());
         if !path.is_file() {
             return Err("File not found".into());
@@ -97,7 +99,7 @@ impl Source {
         let sphere_uri = SphereUri::parse(source_url.as_str())
             .map_err(|e| e.to_string())?;
         let (data, location) = Source::create_data(&id, path, &sphere_uri)?;
-        let name = path.file_stem().unwrap().to_str().unwrap().to_string();
+        let name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("unknown").to_string();
 
         Ok(Source {
             id,
