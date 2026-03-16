@@ -517,7 +517,28 @@ fn parse_interpolate(args: Vec<Value>) -> Result<Expr, ExprError> {
         ));
     }
     // args[0] = interpolation type (e.g. ["linear"]), args[1] = input, rest = stop pairs
-    // For now, only "linear" is supported
+    // Only "linear" is supported; reject other types explicitly
+    match &args[0] {
+        Value::Array(interp_type) => match interp_type.first() {
+            Some(Value::String(s)) if s == "linear" => {}
+            Some(Value::String(s)) => {
+                return Err(ExprError::InvalidExpression(format!(
+                    "interpolate: unsupported interpolation type \"{}\"",
+                    s
+                )))
+            }
+            _ => {
+                return Err(ExprError::InvalidExpression(
+                    "interpolate: invalid interpolation type".to_string(),
+                ))
+            }
+        },
+        _ => {
+            return Err(ExprError::InvalidExpression(
+                "interpolate: interpolation type must be an array".to_string(),
+            ))
+        }
+    }
     let input = parse(args[1].clone())?;
     let stop_args = &args[2..];
     if stop_args.len() % 2 != 0 {
