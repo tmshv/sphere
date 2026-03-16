@@ -41,7 +41,9 @@ pub enum SphereError {
 
     #[error("Configuration error: {detail}")]
     Config { detail: String },
-    // Future: Expression(#[from] libexpression::ExprError) — added in Task 3
+
+    #[error("Expression error: {0}")]
+    Expression(#[from] libexpression::ExprError),
 }
 
 pub type Result<T> = std::result::Result<T, SphereError>;
