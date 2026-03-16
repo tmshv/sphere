@@ -122,6 +122,25 @@ impl Expression for Coalesce {
     }
 }
 
+/// ["!in", needle, haystack] — returns true if needle is NOT in haystack (string or array).
+pub struct NotIn {
+    pub needle: Expr,
+    pub haystack: Expr,
+}
+
+impl Expression for NotIn {
+    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
+        let needle = self.needle.evaluate(ctx)?;
+        let haystack = self.haystack.evaluate(ctx)?;
+        let found = match (&needle, &haystack) {
+            (Value::String(n), Value::String(h)) => h.contains(n.as_str()),
+            (_, Value::Array(arr)) => arr.iter().any(|item| values_equal(item, &needle)),
+            _ => false,
+        };
+        Ok(Value::Bool(!found))
+    }
+}
+
 /// ["in", needle, haystack] — returns true if needle is in haystack (string or array).
 pub struct In {
     pub needle: Expr,

@@ -65,14 +65,15 @@ Before modifying any code file, check whether it has tests. All code must be cov
 ### Backend (`src-tauri/`)
 
 Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
-- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics
 - `system.rs` - System utilities (show in finder)
 
-State stored in `SourceStorage` (thread-safe HashMap with Mutex).
+State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source` and an optional `FeatureStore` (built at load time; absent for MBTiles sources).
 
 ### Rust Libraries (`crates/`)
 
 - `libsphere` - Geospatial processing (format parsing, bounds calculation)
+- `libexpression` - MapLibre Style Specification filter expression parser and evaluator
 - `mbtiles` - MBTiles tile database reader
 - `tilejson` - TileJSON spec support
 
@@ -114,13 +115,15 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 
 | Command | Description |
 |---------|-------------|
-| `source_add` | Load a source from URL/path |
-| `source_get` | Get source as GeoJSON string |
-| `source_bounds` | Get geographic bounds [west, south, east, north] |
-| `source_get_schema` | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
-| `mbtiles_get_tile` | Get single tile from MBTiles |
-| `mbtiles_get_metadata` | Get MBTiles metadata/TileJSON |
-| `show_in_finder` | Open file location in system explorer |
+| `source_add`              | Load a source from URL/path |
+| `source_get`              | Get source as GeoJSON string |
+| `source_bounds`           | Get geographic bounds [west, south, east, north] |
+| `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
+| `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
+| `source_get_column_stats` | Histogram + min/max/mean/unique counts for one column: `(id, column) -> ColumnStats` |
+| `mbtiles_get_tile`        | Get single tile from MBTiles |
+| `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
+| `show_in_finder`          | Open file location in system explorer |
 
 ## Important Build Constraints
 
@@ -128,7 +131,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 
 ## Known Issues / Technical Debt
 
-1. **Error handling** - Error types discard context (e.g., `From<io::Error>` returns generic variant without details)
+1. **Error handling** - `libsphere` errors now carry path context via `SphereError`; `src-tauri` commands still convert errors to strings at the IPC boundary, discarding structure
 2. **Unsafe unwraps** - URL parsing and UTF-8 conversion use `.unwrap()` which can panic
 3. **Fake async** - Some commands marked `async` but perform blocking I/O
 4. **Memory leaks** - Event listeners in `src/tauri.ts` don't store unlisten functions for cleanup

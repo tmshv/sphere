@@ -151,95 +151,12 @@ unary_math!(Ln, ln);
 unary_math!(Log2, log2);
 unary_math!(Log10, log10);
 
-/// ["acos", value]
-pub struct Acos {
-    pub value: Expr,
-}
-
-impl Expression for Acos {
-    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
-        let v = self.value.evaluate(ctx)?;
-        match to_f64(&v) {
-            Some(f) => Ok(num_val(f.acos())),
-            None => Ok(Value::Null),
-        }
-    }
-}
-
-/// ["asin", value]
-pub struct Asin {
-    pub value: Expr,
-}
-
-impl Expression for Asin {
-    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
-        let v = self.value.evaluate(ctx)?;
-        match to_f64(&v) {
-            Some(f) => Ok(num_val(f.asin())),
-            None => Ok(Value::Null),
-        }
-    }
-}
-
-/// ["atan", value]
-pub struct Atan {
-    pub value: Expr,
-}
-
-impl Expression for Atan {
-    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
-        let v = self.value.evaluate(ctx)?;
-        match to_f64(&v) {
-            Some(f) => Ok(num_val(f.atan())),
-            None => Ok(Value::Null),
-        }
-    }
-}
-
-/// ["cos", value]
-pub struct Cos {
-    pub value: Expr,
-}
-
-impl Expression for Cos {
-    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
-        let v = self.value.evaluate(ctx)?;
-        match to_f64(&v) {
-            Some(f) => Ok(num_val(f.cos())),
-            None => Ok(Value::Null),
-        }
-    }
-}
-
-/// ["sin", value]
-pub struct Sin {
-    pub value: Expr,
-}
-
-impl Expression for Sin {
-    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
-        let v = self.value.evaluate(ctx)?;
-        match to_f64(&v) {
-            Some(f) => Ok(num_val(f.sin())),
-            None => Ok(Value::Null),
-        }
-    }
-}
-
-/// ["tan", value]
-pub struct Tan {
-    pub value: Expr,
-}
-
-impl Expression for Tan {
-    fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
-        let v = self.value.evaluate(ctx)?;
-        match to_f64(&v) {
-            Some(f) => Ok(num_val(f.tan())),
-            None => Ok(Value::Null),
-        }
-    }
-}
+unary_math!(Acos, acos);
+unary_math!(Asin, asin);
+unary_math!(Atan, atan);
+unary_math!(Cos, cos);
+unary_math!(Sin, sin);
+unary_math!(Tan, tan);
 
 /// ["min", ...values] — minimum of numeric values.
 pub struct Min {

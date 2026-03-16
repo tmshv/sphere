@@ -82,9 +82,10 @@ impl Expression for Lte {
     fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
         let l = self.left.evaluate(ctx)?;
         let r = self.right.evaluate(ctx)?;
-        Ok(Value::Bool(
-            compare_values(&l, &r) != Some(Ordering::Greater),
-        ))
+        Ok(Value::Bool(matches!(
+            compare_values(&l, &r),
+            Some(Ordering::Less | Ordering::Equal)
+        )))
     }
 }
 
@@ -114,8 +115,9 @@ impl Expression for Gte {
     fn evaluate(&self, ctx: &EvalContext) -> Result<Value, ExprError> {
         let l = self.left.evaluate(ctx)?;
         let r = self.right.evaluate(ctx)?;
-        Ok(Value::Bool(
-            compare_values(&l, &r) != Some(Ordering::Less),
-        ))
+        Ok(Value::Bool(matches!(
+            compare_values(&l, &r),
+            Some(Ordering::Greater | Ordering::Equal)
+        )))
     }
 }

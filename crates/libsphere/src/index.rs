@@ -101,7 +101,8 @@ mod tests {
             (2, (10.0, 10.0, 11.0, 11.0)),
         ];
         let index = RstarIndex::build(entries);
-        let results = index.query_bbox((4.5, 4.5, 6.5, 6.5));
+        let mut results = index.query_bbox((4.5, 4.5, 6.5, 6.5));
+        results.sort();
         assert_eq!(results, vec![1]);
     }
 

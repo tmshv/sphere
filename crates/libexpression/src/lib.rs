@@ -32,10 +32,6 @@ pub fn parse(raw: Value) -> Result<Expr, ExprError> {
     }
 }
 
-/// Evaluate a parsed expression against an `EvalContext`.
-pub fn evaluate(expr: &Expr, context: &EvalContext) -> Result<Value, ExprError> {
-    expr.evaluate(context)
-}
 
 fn parse_array(arr: Vec<Value>) -> Result<Expr, ExprError> {
     if arr.is_empty() {
@@ -404,6 +400,13 @@ fn parse_array(arr: Vec<Value>) -> Result<Expr, ExprError> {
                 haystack: parse(args[1].clone())?,
             }))
         }
+        "!in" => {
+            require_arity(&op, 2..=2, args.len())?;
+            Ok(Box::new(control::NotIn {
+                needle: parse(args[0].clone())?,
+                haystack: parse(args[1].clone())?,
+            }))
+        }
         "interpolate" => parse_interpolate(args),
 
         // Unknown operator
@@ -692,6 +695,8 @@ mod tests {
         assert_eq!(run(json!(["<=", 1, 2]), json!({})), json!(true));
         assert_eq!(run(json!(["<=", 1, 1]), json!({})), json!(true));
         assert_eq!(run(json!(["<=", 2, 1]), json!({})), json!(false));
+        // incomparable types must return false, not true
+        assert_eq!(run(json!(["<=", "a", 1]), json!({})), json!(false));
     }
 
     #[test]
@@ -705,6 +710,8 @@ mod tests {
         assert_eq!(run(json!([">=", 2, 1]), json!({})), json!(true));
         assert_eq!(run(json!([">=", 1, 1]), json!({})), json!(true));
         assert_eq!(run(json!([">=", 1, 2]), json!({})), json!(false));
+        // incomparable types must return false, not true
+        assert_eq!(run(json!([">=", 1, "a"]), json!({})), json!(false));
     }
 
     #[test]
@@ -1033,6 +1040,24 @@ mod tests {
         assert_eq!(
             run(json!(["in", 5, ["literal", [1, 2, 3]]]), json!({})),
             json!(false)
+        );
+    }
+
+    #[test]
+    fn test_not_in_string() {
+        assert_eq!(run(json!(["!in", "ll", "hello"]), json!({})), json!(false));
+        assert_eq!(run(json!(["!in", "xyz", "hello"]), json!({})), json!(true));
+    }
+
+    #[test]
+    fn test_not_in_array() {
+        assert_eq!(
+            run(json!(["!in", 2, ["literal", [1, 2, 3]]]), json!({})),
+            json!(false)
+        );
+        assert_eq!(
+            run(json!(["!in", 5, ["literal", [1, 2, 3]]]), json!({})),
+            json!(true)
         );
     }
 

@@ -155,6 +155,7 @@ impl Expression for IndexOf {
                 Ok(Value::Number(result.into()))
             }
             (_, Value::Array(arr)) => {
+                let from_i = from_i.min(arr.len());
                 let result = arr[from_i..]
                     .iter()
                     .position(|item| item == &needle)
