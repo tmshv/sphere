@@ -1,4 +1,5 @@
 pub mod csv;
+pub mod error;
 pub mod geojson;
 pub mod geojsonseq;
 pub mod gpx;
@@ -8,6 +9,7 @@ pub mod shape;
 pub mod source;
 pub mod uri;
 
+pub use error::{Result, SphereError};
 pub use uri::SphereUri;
 
 pub trait Bounds {

@@ -3,12 +3,14 @@ use geo::BoundingRect;
 use geojson::{Feature, FeatureCollection, Geometry, JsonObject, Position, Value};
 use geozero::geojson::GeoJson;
 use geozero::ToGeo;
-use std::{fs::File, result, str::FromStr};
+use std::{fs::File, str::FromStr};
 
 use super::Bounds;
+use crate::error::{Result, SphereError, WithPath};
 use crate::schema::{infer_source_schema, SourceSchema};
 use crate::SphereUri;
 
+#[derive(Debug)]
 pub enum CsvParams {
     XY { x: String, y: String },
     Wkt(String),
@@ -20,37 +22,22 @@ impl CsvParams {
         let x = uri.query_param("x");
         let y = uri.query_param("y");
         if wkt.is_some() && (x.is_some() || y.is_some()) {
-            return Err(CsvError::ConflictingGeometryParams);
+            return Err(SphereError::Config {
+                detail: "cannot specify both wkt and x/y geometry params".to_string(),
+            });
         }
         if let Some(wkt_field) = wkt {
             Ok(CsvParams::Wkt(wkt_field))
         } else {
             match (x, y) {
                 (Some(x), Some(y)) => Ok(CsvParams::XY { x, y }),
-                _ => Err(CsvError::MissingGeometryParams),
+                _ => Err(SphereError::Config {
+                    detail: "missing x/y or wkt geometry params".to_string(),
+                }),
             }
         }
     }
 }
-
-#[derive(Debug)]
-pub enum CsvError {
-    // FS(std::io::Error),
-    FS,
-    ConflictingGeometryParams,
-    MissingGeometryParams,
-    // Serialize,
-}
-
-impl From<std::io::Error> for CsvError {
-    // fn from(err: std::io::Error) -> Self {
-    fn from(_: std::io::Error) -> Self {
-        // CsvError::FS(err)
-        CsvError::FS
-    }
-}
-
-pub type Result<T> = result::Result<T, CsvError>;
 
 #[derive(Debug)]
 pub enum CsvGeometry {
@@ -114,7 +101,7 @@ impl Bounds for Csv {
                 Some((min.x, min.y, max.x, max.y))
             }
             Err(err) => {
-                println!("{:?}", err);
+                println!("{}", err);
                 None
             }
         }
@@ -123,16 +110,7 @@ impl Bounds for Csv {
 
 impl Csv {
     pub fn get_features(&self) -> Result<Vec<Feature>> {
-        let file = File::open(self.path.as_str())?;
-
-        // let mut rdr = csv::ReaderBuilder::new()
-        // .has_headers(false)
-        // .delimiter(b';')
-        // .double_quote(false)
-        // .escape(Some(b'\\'))
-        // .flexible(true)
-        // .comment(Some(b'#'))
-        // .from_reader(io::stdin());
+        let file = File::open(self.path.as_str()).with_path(&self.path)?;
         let mut features = Vec::<Feature>::new();
         let mut rdr = csv::Reader::from_reader(file);
         for result in rdr.deserialize() {
@@ -205,19 +183,17 @@ mod tests {
     }
 
     #[test]
+    fn test_csv_params_conflict_error_message() {
+        let uri = SphereUri::parse("file:///data/points.csv?x=lon&y=lat&wkt=geom").unwrap();
+        let err = CsvParams::from_uri(&uri).unwrap_err();
+        assert!(err.to_string().contains("wkt"));
+    }
+
+    #[test]
     fn test_valid_jsonfile() {
-        // let geojson = Csv {
-        //     path: "./assets/geojson-files/ne_10m_airports.geojson".to_string(),
-        // };
-        // assert!(geojson.read().is_ok());
     }
 
     #[test]
     fn test_valid_bounds() {
-        // let geojson = Csv {
-        //     path: "./assets/geojson-files/ne_10m_airports.geojson".to_string(),
-        // };
-        // let bounds = geojson.get_bounds().unwrap_or_default();
-        // assert!(bounds == (-175.135635, -53.7814746058316, 179.19544202302, 78.246717));
     }
 }

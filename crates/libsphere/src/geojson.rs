@@ -4,27 +4,11 @@ use geozero::geojson::GeoJson;
 use geozero::ToGeo;
 use std::collections::HashMap;
 use std::io::prelude::*;
-use std::{fs::File, result};
+use std::fs::File;
 
 use super::Bounds;
+use crate::error::{Result, SphereError, WithPath};
 use crate::schema::{infer_source_schema, SourceSchema};
-
-#[derive(Debug)]
-pub enum GeojsonError {
-    // FS(std::io::Error),
-    FS,
-    // Serialize,
-}
-
-impl From<std::io::Error> for GeojsonError {
-    // fn from(err: std::io::Error) -> Self {
-    fn from(_: std::io::Error) -> Self {
-        // GeojsonError::FS(err)
-        GeojsonError::FS
-    }
-}
-
-pub type Result<T> = result::Result<T, GeojsonError>;
 
 #[derive(Debug)]
 pub struct Geojson {
@@ -43,7 +27,7 @@ impl Bounds for Geojson {
                 Some((min.x, min.y, max.x, max.y))
             }
             Err(err) => {
-                println!("{:?}", err);
+                println!("{}", err);
                 None
             }
         }
@@ -52,18 +36,18 @@ impl Bounds for Geojson {
 
 impl Geojson {
     pub fn read(&self) -> Result<String> {
-        let mut file = File::open(self.path.as_str())?;
+        let mut file = File::open(self.path.as_str()).with_path(&self.path)?;
         let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-
-        // let geojson = contents.parse::<geojson::GeoJson>().unwrap();
-
+        file.read_to_string(&mut contents).with_path(&self.path)?;
         Ok(contents)
     }
 
     pub fn get_schema(&self) -> Result<SourceSchema> {
         let geojson_str = self.read()?;
-        let geojson = geojson_str.parse::<GeoJson2>().map_err(|_| GeojsonError::FS)?;
+        let geojson = geojson_str.parse::<GeoJson2>().map_err(|source| SphereError::GeoJson {
+            path: self.path.clone(),
+            source,
+        })?;
         if let GeoJson2::FeatureCollection(val) = geojson {
             return Ok(infer_source_schema(val.features.iter()));
         }
@@ -95,5 +79,14 @@ mod tests {
         };
         let bounds = geojson.get_bounds().unwrap_or_default();
         assert!(bounds == (-175.135635, -53.7814746058316, 179.19544202302, 78.246717));
+    }
+
+    #[test]
+    fn test_missing_file_has_path_context() {
+        let geojson = Geojson {
+            path: "./nonexistent.geojson".to_string(),
+        };
+        let err = geojson.read().unwrap_err();
+        assert!(err.to_string().contains("nonexistent.geojson"));
     }
 }
