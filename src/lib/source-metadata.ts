@@ -31,6 +31,7 @@ export function createSourceMetadataFromFeatureCollection(fc: GeoJSON.FeatureCol
     }
 
     return {
+        columns: {},
         pointsCount,
         linesCount,
         polygonsCount,

@@ -21,7 +21,7 @@ const makeGeojsonSource = (id: string, overrides: Record<string, any> = {}) => (
     fractionIndex: 0,
     editable: true,
     pending: false,
-    metadata: {},
+    meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
     ...overrides,
 })
 

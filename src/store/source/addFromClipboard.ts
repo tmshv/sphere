@@ -93,14 +93,13 @@ const action = createAsyncThunk(
             }
 
             const id = crypto.randomUUID()
-            const metadata = deriveSchema(dataset)
-            const meta = computeGeometryMeta(dataset)
+            const columns = deriveSchema(dataset)
+            const meta = computeGeometryMeta(dataset, columns)
 
             thunkAPI.dispatch(actions.addGeojsonSource({
                 id,
                 name: "Pasted GeoJSON",
                 location: "",
-                metadata,
                 meta,
                 dataset,
             }))

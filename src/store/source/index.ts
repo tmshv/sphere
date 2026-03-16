@@ -8,11 +8,11 @@ import type { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
-import type { FeatureCollecionSource, GeojsonMetadata, GeojsonSource, Source } from "@/types/source"
+import type { FeatureCollecionSource, GeojsonSource, Source } from "@/types/source"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
-export function computeGeometryMeta(fc: GeoJSON.FeatureCollection): SourceMetadata {
+export function computeGeometryMeta(fc: GeoJSON.FeatureCollection, columns: Record<string, string> = {}): SourceMetadata {
     let pointsCount = 0
     let linesCount = 0
     let polygonsCount = 0
@@ -22,7 +22,7 @@ export function computeGeometryMeta(fc: GeoJSON.FeatureCollection): SourceMetada
         else if (t === "LineString" || t === "MultiLineString") linesCount++
         else if (t === "Polygon" || t === "MultiPolygon") polygonsCount++
     }
-    return { pointsCount, linesCount, polygonsCount }
+    return { columns, pointsCount, linesCount, polygonsCount }
 }
 
 // Define a type for the slice state
@@ -65,6 +65,7 @@ export const sourceSlice = createSlice({
                 pending: false,
                 editable: true,
                 meta: {
+                    columns: {},
                     pointsCount: 0,
                     linesCount: 0,
                     polygonsCount: 0,
@@ -84,11 +85,10 @@ export const sourceSlice = createSlice({
             id: Id,
             name: string,
             location: string,
-            metadata: GeojsonMetadata,
             meta: SourceMetadata,
             dataset?: GeoJSON.FeatureCollection,
         }>) => {
-            const { id, name, location, metadata, meta, dataset } = action.payload
+            const { id, name, location, meta, dataset } = action.payload
             state.items[id] = {
                 id,
                 name,
@@ -97,7 +97,6 @@ export const sourceSlice = createSlice({
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: true,
-                metadata,
                 meta,
                 dataset,
             }
@@ -106,15 +105,11 @@ export const sourceSlice = createSlice({
         },
         setGeojsonData: (state, action: PayloadAction<{
             id: Id,
-            metadata?: GeojsonMetadata,
             meta?: SourceMetadata,
             dataset?: GeoJSON.FeatureCollection,
         }>) => {
-            const { id, metadata, meta, dataset } = action.payload
+            const { id, meta, dataset } = action.payload
             const s = state.items[id] as GeojsonSource
-            if (metadata) {
-                s.metadata = metadata
-            }
             if (meta) {
                 s.meta = meta
             }
@@ -149,7 +144,6 @@ export const sourceSlice = createSlice({
             name: string,
             location: string,
             sourceLayers?: { name: string, id: string }[],
-            metadata?: TileJSON | GeojsonMetadata,
         }>) => {
             const { id: sourceId, name, location } = action.payload
             state.items[sourceId] = {

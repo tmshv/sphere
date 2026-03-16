@@ -20,7 +20,7 @@ vi.mock(".", () => ({
             payload,
         })),
     },
-    computeGeometryMeta: vi.fn().mockReturnValue({ pointsCount: 0, linesCount: 0, polygonsCount: 0 }),
+    computeGeometryMeta: vi.fn().mockImplementation((fc: GeoJSON.FeatureCollection, columns: Record<string, string> = {}) => ({ columns, pointsCount: 0, linesCount: 0, polygonsCount: 0 })),
 }))
 
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
@@ -111,7 +111,7 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
         const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.metadata).toEqual({ name: "String", count: "Number" })
+        expect(call.meta.columns).toEqual({ name: "String", count: "Number" })
     })
 
     test("generates a unique id per call", async () => {
@@ -189,6 +189,6 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
         const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.metadata).toEqual({})
+        expect(call.meta.columns).toEqual({})
     })
 })

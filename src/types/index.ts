@@ -22,6 +22,7 @@ export enum LayerType {
 }
 
 export type SourceMetadata = {
+    columns: Record<string, string>
     pointsCount: number
     linesCount: number
     polygonsCount: number

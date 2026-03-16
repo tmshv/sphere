@@ -1,10 +1,8 @@
 import { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
 
-export type GeojsonMetadata = Record<string, any>
 export type GeojsonSource = {
     type: SourceType.Geojson
-    metadata: GeojsonMetadata
     meta: SourceMetadata
     location: string
     dataset?: GeoJSON.FeatureCollection
