@@ -31,8 +31,9 @@ impl CsvParams {
         } else {
             match (x, y) {
                 (Some(x), Some(y)) => Ok(CsvParams::XY { x, y }),
-                _ => Err(SphereError::Config {
-                    detail: "missing x/y or wkt geometry params".to_string(),
+                _ => Ok(CsvParams::XY {
+                    x: "lng".to_string(),
+                    y: "lat".to_string(),
                 }),
             }
         }
@@ -157,9 +158,10 @@ mod tests {
     use crate::SphereUri;
 
     #[test]
-    fn test_csv_params_missing_xy_is_error() {
+    fn test_csv_params_missing_xy_defaults_to_lng_lat() {
         let uri = SphereUri::parse("file:///data/points.csv").unwrap();
-        assert!(CsvParams::from_uri(&uri).is_err());
+        let params = CsvParams::from_uri(&uri).unwrap();
+        assert!(matches!(params, CsvParams::XY { x, y } if x == "lng" && y == "lat"));
     }
 
     #[test]
