@@ -68,11 +68,11 @@ impl GeojsonSeq {
             }
             let feature = String::from_utf8(chunk).map_err(|e| SphereError::Shape {
                 path: path_str.clone(),
-                detail: e.to_string(),
+                detail: format!("UTF-8 decode error: {e}"),
             })?;
             let feature: Value = serde_json::from_str(&feature).map_err(|e| SphereError::Shape {
                 path: path_str.clone(),
-                detail: e.to_string(),
+                detail: format!("JSON parse error: {e}"),
             })?;
             features.push(feature);
         }
@@ -98,7 +98,7 @@ impl GeojsonSeq {
             }
             let feature: Value = serde_json::from_str(&line).map_err(|e| SphereError::Shape {
                 path: path_str.clone(),
-                detail: e.to_string(),
+                detail: format!("JSON parse error: {e}"),
             })?;
             features.push(feature);
         }

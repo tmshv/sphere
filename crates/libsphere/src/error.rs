@@ -61,3 +61,12 @@ impl<T> WithPath<T> for std::result::Result<T, std::io::Error> {
         })
     }
 }
+
+impl<T> WithPath<T> for std::result::Result<T, csv::Error> {
+    fn with_path(self, path: &str) -> Result<T> {
+        self.map_err(|source| SphereError::Csv {
+            path: path.to_string(),
+            source,
+        })
+    }
+}

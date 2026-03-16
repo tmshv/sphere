@@ -10,6 +10,11 @@ pub use expr::{Expr, Expression};
 use ops::*;
 use serde_json::Value;
 
+/// Evaluate a parsed expression against a context.
+pub fn evaluate(expr: &Expr, ctx: &EvalContext) -> Result<Value, ExprError> {
+    expr.evaluate(ctx)
+}
+
 /// Parse a MapLibre Style Spec expression from a JSON value.
 /// Returns a boxed `Expression` that can be evaluated against an `EvalContext`.
 pub fn parse(raw: Value) -> Result<Expr, ExprError> {

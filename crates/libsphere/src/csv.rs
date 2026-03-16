@@ -115,10 +115,10 @@ impl Csv {
         let mut features = Vec::<Feature>::new();
         let mut rdr = csv::Reader::from_reader(file);
         for result in rdr.deserialize() {
-            let record: JsonObject = match result {
-                Ok(r) => r,
-                Err(_) => continue,
-            };
+            let record: JsonObject = result.map_err(|source| SphereError::Csv {
+                path: self.path.clone(),
+                source,
+            })?;
             let geom = self.geometry.get_value(&record);
             if let Some(geom) = geom {
                 let geometry = Geometry::new(geom);
