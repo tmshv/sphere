@@ -85,7 +85,7 @@ impl FeatureStore {
                             Ok(Value::Bool(b)) => b,
                             Ok(Value::Null) => false,
                             Ok(Value::Number(n)) => n.as_f64().map(|f| f != 0.0).unwrap_or(false),
-                            Ok(_) => true,
+                            Ok(_) => false,
                             Err(_) => false,
                         }
                     }

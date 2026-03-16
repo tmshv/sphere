@@ -3,6 +3,18 @@ use crate::error::ExprError;
 use crate::expr::{Expr, Expression};
 use serde_json::Value;
 
+fn values_equal(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Null, Value::Null) => true,
+        (Value::Bool(x), Value::Bool(y)) => x == y,
+        (Value::Number(x), Value::Number(y)) => x.as_f64() == y.as_f64(),
+        (Value::String(x), Value::String(y)) => x == y,
+        (Value::Array(x), Value::Array(y)) => x == y,
+        (Value::Object(x), Value::Object(y)) => x == y,
+        _ => false,
+    }
+}
+
 fn to_str(v: Value) -> String {
     match v {
         Value::String(s) => s,
@@ -86,7 +98,7 @@ impl Expression for Slice {
                 } else {
                     len as usize
                 };
-                let result: String = chars[start.min(end)..end.max(start).min(len as usize)]
+                let result: String = chars[start..end.max(start)]
                     .iter()
                     .collect();
                 Ok(Value::String(result))
@@ -158,7 +170,7 @@ impl Expression for IndexOf {
                 let from_i = from_i.min(arr.len());
                 let result = arr[from_i..]
                     .iter()
-                    .position(|item| item == &needle)
+                    .position(|item| values_equal(item, &needle))
                     .map(|pos| (pos + from_i) as i64)
                     .unwrap_or(-1);
                 Ok(Value::Number(result.into()))
