@@ -453,7 +453,7 @@ fn parse_case(args: Vec<Value>) -> Result<Expr, ExprError> {
 }
 
 fn parse_match(args: Vec<Value>) -> Result<Expr, ExprError> {
-    if args.len() < 3 {
+    if args.len() < 4 {
         return Err(ExprError::InvalidExpression(
             "match requires at least input, one label+output pair, and a fallback".to_string(),
         ));
