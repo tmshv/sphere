@@ -9,7 +9,7 @@ use url::Url;
 use crate::state::SourceStorage;
 
 #[derive(Serialize, Debug)]
-pub struct NewSource {
+pub struct SourceAddResult {
     id: String,
     name: String,
     location: String,
@@ -17,13 +17,13 @@ pub struct NewSource {
 }
 
 #[tauri::command]
-pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<NewSource, String> {
+pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<SourceAddResult, String> {
     let url = Url::parse(source_url).map_err(|e| e.to_string())?;
     println!("Adding Source: {}", url);
 
     match Source::from_url(url) {
         Ok(source) => {
-            let n = NewSource {
+            let n = SourceAddResult {
                 id: source.id.clone(),
                 location: source.location.clone(),
                 name: source.name.clone(),
