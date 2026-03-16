@@ -115,7 +115,10 @@ pub async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result
 pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) -> Result<SourceSchema, String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
-        Some(entry) => entry.source.get_schema(),
+        Some(entry) => match &entry.store {
+            Some(fs) => Ok(fs.schema().clone()),
+            None => entry.source.get_schema(),
+        },
         None => Err(format!("Not found {}", &id)),
     }
 }
@@ -124,9 +127,16 @@ pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) ->
 pub async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Result<(f64, f64, f64, f64), String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
-        Some(entry) => match entry.source.get_bounds() {
-            Some(bounds) => Ok(bounds),
-            None => Err(format!("Cannot get bounds {}", &id)),
+        Some(entry) => {
+            if let Some(fs) = &entry.store {
+                if let Some(bounds) = fs.get_bounds() {
+                    return Ok(bounds);
+                }
+            }
+            match entry.source.get_bounds() {
+                Some(bounds) => Ok(bounds),
+                None => Err(format!("Cannot get bounds {}", &id)),
+            }
         },
         None => Err(format!("Not found {}", &id)),
     }
