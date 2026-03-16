@@ -491,14 +491,17 @@ fn parse_step(args: Vec<Value>) -> Result<Expr, ExprError> {
     // args[0] = input, args[1] = initial_output, then pairs of (stop, output)
     let input = parse(args[0].clone())?;
     let initial = parse(args[1].clone())?;
-    let mut stops = Vec::new();
     let stop_args = &args[2..];
+    if stop_args.len() % 2 != 0 {
+        return Err(ExprError::InvalidExpression(
+            "step requires an even number of stop arguments (stop_value, output) pairs".to_string(),
+        ));
+    }
+    let mut stops = Vec::new();
     for chunk in stop_args.chunks(2) {
-        if chunk.len() == 2 {
-            let stop = parse(chunk[0].clone())?;
-            let output = parse(chunk[1].clone())?;
-            stops.push((stop, output));
-        }
+        let stop = parse(chunk[0].clone())?;
+        let output = parse(chunk[1].clone())?;
+        stops.push((stop, output));
     }
     Ok(Box::new(control::Step {
         input,
@@ -517,20 +520,23 @@ fn parse_interpolate(args: Vec<Value>) -> Result<Expr, ExprError> {
     // For now, only "linear" is supported
     let input = parse(args[1].clone())?;
     let stop_args = &args[2..];
+    if stop_args.len() % 2 != 0 {
+        return Err(ExprError::InvalidExpression(
+            "interpolate requires an even number of stop arguments (stop_value, output) pairs".to_string(),
+        ));
+    }
     let mut stops: Vec<(f64, Expr)> = Vec::new();
     for chunk in stop_args.chunks(2) {
-        if chunk.len() == 2 {
-            let stop_val = match &chunk[0] {
-                Value::Number(n) => n.as_f64().unwrap_or(0.0),
-                _ => {
-                    return Err(ExprError::InvalidExpression(
-                        "interpolate stop values must be numbers".to_string(),
-                    ))
-                }
-            };
-            let output = parse(chunk[1].clone())?;
-            stops.push((stop_val, output));
-        }
+        let stop_val = match &chunk[0] {
+            Value::Number(n) => n.as_f64().unwrap_or(0.0),
+            _ => {
+                return Err(ExprError::InvalidExpression(
+                    "interpolate stop values must be numbers".to_string(),
+                ))
+            }
+        };
+        let output = parse(chunk[1].clone())?;
+        stops.push((stop_val, output));
     }
     Ok(Box::new(control::Interpolate { input, stops }))
 }
