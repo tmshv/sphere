@@ -25,7 +25,7 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             break
         }
         case "mbtiles": {
-            const url = `sphere://mbtiles${path}`
+            const url = `file://${path}`
             thunkAPI.dispatch(source.addFromUrl({
                 url,
                 type: SourceType.MVT,
@@ -34,7 +34,7 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             break
         }
         default: {
-            const url = `sphere://source${path}`
+            const url = `file://${path}`
             thunkAPI.dispatch(source.addFromUrl({
                 url,
                 type: SourceType.Geojson,

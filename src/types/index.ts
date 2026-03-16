@@ -22,9 +22,17 @@ export enum LayerType {
 }
 
 export type SourceMetadata = {
+    columns: Record<string, string>
     pointsCount: number
     linesCount: number
     polygonsCount: number
+}
+
+export type SourceSchema = {
+    columns: Record<string, string>
+    points_count: number
+    lines_count: number
+    polygons_count: number
 }
 
 export type PointLike = GeoJSON.Point | GeoJSON.MultiPoint

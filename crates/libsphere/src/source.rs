@@ -1,18 +1,19 @@
 // use geozero::geojson::GeoJson;
 // use geozero::ToGeo;
 use sha256::digest;
-use std::collections::HashMap;
 use std::path::Path;
 // use std::result;
 use url::Url;
 use urlencoding;
 
-use super::csv::{Csv, CsvGeometry};
+use super::csv::{Csv, CsvGeometry, CsvParams};
 use super::geojson::Geojson;
 use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
 use super::mbtiles::Tiles;
+use super::schema::{assign_feature_ids, SourceSchema};
 use super::shape::Shapefile;
+use super::uri::SphereUri;
 use super::Bounds;
 
 // #[derive(Debug)]
@@ -71,8 +72,11 @@ impl Source {
             "sphere" => {
                 println!(
                     "Found Sphere source. Will load {} from FS",
-                    &source_url.domain().unwrap()
+                    &source_url.domain().unwrap_or("unknown")
                 );
+            }
+            "file" => {
+                println!("Found file source. Will load {} from FS", &source_url);
             }
             "http" => {
                 println!("Found HTTP source. Will load remote {}", &source_url);
@@ -87,14 +91,18 @@ impl Source {
 
         let id = digest(source_url.to_string());
 
-        let path = urlencoding::decode(source_url.path()).unwrap().to_string();
+        let path = urlencoding::decode(source_url.path())
+            .map_err(|e| format!("Invalid URL path encoding: {}", e))?
+            .to_string();
         let path = Path::new(path.as_str());
         if !path.is_file() {
             return Err("File not found".into());
         }
 
-        let (data, location) = Source::create_data(&id, path)?;
-        let name = path.file_stem().unwrap().to_str().unwrap().to_string();
+        let sphere_uri = SphereUri::parse(source_url.as_str())
+            .map_err(|e| e.to_string())?;
+        let (data, location) = Source::create_data(&id, path, &sphere_uri)?;
+        let name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("unknown").to_string();
 
         Ok(Source {
             id,
@@ -104,105 +112,101 @@ impl Source {
         })
     }
 
-    fn create_data(id: &String, path: &Path) -> Result<(SourceData, String), String> {
+    fn create_data(id: &String, path: &Path, uri: &SphereUri) -> Result<(SourceData, String), String> {
         let source_path = path
             .to_str()
-            .expect("Failed to convert path to string")
+            .ok_or_else(|| "Path contains non-UTF-8 characters".to_string())?
             .to_string();
+        let file_url = format!("file://{}", source_path);
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
             "shp" => {
                 let source = Shapefile { path: source_path };
-                Ok((
-                    SourceData::Shapefile(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::Shapefile(source), file_url))
             }
             "geojson" => {
                 let source = Geojson { path: source_path };
-                Ok((
-                    SourceData::Geojson(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::Geojson(source), file_url))
             }
             "geojsonl" => {
                 let source = GeojsonSeq { path: source_path };
-                Ok((
-                    SourceData::GeojsonSeq(source),
-                    format!("sphere://source/{}", id),
-                ))
+                Ok((SourceData::GeojsonSeq(source), file_url))
             }
             "mbtiles" => {
                 let source = Tiles::new(id.clone(), source_path);
-                Ok((
-                    SourceData::Mbtiles(source),
-                    format!("sphere://mbtiles/{}", id),
-                ))
+                Ok((SourceData::Mbtiles(source), file_url))
             }
             "csv" => {
-                let source = Csv {
-                    path: source_path,
-                    geometry: CsvGeometry::XY(("lng".into(), "lat".into())),
-                    // delimiter: ",".into(),
+                let params = CsvParams::from_uri(uri).map_err(|e| format!("{:?}", e))?;
+                let geometry = match params {
+                    CsvParams::Wkt(field) => CsvGeometry::WKT(field),
+                    CsvParams::XY { x, y } => CsvGeometry::XY((x, y)),
                 };
-                Ok((SourceData::Csv(source), format!("sphere://source/{}", id)))
+                let source = Csv { path: source_path, geometry };
+                Ok((SourceData::Csv(source), file_url))
             }
             "gpx" => {
                 let source = Gpx { path: source_path };
-                Ok((SourceData::Gpx(source), format!("sphere://source/{}", id)))
+                Ok((SourceData::Gpx(source), file_url))
             }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }
     }
 
     pub fn to_geojson(&self) -> Result<String, String> {
-        match &self.data {
-            SourceData::Shapefile(src) => {
-                let val = src.to_geojson().expect("No shape".into());
-                Ok(val)
-            }
-            SourceData::Geojson(src) => {
-                let val = src.read().expect("No geojson".into());
-                Ok(val)
-            }
-            SourceData::GeojsonSeq(src) => {
-                let val = src.to_geojson().expect("No geojson".into());
-                Ok(val)
-            }
-            SourceData::Csv(src) => {
-                let val = src.to_geojson().expect("No csv".into());
-                Ok(val)
-            }
-            SourceData::Gpx(src) => {
-                let val = src.to_geojson().expect("No gpx".into());
-                Ok(val)
-            }
-            _ => Err("No".into()),
-        }
+        let raw = match &self.data {
+            SourceData::Shapefile(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Geojson(src) => src.read().map_err(|e| format!("{:?}", e))?,
+            SourceData::GeojsonSeq(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Csv(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Gpx(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            _ => return Err("No".into()),
+        };
+        let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
+        let mut fc = match geojson {
+            geojson::GeoJson::FeatureCollection(fc) => fc,
+            geojson::GeoJson::Feature(f) => geojson::FeatureCollection {
+                bbox: None,
+                features: vec![f],
+                foreign_members: None,
+            },
+            geojson::GeoJson::Geometry(g) => geojson::FeatureCollection {
+                bbox: None,
+                features: vec![geojson::Feature {
+                    bbox: None,
+                    geometry: Some(g),
+                    id: None,
+                    properties: None,
+                    foreign_members: None,
+                }],
+                foreign_members: None,
+            },
+        };
+        assign_feature_ids(&mut fc);
+        serde_json::to_string(&fc).map_err(|e| e.to_string())
     }
 
-    pub fn get_schema(&self) -> Result<HashMap<String, String>, String> {
+    pub fn get_schema(&self) -> Result<SourceSchema, String> {
         match &self.data {
             // SourceData::Shapefile(src) => {
-            //     let val = src.to_geojson().expect("No shape".into());
+            //     let val = src.to_geojson().expect("No shape");
             //     Ok(val)
             // }
             SourceData::Geojson(src) => {
-                let val = src.get_schema().expect("No schema".into());
-                Ok(val)
+                src.get_schema().map_err(|e| format!("{:?}", e))
             }
             SourceData::GeojsonSeq(src) => {
-                let val = src.get_schema().expect("No schema".into());
-                Ok(val)
+                src.get_schema().map_err(|e| format!("{:?}", e))
             }
             SourceData::Csv(src) => {
-                let val = src.get_schema().expect("No schema".into());
-                Ok(val)
+                src.get_schema().map_err(|e| format!("{:?}", e))
             }
-            // SourceData::Gpx(src) => {
-            //     let val = src.to_geojson().expect("No gpx".into());
-            //     Ok(val)
-            // }
+            SourceData::Shapefile(src) => {
+                src.get_schema().map_err(|e| format!("{:?}", e))
+            }
+            SourceData::Gpx(src) => {
+                src.get_schema().map_err(|e| format!("{:?}", e))
+            }
             _ => Err("Getting schema is not implemented for this type of file".into()),
         }
     }
@@ -238,7 +242,7 @@ impl Source {
 
     pub fn get_mbtiles(&self) -> Option<&Tiles> {
         match &self.data {
-            SourceData::Mbtiles(val) => Some(&val),
+            SourceData::Mbtiles(val) => Some(val),
             _ => None,
         }
     }

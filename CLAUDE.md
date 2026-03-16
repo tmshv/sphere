@@ -85,7 +85,7 @@ State stored in `SourceStorage` (thread-safe HashMap with Mutex).
 ## Key Dependencies
 
 - **Frontend**: React 18, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Mantine 5, Turf.js
-- **Backend**: Tauri 2.9, rusqlite (bundled SQLite), geo/geojson/geozero crates
+- **Backend**: Tauri 2.9, rusqlite (bundled SQLite), geo/geojson/geozero/wkt crates
 
 ## Runtime Requirements
 
@@ -99,6 +99,8 @@ State stored in `SourceStorage` (thread-safe HashMap with Mutex).
 **Custom Protocols**: The app registers custom URL protocols for accessing sources:
 - `sphere://source{path}` - Access loaded geospatial sources
 - `sphere://mbtiles{path}` - Access MBTiles tile data
+
+**CSV source URI params**: When loading CSV files, the `sphere://source` URI accepts query parameters: `?x=<field>&y=<field>` for lon/lat column names (defaults: `lng`/`lat`), `?wkt=<field>` for a WKT geometry column. When a source is stored, features are assigned integer IDs starting from 1 (after the max existing numeric ID). Original string IDs are preserved in `properties["$id"]`.
 
 **Event System**: Tauri events handle:
 - Theme changes (system dark/light mode)
@@ -115,7 +117,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `source_add` | Load a source from URL/path |
 | `source_get` | Get source as GeoJSON string |
 | `source_bounds` | Get geographic bounds [west, south, east, north] |
-| `source_get_schema` | Get property schema for source |
+| `source_get_schema` | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
 | `mbtiles_get_tile` | Get single tile from MBTiles |
 | `mbtiles_get_metadata` | Get MBTiles metadata/TileJSON |
 | `show_in_finder` | Open file location in system explorer |

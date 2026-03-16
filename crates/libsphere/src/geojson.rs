@@ -7,6 +7,7 @@ use std::io::prelude::*;
 use std::{fs::File, result};
 
 use super::Bounds;
+use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug)]
 pub enum GeojsonError {
@@ -35,12 +36,11 @@ impl Bounds for Geojson {
         match self.read() {
             Ok(geojson_str) => {
                 let geojson = GeoJson(geojson_str.as_str());
-                let b = geojson.to_geo().unwrap();
-                let bounds = b.bounding_rect().unwrap();
+                let b = geojson.to_geo().ok()?;
+                let bounds = b.bounding_rect()?;
                 let min = bounds.min();
                 let max = bounds.max();
-                let bounds = (min.x, min.y, max.x, max.y);
-                Some(bounds)
+                Some((min.x, min.y, max.x, max.y))
             }
             Err(err) => {
                 println!("{:?}", err);
@@ -61,30 +61,18 @@ impl Geojson {
         Ok(contents)
     }
 
-    pub fn get_schema(&self) -> Result<HashMap<String, String>> {
-        let mut schema = HashMap::<String, String>::new();
-        match self.read() {
-            Ok(geojson_str) => {
-                let geojson = geojson_str.parse::<GeoJson2>().unwrap();
-                match geojson {
-                    GeoJson2::FeatureCollection(val) => {
-                        let x = val.features.into_iter().take(1).next().unwrap();
-                        let p = x.properties.unwrap();
-                        p.keys().for_each(|k| {
-                            let val = p.get(k).unwrap();
-                            match val {
-                                serde_json::Value::String(_) => schema.insert(k.clone(), "String".into()),
-                                serde_json::Value::Number(_) => schema.insert(k.clone(), "Number".into()),
-                                _ => schema.insert(k.clone(), "Mixed".into()),
-                            };
-                        });
-                    }
-                    _ => {}
-                };
-            }
-            Err(_) => {}
-        };
-        Ok(schema)
+    pub fn get_schema(&self) -> Result<SourceSchema> {
+        let geojson_str = self.read()?;
+        let geojson = geojson_str.parse::<GeoJson2>().map_err(|_| GeojsonError::FS)?;
+        if let GeoJson2::FeatureCollection(val) = geojson {
+            return Ok(infer_source_schema(val.features.iter()));
+        }
+        Ok(SourceSchema {
+            columns: HashMap::new(),
+            points_count: 0,
+            lines_count: 0,
+            polygons_count: 0,
+        })
     }
 }
 

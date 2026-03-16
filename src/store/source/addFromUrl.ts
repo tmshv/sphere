@@ -4,7 +4,7 @@ import { actions } from "."
 import { MbtilesReader } from "@/lib/mbtiles"
 import { invoke } from "@tauri-apps/api/core"
 import logger from "@/logger"
-import SourceReaderFixId from "@/lib/source-reader-fix-id"
+import { SourceReader } from "@/lib/source-reader"
 
 type NewSource = {
     id: string,
@@ -31,14 +31,14 @@ const action = createAsyncThunk(
 
             switch (type) {
                 case SourceType.MVT: {
-                    const r = new MbtilesReader(location)
+                    const r = new MbtilesReader(id)
                     const tilejson = await r.getTileJson()
                     if (tilejson) {
                         logger.info({ tilejson }, "Got tilejson")
                         if (tilejson.name) {
                             name = tilejson.name
                         }
-                        const sourceLayers = tilejson.vector_layers.map(({ id }) => ({ id, name: id })) ?? []
+                        const sourceLayers = (tilejson.vector_layers ?? []).map(({ id }) => ({ id, name: id }))
                         thunkAPI.dispatch(actions.addMVTSource({
                             id,
                             name,
@@ -50,7 +50,7 @@ const action = createAsyncThunk(
                     break
                 }
                 case SourceType.Raster: {
-                    const r = new MbtilesReader(location)
+                    const r = new MbtilesReader(id)
                     const tilejson = await r.getTileJson()
                     if (tilejson) {
                         if (tilejson.name) {
@@ -65,14 +65,20 @@ const action = createAsyncThunk(
                     break
                 }
                 case SourceType.Geojson: {
-                    const r = new SourceReaderFixId(location)
-                    const metadata = await r.getSchema() ?? {}
+                    const r = new SourceReader(id)
+                    const schema = await r.getSchema()
+                    const meta = {
+                        columns: schema?.columns ?? {},
+                        pointsCount: schema?.points_count ?? 0,
+                        linesCount: schema?.lines_count ?? 0,
+                        polygonsCount: schema?.polygons_count ?? 0,
+                    }
                     const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.addGeojsonSource({
                         id,
                         name,
                         location,
-                        metadata,
+                        meta,
                         dataset,
                     }))
                     break

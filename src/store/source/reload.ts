@@ -2,24 +2,32 @@ import { createAsyncThunk } from "@reduxjs/toolkit"
 import { Id, SourceType } from "@/types"
 import { actions } from "."
 import logger from "@/logger"
-import SourceReaderFixId from "@/lib/source-reader-fix-id"
+import { SourceReader } from "@/lib/source-reader"
 import { RootState } from ".."
 
 const action = createAsyncThunk(
     "source/reload",
     async (id: Id, thunkAPI) => {
         const state = thunkAPI.getState() as RootState
-        const type = state.source.items[id].type
         try {
+            if (!state.source.items[id]) {
+                return
+            }
+            const type = state.source.items[id].type
             switch (type) {
                 case SourceType.Geojson: {
-                    const { location } = state.source.items[id]
-                    const r = new SourceReaderFixId(location)
-                    const metadata = await r.getSchema() ?? {}
+                    const r = new SourceReader(id)
+                    const schema = await r.getSchema()
+                    const meta = schema ? {
+                        columns: schema.columns,
+                        pointsCount: schema.points_count,
+                        linesCount: schema.lines_count,
+                        polygonsCount: schema.polygons_count,
+                    } : undefined
                     const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.setGeojsonData({
                         id,
-                        metadata,
+                        meta,
                         dataset,
                     }))
                     break
@@ -29,7 +37,7 @@ const action = createAsyncThunk(
                 }
             }
         } catch (error) {
-            logger.error("Failed to add Source %s", error)
+            logger.error("Failed to reload Source %s", error)
         }
     },
 )

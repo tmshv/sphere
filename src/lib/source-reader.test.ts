@@ -7,14 +7,6 @@ const invoke = _invoke as MockedFunction<InvokeFn>
 
 vi.mock("@tauri-apps/api/core", { spy: true })
 
-describe("SourceReader", () => {
-    test("should store input value in path property", () => {
-        const reader = new SourceReader("./path/to/test/shape.shp")
-
-        expect(reader.location).toEqual("./path/to/test/shape.shp")
-    })
-})
-
 describe("SourceReader::getGeojson", () => {
     test("should return geojson if invoke function returns data", async () => {
         const geojson = {
@@ -41,7 +33,7 @@ describe("SourceReader::getGeojson", () => {
         const mockInvoke = vi.fn<InvokeFn>().mockResolvedValue(JSON.stringify(geojson))
         invoke.mockImplementation(mockInvoke)
 
-        const reader = new SourceReader("sphere://source/XXX")
+        const reader = new SourceReader("XXX")
         const result = await reader.getGeojson()
 
         expect(result).toEqual(geojson)
@@ -55,7 +47,7 @@ describe("SourceReader::getGeojson", () => {
         const mockInvoke = vi.fn<InvokeFn>().mockRejectedValueOnce(new Error("test error"))
         invoke.mockImplementation(mockInvoke)
 
-        const reader = new SourceReader("sphere://source/XXX")
+        const reader = new SourceReader("XXX")
         const result = await reader.getGeojson()
 
         expect(result).toBeNull()

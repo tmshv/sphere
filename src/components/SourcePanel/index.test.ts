@@ -10,7 +10,7 @@ const makeGeojsonSource = (id: string, overrides: Record<string, any> = {}) => (
     fractionIndex: 0,
     editable: true,
     pending: false,
-    metadata: {},
+    meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
     ...overrides,
 })
 
@@ -116,14 +116,14 @@ describe("selector (SourcePanel)", () => {
         expect(result!.reloadDisabled).toBe(true)
     })
 
-    test("meta is undefined for non-FeatureCollection sources", () => {
+    test("meta is populated for Geojson sources", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
             selection: { sourceId: "s1", selectedIds: [] },
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = selector(state)
-        expect(result!.meta).toBeUndefined()
+        expect(result!.meta).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
     })
 
     test("meta is populated for FeatureCollection sources", () => {
@@ -136,14 +136,14 @@ describe("selector (SourcePanel)", () => {
             editable: true,
             pending: false,
             dataset: { type: "FeatureCollection", features: [] },
-            meta: { pointsCount: 3, linesCount: 1, polygonsCount: 2 },
+            meta: { columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 },
         }
         const state = makeRootState({
             selection: { sourceId: "s1", selectedIds: [] },
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = selector(state)
-        expect(result!.meta).toEqual({ pointsCount: 3, linesCount: 1, polygonsCount: 2 })
+        expect(result!.meta).toEqual({ columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 })
     })
 
     test("is memoized: returns same reference when unrelated source changes", () => {

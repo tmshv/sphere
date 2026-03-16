@@ -17,7 +17,7 @@ pub struct Tiles {
 impl Tiles {
     pub fn new(name: String, path: String) -> Tiles {
         let mbtiles = MBTiles {
-            path: path,
+            path,
             source: sphere_url(name.as_str()),
         };
         Tiles { name, mbtiles }

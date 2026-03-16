@@ -15,7 +15,7 @@ describe("createSourceMetadataFromFeatureCollection", () => {
         }
 
         const result = createSourceMetadataFromFeatureCollection(fc as GeoJSON.FeatureCollection)
-        expect(result).toEqual({ pointsCount: 2, linesCount: 0, polygonsCount: 0 })
+        expect(result).toEqual({ columns: {}, pointsCount: 2, linesCount: 0, polygonsCount: 0 })
     })
 
     it("should count lines correctly", () => {
@@ -32,7 +32,7 @@ describe("createSourceMetadataFromFeatureCollection", () => {
         }
 
         const result = createSourceMetadataFromFeatureCollection(fc as GeoJSON.FeatureCollection)
-        expect(result).toEqual({ pointsCount: 0, linesCount: 2, polygonsCount: 0 })
+        expect(result).toEqual({ columns: {}, pointsCount: 0, linesCount: 2, polygonsCount: 0 })
     })
 
     it("should count polygons correctly", () => {
@@ -49,7 +49,7 @@ describe("createSourceMetadataFromFeatureCollection", () => {
         }
 
         const result = createSourceMetadataFromFeatureCollection(fc as GeoJSON.FeatureCollection)
-        expect(result).toEqual({ pointsCount: 0, linesCount: 0, polygonsCount: 2 })
+        expect(result).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 2 })
     })
 
     it("should count mixed geometries correctly", () => {
@@ -78,7 +78,7 @@ describe("createSourceMetadataFromFeatureCollection", () => {
         }
 
         const result = createSourceMetadataFromFeatureCollection(fc as GeoJSON.FeatureCollection)
-        expect(result).toEqual({ pointsCount: 2, linesCount: 2, polygonsCount: 2 })
+        expect(result).toEqual({ columns: {}, pointsCount: 2, linesCount: 2, polygonsCount: 2 })
     })
 
     it("should handle empty feature collection", () => {
@@ -88,7 +88,7 @@ describe("createSourceMetadataFromFeatureCollection", () => {
         }
 
         const result = createSourceMetadataFromFeatureCollection(fc)
-        expect(result).toEqual({ pointsCount: 0, linesCount: 0, polygonsCount: 0 })
+        expect(result).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
     })
 
     it("should ignore unknown geometry types", () => {
@@ -102,6 +102,6 @@ describe("createSourceMetadataFromFeatureCollection", () => {
         }
 
         const result = createSourceMetadataFromFeatureCollection(fc as GeoJSON.FeatureCollection)
-        expect(result).toEqual({ pointsCount: 0, linesCount: 0, polygonsCount: 0 })
+        expect(result).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
     })
 })

@@ -7,7 +7,7 @@ import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "@/store"
 import { EMPTY_GEOJSON } from "@/const"
 
-const selectSource = createSelector(
+export const selectSource = createSelector(
     [(state: RootState, id: string) => state.source.items[id]],
     source => {
         if (!source) {
@@ -33,7 +33,7 @@ const selectSource = createSelector(
                 return {
                     id,
                     type: "vector",
-                    url: source.location,
+                    url: `sphere://mbtiles/${id}`,
                 } as SourceProps
             }
             case SourceType.Raster: {

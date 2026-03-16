@@ -43,7 +43,7 @@ listener.startListening({
                 break
             }
             case SourceType.Geojson: {
-                const reader = new SourceReader(source.location)
+                const reader = new SourceReader(sourceId)
                 const bounds = await reader.getBounds()
                 if (bounds) {
                     logger.info({ bounds }, "Got bbox")
@@ -57,7 +57,7 @@ listener.startListening({
                 break
             }
             case SourceType.MVT: {
-                const r = new MbtilesReader(source.location)
+                const r = new MbtilesReader(sourceId)
                 const tilejson = await r.getTileJson()
                 if (tilejson?.bounds) {
                     const bounds = tilejson.bounds

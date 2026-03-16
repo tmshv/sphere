@@ -14,7 +14,7 @@ export async function getProps(source: Source): Promise<{ id: GeoJSON.Feature["i
             return source.dataset!.features.map(f => ({ id: f.id, props: f.properties }))
         }
         case SourceType.Geojson: {
-            const r = new SourceReader(source.location)
+            const r = new SourceReader(source.id)
             const geojson = await r.getGeojson()
             if (!geojson) {
                 return null

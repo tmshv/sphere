@@ -1,0 +1,89 @@
+use std::fmt;
+use url::Url;
+
+#[derive(Debug, Clone)]
+pub struct SphereUri(Url);
+
+#[derive(Debug)]
+pub struct UriError(String);
+
+impl fmt::Display for UriError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "SphereUri parse error: {}", self.0)
+    }
+}
+
+impl std::error::Error for UriError {}
+
+impl SphereUri {
+    pub fn parse(s: &str) -> Result<Self, UriError> {
+        Url::parse(s)
+            .map(SphereUri)
+            .map_err(|e| UriError(e.to_string()))
+    }
+
+    pub fn as_url(&self) -> &Url {
+        &self.0
+    }
+
+    pub fn query_param(&self, key: &str) -> Option<String> {
+        self.0
+            .query_pairs()
+            .find(|(k, _)| k == key)
+            .map(|(_, v)| v.into_owned())
+    }
+}
+
+impl fmt::Display for SphereUri {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_csv_uri_with_all_params() {
+        let s = "file:///data/points.csv?x=longitude&y=latitude&wkt=geom";
+        let uri = SphereUri::parse(s).expect("should parse");
+        assert_eq!(uri.query_param("x"), Some("longitude".to_string()));
+        assert_eq!(uri.query_param("y"), Some("latitude".to_string()));
+        assert_eq!(uri.query_param("wkt"), Some("geom".to_string()));
+        assert_eq!(uri.query_param("delimiter"), None);
+        assert_eq!(uri.query_param("skip"), None);
+    }
+
+    #[test]
+    fn test_parse_csv_uri_with_delimiter_and_skip() {
+        let s = "file:///data/points.csv?x=lng&y=lat&delimiter=%3B&skip=1";
+        let uri = SphereUri::parse(s).expect("should parse");
+        assert_eq!(uri.query_param("delimiter"), Some(";".to_string()));
+        assert_eq!(uri.query_param("skip").and_then(|v| v.parse::<usize>().ok()), Some(1usize));
+    }
+
+    #[test]
+    fn test_parse_geojson_uri_accessors_return_none() {
+        let s = "file:///data/layer.geojson";
+        let uri = SphereUri::parse(s).expect("should parse");
+        assert_eq!(uri.query_param("x"), None);
+        assert_eq!(uri.query_param("y"), None);
+        assert_eq!(uri.query_param("wkt"), None);
+        assert_eq!(uri.query_param("delimiter"), None);
+        assert_eq!(uri.query_param("skip"), None);
+    }
+
+    #[test]
+    fn test_display_round_trips() {
+        let s = "file:///data/points.csv?x=lng&y=lat";
+        let uri = SphereUri::parse(s).expect("should parse");
+        assert_eq!(uri.to_string(), s);
+    }
+
+    #[test]
+    fn test_invalid_uri_returns_err() {
+        let result = SphereUri::parse("not a valid uri %%%");
+        assert!(result.is_err());
+    }
+}

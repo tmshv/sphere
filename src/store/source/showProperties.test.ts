@@ -12,7 +12,7 @@ vi.mock("@/lib/source-reader", () => ({
 }))
 
 const BASE = { id: "1", name: "test", fractionIndex: 0 }
-const META = { pointsCount: 0, linesCount: 0, polygonsCount: 0 }
+const META = { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 }
 
 function makeFeatureCollection(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
     return { type: "FeatureCollection", features }
@@ -97,7 +97,7 @@ describe("getProps", () => {
                 ...BASE,
                 type: SourceType.Geojson,
                 location: "path/to/file.geojson",
-                metadata: {},
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
                 editable: true,
                 pending: false,
             }
@@ -121,7 +121,7 @@ describe("getProps", () => {
                 ...BASE,
                 type: SourceType.Geojson,
                 location: "path/to/file.geojson",
-                metadata: {},
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
                 editable: true,
                 pending: false,
             }

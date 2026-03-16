@@ -1,15 +1,15 @@
-use libsphere::source::{Source, SourceData};
 use libsphere::Bounds;
+use libsphere::schema::SourceSchema;
+use libsphere::source::{Source, SourceData};
 use mbtiles::tile::Tile;
 use serde::Serialize;
-use std::collections::HashMap;
 use tauri::State;
 use url::Url;
 
 use crate::state::SourceStorage;
 
 #[derive(Serialize, Debug)]
-pub struct NewSource {
+pub struct SourceAddResult {
     id: String,
     name: String,
     location: String,
@@ -17,13 +17,13 @@ pub struct NewSource {
 }
 
 #[tauri::command]
-pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<NewSource, String> {
-    let url = Url::parse(source_url).unwrap();
+pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> Result<SourceAddResult, String> {
+    let url = Url::parse(source_url).map_err(|e| e.to_string())?;
     println!("Adding Source: {}", url);
 
     match Source::from_url(url) {
         Ok(source) => {
-            let n = NewSource {
+            let n = SourceAddResult {
                 id: source.id.clone(),
                 location: source.location.clone(),
                 name: source.name.clone(),
@@ -55,10 +55,7 @@ pub async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result
 }
 
 #[tauri::command]
-pub async fn source_get_schema(
-    id: String,
-    storage: State<'_, SourceStorage>,
-) -> Result<HashMap<String, String>, String> {
+pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) -> Result<SourceSchema, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {

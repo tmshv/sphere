@@ -10,13 +10,14 @@ use std::path::Path;
 
 use super::Bounds;
 use crate::geojson::{GeojsonError, Result};
+use crate::schema::{infer_source_schema, SourceSchema};
 
 // Read more about this delimiter
 // https://datatracker.ietf.org/doc/html/rfc8142
 const RS: u8 = b'\x1e';
 
 enum JSONStreamType {
-    NDJSON,
+    Ndjson,
     JSONSeq,
 }
 
@@ -30,12 +31,11 @@ impl Bounds for GeojsonSeq {
         match self.to_geojson() {
             Ok(geojson_str) => {
                 let geojson = GeoJson(geojson_str.as_str());
-                let b = geojson.to_geo().unwrap();
-                let bounds = b.bounding_rect().unwrap();
+                let b = geojson.to_geo().ok()?;
+                let bounds = b.bounding_rect()?;
                 let min = bounds.min();
                 let max = bounds.max();
-                let bounds = (min.x, min.y, max.x, max.y);
-                Some(bounds)
+                Some((min.x, min.y, max.x, max.y))
             }
             Err(err) => {
                 println!("{:?}", err);
@@ -49,10 +49,10 @@ impl GeojsonSeq {
     fn get_stream_type(&self) -> Result<JSONStreamType> {
         let mut file = File::open(self.path.clone())?;
         let mut head = [0u8; 1];
-        let _ = file.read(&mut head);
+        file.read(&mut head).map_err(|_| GeojsonError::FS)?;
         match head[0] {
             RS => Ok(JSONStreamType::JSONSeq),
-            _ => Ok(JSONStreamType::NDJSON),
+            _ => Ok(JSONStreamType::Ndjson),
         }
     }
 
@@ -62,19 +62,18 @@ impl GeojsonSeq {
         let mut features = Vec::new();
         for chunk in reader.split(RS) {
             let chunk = chunk?;
-            if chunk.len() < 1 {
+            if chunk.is_empty() {
                 continue;
             }
-            let feature = String::from_utf8(chunk).unwrap();
-            let feature: Value = serde_json::from_str(&feature).unwrap();
+            let feature = String::from_utf8(chunk).map_err(|_| GeojsonError::FS)?;
+            let feature: Value = serde_json::from_str(&feature).map_err(|_| GeojsonError::FS)?;
             features.push(feature);
         }
         let feature_collection = serde_json::json!({
             "type": "FeatureCollection",
             "features": features,
         });
-        let result = serde_json::to_string(&feature_collection);
-        Ok(result.unwrap())
+        serde_json::to_string(&feature_collection).map_err(|_| GeojsonError::FS)
     }
 
     fn geojsonl_to_geojson<P: AsRef<Path>>(&self, path: P) -> Result<String> {
@@ -83,57 +82,39 @@ impl GeojsonSeq {
         let mut features = Vec::new();
         for line in reader.lines() {
             let line = line?;
-            let feature: Value = serde_json::from_str(&line).unwrap();
+            if line.is_empty() {
+                continue;
+            }
+            let feature: Value = serde_json::from_str(&line).map_err(|_| GeojsonError::FS)?;
             features.push(feature);
         }
         let feature_collection = serde_json::json!({
             "type": "FeatureCollection",
             "features": features,
         });
-        let result = serde_json::to_string(&feature_collection);
-        // match result {
-        //     Ok(result) => Ok(result),
-        //     Err(err) => GeojsonError::FS(err),
-        // }
-        Ok(result.unwrap())
+        serde_json::to_string(&feature_collection).map_err(|_| GeojsonError::FS)
     }
 
     pub fn to_geojson(&self) -> Result<String> {
         match self.get_stream_type() {
-            Ok(JSONStreamType::NDJSON) => self.geojsonl_to_geojson(self.path.as_str()),
+            Ok(JSONStreamType::Ndjson) => self.geojsonl_to_geojson(self.path.as_str()),
             Ok(JSONStreamType::JSONSeq) => self.geojsonseq_to_geojson(self.path.as_str()),
             Err(_) => Err(GeojsonError::FS),
         }
     }
 
-    pub fn get_schema(&self) -> Result<HashMap<String, String>> {
-        let mut schema = HashMap::<String, String>::new();
-        match self.to_geojson() {
-            Ok(geojson_str) => {
-                let geojson = geojson_str.parse::<GeoJson2>().unwrap();
-                match geojson {
-                    GeoJson2::FeatureCollection(val) => {
-                        let x = val.features.into_iter().take(1).next().unwrap();
-                        let p = x.properties.unwrap();
-                        p.keys().for_each(|k| {
-                            let val = p.get(k).unwrap();
-                            match val {
-                                serde_json::Value::String(_) => {
-                                    schema.insert(k.clone(), "String".into())
-                                }
-                                serde_json::Value::Number(_) => {
-                                    schema.insert(k.clone(), "Number".into())
-                                }
-                                _ => schema.insert(k.clone(), "Mixed".into()),
-                            };
-                        });
-                    }
-                    _ => {}
-                };
-            }
-            Err(_) => {}
-        };
-        Ok(schema)
+    pub fn get_schema(&self) -> Result<SourceSchema> {
+        let geojson_str = self.to_geojson()?;
+        let geojson = geojson_str.parse::<GeoJson2>().map_err(|_| GeojsonError::FS)?;
+        if let GeoJson2::FeatureCollection(val) = geojson {
+            return Ok(infer_source_schema(val.features.iter()));
+        }
+        Ok(SourceSchema {
+            columns: HashMap::new(),
+            points_count: 0,
+            lines_count: 0,
+            polygons_count: 0,
+        })
     }
 }
 

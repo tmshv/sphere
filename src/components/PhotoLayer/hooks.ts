@@ -77,11 +77,11 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
 
 export function useFeatures({ sourceId, layerId, map }: UseFeaturesOptions): GeoJSON.Feature[] {
     const [features, setFeatures] = useState<GeoJSON.Feature[]>([])
-    const location = useAppSelector(state => {
+    const sourceIdForReader = useAppSelector(state => {
         const source = state.source.items[sourceId]
         switch (source.type) {
             case SourceType.Geojson: {
-                return source.location
+                return source.id
             }
             default: {
                 return null
@@ -90,13 +90,13 @@ export function useFeatures({ sourceId, layerId, map }: UseFeaturesOptions): Geo
     })
 
     useEffect(() => {
-        if (!location) {
+        if (!sourceIdForReader) {
             return
         }
 
         let mount = true
         const f = async () => {
-            const reader = new SourceReader(location)
+            const reader = new SourceReader(sourceIdForReader)
             const data = await reader.getGeojson()
             if (!data) {
                 return
@@ -115,7 +115,7 @@ export function useFeatures({ sourceId, layerId, map }: UseFeaturesOptions): Geo
         return () => {
             mount = false
         }
-    }, [location])
+    }, [sourceIdForReader])
 
     const tf = useTileFeatures({
         sourceId,
