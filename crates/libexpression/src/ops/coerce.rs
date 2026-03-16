@@ -3,10 +3,10 @@ use crate::error::ExprError;
 use crate::expr::{Expr, Expression};
 use serde_json::{Number, Value};
 
-/// ["to-number", value, fallback?] — coerces value to a number; returns null or fallback on failure.
+/// ["to-number", value, fallback*, ...] — coerces value to a number; tries each fallback in order on failure.
 pub struct ToNumber {
     pub value: Expr,
-    pub fallback: Option<Expr>,
+    pub fallbacks: Vec<Expr>,
 }
 
 impl Expression for ToNumber {
@@ -20,24 +20,31 @@ impl Expression for ToNumber {
                 .ok()
                 .and_then(|f| Number::from_f64(f))
                 .map(Value::Number),
-            Value::Bool(b) => {
-                let n = if *b { 1.0f64 } else { 0.0f64 };
-                Number::from_f64(n).map(Value::Number)
-            }
-            Value::Null => None,
             _ => None,
         };
 
-        match result {
-            Some(v) => Ok(v),
-            None => {
-                if let Some(fb) = &self.fallback {
-                    fb.evaluate(ctx)
-                } else {
-                    Ok(Value::Null)
-                }
+        if let Some(v) = result {
+            return Ok(v);
+        }
+
+        for fb in &self.fallbacks {
+            let fb_val = fb.evaluate(ctx)?;
+            let converted = match &fb_val {
+                Value::Number(_) => return Ok(fb_val),
+                Value::String(s) => s
+                    .trim()
+                    .parse::<f64>()
+                    .ok()
+                    .and_then(|f| Number::from_f64(f))
+                    .map(Value::Number),
+                _ => None,
+            };
+            if let Some(v) = converted {
+                return Ok(v);
             }
         }
+
+        Ok(Value::Null)
     }
 }
 

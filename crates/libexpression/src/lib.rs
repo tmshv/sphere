@@ -168,15 +168,17 @@ fn parse_array(arr: Vec<Value>) -> Result<Expr, ExprError> {
 
         // Type coercion
         "to-number" => {
-            require_arity(&op, 1..=2, args.len())?;
-            let fallback = if args.len() == 2 {
-                Some(parse(args[1].clone())?)
-            } else {
-                None
-            };
+            if args.is_empty() {
+                return Err(ExprError::ArityMismatch {
+                    operator: op,
+                    expected: "1+".to_string(),
+                    got: 0,
+                });
+            }
+            let fallbacks: Result<Vec<_>, _> = args[1..].iter().map(|a| parse(a.clone())).collect();
             Ok(Box::new(coerce::ToNumber {
                 value: parse(args[0].clone())?,
-                fallback,
+                fallbacks: fallbacks?,
             }))
         }
         "to-string" => {
