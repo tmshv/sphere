@@ -182,7 +182,7 @@ export const sourceSlice = createSlice({
             .addCase(drawSlice.actions.done, (state, action) => {
                 const { sourceId: id, featureCollection } = action.payload
                 const source = state.items[id]
-                if (source.type === SourceType.FeatureCollection) {
+                if (source.type === SourceType.FeatureCollection && !source.pending) {
                     source.dataset = featureCollection
                     source.meta = computeGeometryMeta(featureCollection)
                 }
