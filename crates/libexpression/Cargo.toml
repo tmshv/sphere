@@ -1,0 +1,17 @@
+[package]
+name = "libexpression"
+version = "0.1.0"
+description = "MapLibre Style Spec expression parser and evaluator"
+license = "MIT"
+edition = "2021"
+rust-version = "1.57"
+
+[lib]
+name = "libexpression"
+path = "src/lib.rs"
+
+[dependencies]
+serde_json = "1.0"
+
+[dev-dependencies]
+serde_json = { version = "1.0", features = ["arbitrary_precision"] }
