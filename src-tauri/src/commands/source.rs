@@ -1,6 +1,6 @@
+use libsphere::Bounds;
 use libsphere::schema::SourceSchema;
 use libsphere::source::{Source, SourceData};
-use libsphere::Bounds;
 use mbtiles::tile::Tile;
 use serde::Serialize;
 use tauri::State;
@@ -55,10 +55,7 @@ pub async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result
 }
 
 #[tauri::command]
-pub async fn source_get_schema(
-    id: String,
-    storage: State<'_, SourceStorage>,
-) -> Result<SourceSchema, String> {
+pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) -> Result<SourceSchema, String> {
     let store = storage.store.lock().unwrap();
     let source = store.get(&id);
     match source {
