@@ -1,13 +1,15 @@
 use geo::BoundingRect;
-use geojson::{Feature, FeatureCollection, Geometry, Value};
+use geojson::{Feature, FeatureCollection, GeoJson as GeoJson2, Geometry, Value};
 use geozero::geojson::GeoJson;
 use geozero::ToGeo;
 use gpx;
 use gpx::read;
+use std::collections::HashMap;
 use std::io::BufReader;
 use std::{fs::File, result};
 
 use super::Bounds;
+use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug)]
 pub enum GpxError {
@@ -52,6 +54,20 @@ impl Bounds for Gpx {
 }
 
 impl Gpx {
+    pub fn get_schema(&self) -> Result<SourceSchema> {
+        let geojson_str = self.to_geojson()?;
+        let geojson = geojson_str.parse::<GeoJson2>().map_err(|_| GpxError::FS)?;
+        if let GeoJson2::FeatureCollection(fc) = geojson {
+            return Ok(infer_source_schema(fc.features.iter()));
+        }
+        Ok(SourceSchema {
+            columns: HashMap::new(),
+            points_count: 0,
+            lines_count: 0,
+            polygons_count: 0,
+        })
+    }
+
     pub fn to_geojson(&self) -> Result<String> {
         println!("reading GPX {}", self.path);
 

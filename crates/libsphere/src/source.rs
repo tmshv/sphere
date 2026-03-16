@@ -201,10 +201,12 @@ impl Source {
             SourceData::Csv(src) => {
                 src.get_schema().map_err(|e| format!("{:?}", e))
             }
-            // SourceData::Gpx(src) => {
-            //     let val = src.to_geojson().expect("No gpx");
-            //     Ok(val)
-            // }
+            SourceData::Shapefile(src) => {
+                src.get_schema().map_err(|e| format!("{:?}", e))
+            }
+            SourceData::Gpx(src) => {
+                src.get_schema().map_err(|e| format!("{:?}", e))
+            }
             _ => Err("Getting schema is not implemented for this type of file".into()),
         }
     }
