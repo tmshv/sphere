@@ -7,6 +7,7 @@ use mbtiles::tile::Tile;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::sync::Arc;
 use tauri::State;
 use url::Url;
 
@@ -92,7 +93,7 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
             let id = source.id.clone();
             let store = match &source.data {
                 SourceData::Mbtiles(_) => None,
-                _ => build_feature_store(&source),
+                _ => build_feature_store(&source).map(Arc::new),
             };
             let entry = SourceEntry { source, store };
             storage.store.lock().unwrap().insert(id, entry);
@@ -203,9 +204,11 @@ pub async fn source_query_page(
         }
     };
 
-    let store = storage.store.lock().unwrap();
-    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
-    let fs = entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?;
+    let fs = {
+        let store = storage.store.lock().unwrap();
+        let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+        entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
+    };
 
     let result = fs.query_page(
         offset,
@@ -224,9 +227,11 @@ pub async fn source_get_column_stats(
     column: String,
     storage: State<'_, SourceStorage>,
 ) -> Result<ColumnStats, String> {
-    let store = storage.store.lock().unwrap();
-    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
-    let fs = entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?;
+    let fs = {
+        let store = storage.store.lock().unwrap();
+        let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+        entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
+    };
 
     let col_type = fs.schema().columns.get(&column)
         .cloned()

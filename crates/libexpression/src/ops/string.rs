@@ -148,7 +148,7 @@ impl Expression for IndexOf {
 
         match (&needle, &haystack) {
             (Value::String(n), Value::String(h)) => {
-                let result = if from_i < h.len() {
+                let result = {
                     // Find in substring, then adjust index
                     let h_chars: Vec<char> = h.chars().collect();
                     let n_chars: Vec<char> = n.chars().collect();
@@ -161,8 +161,6 @@ impl Expression for IndexOf {
                         }
                     }
                     found
-                } else {
-                    -1
                 };
                 Ok(Value::Number(result.into()))
             }
