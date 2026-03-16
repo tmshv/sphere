@@ -119,6 +119,10 @@ impl FeatureStore {
         }
     }
 
+    pub fn features(&self) -> &[Feature] {
+        &self.features
+    }
+
     pub fn feature_count(&self) -> u64 {
         self.features.len() as u64
     }

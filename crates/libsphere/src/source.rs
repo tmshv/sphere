@@ -153,7 +153,7 @@ impl Source {
         }
     }
 
-    pub fn to_geojson(&self) -> Result<String, String> {
+    pub fn to_feature_collection(&self) -> Result<geojson::FeatureCollection, String> {
         let raw = match &self.data {
             SourceData::Shapefile(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
             SourceData::Geojson(src) => src.read().map_err(|e| format!("{:?}", e))?,
@@ -183,6 +183,11 @@ impl Source {
             },
         };
         assign_feature_ids(&mut fc);
+        Ok(fc)
+    }
+
+    pub fn to_geojson(&self) -> Result<String, String> {
+        let fc = self.to_feature_collection()?;
         serde_json::to_string(&fc).map_err(|e| e.to_string())
     }
 

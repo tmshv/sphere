@@ -37,6 +37,8 @@ async fn main() {
             commands::source::source_get,
             commands::source::source_bounds,
             commands::source::source_get_schema,
+            commands::source::source_query_page,
+            commands::source::source_get_column_stats,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();
