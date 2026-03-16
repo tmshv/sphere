@@ -218,7 +218,9 @@ pub async fn source_get_column_stats(
     let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
     let fs = entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?;
 
-    let col_type = fs.schema().columns.get(&column).cloned().unwrap_or_else(|| "Unknown".into());
+    let col_type = fs.schema().columns.get(&column)
+        .cloned()
+        .ok_or_else(|| format!("Column '{}' not found in source '{}'", column, id))?;
     let features = fs.features();
 
     let mut count = 0u64;
