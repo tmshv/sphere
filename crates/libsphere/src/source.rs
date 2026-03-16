@@ -134,10 +134,7 @@ impl Source {
             }
             "mbtiles" => {
                 let source = Tiles::new(id.clone(), source_path);
-                Ok((
-                    SourceData::Mbtiles(source),
-                    format!("sphere://mbtiles/{}", id),
-                ))
+                Ok((SourceData::Mbtiles(source), file_url))
             }
             "csv" => {
                 let geometry = if let Some(wkt_field) = uri.wkt_field() {

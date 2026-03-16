@@ -31,7 +31,7 @@ const action = createAsyncThunk(
 
             switch (type) {
                 case SourceType.MVT: {
-                    const r = new MbtilesReader(location)
+                    const r = new MbtilesReader(id)
                     const tilejson = await r.getTileJson()
                     if (tilejson) {
                         logger.info({ tilejson }, "Got tilejson")
@@ -50,7 +50,7 @@ const action = createAsyncThunk(
                     break
                 }
                 case SourceType.Raster: {
-                    const r = new MbtilesReader(location)
+                    const r = new MbtilesReader(id)
                     const tilejson = await r.getTileJson()
                     if (tilejson) {
                         if (tilejson.name) {

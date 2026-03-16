@@ -58,7 +58,8 @@ export class SphereProtocol {
             const url = new URL(params.url)
             switch (url.host) {
                 case "mbtiles": {
-                    const reader = new MbtilesReader(params.url)
+                    const id = url.pathname.substring(1)
+                    const reader = new MbtilesReader(id)
                     const data = await this.handleMbtiles(reader, url, params.type, abort.signal)
                     return { data }
                 }

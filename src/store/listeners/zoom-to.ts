@@ -57,7 +57,7 @@ listener.startListening({
                 break
             }
             case SourceType.MVT: {
-                const r = new MbtilesReader(source.location)
+                const r = new MbtilesReader(sourceId)
                 const tilejson = await r.getTileJson()
                 if (tilejson?.bounds) {
                     const bounds = tilejson.bounds
