@@ -7,11 +7,38 @@ use std::{fs::File, result, str::FromStr};
 
 use super::Bounds;
 use crate::schema::{infer_source_schema, SourceSchema};
+use crate::SphereUri;
+
+pub enum CsvParams {
+    XY { x: String, y: String },
+    Wkt(String),
+}
+
+impl CsvParams {
+    pub fn from_uri(uri: &SphereUri) -> Result<Self> {
+        let wkt = uri.query_param("wkt");
+        let x = uri.query_param("x");
+        let y = uri.query_param("y");
+        if wkt.is_some() && (x.is_some() || y.is_some()) {
+            return Err(CsvError::ConflictingGeometryParams);
+        }
+        if let Some(wkt_field) = wkt {
+            Ok(CsvParams::Wkt(wkt_field))
+        } else {
+            match (x, y) {
+                (Some(x), Some(y)) => Ok(CsvParams::XY { x, y }),
+                _ => Err(CsvError::MissingGeometryParams),
+            }
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum CsvError {
     // FS(std::io::Error),
     FS,
+    ConflictingGeometryParams,
+    MissingGeometryParams,
     // Serialize,
 }
 
@@ -148,7 +175,34 @@ impl Csv {
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use super::*;
+    use crate::SphereUri;
+
+    #[test]
+    fn test_csv_params_missing_xy_is_error() {
+        let uri = SphereUri::parse("file:///data/points.csv").unwrap();
+        assert!(CsvParams::from_uri(&uri).is_err());
+    }
+
+    #[test]
+    fn test_csv_params_custom_xy() {
+        let uri = SphereUri::parse("file:///data/points.csv?x=longitude&y=latitude").unwrap();
+        let params = CsvParams::from_uri(&uri).unwrap();
+        assert!(matches!(params, CsvParams::XY { x, y } if x == "longitude" && y == "latitude"));
+    }
+
+    #[test]
+    fn test_csv_params_wkt() {
+        let uri = SphereUri::parse("file:///data/points.csv?wkt=geom").unwrap();
+        let params = CsvParams::from_uri(&uri).unwrap();
+        assert!(matches!(params, CsvParams::Wkt(f) if f == "geom"));
+    }
+
+    #[test]
+    fn test_csv_params_xy_and_wkt_is_error() {
+        let uri = SphereUri::parse("file:///data/points.csv?x=longitude&y=latitude&wkt=geom").unwrap();
+        assert!(CsvParams::from_uri(&uri).is_err());
+    }
 
     #[test]
     fn test_valid_jsonfile() {

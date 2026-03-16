@@ -6,7 +6,7 @@ use std::path::Path;
 use url::Url;
 use urlencoding;
 
-use super::csv::{Csv, CsvGeometry};
+use super::csv::{Csv, CsvGeometry, CsvParams};
 use super::geojson::Geojson;
 use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
@@ -137,17 +137,12 @@ impl Source {
                 Ok((SourceData::Mbtiles(source), file_url))
             }
             "csv" => {
-                let geometry = if let Some(wkt_field) = uri.wkt_field() {
-                    CsvGeometry::WKT(wkt_field)
-                } else {
-                    let x = uri.x_field().unwrap_or_else(|| "lng".into());
-                    let y = uri.y_field().unwrap_or_else(|| "lat".into());
-                    CsvGeometry::XY((x, y))
+                let params = CsvParams::from_uri(uri).map_err(|e| format!("{:?}", e))?;
+                let geometry = match params {
+                    CsvParams::Wkt(field) => CsvGeometry::WKT(field),
+                    CsvParams::XY { x, y } => CsvGeometry::XY((x, y)),
                 };
-                let source = Csv {
-                    path: source_path,
-                    geometry,
-                };
+                let source = Csv { path: source_path, geometry };
                 Ok((SourceData::Csv(source), file_url))
             }
             "gpx" => {

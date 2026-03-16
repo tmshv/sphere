@@ -26,34 +26,12 @@ impl SphereUri {
         &self.0
     }
 
-    fn query_param(&self, key: &str) -> Option<String> {
+    pub fn query_param(&self, key: &str) -> Option<String> {
         self.0
             .query_pairs()
             .find(|(k, _)| k == key)
             .map(|(_, v)| v.into_owned())
     }
-
-    pub fn x_field(&self) -> Option<String> {
-        self.query_param("x")
-    }
-
-    pub fn y_field(&self) -> Option<String> {
-        self.query_param("y")
-    }
-
-    pub fn wkt_field(&self) -> Option<String> {
-        self.query_param("wkt")
-    }
-
-    pub fn delimiter(&self) -> Option<String> {
-        self.query_param("delimiter")
-    }
-
-    pub fn skip_rows(&self) -> Option<usize> {
-        self.query_param("skip")
-            .and_then(|v| v.parse().ok())
-    }
-
 }
 
 impl fmt::Display for SphereUri {
@@ -70,30 +48,30 @@ mod tests {
     fn test_parse_csv_uri_with_all_params() {
         let s = "file:///data/points.csv?x=longitude&y=latitude&wkt=geom";
         let uri = SphereUri::parse(s).expect("should parse");
-        assert_eq!(uri.x_field(), Some("longitude".to_string()));
-        assert_eq!(uri.y_field(), Some("latitude".to_string()));
-        assert_eq!(uri.wkt_field(), Some("geom".to_string()));
-        assert_eq!(uri.delimiter(), None);
-        assert_eq!(uri.skip_rows(), None);
+        assert_eq!(uri.query_param("x"), Some("longitude".to_string()));
+        assert_eq!(uri.query_param("y"), Some("latitude".to_string()));
+        assert_eq!(uri.query_param("wkt"), Some("geom".to_string()));
+        assert_eq!(uri.query_param("delimiter"), None);
+        assert_eq!(uri.query_param("skip"), None);
     }
 
     #[test]
     fn test_parse_csv_uri_with_delimiter_and_skip() {
         let s = "file:///data/points.csv?x=lng&y=lat&delimiter=%3B&skip=1";
         let uri = SphereUri::parse(s).expect("should parse");
-        assert_eq!(uri.delimiter(), Some(";".to_string()));
-        assert_eq!(uri.skip_rows(), Some(1usize));
+        assert_eq!(uri.query_param("delimiter"), Some(";".to_string()));
+        assert_eq!(uri.query_param("skip").and_then(|v| v.parse::<usize>().ok()), Some(1usize));
     }
 
     #[test]
     fn test_parse_geojson_uri_accessors_return_none() {
         let s = "file:///data/layer.geojson";
         let uri = SphereUri::parse(s).expect("should parse");
-        assert_eq!(uri.x_field(), None);
-        assert_eq!(uri.y_field(), None);
-        assert_eq!(uri.wkt_field(), None);
-        assert_eq!(uri.delimiter(), None);
-        assert_eq!(uri.skip_rows(), None);
+        assert_eq!(uri.query_param("x"), None);
+        assert_eq!(uri.query_param("y"), None);
+        assert_eq!(uri.query_param("wkt"), None);
+        assert_eq!(uri.query_param("delimiter"), None);
+        assert_eq!(uri.query_param("skip"), None);
     }
 
     #[test]
