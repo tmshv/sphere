@@ -1,6 +1,7 @@
 import "@/style.css"
 
 import App from "@/components/App"
+import logger from "@/logger"
 import { SphereThemeProvider } from "@/components/SphereThemeProvider"
 import { setupMaplibre } from "@/maplibre"
 import { store } from "@/store"
@@ -15,8 +16,8 @@ async function main() {
     setupMaplibre()
     await handleDragDrop()
     await handleTheme()
-    handleVersion()
-    handleHotkey()
+    await handleVersion()
+    await handleHotkey()
 
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <React.StrictMode>
@@ -31,4 +32,4 @@ async function main() {
     )
 }
 
-main()
+main().catch(err => logger.error(err))
