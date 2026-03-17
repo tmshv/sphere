@@ -117,11 +117,10 @@ export const LayerPanel: React.FC = () => {
     const layer = useSelector(layerSelector)
     const [filterText, setFilterText] = useState("")
     const [filterLocalError, setFilterLocalError] = useState<string | null>(null)
-
     useEffect(() => {
         setFilterText(layer?.filterExpression ? JSON.stringify(layer.filterExpression) : "")
         setFilterLocalError(null)
-    }, [layer?.id])
+    }, [layer?.id, layer?.filterExpression])
 
     if (!layer) {
         return null
