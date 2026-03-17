@@ -11,8 +11,7 @@ export function insertBefore(value: string, match: string, prefix: string): stri
 
 // this will fetch a file using the fetch API (this is obviously a non iteresting example...)
 export class MapboxProtocol {
-    constructor(public accessToken: string) {
-    }
+    constructor(public accessToken: string) {}
 
     public get name() {
         return "mapbox"
@@ -86,7 +85,7 @@ export class MapboxProtocol {
             }
         }
 
-        return async (params, abort) => {
+        return async (params, _abort) => {
             const data = await run(params)
             return { data }
         }

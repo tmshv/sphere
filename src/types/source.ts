@@ -1,4 +1,4 @@
-import { Id, SourceMetadata, SourceType } from "@/types"
+import type { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
 
 export type GeojsonSource = {
@@ -15,7 +15,7 @@ export type VectorSource = {
     location: string
     // layers:
     editable: false
-    sourceLayers: { id: string, name: string }[]
+    sourceLayers: { id: string; name: string }[]
     pending: false
 }
 
@@ -43,7 +43,13 @@ export type PendingFeatureCollecionSource = {
     pending: true
 }
 
-export type Source = (GeojsonSource | VectorSource | RasterSource | PendingFeatureCollecionSource | FeatureCollecionSource) & {
+export type Source = (
+    | GeojsonSource
+    | VectorSource
+    | RasterSource
+    | PendingFeatureCollecionSource
+    | FeatureCollecionSource
+) & {
     id: Id
     name: string
     fractionIndex: number

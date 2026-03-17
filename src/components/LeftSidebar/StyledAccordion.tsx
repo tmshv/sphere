@@ -1,7 +1,10 @@
 import { Accordion } from "@mantine/core"
 import type { AccordionProps } from "@mantine/core"
 
-export type StyledAccordionProps = Omit<AccordionProps, "value" | "onChange" | "multiple" | "style" | "defaultValue"> & {
+export type StyledAccordionProps = Omit<
+    AccordionProps,
+    "value" | "onChange" | "multiple" | "style" | "defaultValue"
+> & {
     value: string[]
     onChange: (value: string[]) => void
 }

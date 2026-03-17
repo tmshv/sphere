@@ -1,8 +1,8 @@
-import type { Map, Point, PointLike } from "maplibre-gl"
+import type { Map as MaplibreMap, Point, PointLike } from "maplibre-gl"
 
 const QUERY_SIZE = 8
 
-export function queryFeaturesInPoint(map: Map, point: Point, layers: string[]) {
+export function queryFeaturesInPoint(map: MaplibreMap, point: Point, layers: string[]) {
     const bbox: [PointLike, PointLike] = [
         [point.x - QUERY_SIZE / 2, point.y - QUERY_SIZE / 2],
         [point.x + QUERY_SIZE / 2, point.y + QUERY_SIZE / 2],

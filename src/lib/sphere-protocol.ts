@@ -5,9 +5,6 @@ import { SourceReader } from "./source-reader"
 type RequestType = "json" | "arrayBuffer" | "string" | "image" | undefined
 
 export class SphereProtocol {
-    constructor() {
-    }
-
     public get name() {
         return "sphere"
     }
@@ -16,14 +13,10 @@ export class SphereProtocol {
         const z = url.searchParams.get("z") ?? "0"
         const x = url.searchParams.get("x") ?? "0"
         const y = url.searchParams.get("y") ?? "0"
-        return [
-            parseInt(z),
-            parseInt(x),
-            parseInt(y),
-        ]
+        return [Number.parseInt(z), Number.parseInt(x), Number.parseInt(y)]
     }
 
-    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType, sig: AbortSignal) {
+    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType, _sig: AbortSignal) {
         switch (type) {
             case "json": {
                 return reader.getTileJson()
@@ -42,7 +35,7 @@ export class SphereProtocol {
         }
     }
 
-    public async handleSource(reader: SourceReader, type: RequestType, sig: AbortSignal) {
+    public async handleSource(reader: SourceReader, type: RequestType, _sig: AbortSignal) {
         switch (type) {
             case "json": {
                 return reader.getGeojson()

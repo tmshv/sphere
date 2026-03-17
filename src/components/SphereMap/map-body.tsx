@@ -1,4 +1,3 @@
-import React from "react"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
@@ -6,20 +5,22 @@ import useFeatureSelect from "@/sphere-hooks/useFeatureSelect"
 import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
-import { selectShowAttribution } from "@/store/app"
+import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
 import { selectors } from "@/store"
+import { selectShowAttribution } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
-import { AttributionControl, useMap } from "react-map-gl/maplibre"
-import { SphereSource } from "./SphereSource"
-import { SphereLayer } from "./SphereLayer"
-import { FilteredLayerSource } from "./FilteredLayerSource"
-import Draw from "./Draw"
 import { createSelector } from "@reduxjs/toolkit"
-import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
+import React from "react"
+import { AttributionControl, useMap } from "react-map-gl/maplibre"
+import Draw from "./Draw"
+import { FilteredLayerSource } from "./FilteredLayerSource"
+import { SphereLayer } from "./SphereLayer"
+import { SphereSource } from "./SphereSource"
 
-const selectLayers = createSelector([selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
+const selectLayers = createSelector(
+    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
     (drawing, items, allIds) => {
         // Do not show layers in draw mode
         if (drawing) {
@@ -64,14 +65,9 @@ export default function MapBody({ mapId }: MapBodyProps) {
 
     return (
         <>
-            {!showAttribution ? null : (
-                <AttributionControl compact />
-            )}
+            {!showAttribution ? null : <AttributionControl compact />}
             {sourceIds.map(id => (
-                <SphereSource
-                    key={id}
-                    id={id}
-                />
+                <SphereSource key={id} id={id} />
             ))}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
@@ -79,9 +75,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
                     <SphereLayer id={id} />
                 </React.Fragment>
             ))}
-            {!drawing ? null : (
-                <Draw mapId={mapId} />
-            )}
+            {!drawing ? null : <Draw mapId={mapId} />}
         </>
     )
 }

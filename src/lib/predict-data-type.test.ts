@@ -14,9 +14,9 @@ describe("isInt", () => {
         expect(isInt(1.3425)).toBe(false)
         expect(isInt(-2.7)).toBe(false)
         expect(isInt(-230.00001)).toBe(false)
-        expect(isInt(NaN)).toBe(false)
-        expect(isInt(Infinity)).toBe(false)
-        expect(isInt(-Infinity)).toBe(false)
+        expect(isInt(Number.NaN)).toBe(false)
+        expect(isInt(Number.POSITIVE_INFINITY)).toBe(false)
+        expect(isInt(Number.NEGATIVE_INFINITY)).toBe(false)
     })
 })
 
@@ -94,7 +94,11 @@ describe("isUrl", () => {
     test("should return true for valid URL", () => {
         expect(isUrl("https://github.com/tmshv/sphere")).toBeTruthy()
         expect(isUrl("https://planet.osm.org")).toBeTruthy()
-        expect(isUrl("https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_ocean.zip")).toBeTruthy()
+        expect(
+            isUrl(
+                "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_ocean.zip",
+            ),
+        ).toBeTruthy()
         expect(isUrl("https://planet.osm.org/pbf/planet-latest.osm.pbf.torrent")).toBeTruthy()
         expect(isUrl("https://tile.openstreetmap.org/8/89/98.png")).toBeTruthy()
         expect(isUrl("https://api.mapbox.com/styles/v1/mapbox/streets-v9?access_token=XXX")).toBeTruthy()
@@ -117,40 +121,22 @@ describe("predictType", () => {
     })
 
     test("should return 'mixed' for array samples", () => {
-        const samples = [
-            { k: ["value-01"] },
-            { k: ["value-02"] },
-            { k: ["value-03"] },
-        ]
+        const samples = [{ k: ["value-01"] }, { k: ["value-02"] }, { k: ["value-03"] }]
         expect(predictType("k", samples)).toBe("mixed")
     })
 
     test("should return 'int' for int samples", () => {
-        const samples = [
-            { k: "8" },
-            { k: "7" },
-            { k: "3" },
-            { k: "9" },
-            { k: "0" },
-            { k: "1" },
-        ]
+        const samples = [{ k: "8" }, { k: "7" }, { k: "3" }, { k: "9" }, { k: "0" }, { k: "1" }]
         expect(predictType("k", samples)).toBe("int")
     })
 
     test("should return 'int' for int samples", () => {
-        const samples = [
-            { k: "3.8" },
-            { k: "0.17" },
-            { k: "-3.23" },
-        ]
+        const samples = [{ k: "3.8" }, { k: "0.17" }, { k: "-3.23" }]
         expect(predictType("k", samples)).toBe("float")
     })
 
     test("should return 'date' for date samples", () => {
-        const samples = [
-            { k: "2023-05-04T18:11:55.439Z" },
-            { k: "2023-05-05" },
-        ]
+        const samples = [{ k: "2023-05-04T18:11:55.439Z" }, { k: "2023-05-05" }]
         expect(predictType("k", [samples[0]])).toBe("date")
         expect(predictType("k", [samples[1]])).toBe("date")
     })
@@ -166,19 +152,12 @@ describe("predictType", () => {
     })
 
     test("should return 'string' for string samples", () => {
-        const samples = [
-            { k: "this" },
-            { k: "is" },
-            { k: "just" },
-            { k: "text" },
-        ]
+        const samples = [{ k: "this" }, { k: "is" }, { k: "just" }, { k: "text" }]
         expect(predictType("k", samples)).toBe("string")
     })
 
     test("should return 'unknown' for other samples", () => {
-        const samples = [
-            { k: null as unknown as string },
-        ]
+        const samples = [{ k: null as unknown as string }]
         expect(predictType("k", samples)).toBe("unknown")
     })
 })

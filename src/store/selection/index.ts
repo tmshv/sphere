@@ -1,7 +1,7 @@
+import type { Id } from "@/types"
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from ".."
-import { Id } from "@/types"
+import type { RootState } from ".."
 import { layerSlice } from "../layer"
 
 // Define a type for the slice state
@@ -39,16 +39,15 @@ export const selectionSlice = createSlice({
         selectLayer: (state, action: PayloadAction<{ layerId?: Id }>) => {
             state.layerId = action.payload.layerId
         },
-        selectOne: (state, action: PayloadAction<{ layerId: Id, featureId: number }>) => {
+        selectOne: (state, action: PayloadAction<{ layerId: Id; featureId: number }>) => {
             state.layerId = action.payload.layerId
             state.selectedIds = [action.payload.featureId]
         },
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(layerSlice.actions.removeLayer, (state, action) => {
-                state.layerId = undefined
-            })
+    extraReducers: builder => {
+        builder.addCase(layerSlice.actions.removeLayer, (state, _action) => {
+            state.layerId = undefined
+        })
     },
     selectors: {
         currentSourceId: state => state.sourceId,

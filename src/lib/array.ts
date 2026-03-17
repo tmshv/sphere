@@ -27,8 +27,11 @@ export function tail<T>(a: T[]): T[] {
 }
 
 export function zip<T0, T1>(a: T0[], b: T1[]): [T0, T1][] {
-    return a.reduce((acc, x, i) => {
-        acc.push([x, b[i]])
-        return acc
-    }, [] as [T0, T1][])
+    return a.reduce(
+        (acc, x, i) => {
+            acc.push([x, b[i]])
+            return acc
+        },
+        [] as [T0, T1][],
+    )
 }

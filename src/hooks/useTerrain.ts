@@ -1,6 +1,6 @@
-import type { MapRef } from "react-map-gl/maplibre"
 import type { TerrainSpecification } from "maplibre-gl"
 import { useEffect } from "react"
+import type { MapRef } from "react-map-gl/maplibre"
 
 export type TerrainProps = {
     mapId: string

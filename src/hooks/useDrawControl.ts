@@ -1,8 +1,8 @@
+import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
+import type { Listener } from "maplibre-gl"
 import { useEffect } from "react"
 import { useControl } from "react-map-gl/maplibre"
-import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
 import type { ControlPosition, MapRef } from "react-map-gl/maplibre"
-import type { Listener } from "maplibre-gl"
 
 export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapLibreDraw) => void
 
@@ -10,14 +10,12 @@ export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
     ref: MapRef | undefined
     position?: ControlPosition
     onChange?: OnChangeDraw
-};
+}
 
 export function useDrawControl({ ref, onChange, ...props }: DrawControlProps): MapLibreDraw {
-    const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props),
-        {
-            position: props.position,
-        },
-    )
+    const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props), {
+        position: props.position,
+    })
 
     useEffect(() => {
         if (!ref) {

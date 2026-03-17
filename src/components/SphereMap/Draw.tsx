@@ -1,18 +1,18 @@
-import { useCallback, useEffect } from "react"
 import { useDrawControl } from "@/hooks/useDrawControl"
 import type { OnChangeDraw } from "@/hooks/useDrawControl"
-import { Button, Flex } from "@mantine/core"
+import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { Overlay } from "@/ui/Overlay"
-import { actions } from "@/store"
+import { Button, Flex } from "@mantine/core"
+import { useCallback, useEffect } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
 export type DrawProps = {
     mapId: string
 }
 
-export default function Draw({ mapId }: DrawProps){
+export default function Draw({ mapId }: DrawProps) {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(state => state.draw.sourceId)
     const data = useAppSelector(state => {
@@ -26,8 +26,7 @@ export default function Draw({ mapId }: DrawProps){
         }
         return null
     })
-    const onChange = useCallback<OnChangeDraw>(async (event, draw) => {
-    }, [])
+    const onChange = useCallback<OnChangeDraw>(async (_event, _draw) => {}, [])
 
     const { [mapId]: ref } = useMap()
     const draw = useDrawControl({
@@ -56,21 +55,28 @@ export default function Draw({ mapId }: DrawProps){
     }, [dispatch])
 
     const onDone = useCallback(() => {
+        if (!sourceId) return
         const featureCollection = draw.getAll()
-        dispatch(actions.draw.done({
-            sourceId: sourceId!,
-            featureCollection,
-        }))
+        dispatch(
+            actions.draw.done({
+                sourceId,
+                featureCollection,
+            }),
+        )
     }, [dispatch, sourceId, draw])
 
     return (
         <Overlay
-            bottom={(
+            bottom={
                 <Flex gap={"xs"}>
-                    <Button size="xs" color="gray" onClick={onCancel}>Cancel</Button>
-                    <Button size="xs" onClick={onDone}>Done</Button>
+                    <Button size="xs" color="gray" onClick={onCancel}>
+                        Cancel
+                    </Button>
+                    <Button size="xs" onClick={onDone}>
+                        Done
+                    </Button>
                 </Flex>
-            )}
+            }
         />
     )
 }

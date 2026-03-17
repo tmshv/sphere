@@ -1,25 +1,24 @@
-import { createAsyncThunk } from "@reduxjs/toolkit"
-import { Id, SourceType } from "@/types"
-import { actions } from "."
-import logger from "@/logger"
 import { SourceReader } from "@/lib/source-reader"
-import { RootState } from ".."
+import logger from "@/logger"
+import { type Id, SourceType } from "@/types"
+import { createAsyncThunk } from "@reduxjs/toolkit"
+import { actions } from "."
+import type { RootState } from ".."
 
-const action = createAsyncThunk(
-    "source/reload",
-    async (id: Id, thunkAPI) => {
-        const state = thunkAPI.getState() as RootState
-        try {
-            if (!state.source.items[id]) {
-                return
-            }
-            const type = state.source.items[id].type
-            switch (type) {
-                case SourceType.Geojson: {
-                    const r = new SourceReader(id)
-                    const schema = await r.getSchema()
-                    if (schema) {
-                        thunkAPI.dispatch(actions.setGeojsonMeta({
+const action = createAsyncThunk("source/reload", async (id: Id, thunkAPI) => {
+    const state = thunkAPI.getState() as RootState
+    try {
+        if (!state.source.items[id]) {
+            return
+        }
+        const type = state.source.items[id].type
+        switch (type) {
+            case SourceType.Geojson: {
+                const r = new SourceReader(id)
+                const schema = await r.getSchema()
+                if (schema) {
+                    thunkAPI.dispatch(
+                        actions.setGeojsonMeta({
                             id,
                             meta: {
                                 columns: schema.columns,
@@ -27,18 +26,18 @@ const action = createAsyncThunk(
                                 linesCount: schema.lines_count,
                                 polygonsCount: schema.polygons_count,
                             },
-                        }))
-                    }
-                    break
+                        }),
+                    )
                 }
-                default: {
-                    break
-                }
+                break
             }
-        } catch (error) {
-            logger.error("Failed to reload Source %s", error)
+            default: {
+                break
+            }
         }
-    },
-)
+    } catch (error) {
+        logger.error("Failed to reload Source %s", error)
+    }
+})
 
 export default action

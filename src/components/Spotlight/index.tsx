@@ -1,9 +1,9 @@
-import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { SpotlightProvider } from "@mantine/spotlight"
-import { IconSearch, IconCopy, IconZoomReset, IconClipboard } from "@tabler/icons"
+import { IconClipboard, IconCopy, IconSearch, IconZoomReset } from "@tabler/icons"
+import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { useMap } from "react-map-gl/maplibre"
-import { useAppDispatch } from "../../store/hooks"
 import { actions } from "../../store"
+import { useAppDispatch } from "../../store/hooks"
 import addFromClipboard from "../../store/source/addFromClipboard"
 
 export type SpotlightProps = {

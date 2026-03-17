@@ -1,15 +1,15 @@
-import * as turf from "@turf/turf"
-import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { getMap } from "@/map"
-import { SourceType } from "@/types"
-import { actions } from "../actions"
-import type { RootState } from ".."
-import type { LngLatBoundsLike } from "maplibre-gl"
+import { MAP_ID } from "@/const"
 import { assertUnreachable } from "@/lib"
 import { MbtilesReader } from "@/lib/mbtiles"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
-import { MAP_ID } from "@/const"
+import { getMap } from "@/map"
+import { SourceType } from "@/types"
+import { createListenerMiddleware } from "@reduxjs/toolkit"
+import * as turf from "@turf/turf"
+import type { LngLatBoundsLike } from "maplibre-gl"
+import type { RootState } from ".."
+import { actions } from "../actions"
 
 const listener = createListenerMiddleware()
 listener.startListening({
@@ -35,10 +35,12 @@ listener.startListening({
             case SourceType.FeatureCollection: {
                 if (source.dataset) {
                     const bbox = turf.bbox(source.dataset)
-                    listenerApi.dispatch(actions.map.fitBounds({
-                        mapId,
-                        bounds: bbox as LngLatBoundsLike,
-                    }))
+                    listenerApi.dispatch(
+                        actions.map.fitBounds({
+                            mapId,
+                            bounds: bbox as LngLatBoundsLike,
+                        }),
+                    )
                 }
                 break
             }
@@ -47,10 +49,12 @@ listener.startListening({
                 const bounds = await reader.getBounds()
                 if (bounds) {
                     logger.info({ bounds }, "Got bbox")
-                    listenerApi.dispatch(actions.map.fitBounds({
-                        mapId,
-                        bounds,
-                    }))
+                    listenerApi.dispatch(
+                        actions.map.fitBounds({
+                            mapId,
+                            bounds,
+                        }),
+                    )
                 } else {
                     logger.info("No bounds")
                 }
@@ -61,10 +65,12 @@ listener.startListening({
                 const tilejson = await r.getTileJson()
                 if (tilejson?.bounds) {
                     const bounds = tilejson.bounds
-                    listenerApi.dispatch(actions.map.fitBounds({
-                        mapId,
-                        bounds,
-                    }))
+                    listenerApi.dispatch(
+                        actions.map.fitBounds({
+                            mapId,
+                            bounds,
+                        }),
+                    )
                 }
                 break
             }

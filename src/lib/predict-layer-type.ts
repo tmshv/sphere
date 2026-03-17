@@ -1,6 +1,10 @@
-import { LayerType, SourceMetadata } from "@/types"
+import { LayerType, type SourceMetadata } from "@/types"
 
-export default function predictLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType | undefined {
+export default function predictLayerType({
+    pointsCount,
+    linesCount,
+    polygonsCount,
+}: SourceMetadata): LayerType | undefined {
     if (pointsCount > 0 && linesCount === 0 && polygonsCount === 0) {
         return LayerType.Point
     }

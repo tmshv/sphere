@@ -1,52 +1,49 @@
-import { memo, useEffect, useState } from "react"
-import { Source, SourceProps } from "react-map-gl/maplibre"
+import { EMPTY_GEOJSON } from "@/const"
+import { assertUnreachable } from "@/lib"
+import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import { assertUnreachable } from "@/lib"
 import { createSelector } from "@reduxjs/toolkit"
-import type { RootState } from "@/store"
-import { EMPTY_GEOJSON } from "@/const"
 import { invoke } from "@tauri-apps/api/core"
+import { memo, useEffect, useState } from "react"
+import { Source, type SourceProps } from "react-map-gl/maplibre"
 
-export const selectSource = createSelector(
-    [(state: RootState, id: string) => state.source.items[id]],
-    source => {
-        if (!source) {
+export const selectSource = createSelector([(state: RootState, id: string) => state.source.items[id]], source => {
+    if (!source) {
+        return null
+    }
+    const { type, id } = source
+    switch (type) {
+        case SourceType.FeatureCollection: {
+            return {
+                id,
+                type: "geojson",
+                data: source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection),
+            } as SourceProps
+        }
+        case SourceType.Geojson: {
+            // Data is fetched directly in the component to avoid storing it in Redux.
             return null
         }
-        const { type, id } = source
-        switch (type) {
-            case SourceType.FeatureCollection: {
-                return {
-                    id,
-                    type: "geojson",
-                    data: source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection),
-                } as SourceProps
-            }
-            case SourceType.Geojson: {
-                // Data is fetched directly in the component to avoid storing it in Redux.
-                return null
-            }
-            case SourceType.MVT: {
-                return {
-                    id,
-                    type: "vector",
-                    url: `sphere://mbtiles/${id}`,
-                } as SourceProps
-            }
-            case SourceType.Raster: {
-                return {
-                    id,
-                    type: "raster",
-                    url: source.location,
-                } as SourceProps
-            }
-            default: {
-                assertUnreachable(type)
-            }
+        case SourceType.MVT: {
+            return {
+                id,
+                type: "vector",
+                url: `sphere://mbtiles/${id}`,
+            } as SourceProps
         }
-    },
-)
+        case SourceType.Raster: {
+            return {
+                id,
+                type: "raster",
+                url: source.location,
+            } as SourceProps
+        }
+        default: {
+            assertUnreachable(type)
+        }
+    }
+})
 
 export type SphereSourceProps = {
     id: string
@@ -54,16 +51,22 @@ export type SphereSourceProps = {
 
 export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const source = useAppSelector(state => state.source.items[id])
-    const [geojsonData, setGeojsonData] = useState<GeoJSON.FeatureCollection>(EMPTY_GEOJSON as GeoJSON.FeatureCollection)
+    const [geojsonData, setGeojsonData] = useState<GeoJSON.FeatureCollection>(
+        EMPTY_GEOJSON as GeoJSON.FeatureCollection,
+    )
+
+    const sourceType = source?.type
 
     useEffect(() => {
-        if (!source || source.type !== SourceType.Geojson) {
+        if (!sourceType || sourceType !== SourceType.Geojson) {
             return
         }
-        invoke<string>("source_get", { id }).then(json => {
-            setGeojsonData(JSON.parse(json))
-        }).catch(() => {})
-    }, [id, source?.type])
+        invoke<string>("source_get", { id })
+            .then(json => {
+                setGeojsonData(JSON.parse(json))
+            })
+            .catch(() => {})
+    }, [id, sourceType])
 
     if (!source) {
         return null
@@ -72,7 +75,9 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const { type } = source
     switch (type) {
         case SourceType.FeatureCollection: {
-            return <Source id={id} type="geojson" data={source.dataset ?? EMPTY_GEOJSON as GeoJSON.FeatureCollection} />
+            return (
+                <Source id={id} type="geojson" data={source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection)} />
+            )
         }
         case SourceType.Geojson: {
             return <Source id={id} type="geojson" data={geojsonData} />

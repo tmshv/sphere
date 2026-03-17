@@ -1,7 +1,7 @@
-import { Layer } from "react-map-gl/maplibre"
-import { useMemo } from "react"
-import { CircleLayerSpecification } from "maplibre-gl"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { CircleLayerSpecification } from "maplibre-gl"
+import { useMemo } from "react"
+import { Layer } from "react-map-gl/maplibre"
 
 type CirclePaint = CircleLayerSpecification["paint"]
 

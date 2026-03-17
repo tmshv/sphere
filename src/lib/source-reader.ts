@@ -1,7 +1,7 @@
 import logger from "@/logger"
+import type { SourceSchema } from "@/types"
 import { invoke } from "@tauri-apps/api/core"
 import type { LngLatBoundsLike } from "maplibre-gl"
-import type { SourceSchema } from "@/types"
 
 type Bbox = [number, number, number, number]
 
@@ -32,8 +32,7 @@ export type ColumnStats = {
 }
 
 export class SourceReader {
-    constructor(private id: string) {
-    }
+    constructor(private id: string) {}
 
     public async getGeojson(): Promise<GeoJSON.FeatureCollection | null> {
         try {

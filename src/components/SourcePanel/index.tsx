@@ -1,49 +1,44 @@
-import { Badge, Flex, Group, TextInput } from "@mantine/core"
-import { useAppDispatch } from "@/store/hooks"
-import { IconTrash, IconCrosshair, IconStack, IconPencil, IconTable, IconReload } from "@tabler/icons"
-import { useMantineTheme } from "@mantine/core"
 import { actions, selectors } from "@/store"
+import { useAppDispatch } from "@/store/hooks"
+import { type SourceMetadata, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
-import { SourceMetadata, SourceType } from "@/types"
+import { Badge, Flex, Group, TextInput } from "@mantine/core"
+import { useMantineTheme } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
+import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
 
-const reloadAvailable = new Set([
-    SourceType.Geojson,
-])
+const reloadAvailable = new Set([SourceType.Geojson])
 
 export const selectCurrentSourceItem = createSelector(
     [selectors.selection.currentSourceId, selectors.source.items],
-    (id, items) => id ? items[id] ?? null : null,
+    (id, items) => (id ? (items[id] ?? null) : null),
 )
 
-export const selector = createSelector(
-    [selectors.selection.currentSourceId, selectCurrentSourceItem],
-    (id, source) => {
-        if (!id || !source) {
-            return null
-        }
+export const selector = createSelector([selectors.selection.currentSourceId, selectCurrentSourceItem], (id, source) => {
+    if (!id || !source) {
+        return null
+    }
 
-        let meta: SourceMetadata | undefined = undefined
-        if (source.type === SourceType.Geojson) {
-            meta = source.meta
-        } else if ((source.type === SourceType.FeatureCollection) && !source.pending) {
-            meta = source.meta
-        }
+    let meta: SourceMetadata | undefined = undefined
+    if (source.type === SourceType.Geojson) {
+        meta = source.meta
+    } else if (source.type === SourceType.FeatureCollection && !source.pending) {
+        meta = source.meta
+    }
 
-        return {
-            id,
-            name: source.name,
-            type: source.type,
-            size: 0,
-            // size: source.data.length,
-            location: source.location,
-            editable: source.editable,
-            meta,
-            reloadDisabled: !reloadAvailable.has(source.type),
-        }
-    },
-)
+    return {
+        id,
+        name: source.name,
+        type: source.type,
+        size: 0,
+        // size: source.data.length,
+        location: source.location,
+        editable: source.editable,
+        meta,
+        reloadDisabled: !reloadAvailable.has(source.type),
+    }
+})
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -51,7 +46,7 @@ export const SourcePanel: React.FC = () => {
     const source = useSelector(selector)
     const theme = useMantineTheme()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
+    const _getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
 
     if (!source) {
         return null
@@ -108,9 +103,11 @@ export const SourcePanel: React.FC = () => {
                             if (drawing) {
                                 dispatch(actions.draw.reset())
                             } else {
-                                dispatch(actions.draw.start({
-                                    sourceId: source.id,
-                                }))
+                                dispatch(
+                                    actions.draw.start({
+                                        sourceId: source.id,
+                                    }),
+                                )
                             }
                             break
                         }
@@ -166,20 +163,18 @@ export const SourcePanel: React.FC = () => {
                 value={source.name}
                 onChange={event => {
                     const value = event.target.value
-                    dispatch(actions.source.setName({
-                        id: source.id,
-                        value,
-                    }))
+                    dispatch(
+                        actions.source.setName({
+                            id: source.id,
+                            value,
+                        }),
+                    )
                 }}
             />
 
             <Group>
-                <Badge radius={"sm"}>
-                    {source.type}
-                </Badge>
-                <Badge radius={"sm"}>
-                    SIZE:{source.size}
-                </Badge>
+                <Badge radius={"sm"}>{source.type}</Badge>
+                <Badge radius={"sm"}>SIZE:{source.size}</Badge>
             </Group>
 
             <Badge radius={"sm"} size={"xs"}>

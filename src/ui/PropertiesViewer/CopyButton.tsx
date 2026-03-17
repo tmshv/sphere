@@ -1,4 +1,4 @@
-import { ActionIcon, createStyles, Tooltip } from "@mantine/core"
+import { ActionIcon, Tooltip, createStyles } from "@mantine/core"
 import { IconCheck, IconCopy } from "@tabler/icons"
 import { useState } from "react"
 

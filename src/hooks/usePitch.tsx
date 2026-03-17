@@ -1,5 +1,5 @@
-import { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre"
 import { useEffect, useState } from "react"
+import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre"
 
 export function usePitch(ref?: MapRef): number {
     const [value, setValue] = useState<number>(0)

@@ -1,7 +1,7 @@
-import { Layer } from "react-map-gl/maplibre"
-import { useMemo } from "react"
-import { LineLayerSpecification } from "maplibre-gl"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { LineLayerSpecification } from "maplibre-gl"
+import { useMemo } from "react"
+import { Layer } from "react-map-gl/maplibre"
 
 type LinePaint = LineLayerSpecification["paint"]
 
@@ -14,7 +14,14 @@ export type SphereLineStringLayerProps = {
     thick: boolean
 }
 
-export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible, thick }) => {
+export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
+    layerId,
+    sourceId,
+    sourceLayer,
+    color,
+    visible,
+    thick,
+}) => {
     const [outline, line, selected] = useMemo(() => {
         const outline: LinePaint = {
             "line-color": "#fff",

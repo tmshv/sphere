@@ -1,8 +1,8 @@
+import { Flex } from "@mantine/core"
+import { Fragment } from "react"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { Card } from "./Card"
-import { Flex } from "@mantine/core"
-import { Fragment } from "react"
 
 // export type OutlineOnMove = (dragIndex: number, hoverIndex: number) => void
 export type OutlineOnMove<T> = (drag: T, hover: T) => void
@@ -23,10 +23,8 @@ export function Outline<T extends OutlineItem>({ items, onMove, renderItem, drag
     if (!draggable) {
         return (
             <Flex direction={"column"} gap="xs">
-                {items.map((item, i) => (
-                    <Fragment key={item.id}>
-                        {renderItem(item)}
-                    </Fragment>
+                {items.map((item, _i) => (
+                    <Fragment key={item.id}>{renderItem(item)}</Fragment>
                 ))}
             </Flex>
         )

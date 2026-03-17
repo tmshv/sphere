@@ -1,5 +1,5 @@
+import { Flex, createStyles } from "@mantine/core"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { createStyles, Flex } from "@mantine/core"
 
 const useStyle = createStyles(theme => ({
     container: {
@@ -57,7 +57,7 @@ export default function useHandler(startWidth: number, minWidth: number, maxWidt
             setWidth(w)
         }
 
-        ref!.current!.addEventListener("mousedown", down)
+        ref?.current?.addEventListener("mousedown", down)
         document.addEventListener("mouseup", up, true)
         document.addEventListener("mousemove", move, true)
 
@@ -93,16 +93,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ children, startWidth, minWidth
     }, [width, onResize])
 
     return (
-        <Flex
-            pt={"xl"}
-            p={0}
-            w={width}
-            className={s.container}
-        >
-            <div
-                ref={ref}
-                className={s.button}
-            />
+        <Flex pt={"xl"} p={0} w={width} className={s.container}>
+            <div ref={ref} className={s.button} />
             {children}
         </Flex>
     )

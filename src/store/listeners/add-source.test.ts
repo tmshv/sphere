@@ -1,5 +1,5 @@
-import { vi, describe, test, expect, beforeEach, afterEach } from "vitest"
 import { configureStore } from "@reduxjs/toolkit"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 vi.mock("@/logger", () => ({
     default: {
@@ -10,13 +10,10 @@ vi.mock("@/logger", () => ({
 
 vi.mock("../actions", () => {
     // Defined inside factory to avoid hoisting reference errors
-    const fulfilledCreator = Object.assign(
-        (payload: unknown) => ({ type: "source/addFromUrl/fulfilled", payload }),
-        {
-            type: "source/addFromUrl/fulfilled",
-            match: (action: { type: string }) => action.type === "source/addFromUrl/fulfilled",
-        },
-    )
+    const fulfilledCreator = Object.assign((payload: unknown) => ({ type: "source/addFromUrl/fulfilled", payload }), {
+        type: "source/addFromUrl/fulfilled",
+        match: (action: { type: string }) => action.type === "source/addFromUrl/fulfilled",
+    })
     return {
         actions: {
             source: {
@@ -53,8 +50,7 @@ describe("add-source listener middleware", () => {
 
         const store = configureStore({
             reducer: (state = {}) => state,
-            middleware: (getDefaultMiddleware) =>
-                getDefaultMiddleware().prepend(listener.middleware),
+            middleware: getDefaultMiddleware => getDefaultMiddleware().prepend(listener.middleware),
         })
 
         const action = {
@@ -67,9 +63,6 @@ describe("add-source listener middleware", () => {
         // Flush all pending timers/microtasks so the async listener effect runs
         await vi.runAllTimersAsync()
 
-        expect(vi.mocked(logger.info)).toHaveBeenCalledWith(
-            { action },
-            "Source was added",
-        )
+        expect(vi.mocked(logger.info)).toHaveBeenCalledWith({ action }, "Source was added")
     })
 })

@@ -1,11 +1,11 @@
-import { describe, test, expect } from "vitest"
-import reducer, { selectionSlice } from "./index"
+import { describe, expect, test } from "vitest"
 import { layerSlice } from "../layer"
+import reducer, { selectionSlice } from "./index"
 
 const { reset, selectSource, selectLayer, selectOne } = selectionSlice.actions
 const { currentSourceId, currentLayerId } = selectionSlice.selectors
 
-const makeRootState = (selection: object) => ({ selection } as any)
+const makeRootState = (selection: object) => ({ selection }) as any
 
 describe("selectionSlice reducer", () => {
     test("initial state", () => {

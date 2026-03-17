@@ -1,6 +1,6 @@
-import { vi, describe, test, expect, beforeEach, type MockInstance } from "vitest"
-import { configureStore } from "@reduxjs/toolkit"
 import { SourceType } from "@/types"
+import { configureStore } from "@reduxjs/toolkit"
+import { type MockInstance, beforeEach, describe, expect, test, vi } from "vitest"
 
 const makeStore = () => configureStore({ reducer: (state: Record<string, never> = {}) => state })
 
@@ -29,8 +29,8 @@ vi.mock("../mapStyle", () => ({
 
 import { extname } from "@tauri-apps/api/path"
 import { readTextFile } from "@tauri-apps/plugin-fs"
-import { actions as sourceActions } from "../source"
 import { actions as mapStyleActions } from "../mapStyle"
+import { actions as sourceActions } from "../source"
 import addFile from "./add-file"
 
 const mockExtname = vi.mocked(extname)
@@ -83,9 +83,7 @@ describe("addFile thunk", () => {
             url: "file:///path/to/data.mbtiles",
             type: SourceType.MVT,
         })
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ type: "source/addFromUrl" }),
-        )
+        expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "source/addFromUrl" }))
     })
 
     test("unknown ext dispatches addFromUrl with Geojson type and source URL", async () => {
@@ -97,9 +95,7 @@ describe("addFile thunk", () => {
             url: "file:///path/to/data.geojson",
             type: SourceType.Geojson,
         })
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ type: "source/addFromUrl" }),
-        )
+        expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "source/addFromUrl" }))
     })
 
     test("shp ext dispatches addFromUrl with Geojson type", async () => {

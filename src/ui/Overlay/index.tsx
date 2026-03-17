@@ -67,36 +67,12 @@ export const Overlay: React.FC<OverlayProps> = ({ topLeft, topRight, left, right
 
     return (
         <Box className={s.container}>
-            {!topRight ? null : (
-                <Box className={cx(s.inner, s.topRight)}>
-                    {topRight}
-                </Box>
-            )}
-            {!topLeft ? null : (
-                <Box className={cx(s.inner, s.topLeft)}>
-                    {topLeft}
-                </Box>
-            )}
-            {!left ? null : (
-                <Box className={cx(s.inner, s.left)}>
-                    {left}
-                </Box>
-            )}
-            {!right ? null : (
-                <Box className={cx(s.inner, s.right)}>
-                    {right}
-                </Box>
-            )}
-            {!top ? null : (
-                <Box className={cx(s.inner, s.top)}>
-                    {top}
-                </Box>
-            )}
-            {!bottom ? null : (
-                <Box className={cx(s.inner, s.bottom)}>
-                    {bottom}
-                </Box>
-            )}
+            {!topRight ? null : <Box className={cx(s.inner, s.topRight)}>{topRight}</Box>}
+            {!topLeft ? null : <Box className={cx(s.inner, s.topLeft)}>{topLeft}</Box>}
+            {!left ? null : <Box className={cx(s.inner, s.left)}>{left}</Box>}
+            {!right ? null : <Box className={cx(s.inner, s.right)}>{right}</Box>}
+            {!top ? null : <Box className={cx(s.inner, s.top)}>{top}</Box>}
+            {!bottom ? null : <Box className={cx(s.inner, s.bottom)}>{bottom}</Box>}
         </Box>
     )
 }

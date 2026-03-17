@@ -46,10 +46,10 @@ export function RootErrorFallback({ error, resetErrorBoundary }: FallbackProps) 
                 <div style={titleStyle}>Something went wrong</div>
                 <div style={messageStyle}>{error instanceof Error ? error.message : String(error)}</div>
                 <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-                    <button style={buttonStyle} onClick={resetErrorBoundary}>
+                    <button type="button" style={buttonStyle} onClick={resetErrorBoundary}>
                         Try Again
                     </button>
-                    <button style={buttonStyle} onClick={() => window.location.reload()}>
+                    <button type="button" style={buttonStyle} onClick={() => window.location.reload()}>
                         Reload App
                     </button>
                 </div>

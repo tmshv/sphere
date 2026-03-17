@@ -1,14 +1,14 @@
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
-import { IconCrosshair, IconLink, IconPlus, IconFile, IconTrash } from "@tabler/icons"
-import { useForm } from "@mantine/form"
-import { useCallback, useState } from "react"
-import { ActionBar, ActionBarOnClick } from "@/ui/ActionBar"
-import { StyledAccordion } from "./StyledAccordion"
-import { SourcesOutline } from "../SourcesOutline"
-import { SourcePanel } from "../SourcePanel"
 import { SourceType } from "@/types"
+import { ActionBar, type ActionBarOnClick } from "@/ui/ActionBar"
+import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
+import { useForm } from "@mantine/form"
+import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
+import { useCallback, useState } from "react"
+import { SourcePanel } from "../SourcePanel"
+import { SourcesOutline } from "../SourcesOutline"
+import { StyledAccordion } from "./StyledAccordion"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -23,51 +23,52 @@ export const SourcesTab: React.FC = () => {
         },
     })
 
-    const onClick = useCallback<ActionBarOnClick>(name => {
-        switch (name) {
-            case "trash": {
-                dispatch(actions.source.removeSource(sourceId!))
-                break
+    const onClick = useCallback<ActionBarOnClick>(
+        name => {
+            switch (name) {
+                case "trash": {
+                    if (sourceId) dispatch(actions.source.removeSource(sourceId))
+                    break
+                }
+                case "zoom": {
+                    if (sourceId) dispatch(actions.source.zoomTo(sourceId))
+                    break
+                }
+                case "add-from-url": {
+                    setShowModal(true)
+                    break
+                }
+                case "open-file": {
+                    dispatch(actions.openFiles())
+                    break
+                }
+                case "new": {
+                    dispatch(actions.source.empty())
+                    break
+                }
+                default: {
+                    break
+                }
             }
-            case "zoom": {
-                dispatch(actions.source.zoomTo(sourceId!))
-                break
-            }
-            case "add-from-url": {
-                setShowModal(true)
-                break
-            }
-            case "open-file": {
-                dispatch(actions.openFiles())
-                break
-            }
-            case "new": {
-                dispatch(actions.source.empty())
-                break
-            }
-            default: {
-                break
-            }
-        }
-    }, [dispatch, sourceId])
+        },
+        [dispatch, sourceId],
+    )
 
     return (
         <>
-            <Modal
-                centered
-                opened={showModal}
-                onClose={() => setShowModal(false)}
-                title="Input URL"
-                size={"md"}
-            >
-                <form onSubmit={form.onSubmit((values) => {
-                    setShowModal(false)
+            <Modal centered opened={showModal} onClose={() => setShowModal(false)} title="Input URL" size={"md"}>
+                <form
+                    onSubmit={form.onSubmit(values => {
+                        setShowModal(false)
 
-                    dispatch(actions.source.addFromUrl({
-                        url: values.url,
-                        type: SourceType.Geojson,
-                    }))
-                })}>
+                        dispatch(
+                            actions.source.addFromUrl({
+                                url: values.url,
+                                type: SourceType.Geojson,
+                            }),
+                        )
+                    })}
+                >
                     <TextInput
                         withAsterisk
                         label="URL"
@@ -77,7 +78,9 @@ export const SourcesTab: React.FC = () => {
                     />
 
                     <Group position="right" mt="md">
-                        <Button type="submit" size={"xs"}>Submit</Button>
+                        <Button type="submit" size={"xs"}>
+                            Submit
+                        </Button>
                     </Group>
                 </form>
             </Modal>
@@ -120,24 +123,16 @@ export const SourcesTab: React.FC = () => {
                 ]}
             />
 
-            <StyledAccordion
-                value={value}
-                onChange={setValue}
-                pt={"sm"}
-            >
+            <StyledAccordion value={value} onChange={setValue} pt={"sm"}>
                 <Accordion.Item value={"outline"}>
-                    <Accordion.Control>
-                        Outline
-                    </Accordion.Control>
+                    <Accordion.Control>Outline</Accordion.Control>
                     <Accordion.Panel>
                         <SourcesOutline />
                     </Accordion.Panel>
                 </Accordion.Item>
 
                 <Accordion.Item value={"source-properties"}>
-                    <Accordion.Control>
-                        Source
-                    </Accordion.Control>
+                    <Accordion.Control>Source</Accordion.Control>
                     <Accordion.Panel>
                         <SourcePanel />
                     </Accordion.Panel>

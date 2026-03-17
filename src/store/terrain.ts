@@ -1,7 +1,7 @@
-import type { TerrainSpecification } from "maplibre-gl"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
-import { RootState } from "."
+import type { TerrainSpecification } from "maplibre-gl"
+import type { RootState } from "."
 
 // Define a type for the slice state
 type TerrainState = {

@@ -1,7 +1,7 @@
-import { MapRef } from "react-map-gl/maplibre"
-import { useEffect } from "react"
-import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store"
+import { useAppSelector } from "@/store/hooks"
+import { useEffect } from "react"
+import type { MapRef } from "react-map-gl/maplibre"
 
 export default function useTileBoundaries(ref: MapRef | undefined) {
     const val = useAppSelector(selectors.tileBoundaries.show)

@@ -1,8 +1,8 @@
-// @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { renderHook, act } from "@testing-library/react"
 import { SourceType } from "@/types"
+import { act, renderHook } from "@testing-library/react"
 import type { Listener, MapEventType, MapLayerEventType } from "maplibre-gl"
+// @vitest-environment happy-dom
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@/store/hooks", () => ({
     useAppSelector: vi.fn(),
@@ -64,7 +64,9 @@ describe("useTileFeatures event listener behavior", () => {
         const map = makeMockMap()
         renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
 
-        act(() => { map.fire("idle") })
+        act(() => {
+            map.fire("idle")
+        })
 
         expect(map.queryRenderedFeatures).toHaveBeenCalledWith({ layers: [LAYER_ID] })
     })
@@ -73,8 +75,12 @@ describe("useTileFeatures event listener behavior", () => {
         const map = makeMockMap()
         renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
 
-        act(() => { map.fire("idle") })
-        act(() => { map.fire("idle") })
+        act(() => {
+            map.fire("idle")
+        })
+        act(() => {
+            map.fire("idle")
+        })
 
         expect(map.queryRenderedFeatures).toHaveBeenCalledTimes(1)
     })
@@ -83,9 +89,11 @@ describe("useTileFeatures event listener behavior", () => {
         const map = makeMockMap()
         renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
 
-        const idleHandler = map.on.mock.calls.find(([event]) => event === "idle")![1]
+        const idleHandler = map.on.mock.calls.find(([event]) => event === "idle")?.[1]
 
-        act(() => { map.fire("idle") })
+        act(() => {
+            map.fire("idle")
+        })
 
         expect(map.off).toHaveBeenCalledWith("idle", idleHandler)
     })
@@ -94,16 +102,16 @@ describe("useTileFeatures event listener behavior", () => {
         const map = makeMockMap()
         renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
 
-        act(() => { map.fire("moveend") })
+        act(() => {
+            map.fire("moveend")
+        })
 
         expect(map.queryRenderedFeatures).toHaveBeenCalledWith({ layers: [LAYER_ID] })
     })
 
     it("removes idle and moveend listeners on unmount", () => {
         const map = makeMockMap()
-        const { unmount } = renderHook(() =>
-            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }),
-        )
+        const { unmount } = renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
 
         unmount()
 
@@ -121,21 +129,19 @@ describe("useTileFeatures event listener behavior", () => {
         const map = makeMockMap()
         map.queryRenderedFeatures.mockReturnValue([feature])
 
-        const { result } = renderHook(() =>
-            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }),
-        )
+        const { result } = renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
 
         expect(result.current).toEqual([])
 
-        act(() => { map.fire("idle") })
+        act(() => {
+            map.fire("idle")
+        })
 
         expect(result.current).toEqual([feature])
     })
 
     it("does not register listeners when map is undefined", () => {
-        const { result } = renderHook(() =>
-            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: undefined }),
-        )
+        const { result } = renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: undefined }))
         expect(result.current).toEqual([])
     })
 })

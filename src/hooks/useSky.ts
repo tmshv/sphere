@@ -1,6 +1,6 @@
 import type { SkySpecification } from "maplibre-gl"
-import type { MapRef } from "react-map-gl/maplibre"
 import { useEffect } from "react"
+import type { MapRef } from "react-map-gl/maplibre"
 
 type MapWithSky = ReturnType<MapRef["getMap"]> & { setSky(sky?: SkySpecification): void }
 

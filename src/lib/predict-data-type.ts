@@ -25,14 +25,14 @@ export function isDate(value: string): boolean {
 
     const date = Date.parse(value)
 
-    return !isNaN(date)
+    return !Number.isNaN(date)
 }
 
 export function isUrl(value: string): boolean {
     try {
         new URL(value)
         return true
-    } catch (error) {
+    } catch (_error) {
         return false
     }
 }
@@ -54,11 +54,11 @@ export function predictType<K extends string, T extends string>(key: K, samples:
         // if (isDate(value)) {
         //     return "date"
         // }
-        const n = parseFloat(value)
-        if (typeof n === "number" && !isNaN(n) && isInt(n)) {
+        const n = Number.parseFloat(value)
+        if (typeof n === "number" && !Number.isNaN(n) && isInt(n)) {
             return "int"
         }
-        if (typeof n === "number" && !isNaN(n) && !isInt(n)) {
+        if (typeof n === "number" && !Number.isNaN(n) && !isInt(n)) {
             return "float"
         }
     }

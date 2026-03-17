@@ -1,19 +1,19 @@
+import { PhotoLayer, type PhotoLayerProps } from "@/components/PhotoLayer"
+import { assertUnreachable } from "@/lib"
+import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { LayerType } from "@/types"
-import { PointLayer } from "./PointLayer"
-import { assertUnreachable } from "@/lib"
-import { PhotoLayer, PhotoLayerProps } from "@/components/PhotoLayer"
-import { SphereLineStringLayer, SphereLineStringLayerProps } from "./ShpereLineStringLayer"
-import { SpherePolygonLayer, SpherePolygonLayerProps } from "./SpherePolygonLayer"
 import { createSelector } from "@reduxjs/toolkit"
-import type { GetImageFunction } from "../PhotoLayer/types"
-import type { RootState } from "@/store"
-import type { PointLayerProps } from "./PointLayer"
+import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
-import { DataDrivenPropertyValueSpecification } from "maplibre-gl"
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { GetImageFunction } from "../PhotoLayer/types"
+import { PointLayer } from "./PointLayer"
+import type { PointLayerProps } from "./PointLayer"
+import { SphereLineStringLayer, type SphereLineStringLayerProps } from "./ShpereLineStringLayer"
+import { SpherePolygonLayer, type SpherePolygonLayerProps } from "./SpherePolygonLayer"
 
-function createGetImageFunction({ srcField, valueField }: { srcField: string, valueField: string }): GetImageFunction {
+function createGetImageFunction({ srcField, valueField }: { srcField: string; valueField: string }): GetImageFunction {
     return properties => {
         const src = properties?.[srcField] as string
 
@@ -33,8 +33,20 @@ const select = createSelector(
         (state: RootState, id: string) => state.layer.items[id],
         // (state: RootState, id: string) => state.source.items[id],
     ],
-    (layer) => {
-        const { id: layerId, sourceId: rawSourceId, sourceLayer, type, visible, color, circle, heatmap, photo, extrusion, filter } = layer
+    layer => {
+        const {
+            id: layerId,
+            sourceId: rawSourceId,
+            sourceLayer,
+            type,
+            visible,
+            color,
+            circle,
+            heatmap,
+            photo,
+            extrusion,
+            filter,
+        } = layer
         const sourceId = filter ? `layer-${layerId}` : rawSourceId
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
@@ -77,12 +89,12 @@ const select = createSelector(
                 const h = extrusion?.height ?? 1
                 let height: DataDrivenPropertyValueSpecification<number> = extrusion?.height ?? h
                 if (extrusion?.heightField) {
-                    height = ["*", ["to-number", [ "get", extrusion.heightField ]], h]
+                    height = ["*", ["to-number", ["get", extrusion.heightField]], h]
                 }
                 const b = extrusion?.base ?? 1
                 let base: DataDrivenPropertyValueSpecification<number> = extrusion?.base ?? b
                 if (extrusion?.baseField) {
-                    base = ["*", ["to-number", [ "get", extrusion.baseField ]], b]
+                    base = ["*", ["to-number", ["get", extrusion.baseField]], b]
                 }
                 const opacity = 1
                 const props: LayerProps = {
@@ -126,13 +138,7 @@ const select = createSelector(
                         // ],
                         // Increase the heatmap color weight weight by zoom level
                         // heatmap-intensity is a multiplier on top of heatmap-weight
-                        "heatmap-intensity": [
-                            "interpolate",
-                            ["linear"],
-                            ["zoom"],
-                            0, 1,
-                            9, intensity,
-                        ],
+                        "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 1, 9, intensity],
                         // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
                         // Begin color ramp at 0-stop with a 0-transparancy color
                         // to create a blur-like effect.
@@ -154,13 +160,7 @@ const select = createSelector(
                             "rgb(178,24,43)",
                         ],
                         // Adjust the heatmap radius by zoom level
-                        "heatmap-radius": [
-                            "interpolate",
-                            ["linear"],
-                            ["zoom"],
-                            0, 2,
-                            9, radius,
-                        ],
+                        "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 9, radius],
                         // Transition from heatmap to circle layer by zoom level
                         // 'heatmap-opacity': [
                         //     'interpolate',
@@ -227,51 +227,26 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
     switch (type) {
         case "Point": {
             const p = props as PointLayerProps
-            return (
-                <PointLayer
-                    key={p.sourceId}
-                    {...p}
-                />
-            )
+            return <PointLayer key={p.sourceId} {...p} />
         }
         case "LineString": {
             const p = props as SphereLineStringLayerProps
-            return (
-                <SphereLineStringLayer
-                    key={p.sourceId}
-                    {...p}
-                />
-            )
+            return <SphereLineStringLayer key={p.sourceId} {...p} />
         }
         case "Polygon": {
             const p = props as SpherePolygonLayerProps
-            return (
-                <SpherePolygonLayer
-                    key={p.sourceId}
-                    {...p}
-                />
-            )
+            return <SpherePolygonLayer key={p.sourceId} {...p} />
         }
         case "layer": {
             const p = props as LayerProps & { source: string }
-            return (
-                <Layer
-                    key={p.source}
-                    {...p}
-                />
-            )
+            return <Layer key={p.source} {...p} />
         }
         case "photo": {
             const { visible, ...rest } = props as PhotoLayerProps & { visible: boolean }
             if (!visible) {
                 return null
             }
-            return (
-                <PhotoLayer
-                    key={(rest as PhotoLayerProps).sourceId}
-                    {...rest as PhotoLayerProps}
-                />
-            )
+            return <PhotoLayer key={(rest as PhotoLayerProps).sourceId} {...(rest as PhotoLayerProps)} />
         }
         case "unknown": {
             return null

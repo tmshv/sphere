@@ -1,4 +1,4 @@
-import { TileJSON } from "@/types/tilejson"
+import type { TileJSON } from "@/types/tilejson"
 import { invoke } from "@tauri-apps/api/core"
 
 type Tile = {
@@ -8,8 +8,7 @@ type Tile = {
 }
 
 export class MbtilesReader {
-    constructor(private id: string) {
-    }
+    constructor(private id: string) {}
 
     public async getTileJson(): Promise<TileJSON | null> {
         try {
@@ -17,7 +16,7 @@ export class MbtilesReader {
                 id: this.id,
             })
             return this.parse(res)
-        } catch (error) {
+        } catch (_error) {
             return null
         }
     }
@@ -37,6 +36,6 @@ export class MbtilesReader {
     }
 
     async parse(value: string) {
-        return (new Response(value)).json()
+        return new Response(value).json()
     }
 }

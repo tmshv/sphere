@@ -1,18 +1,21 @@
+import { type Id, type SourceMetadata, SourceType } from "@/types"
+import type { FeatureCollecionSource, Source } from "@/types/source"
+import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import addFromUrl from "./addFromUrl"
-import reload from "./reload"
-import empty from "./empty"
-import { showProperties } from "./showProperties"
 import type { RootState } from ".."
 import { drawSlice } from "../draw"
-import { Id, SourceMetadata, SourceType } from "@/types"
-import type { TileJSON } from "@/types/tilejson"
-import type { FeatureCollecionSource, Source } from "@/types/source"
+import addFromUrl from "./addFromUrl"
+import empty from "./empty"
+import reload from "./reload"
+import { showProperties } from "./showProperties"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
-export function computeGeometryMeta(fc: GeoJSON.FeatureCollection, columns: Record<string, string> = {}): SourceMetadata {
+export function computeGeometryMeta(
+    fc: GeoJSON.FeatureCollection,
+    columns: Record<string, string> = {},
+): SourceMetadata {
     let pointsCount = 0
     let linesCount = 0
     let polygonsCount = 0
@@ -50,11 +53,14 @@ export const sourceSlice = createSlice({
             state.allIds = []
             state.lastAdded = undefined
         },
-        addFeatureCollection: (state, action: PayloadAction<{
-            id: Id,
-            name: string,
-            dataset: GeoJSON.FeatureCollection,
-        }>) => {
+        addFeatureCollection: (
+            state,
+            action: PayloadAction<{
+                id: Id
+                name: string
+                dataset: GeoJSON.FeatureCollection
+            }>,
+        ) => {
             const { id: sourceId, name, dataset } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
@@ -74,19 +80,25 @@ export const sourceSlice = createSlice({
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
-        setData: (state, action: PayloadAction<{ id: Id, dataset: GeoJSON.FeatureCollection, meta: SourceMetadata }>) => {
+        setData: (
+            state,
+            action: PayloadAction<{ id: Id; dataset: GeoJSON.FeatureCollection; meta: SourceMetadata }>,
+        ) => {
             const { id, dataset, meta } = action.payload
             const source = state.items[id] as FeatureCollecionSource
             source.dataset = dataset
             source.meta = meta
             source.pending = false
         },
-        addGeojsonSource: (state, action: PayloadAction<{
-            id: Id,
-            name: string,
-            location: string,
-            meta: SourceMetadata,
-        }>) => {
+        addGeojsonSource: (
+            state,
+            action: PayloadAction<{
+                id: Id
+                name: string
+                location: string
+                meta: SourceMetadata
+            }>,
+        ) => {
             const { id, name, location, meta } = action.payload
             state.items[id] = {
                 id,
@@ -101,13 +113,16 @@ export const sourceSlice = createSlice({
             state.allIds.push(id)
             state.lastAdded = id
         },
-        addMVTSource: (state, action: PayloadAction<{
-            id: Id,
-            name: string,
-            location: string,
-            tilejson: TileJSON,
-            sourceLayers?: { name: string, id: string }[],
-        }>) => {
+        addMVTSource: (
+            state,
+            action: PayloadAction<{
+                id: Id
+                name: string
+                location: string
+                tilejson: TileJSON
+                sourceLayers?: { name: string; id: string }[]
+            }>,
+        ) => {
             const { id, name, location, tilejson, sourceLayers } = action.payload
             state.items[id] = {
                 id,
@@ -123,12 +138,15 @@ export const sourceSlice = createSlice({
             state.allIds.push(id)
             state.lastAdded = id
         },
-        addRasterSource: (state, action: PayloadAction<{
-            id: Id,
-            name: string,
-            location: string,
-            sourceLayers?: { name: string, id: string }[],
-        }>) => {
+        addRasterSource: (
+            state,
+            action: PayloadAction<{
+                id: Id
+                name: string
+                location: string
+                sourceLayers?: { name: string; id: string }[]
+            }>,
+        ) => {
             const { id: sourceId, name, location } = action.payload
             state.items[sourceId] = {
                 id: sourceId,
@@ -150,11 +168,11 @@ export const sourceSlice = createSlice({
                 state.lastAdded = undefined
             }
         },
-        setName: (state, action: PayloadAction<{ id: Id, value: string }>) => {
+        setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
             const { id: sourceId, value } = action.payload
             state.items[sourceId].name = value
         },
-        setGeojsonMeta: (state, action: PayloadAction<{ id: Id, meta: SourceMetadata }>) => {
+        setGeojsonMeta: (state, action: PayloadAction<{ id: Id; meta: SourceMetadata }>) => {
             const { id, meta } = action.payload
             const source = state.items[id]
             if (source?.type === SourceType.Geojson) {
@@ -163,15 +181,14 @@ export const sourceSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder
-            .addCase(drawSlice.actions.done, (state, action) => {
-                const { sourceId: id, featureCollection } = action.payload
-                const source = state.items[id]
-                if (source.type === SourceType.FeatureCollection && !source.pending) {
-                    source.dataset = featureCollection
-                    source.meta = computeGeometryMeta(featureCollection)
-                }
-            })
+        builder.addCase(drawSlice.actions.done, (state, action) => {
+            const { sourceId: id, featureCollection } = action.payload
+            const source = state.items[id]
+            if (source.type === SourceType.FeatureCollection && !source.pending) {
+                source.dataset = featureCollection
+                source.meta = computeGeometryMeta(featureCollection)
+            }
+        })
     },
     selectors: {
         allIds: state => state.allIds,

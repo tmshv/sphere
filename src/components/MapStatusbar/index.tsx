@@ -1,20 +1,29 @@
-import { useCallback, useMemo } from "react"
-import { useMap } from "react-map-gl/maplibre"
-import { ActionIcon, Badge, MantineProvider, MantineTheme, createStyles } from "@mantine/core"
-import { Statusbar } from "@/ui/Statusbar"
+import { MAP_ID } from "@/const"
 import { useCursor } from "@/hooks/useCursor"
-import { useZoom } from "@/hooks/useZoom"
 import { usePitch } from "@/hooks/usePitch"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { selectSourcesAmount } from "@/store/source"
-import { IconLayoutSidebar, IconLiveView, IconMountain, IconMountainOff, IconNorthStar, IconSatellite, IconWorld, IconWorldOff } from "@tabler/icons"
+import { useZoom } from "@/hooks/useZoom"
 import { actions } from "@/store"
 import { selectors } from "@/store"
 import { selectShowLeftSidebar, selectVersion } from "@/store/app"
-import { selectIsShowTerrain } from "@/store/terrain"
 import { selectErrorMessage } from "@/store/error"
-import { MAP_ID } from "@/const"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { selectSourcesAmount } from "@/store/source"
+import { selectIsShowTerrain } from "@/store/terrain"
+import { Statusbar } from "@/ui/Statusbar"
+import { ActionIcon, Badge, MantineProvider, type MantineTheme, createStyles } from "@mantine/core"
 import type { ActionIconProps } from "@mantine/core"
+import {
+    IconLayoutSidebar,
+    IconLiveView,
+    IconMountain,
+    IconMountainOff,
+    IconNorthStar,
+    IconSatellite,
+    IconWorld,
+    IconWorldOff,
+} from "@tabler/icons"
+import { useCallback, useMemo } from "react"
+import { useMap } from "react-map-gl/maplibre"
 
 const useStyle = createStyles(theme => ({
     s: {
@@ -132,23 +141,26 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
         }
     }, [dispatch, isGlobe])
 
-    const mantineTheme = useMemo(() => ({
-        components: {
-            ActionIcon: {
-                defaultProps: (theme: MantineTheme) => ({
-                    ...actionIconDefaultProps,
-                    className: s.icon,
-                    sx: {
-                        "&[data-disabled]": {
-                            backgroundColor: "#00000000",
-                            color: theme.colors.gray[8],
-                            border: "none",
+    const mantineTheme = useMemo(
+        () => ({
+            components: {
+                ActionIcon: {
+                    defaultProps: (theme: MantineTheme) => ({
+                        ...actionIconDefaultProps,
+                        className: s.icon,
+                        sx: {
+                            "&[data-disabled]": {
+                                backgroundColor: "#00000000",
+                                color: theme.colors.gray[8],
+                                border: "none",
+                            },
                         },
-                    },
-                }),
+                    }),
+                },
             },
-        },
-    }), [s.icon])
+        }),
+        [s.icon],
+    )
 
     return (
         <Statusbar>
@@ -157,13 +169,23 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                     <IconLayoutSidebar size={16} />
                 </ActionIcon>
 
-                <Badge className={s.widget} radius={"sm"} size="sm" variant="light">sources={sources}</Badge>
+                <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
+                    sources={sources}
+                </Badge>
 
-                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">pitch={format(round(pitch, 1000), 3)}</Badge>
-                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">zoom={format(round(zoom, 1000), 3)}</Badge>
+                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
+                    pitch={format(round(pitch, 1000), 3)}
+                </Badge>
+                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
+                    zoom={format(round(zoom, 1000), 3)}
+                </Badge>
 
-                <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">lng={format(round(lng, 1000000), 5)}</Badge>
-                <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">lat={format(round(lat, 1000000), 5)}</Badge>
+                <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">
+                    lng={format(round(lng, 1000000), 5)}
+                </Badge>
+                <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">
+                    lat={format(round(lat, 1000000), 5)}
+                </Badge>
 
                 {!errorMessage ? null : (
                     <Badge className={cx(s.widget, s.error)} title={"Error"} radius={"sm"} size="sm" variant="filled">
@@ -184,25 +206,19 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                     <IconSatellite size={16} />
                 </ActionIcon>
                 <ActionIcon disabled onClick={toggleTerrain}>
-                    {terrain ? (
-                        <IconMountain size={16} />
-                    ) : (
-                        <IconMountainOff size={16} />
-                    )}
+                    {terrain ? <IconMountain size={16} /> : <IconMountainOff size={16} />}
                 </ActionIcon>
                 <ActionIcon
                     color={isGlobe ? "yellow" : undefined}
                     disabled={!changeProjection}
                     onClick={toggleProjection}
                 >
-                    {isGlobe ? (
-                        <IconWorld size={16} />
-                    ) : (
-                        <IconWorldOff size={16} />
-                    )}
+                    {isGlobe ? <IconWorld size={16} /> : <IconWorldOff size={16} />}
                 </ActionIcon>
 
-                <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">Sphere {version}</Badge>
+                <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">
+                    Sphere {version}
+                </Badge>
             </MantineProvider>
         </Statusbar>
     )

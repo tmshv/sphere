@@ -1,16 +1,16 @@
-import { useState } from "react"
-import { Navbar, Tooltip, UnstyledButton, createStyles, Stack } from "@mantine/core"
+import { Navbar, Stack, Tooltip, UnstyledButton, createStyles } from "@mantine/core"
 import {
-    TablerIcon,
-    IconHome2,
-    IconGauge,
+    IconCalendarStats,
     IconDeviceDesktopAnalytics,
     IconFingerprint,
-    IconCalendarStats,
+    IconGauge,
+    IconHome2,
     IconUser,
+    type TablerIcon,
 } from "@tabler/icons"
+import { useState } from "react"
 
-const useStyles = createStyles((theme) => {
+const useStyles = createStyles(theme => {
     const dark = theme.colorScheme === "dark"
 
     return {
@@ -21,9 +21,7 @@ const useStyles = createStyles((theme) => {
             //     ? "#0f0f0f"
             //     : "#f0f0f0",
             // border: "none",
-            border: dark
-                ? "1px solid #0f0f0f"
-                : "1px solid #f0f0f0",
+            border: dark ? "1px solid #0f0f0f" : "1px solid #f0f0f0",
             borderRadius: theme.radius.md,
         },
         horizontal: {
@@ -38,14 +36,10 @@ const useStyles = createStyles((theme) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: dark
-                ? theme.colors.dark[0]
-                : theme.colors.gray[7],
+            color: dark ? theme.colors.dark[0] : theme.colors.gray[7],
 
             "&:hover": {
-                backgroundColor: dark
-                    ? theme.colors.dark[5]
-                    : theme.colors.gray[0],
+                backgroundColor: dark ? theme.colors.dark[5] : theme.colors.gray[0],
             },
         },
 
@@ -59,10 +53,10 @@ const useStyles = createStyles((theme) => {
 })
 
 export type NavbarLinkProps = {
-    icon: TablerIcon;
-    label: string;
-    active?: boolean;
-    onClick?(): void;
+    icon: TablerIcon
+    label: string
+    active?: boolean
+    onClick?(): void
 }
 
 export const NavbarLink: React.FC<NavbarLinkProps> = ({ icon: Icon, label, active, onClick }: NavbarLinkProps) => {
@@ -95,12 +89,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ horizontal = false }) => {
     const { classes: s, cx } = useStyles()
 
     const links = mockdata.map((link, index) => (
-        <NavbarLink
-            {...link}
-            key={link.label}
-            active={index === active}
-            onClick={() => setActive(index)}
-        />
+        <NavbarLink {...link} key={link.label} active={index === active} onClick={() => setActive(index)} />
     ))
 
     return (
@@ -110,8 +99,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ horizontal = false }) => {
             p="sm"
             className={s.nav}
         >
-            <Stack justify="center" spacing={"sm"} className={cx({ [s.horizontal]: horizontal })}
-            >
+            <Stack justify="center" spacing={"sm"} className={cx({ [s.horizontal]: horizontal })}>
                 {links}
             </Stack>
         </Navbar>

@@ -1,18 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit"
-import projection from "./projection"
-import tileBoundaries from "./tile-boundaries"
-import mapStyle from "./mapStyle"
-import sky from "./sky"
-import terrain from "./terrain"
-import source from "./source"
-import layer from "./layer"
-import selection from "./selection"
-import properties from "./properties"
 import app from "./app"
 import draw from "./draw"
-import { listener as mapListener } from "./map"
 import error from "./error"
+import layer from "./layer"
 import * as listeners from "./listeners"
+import { listener as mapListener } from "./map"
+import mapStyle from "./mapStyle"
+import projection from "./projection"
+import properties from "./properties"
+import selection from "./selection"
+import sky from "./sky"
+import source from "./source"
+import terrain from "./terrain"
+import tileBoundaries from "./tile-boundaries"
 export { actions } from "./actions"
 export { selectors } from "./selectors"
 
@@ -31,7 +31,7 @@ export const store = configureStore({
         selection,
         properties,
     },
-    middleware: (getDefaultMiddleWare) => {
+    middleware: getDefaultMiddleWare => {
         return getDefaultMiddleWare()
             .prepend(mapListener.middleware)
             .prepend(listeners.addBlankLayer.middleware)

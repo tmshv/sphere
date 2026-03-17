@@ -24,7 +24,9 @@ export function Select({ value, options, className, onChange }: SelectProps) {
             }}
         >
             {options.map(x => (
-                <option key={x} value={x}>{x}</option>
+                <option key={x} value={x}>
+                    {x}
+                </option>
             ))}
         </select>
     )

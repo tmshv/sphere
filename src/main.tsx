@@ -1,15 +1,15 @@
 import "@/style.css"
 
+import App from "@/components/App"
+import { SphereThemeProvider } from "@/components/SphereThemeProvider"
+import { setupMaplibre } from "@/maplibre"
+import { store } from "@/store"
+import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
+import { RootErrorFallback } from "@/ui/ErrorFallback/RootErrorFallback"
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { Provider } from "react-redux"
 import { ErrorBoundary } from "react-error-boundary"
-import App from "@/components/App"
-import { store } from "@/store"
-import { SphereThemeProvider } from "@/components/SphereThemeProvider"
-import { RootErrorFallback } from "@/ui/ErrorFallback/RootErrorFallback"
-import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
-import { setupMaplibre } from "@/maplibre"
+import { Provider } from "react-redux"
 
 async function main() {
     setupMaplibre()

@@ -20,16 +20,16 @@ export async function get<T>(url: string): Promise<ErrorResponse | OkResponse<T>
                 ok: true,
                 data,
             }
-        } else if (response.status === 404) {
+        }
+        if (response.status === 404) {
             return {
                 ok: false,
                 error: "Not found",
             }
-        } else {
-            return {
-                ok: false,
-                error: "Unknown",
-            }
+        }
+        return {
+            ok: false,
+            error: "Unknown",
         }
     } catch (error) {
         // "Network Error: Io Error: failed to lookup address information: nodename nor servname provided, or not known: Io Error: failed to looku…"

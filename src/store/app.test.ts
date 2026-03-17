@@ -1,10 +1,25 @@
-import { describe, test, expect } from "vitest"
-import reducer, { appSlice, selectShowAttribution, selectShowLeftSidebar, selectShowRightSidebar, selectVersion } from "./app"
+import { describe, expect, test } from "vitest"
+import reducer, {
+    appSlice,
+    selectShowAttribution,
+    selectShowLeftSidebar,
+    selectShowRightSidebar,
+    selectVersion,
+} from "./app"
 
-const { setVersion, toggleZenMode, toggleDarkTheme, setDarkTheme, showLeftSidebar, hideLeftSidebar, showRightSidebar, hideRightSidebar } = appSlice.actions
+const {
+    setVersion,
+    toggleZenMode,
+    toggleDarkTheme,
+    setDarkTheme,
+    showLeftSidebar,
+    hideLeftSidebar,
+    showRightSidebar,
+    hideRightSidebar,
+} = appSlice.actions
 const { isZen, isDark } = appSlice.selectors
 
-const makeRootState = (app: object) => ({ app } as any)
+const makeRootState = (app: object) => ({ app }) as any
 
 describe("appSlice reducer", () => {
     test("initial state", () => {
@@ -27,7 +42,14 @@ describe("appSlice reducer", () => {
     })
 
     test("toggleZenMode toggles from true to false", () => {
-        const prev = { version: "", zenMode: true, darkTheme: false, showAttribution: false, showLeftSidebar: true, showRightSidebar: true }
+        const prev = {
+            version: "",
+            zenMode: true,
+            darkTheme: false,
+            showAttribution: false,
+            showLeftSidebar: true,
+            showRightSidebar: true,
+        }
         const state = reducer(prev, toggleZenMode())
         expect(state.zenMode).toBe(false)
     })
@@ -38,7 +60,14 @@ describe("appSlice reducer", () => {
     })
 
     test("toggleDarkTheme toggles from true to false", () => {
-        const prev = { version: "", zenMode: false, darkTheme: true, showAttribution: false, showLeftSidebar: true, showRightSidebar: true }
+        const prev = {
+            version: "",
+            zenMode: false,
+            darkTheme: true,
+            showAttribution: false,
+            showLeftSidebar: true,
+            showRightSidebar: true,
+        }
         const state = reducer(prev, toggleDarkTheme())
         expect(state.darkTheme).toBe(false)
     })
@@ -49,13 +78,27 @@ describe("appSlice reducer", () => {
     })
 
     test("setDarkTheme sets darkTheme to false", () => {
-        const prev = { version: "", zenMode: false, darkTheme: true, showAttribution: false, showLeftSidebar: true, showRightSidebar: true }
+        const prev = {
+            version: "",
+            zenMode: false,
+            darkTheme: true,
+            showAttribution: false,
+            showLeftSidebar: true,
+            showRightSidebar: true,
+        }
         const state = reducer(prev, setDarkTheme(false))
         expect(state.darkTheme).toBe(false)
     })
 
     test("showLeftSidebar sets showLeftSidebar to true", () => {
-        const prev = { version: "", zenMode: false, darkTheme: false, showAttribution: false, showLeftSidebar: false, showRightSidebar: true }
+        const prev = {
+            version: "",
+            zenMode: false,
+            darkTheme: false,
+            showAttribution: false,
+            showLeftSidebar: false,
+            showRightSidebar: true,
+        }
         const state = reducer(prev, showLeftSidebar())
         expect(state.showLeftSidebar).toBe(true)
     })
@@ -66,7 +109,14 @@ describe("appSlice reducer", () => {
     })
 
     test("showRightSidebar sets showRightSidebar to true", () => {
-        const prev = { version: "", zenMode: false, darkTheme: false, showAttribution: false, showLeftSidebar: true, showRightSidebar: false }
+        const prev = {
+            version: "",
+            zenMode: false,
+            darkTheme: false,
+            showAttribution: false,
+            showLeftSidebar: true,
+            showRightSidebar: false,
+        }
         const state = reducer(prev, showRightSidebar())
         expect(state.showRightSidebar).toBe(true)
     })

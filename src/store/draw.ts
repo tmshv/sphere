@@ -10,8 +10,7 @@ type DrawState = {
 }
 
 // Define the initial state using that type
-const initialState: DrawState = {
-}
+const initialState: DrawState = {}
 
 export const drawSlice = createSlice({
     name: "draw",
@@ -20,7 +19,7 @@ export const drawSlice = createSlice({
         start: (state, action: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = action.payload.sourceId
         },
-        done: (state, _: PayloadAction<{ sourceId: Id, featureCollection: GeoJSON.FeatureCollection }>) => {
+        done: (state, _: PayloadAction<{ sourceId: Id; featureCollection: GeoJSON.FeatureCollection }>) => {
             state.sourceId = undefined
         },
         reset: state => {

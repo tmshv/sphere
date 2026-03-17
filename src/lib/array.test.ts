@@ -48,6 +48,10 @@ describe("lib/array/zip", () => {
     test("zips two arrays into an array of tuples", () => {
         const a = ["a", "b", "c"]
         const b = [1, 2, 3]
-        expect(zip(a, b)).toEqual([["a", 1], ["b", 2], ["c", 3]])
+        expect(zip(a, b)).toEqual([
+            ["a", 1],
+            ["b", 2],
+            ["c", 3],
+        ])
     })
 })

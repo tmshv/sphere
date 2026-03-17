@@ -1,12 +1,11 @@
-import { listen, type UnlistenFn } from "@tauri-apps/api/event"
-import { getCurrentWindow } from "@tauri-apps/api/window"
-import { getVersion } from "@tauri-apps/api/app"
 import { actions, store } from "@/store"
+import { getVersion } from "@tauri-apps/api/app"
+import { type UnlistenFn, listen } from "@tauri-apps/api/event"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 
 export async function handleHotkey() {
     // await register('CommandOrControl+Shift+C', () => {
     // let hotkey = ""
-
     // hotkey = 'CommandOrControl+Z'
     // if (!await isRegistered(hotkey)) {
     //   await register('CommandOrControl+Z', () => {
@@ -14,7 +13,6 @@ export async function handleHotkey() {
     //     store.dispatch(actions.undo())
     //   })
     // }
-
     // hotkey = 'CommandOrControl+Shift+Z'
     // if (!await isRegistered(hotkey)) {
     //   await register('CommandOrControl+Shift+Z', () => {
@@ -31,7 +29,7 @@ export async function handleTheme(): Promise<UnlistenFn> {
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     }
 
-    return listen("tauri://theme-changed", (event) => {
+    return listen("tauri://theme-changed", event => {
         const theme = event.payload as string
         store.dispatch(actions.app.setDarkTheme(theme === "dark"))
     })
@@ -51,7 +49,7 @@ export async function handleDragDrop(): Promise<UnlistenFn> {
         paths: string[]
     }
 
-    return listen<DragPayload>(e, (event) => {
+    return listen<DragPayload>(e, event => {
         store.dispatch(actions.addMultipleFiles(event.payload.paths))
     })
 }

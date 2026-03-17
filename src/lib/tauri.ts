@@ -1,5 +1,5 @@
-import { listen } from "@tauri-apps/api/event"
 import { sleep } from "@/lib/time"
+import { listen } from "@tauri-apps/api/event"
 
 export async function waitEvent<T>(event: string): Promise<T> {
     let wait = true

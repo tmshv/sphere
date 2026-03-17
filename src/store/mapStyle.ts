@@ -1,8 +1,8 @@
+import { STYLE_OSM, STYLE_SATELLITE, STYLE_VECTOR } from "@/const"
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { castDraft } from "immer"
 import type { StyleSpecification } from "maplibre-gl"
-import { STYLE_OSM, STYLE_VECTOR, STYLE_SATELLITE } from "@/const"
 
 type MapStyle = string | StyleSpecification
 

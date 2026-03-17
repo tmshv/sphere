@@ -1,14 +1,15 @@
-import { describe, test, expect } from "vitest"
-import { selectors, selectMapStyle, selectChangeProjectionAvailable } from "./selectors"
 import { STYLE_OSM } from "@/const"
+import { describe, expect, test } from "vitest"
+import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
 
-const makeRootState = (overrides: Record<string, any> = {}) => ({
-    draw: { sourceId: undefined },
-    projection: { value: "globe" },
-    mapStyle: { value: "some-style" },
-    layer: { items: {}, allIds: [] },
-    ...overrides,
-} as any)
+const makeRootState = (overrides: Record<string, any> = {}) =>
+    ({
+        draw: { sourceId: undefined },
+        projection: { value: "globe" },
+        mapStyle: { value: "some-style" },
+        layer: { items: {}, allIds: [] },
+        ...overrides,
+    }) as any
 
 describe("selectProjection", () => {
     test("returns state projection when not drawing", () => {

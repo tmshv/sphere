@@ -1,5 +1,5 @@
-import { createStyles, Image } from "@mantine/core"
 import { isUrl } from "@/lib/predict-data-type"
+import { Image, createStyles } from "@mantine/core"
 import { CopyButton } from "./CopyButton"
 
 const useStyles = createStyles(theme => ({
@@ -18,7 +18,7 @@ const useStyles = createStyles(theme => ({
 }))
 
 export type PropertiesViewerProps = {
-    properties: { key: string, value: string }[]
+    properties: { key: string; value: string }[]
     checkUrls?: boolean
 }
 
@@ -33,15 +33,9 @@ export const PropertiesViewer: React.FC<PropertiesViewerProps> = ({ properties, 
                         <td className={s.key}>{key}</td>
                         <td className={s.value}>
                             {checkUrls && isUrl(value) ? (
-                                <Image
-                                    src={value}
-                                    width={120}
-                                    height={120}
-                                />
+                                <Image src={value} width={120} height={120} />
                             ) : (
-                                <span>
-                                    {value}
-                                </span>
+                                <span>{value}</span>
                             )}
                         </td>
                         <td>

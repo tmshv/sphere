@@ -1,9 +1,9 @@
-import { ClustersOptions, useClusters } from "@/hooks/useClusters"
-import { useMemo } from "react"
 import { MAP_ID } from "@/const"
+import { type ClustersOptions, useClusters } from "@/hooks/useClusters"
+import { useMemo } from "react"
 
 export type RenderPhotoFunction = (feature: GeoJSON.Feature<GeoJSON.Point>, isCluster: boolean) => React.ReactNode
-export type MapPropertiesFunction = (properties: GeoJSON.GeoJsonProperties) => { src: string, value: number }
+export type MapPropertiesFunction = (properties: GeoJSON.GeoJsonProperties) => { src: string; value: number }
 
 type GeojsonProps = {
     [key: string]: string | number
@@ -17,20 +17,23 @@ export type PhotoClusterProps = {
 }
 
 export const PhotoCluster: React.FC<PhotoClusterProps> = ({ radius, data, mapProperties, renderPhoto }) => {
-    const options = useMemo<ClustersOptions<GeojsonProps, GeojsonProps>>(() => ({
-        minZoom: 0,
-        maxZoom: 22,
-        radius,
-        extent: 512,
-        nodeSize: 64,
-        map: mapProperties,
-        reduce: (acc, props) => {
-            if (acc.value < props.value) {
-                acc.value = props.value
-                acc.src = props.src
-            }
-        },
-    }), [radius, mapProperties])
+    const options = useMemo<ClustersOptions<GeojsonProps, GeojsonProps>>(
+        () => ({
+            minZoom: 0,
+            maxZoom: 22,
+            radius,
+            extent: 512,
+            nodeSize: 64,
+            map: mapProperties,
+            reduce: (acc, props) => {
+                if (acc.value < props.value) {
+                    acc.value = props.value
+                    acc.src = props.src
+                }
+            },
+        }),
+        [radius, mapProperties],
+    )
     const { clusters } = useClusters<GeojsonProps, GeojsonProps>(MAP_ID, data, "moveend", options)
 
     return (

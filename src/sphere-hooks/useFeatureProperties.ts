@@ -1,9 +1,9 @@
-import { MapGeoJSONFeature, MapRef } from "react-map-gl/maplibre"
-import { useEffect } from "react"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { actions } from "@/store"
-import { selectCurrentLayer } from "@/store/selection"
 import useFeatureClick from "@/hooks/useFeatureClick"
+import { actions } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { selectCurrentLayer } from "@/store/selection"
+import { useEffect } from "react"
+import type { MapGeoJSONFeature, MapRef } from "react-map-gl/maplibre"
 
 export default function useFeatureProperties(ref: MapRef | undefined, delay: number) {
     const dispatch = useAppDispatch()
@@ -15,9 +15,11 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             dispatch(actions.properties.reset())
             return
         }
-        dispatch(actions.properties.set({
-            values: features.map(f => f.properties),
-        }))
+        dispatch(
+            actions.properties.set({
+                values: features.map(f => f.properties),
+            }),
+        )
     }, [dispatch, features])
 
     useEffect(() => {
@@ -30,7 +32,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             return
         }
 
-        const enter = map.on("mousemove", layerId, (event) => {
+        const enter = map.on("mousemove", layerId, event => {
             if (features) {
                 return
             }
@@ -45,21 +47,21 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             // Collect values from all selected features
             // Drop duplicates and undefined ids
             const seen = new Set<MapGeoJSONFeature["id"]>()
-            const values = event.features
-                .reduce((acc, f) => {
-                    if (f.id === undefined) {
-                        return [...acc, f]
-                    }
-                    if (seen.has(f.id)) {
-                        return acc
-                    }
+            const deduped: MapGeoJSONFeature[] = []
+            for (const f of event.features) {
+                if (f.id === undefined) {
+                    deduped.push(f)
+                } else if (!seen.has(f.id)) {
                     seen.add(f.id)
-                    return [...acc, f]
-                }, [] as MapGeoJSONFeature[])
-                .map(f => f.properties)
-            dispatch(actions.properties.set({
-                values,
-            }))
+                    deduped.push(f)
+                }
+            }
+            const values = deduped.map(f => f.properties)
+            dispatch(
+                actions.properties.set({
+                    values,
+                }),
+            )
         })
         const leave = map.on("mouseout", layerId, () => {
             if (features) {

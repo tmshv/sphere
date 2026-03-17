@@ -1,9 +1,9 @@
-import { describe, test, expect } from "vitest"
-import { selectSource } from "./SphereSource"
 import { SourceType } from "@/types"
+import { describe, expect, test } from "vitest"
+import { selectSource } from "./SphereSource"
 
 function makeState(source: object) {
-    return { source: { items: { "src1": { id: "src1", name: "test", fractionIndex: 0, ...source } } } } as any
+    return { source: { items: { src1: { id: "src1", name: "test", fractionIndex: 0, ...source } } } } as any
 }
 
 describe("selectSource MVT", () => {

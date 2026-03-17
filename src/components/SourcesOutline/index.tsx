@@ -1,34 +1,33 @@
-import { useAppDispatch, useAppSelector } from "../../store/hooks"
-import { IconBraces } from "@tabler/icons"
-import { useMantineTheme } from "@mantine/core"
 import { actions, selectors } from "@/store"
-import { Outline, OutlineOnMove, OutlineRenderItem } from "@/ui/Outline"
-import { useCallback } from "react"
+import { Outline, type OutlineOnMove, type OutlineRenderItem } from "@/ui/Outline"
 import { OutlineItem } from "@/ui/Outline/OutlineItem"
+import { useMantineTheme } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
+import { IconBraces } from "@tabler/icons"
+import { useCallback } from "react"
+import { useAppDispatch, useAppSelector } from "../../store/hooks"
 
-const selector = createSelector([ selectors.selection.currentSourceId, selectors.source.items, selectors.source.allIds ],
-    (currentId, items, allIds) => allIds.map(id => {
-        const s = items[id]
-        return {
-            id,
-            active: id === currentId,
-            name: s.name,
-            type: s.type,
-        }
-    }),
+const selector = createSelector(
+    [selectors.selection.currentSourceId, selectors.source.items, selectors.source.allIds],
+    (currentId, items, allIds) =>
+        allIds.map(id => {
+            const s = items[id]
+            return {
+                id,
+                active: id === currentId,
+                name: s.name,
+                type: s.type,
+            }
+        }),
 )
 
 export const SourcesOutline: React.FC = () => {
     const theme = useMantineTheme()
-    const getColor = useCallback(
-        (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7],
-        [theme],
-    )
+    const getColor = useCallback((color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7], [theme])
     const dispatch = useAppDispatch()
     const items = useAppSelector(selector)
 
-    const moveItem = useCallback<OutlineOnMove<typeof items[0]>>((drag, hover) => {
+    const moveItem = useCallback<OutlineOnMove<(typeof items)[0]>>((_drag, _hover) => {
         // if (drag.index < hover.index) {
         //     dispatch(actions.layer.setPositionAfter({
         //         layerId: drag.id,
@@ -42,29 +41,25 @@ export const SourcesOutline: React.FC = () => {
         // }
     }, [])
 
-    const renderItem = useCallback<OutlineRenderItem<typeof items[0]>>(({ id, name, type, active }) => {
-        return (
-            <OutlineItem
-                label={name}
-                active={active}
-                onClick={() => {
-                    dispatch(actions.selection.selectSource({
-                        sourceId: id,
-                    }))
-                }}
-                icon={(
-                    <IconBraces size={16} color={getColor("blue")} />
-                )}
-            />
-        )
-    }, [dispatch, getColor])
-
-    return (
-        <Outline
-            draggable={false}
-            items={items}
-            onMove={moveItem}
-            renderItem={renderItem}
-        />
+    const renderItem = useCallback<OutlineRenderItem<(typeof items)[0]>>(
+        ({ id, name, active }) => {
+            return (
+                <OutlineItem
+                    label={name}
+                    active={active}
+                    onClick={() => {
+                        dispatch(
+                            actions.selection.selectSource({
+                                sourceId: id,
+                            }),
+                        )
+                    }}
+                    icon={<IconBraces size={16} color={getColor("blue")} />}
+                />
+            )
+        },
+        [dispatch, getColor],
     )
+
+    return <Outline draggable={false} items={items} onMove={moveItem} renderItem={renderItem} />
 }

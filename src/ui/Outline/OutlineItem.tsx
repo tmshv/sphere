@@ -1,5 +1,5 @@
-import { Center, createStyles, Flex, UnstyledButton } from "@mantine/core"
-import { MouseEventHandler, ReactNode } from "react"
+import { Center, Flex, UnstyledButton, createStyles } from "@mantine/core"
+import type { MouseEventHandler, ReactNode } from "react"
 
 const useStyle = createStyles(theme => ({
     button: {
@@ -49,10 +49,7 @@ export const OutlineItem: React.FC<OutlineItemProps> = ({ label, active, icon, e
                     {icon}
                 </Center>
             )}
-            <UnstyledButton
-                className={cx(s.button, { [s.active]: active })}
-                onClick={onClick}
-            >
+            <UnstyledButton className={cx(s.button, { [s.active]: active })} onClick={onClick}>
                 {label}
             </UnstyledButton>
             {extra}

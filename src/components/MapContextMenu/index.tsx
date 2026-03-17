@@ -1,8 +1,8 @@
+import { useCursor } from "@/hooks/useCursor"
+import { ContextMenu } from "@/ui/ContextMenu"
 import { CopyButton, Menu, Text } from "@mantine/core"
 import { IconCopy, IconSearch } from "@tabler/icons"
 import { useMap } from "react-map-gl/maplibre"
-import { useCursor } from "@/hooks/useCursor"
-import { ContextMenu } from "@/ui/ContextMenu"
 
 export type LocationToString = (coord: [number, number]) => string
 
@@ -20,12 +20,7 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
             <Menu.Label>Map</Menu.Label>
             <CopyButton value={copyLocationValue(coord)}>
                 {({ copy }) => (
-                    <Menu.Item
-                        icon={(
-                            <IconCopy size={14} />
-                        )}
-                        onClick={copy}
-                    >
+                    <Menu.Item icon={<IconCopy size={14} />} onClick={copy}>
                         Copy location
                     </Menu.Item>
                 )}
@@ -35,12 +30,12 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
             {/* <Menu.Item icon={<IconPhoto size={14} />}>Gallery</Menu.Item> */}
             <Menu.Item
                 disabled
-                icon={(
-                    <IconSearch size={14} />
-                )}
-                rightSection={(
-                    <Text size="xs" color="dimmed">⌘K</Text>
-                )}
+                icon={<IconSearch size={14} />}
+                rightSection={
+                    <Text size="xs" color="dimmed">
+                        ⌘K
+                    </Text>
+                }
             >
                 Search
             </Menu.Item>
