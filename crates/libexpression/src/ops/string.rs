@@ -3,17 +3,7 @@ use crate::error::ExprError;
 use crate::expr::{Expr, Expression};
 use serde_json::Value;
 
-fn values_equal(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Null, Value::Null) => true,
-        (Value::Bool(x), Value::Bool(y)) => x == y,
-        (Value::Number(x), Value::Number(y)) => x.as_f64() == y.as_f64(),
-        (Value::String(x), Value::String(y)) => x == y,
-        (Value::Array(x), Value::Array(y)) => x == y,
-        (Value::Object(x), Value::Object(y)) => x == y,
-        _ => false,
-    }
-}
+use super::util::values_equal;
 
 fn to_str(v: Value) -> String {
     match v {

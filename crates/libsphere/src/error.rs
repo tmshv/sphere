@@ -12,21 +12,26 @@ pub enum SphereError {
     #[error("GeoJSON parse error in {path}: {source}")]
     GeoJson {
         path: String,
+        #[source]
         source: geojson::Error,
     },
 
     #[error("CSV parse error in {path}: {source}")]
     Csv {
         path: String,
+        #[source]
         source: csv::Error,
     },
 
+    // Shape and MBTiles errors are converted to String at the library boundary
+    // because the underlying error types are not Send + Sync.
     #[error("Shape error in {path}: {detail}")]
     Shape {
         path: String,
         detail: String,
     },
 
+    // See Shape comment above.
     #[error("MBTiles error in {path}: {detail}")]
     Mbtiles {
         path: String,

@@ -123,6 +123,13 @@ impl FeatureStore {
         &self.features
     }
 
+    /// Returns all features that match the given filter expression as JSON values.
+    /// When `filter` is None, all features are returned.
+    pub fn get_filtered(&self, filter: Option<&Expr>) -> Vec<Value> {
+        let result = self.query_page(0, u64::MAX, filter, None, true);
+        result.features
+    }
+
     pub fn feature_count(&self) -> u64 {
         self.features.len() as u64
     }

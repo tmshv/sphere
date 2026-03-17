@@ -15,6 +15,10 @@ type Layer = {
     fractionIndex: number
     name: string
     type?: LayerType
+    filter?: {
+        expression: unknown[]
+        error: string | null
+    }
 
     color: string
     circle?: {
@@ -183,6 +187,21 @@ export const layerSlice = createSlice({
             }
             if (count) {
                 layer.photo.countField = count
+            }
+        },
+        setLayerFilter: (state, action: PayloadAction<{ id: Id, expression: unknown[] | null }>) => {
+            const { id, expression } = action.payload
+            if (expression === null) {
+                delete state.items[id].filter
+            } else {
+                state.items[id].filter = { expression, error: null }
+            }
+        },
+        setLayerFilterError: (state, action: PayloadAction<{ id: Id, error: string }>) => {
+            const { id, error } = action.payload
+            const layer = state.items[id]
+            if (layer.filter) {
+                layer.filter.error = error
             }
         },
         setExtrusionOptions: (state, action: PayloadAction<{ id: Id, base?: number, height?: number, baseField?: string, heightField?: string }>) => {

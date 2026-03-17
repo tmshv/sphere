@@ -42,14 +42,9 @@ pub struct ColumnStats {
     pub top_values: Option<Vec<(String, u64)>>,
 }
 
-fn build_feature_store(source: &Source) -> Option<FeatureStore> {
-    match source.to_feature_collection() {
-        Ok(fc) => Some(FeatureStore::from_features(fc.features)),
-        Err(e) => {
-            println!("Warning: failed to build feature store: {}", e);
-            None
-        }
-    }
+fn build_feature_store(source: &Source) -> Result<FeatureStore, String> {
+    let fc = source.to_feature_collection().map_err(|e| e.to_string())?;
+    Ok(FeatureStore::from_features(fc.features))
 }
 
 fn build_histogram(values: &[f64], min: f64, max: f64, bins: usize) -> Vec<HistogramBin> {
@@ -91,9 +86,11 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
                 },
             };
             let id = source.id.clone();
+            // MBTiles sources intentionally have no feature store.
+            // For all other source types, failure to build the store is an error.
             let store = match &source.data {
                 SourceData::Mbtiles(_) => None,
-                _ => build_feature_store(&source).map(Arc::new),
+                _ => Some(Arc::new(build_feature_store(&source)?)),
             };
             let entry = SourceEntry { source, store };
             storage.store.lock().unwrap().insert(id, entry);
@@ -183,6 +180,37 @@ pub async fn mbtiles_get_tile(
             None => Err("Source is not MBTiles".into()),
         },
         None => Err(format!("Not found {}", &id)),
+    }
+}
+
+#[tauri::command]
+pub async fn source_get_filtered(
+    id: String,
+    filter_json: Option<String>,
+    storage: State<'_, SourceStorage>,
+) -> Result<String, String> {
+    let filter = match &filter_json {
+        None => None,
+        Some(json_str) => {
+            let json_val: Value = serde_json::from_str(json_str).map_err(|e| e.to_string())?;
+            Some(libexpression::parse(json_val).map_err(|e| e.to_string())?)
+        }
+    };
+
+    let store = storage.store.lock().unwrap();
+    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+
+    match filter {
+        None => entry.source.to_geojson(),
+        Some(expr) => {
+            let fs = entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?;
+            let features = fs.get_filtered(Some(&expr));
+            let fc = serde_json::json!({
+                "type": "FeatureCollection",
+                "features": features,
+            });
+            serde_json::to_string(&fc).map_err(|e| e.to_string())
+        }
     }
 }
 

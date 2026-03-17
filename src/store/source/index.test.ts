@@ -3,6 +3,7 @@ import reducer, { sourceSlice } from "./index"
 import { SourceType } from "@/types"
 
 const { addGeojsonSource, addMVTSource, addRasterSource, removeSource, setName, setData, addFeatureCollection } = sourceSlice.actions
+// Note: addGeojsonSource no longer accepts a `dataset` parameter (M2: dataset removed from GeojsonSource)
 const { items, allIds } = sourceSlice.selectors
 
 const makeRootState = (source: object) => ({ source } as any)

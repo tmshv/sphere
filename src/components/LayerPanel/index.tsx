@@ -1,11 +1,12 @@
-import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
+import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { useAppDispatch } from "@/store/hooks"
-import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy } from "@tabler/icons"
+import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy, IconX } from "@tabler/icons"
 import { LayerType, SourceType } from "@/types"
 import { actions, selectors } from "@/store"
 import { ActionBar } from "@/ui/ActionBar"
 import { PhotoIconLayout } from "@/store/layer"
 import { createSelector } from "@reduxjs/toolkit"
+import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
 type Option = {
@@ -62,7 +63,7 @@ export const layerSelector = createSelector(
                     break
                 }
                 case SourceType.Geojson: {
-                    fields = [...new Set(source.dataset?.features.flatMap(f => Object.keys(f.properties!)))]
+                    fields = Object.keys(source.meta.columns)
                     break
                 }
                 default: {
@@ -92,6 +93,9 @@ export const layerSelector = createSelector(
             extrusionHeight: layer.extrusion?.height ?? 0,
             extrusionBaseField: layer.extrusion?.baseField,
             extrusionHeightField: layer.extrusion?.heightField,
+            filterExpression: layer.filter?.expression ?? null,
+            filterError: layer.filter?.error ?? null,
+            isTileSource: source?.type === SourceType.MVT || source?.type === SourceType.Raster,
         }
     },
 )
@@ -100,10 +104,54 @@ export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const sources = useSelector(sourcesSelector)
     const layer = useSelector(layerSelector)
+    const [filterText, setFilterText] = useState("")
+    const [filterLocalError, setFilterLocalError] = useState<string | null>(null)
+
+    useEffect(() => {
+        setFilterText(layer?.filterExpression ? JSON.stringify(layer.filterExpression) : "")
+        setFilterLocalError(null)
+    }, [layer?.id])
+
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity, filterError, isTileSource } = layer
+
+    function handleFilterChange(text: string) {
+        setFilterText(text)
+        if (!text.trim()) {
+            setFilterLocalError(null)
+            dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
+            return
+        }
+        try {
+            const expression = JSON.parse(text)
+            if (Array.isArray(expression)) {
+                setFilterLocalError(null)
+                dispatch(actions.layer.setLayerFilter({ id: layerId, expression: expression as unknown[] }))
+            }
+        } catch {
+            // don't show error while typing
+        }
+    }
+
+    function handleFilterBlur() {
+        if (!filterText.trim()) return
+        try {
+            const expression = JSON.parse(filterText)
+            if (!Array.isArray(expression)) {
+                setFilterLocalError("Filter must be a JSON array")
+            }
+        } catch {
+            setFilterLocalError("Invalid JSON expression")
+        }
+    }
+
+    function clearFilter() {
+        setFilterText("")
+        setFilterLocalError(null)
+        dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
+    }
 
     let icon: React.ReactNode = null
     if (type === LayerType.Point) {
@@ -212,6 +260,26 @@ export const LayerPanel: React.FC = () => {
                     }))
                 }}
             />
+
+            {isTileSource ? null : (
+                <TextInput
+                    size="xs"
+                    label="Filter"
+                    placeholder='["==", ["get", "field"], "value"]'
+                    value={filterText}
+                    error={filterLocalError ?? filterError ?? undefined}
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    rightSection={
+                        filterText
+                            ? <ActionIcon size="xs" onClick={clearFilter}><IconX size={10} /></ActionIcon>
+                            : null
+                    }
+                    onChange={e => handleFilterChange(e.currentTarget.value)}
+                    onBlur={handleFilterBlur}
+                />
+            )}
 
             {!sourceLayers ? null : (
                 <Select

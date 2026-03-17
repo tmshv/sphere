@@ -8,7 +8,7 @@ import type { RootState } from ".."
 import { drawSlice } from "../draw"
 import { Id, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
-import type { FeatureCollecionSource, GeojsonSource, Source } from "@/types/source"
+import type { FeatureCollecionSource, Source } from "@/types/source"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
 
@@ -86,9 +86,8 @@ export const sourceSlice = createSlice({
             name: string,
             location: string,
             meta: SourceMetadata,
-            dataset?: GeoJSON.FeatureCollection,
         }>) => {
-            const { id, name, location, meta, dataset } = action.payload
+            const { id, name, location, meta } = action.payload
             state.items[id] = {
                 id,
                 name,
@@ -98,24 +97,9 @@ export const sourceSlice = createSlice({
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: true,
                 meta,
-                dataset,
             }
             state.allIds.push(id)
             state.lastAdded = id
-        },
-        setGeojsonData: (state, action: PayloadAction<{
-            id: Id,
-            meta?: SourceMetadata,
-            dataset?: GeoJSON.FeatureCollection,
-        }>) => {
-            const { id, meta, dataset } = action.payload
-            const s = state.items[id] as GeojsonSource
-            if (meta) {
-                s.meta = meta
-            }
-            if (dataset) {
-                s.dataset = dataset
-            }
         },
         addMVTSource: (state, action: PayloadAction<{
             id: Id,
@@ -170,6 +154,13 @@ export const sourceSlice = createSlice({
             const { id: sourceId, value } = action.payload
             state.items[sourceId].name = value
         },
+        setGeojsonMeta: (state, action: PayloadAction<{ id: Id, meta: SourceMetadata }>) => {
+            const { id, meta } = action.payload
+            const source = state.items[id]
+            if (source?.type === SourceType.Geojson) {
+                source.meta = meta
+            }
+        },
     },
     extraReducers: builder => {
         builder
@@ -177,10 +168,6 @@ export const sourceSlice = createSlice({
                 const { sourceId: id, featureCollection } = action.payload
                 const source = state.items[id]
                 if (source.type === SourceType.FeatureCollection && !source.pending) {
-                    source.dataset = featureCollection
-                    source.meta = computeGeometryMeta(featureCollection)
-                }
-                if (source.type === SourceType.Geojson) {
                     source.dataset = featureCollection
                     source.meta = computeGeometryMeta(featureCollection)
                 }

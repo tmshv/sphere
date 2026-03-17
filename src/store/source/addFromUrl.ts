@@ -73,13 +73,11 @@ const action = createAsyncThunk(
                         linesCount: schema?.lines_count ?? 0,
                         polygonsCount: schema?.polygons_count ?? 0,
                     }
-                    const dataset = await r.getGeojson() ?? undefined
                     thunkAPI.dispatch(actions.addGeojsonSource({
                         id,
                         name,
                         location,
                         meta,
-                        dataset,
                     }))
                     break
                 }

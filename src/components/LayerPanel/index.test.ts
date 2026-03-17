@@ -162,13 +162,7 @@ describe("layerSelector", () => {
 
     test("returns panel data with fields from Geojson source", () => {
         const source = makeGeojsonSource("s1", {
-            dataset: {
-                type: "FeatureCollection",
-                features: [
-                    { type: "Feature", geometry: null, properties: { name: "A", value: 1 } },
-                    { type: "Feature", geometry: null, properties: { name: "B", count: 2 } },
-                ],
-            },
+            meta: { columns: { name: "String", value: "Number", count: "Number" }, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
         })
         const layer = makeLayer("l1", { sourceId: "s1" })
         const state = makeRootState({

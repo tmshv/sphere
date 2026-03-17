@@ -6,7 +6,7 @@ use serde_json::Value;
 /// ["get", key] — get a property value by key.
 /// ["get", key, object_expr] — get from object produced by object_expr.
 pub struct Get {
-    pub key: Box<dyn Expression + Send + Sync>,
+    pub key: Expr,
     pub object: Option<Expr>,
 }
 
@@ -33,7 +33,7 @@ impl Expression for Get {
 /// ["has", key] — returns true if the key exists in properties.
 /// ["has", key, object_expr] — returns true if key exists in the object.
 pub struct Has {
-    pub key: Box<dyn Expression + Send + Sync>,
+    pub key: Expr,
     pub object: Option<Expr>,
 }
 

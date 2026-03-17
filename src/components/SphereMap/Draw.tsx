@@ -20,16 +20,11 @@ export default function Draw({ mapId }: DrawProps){
         if (!sourceId) {
             return null
         }
-
         const source = state.source.items[sourceId]
-        switch (source.type) {
-            case SourceType.Geojson: {
-                return source.dataset
-            }
-            default: {
-                return null
-            }
+        if (source.type === SourceType.FeatureCollection && !source.pending) {
+            return source.dataset
         }
+        return null
     })
     const onChange = useCallback<OnChangeDraw>(async (event, draw) => {
     }, [])

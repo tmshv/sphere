@@ -15,12 +15,11 @@ vi.mock("@/logger", () => ({
 
 vi.mock(".", () => ({
     actions: {
-        addGeojsonSource: vi.fn().mockImplementation((payload: unknown) => ({
-            type: "source/addGeojsonSource",
+        addFeatureCollection: vi.fn().mockImplementation((payload: unknown) => ({
+            type: "source/addFeatureCollection",
             payload,
         })),
     },
-    computeGeometryMeta: vi.fn().mockImplementation((fc: GeoJSON.FeatureCollection, columns: Record<string, string> = {}) => ({ columns, pointsCount: 0, linesCount: 0, polygonsCount: 0 })),
 }))
 
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
@@ -28,7 +27,7 @@ import { actions } from "."
 import addFromClipboard from "./addFromClipboard"
 
 const mockReadText = vi.mocked(readText)
-const mockAddGeojsonSource = vi.mocked(actions.addGeojsonSource)
+const mockAddFeatureCollection = vi.mocked(actions.addFeatureCollection)
 
 const makeStore = () => configureStore({ reducer: (state: Record<string, never> = {}) => state })
 
@@ -64,19 +63,18 @@ describe("addFromClipboard thunk", () => {
         dispatchSpy = vi.spyOn(store, "dispatch")
     })
 
-    test("dispatches addGeojsonSource when clipboard contains a FeatureCollection", async () => {
+    test("dispatches addFeatureCollection when clipboard contains a FeatureCollection", async () => {
         mockReadText.mockResolvedValue(JSON.stringify(featureCollection))
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
-        const call = mockAddGeojsonSource.mock.calls[0][0]
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
+        const call = mockAddFeatureCollection.mock.calls[0][0]
         expect(call.name).toBe("Pasted GeoJSON")
-        expect(call.location).toBe("")
         expect(call.dataset).toMatchObject({ type: "FeatureCollection" })
         expect(call.dataset!.features).toHaveLength(1)
         expect(dispatchSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ type: "source/addGeojsonSource" }),
+            expect.objectContaining({ type: "source/addFeatureCollection" }),
         )
     })
 
@@ -85,8 +83,8 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
-        const call = mockAddGeojsonSource.mock.calls[0][0]
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
+        const call = mockAddFeatureCollection.mock.calls[0][0]
         expect(call.dataset!.type).toBe("FeatureCollection")
         expect(call.dataset!.features).toHaveLength(1)
         expect(call.dataset!.features[0]).toEqual(feature)
@@ -97,21 +95,11 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
-        const call = mockAddGeojsonSource.mock.calls[0][0]
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
+        const call = mockAddFeatureCollection.mock.calls[0][0]
         expect(call.dataset!.type).toBe("FeatureCollection")
         expect(call.dataset!.features).toHaveLength(1)
         expect(call.dataset!.features[0].geometry).toEqual(geometry)
-    })
-
-    test("derives schema from feature properties using title-case type names", async () => {
-        mockReadText.mockResolvedValue(JSON.stringify(featureCollection))
-
-        await addFromClipboard()(store.dispatch, store.getState, undefined)
-
-        expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
-        const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.meta.columns).toEqual({ name: "String", count: "Number" })
     })
 
     test("generates a unique id per call", async () => {
@@ -120,7 +108,7 @@ describe("addFromClipboard thunk", () => {
         await addFromClipboard()(store.dispatch, store.getState, undefined)
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        const ids = mockAddGeojsonSource.mock.calls.map(([p]) => p.id)
+        const ids = mockAddFeatureCollection.mock.calls.map(([p]) => p.id)
         expect(ids[0]).toBeTruthy()
         expect(ids[1]).toBeTruthy()
         expect(ids[0]).not.toBe(ids[1])
@@ -131,7 +119,7 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).not.toHaveBeenCalled()
+        expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
     test("does nothing when clipboard contains an empty string", async () => {
@@ -139,7 +127,7 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).not.toHaveBeenCalled()
+        expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
     test("does nothing when clipboard contains non-JSON text", async () => {
@@ -147,7 +135,7 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).not.toHaveBeenCalled()
+        expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
     test("does nothing when clipboard contains JSON that is not GeoJSON", async () => {
@@ -155,7 +143,7 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).not.toHaveBeenCalled()
+        expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
     test("does nothing when clipboard contains JSON with invalid GeoJSON type", async () => {
@@ -163,7 +151,7 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).not.toHaveBeenCalled()
+        expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
     test("does not throw when readText rejects", async () => {
@@ -173,7 +161,7 @@ describe("addFromClipboard thunk", () => {
             addFromClipboard()(store.dispatch, store.getState, undefined),
         ).resolves.not.toThrow()
 
-        expect(mockAddGeojsonSource).not.toHaveBeenCalled()
+        expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
     test("handles features with null properties without throwing", async () => {
@@ -187,8 +175,6 @@ describe("addFromClipboard thunk", () => {
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
-        expect(mockAddGeojsonSource).toHaveBeenCalledOnce()
-        const call = mockAddGeojsonSource.mock.calls[0][0]
-        expect(call.meta.columns).toEqual({})
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
     })
 })

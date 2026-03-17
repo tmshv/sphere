@@ -4,41 +4,19 @@ import { Id, SourceType } from "@/types"
 import { emit } from "@tauri-apps/api/event"
 import type { RootState } from ".."
 import { waitEvent } from "@/lib/tauri"
-import type { Source } from "@/types/source"
-import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
-
-export async function getProps(source: Source): Promise<{ id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[] | null> {
-    switch (source.type) {
-        case SourceType.FeatureCollection: {
-            return source.dataset!.features.map(f => ({ id: f.id, props: f.properties }))
-        }
-        case SourceType.Geojson: {
-            const r = new SourceReader(source.id)
-            const geojson = await r.getGeojson()
-            if (!geojson) {
-                return null
-            }
-            return geojson.features.map(f => ({ id: f.id, props: f.properties }))
-        }
-        default: {
-            return null
-        }
-    }
-}
 
 export const showProperties = createAsyncThunk(
     "source/showProperties",
-    async ({ id }: { id: Id }, thunkAPI) => {
+    async ({ id, filterExpression }: { id: Id, filterExpression?: unknown[] }, thunkAPI) => {
         const state = thunkAPI.getState() as RootState
         const source = state.source.items[id]
         if (!source) {
             throw new Error("Source is not found")
         }
 
-        const properties = await getProps(source)
-        if (!properties) {
-            logger.error(`No properties for source ${source.name}`)
+        if (source.type !== SourceType.Geojson) {
+            logger.error(`Properties table is not available for source type "${source.type}"`)
             throw new Error(`Property table is not available for "${source.name}"`)
         }
 
@@ -50,8 +28,6 @@ export const showProperties = createAsyncThunk(
                 url: "properties.html",
                 title: "Properties",
             })
-            // since the webview window is created asynchronously,
-            // Tauri emits the `tauri://created` and `tauri://error` to notify you of the creation response
             window.once("tauri://created", function() {
                 // webview window successfully created
             })
@@ -64,6 +40,10 @@ export const showProperties = createAsyncThunk(
         const status = await waitEvent("properties-init")
         logger.info({ status }, "Got properties-init")
 
-        emit("properties-set", { properties })
+        emit("properties-set", {
+            sourceId: id,
+            schema: source.meta,
+            filterExpression: filterExpression ?? null,
+        })
     },
 )

@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
-import { actions, computeGeometryMeta } from "."
+import { actions } from "."
 import logger from "@/logger"
 
 const GEOJSON_TYPES = new Set([
@@ -36,35 +36,6 @@ function toFeatureCollection(data: any): GeoJSON.FeatureCollection | null {
     }
 }
 
-function jsTypeToSchemaType(value: unknown): string {
-    switch (typeof value) {
-        case "string": return "String"
-        case "number": return "Number"
-        default: return "Mixed"
-    }
-}
-
-function deriveSchema(fc: GeoJSON.FeatureCollection): Record<string, string> {
-    const schema: Record<string, string> = {}
-    for (const feature of fc.features) {
-        if (!feature.properties) {
-            continue
-        }
-        for (const [key, value] of Object.entries(feature.properties)) {
-            if (value === null) {
-                continue
-            }
-            const newType = jsTypeToSchemaType(value)
-            if (!(key in schema)) {
-                schema[key] = newType
-            } else if (schema[key] !== newType) {
-                schema[key] = "Mixed"
-            }
-        }
-    }
-    return schema
-}
-
 const action = createAsyncThunk(
     "source/addFromClipboard",
     async (_, thunkAPI) => {
@@ -93,14 +64,9 @@ const action = createAsyncThunk(
             }
 
             const id = crypto.randomUUID()
-            const columns = deriveSchema(dataset)
-            const meta = computeGeometryMeta(dataset, columns)
-
-            thunkAPI.dispatch(actions.addGeojsonSource({
+            thunkAPI.dispatch(actions.addFeatureCollection({
                 id,
                 name: "Pasted GeoJSON",
-                location: "",
-                meta,
                 dataset,
             }))
         } catch (error) {

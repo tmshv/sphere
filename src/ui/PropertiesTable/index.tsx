@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { Table, Column, CellContext, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, flexRender, ColumnDef, SortingState } from "@tanstack/react-table"
+import { Table, Column, CellContext, useReactTable, getCoreRowModel, flexRender, ColumnDef, SortingState, OnChangeFn } from "@tanstack/react-table"
 import { ActionIcon, Badge, Box, createStyles, Flex, Image, MantineProvider, MantineTheme, Tooltip } from "@mantine/core"
-import { Select, Statusbar } from "@/ui/Statusbar"
+import { Statusbar } from "@/ui/Statusbar"
 import { format } from "date-fns"
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@tabler/icons"
 import { BarChart } from "./BarChart"
@@ -156,29 +156,38 @@ type PropertyTableProps = {
     data: PropertyItem[]
     columns: ColumnDef<PropertyItem>[]
     meta: Record<string, PropertyItemMeta>
+    pageIndex: number
+    pageCount: number
+    sorting: SortingState
+    onPageChange: (index: number) => void
+    onSortingChange: OnChangeFn<SortingState>
 }
 
-export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, meta }) => {
+export const PropertesTable: React.FC<PropertyTableProps> = ({
+    data,
+    columns,
+    meta,
+    pageIndex,
+    pageCount,
+    sorting,
+    onPageChange,
+    onSortingChange,
+}) => {
     const { classes: s, cx } = useStyle()
-    const [sorting, setSorting] = useState<SortingState>([])
     const [photos, setPhotos] = useState<Record<string, boolean>>({})
     const table = useReactTable({
         data,
         columns,
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
-        // getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        manualPagination: true,
+        manualSorting: true,
+        pageCount,
         state: {
             sorting,
+            pagination: { pageIndex, pageSize: 50 },
         },
-        initialState: {
-            pagination: {
-                pageSize: 50,
-            },
-        },
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
+        onSortingChange,
     })
 
     return (
@@ -519,25 +528,18 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({ data, columns, me
                         },
                     },
                 }}>
-                    <ActionIcon disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()}>
+                    <ActionIcon disabled={pageIndex === 0} onClick={() => onPageChange(pageIndex - 1)}>
                         <IconChevronLeft size={14} />
                     </ActionIcon>
                     <Badge className={s.widget} radius="sm" size="sm" variant="light">
-                        {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                        {pageIndex + 1} / {pageCount}
                     </Badge>
-                    <ActionIcon disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
+                    <ActionIcon disabled={pageIndex >= pageCount - 1} onClick={() => onPageChange(pageIndex + 1)}>
                         <IconChevronRight size={14} />
                     </ActionIcon>
                 </MantineProvider>
 
                 <Box style={{ flex: 1 }} />
-
-                <Select
-                    className={cx(s.widget, s.widgetSelect)}
-                    value={table.getState().pagination.pageSize}
-                    options={[50, 100, 500, 1000]}
-                    onChange={v => table.setPageSize(v)}
-                />
             </Statusbar>
         </Flex>
     )
