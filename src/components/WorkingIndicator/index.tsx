@@ -1,9 +1,7 @@
-import { Loader } from "@mantine/core"
 import { useAppSelector } from "@/store/hooks"
+import { Loader } from "@mantine/core"
 
-export type WorkingIndicatorProps = {
-
-}
+export type WorkingIndicatorProps = {}
 
 export const WorkingIndicator: React.FC<WorkingIndicatorProps> = () => {
     const working = useAppSelector(state => {
@@ -22,7 +20,5 @@ export const WorkingIndicator: React.FC<WorkingIndicatorProps> = () => {
         return null
     }
 
-    return (
-        <Loader size={"xs"} />
-    )
+    return <Loader size={"xs"} />
 }

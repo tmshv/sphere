@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit"
 import type { Projection } from "@/types"
+import { createSlice } from "@reduxjs/toolkit"
 
 // Define a type for the slice state
 type ProjectionState = {

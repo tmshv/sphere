@@ -33,7 +33,7 @@ export const actions = {
 export const listener = createListenerMiddleware()
 listener.startListening({
     actionCreator: fitBounds,
-    effect: async (action, listenerApi) => {
+    effect: async (action, _listenerApi) => {
         const { mapId, bounds } = action.payload
         const map = getMap(mapId)
         if (!map) {
@@ -48,7 +48,7 @@ listener.startListening({
 })
 listener.startListening({
     actionCreator: resize,
-    effect: async (action, listenerApi) => {
+    effect: async (action, _listenerApi) => {
         const mapId = action.payload
         const map = getMap(mapId)
         if (!map) {
@@ -60,7 +60,7 @@ listener.startListening({
 })
 listener.startListening({
     actionCreator: resetNorth,
-    effect: async (action, listenerApi) => {
+    effect: async (action, _listenerApi) => {
         const { mapId } = action.payload
         const map = getMap(mapId)
         if (!map) {
@@ -72,7 +72,7 @@ listener.startListening({
 })
 listener.startListening({
     actionCreator: printViewport,
-    effect: async (action, listenerApi) => {
+    effect: async (action, _listenerApi) => {
         const { mapId } = action.payload
         const map = getMap(mapId)
         if (!map) {
@@ -85,6 +85,6 @@ listener.startListening({
             bbox: map.getBounds().toArray(),
         }
 
-        logger.info({viewport}, "viewport")
+        logger.info({ viewport }, "viewport")
     },
 })

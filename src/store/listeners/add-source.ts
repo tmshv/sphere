@@ -1,6 +1,6 @@
+import logger from "@/logger"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { actions } from "../actions"
-import logger from "@/logger"
 
 const listener = createListenerMiddleware()
 listener.startListening({

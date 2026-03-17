@@ -1,9 +1,9 @@
-import { describe, test, expect } from "vitest"
+import { describe, expect, test } from "vitest"
 import reducer, { errorSlice, selectErrorMessage } from "./error"
 
 const { setError, clear } = errorSlice.actions
 
-const makeRootState = (error: object) => ({ error } as any)
+const makeRootState = (error: object) => ({ error }) as any
 
 describe("errorSlice reducer", () => {
     test("initial state has no message", () => {

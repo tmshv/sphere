@@ -1,9 +1,29 @@
-import { useState } from "react"
-import { Table, Column, CellContext, useReactTable, getCoreRowModel, flexRender, ColumnDef, SortingState, OnChangeFn } from "@tanstack/react-table"
-import { ActionIcon, Badge, Box, createStyles, Flex, Image, MantineProvider, MantineTheme, Tooltip } from "@mantine/core"
 import { Statusbar } from "@/ui/Statusbar"
-import { format } from "date-fns"
+import {
+    ActionIcon,
+    Badge,
+    Box,
+    Flex,
+    Image,
+    MantineProvider,
+    type MantineTheme,
+    Tooltip,
+    createStyles,
+} from "@mantine/core"
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@tabler/icons"
+import {
+    type CellContext,
+    type Column,
+    type ColumnDef,
+    type OnChangeFn,
+    type SortingState,
+    type Table,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+} from "@tanstack/react-table"
+import { format } from "date-fns"
+import { useState } from "react"
 import { BarChart } from "./BarChart"
 
 type StringPropertyMeta = {
@@ -27,9 +47,13 @@ type FloatPropertyMeta = {
     hist?: number[]
 }
 
-export type PropertyItemMeta = StringPropertyMeta | IntPropertyMeta | FloatPropertyMeta | {
-    type: "url" | "date" | "empty" | "mixed" | "unknown"
-}
+export type PropertyItemMeta =
+    | StringPropertyMeta
+    | IntPropertyMeta
+    | FloatPropertyMeta
+    | {
+          type: "url" | "date" | "empty" | "mixed" | "unknown"
+      }
 
 export type PropertyItem = Record<string, any>
 
@@ -39,10 +63,8 @@ export type FilterProps = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Filter: React.FC<FilterProps> = ({ column, table }) => {
-    const firstValue = table
-        .getPreFilteredRowModel()
-        .flatRows[0]?.getValue(column.id)
+const _Filter: React.FC<FilterProps> = ({ column, table }) => {
+    const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id)
 
     const columnFilterValue = column.getFilterValue()
 
@@ -51,26 +73,16 @@ const Filter: React.FC<FilterProps> = ({ column, table }) => {
             <input
                 type="number"
                 value={(columnFilterValue as [number, number])?.[0] ?? ""}
-                onChange={e =>
-                    column.setFilterValue((old: [number, number]) => [
-                        e.target.value,
-                        old?.[1],
-                    ])
-                }
+                onChange={e => column.setFilterValue((old: [number, number]) => [e.target.value, old?.[1]])}
                 placeholder={"Min"}
-            // className="w-24 border shadow rounded"
+                // className="w-24 border shadow rounded"
             />
             <input
                 type="number"
                 value={(columnFilterValue as [number, number])?.[1] ?? ""}
-                onChange={e =>
-                    column.setFilterValue((old: [number, number]) => [
-                        old?.[0],
-                        e.target.value,
-                    ])
-                }
+                onChange={e => column.setFilterValue((old: [number, number]) => [old?.[0], e.target.value])}
                 placeholder={"Max"}
-            // className="w-24 border shadow rounded"
+                // className="w-24 border shadow rounded"
             />
         </div>
     ) : (
@@ -79,7 +91,7 @@ const Filter: React.FC<FilterProps> = ({ column, table }) => {
             value={(columnFilterValue ?? "") as string}
             onChange={e => column.setFilterValue(e.target.value)}
             placeholder={"Search..."}
-        // className="w-36 border shadow rounded"
+            // className="w-36 border shadow rounded"
         />
     )
 }
@@ -203,10 +215,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                 >
                     <thead>
                         {table.getHeaderGroups().map(headerGroup => (
-                            <tr
-                                key={headerGroup.id}
-                                className={s.tr}
-                            >
+                            <tr key={headerGroup.id} className={s.tr}>
                                 {headerGroup.headers.map(header => (
                                     <th
                                         key={header.id}
@@ -222,25 +231,23 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                             onClick={header.column.getToggleSortingHandler()}
                                         >
                                             {{
-                                                asc: (
-                                                    <IconArrowUp size={16} />
-                                                ),
-                                                desc: (
-                                                    <IconArrowDown size={16} />
-                                                ),
+                                                asc: <IconArrowUp size={16} />,
+                                                desc: <IconArrowDown size={16} />,
                                             }[header.column.getIsSorted() as string] ?? null}
-                                            {header.isPlaceholder ? null : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext(),
-                                            )}
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(header.column.columnDef.header, header.getContext())}
                                             <Box style={{ flex: 1 }} />
                                             {meta[header.column.id].type !== "url" ? null : (
-                                                <ActionIcon size={"xs"} onClick={() => {
-                                                    setPhotos(photos => ({
-                                                        ...photos,
-                                                        [header.column.id]: !photos[header.column.id],
-                                                    }))
-                                                }}>
+                                                <ActionIcon
+                                                    size={"xs"}
+                                                    onClick={() => {
+                                                        setPhotos(photos => ({
+                                                            ...photos,
+                                                            [header.column.id]: !photos[header.column.id],
+                                                        }))
+                                                    }}
+                                                >
                                                     {photos[header.column.id] ? (
                                                         <IconPhoto size={16} />
                                                     ) : (
@@ -277,10 +284,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                             </tr>
                         ))}
                         {table.getHeaderGroups().map(headerGroup => (
-                            <tr
-                                key={headerGroup.id}
-                                className={s.tr}
-                            >
+                            <tr key={headerGroup.id} className={s.tr}>
                                 {headerGroup.headers.map(header => {
                                     const t = meta[header.column.id]
                                     let content: React.ReactNode = null
@@ -288,25 +292,17 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                     switch (t.type) {
                                         case "string": {
                                             content = (
-                                                <Flex
-                                                    align={"center"}
-                                                    direction={"row-reverse"}
-                                                    p={"sm"}
-                                                    gap={"xs"}
-                                                >
-                                                    <Badge size={"xs"} radius={"sm"}>unique={t.unique}</Badge>
+                                                <Flex align={"center"} direction={"row-reverse"} p={"sm"} gap={"xs"}>
+                                                    <Badge size={"xs"} radius={"sm"}>
+                                                        unique={t.unique}
+                                                    </Badge>
                                                 </Flex>
                                             )
                                             break
                                         }
                                         case "int": {
                                             content = (
-                                                <Flex
-                                                    direction={"row"}
-                                                    p={"sm"}
-                                                    gap={"xs"}
-                                                    justify={"space-between"}
-                                                >
+                                                <Flex direction={"row"} p={"sm"} gap={"xs"} justify={"space-between"}>
                                                     {!t.hist ? null : (
                                                         <BarChart
                                                             width={50}
@@ -317,12 +313,13 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                                             color={"rgb(34, 139, 230)"}
                                                         />
                                                     )}
-                                                    <Flex
-                                                        gap={"xs"}
-                                                        direction={"column"}
-                                                    >
-                                                        <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
-                                                        <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
+                                                    <Flex gap={"xs"} direction={"column"}>
+                                                        <Badge size={"xs"} radius={"sm"}>
+                                                            min={t.min}
+                                                        </Badge>
+                                                        <Badge size={"xs"} radius={"sm"}>
+                                                            max={t.max}
+                                                        </Badge>
                                                     </Flex>
                                                 </Flex>
                                             )
@@ -330,12 +327,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                         }
                                         case "float": {
                                             content = (
-                                                <Flex
-                                                    direction={"row"}
-                                                    p={"sm"}
-                                                    gap={"xs"}
-                                                    justify={"space-between"}
-                                                >
+                                                <Flex direction={"row"} p={"sm"} gap={"xs"} justify={"space-between"}>
                                                     {!t.hist ? null : (
                                                         <BarChart
                                                             width={50}
@@ -346,12 +338,13 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                                             color={"rgb(34, 139, 230)"}
                                                         />
                                                     )}
-                                                    <Flex
-                                                        gap={"xs"}
-                                                        direction={"column"}
-                                                    >
-                                                        <Badge size={"xs"} radius={"sm"}>min={t.min}</Badge>
-                                                        <Badge size={"xs"} radius={"sm"}>max={t.max}</Badge>
+                                                    <Flex gap={"xs"} direction={"column"}>
+                                                        <Badge size={"xs"} radius={"sm"}>
+                                                            min={t.min}
+                                                        </Badge>
+                                                        <Badge size={"xs"} radius={"sm"}>
+                                                            max={t.max}
+                                                        </Badge>
                                                     </Flex>
                                                 </Flex>
                                             )
@@ -387,10 +380,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
 
                     <tbody>
                         {table.getRowModel().rows.map(row => (
-                            <tr
-                                key={row.id}
-                                className={s.tr}
-                            >
+                            <tr key={row.id} className={s.tr}>
                                 {row.getVisibleCells().map(cell => {
                                     let render = (info: CellContext<PropertyItem, any>) => info.getValue()
 
@@ -400,18 +390,20 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                             render = info => {
                                                 const value = info.getValue()
                                                 if (photos[info.column.id]) {
-                                                    return (
-                                                        <Image
-                                                            src={value}
-                                                            width={50}
-                                                            height={50}
-                                                        />
-                                                    )
+                                                    return <Image src={value} width={50} height={50} />
                                                 }
                                                 const url = new URL(value)
                                                 return (
                                                     <Tooltip label={value} openDelay={500}>
-                                                        <Badge size={"sm"} radius={"sm"} variant={"outline"} color={"dark"}>{url.hostname}{url.pathname}</Badge>
+                                                        <Badge
+                                                            size={"sm"}
+                                                            radius={"sm"}
+                                                            variant={"outline"}
+                                                            color={"dark"}
+                                                        >
+                                                            {url.hostname}
+                                                            {url.pathname}
+                                                        </Badge>
                                                     </Tooltip>
                                                 )
                                             }
@@ -424,7 +416,16 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                                     return (
                                                         <>
                                                             {value.map(x => (
-                                                                <Badge key={x} className={s.mixedItem} size={"sm"} radius={"sm"} variant="outline" color={"dark"}>{x}</Badge>
+                                                                <Badge
+                                                                    key={x}
+                                                                    className={s.mixedItem}
+                                                                    size={"sm"}
+                                                                    radius={"sm"}
+                                                                    variant="outline"
+                                                                    color={"dark"}
+                                                                >
+                                                                    {x}
+                                                                </Badge>
                                                             ))}
                                                         </>
                                                     )
@@ -437,9 +438,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                                 const value = info.getValue()
                                                 return (
                                                     <Tooltip label={value} openDelay={500}>
-                                                        <span>
-                                                            {format(new Date(value), "yyyy-MM-dd hh:mm:ss")}
-                                                        </span>
+                                                        <span>{format(new Date(value), "yyyy-MM-dd hh:mm:ss")}</span>
                                                     </Tooltip>
                                                 )
                                             }
@@ -449,7 +448,13 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                             render = info => {
                                                 const value = info.getValue()
                                                 return (
-                                                    <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
+                                                    <span
+                                                        style={{
+                                                            textAlign: "right",
+                                                            display: "inline-block",
+                                                            width: "100%",
+                                                        }}
+                                                    >
                                                         {value}
                                                     </span>
                                                 )
@@ -460,7 +465,13 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                             render = info => {
                                                 const value = info.getValue()
                                                 return (
-                                                    <span style={{ textAlign: "right", display: "inline-block", width: "100%" }}>
+                                                    <span
+                                                        style={{
+                                                            textAlign: "right",
+                                                            display: "inline-block",
+                                                            width: "100%",
+                                                        }}
+                                                    >
                                                         {value}
                                                     </span>
                                                 )
@@ -489,18 +500,12 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                     </tbody>
                     <tfoot>
                         {table.getFooterGroups().map(footerGroup => (
-                            <tr
-                                key={footerGroup.id}
-                                className={s.tr}
-                            >
+                            <tr key={footerGroup.id} className={s.tr}>
                                 {footerGroup.headers.map(header => (
                                     <th key={header.id}>
                                         {header.isPlaceholder
                                             ? null
-                                            : flexRender(
-                                                header.column.columnDef.footer,
-                                                header.getContext(),
-                                            )}
+                                            : flexRender(header.column.columnDef.footer, header.getContext())}
                                     </th>
                                 ))}
                             </tr>
@@ -510,24 +515,26 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
             </div>
 
             <Statusbar>
-                <MantineProvider theme={{
-                    components: {
-                        ActionIcon: {
-                            defaultProps: (theme: MantineTheme) => ({
-                                size: "xs",
-                                radius: "sm",
-                                className: s.icon,
-                                sx: {
-                                    "&[data-disabled]": {
-                                        backgroundColor: "#00000000",
-                                        color: theme.colors.gray[8],
-                                        border: "none",
+                <MantineProvider
+                    theme={{
+                        components: {
+                            ActionIcon: {
+                                defaultProps: (theme: MantineTheme) => ({
+                                    size: "xs",
+                                    radius: "sm",
+                                    className: s.icon,
+                                    sx: {
+                                        "&[data-disabled]": {
+                                            backgroundColor: "#00000000",
+                                            color: theme.colors.gray[8],
+                                            border: "none",
+                                        },
                                     },
-                                },
-                            }),
+                                }),
+                            },
                         },
-                    },
-                }}>
+                    }}
+                >
                     <ActionIcon disabled={pageIndex === 0} onClick={() => onPageChange(pageIndex - 1)}>
                         <IconChevronLeft size={14} />
                     </ActionIcon>

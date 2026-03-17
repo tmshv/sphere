@@ -1,9 +1,9 @@
-import { isAnyOf } from "@reduxjs/toolkit"
-import { selectionSlice } from "../selection"
-import { actions } from "../app"
-import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { getMap } from "@/map"
 import { MAP_ID } from "@/const"
+import { getMap } from "@/map"
+import { isAnyOf } from "@reduxjs/toolkit"
+import { createListenerMiddleware } from "@reduxjs/toolkit"
+import { actions } from "../app"
+import { selectionSlice } from "../selection"
 
 const listener = createListenerMiddleware()
 listener.startListening({

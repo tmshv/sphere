@@ -1,5 +1,5 @@
-import predictLayerType from "./predict-layer-type"
 import { LayerType } from "@/types"
+import predictLayerType from "./predict-layer-type"
 
 describe("predictLayerType", () => {
     it("should return Point when there are points but no lines or polygons", () => {

@@ -1,4 +1,4 @@
-import { createStyles, Flex } from "@mantine/core"
+import { Flex, createStyles } from "@mantine/core"
 
 const useStyles = createStyles(() => ({
     container: {
@@ -26,19 +26,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, footer, leftSide
     const { classes: s } = useStyles()
 
     return (
-        <Flex
-            direction="column"
-            className={s.container}
-        >
-            <Flex
-                direction={"row"}
-                className={s.main}
-            >
+        <Flex direction="column" className={s.container}>
+            <Flex direction={"row"} className={s.main}>
                 {leftSidebar}
 
-                <div className={s.body}>
-                    {children}
-                </div>
+                <div className={s.body}>{children}</div>
 
                 {rightSidebar}
             </Flex>

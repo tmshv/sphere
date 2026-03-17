@@ -5,18 +5,18 @@ import addMultipleFiles from "./add-multiple-files"
 const openFiles = createAsyncThunk("openFiles", async (_, thunkAPI) => {
     const selected = await open({
         multiple: true,
-        filters: [{
-            name: "Geospatial file",
-            extensions: ["csv", "geojson", "geojsonl", "json", "gpx", "mbtiles", "shp"],
-        }],
+        filters: [
+            {
+                name: "Geospatial file",
+                extensions: ["csv", "geojson", "geojsonl", "json", "gpx", "mbtiles", "shp"],
+            },
+        ],
     })
     if (!selected) {
         return
     }
 
-    const paths = Array.isArray(selected)
-        ? selected
-        : [selected]
+    const paths = Array.isArray(selected) ? selected : [selected]
 
     thunkAPI.dispatch(addMultipleFiles(paths))
 })

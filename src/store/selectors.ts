@@ -1,19 +1,16 @@
+import { STYLE_OSM } from "@/const"
+import { createSelector } from "@reduxjs/toolkit"
+import type { RootState } from "."
+import { appSlice as app } from "./app"
+import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
 import { selectionSlice as selection } from "./selection"
-import { STYLE_OSM } from "@/const"
-import type { RootState } from "."
-import { drawSlice as draw } from "./draw"
-import { appSlice as app } from "./app"
 import { sourceSlice as source } from "./source"
-import { createSelector } from "@reduxjs/toolkit"
-import { tileBoundariesSlice } from "./tile-boundaries"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
 
-    return drawing
-        ? "mercator"
-        : state.projection.value
+    return drawing ? "mercator" : state.projection.value
 }
 
 export const selectChangeProjectionAvailable = (state: RootState) => {
@@ -33,8 +30,8 @@ const showTileBoundaries = (state: RootState) => {
     return state.tileBoundaries.value
 }
 
-const visibleIds = createSelector([layer.selectors.items, layer.selectors.allIds],
-    (items, allIds) => allIds.filter(id => items[id].visible),
+const visibleIds = createSelector([layer.selectors.items, layer.selectors.allIds], (items, allIds) =>
+    allIds.filter(id => items[id].visible),
 )
 
 export const selectors = {

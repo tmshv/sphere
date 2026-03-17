@@ -1,9 +1,9 @@
-import { memo, useEffect, useState } from "react"
-import { Source } from "react-map-gl/maplibre"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { EMPTY_GEOJSON } from "@/const"
 import { SourceReader } from "@/lib/source-reader"
 import { actions } from "@/store"
-import { EMPTY_GEOJSON } from "@/const"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { memo, useEffect, useState } from "react"
+import { Source } from "react-map-gl/maplibre"
 
 export type FilteredLayerSourceProps = {
     layerId: string
@@ -23,21 +23,28 @@ export const FilteredLayerSource: React.FC<FilteredLayerSourceProps> = memo(({ l
         }
         const filterJson = JSON.stringify(expression)
         const reader = new SourceReader(sourceId)
-        reader.getFiltered(filterJson).then(fc => {
-            if (fc) {
-                setData(fc)
-            } else {
-                dispatch(actions.layer.setLayerFilterError({
-                    id: layerId,
-                    error: "Failed to apply filter",
-                }))
-            }
-        }).catch(err => {
-            dispatch(actions.layer.setLayerFilterError({
-                id: layerId,
-                error: String(err),
-            }))
-        })
+        reader
+            .getFiltered(filterJson)
+            .then(fc => {
+                if (fc) {
+                    setData(fc)
+                } else {
+                    dispatch(
+                        actions.layer.setLayerFilterError({
+                            id: layerId,
+                            error: "Failed to apply filter",
+                        }),
+                    )
+                }
+            })
+            .catch(err => {
+                dispatch(
+                    actions.layer.setLayerFilterError({
+                        id: layerId,
+                        error: String(err),
+                    }),
+                )
+            })
     }, [layerId, sourceId, JSON.stringify(expression)])
 
     if (!layer?.filter) {

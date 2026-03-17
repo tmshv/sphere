@@ -1,5 +1,5 @@
-import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { getMap } from "@/map"
+import { createListenerMiddleware } from "@reduxjs/toolkit"
 import { actions } from "../actions"
 
 const listener = createListenerMiddleware()

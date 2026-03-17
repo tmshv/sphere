@@ -1,4 +1,4 @@
-import { createStyles, Flex, MantineColor } from "@mantine/core"
+import { Flex, type MantineColor, createStyles } from "@mantine/core"
 
 export { Select } from "./Select"
 export type { SelectProps } from "./Select"
@@ -20,7 +20,15 @@ export type StatusbarProps = {
 export const Statusbar: React.FC<StatusbarProps> = ({ children, color }) => {
     const { classes: s } = useStyle()
     return (
-        <Flex gap={"sm"} p={"xs"} pl={"sm"} pr={"sm"} align={"center"} className={s.container} style={{ backgroundColor: color }}>
+        <Flex
+            gap={"sm"}
+            p={"xs"}
+            pl={"sm"}
+            pr={"sm"}
+            align={"center"}
+            className={s.container}
+            style={{ backgroundColor: color }}
+        >
             {children}
         </Flex>
     )

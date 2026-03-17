@@ -1,14 +1,14 @@
-import { useAppSelector } from "@/store/hooks"
-import { Id, SourceType } from "@/types"
-import { useEffect, useState } from "react"
-import { SourceReader } from "@/lib/source-reader"
-import * as maplibregl from "maplibre-gl"
 import { nextId } from "@/lib/nextId"
+import { SourceReader } from "@/lib/source-reader"
+import { useAppSelector } from "@/store/hooks"
+import { type Id, SourceType } from "@/types"
+import type * as maplibregl from "maplibre-gl"
+import { useEffect, useState } from "react"
 
 type UseFeaturesOptions = {
-    layerId: Id,
-    sourceId: Id,
-    map?: maplibregl.Map,
+    layerId: Id
+    sourceId: Id
+    map?: maplibregl.Map
 }
 
 function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSON.Feature[] | null {
@@ -70,9 +70,7 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
         }
     }, [ok, sourceId, layerId, map])
 
-    return features.length > 0
-        ? features
-        : null
+    return features.length > 0 ? features : null
 }
 
 export function useFeatures({ sourceId, layerId, map }: UseFeaturesOptions): GeoJSON.Feature[] {

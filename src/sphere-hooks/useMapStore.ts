@@ -1,6 +1,6 @@
-import { useMap } from "react-map-gl/maplibre"
-import { useEffect } from "react"
 import { removeMap, setMap } from "@/map"
+import { useEffect } from "react"
+import { useMap } from "react-map-gl/maplibre"
 
 export default function useMapStore(mapId: string) {
     const { [mapId]: ref } = useMap()

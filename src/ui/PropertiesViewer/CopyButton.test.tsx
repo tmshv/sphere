@@ -1,7 +1,5 @@
-// @vitest-environment happy-dom
-import React from "react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen, fireEvent, act } from "@/test-utils"
+import { act, fireEvent, render, screen } from "@/test-utils"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { CopyButton } from "./CopyButton"
 
 beforeEach(() => {
@@ -40,7 +38,9 @@ describe("CopyButton", () => {
         fireEvent.click(button)
         expect(button.className).not.toBe(initialClass)
 
-        act(() => { vi.advanceTimersByTime(1500) })
+        act(() => {
+            vi.advanceTimersByTime(1500)
+        })
         expect(button.className).toBe(initialClass)
 
         vi.useRealTimers()

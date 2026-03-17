@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from ".."
+import type { RootState } from ".."
 
 type Properties = Record<string, any>
 
@@ -10,8 +10,7 @@ type PropertiesState = {
 }
 
 // Define the initial state using that type
-const initialState: PropertiesState = {
-}
+const initialState: PropertiesState = {}
 
 export const propertiesSlice = createSlice({
     name: "properties",
@@ -21,9 +20,7 @@ export const propertiesSlice = createSlice({
             state.values = undefined
         },
         set: (state, action: PayloadAction<{ values: Properties | Properties[] }>) => {
-            state.values = Array.isArray(action.payload.values)
-                ? action.payload.values
-                : [action.payload.values]
+            state.values = Array.isArray(action.payload.values) ? action.payload.values : [action.payload.values]
         },
     },
 })
@@ -38,7 +35,7 @@ export const selectProperties = (state: RootState) => {
             .filter(key => !blacklist.has(key))
             .map(key => ({
                 key,
-                value: values![key],
+                value: values?.[key],
             }))
     })
 }

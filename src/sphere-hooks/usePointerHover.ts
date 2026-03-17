@@ -1,7 +1,7 @@
+import { actions, selectors } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { useEffect } from "react"
 import { useMap } from "react-map-gl/maplibre"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { actions, selectors } from "@/store"
 
 export default function usePointerHover(mapId: string) {
     const { [mapId]: map } = useMap()
@@ -22,16 +22,20 @@ export default function usePointerHover(mapId: string) {
 
         const subscriptions = layerIds.flatMap(layerId => [
             map.on("mouseenter", layerId, () => {
-                dispatch(actions.map.setInteractive({
-                    mapId,
-                    value: true,
-                }))
+                dispatch(
+                    actions.map.setInteractive({
+                        mapId,
+                        value: true,
+                    }),
+                )
             }),
             map.on("mouseleave", layerId, () => {
-                dispatch(actions.map.setInteractive({
-                    mapId,
-                    value: false,
-                }))
+                dispatch(
+                    actions.map.setInteractive({
+                        mapId,
+                        value: false,
+                    }),
+                )
             }),
         ])
 

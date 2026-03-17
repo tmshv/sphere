@@ -1,5 +1,5 @@
-import { vi, describe, test, expect, beforeEach, type MockInstance } from "vitest"
 import { configureStore } from "@reduxjs/toolkit"
+import { type MockInstance, beforeEach, describe, expect, test, vi } from "vitest"
 
 vi.mock("@tauri-apps/plugin-clipboard-manager", () => ({
     readText: vi.fn(),
@@ -72,10 +72,8 @@ describe("addFromClipboard thunk", () => {
         const call = mockAddFeatureCollection.mock.calls[0][0]
         expect(call.name).toBe("Pasted GeoJSON")
         expect(call.dataset).toMatchObject({ type: "FeatureCollection" })
-        expect(call.dataset!.features).toHaveLength(1)
-        expect(dispatchSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ type: "source/addFeatureCollection" }),
-        )
+        expect(call.dataset?.features).toHaveLength(1)
+        expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "source/addFeatureCollection" }))
     })
 
     test("wraps a Feature into a FeatureCollection", async () => {
@@ -85,9 +83,9 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
         const call = mockAddFeatureCollection.mock.calls[0][0]
-        expect(call.dataset!.type).toBe("FeatureCollection")
-        expect(call.dataset!.features).toHaveLength(1)
-        expect(call.dataset!.features[0]).toEqual(feature)
+        expect(call.dataset?.type).toBe("FeatureCollection")
+        expect(call.dataset?.features).toHaveLength(1)
+        expect(call.dataset?.features[0]).toEqual(feature)
     })
 
     test("wraps a Geometry into a FeatureCollection", async () => {
@@ -97,9 +95,9 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
         const call = mockAddFeatureCollection.mock.calls[0][0]
-        expect(call.dataset!.type).toBe("FeatureCollection")
-        expect(call.dataset!.features).toHaveLength(1)
-        expect(call.dataset!.features[0].geometry).toEqual(geometry)
+        expect(call.dataset?.type).toBe("FeatureCollection")
+        expect(call.dataset?.features).toHaveLength(1)
+        expect(call.dataset?.features[0].geometry).toEqual(geometry)
     })
 
     test("generates a unique id per call", async () => {
@@ -157,9 +155,7 @@ describe("addFromClipboard thunk", () => {
     test("does not throw when readText rejects", async () => {
         mockReadText.mockRejectedValue(new Error("clipboard error"))
 
-        await expect(
-            addFromClipboard()(store.dispatch, store.getState, undefined),
-        ).resolves.not.toThrow()
+        await expect(addFromClipboard()(store.dispatch, store.getState, undefined)).resolves.not.toThrow()
 
         expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
@@ -167,9 +163,7 @@ describe("addFromClipboard thunk", () => {
     test("handles features with null properties without throwing", async () => {
         const fc: GeoJSON.FeatureCollection = {
             type: "FeatureCollection",
-            features: [
-                { type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: null },
-            ],
+            features: [{ type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: null }],
         }
         mockReadText.mockResolvedValue(JSON.stringify(fc))
 

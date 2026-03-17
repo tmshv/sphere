@@ -1,5 +1,5 @@
-import type { MockedFunction } from "vitest"
 import { invoke as _invoke } from "@tauri-apps/api/core"
+import type { MockedFunction } from "vitest"
 import { SourceReader } from "./source-reader"
 
 type InvokeFn = typeof _invoke<string>

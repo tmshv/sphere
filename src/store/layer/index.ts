@@ -1,6 +1,6 @@
+import { type Id, LayerType } from "@/types"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAction, createSlice } from "@reduxjs/toolkit"
-import { Id, LayerType } from "@/types"
 import { sourceSlice } from "../source"
 
 export type PhotoIconLayout = "circle" | "square"
@@ -77,40 +77,40 @@ export const layerSlice = createSlice({
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
         },
-        setPositionBefore: (state, action: PayloadAction<{ layerId: Id, otherLayerId: Id }>) => {
+        setPositionBefore: (state, action: PayloadAction<{ layerId: Id; otherLayerId: Id }>) => {
             const { layerId, otherLayerId } = action.payload
             const index = state.items[otherLayerId].fractionIndex
             state.items[layerId].fractionIndex = index - 0.00001
         },
-        setPositionAfter: (state, action: PayloadAction<{ layerId: Id, otherLayerId: Id }>) => {
+        setPositionAfter: (state, action: PayloadAction<{ layerId: Id; otherLayerId: Id }>) => {
             const { layerId, otherLayerId } = action.payload
             const index = state.items[otherLayerId].fractionIndex
             state.items[layerId].fractionIndex = index + 0.00001
         },
-        setSource: (state, action: PayloadAction<{ id: Id, sourceId: Id, sourceLayer?: string }>) => {
+        setSource: (state, action: PayloadAction<{ id: Id; sourceId: Id; sourceLayer?: string }>) => {
             const { id, sourceId, sourceLayer } = action.payload
             state.items[id].sourceId = sourceId
             state.items[id].sourceLayer = sourceLayer
         },
-        setVisible: (state, action: PayloadAction<{ id: Id, value: boolean }>) => {
+        setVisible: (state, action: PayloadAction<{ id: Id; value: boolean }>) => {
             const { id, value } = action.payload
             state.items[id].visible = value
         },
-        setName: (state, action: PayloadAction<{ id: Id, value: string }>) => {
+        setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
             const { id, value } = action.payload
             state.items[id].name = value
         },
-        setType: (state, action: PayloadAction<{ id: Id, type?: LayerType }>) => {
+        setType: (state, action: PayloadAction<{ id: Id; type?: LayerType }>) => {
             const { id, type } = action.payload
             const layer = state.items[id]
             layer.type = type
 
-            if ((type === LayerType.Point) && !layer.circle) {
+            if (type === LayerType.Point && !layer.circle) {
                 layer.circle = {
                     minRadius: 2,
                     maxRadius: 3,
                 }
-            } else if ((type === LayerType.Heatmap) && !layer.heatmap) {
+            } else if (type === LayerType.Heatmap && !layer.heatmap) {
                 layer.heatmap = {
                     radius: 10,
                     intensity: 3,
@@ -141,18 +141,18 @@ export const layerSlice = createSlice({
                 }
             }
         },
-        setColor: (state, action: PayloadAction<{ id: Id, color: string }>) => {
+        setColor: (state, action: PayloadAction<{ id: Id; color: string }>) => {
             const { id, color } = action.payload
             state.items[id].color = color
         },
-        setCircleRadius: (state, action: PayloadAction<{ id: Id, min: number, max: number }>) => {
+        setCircleRadius: (state, action: PayloadAction<{ id: Id; min: number; max: number }>) => {
             const { id, min, max } = action.payload
             const layer = state.items[id]
             if (!layer.circle) return
             layer.circle.minRadius = min
             layer.circle.maxRadius = max
         },
-        setHeatmapParameters: (state, action: PayloadAction<{ id: Id, radius?: number, intensity?: number }>) => {
+        setHeatmapParameters: (state, action: PayloadAction<{ id: Id; radius?: number; intensity?: number }>) => {
             const { id, radius, intensity } = action.payload
             const layer = state.items[id]
             if (!layer.heatmap) return
@@ -163,19 +163,19 @@ export const layerSlice = createSlice({
                 layer.heatmap.intensity = intensity
             }
         },
-        setPhotoIconLayout: (state, action: PayloadAction<{ id: Id, value: PhotoIconLayout }>) => {
+        setPhotoIconLayout: (state, action: PayloadAction<{ id: Id; value: PhotoIconLayout }>) => {
             const { id, value } = action.payload
             const layer = state.items[id]
             if (!layer.photo) return
             layer.photo.icon = value
         },
-        setPhotoClusterRadius: (state, action: PayloadAction<{ id: Id, value: number }>) => {
+        setPhotoClusterRadius: (state, action: PayloadAction<{ id: Id; value: number }>) => {
             const { id, value } = action.payload
             const layer = state.items[id]
             if (!layer.photo) return
             layer.photo.clusterRadius = value
         },
-        setPhotoField: (state, action: PayloadAction<{ id: Id, src?: string, value?: string, count?: string }>) => {
+        setPhotoField: (state, action: PayloadAction<{ id: Id; src?: string; value?: string; count?: string }>) => {
             const { id, src, value, count } = action.payload
             const layer = state.items[id]
             if (!layer.photo) return
@@ -189,22 +189,25 @@ export const layerSlice = createSlice({
                 layer.photo.countField = count
             }
         },
-        setLayerFilter: (state, action: PayloadAction<{ id: Id, expression: unknown[] | null }>) => {
+        setLayerFilter: (state, action: PayloadAction<{ id: Id; expression: unknown[] | null }>) => {
             const { id, expression } = action.payload
             if (expression === null) {
-                delete state.items[id].filter
+                state.items[id].filter = undefined
             } else {
                 state.items[id].filter = { expression, error: null }
             }
         },
-        setLayerFilterError: (state, action: PayloadAction<{ id: Id, error: string }>) => {
+        setLayerFilterError: (state, action: PayloadAction<{ id: Id; error: string }>) => {
             const { id, error } = action.payload
             const layer = state.items[id]
             if (layer.filter) {
                 layer.filter.error = error
             }
         },
-        setExtrusionOptions: (state, action: PayloadAction<{ id: Id, base?: number, height?: number, baseField?: string, heightField?: string }>) => {
+        setExtrusionOptions: (
+            state,
+            action: PayloadAction<{ id: Id; base?: number; height?: number; baseField?: string; heightField?: string }>,
+        ) => {
             const { id, base, height, baseField, heightField } = action.payload
             const layer = state.items[id]
             if (!layer.extrusion) return
@@ -222,16 +225,15 @@ export const layerSlice = createSlice({
             }
         },
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(sourceSlice.actions.removeSource, (state, action) => {
-                const sourceId = action.payload
-                for (const id of state.allIds) {
-                    if (state.items[id].sourceId === sourceId) {
-                        state.items[id].sourceId = undefined
-                    }
+    extraReducers: builder => {
+        builder.addCase(sourceSlice.actions.removeSource, (state, action) => {
+            const sourceId = action.payload
+            for (const id of state.allIds) {
+                if (state.items[id].sourceId === sourceId) {
+                    state.items[id].sourceId = undefined
                 }
-            })
+            }
+        })
     },
     selectors: {
         allIds: state => state.allIds,

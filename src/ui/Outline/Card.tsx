@@ -1,8 +1,8 @@
+import type { Identifier, XYCoord } from "dnd-core"
 import { useRef } from "react"
 import { useDrag, useDrop } from "react-dnd"
 import type { DragSourceMonitor } from "react-dnd"
 import { ItemTypes } from "./type"
-import type { Identifier, XYCoord } from "dnd-core"
 
 interface DragItem {
     index: number

@@ -1,4 +1,4 @@
-import { nextNumber, nextId } from "@/lib/nextId"
+import { nextId, nextNumber } from "@/lib/nextId"
 
 describe("nextNumber", () => {
     it("should return the provided value if it exists", () => {

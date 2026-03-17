@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
 import type { Map, MapGeoJSONFeature } from "maplibre-gl"
+import { useEffect, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
 export default function useFeatureClick(ref: MapRef | undefined, layerId: string | undefined, delay: number) {
@@ -15,7 +15,7 @@ export default function useFeatureClick(ref: MapRef | undefined, layerId: string
         }
 
         let clickTime = 0
-        const click = map.on("click", layerId, (event) => {
+        const click = map.on("click", layerId, event => {
             if (!event.features) {
                 return
             }

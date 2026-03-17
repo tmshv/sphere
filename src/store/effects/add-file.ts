@@ -1,11 +1,11 @@
+import { SourceType } from "@/types"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { extname } from "@tauri-apps/api/path"
 import { readTextFile } from "@tauri-apps/plugin-fs"
-import { SourceType } from "@/types"
 import { actions as mapStyle } from "../mapStyle"
 import { actions as source } from "../source"
 
-function isStyle(value: object): boolean {
+function isStyle(_value: object): boolean {
     // TODO check the value is real maplibre style
     return true
 }
@@ -26,19 +26,23 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
         }
         case "mbtiles": {
             const url = `file://${path}`
-            thunkAPI.dispatch(source.addFromUrl({
-                url,
-                type: SourceType.MVT,
-                // type: SourceType.Raster,
-            }))
+            thunkAPI.dispatch(
+                source.addFromUrl({
+                    url,
+                    type: SourceType.MVT,
+                    // type: SourceType.Raster,
+                }),
+            )
             break
         }
         default: {
             const url = `file://${path}`
-            thunkAPI.dispatch(source.addFromUrl({
-                url,
-                type: SourceType.Geojson,
-            }))
+            thunkAPI.dispatch(
+                source.addFromUrl({
+                    url,
+                    type: SourceType.Geojson,
+                }),
+            )
             break
         }
     }

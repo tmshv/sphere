@@ -1,10 +1,10 @@
-import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { SourceType } from "@/types"
-import { nextId } from "@/lib/nextId"
 import { nextColor } from "@/lib/color-scheme"
-import { actions } from "../actions"
-import type { RootState } from ".."
+import { nextId } from "@/lib/nextId"
 import predictLayerType from "@/lib/predict-layer-type"
+import { SourceType } from "@/types"
+import { createListenerMiddleware } from "@reduxjs/toolkit"
+import type { RootState } from ".."
+import { actions } from "../actions"
 
 const listener = createListenerMiddleware()
 listener.startListening({
@@ -13,20 +13,18 @@ listener.startListening({
         const state = listenerApi.getOriginalState() as RootState
         const sourceId = action.payload
         const layerId = nextId("layer")
-        const source = sourceId
-            ? state.source.items[sourceId]
-            : undefined
-        const name = source
-            ? source.name
-            : "Layer"
+        const source = sourceId ? state.source.items[sourceId] : undefined
+        const name = source ? source.name : "Layer"
 
-        listenerApi.dispatch(actions.layer.addLayer({
-            id: layerId,
-            fractionIndex: 0.99999,
-            visible: true,
-            name,
-            color: nextColor(),
-        }))
+        listenerApi.dispatch(
+            actions.layer.addLayer({
+                id: layerId,
+                fractionIndex: 0.99999,
+                visible: true,
+                name,
+                color: nextColor(),
+            }),
+        )
 
         if (sourceId && source) {
             let sourceLayer: string | undefined = undefined
@@ -35,20 +33,24 @@ listener.startListening({
                 sourceLayer = source.sourceLayers[0].id
             }
 
-            listenerApi.dispatch(actions.layer.setSource({
-                id: layerId,
-                sourceId,
-                sourceLayer,
-            }))
+            listenerApi.dispatch(
+                actions.layer.setSource({
+                    id: layerId,
+                    sourceId,
+                    sourceLayer,
+                }),
+            )
 
             // try to predict default layer view
             if (source.type === SourceType.FeatureCollection && !source.pending) {
                 const layerType = predictLayerType(source.meta)
                 if (layerType) {
-                    listenerApi.dispatch(actions.layer.setType({
-                        id: layerId,
-                        type: layerType,
-                    }))
+                    listenerApi.dispatch(
+                        actions.layer.setType({
+                            id: layerId,
+                            type: layerType,
+                        }),
+                    )
                 }
             }
 
@@ -56,17 +58,21 @@ listener.startListening({
             if (source.type === SourceType.Geojson) {
                 const layerType = predictLayerType(source.meta)
                 if (layerType) {
-                    listenerApi.dispatch(actions.layer.setType({
-                        id: layerId,
-                        type: layerType,
-                    }))
+                    listenerApi.dispatch(
+                        actions.layer.setType({
+                            id: layerId,
+                            type: layerType,
+                        }),
+                    )
                 }
             }
         }
 
-        listenerApi.dispatch(actions.selection.selectLayer({
-            layerId,
-        }))
+        listenerApi.dispatch(
+            actions.selection.selectLayer({
+                layerId,
+            }),
+        )
     },
 })
 

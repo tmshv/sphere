@@ -35,4 +35,3 @@ export const Badge: React.FC<BadgeProps> = ({ top, right, children }) => {
         </div>
     )
 }
-

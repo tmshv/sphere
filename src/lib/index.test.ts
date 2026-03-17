@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest"
+import { describe, expect, test } from "vitest"
 import { assertUnreachable } from "./index"
 
 describe("assertUnreachable", () => {
@@ -7,9 +7,7 @@ describe("assertUnreachable", () => {
         // switch/if-else branches. TypeScript enforces at compile time that it
         // is only called with type `never`, but we cast here to exercise the
         // runtime behavior.
-        expect(() => assertUnreachable("unexpected" as never)).toThrow(
-            "Didn't expect to get here",
-        )
+        expect(() => assertUnreachable("unexpected" as never)).toThrow("Didn't expect to get here")
     })
 
     test("throws an Error instance", () => {

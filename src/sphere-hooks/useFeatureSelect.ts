@@ -1,8 +1,8 @@
-import type { MapRef } from "react-map-gl/maplibre"
-import { useEffect } from "react"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { actions, selectors } from "@/store"
 import { queryFeaturesInPoint } from "@/lib/maplibre"
+import { actions, selectors } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { useEffect } from "react"
+import type { MapRef } from "react-map-gl/maplibre"
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
@@ -18,10 +18,12 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
             const features = queryFeaturesInPoint(event.target, event.point, layerIds)
             if (features.length > 0) {
                 const f = features[0]
-                dispatch(actions.selection.selectOne({
-                    layerId: f.layer!.id,
-                    featureId: f.id as number,
-                }))
+                dispatch(
+                    actions.selection.selectOne({
+                        layerId: f.layer?.id,
+                        featureId: f.id as number,
+                    }),
+                )
             } else {
                 dispatch(actions.selection.reset())
             }

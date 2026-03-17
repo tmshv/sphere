@@ -1,5 +1,5 @@
+import { Button, Group, Stack, Text, createStyles } from "@mantine/core"
 import type { FallbackProps } from "react-error-boundary"
-import { createStyles, Stack, Text, Button, Group } from "@mantine/core"
 
 type Variant = "fullscreen" | "sidebar"
 
@@ -34,18 +34,10 @@ export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallb
                     {error instanceof Error ? error.message : String(error)}
                 </Text>
                 <Group spacing="xs">
-                    <Button
-                        size="xs"
-                        variant="light"
-                        onClick={resetErrorBoundary}
-                    >
+                    <Button size="xs" variant="light" onClick={resetErrorBoundary}>
                         Try Again
                     </Button>
-                    <Button
-                        size="xs"
-                        variant="subtle"
-                        onClick={() => window.location.reload()}
-                    >
+                    <Button size="xs" variant="subtle" onClick={() => window.location.reload()}>
                         Reload App
                     </Button>
                 </Group>

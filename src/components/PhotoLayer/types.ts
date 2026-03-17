@@ -1,4 +1,4 @@
 export type GetImageFunction = (p: GeoJSON.GeoJsonProperties) => {
-    src: string,
+    src: string
     value: number
 }

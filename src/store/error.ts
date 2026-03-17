@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from "."
+import type { RootState } from "."
 
 // Define a type for the slice state
 type ErrorState = {
@@ -8,8 +8,7 @@ type ErrorState = {
 }
 
 // Define the initial state using that type
-const initialState: ErrorState = {
-}
+const initialState: ErrorState = {}
 
 export const errorSlice = createSlice({
     name: "error",

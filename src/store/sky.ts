@@ -1,6 +1,6 @@
-import type { SkySpecification } from "maplibre-gl"
 import { createSlice } from "@reduxjs/toolkit"
-import { RootState } from "."
+import type { SkySpecification } from "maplibre-gl"
+import type { RootState } from "."
 
 // Define a type for the slice state
 export type SkyState = {

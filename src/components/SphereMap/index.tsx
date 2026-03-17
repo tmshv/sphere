@@ -1,8 +1,8 @@
+import logger from "@/logger"
+import { selectors } from "@/store"
+import { useAppSelector } from "@/store/hooks"
 import { Source } from "react-map-gl/maplibre"
 import Map from "react-map-gl/maplibre"
-import { useAppSelector } from "@/store/hooks"
-import { selectors } from "@/store"
-import logger from "@/logger"
 import MapBody from "./map-body"
 
 export type SphereMapProps = {
@@ -27,18 +27,12 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
             mapStyle={mapStyle}
             logoPosition={"bottom-right"}
             attributionControl={false}
-            onError={(error) => {
-                logger.error("Got maplibre error %s" , error)
+            onError={error => {
+                logger.error("Got maplibre error %s", error)
             }}
         >
-            <Source
-                id={"mapbox-dem"}
-                type={"raster-dem"}
-                url={"mapbox://mapbox.mapbox-terrain-dem-v1"}
-            />
-            <MapBody
-                mapId={id}
-            />
+            <Source id={"mapbox-dem"} type={"raster-dem"} url={"mapbox://mapbox.mapbox-terrain-dem-v1"} />
+            <MapBody mapId={id} />
         </Map>
     )
 }

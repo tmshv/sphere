@@ -13,4 +13,3 @@ export function getStem(pathname: string): string | null {
     }
     return init(fileParts).join(".")
 }
-

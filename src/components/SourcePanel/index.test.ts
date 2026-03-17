@@ -1,6 +1,6 @@
-import { describe, test, expect } from "vitest"
-import { selector, selectCurrentSourceItem } from "./index"
 import { SourceType } from "@/types"
+import { describe, expect, test } from "vitest"
+import { selectCurrentSourceItem, selector } from "./index"
 
 const makeGeojsonSource = (id: string, overrides: Record<string, any> = {}) => ({
     id,
@@ -14,12 +14,13 @@ const makeGeojsonSource = (id: string, overrides: Record<string, any> = {}) => (
     ...overrides,
 })
 
-const makeRootState = (overrides: Record<string, any> = {}) => ({
-    selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
-    layer: { items: {}, allIds: [] },
-    source: { items: {}, allIds: [] },
-    ...overrides,
-} as any)
+const makeRootState = (overrides: Record<string, any> = {}) =>
+    ({
+        selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
+        layer: { items: {}, allIds: [] },
+        source: { items: {}, allIds: [] },
+        ...overrides,
+    }) as any
 
 describe("selectCurrentSourceItem", () => {
     test("returns null when no source is selected", () => {
@@ -92,12 +93,12 @@ describe("selector (SourcePanel)", () => {
         })
         const result = selector(state)
         expect(result).not.toBeNull()
-        expect(result!.id).toBe("s1")
-        expect(result!.name).toBe("Source s1")
-        expect(result!.type).toBe(SourceType.Geojson)
-        expect(result!.location).toBe("/path/to/s1.geojson")
-        expect(result!.editable).toBe(true)
-        expect(result!.reloadDisabled).toBe(false)
+        expect(result?.id).toBe("s1")
+        expect(result?.name).toBe("Source s1")
+        expect(result?.type).toBe(SourceType.Geojson)
+        expect(result?.location).toBe("/path/to/s1.geojson")
+        expect(result?.editable).toBe(true)
+        expect(result?.reloadDisabled).toBe(false)
     })
 
     test("reloadDisabled is true for non-reloadable source types", () => {
@@ -113,7 +114,7 @@ describe("selector (SourcePanel)", () => {
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = selector(state)
-        expect(result!.reloadDisabled).toBe(true)
+        expect(result?.reloadDisabled).toBe(true)
     })
 
     test("meta is populated for Geojson sources", () => {
@@ -123,7 +124,7 @@ describe("selector (SourcePanel)", () => {
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = selector(state)
-        expect(result!.meta).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
+        expect(result?.meta).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
     })
 
     test("meta is populated for FeatureCollection sources", () => {
@@ -143,7 +144,7 @@ describe("selector (SourcePanel)", () => {
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = selector(state)
-        expect(result!.meta).toEqual({ columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 })
+        expect(result?.meta).toEqual({ columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 })
     })
 
     test("is memoized: returns same reference when unrelated source changes", () => {
@@ -181,6 +182,6 @@ describe("selector (SourcePanel)", () => {
         const result2 = selector(state2)
 
         expect(result1).not.toBe(result2)
-        expect(result2!.name).toBe("Updated")
+        expect(result2?.name).toBe("Updated")
     })
 })

@@ -1,10 +1,10 @@
-import { describe, test, expect } from "vitest"
+import { describe, expect, test } from "vitest"
 import reducer, { drawSlice } from "./draw"
 
 const { start, done, reset } = drawSlice.actions
 const { isDrawing } = drawSlice.selectors
 
-const makeRootState = (draw: object) => ({ draw } as any)
+const makeRootState = (draw: object) => ({ draw }) as any
 
 const emptyFeatureCollection: GeoJSON.FeatureCollection = {
     type: "FeatureCollection",

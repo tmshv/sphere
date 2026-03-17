@@ -1,14 +1,14 @@
 import "./style.css"
 
-import { emit, listen, UnlistenFn } from "@tauri-apps/api/event"
+import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
+import type { SourceMetadata } from "@/types"
+import { Box, createStyles } from "@mantine/core"
+import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
+import { type UnlistenFn, emit, listen } from "@tauri-apps/api/event"
 import React, { useEffect, useState, useCallback } from "react"
 import ReactDOM from "react-dom/client"
-import { createColumnHelper, ColumnDef, SortingState } from "@tanstack/react-table"
-import { Box, createStyles } from "@mantine/core"
+import { PropertesTable, type PropertyItem, type PropertyItemMeta } from "./ui/PropertiesTable"
 import { ThemeProvider } from "./ui/ThemeProvider"
-import { PropertesTable, PropertyItem, PropertyItemMeta } from "./ui/PropertiesTable"
-import { SourceReader, PageResult, ColumnStats } from "@/lib/source-reader"
-import type { SourceMetadata } from "@/types"
 
 type PropertiesSetPayload = {
     sourceId: string
@@ -27,7 +27,10 @@ const useStyle = createStyles(() => ({
 
 const columnHelper = createColumnHelper<PropertyItem>()
 
-function schemaToMeta(columns: Record<string, string>, columnStats: Record<string, ColumnStats>): Record<string, PropertyItemMeta> {
+function schemaToMeta(
+    columns: Record<string, string>,
+    columnStats: Record<string, ColumnStats>,
+): Record<string, PropertyItemMeta> {
     const meta: Record<string, PropertyItemMeta> = {
         $id: { type: "unknown" },
     }
@@ -94,8 +97,12 @@ const View: React.FC = () => {
             setFilterExpression(event.payload.filterExpression)
             setPageIndex(0)
             setSorting([])
-        }).then(fn => { stop = fn })
-        return () => { stop?.() }
+        }).then(fn => {
+            stop = fn
+        })
+        return () => {
+            stop?.()
+        }
     }, [])
 
     // Fetch column stats once per source
@@ -103,10 +110,12 @@ const View: React.FC = () => {
         if (!sourceId || !schema) return
         const reader = new SourceReader(sourceId)
         const cols = Object.keys(schema.columns)
-        Promise.all(cols.map(async col => {
-            const stats = await reader.getColumnStats(col)
-            return [col, stats] as const
-        })).then(entries => {
+        Promise.all(
+            cols.map(async col => {
+                const stats = await reader.getColumnStats(col)
+                return [col, stats] as const
+            }),
+        ).then(entries => {
             const record: Record<string, ColumnStats> = {}
             for (const [col, stats] of entries) {
                 if (stats) record[col] = stats

@@ -1,24 +1,24 @@
-import { useCallback } from "react"
-import { useHotkeys } from "@mantine/hooks"
-import { MapProvider } from "react-map-gl/maplibre"
-import { ErrorBoundary } from "react-error-boundary"
-import { Center } from "@mantine/core"
-import { MapStatusbar } from "../MapStatusbar"
-import { AppLayout } from "@/ui/AppLayout"
-import { SphereMap } from "../SphereMap"
-import { Spotlight } from "../Spotlight"
-import { LeftSidebar } from "../LeftSidebar"
-import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { selectShowLeftSidebar } from "@/store/app"
 import { MAP_ID } from "@/const"
+import logger from "@/logger"
+import { actions, selectors } from "@/store"
+import { selectShowLeftSidebar } from "@/store/app"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import addFromClipboard from "@/store/source/addFromClipboard"
+import { AppLayout } from "@/ui/AppLayout"
+import { ErrorFallback } from "@/ui/ErrorFallback"
 import { Overlay } from "@/ui/Overlay"
 import { Sidebar } from "@/ui/Sidebar"
-import { actions, selectors } from "@/store"
-import addFromClipboard from "@/store/source/addFromClipboard"
-import { WorkingIndicator } from "../WorkingIndicator"
+import { Center } from "@mantine/core"
+import { useHotkeys } from "@mantine/hooks"
+import { useCallback } from "react"
+import { ErrorBoundary } from "react-error-boundary"
+import { MapProvider } from "react-map-gl/maplibre"
+import { LeftSidebar } from "../LeftSidebar"
+import { MapStatusbar } from "../MapStatusbar"
 import PropertiesPopup from "../PropertiesPopup"
-import { ErrorFallback } from "@/ui/ErrorFallback"
-import logger from "@/logger"
+import { SphereMap } from "../SphereMap"
+import { Spotlight } from "../Spotlight"
+import { WorkingIndicator } from "../WorkingIndicator"
 
 const WORKING_INDICATOR_STYLE: React.CSSProperties = {
     position: "absolute",
@@ -42,41 +42,37 @@ export default function App() {
 
     return (
         <MapProvider>
-            <Spotlight
-                mapId={id}
-            >
+            <Spotlight mapId={id}>
                 <AppLayout
-                    footer={(
-                        <MapStatusbar
-                            id={id}
-                        />
-                    )}
-                    leftSidebar={!left ? null : (
-                        <Sidebar
-                            startWidth={300}
-                            minWidth={265}
-                            maxWidth={500}
-                            onResize={onResize}
-                        >
-                            <Center style={WORKING_INDICATOR_STYLE}>
-                                <WorkingIndicator />
-                            </Center>
-                            <ErrorBoundary
-                                fallbackRender={(props) => <ErrorFallback {...props} variant="sidebar" />}
-                                onError={(error) => logger.error("LeftSidebar crashed: %s", error instanceof Error ? error.message : error)}
-                            >
-                                <LeftSidebar />
-                            </ErrorBoundary>
-                        </Sidebar>
-                    )}
+                    footer={<MapStatusbar id={id} />}
+                    leftSidebar={
+                        !left ? null : (
+                            <Sidebar startWidth={300} minWidth={265} maxWidth={500} onResize={onResize}>
+                                <Center style={WORKING_INDICATOR_STYLE}>
+                                    <WorkingIndicator />
+                                </Center>
+                                <ErrorBoundary
+                                    fallbackRender={props => <ErrorFallback {...props} variant="sidebar" />}
+                                    onError={error =>
+                                        logger.error(
+                                            "LeftSidebar crashed: %s",
+                                            error instanceof Error ? error.message : error,
+                                        )
+                                    }
+                                >
+                                    <LeftSidebar />
+                                </ErrorBoundary>
+                            </Sidebar>
+                        )
+                    }
                 >
                     <ErrorBoundary
-                        fallbackRender={(props) => <ErrorFallback {...props} variant="fullscreen" />}
-                        onError={(error) => logger.error("SphereMap crashed: %s", error instanceof Error ? error.message : error)}
+                        fallbackRender={props => <ErrorFallback {...props} variant="fullscreen" />}
+                        onError={error =>
+                            logger.error("SphereMap crashed: %s", error instanceof Error ? error.message : error)
+                        }
                     >
-                        <SphereMap
-                            id={id}
-                        />
+                        <SphereMap id={id} />
                     </ErrorBoundary>
                     {/* <MapContextMenu
                         id={id}

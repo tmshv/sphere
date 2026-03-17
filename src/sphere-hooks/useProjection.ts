@@ -1,8 +1,8 @@
-import { MapRef } from "react-map-gl/maplibre"
-import { useEffect } from "react"
-import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store"
+import { useAppSelector } from "@/store/hooks"
 import type { Projection } from "@/types"
+import { useEffect } from "react"
+import type { MapRef } from "react-map-gl/maplibre"
 
 export type ProjectionProps = {
     fallback: Projection

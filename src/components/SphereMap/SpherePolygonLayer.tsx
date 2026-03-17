@@ -1,7 +1,7 @@
-import { Layer } from "react-map-gl/maplibre"
-import { useMemo } from "react"
-import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
+import { useMemo } from "react"
+import { Layer } from "react-map-gl/maplibre"
 
 type FillPaint = FillLayerSpecification["paint"]
 type LinePaint = LineLayerSpecification["paint"]
@@ -14,7 +14,13 @@ export type SpherePolygonLayerProps = {
     visible: boolean
 }
 
-export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({ layerId, sourceId, sourceLayer, color, visible }) => {
+export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
+    layerId,
+    sourceId,
+    sourceLayer,
+    color,
+    visible,
+}) => {
     const [fill, outline0, outline1, selected] = useMemo(() => {
         const fill: FillPaint = {
             "fill-color": color,

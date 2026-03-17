@@ -1,6 +1,6 @@
 import { Menu } from "@mantine/core"
-import { useEffect, useState } from "react"
 import { useToggle } from "@mantine/hooks"
+import { useEffect, useState } from "react"
 
 export type ContextMenuProps = {
     children: React.ReactNode
@@ -45,16 +45,16 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
             }}
         >
             <Menu.Target>
-                <div style={{
-                    position: "absolute",
-                    left: contextCoord[0],
-                    top: contextCoord[1],
-                }}></div>
+                <div
+                    style={{
+                        position: "absolute",
+                        left: contextCoord[0],
+                        top: contextCoord[1],
+                    }}
+                />
             </Menu.Target>
 
-            <Menu.Dropdown>
-                {children}
-            </Menu.Dropdown>
+            <Menu.Dropdown>{children}</Menu.Dropdown>
         </Menu>
     )
 }

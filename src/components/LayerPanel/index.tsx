@@ -1,11 +1,21 @@
-import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
-import { useAppDispatch } from "@/store/hooks"
-import { IconPolygon, IconPoint, IconLine, IconPhoto, IconFlame, IconCrosshair, IconTrash, IconCopy, IconX } from "@tabler/icons"
-import { LayerType, SourceType } from "@/types"
 import { actions, selectors } from "@/store"
+import { useAppDispatch } from "@/store/hooks"
+import type { PhotoIconLayout } from "@/store/layer"
+import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
-import { PhotoIconLayout } from "@/store/layer"
+import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
+import {
+    IconCopy,
+    IconCrosshair,
+    IconFlame,
+    IconLine,
+    IconPhoto,
+    IconPoint,
+    IconPolygon,
+    IconTrash,
+    IconX,
+} from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
@@ -14,9 +24,9 @@ type Option = {
     label: string
 }
 
-const sourcesSelector = createSelector([selectors.source.items, selectors.source.allIds],
-    (items, allIds) => {
-        return allIds.reduce((acc, id) => {
+const sourcesSelector = createSelector([selectors.source.items, selectors.source.allIds], (items, allIds) => {
+    return allIds.reduce(
+        (acc, id) => {
             const source = items[id]
             if (!source.pending) {
                 acc.push({
@@ -26,18 +36,19 @@ const sourcesSelector = createSelector([selectors.source.items, selectors.source
                 })
             }
             return acc
-        }, [] as Array<Option & { type: SourceType }>)
-    },
-)
+        },
+        [] as Array<Option & { type: SourceType }>,
+    )
+})
 
 export const selectCurrentLayerItem = createSelector(
     [selectors.selection.currentLayerId, selectors.layer.items],
-    (id, items) => id ? items[id] ?? null : null,
+    (id, items) => (id ? (items[id] ?? null) : null),
 )
 
 export const selectCurrentLayerSourceItem = createSelector(
     [selectCurrentLayerItem, selectors.source.items],
-    (layer, items) => layer?.sourceId ? items[layer.sourceId] ?? null : null,
+    (layer, items) => (layer?.sourceId ? (items[layer.sourceId] ?? null) : null),
 )
 
 export const layerSelector = createSelector(
@@ -115,7 +126,21 @@ export const LayerPanel: React.FC = () => {
     if (!layer) {
         return null
     }
-    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity, filterError, isTileSource } = layer
+    const {
+        id: layerId,
+        sourceId,
+        sourceLayer,
+        sourceLayers,
+        name,
+        type,
+        color,
+        circleRange,
+        clusterRadius,
+        heatmapRadius,
+        heatmapIntensity,
+        filterError,
+        isTileSource,
+    } = layer
 
     function handleFilterChange(text: string) {
         setFilterText(text)
@@ -153,37 +178,25 @@ export const LayerPanel: React.FC = () => {
         dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
     }
 
-    let icon: React.ReactNode = null
+    let _icon: React.ReactNode = null
     if (type === LayerType.Point) {
-        icon = (
-            <IconPoint size={20} color={color} />
-        )
+        _icon = <IconPoint size={20} color={color} />
     }
     if (type === LayerType.Line) {
-        icon = (
-            <IconLine size={20} color={color} />
-        )
+        _icon = <IconLine size={20} color={color} />
     }
     if (type === LayerType.Polygon) {
-        icon = (
-            <IconPolygon size={20} color={color} />
-        )
+        _icon = <IconPolygon size={20} color={color} />
     }
     if (type === LayerType.Photo) {
-        icon = (
-            <IconPhoto size={20} color={color} />
-        )
+        _icon = <IconPhoto size={20} color={color} />
     }
     if (type === LayerType.Raster) {
-        icon = (
-            <IconPhoto size={20} color={color} />
-        )
+        _icon = <IconPhoto size={20} color={color} />
     }
     if (type === LayerType.Heatmap) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        icon = (
-            <IconFlame size={20} color={color} />
-        )
+        _icon = <IconFlame size={20} color={color} />
     }
 
     return (
@@ -237,10 +250,12 @@ export const LayerPanel: React.FC = () => {
                 value={name}
                 onChange={event => {
                     const value = event.target.value
-                    dispatch(actions.layer.setName({
-                        id: layerId,
-                        value,
-                    }))
+                    dispatch(
+                        actions.layer.setName({
+                            id: layerId,
+                            value,
+                        }),
+                    )
                 }}
             />
 
@@ -254,10 +269,12 @@ export const LayerPanel: React.FC = () => {
                     if (!sourceId) {
                         return
                     }
-                    dispatch(actions.layer.setSource({
-                        id: layerId,
-                        sourceId,
-                    }))
+                    dispatch(
+                        actions.layer.setSource({
+                            id: layerId,
+                            sourceId,
+                        }),
+                    )
                 }}
             />
 
@@ -272,9 +289,11 @@ export const LayerPanel: React.FC = () => {
                     autoCapitalize="none"
                     spellCheck={false}
                     rightSection={
-                        filterText
-                            ? <ActionIcon size="xs" onClick={clearFilter}><IconX size={10} /></ActionIcon>
-                            : null
+                        filterText ? (
+                            <ActionIcon size="xs" onClick={clearFilter}>
+                                <IconX size={10} />
+                            </ActionIcon>
+                        ) : null
                     }
                     onChange={e => handleFilterChange(e.currentTarget.value)}
                     onBlur={handleFilterBlur}
@@ -292,11 +311,13 @@ export const LayerPanel: React.FC = () => {
                         if (!value) {
                             return
                         }
-                        dispatch(actions.layer.setSource({
-                            id: layerId,
-                            sourceId: sourceId!,
-                            sourceLayer: value,
-                        }))
+                        dispatch(
+                            actions.layer.setSource({
+                                id: layerId,
+                                sourceId: sourceId!,
+                                sourceLayer: value,
+                            }),
+                        )
                     }}
                 />
             )}
@@ -317,22 +338,34 @@ export const LayerPanel: React.FC = () => {
                 ]}
                 onChange={value => {
                     if (value) {
-                        dispatch(actions.layer.setType({
-                            id: layerId,
-                            type: value as LayerType,
-                        }))
+                        dispatch(
+                            actions.layer.setType({
+                                id: layerId,
+                                type: value as LayerType,
+                            }),
+                        )
                     }
                 }}
             />
 
-            {!(type === LayerType.Point || type === LayerType.Line || type === LayerType.Polygon || type === LayerType.Extrusion) ? null : (
+            {!(
+                type === LayerType.Point ||
+                type === LayerType.Line ||
+                type === LayerType.Polygon ||
+                type === LayerType.Extrusion
+            ) ? null : (
                 <>
-                    <Input.Wrapper label={(
-                        <>
-                            Color
-                            <Badge ml={"xs"} size="xs" radius={"sm"}>{color}</Badge>
-                        </>
-                    )} size="xs">
+                    <Input.Wrapper
+                        label={
+                            <>
+                                Color
+                                <Badge ml={"xs"} size="xs" radius={"sm"}>
+                                    {color}
+                                </Badge>
+                            </>
+                        }
+                        size="xs"
+                    >
                         <ColorPicker
                             format="hex"
                             size="xs"
@@ -365,11 +398,13 @@ export const LayerPanel: React.FC = () => {
                             max={10}
                             value={circleRange[1]}
                             onChange={max => {
-                                dispatch(actions.layer.setCircleRadius({
-                                    id: layerId,
-                                    min: 0,
-                                    max,
-                                }))
+                                dispatch(
+                                    actions.layer.setCircleRadius({
+                                        id: layerId,
+                                        min: 0,
+                                        max,
+                                    }),
+                                )
                             }}
                         />
                     </Input.Wrapper>
@@ -386,10 +421,12 @@ export const LayerPanel: React.FC = () => {
                             max={30}
                             value={heatmapRadius}
                             onChange={value => {
-                                dispatch(actions.layer.setHeatmapParameters({
-                                    id: layerId,
-                                    radius: value,
-                                }))
+                                dispatch(
+                                    actions.layer.setHeatmapParameters({
+                                        id: layerId,
+                                        radius: value,
+                                    }),
+                                )
                             }}
                         />
                     </Input.Wrapper>
@@ -401,10 +438,12 @@ export const LayerPanel: React.FC = () => {
                             max={5}
                             value={heatmapIntensity}
                             onChange={value => {
-                                dispatch(actions.layer.setHeatmapParameters({
-                                    id: layerId,
-                                    intensity: value,
-                                }))
+                                dispatch(
+                                    actions.layer.setHeatmapParameters({
+                                        id: layerId,
+                                        intensity: value,
+                                    }),
+                                )
                             }}
                         />
                     </Input.Wrapper>
@@ -421,10 +460,12 @@ export const LayerPanel: React.FC = () => {
                             max={200}
                             value={clusterRadius}
                             onChange={value => {
-                                dispatch(actions.layer.setPhotoClusterRadius({
-                                    id: layerId,
-                                    value,
-                                }))
+                                dispatch(
+                                    actions.layer.setPhotoClusterRadius({
+                                        id: layerId,
+                                        value,
+                                    }),
+                                )
                             }}
                         />
                     </Input.Wrapper>
@@ -436,10 +477,12 @@ export const LayerPanel: React.FC = () => {
                         data={layer.fields}
                         onChange={src => {
                             if (src) {
-                                dispatch(actions.layer.setPhotoField({
-                                    id: layerId,
-                                    src,
-                                }))
+                                dispatch(
+                                    actions.layer.setPhotoField({
+                                        id: layerId,
+                                        src,
+                                    }),
+                                )
                             }
                         }}
                     />
@@ -451,10 +494,12 @@ export const LayerPanel: React.FC = () => {
                         data={layer.fields}
                         onChange={value => {
                             if (value) {
-                                dispatch(actions.layer.setPhotoField({
-                                    id: layerId,
-                                    value,
-                                }))
+                                dispatch(
+                                    actions.layer.setPhotoField({
+                                        id: layerId,
+                                        value,
+                                    }),
+                                )
                             }
                         }}
                     />
@@ -469,10 +514,12 @@ export const LayerPanel: React.FC = () => {
                         ]}
                         onChange={(value: PhotoIconLayout) => {
                             if (value) {
-                                dispatch(actions.layer.setPhotoIconLayout({
-                                    id: layerId,
-                                    value,
-                                }))
+                                dispatch(
+                                    actions.layer.setPhotoIconLayout({
+                                        id: layerId,
+                                        value,
+                                    }),
+                                )
                             }
                         }}
                     />
@@ -489,10 +536,12 @@ export const LayerPanel: React.FC = () => {
                             max={10}
                             value={layer.extrusionHeight}
                             onChange={value => {
-                                dispatch(actions.layer.setExtrusionOptions({
-                                    id: layerId,
-                                    height: value,
-                                }))
+                                dispatch(
+                                    actions.layer.setExtrusionOptions({
+                                        id: layerId,
+                                        height: value,
+                                    }),
+                                )
                             }}
                         />
                     </Input.Wrapper>
@@ -504,10 +553,12 @@ export const LayerPanel: React.FC = () => {
                         data={layer.fields}
                         onChange={value => {
                             if (value) {
-                                dispatch(actions.layer.setExtrusionOptions({
-                                    id: layerId,
-                                    heightField: value,
-                                }))
+                                dispatch(
+                                    actions.layer.setExtrusionOptions({
+                                        id: layerId,
+                                        heightField: value,
+                                    }),
+                                )
                             }
                         }}
                     />
@@ -519,10 +570,12 @@ export const LayerPanel: React.FC = () => {
                             max={10}
                             value={layer.extrusionBase}
                             onChange={value => {
-                                dispatch(actions.layer.setExtrusionOptions({
-                                    id: layerId,
-                                    base: value,
-                                }))
+                                dispatch(
+                                    actions.layer.setExtrusionOptions({
+                                        id: layerId,
+                                        base: value,
+                                    }),
+                                )
                             }}
                         />
                     </Input.Wrapper>
@@ -534,10 +587,12 @@ export const LayerPanel: React.FC = () => {
                         data={layer.fields}
                         onChange={value => {
                             if (value) {
-                                dispatch(actions.layer.setExtrusionOptions({
-                                    id: layerId,
-                                    baseField: value,
-                                }))
+                                dispatch(
+                                    actions.layer.setExtrusionOptions({
+                                        id: layerId,
+                                        baseField: value,
+                                    }),
+                                )
                             }
                         }}
                     />

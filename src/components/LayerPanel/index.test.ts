@@ -1,6 +1,6 @@
-import { describe, test, expect } from "vitest"
-import { layerSelector, selectCurrentLayerItem, selectCurrentLayerSourceItem } from "./index"
 import { LayerType, SourceType } from "@/types"
+import { describe, expect, test } from "vitest"
+import { layerSelector, selectCurrentLayerItem, selectCurrentLayerSourceItem } from "./index"
 
 const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
     id,
@@ -25,12 +25,13 @@ const makeGeojsonSource = (id: string, overrides: Record<string, any> = {}) => (
     ...overrides,
 })
 
-const makeRootState = (overrides: Record<string, any> = {}) => ({
-    selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
-    layer: { items: {}, allIds: [] },
-    source: { items: {}, allIds: [] },
-    ...overrides,
-} as any)
+const makeRootState = (overrides: Record<string, any> = {}) =>
+    ({
+        selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
+        layer: { items: {}, allIds: [] },
+        source: { items: {}, allIds: [] },
+        ...overrides,
+    }) as any
 
 describe("selectCurrentLayerItem", () => {
     test("returns null when no layer is selected", () => {
@@ -152,17 +153,22 @@ describe("layerSelector", () => {
         })
         const result = layerSelector(state)
         expect(result).not.toBeNull()
-        expect(result!.id).toBe("l1")
-        expect(result!.name).toBe("Layer l1")
-        expect(result!.type).toBe(LayerType.Point)
-        expect(result!.color).toBe("#ff0000")
-        expect(result!.sourceId).toBe("s1")
-        expect(result!.circleRange).toEqual([2, 6])
+        expect(result?.id).toBe("l1")
+        expect(result?.name).toBe("Layer l1")
+        expect(result?.type).toBe(LayerType.Point)
+        expect(result?.color).toBe("#ff0000")
+        expect(result?.sourceId).toBe("s1")
+        expect(result?.circleRange).toEqual([2, 6])
     })
 
     test("returns panel data with fields from Geojson source", () => {
         const source = makeGeojsonSource("s1", {
-            meta: { columns: { name: "String", value: "Number", count: "Number" }, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            meta: {
+                columns: { name: "String", value: "Number", count: "Number" },
+                pointsCount: 0,
+                linesCount: 0,
+                polygonsCount: 0,
+            },
         })
         const layer = makeLayer("l1", { sourceId: "s1" })
         const state = makeRootState({
@@ -171,9 +177,9 @@ describe("layerSelector", () => {
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = layerSelector(state)
-        expect(result!.fields).toContain("name")
-        expect(result!.fields).toContain("value")
-        expect(result!.fields).toContain("count")
+        expect(result?.fields).toContain("name")
+        expect(result?.fields).toContain("value")
+        expect(result?.fields).toContain("count")
     })
 
     test("returns empty fields when layer has no source", () => {
@@ -184,7 +190,7 @@ describe("layerSelector", () => {
             source: { items: {}, allIds: [] },
         })
         const result = layerSelector(state)
-        expect(result!.fields).toEqual([])
+        expect(result?.fields).toEqual([])
     })
 
     test("is memoized: returns same reference when unrelated layer changes", () => {
@@ -250,6 +256,6 @@ describe("layerSelector", () => {
         const result2 = layerSelector(state2)
 
         expect(result1).not.toBe(result2)
-        expect(result2!.color).toBe("#00ff00")
+        expect(result2?.color).toBe("#00ff00")
     })
 })

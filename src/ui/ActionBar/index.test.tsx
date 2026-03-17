@@ -1,7 +1,5 @@
-// @vitest-environment happy-dom
-import React from "react"
-import { describe, it, expect, vi } from "vitest"
-import { render, screen, fireEvent } from "@/test-utils"
+import { fireEvent, render, screen } from "@/test-utils"
+import { describe, expect, it, vi } from "vitest"
 import { ActionBar } from "."
 import type { ActionBarItem } from "."
 
@@ -33,13 +31,7 @@ describe("ActionBar", () => {
 
     it("clicking an icon calls onClick with the item name", () => {
         const onClick = vi.fn()
-        render(
-            <ActionBar
-                items={[makeItem("save"), makeItem("delete")]}
-                onClick={onClick}
-                tooltipPosition="bottom"
-            />,
-        )
+        render(<ActionBar items={[makeItem("save"), makeItem("delete")]} onClick={onClick} tooltipPosition="bottom" />)
         const buttons = screen.getAllByRole("button")
         fireEvent.click(buttons[0])
         expect(onClick).toHaveBeenCalledWith("save")
@@ -48,25 +40,13 @@ describe("ActionBar", () => {
     })
 
     it("null items render as spacers without action icon button", () => {
-        render(
-            <ActionBar
-                items={[makeItem("a"), null, makeItem("b")]}
-                onClick={vi.fn()}
-                tooltipPosition="bottom"
-            />,
-        )
+        render(<ActionBar items={[makeItem("a"), null, makeItem("b")]} onClick={vi.fn()} tooltipPosition="bottom" />)
         const buttons = screen.getAllByRole("button")
         expect(buttons).toHaveLength(2)
     })
 
     it("disabled items have disabled attribute", () => {
-        render(
-            <ActionBar
-                items={[makeItem("action", true)]}
-                onClick={vi.fn()}
-                tooltipPosition="bottom"
-            />,
-        )
+        render(<ActionBar items={[makeItem("action", true)]} onClick={vi.fn()} tooltipPosition="bottom" />)
         const button = screen.getByRole("button")
         expect(button).toBeDisabled()
     })

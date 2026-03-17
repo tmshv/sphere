@@ -1,8 +1,8 @@
-import { Container, Paper, Title } from "@mantine/core"
 import { useAppSelector } from "@/store/hooks"
 import { selectProperties } from "@/store/properties"
-import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Overlay } from "@/ui/Overlay"
+import { PropertiesViewer } from "@/ui/PropertiesViewer"
+import { Container, Paper, Title } from "@mantine/core"
 
 const CONTAINER_STYLE: React.CSSProperties = {
     minWidth: 300,
@@ -27,22 +27,19 @@ export default function PropertiesPopup() {
     }
 
     return (
-        <Overlay topRight={(
-            <Container pt={"lg"} style={CONTAINER_STYLE}>
-                <Paper p={"sm"} style={PAPER_STYLE}>
-                    <Title order={3}>
-                        Properties
-                    </Title>
-                    <div style={BODY_STYLE}>
-                        {props.map((x, i) => (
-                            <PropertiesViewer
-                                key={i}
-                                properties={x}
-                            />
-                        ))}
-                    </div>
-                </Paper>
-            </Container>
-        )} />
+        <Overlay
+            topRight={
+                <Container pt={"lg"} style={CONTAINER_STYLE}>
+                    <Paper p={"sm"} style={PAPER_STYLE}>
+                        <Title order={3}>Properties</Title>
+                        <div style={BODY_STYLE}>
+                            {props.map((x, i) => (
+                                <PropertiesViewer key={i} properties={x} />
+                            ))}
+                        </div>
+                    </Paper>
+                </Container>
+            }
+        />
     )
 }

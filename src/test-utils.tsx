@@ -1,6 +1,6 @@
-import React from "react"
 import { MantineProvider } from "@mantine/core"
-import { render, type RenderOptions } from "@testing-library/react"
+import { type RenderOptions, render } from "@testing-library/react"
+import type React from "react"
 
 function AllProviders({ children }: { children: React.ReactNode }) {
     return <MantineProvider>{children}</MantineProvider>
