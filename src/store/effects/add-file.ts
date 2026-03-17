@@ -2,13 +2,9 @@ import { SourceType } from "@/types"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { extname } from "@tauri-apps/api/path"
 import { readTextFile } from "@tauri-apps/plugin-fs"
+import { isStyle } from "../../lib/style"
 import { actions as mapStyle } from "../mapStyle"
 import { actions as source } from "../source"
-
-function isStyle(_value: object): boolean {
-    // TODO check the value is real maplibre style
-    return true
-}
 
 const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
     let ext = await extname(path)

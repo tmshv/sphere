@@ -49,7 +49,7 @@ describe("addFile thunk", () => {
     })
 
     test(".json ext reads file and dispatches setMapStyle with parsed JSON", async () => {
-        const styleData = { version: 8, layers: [] }
+        const styleData = { version: 8, sources: {}, layers: [] }
         mockExtname.mockResolvedValue("json")
         mockReadTextFile.mockResolvedValue(JSON.stringify(styleData))
 
@@ -62,7 +62,7 @@ describe("addFile thunk", () => {
     })
 
     test(".JSON ext (uppercase) is lowercased and treated as json", async () => {
-        const styleData = { version: 8 }
+        const styleData = { version: 8, sources: {}, layers: [] }
         mockExtname.mockResolvedValue("JSON")
         mockReadTextFile.mockResolvedValue(JSON.stringify(styleData))
 
@@ -142,7 +142,23 @@ describe("addFile thunk", () => {
         expect(mockAddFromUrl).not.toHaveBeenCalled()
     })
 
-    // NOTE: isStyle() is a private function that currently always returns true.
-    // The branch where isStyle() returns false (no dispatch) is unreachable until
-    // that function is fully implemented. Add a test here once it is exported/mockable.
+    test(".json ext with GeoJSON FeatureCollection does not dispatch setMapStyle", async () => {
+        const geoJSON = { type: "FeatureCollection", features: [] }
+        mockExtname.mockResolvedValue("json")
+        mockReadTextFile.mockResolvedValue(JSON.stringify(geoJSON))
+
+        await addFile("/path/to/data.json")(store.dispatch, store.getState, undefined)
+
+        expect(mockSetMapStyle).not.toHaveBeenCalled()
+    })
+
+    test(".json ext with partial style (missing sources) does not dispatch setMapStyle", async () => {
+        const partialStyle = { version: 8, layers: [] }
+        mockExtname.mockResolvedValue("json")
+        mockReadTextFile.mockResolvedValue(JSON.stringify(partialStyle))
+
+        await addFile("/path/to/style.json")(store.dispatch, store.getState, undefined)
+
+        expect(mockSetMapStyle).not.toHaveBeenCalled()
+    })
 })
