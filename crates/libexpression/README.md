@@ -13,45 +13,45 @@ serde_json = "1.0"
 ```
 
 ```rust
-use libexpression::{parse, evaluate, EvalContext};
-use serde_json::{json, Map};
+use libexpression::{parse, evaluate, EvalContext, Value};
+use std::collections::HashMap;
 
 // Build a feature context
-let properties: Map<String, _> = [
-    ("type".to_string(), json!("small_airport")),
-    ("elevation".to_string(), json!(450)),
+let properties: HashMap<String, Value> = [
+    ("type".to_string(), Value::String("small_airport".to_string())),
+    ("elevation".to_string(), Value::Number(450.0)),
 ]
 .into_iter()
 .collect();
 
 let ctx = EvalContext {
-    feature_id: Some(json!(42)),
+    feature_id: Some(Value::Number(42.0)),
     feature_type: "Point",
     properties: &properties,
 };
 
 // Parse an expression
-let expr = parse(json!(["==", ["get", "type"], "small_airport"])).unwrap();
+let expr = parse(serde_json::json!(["==", ["get", "type"], "small_airport"])).unwrap();
 
 // Evaluate it
 let result = evaluate(&expr, &ctx).unwrap();
-assert_eq!(result, json!(true));
+assert_eq!(result, Value::Bool(true));
 ```
 
 ## API
 
 ```rust
 // Parse a JSON value into an expression tree
-pub fn parse(raw: Value) -> Result<Expr, ExprError>
+pub fn parse(raw: serde_json::Value) -> Result<Expr, ExprError>
 
 // Evaluate an expression against a feature context
-pub fn evaluate(expr: &Expr, ctx: &EvalContext) -> Result<Value, ExprError>
+pub fn evaluate(expr: &Expr, ctx: &EvalContext) -> Result<libexpression::Value, ExprError>
 
 // EvalContext — the GeoJSON feature visible to the expression
 pub struct EvalContext<'a> {
-    pub feature_id:   Option<Value>,
-    pub feature_type: &'a str,            // "Point", "LineString", "Polygon", …
-    pub properties:   &'a Map<String, Value>,
+    pub feature_id:   Option<libexpression::Value>,
+    pub feature_type: &'a str,                            // "Point", "LineString", "Polygon", …
+    pub properties:   &'a HashMap<String, libexpression::Value>,
 }
 ```
 
@@ -230,7 +230,7 @@ parse(json!(["slice", ["get", "iata"], -2]))
 
 // ["index-of", needle, haystack, from?] — first index or -1; char-based for strings
 parse(json!(["index-of", "port", ["get", "name"]]))
-// feature: { name: "Heathrow Airport" } → 10
+// feature: { name: "Heathrow Airport" } → 12
 // feature: { name: "Heathrow"         } → -1
 
 // Works on arrays too
