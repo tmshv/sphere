@@ -1,4 +1,5 @@
-use serde_json::{Map, Value};
+use std::collections::HashMap;
+use crate::Value;
 
 /// Evaluation context for an expression, representing a single GeoJSON feature.
 pub struct EvalContext<'a> {
@@ -8,5 +9,5 @@ pub struct EvalContext<'a> {
     /// "MultiLineString", "MultiPolygon", "GeometryCollection", or "Unknown".
     pub feature_type: &'a str,
     /// The feature's `properties` map.
-    pub properties: &'a Map<String, Value>,
+    pub properties: &'a HashMap<String, Value>,
 }

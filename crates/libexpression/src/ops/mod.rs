@@ -6,4 +6,4 @@ pub mod literal;
 pub mod logic;
 pub mod math;
 pub mod string;
-pub(self) mod util;
+pub(crate) mod util;

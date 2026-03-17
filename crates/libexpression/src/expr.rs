@@ -1,6 +1,6 @@
 use crate::context::EvalContext;
 use crate::error::ExprError;
-use serde_json::Value;
+use crate::Value;
 
 /// Core expression trait. All expression types implement this.
 pub trait Expression: Send + Sync {

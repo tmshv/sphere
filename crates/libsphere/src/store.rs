@@ -1,8 +1,9 @@
 use geojson::Feature;
 use serde::Serialize;
-use serde_json::{Map, Value};
+use serde_json::Value;
+use std::collections::HashMap;
 
-use libexpression::{EvalContext, Expr};
+use libexpression::{EvalContext, Expr, Value as ExprValue};
 
 use crate::index::{Bbox, RstarIndex, SpatialIndex};
 use crate::schema::{infer_source_schema, SourceSchema};
@@ -65,26 +66,32 @@ impl FeatureStore {
         sort_column: Option<&str>,
         sort_asc: bool,
     ) -> PageResult {
-        let empty_map = Map::new();
-
         let mut matching_indices: Vec<usize> = (0..self.features.len())
             .filter(|&idx| {
                 let feature = &self.features[idx];
                 match filter {
                     None => true,
                     Some(expr) => {
-                        let props = feature.properties.as_ref().unwrap_or(&empty_map);
+                        let props: HashMap<String, ExprValue> = feature
+                            .properties
+                            .as_ref()
+                            .map(|p| {
+                                p.iter()
+                                    .map(|(k, v)| (k.clone(), ExprValue::from(v.clone())))
+                                    .collect()
+                            })
+                            .unwrap_or_default();
                         let feature_id = feature_id_value(feature);
                         let feature_type = geometry_type_str(feature);
                         let ctx = EvalContext {
                             feature_id,
                             feature_type,
-                            properties: props,
+                            properties: &props,
                         };
                         match expr.evaluate(&ctx) {
-                            Ok(Value::Bool(b)) => b,
-                            Ok(Value::Null) => false,
-                            Ok(Value::Number(n)) => n.as_f64().map(|f| f != 0.0).unwrap_or(false),
+                            Ok(ExprValue::Bool(b)) => b,
+                            Ok(ExprValue::Null) => false,
+                            Ok(ExprValue::Number(f)) => f != 0.0,
                             Ok(_) => false,
                             Err(_) => false,
                         }
@@ -156,10 +163,10 @@ fn geometry_type_str(feature: &Feature) -> &'static str {
     }
 }
 
-fn feature_id_value(feature: &Feature) -> Option<Value> {
+fn feature_id_value(feature: &Feature) -> Option<ExprValue> {
     match &feature.id {
-        Some(geojson::feature::Id::Number(n)) => Some(Value::Number(n.clone())),
-        Some(geojson::feature::Id::String(s)) => Some(Value::String(s.clone())),
+        Some(geojson::feature::Id::Number(n)) => n.as_f64().map(ExprValue::Number),
+        Some(geojson::feature::Id::String(s)) => Some(ExprValue::String(s.clone())),
         None => None,
     }
 }
