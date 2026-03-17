@@ -14,7 +14,6 @@ const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
     ...overrides,
 })
 
-
 const makeRootState = (overrides: Record<string, any> = {}) =>
     ({
         selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
