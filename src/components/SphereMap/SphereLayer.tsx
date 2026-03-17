@@ -34,7 +34,8 @@ const select = createSelector(
         // (state: RootState, id: string) => state.source.items[id],
     ],
     (layer) => {
-        const { id: layerId, sourceId, sourceLayer, type, visible, color, circle, heatmap, photo, extrusion } = layer
+        const { id: layerId, sourceId: rawSourceId, sourceLayer, type, visible, color, circle, heatmap, photo, extrusion, filter } = layer
+        const sourceId = filter ? `layer-${layerId}` : rawSourceId
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
         }
@@ -225,30 +226,38 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
     const [type, props] = useAppSelector(state => select(state, id))
     switch (type) {
         case "Point": {
+            const p = props as PointLayerProps
             return (
                 <PointLayer
-                    {...props as PointLayerProps}
+                    key={p.sourceId}
+                    {...p}
                 />
             )
         }
         case "LineString": {
+            const p = props as SphereLineStringLayerProps
             return (
                 <SphereLineStringLayer
-                    {...props as SphereLineStringLayerProps}
+                    key={p.sourceId}
+                    {...p}
                 />
             )
         }
         case "Polygon": {
+            const p = props as SpherePolygonLayerProps
             return (
                 <SpherePolygonLayer
-                    {...props as SpherePolygonLayerProps}
+                    key={p.sourceId}
+                    {...p}
                 />
             )
         }
         case "layer": {
+            const p = props as LayerProps & { source: string }
             return (
                 <Layer
-                    {...props as LayerProps}
+                    key={p.source}
+                    {...p}
                 />
             )
         }
@@ -259,6 +268,7 @@ export const SphereLayer: React.FC<SphereLayerProps> = ({ id }) => {
             }
             return (
                 <PhotoLayer
+                    key={(rest as PhotoLayerProps).sourceId}
                     {...rest as PhotoLayerProps}
                 />
             )

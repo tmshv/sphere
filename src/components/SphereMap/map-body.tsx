@@ -1,3 +1,4 @@
+import React from "react"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
@@ -13,6 +14,7 @@ import { selectTerrainSpecification } from "@/store/terrain"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import { SphereSource } from "./SphereSource"
 import { SphereLayer } from "./SphereLayer"
+import { FilteredLayerSource } from "./FilteredLayerSource"
 import Draw from "./Draw"
 import { createSelector } from "@reduxjs/toolkit"
 import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
@@ -72,10 +74,10 @@ export default function MapBody({ mapId }: MapBodyProps) {
                 />
             ))}
             {layers.map(({ id }) => (
-                <SphereLayer
-                    key={id}
-                    id={id}
-                />
+                <React.Fragment key={id}>
+                    <FilteredLayerSource layerId={id} />
+                    <SphereLayer id={id} />
+                </React.Fragment>
             ))}
             {!drawing ? null : (
                 <Draw mapId={mapId} />

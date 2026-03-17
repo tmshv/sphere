@@ -5,33 +5,10 @@ use geozero::ToGeo;
 use geozero_shp;
 use shapefile::dbase::FieldValue;
 use std::collections::HashMap;
-use std::result;
 
 use super::Bounds;
+use crate::error::{Result, SphereError};
 use crate::schema::{ColumnType, SourceSchema};
-
-#[derive(Debug)]
-pub enum ShapeError {
-    // Shape(geozero_shp::Error),
-    Shape,
-    Serialize,
-}
-
-impl From<geozero_shp::Error> for ShapeError {
-    // fn from(err: geozero_shp::Error) -> Self {
-    fn from(_: geozero_shp::Error) -> Self {
-        // ShapeError::Shape(err)
-        ShapeError::Shape
-    }
-}
-
-impl From<shapefile::Error> for ShapeError {
-    fn from(_: shapefile::Error) -> Self {
-        ShapeError::Shape
-    }
-}
-
-pub type Result<T> = result::Result<T, ShapeError>;
 
 #[derive(Debug)]
 pub struct Shapefile {
@@ -58,14 +35,20 @@ impl Bounds for Shapefile {
 
 impl Shapefile {
     pub fn get_schema(&self) -> Result<SourceSchema> {
-        let mut reader = shapefile::Reader::from_path(&self.path)?;
+        let mut reader = shapefile::Reader::from_path(&self.path).map_err(|e| SphereError::Shape {
+            path: self.path.clone(),
+            detail: e.to_string(),
+        })?;
         let mut columns: HashMap<String, ColumnType> = HashMap::new();
         let mut points_count: u32 = 0;
         let mut lines_count: u32 = 0;
         let mut polygons_count: u32 = 0;
 
         for result in reader.iter_shapes_and_records() {
-            let (shape, record) = result?;
+            let (shape, record) = result.map_err(|e| SphereError::Shape {
+                path: self.path.clone(),
+                detail: e.to_string(),
+            })?;
 
             match shape {
                 shapefile::Shape::Point(_)
@@ -116,15 +99,21 @@ impl Shapefile {
     }
 
     pub fn to_geojson(&self) -> Result<String> {
-        let reader = geozero_shp::Reader::from_path(self.path.as_str())?;
+        let reader = geozero_shp::Reader::from_path(self.path.as_str()).map_err(|e| SphereError::Shape {
+            path: self.path.clone(),
+            detail: e.to_string(),
+        })?;
         let mut json: Vec<u8> = Vec::new();
         let mut g = GeoJsonWriter::new(&mut json);
         // TODO do this without count
-        reader.iter_features(&mut g)?.count();
-        match String::from_utf8(json) {
-            Ok(str) => Ok(str),
-            Err(_) => Err(ShapeError::Serialize),
-        }
+        reader.iter_features(&mut g).map_err(|e| SphereError::Shape {
+            path: self.path.clone(),
+            detail: e.to_string(),
+        })?.count();
+        String::from_utf8(json).map_err(|e| SphereError::Shape {
+            path: self.path.clone(),
+            detail: e.to_string(),
+        })
     }
 }
 
@@ -159,5 +148,14 @@ mod tests {
         assert_eq!(schema.lines_count, 0);
         assert_eq!(schema.polygons_count, 0);
         assert!(!schema.columns.is_empty());
+    }
+
+    #[test]
+    fn test_missing_file_has_path_context() {
+        let shapefile = Shapefile {
+            path: "./nonexistent.shp".to_string(),
+        };
+        let err = shapefile.to_geojson().unwrap_err();
+        assert!(err.to_string().contains("nonexistent.shp"));
     }
 }

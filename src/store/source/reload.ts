@@ -18,18 +18,17 @@ const action = createAsyncThunk(
                 case SourceType.Geojson: {
                     const r = new SourceReader(id)
                     const schema = await r.getSchema()
-                    const meta = schema ? {
-                        columns: schema.columns,
-                        pointsCount: schema.points_count,
-                        linesCount: schema.lines_count,
-                        polygonsCount: schema.polygons_count,
-                    } : undefined
-                    const dataset = await r.getGeojson() ?? undefined
-                    thunkAPI.dispatch(actions.setGeojsonData({
-                        id,
-                        meta,
-                        dataset,
-                    }))
+                    if (schema) {
+                        thunkAPI.dispatch(actions.setGeojsonMeta({
+                            id,
+                            meta: {
+                                columns: schema.columns,
+                                pointsCount: schema.points_count,
+                                linesCount: schema.lines_count,
+                                polygonsCount: schema.polygons_count,
+                            },
+                        }))
+                    }
                     break
                 }
                 default: {

@@ -1,36 +1,19 @@
 import "./style.css"
 
 import { emit, listen, UnlistenFn } from "@tauri-apps/api/event"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import ReactDOM from "react-dom/client"
-import { createColumnHelper, ColumnDef } from "@tanstack/react-table"
+import { createColumnHelper, ColumnDef, SortingState } from "@tanstack/react-table"
 import { Box, createStyles } from "@mantine/core"
 import { ThemeProvider } from "./ui/ThemeProvider"
 import { PropertesTable, PropertyItem, PropertyItemMeta } from "./ui/PropertiesTable"
-import { hist } from "./lib/stat"
-import { predictType } from "@/lib/predict-data-type"
+import { SourceReader, PageResult, ColumnStats } from "@/lib/source-reader"
+import type { SourceMetadata } from "@/types"
 
-function useEvent<T>(eventName: string) {
-    const [payload, setPayload] = useState<T | undefined>(undefined)
-
-    useEffect(() => {
-        let stop: UnlistenFn | undefined = undefined
-        const fn = async () => {
-            stop = await listen<T>(eventName, (event) => {
-                setPayload(event.payload)
-            })
-        }
-
-        fn()
-
-        return () => {
-            if (typeof stop === "function") {
-                stop()
-            }
-        }
-    }, [eventName])
-
-    return payload
+type PropertiesSetPayload = {
+    sourceId: string
+    schema: SourceMetadata
+    filterExpression: unknown[] | null
 }
 
 const useStyle = createStyles(() => ({
@@ -44,100 +27,137 @@ const useStyle = createStyles(() => ({
 
 const columnHelper = createColumnHelper<PropertyItem>()
 
-type PropertiesSetPayload = {
-    properties: { id: GeoJSON.Feature["id"], props: GeoJSON.GeoJsonProperties }[];
-};
-
-function useData(): [ColumnDef<PropertyItem>[], Record<string, PropertyItemMeta>, PropertyItem[]] | undefined {
-    const data = useEvent<PropertiesSetPayload>("properties-set")
-    if (!data) {
-        return undefined
+function schemaToMeta(columns: Record<string, string>, columnStats: Record<string, ColumnStats>): Record<string, PropertyItemMeta> {
+    const meta: Record<string, PropertyItemMeta> = {
+        $id: { type: "unknown" },
     }
+    for (const [key, colType] of Object.entries(columns)) {
+        const stats = columnStats[key]
+        const lower = colType.toLowerCase()
+        if (lower === "number" || lower === "int" || lower === "integer") {
+            meta[key] = {
+                type: "int",
+                min: stats?.min,
+                max: stats?.max,
+                mean: stats?.mean,
+                hist: stats?.histogram?.map(b => b.count),
+            }
+        } else if (lower === "float" || lower === "real" || lower === "double") {
+            meta[key] = {
+                type: "float",
+                min: stats?.min,
+                max: stats?.max,
+                mean: stats?.mean,
+                hist: stats?.histogram?.map(b => b.count),
+            }
+        } else {
+            meta[key] = { type: "string", unique: stats?.unique_count ?? 0 }
+        }
+    }
+    return meta
+}
 
-    const rows: PropertyItem[] = data.properties.map(item => ({ $id: item.id, ...item.props }))
-    const head = Object.keys(data.properties[0].props ?? {})
-
-    const columns: ColumnDef<PropertyItem>[] = [
+function buildColumns(columnNames: string[]): ColumnDef<PropertyItem>[] {
+    return [
         columnHelper.accessor("$id", {
             id: "$id",
-            cell: (info) => info.getValue(),
+            cell: info => info.getValue(),
             header: () => <span>$id</span>,
         }),
-        ...head.map((key) =>
+        ...columnNames.map(key =>
             columnHelper.accessor(key, {
                 id: key,
-                cell: (info) => info.getValue(),
+                cell: info => info.getValue(),
                 header: () => <span>{key}</span>,
             }),
         ),
     ]
-
-    const meta: Record<string, PropertyItemMeta> = {
-        $id: { type: "unknown" },
-    }
-
-    head.reduce((acc, key) => {
-        const bins = 11
-        const type = predictType(key, rows)
-        switch (type) {
-            case "string": {
-                const unique = new Set(rows.map((p) => p[key]))
-                acc[key] = {
-                    type,
-                    unique: unique.size,
-                }
-                break
-            }
-            case "int": {
-                const n = rows.map((p) => parseFloat(p[key]))
-                const min = Math.min(...n)
-                const max = Math.max(...n)
-                const mean = 0
-                acc[key] = {
-                    type,
-                    min,
-                    max,
-                    mean,
-                    hist: !isNaN(max) && !isNaN(min) ? hist(n, bins) : undefined,
-                }
-                break
-            }
-            case "float": {
-                const n = rows.map((p) => parseFloat(p[key]))
-                const min = Math.min(...n)
-                const max = Math.max(...n)
-                const mean = 0
-                acc[key] = {
-                    type,
-                    min,
-                    max,
-                    mean,
-                    hist: !isNaN(max) && !isNaN(min) ? hist(n, bins) : undefined,
-                }
-                break
-            }
-            default: {
-                acc[key] = {
-                    type,
-                }
-                break
-            }
-        }
-        return acc
-    }, meta)
-
-    return [columns, meta, rows]
 }
 
+const PAGE_SIZE = 50
+
 const View: React.FC = () => {
-    const def = useData()
-    if (!def) {
+    const [sourceId, setSourceId] = useState<string | null>(null)
+    const [schema, setSchema] = useState<SourceMetadata | null>(null)
+    const [filterExpression, setFilterExpression] = useState<unknown[] | null>(null)
+    const [page, setPage] = useState<PageResult | null>(null)
+    const [columnStats, setColumnStats] = useState<Record<string, ColumnStats>>({})
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [pageIndex, setPageIndex] = useState(0)
+
+    // Listen for source info from the main window
+    useEffect(() => {
+        let stop: UnlistenFn | undefined
+        listen<PropertiesSetPayload>("properties-set", event => {
+            setSourceId(event.payload.sourceId)
+            setSchema(event.payload.schema)
+            setFilterExpression(event.payload.filterExpression)
+            setPageIndex(0)
+            setSorting([])
+        }).then(fn => { stop = fn })
+        return () => { stop?.() }
+    }, [])
+
+    // Fetch column stats once per source
+    useEffect(() => {
+        if (!sourceId || !schema) return
+        const reader = new SourceReader(sourceId)
+        const cols = Object.keys(schema.columns)
+        Promise.all(cols.map(async col => {
+            const stats = await reader.getColumnStats(col)
+            return [col, stats] as const
+        })).then(entries => {
+            const record: Record<string, ColumnStats> = {}
+            for (const [col, stats] of entries) {
+                if (stats) record[col] = stats
+            }
+            setColumnStats(record)
+        })
+    }, [sourceId, schema])
+
+    // Fetch page when sourceId, page index, sorting, or filter changes
+    useEffect(() => {
+        if (!sourceId) return
+        const reader = new SourceReader(sourceId)
+        const sortCol = sorting[0]?.id
+        const sortAsc = sorting[0] ? !sorting[0].desc : undefined
+        const filterJson = filterExpression ? JSON.stringify(filterExpression) : undefined
+        reader.queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson).then(result => {
+            if (result) setPage(result)
+        })
+    }, [sourceId, pageIndex, sorting, filterExpression])
+
+    const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
+        setSorting(prev => {
+            const next = typeof updater === "function" ? updater(prev) : updater
+            setPageIndex(0)
+            return next
+        })
+    }, [])
+
+    if (!sourceId || !schema || !page) {
         return null
     }
 
-    const [columns, meta, data] = def
+    const columnNames = Object.keys(schema.columns)
+    const columns = buildColumns(columnNames)
+    const meta = schemaToMeta(schema.columns, columnStats)
 
-    return <PropertesTable columns={columns} meta={meta} data={data} />
+    const rows: PropertyItem[] = page.features.map(f => ({ $id: f.id, ...f.properties }))
+    const totalPages = Math.ceil(page.total_matching / PAGE_SIZE)
+
+    return (
+        <PropertesTable
+            columns={columns}
+            meta={meta}
+            data={rows}
+            pageIndex={pageIndex}
+            pageCount={totalPages}
+            sorting={sorting}
+            onPageChange={setPageIndex}
+            onSortingChange={handleSortingChange}
+        />
+    )
 }
 
 const App: React.FC = () => {
@@ -156,10 +176,8 @@ const App: React.FC = () => {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
-        {/* <Provider store={store}> */}
         <ThemeProvider dark={false}>
             <App />
         </ThemeProvider>
-        {/* </Provider> */}
     </React.StrictMode>,
 )

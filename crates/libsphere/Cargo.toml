@@ -40,3 +40,6 @@ csv = "1.2.1"
 gpx = "0.8.6"
 urlencoding = "2.1.2"
 wkt = "0.10"
+thiserror = "1.0"
+rstar = "0.12"
+libexpression = { path = "../libexpression" }

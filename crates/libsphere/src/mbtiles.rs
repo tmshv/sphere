@@ -1,8 +1,10 @@
 use mbtiles::{
-    mbtiles::{MBTiles, Result},
+    mbtiles::MBTiles,
     tile::Tile,
 };
 use serde::{Deserialize, Serialize};
+
+use crate::error::{Result, SphereError};
 
 fn sphere_url(name: &str) -> String {
     format!("sphere://mbtiles/{}?z={{z}}&x={{x}}&y={{y}}", name)
@@ -24,12 +26,21 @@ impl Tiles {
     }
 
     pub fn get_metadata(&self) -> Result<String> {
-        let tj = self.mbtiles.get_tilejson()?;
-        let serialized = serde_json::to_string(&tj)?;
+        let tj = self.mbtiles.get_tilejson().map_err(|e| SphereError::Mbtiles {
+            path: self.mbtiles.path.clone(),
+            detail: format!("{:?}", e),
+        })?;
+        let serialized = serde_json::to_string(&tj).map_err(|e| SphereError::Mbtiles {
+            path: self.mbtiles.path.clone(),
+            detail: e.to_string(),
+        })?;
         Ok(serialized)
     }
 
     pub fn get_tile(&self, tile: &Tile) -> Result<Vec<u8>> {
-        self.mbtiles.get_tile(tile)
+        self.mbtiles.get_tile(tile).map_err(|e| SphereError::Mbtiles {
+            path: self.mbtiles.path.clone(),
+            detail: format!("{:?}", e),
+        })
     }
 }

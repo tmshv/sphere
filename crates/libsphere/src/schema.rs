@@ -41,7 +41,7 @@ pub fn merge_type(existing: ColumnType, val: &Value) -> ColumnType {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct SourceSchema {
     pub columns: HashMap<String, String>,
     pub points_count: u32,

@@ -137,7 +137,7 @@ impl Source {
                 Ok((SourceData::Mbtiles(source), file_url))
             }
             "csv" => {
-                let params = CsvParams::from_uri(uri).map_err(|e| format!("{:?}", e))?;
+                let params = CsvParams::from_uri(uri).map_err(|e| e.to_string())?;
                 let geometry = match params {
                     CsvParams::Wkt(field) => CsvGeometry::WKT(field),
                     CsvParams::XY { x, y } => CsvGeometry::XY((x, y)),
@@ -153,13 +153,13 @@ impl Source {
         }
     }
 
-    pub fn to_geojson(&self) -> Result<String, String> {
+    pub fn to_feature_collection(&self) -> Result<geojson::FeatureCollection, String> {
         let raw = match &self.data {
-            SourceData::Shapefile(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
-            SourceData::Geojson(src) => src.read().map_err(|e| format!("{:?}", e))?,
-            SourceData::GeojsonSeq(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
-            SourceData::Csv(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
-            SourceData::Gpx(src) => src.to_geojson().map_err(|e| format!("{:?}", e))?,
+            SourceData::Shapefile(src) => src.to_geojson().map_err(|e| e.to_string())?,
+            SourceData::Geojson(src) => src.read().map_err(|e| e.to_string())?,
+            SourceData::GeojsonSeq(src) => src.to_geojson().map_err(|e| e.to_string())?,
+            SourceData::Csv(src) => src.to_geojson().map_err(|e| e.to_string())?,
+            SourceData::Gpx(src) => src.to_geojson().map_err(|e| e.to_string())?,
             _ => return Err("No".into()),
         };
         let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
@@ -183,6 +183,11 @@ impl Source {
             },
         };
         assign_feature_ids(&mut fc);
+        Ok(fc)
+    }
+
+    pub fn to_geojson(&self) -> Result<String, String> {
+        let fc = self.to_feature_collection()?;
         serde_json::to_string(&fc).map_err(|e| e.to_string())
     }
 
@@ -193,19 +198,19 @@ impl Source {
             //     Ok(val)
             // }
             SourceData::Geojson(src) => {
-                src.get_schema().map_err(|e| format!("{:?}", e))
+                src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::GeojsonSeq(src) => {
-                src.get_schema().map_err(|e| format!("{:?}", e))
+                src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::Csv(src) => {
-                src.get_schema().map_err(|e| format!("{:?}", e))
+                src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::Shapefile(src) => {
-                src.get_schema().map_err(|e| format!("{:?}", e))
+                src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::Gpx(src) => {
-                src.get_schema().map_err(|e| format!("{:?}", e))
+                src.get_schema().map_err(|e| e.to_string())
             }
             _ => Err("Getting schema is not implemented for this type of file".into()),
         }
