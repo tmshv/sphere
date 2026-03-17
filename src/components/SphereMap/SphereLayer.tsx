@@ -1,4 +1,4 @@
-import React from "react"
+import { type FC, memo } from "react"
 import { PhotoLayer, type PhotoLayerProps } from "@/components/PhotoLayer"
 import { assertUnreachable } from "@/lib"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
@@ -223,7 +223,7 @@ export type SphereLayerProps = {
     id: string
 }
 
-export const SphereLayer: React.FC<SphereLayerProps> = React.memo(({ id }) => {
+export const SphereLayer: FC<SphereLayerProps> = memo(({ id }) => {
     const [type, props] = useAppSelector(state => select(state, id))
     switch (type) {
         case "Point": {
