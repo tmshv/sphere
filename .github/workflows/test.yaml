@@ -6,39 +6,58 @@ on:
             - "crates/**"
 
 jobs:
-    test-crates:
+    test-libexpression:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
-            - name: install Rust stable
-              uses: actions-rust-lang/setup-rust-toolchain@v1
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
               with:
                   toolchain: 1.92
-            - name: test libexpression
-              working-directory: crates/libexpression
+            - working-directory: crates/libexpression
               run: cargo test
-            - name: test libsphere
-              working-directory: crates/libsphere
+
+    test-libsphere:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              with:
+                  toolchain: 1.92
+            - working-directory: crates/libsphere
               run: cargo test
-            - name: test mbtiles
-              working-directory: crates/mbtiles
+
+    test-mbtiles:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              with:
+                  toolchain: 1.92
+            - working-directory: crates/mbtiles
               run: cargo test
-            - name: test tilejson
-              working-directory: crates/tilejson
+
+    test-tilejson:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              with:
+                  toolchain: 1.92
+            - working-directory: crates/tilejson
               run: cargo test
 
     test-tauri:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v3
-            - name: install Rust stable
-              uses: actions-rust-lang/setup-rust-toolchain@v1
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
               with:
                   toolchain: 1.92
-            - name: install dependencies
+            - name: install system dependencies
               run: |
                   sudo apt-get update
                   sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-            - name: test tauri
-              working-directory: src-tauri
+            - name: create dummy dist
+              run: mkdir -p dist
+            - working-directory: src-tauri
               run: cargo test
