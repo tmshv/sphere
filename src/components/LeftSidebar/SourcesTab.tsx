@@ -27,11 +27,11 @@ export const SourcesTab: React.FC = () => {
         name => {
             switch (name) {
                 case "trash": {
-                    dispatch(actions.source.removeSource(sourceId!))
+                    if (sourceId) dispatch(actions.source.removeSource(sourceId))
                     break
                 }
                 case "zoom": {
-                    dispatch(actions.source.zoomTo(sourceId!))
+                    if (sourceId) dispatch(actions.source.zoomTo(sourceId))
                     break
                 }
                 case "add-from-url": {

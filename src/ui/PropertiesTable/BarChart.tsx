@@ -32,7 +32,7 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
                 round: true,
                 domain: [0, size],
             }),
-        [xMax, size, radius],
+        [xMax, size],
     )
     const yScale = useMemo(
         () =>
@@ -45,7 +45,7 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
     )
 
     return width < 10 ? null : (
-        <svg width={width} height={height}>
+        <svg width={width} height={height} aria-hidden="true">
             <rect width={width} height={height} fill={color} opacity={0.25} rx={radius} />
 
             <Group top={verticalMargin / 2}>

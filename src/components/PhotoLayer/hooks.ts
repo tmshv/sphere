@@ -68,7 +68,7 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
             map.off("idle", onIdle)
             map.off("moveend", upd)
         }
-    }, [ok, sourceId, layerId, map])
+    }, [ok, layerId, map])
 
     return features.length > 0 ? features : null
 }

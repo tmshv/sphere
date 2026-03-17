@@ -47,18 +47,16 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             // Collect values from all selected features
             // Drop duplicates and undefined ids
             const seen = new Set<MapGeoJSONFeature["id"]>()
-            const values = event.features
-                .reduce((acc, f) => {
-                    if (f.id === undefined) {
-                        return [...acc, f]
-                    }
-                    if (seen.has(f.id)) {
-                        return acc
-                    }
+            const deduped: MapGeoJSONFeature[] = []
+            for (const f of event.features) {
+                if (f.id === undefined) {
+                    deduped.push(f)
+                } else if (!seen.has(f.id)) {
                     seen.add(f.id)
-                    return [...acc, f]
-                }, [] as MapGeoJSONFeature[])
-                .map(f => f.properties)
+                    deduped.push(f)
+                }
+            }
+            const values = deduped.map(f => f.properties)
             dispatch(
                 actions.properties.set({
                     values,

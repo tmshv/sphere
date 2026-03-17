@@ -42,7 +42,7 @@ export const SourcesOutline: React.FC = () => {
     }, [])
 
     const renderItem = useCallback<OutlineRenderItem<(typeof items)[0]>>(
-        ({ id, name, type, active }) => {
+        ({ id, name, active }) => {
             return (
                 <OutlineItem
                     label={name}

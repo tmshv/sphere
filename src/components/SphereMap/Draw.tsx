@@ -55,10 +55,11 @@ export default function Draw({ mapId }: DrawProps) {
     }, [dispatch])
 
     const onDone = useCallback(() => {
+        if (!sourceId) return
         const featureCollection = draw.getAll()
         dispatch(
             actions.draw.done({
-                sourceId: sourceId!,
+                sourceId,
                 featureCollection,
             }),
         )
