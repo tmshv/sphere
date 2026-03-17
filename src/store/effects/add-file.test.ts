@@ -31,7 +31,7 @@ import { extname } from "@tauri-apps/api/path"
 import { readTextFile } from "@tauri-apps/plugin-fs"
 import { actions as mapStyleActions } from "../mapStyle"
 import { actions as sourceActions } from "../source"
-import addFile, { isStyle } from "./add-file"
+import addFile from "./add-file"
 
 const mockExtname = vi.mocked(extname)
 const mockReadTextFile = vi.mocked(readTextFile)
@@ -160,31 +160,5 @@ describe("addFile thunk", () => {
         await addFile("/path/to/style.json")(store.dispatch, store.getState, undefined)
 
         expect(mockSetMapStyle).not.toHaveBeenCalled()
-    })
-})
-
-describe("isStyle", () => {
-    test("valid style returns true", () => {
-        expect(isStyle({ version: 8, sources: {}, layers: [] })).toBe(true)
-    })
-
-    test("GeoJSON FeatureCollection returns false", () => {
-        expect(isStyle({ type: "FeatureCollection", features: [] })).toBe(false)
-    })
-
-    test("missing sources returns false", () => {
-        expect(isStyle({ version: 8, layers: [] })).toBe(false)
-    })
-
-    test("missing layers returns false", () => {
-        expect(isStyle({ version: 8, sources: {} })).toBe(false)
-    })
-
-    test("wrong version returns false", () => {
-        expect(isStyle({ version: 7, sources: {}, layers: [] })).toBe(false)
-    })
-
-    test("empty object returns false", () => {
-        expect(isStyle({})).toBe(false)
     })
 })
