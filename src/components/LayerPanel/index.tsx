@@ -206,11 +206,12 @@ export const LayerPanel: React.FC = () => {
                 onClick={name => {
                     switch (name) {
                         case "trash": {
-                            dispatch(actions.layer.removeLayer(layerId!))
+                            dispatch(actions.layer.removeLayer(layerId))
                             break
                         }
                         case "zoom": {
-                            dispatch(actions.source.zoomTo(sourceId!))
+                            if (!sourceId) break
+                            dispatch(actions.source.zoomTo(sourceId))
                             break
                         }
                         case "duplicate": {
@@ -308,13 +309,13 @@ export const LayerPanel: React.FC = () => {
                     value={sourceLayer}
                     data={sourceLayers}
                     onChange={value => {
-                        if (!value) {
+                        if (!value || !sourceId) {
                             return
                         }
                         dispatch(
                             actions.layer.setSource({
                                 id: layerId,
-                                sourceId: sourceId!,
+                                sourceId,
                                 sourceLayer: value,
                             }),
                         )

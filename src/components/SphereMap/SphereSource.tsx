@@ -55,8 +55,10 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
         EMPTY_GEOJSON as GeoJSON.FeatureCollection,
     )
 
+    const sourceType = source?.type
+
     useEffect(() => {
-        if (!source || source.type !== SourceType.Geojson) {
+        if (!sourceType || sourceType !== SourceType.Geojson) {
             return
         }
         invoke<string>("source_get", { id })
@@ -64,7 +66,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
                 setGeojsonData(JSON.parse(json))
             })
             .catch(() => {})
-    }, [id, source?.type])
+    }, [id, sourceType])
 
     if (!source) {
         return null
