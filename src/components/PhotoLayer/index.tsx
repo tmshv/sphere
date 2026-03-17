@@ -64,7 +64,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({
     const renderPhoto = useCallback<RenderPhotoFunction>(
         (feature, isCluster) => {
             const [lng, lat] = feature.geometry.coordinates
-            let id = feature.id! // useFeatures hook makes sure feature has id
+            let id = feature.id as string | number // useFeatures hook makes sure feature has id
 
             if (isCluster) {
                 const src = feature.properties?.src
