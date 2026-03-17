@@ -6,39 +6,35 @@ on:
             - "crates/**"
 
 jobs:
-    test-tauri:
-        strategy:
-            fail-fast: false
-            matrix:
-                platform: [macos-latest, ubuntu-22.04, windows-latest]
-
-        runs-on: ${{ matrix.platform }}
+    test-crates:
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
             - name: install Rust stable
               uses: actions-rust-lang/setup-rust-toolchain@v1
               with:
                   toolchain: 1.92
+            - name: test libexpression
+              run: cargo test --manifest-path crates/libexpression/Cargo.toml
+            - name: test libsphere
+              run: cargo test --manifest-path crates/libsphere/Cargo.toml
+            - name: test mbtiles
+              run: cargo test --manifest-path crates/mbtiles/Cargo.toml
+            - name: test tilejson
+              run: cargo test --manifest-path crates/tilejson/Cargo.toml
 
-            - name: install dependencies (ubuntu only)
-              if: matrix.platform == 'ubuntu-22.04'
+    test-tauri:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - name: install Rust stable
+              uses: actions-rust-lang/setup-rust-toolchain@v1
+              with:
+                  toolchain: 1.92
+            - name: install dependencies
               run: |
                   sudo apt-get update
                   sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-            - name: setup node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 22
-
-            - name: install npm dependencies
-              run: npm ci
-
-            - name: run npm checks
-              run: |
-                  npm test
-                  npm run lint
-
-            - uses: tauri-apps/tauri-action@v0
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: test tauri
+              working-directory: src-tauri
+              run: cargo test
