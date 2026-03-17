@@ -2,7 +2,7 @@ import { EMPTY_GEOJSON } from "@/const"
 import { SourceReader } from "@/lib/source-reader"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { memo, useEffect, useState } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { Source } from "react-map-gl/maplibre"
 
 export type FilteredLayerSourceProps = {
@@ -15,16 +15,15 @@ export const FilteredLayerSource: React.FC<FilteredLayerSourceProps> = memo(({ l
     const [data, setData] = useState<GeoJSON.FeatureCollection>(EMPTY_GEOJSON as GeoJSON.FeatureCollection)
 
     const sourceId = layer?.sourceId
-    const expression = layer?.filter?.expression ?? null
+    const expressionJson = useMemo(() => JSON.stringify(layer?.filter?.expression ?? null), [layer?.filter?.expression])
 
     useEffect(() => {
-        if (!sourceId || !expression) {
+        if (!sourceId || expressionJson === "null") {
             return
         }
-        const filterJson = JSON.stringify(expression)
         const reader = new SourceReader(sourceId)
         reader
-            .getFiltered(filterJson)
+            .getFiltered(expressionJson)
             .then(fc => {
                 if (fc) {
                     setData(fc)
@@ -45,7 +44,7 @@ export const FilteredLayerSource: React.FC<FilteredLayerSourceProps> = memo(({ l
                     }),
                 )
             })
-    }, [layerId, sourceId, JSON.stringify(expression)])
+    }, [layerId, sourceId, expressionJson, dispatch])
 
     if (!layer?.filter) {
         return null
