@@ -1,13 +1,15 @@
 import { SourceType } from "@/types"
+import { validateStyleMin } from "@maplibre/maplibre-gl-style-spec"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { extname } from "@tauri-apps/api/path"
 import { readTextFile } from "@tauri-apps/plugin-fs"
+import { StyleSpecification } from "maplibre-gl"
 import { actions as mapStyle } from "../mapStyle"
 import { actions as source } from "../source"
 
-function isStyle(_value: object): boolean {
-    // TODO check the value is real maplibre style
-    return true
+export function isStyle(value: object): boolean {
+    const errors = validateStyleMin(value as StyleSpecification)
+    return errors.length === 0
 }
 
 const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
