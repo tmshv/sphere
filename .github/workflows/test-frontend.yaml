@@ -6,6 +6,7 @@ on:
             - "package.json"
             - "tsconfig.json"
             - "vite.config.ts"
+            - "biome.json"
             - "package-lock.json"
 
 jobs:
@@ -43,10 +44,22 @@ jobs:
                   node-version: 24
                   cache: npm
             - run: npm ci
-            - run: npx tsc --noEmit
+            - run: npm run typecheck
+
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: setup node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 24
+                  cache: npm
+            - run: npm ci
+            - run: npm run format:check
 
     build:
-        needs: [test, lint, typecheck]
+        needs: [test, lint, typecheck, format]
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
