@@ -16,7 +16,7 @@ jobs:
             - name: setup node
               uses: actions/setup-node@v3
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: npm
             - run: npm ci
             - run: npm test
@@ -28,7 +28,7 @@ jobs:
             - name: setup node
               uses: actions/setup-node@v3
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: npm
             - run: npm ci
             - run: npm run lint
@@ -40,7 +40,7 @@ jobs:
             - name: setup node
               uses: actions/setup-node@v3
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: npm
             - run: npm ci
             - run: npx tsc --noEmit
@@ -53,7 +53,7 @@ jobs:
             - name: setup node
               uses: actions/setup-node@v3
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: npm
             - run: npm ci
             - run: npm run build
