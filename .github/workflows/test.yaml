@@ -15,13 +15,17 @@ jobs:
               with:
                   toolchain: 1.92
             - name: test libexpression
-              run: cargo test --manifest-path crates/libexpression/Cargo.toml
+              working-directory: crates/libexpression
+              run: cargo test
             - name: test libsphere
-              run: cargo test --manifest-path crates/libsphere/Cargo.toml
+              working-directory: crates/libsphere
+              run: cargo test
             - name: test mbtiles
-              run: cargo test --manifest-path crates/mbtiles/Cargo.toml
+              working-directory: crates/mbtiles
+              run: cargo test
             - name: test tilejson
-              run: cargo test --manifest-path crates/tilejson/Cargo.toml
+              working-directory: crates/tilejson
+              run: cargo test
 
     test-tauri:
         runs-on: ubuntu-22.04
