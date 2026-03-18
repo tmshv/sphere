@@ -3,7 +3,6 @@ import { useAppDispatch } from "@/store/hooks"
 import { type SourceMetadata, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
-import { useMantineTheme } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
@@ -44,9 +43,6 @@ export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
-    const theme = useMantineTheme()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _getColor = (color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7]
 
     if (!source) {
         return null

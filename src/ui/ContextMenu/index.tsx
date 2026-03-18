@@ -12,8 +12,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
 
     useEffect(() => {
         const callback = (event: MouseEvent) => {
-            const xPos = event.pageX
-            const yPos = event.pageY
+            const xPos = event.clientX
+            const yPos = event.clientY
 
             toggleShowContext(true)
             setContextCoord([xPos, yPos])
@@ -47,7 +47,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
             <Menu.Target>
                 <div
                     style={{
-                        position: "absolute",
+                        position: "fixed",
                         left: contextCoord[0],
                         top: contextCoord[1],
                     }}

@@ -14,6 +14,7 @@ import { useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { MapProvider } from "react-map-gl/maplibre"
 import { LeftSidebar } from "../LeftSidebar"
+import { type LocationToString, MapContextMenu } from "../MapContextMenu"
 import { MapStatusbar } from "../MapStatusbar"
 import PropertiesPopup from "../PropertiesPopup"
 import { SphereMap } from "../SphereMap"
@@ -35,6 +36,8 @@ export default function App() {
     const onResize = useCallback(() => {
         dispatch(actions.map.resize(id))
     }, [dispatch, id])
+
+    const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
 
     useHotkeys([["mod+V", () => dispatch(addFromClipboard())]])
     const zen = useAppSelector(selectors.app.isZen)
@@ -74,10 +77,7 @@ export default function App() {
                     >
                         <SphereMap id={id} />
                     </ErrorBoundary>
-                    {/* <MapContextMenu
-                        id={id}
-                        copyLocationValue={copy}
-                    /> */}
+                    <MapContextMenu id={id} copyLocationValue={copy} />
                     {zen ? null : (
                         <Overlay
                         // right={(

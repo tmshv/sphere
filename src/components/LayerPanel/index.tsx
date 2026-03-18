@@ -5,17 +5,7 @@ import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
 import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
-import {
-    IconCopy,
-    IconCrosshair,
-    IconFlame,
-    IconLine,
-    IconPhoto,
-    IconPoint,
-    IconPolygon,
-    IconTrash,
-    IconX,
-} from "@tabler/icons"
+import { IconCopy, IconCrosshair, IconTrash, IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
@@ -175,27 +165,6 @@ export const LayerPanel: React.FC = () => {
         setFilterText("")
         setFilterLocalError(null)
         dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
-    }
-
-    let _icon: React.ReactNode = null
-    if (type === LayerType.Point) {
-        _icon = <IconPoint size={20} color={color} />
-    }
-    if (type === LayerType.Line) {
-        _icon = <IconLine size={20} color={color} />
-    }
-    if (type === LayerType.Polygon) {
-        _icon = <IconPolygon size={20} color={color} />
-    }
-    if (type === LayerType.Photo) {
-        _icon = <IconPhoto size={20} color={color} />
-    }
-    if (type === LayerType.Raster) {
-        _icon = <IconPhoto size={20} color={color} />
-    }
-    if (type === LayerType.Heatmap) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _icon = <IconFlame size={20} color={color} />
     }
 
     return (
