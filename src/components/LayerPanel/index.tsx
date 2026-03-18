@@ -5,12 +5,7 @@ import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
 import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
-import {
-    IconCopy,
-    IconCrosshair,
-    IconTrash,
-    IconX,
-} from "@tabler/icons"
+import { IconCopy, IconCrosshair, IconTrash, IconX } from "@tabler/icons"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
