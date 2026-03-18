@@ -10,18 +10,6 @@ on:
             - "package-lock.json"
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - name: setup node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 24
-                  cache: npm
-            - run: npm ci
-            - run: npm test
-
     lint:
         runs-on: ubuntu-latest
         steps:
@@ -58,8 +46,21 @@ jobs:
             - run: npm ci
             - run: npm run format:check
 
+    test:
+        needs: [format, typecheck, lint]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: setup node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 24
+                  cache: npm
+            - run: npm ci
+            - run: npm test
+
     build:
-        needs: [test, lint, typecheck, format]
+        needs: [test]
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
