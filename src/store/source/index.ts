@@ -5,6 +5,7 @@ import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { drawSlice } from "../draw"
+import addFromClipboard from "./addFromClipboard"
 import addFromUrl from "./addFromUrl"
 import empty from "./empty"
 import reload from "./reload"
@@ -202,6 +203,7 @@ export const actions = {
     ...sourceSlice.actions,
     zoomTo,
     addFromUrl,
+    addFromClipboard,
     showProperties,
     reload,
     empty,

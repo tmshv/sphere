@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectPreviewSourceId } from "@/store/selectors"
 import { SourceType } from "@/types"
 import { invoke } from "@tauri-apps/api/core"
+import type { MapGeoJSONFeature } from "maplibre-gl"
 import { useEffect, useState } from "react"
 import { Layer, Source, useMap } from "react-map-gl/maplibre"
 
@@ -65,6 +66,47 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
         }
         dispatch(actions.properties.set({ values: features.map(f => f.properties ?? {}) }))
     }, [dispatch, features])
+
+    useEffect(() => {
+        const mapInstance = map?.getMap()
+        if (!mapInstance || !sourceId) {
+            return
+        }
+
+        const handlers = PREVIEW_LAYER_IDS.flatMap(id => [
+            mapInstance.on("mousemove", id, event => {
+                if (features) {
+                    return
+                }
+                if (!event.features || event.features.length === 0) {
+                    return
+                }
+                const seen = new Set<MapGeoJSONFeature["id"]>()
+                const deduped: MapGeoJSONFeature[] = []
+                for (const f of event.features) {
+                    if (f.id === undefined) {
+                        deduped.push(f)
+                    } else if (!seen.has(f.id)) {
+                        seen.add(f.id)
+                        deduped.push(f)
+                    }
+                }
+                dispatch(actions.properties.set({ values: deduped.map(f => f.properties ?? {}) }))
+            }),
+            mapInstance.on("mouseleave", id, () => {
+                if (features) {
+                    return
+                }
+                dispatch(actions.properties.reset())
+            }),
+        ])
+
+        return () => {
+            for (const h of handlers) {
+                h.unsubscribe()
+            }
+        }
+    }, [dispatch, map, sourceId, features])
 
     if (!sourceId) {
         return null
