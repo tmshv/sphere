@@ -2,6 +2,7 @@ import { Paper, Tabs, type TabsProps } from "@mantine/core"
 import { IconDatabase, IconSquaresFilled, IconStack } from "@tabler/icons"
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { useEffect } from "react"
 import { LayersTab } from "./LayersTab"
 import { SourcesTab } from "./SourcesTab"
 
@@ -75,6 +76,10 @@ export function StyledTabs(props: TabsProps) {
 
 export const LeftSidebar: React.FC = () => {
     const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        dispatch(actions.app.setActiveSidebarTab("sources"))
+    }, [dispatch])
 
     const handleTabChange = (value: string | null) => {
         if (value === "sources" || value === "layers") {
