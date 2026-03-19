@@ -16,6 +16,7 @@ import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
 import { FilteredLayerSource } from "./FilteredLayerSource"
+import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
 
@@ -69,6 +70,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
+            <SourcePreviewLayer mapId={mapId} delay={50} />
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
                     <FilteredLayerSource layerId={id} />

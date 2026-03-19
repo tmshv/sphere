@@ -51,6 +51,7 @@ describe("appSlice reducer", () => {
             showAttribution: false,
             showLeftSidebar: true,
             showRightSidebar: true,
+            activeSidebarTab: "sources" as const,
         }
         const state = reducer(prev, toggleZenMode())
         expect(state.zenMode).toBe(false)
@@ -69,6 +70,7 @@ describe("appSlice reducer", () => {
             showAttribution: false,
             showLeftSidebar: true,
             showRightSidebar: true,
+            activeSidebarTab: "sources" as const,
         }
         const state = reducer(prev, toggleDarkTheme())
         expect(state.darkTheme).toBe(false)
@@ -87,6 +89,7 @@ describe("appSlice reducer", () => {
             showAttribution: false,
             showLeftSidebar: true,
             showRightSidebar: true,
+            activeSidebarTab: "sources" as const,
         }
         const state = reducer(prev, setDarkTheme(false))
         expect(state.darkTheme).toBe(false)
@@ -100,6 +103,7 @@ describe("appSlice reducer", () => {
             showAttribution: false,
             showLeftSidebar: false,
             showRightSidebar: true,
+            activeSidebarTab: "sources" as const,
         }
         const state = reducer(prev, showLeftSidebar())
         expect(state.showLeftSidebar).toBe(true)
@@ -118,6 +122,7 @@ describe("appSlice reducer", () => {
             showAttribution: false,
             showLeftSidebar: true,
             showRightSidebar: false,
+            activeSidebarTab: "sources" as const,
         }
         const state = reducer(prev, showRightSidebar())
         expect(state.showRightSidebar).toBe(true)
