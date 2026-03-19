@@ -1,5 +1,6 @@
 import { EMPTY_GEOJSON } from "@/const"
 import useFeatureClick from "@/hooks/useFeatureClick"
+import { tableu10 } from "@/lib/color-scheme"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectPreviewSourceId } from "@/store/selectors"
@@ -19,7 +20,7 @@ export const PREVIEW_LAYER_IDS = [
     "preview-polygon-outline-1",
 ]
 
-const PREVIEW_COLOR = "#1c7ed6"
+const PREVIEW_COLOR = tableu10[0]
 
 export type SourcePreviewLayerProps = {
     mapId: string
@@ -82,7 +83,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 filter={["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]]}
                 paint={{
                     "circle-color": PREVIEW_COLOR,
-                    "circle-radius": 4,
+                    "circle-radius": 3,
                     "circle-stroke-color": "white",
                     "circle-stroke-width": 1,
                 }}

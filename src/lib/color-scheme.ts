@@ -1,4 +1,4 @@
-const tableu10 = [
+export const tableu10 = [
     "#4e79a7",
     "#f28e2c",
     "#e15759",
