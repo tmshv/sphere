@@ -32,7 +32,7 @@
 
 **Context:** Currently takes `layerId: string | undefined`. For source preview we need to register click handlers on 3 layer IDs simultaneously. The outside-click clear must fire only when the user clicks outside ALL of them, so a shared `clickTime` variable tracks the most recent feature click across all registered handlers.
 
-- [ ] **Step 1: Update the function signature and implementation**
+- [x] **Step 1: Update the function signature and implementation**
 
 Replace the contents of `src/hooks/useFeatureClick.ts` with:
 
@@ -89,7 +89,7 @@ export default function useFeatureClick(
 }
 ```
 
-- [ ] **Step 2: Run tests to confirm no regressions**
+- [x] **Step 2: Run tests to confirm no regressions**
 
 ```bash
 npm test -- --run src/hooks
@@ -97,7 +97,7 @@ npm test -- --run src/hooks
 
 Expected: all pass (no test file for `useFeatureClick` — absence is fine).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/hooks/useFeatureClick.ts
