@@ -76,7 +76,7 @@ export function StyledTabs(props: TabsProps) {
 export const LeftSidebar: React.FC = () => {
     const dispatch = useAppDispatch()
 
-    const handleTabChange = (value: string) => {
+    const handleTabChange = (value: string | null) => {
         if (value === "sources" || value === "layers") {
             dispatch(actions.app.setActiveSidebarTab(value))
         }

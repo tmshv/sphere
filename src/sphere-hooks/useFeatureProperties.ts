@@ -59,7 +59,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
                     deduped.push(f)
                 }
             }
-            const values = deduped.map(f => f.properties)
+            const values = deduped.map(f => f.properties ?? {})
             dispatch(
                 actions.properties.set({
                     values,
