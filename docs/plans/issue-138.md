@@ -114,7 +114,7 @@ git commit -m "feat: extend useFeatureClick to accept string | string[] layerId"
 
 **Context:** `SourcePreviewLayer` needs to know whether the sources tab is active. Store it in the `app` slice as `activeSidebarTab: 'sources' | 'layers'`, defaulting to `'sources'` (matching `LeftSidebar`'s `defaultValue`).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add imports to `src/store/app.test.ts`:
 
@@ -168,7 +168,7 @@ test("selectActiveSidebarTab returns activeSidebarTab", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 npm test -- --run src/store/app.test.ts
@@ -176,7 +176,7 @@ npm test -- --run src/store/app.test.ts
 
 Expected: FAIL — `setActiveSidebarTab` not found, `selectActiveSidebarTab` not found.
 
-- [ ] **Step 3: Update `src/store/app.ts`**
+- [x] **Step 3: Update `src/store/app.ts`**
 
 Add `activeSidebarTab` to `AppState` and `initialState`:
 
@@ -216,7 +216,7 @@ Add selector after existing ones:
 export const selectActiveSidebarTab = (state: RootState) => state.app.activeSidebarTab
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 npm test -- --run src/store/app.test.ts
@@ -224,7 +224,7 @@ npm test -- --run src/store/app.test.ts
 
 Expected: all pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/store/app.ts src/store/app.test.ts

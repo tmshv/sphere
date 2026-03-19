@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest"
 import reducer, {
     appSlice,
+    selectActiveSidebarTab,
     selectShowAttribution,
     selectShowLeftSidebar,
     selectShowRightSidebar,
@@ -16,6 +17,7 @@ const {
     hideLeftSidebar,
     showRightSidebar,
     hideRightSidebar,
+    setActiveSidebarTab,
 } = appSlice.actions
 const { isZen, isDark } = appSlice.selectors
 
@@ -125,6 +127,22 @@ describe("appSlice reducer", () => {
         const state = reducer(undefined, hideRightSidebar())
         expect(state.showRightSidebar).toBe(false)
     })
+
+    test("initial activeSidebarTab is sources", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(state.activeSidebarTab).toBe("sources")
+    })
+
+    test("setActiveSidebarTab sets to layers", () => {
+        const state = reducer(undefined, setActiveSidebarTab("layers"))
+        expect(state.activeSidebarTab).toBe("layers")
+    })
+
+    test("setActiveSidebarTab sets to sources", () => {
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), activeSidebarTab: "layers" as const }
+        const state = reducer(prev, setActiveSidebarTab("sources"))
+        expect(state.activeSidebarTab).toBe("sources")
+    })
 })
 
 describe("appSlice selectors", () => {
@@ -170,5 +188,10 @@ describe("app RootState selectors", () => {
     test("selectShowRightSidebar returns showRightSidebar", () => {
         expect(selectShowRightSidebar(makeRootState({ showRightSidebar: true }))).toBe(true)
         expect(selectShowRightSidebar(makeRootState({ showRightSidebar: false }))).toBe(false)
+    })
+
+    test("selectActiveSidebarTab returns activeSidebarTab", () => {
+        expect(selectActiveSidebarTab(makeRootState({ activeSidebarTab: "layers" }))).toBe("layers")
+        expect(selectActiveSidebarTab(makeRootState({ activeSidebarTab: "sources" }))).toBe("sources")
     })
 })
