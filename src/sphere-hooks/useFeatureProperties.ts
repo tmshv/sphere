@@ -1,5 +1,6 @@
 import useFeatureClick from "@/hooks/useFeatureClick"
 import { actions } from "@/store"
+import { selectActiveSidebarTab } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectCurrentLayer } from "@/store/selection"
 import { useEffect } from "react"
@@ -8,7 +9,9 @@ import type { MapGeoJSONFeature, MapRef } from "react-map-gl/maplibre"
 export default function useFeatureProperties(ref: MapRef | undefined, delay: number) {
     const dispatch = useAppDispatch()
     const layerId = useAppSelector(selectCurrentLayer)
-    const features = useFeatureClick(ref, layerId, delay)
+    const tab = useAppSelector(selectActiveSidebarTab)
+    const effectiveLayerId = tab === "sources" ? undefined : layerId
+    const features = useFeatureClick(ref, effectiveLayerId, delay)
 
     useEffect(() => {
         if (!features) {
@@ -28,11 +31,11 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             return
         }
 
-        if (!layerId) {
+        if (!effectiveLayerId) {
             return
         }
 
-        const enter = map.on("mousemove", layerId, event => {
+        const enter = map.on("mousemove", effectiveLayerId, event => {
             if (features) {
                 return
             }
@@ -63,7 +66,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
                 }),
             )
         })
-        const leave = map.on("mouseout", layerId, () => {
+        const leave = map.on("mouseout", effectiveLayerId, () => {
             if (features) {
                 return
             }
@@ -74,5 +77,5 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
             enter.unsubscribe()
             leave.unsubscribe()
         }
-    }, [dispatch, ref, layerId, features])
+    }, [dispatch, ref, effectiveLayerId, features])
 }

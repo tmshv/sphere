@@ -1,21 +1,17 @@
 import useFeatureClick from "@/hooks/useFeatureClick"
 import { actions } from "@/store"
+import type { RootState } from "@/store"
 import { selectActiveSidebarTab } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import type { RootState } from "@/store"
 import { createSelector } from "@reduxjs/toolkit"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { Layer, useMap } from "react-map-gl/maplibre"
 
 const PREVIEW_COLOR = "#1c7ed6"
 
 const selectPreviewSourceId = createSelector(
-    [
-        (state: RootState) => state.selection.sourceId,
-        (state: RootState) => state.source.items,
-        selectActiveSidebarTab,
-    ],
+    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab) => {
         if (tab !== "sources") return undefined
         if (!sourceId) return undefined
@@ -36,13 +32,13 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
     const { [mapId]: map } = useMap()
     const sourceId = useAppSelector(selectPreviewSourceId)
 
-    const layerIds = sourceId
-        ? [
-              `preview-${sourceId}-point`,
-              `preview-${sourceId}-line`,
-              `preview-${sourceId}-polygon`,
-          ]
-        : undefined
+    const layerIds = useMemo(
+        () =>
+            sourceId
+                ? [`preview-${sourceId}-point`, `preview-${sourceId}-line`, `preview-${sourceId}-polygon`]
+                : undefined,
+        [sourceId],
+    )
 
     const features = useFeatureClick(map, layerIds, delay)
 
@@ -51,16 +47,14 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
             dispatch(actions.properties.reset())
             return
         }
-        dispatch(actions.properties.set({ values: features.map(f => f.properties) }))
+        dispatch(actions.properties.set({ values: features.map(f => f.properties ?? {}) }))
     }, [dispatch, features])
 
-    if (!sourceId) {
+    if (!sourceId || !layerIds) {
         return null
     }
 
-    const pointId = `preview-${sourceId}-point`
-    const lineId = `preview-${sourceId}-line`
-    const polygonId = `preview-${sourceId}-polygon`
+    const [pointId, lineId, polygonId] = layerIds
 
     return (
         <>
@@ -69,7 +63,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 id={pointId}
                 source={sourceId}
                 type="circle"
-                filter={["==", ["geometry-type"], "Point"]}
+                filter={["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]]}
                 paint={{
                     "circle-color": PREVIEW_COLOR,
                     "circle-radius": 4,
@@ -82,7 +76,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 id={`${lineId}-outline`}
                 source={sourceId}
                 type="line"
-                filter={["==", ["geometry-type"], "LineString"]}
+                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
                 paint={{ "line-color": "#fff", "line-width": 3 }}
             />
@@ -90,7 +84,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 id={lineId}
                 source={sourceId}
                 type="line"
-                filter={["==", ["geometry-type"], "LineString"]}
+                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
                 paint={{ "line-color": PREVIEW_COLOR, "line-width": 1 }}
             />
@@ -99,14 +93,14 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 id={polygonId}
                 source={sourceId}
                 type="fill"
-                filter={["==", ["geometry-type"], "Polygon"]}
+                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 paint={{ "fill-color": PREVIEW_COLOR, "fill-opacity": 0.25 }}
             />
             <Layer
                 id={`${polygonId}-outline-0`}
                 source={sourceId}
                 type="line"
-                filter={["==", ["geometry-type"], "Polygon"]}
+                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
                 paint={{ "line-color": "white", "line-width": 1, "line-offset": -1 }}
             />
@@ -114,7 +108,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 id={`${polygonId}-outline-1`}
                 source={sourceId}
                 type="line"
-                filter={["==", ["geometry-type"], "Polygon"]}
+                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
                 paint={{ "line-color": PREVIEW_COLOR, "line-width": 1 }}
             />

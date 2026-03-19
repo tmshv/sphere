@@ -1,4 +1,4 @@
-import type { Map as MaplibreMap, MapGeoJSONFeature } from "maplibre-gl"
+import type { MapGeoJSONFeature, Map as MaplibreMap } from "maplibre-gl"
 import { useEffect, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
@@ -16,6 +16,7 @@ export default function useFeatureClick(
         }
         const ids = Array.isArray(layerId) ? layerId : layerId ? [layerId] : []
         if (ids.length === 0) {
+            setFeatures(undefined)
             return
         }
 
