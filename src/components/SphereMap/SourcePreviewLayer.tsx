@@ -39,9 +39,6 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                       `preview-${sourceId}-point`,
                       `preview-${sourceId}-line`,
                       `preview-${sourceId}-polygon`,
-                      `preview-${sourceId}-line-outline`,
-                      `preview-${sourceId}-polygon-outline-0`,
-                      `preview-${sourceId}-polygon-outline-1`,
                   ]
                 : undefined,
         [sourceId],

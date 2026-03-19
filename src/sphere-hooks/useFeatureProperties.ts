@@ -20,7 +20,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
         }
         dispatch(
             actions.properties.set({
-                values: features.map(f => f.properties),
+                values: features.map(f => f.properties ?? {}),
             }),
         )
     }, [dispatch, features])
