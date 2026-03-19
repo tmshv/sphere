@@ -240,7 +240,7 @@ git commit -m "feat: add activeSidebarTab to app slice"
 
 **Context:** Mantine `Tabs` fires `onTabChange` with the new tab value. Dispatch `setActiveSidebarTab` when it changes to `'sources'` or `'layers'`. Check `src/store/actions.ts` to verify how `app` actions are exported and follow the same pattern.
 
-- [ ] **Step 1: Check how app actions are exported**
+- [x] **Step 1: Check how app actions are exported**
 
 ```bash
 grep -n "app" src/store/actions.ts
@@ -248,7 +248,7 @@ grep -n "app" src/store/actions.ts
 
 If `app` actions are not yet in the actions barrel, add them following the existing pattern.
 
-- [ ] **Step 2: Update `LeftSidebar`**
+- [x] **Step 2: Update `LeftSidebar`**
 
 Add imports and dispatch logic to `src/components/LeftSidebar/index.tsx`:
 
@@ -271,7 +271,7 @@ const handleTabChange = (value: string) => {
 
 Add `onTabChange={handleTabChange}` to `<StyledTabs>`.
 
-- [ ] **Step 3: Run lint + tests**
+- [x] **Step 3: Run lint + tests**
 
 ```bash
 npm run lint && npm test -- --run
@@ -279,7 +279,7 @@ npm run lint && npm test -- --run
 
 Expected: no errors, all tests pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/LeftSidebar/index.tsx src/store/actions.ts
