@@ -295,7 +295,7 @@ git commit -m "feat: dispatch setActiveSidebarTab on sidebar tab change"
 
 **Context:** `SphereSource` already registers all sources as MapLibre sources (including GeoJSON fetched via Tauri and FeatureCollection from Redux). `SourcePreviewLayer` only adds `<Layer>` components — no `<Source>` needed. Active when `activeSidebarTab === "sources"` AND a file source (`SourceType.Geojson` or `SourceType.FeatureCollection`) is selected. Preview layer IDs use the prefix `preview-${sourceId}-` to avoid collisions with user layers. Style mirrors existing layer components (see `PointLayer.tsx`, `ShpereLineStringLayer.tsx`, `SpherePolygonLayer.tsx`) using blue[7] = `#1c7ed6`.
 
-- [ ] **Step 1: Create `src/components/SphereMap/SourcePreviewLayer.tsx`**
+- [x] **Step 1: Create `src/components/SphereMap/SourcePreviewLayer.tsx`**
 
 ```typescript
 import useFeatureClick from "@/hooks/useFeatureClick"
@@ -423,7 +423,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
 }
 ```
 
-- [ ] **Step 2: Run lint**
+- [x] **Step 2: Run lint**
 
 ```bash
 npm run lint
@@ -431,7 +431,7 @@ npm run lint
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/SphereMap/SourcePreviewLayer.tsx
