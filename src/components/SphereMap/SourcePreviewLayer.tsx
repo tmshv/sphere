@@ -1,9 +1,23 @@
+import { EMPTY_GEOJSON } from "@/const"
 import useFeatureClick from "@/hooks/useFeatureClick"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectPreviewSourceId } from "@/store/selectors"
-import { useEffect, useMemo } from "react"
-import { Layer, useMap } from "react-map-gl/maplibre"
+import { SourceType } from "@/types"
+import { invoke } from "@tauri-apps/api/core"
+import { useEffect, useState } from "react"
+import { Layer, Source, useMap } from "react-map-gl/maplibre"
+
+const PREVIEW_SOURCE_ID = "sphere-preview"
+
+export const PREVIEW_LAYER_IDS = [
+    "preview-point",
+    "preview-line-outline",
+    "preview-line",
+    "preview-polygon",
+    "preview-polygon-outline-0",
+    "preview-polygon-outline-1",
+]
 
 const PREVIEW_COLOR = "#1c7ed6"
 
@@ -16,23 +30,32 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
     const dispatch = useAppDispatch()
     const { [mapId]: map } = useMap()
     const sourceId = useAppSelector(selectPreviewSourceId)
-
-    const layerIds = useMemo(
-        () =>
-            sourceId
-                ? [
-                      `preview-${sourceId}-point`,
-                      `preview-${sourceId}-line`,
-                      `preview-${sourceId}-polygon`,
-                      `preview-${sourceId}-line-outline`,
-                      `preview-${sourceId}-polygon-outline-0`,
-                      `preview-${sourceId}-polygon-outline-1`,
-                  ]
-                : undefined,
-        [sourceId],
+    const source = useAppSelector(state => (sourceId ? (state.source.items[sourceId] ?? null) : null))
+    const [previewData, setPreviewData] = useState<GeoJSON.FeatureCollection>(
+        EMPTY_GEOJSON as GeoJSON.FeatureCollection,
     )
 
-    const features = useFeatureClick(map, layerIds, delay)
+    useEffect(() => {
+        if (!sourceId || !source) {
+            setPreviewData(EMPTY_GEOJSON as GeoJSON.FeatureCollection)
+            return
+        }
+        if (source.type === SourceType.FeatureCollection && !source.pending) {
+            setPreviewData(source.dataset)
+            return
+        }
+        if (source.type === SourceType.Geojson) {
+            invoke<string>("source_get", { id: sourceId })
+                .then(json => {
+                    setPreviewData(JSON.parse(json))
+                })
+                .catch(() => {
+                    setPreviewData(EMPTY_GEOJSON as GeoJSON.FeatureCollection)
+                })
+        }
+    }, [sourceId, source])
+
+    const features = useFeatureClick(map, sourceId ? PREVIEW_LAYER_IDS : undefined, delay)
 
     useEffect(() => {
         if (!features) {
@@ -42,18 +65,19 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
         dispatch(actions.properties.set({ values: features.map(f => f.properties ?? {}) }))
     }, [dispatch, features])
 
-    if (!sourceId || !layerIds) {
+    if (!sourceId) {
         return null
     }
 
-    const [pointId, lineId, polygonId] = layerIds
+    const [pointId, lineOutlineId, lineId, polygonId, polygonOutline0Id, polygonOutline1Id] = PREVIEW_LAYER_IDS
 
     return (
         <>
-            {/* Points: circle + stroke */}
+            <Source id={PREVIEW_SOURCE_ID} type="geojson" data={previewData} />
+            {/* Points */}
             <Layer
                 id={pointId}
-                source={sourceId}
+                source={PREVIEW_SOURCE_ID}
                 type="circle"
                 filter={["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]]}
                 paint={{
@@ -65,8 +89,8 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
             />
             {/* Lines: casing then fill */}
             <Layer
-                id={`${lineId}-outline`}
-                source={sourceId}
+                id={lineOutlineId}
+                source={PREVIEW_SOURCE_ID}
                 type="line"
                 filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
@@ -74,7 +98,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
             />
             <Layer
                 id={lineId}
-                source={sourceId}
+                source={PREVIEW_SOURCE_ID}
                 type="line"
                 filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
@@ -83,22 +107,22 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
             {/* Polygons: fill + double outline */}
             <Layer
                 id={polygonId}
-                source={sourceId}
+                source={PREVIEW_SOURCE_ID}
                 type="fill"
                 filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 paint={{ "fill-color": PREVIEW_COLOR, "fill-opacity": 0.25 }}
             />
             <Layer
-                id={`${polygonId}-outline-0`}
-                source={sourceId}
+                id={polygonOutline0Id}
+                source={PREVIEW_SOURCE_ID}
                 type="line"
                 filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
                 paint={{ "line-color": "white", "line-width": 1, "line-offset": -1 }}
             />
             <Layer
-                id={`${polygonId}-outline-1`}
-                source={sourceId}
+                id={polygonOutline1Id}
+                source={PREVIEW_SOURCE_ID}
                 type="line"
                 filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 layout={{ "line-cap": "round", "line-join": "round" }}
