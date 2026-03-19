@@ -1,6 +1,7 @@
 import { STYLE_OSM } from "@/const"
+import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
-import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
+import { selectChangeProjectionAvailable, selectMapStyle, selectPreviewSourceId, selectors } from "./selectors"
 
 const makeRootState = (overrides: Record<string, any> = {}) =>
     ({
@@ -8,6 +9,9 @@ const makeRootState = (overrides: Record<string, any> = {}) =>
         projection: { value: "globe" },
         mapStyle: { value: "some-style" },
         layer: { items: {}, allIds: [] },
+        app: { activeSidebarTab: "sources" },
+        selection: { sourceId: undefined },
+        source: { items: {} },
         ...overrides,
     }) as any
 
@@ -49,6 +53,69 @@ describe("selectChangeProjectionAvailable", () => {
     test("returns false when drawing", () => {
         const state = makeRootState({ draw: { sourceId: "s1" } })
         expect(selectChangeProjectionAvailable(state)).toBe(false)
+    })
+})
+
+describe("selectPreviewSourceId", () => {
+    const geojsonSource = { type: SourceType.Geojson, pending: false }
+    const fcSource = { type: SourceType.FeatureCollection, pending: false }
+    const mvtSource = { type: SourceType.MVT, pending: false }
+
+    test("returns undefined when not on sources tab", () => {
+        const state = makeRootState({
+            app: { activeSidebarTab: "layers" },
+            selection: { sourceId: "s1" },
+            source: { items: { s1: geojsonSource } },
+        })
+        expect(selectPreviewSourceId(state)).toBeUndefined()
+    })
+
+    test("returns undefined when no source is selected", () => {
+        const state = makeRootState({
+            selection: { sourceId: undefined },
+            source: { items: { s1: geojsonSource } },
+        })
+        expect(selectPreviewSourceId(state)).toBeUndefined()
+    })
+
+    test("returns undefined when selected source does not exist in items", () => {
+        const state = makeRootState({
+            selection: { sourceId: "missing" },
+            source: { items: {} },
+        })
+        expect(selectPreviewSourceId(state)).toBeUndefined()
+    })
+
+    test("returns undefined when source type is MVT", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: mvtSource } },
+        })
+        expect(selectPreviewSourceId(state)).toBeUndefined()
+    })
+
+    test("returns undefined when source is pending", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: { ...geojsonSource, pending: true } } },
+        })
+        expect(selectPreviewSourceId(state)).toBeUndefined()
+    })
+
+    test("returns sourceId for Geojson source on sources tab", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: geojsonSource } },
+        })
+        expect(selectPreviewSourceId(state)).toBe("s1")
+    })
+
+    test("returns sourceId for FeatureCollection source on sources tab", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: fcSource } },
+        })
+        expect(selectPreviewSourceId(state)).toBe("s1")
     })
 })
 
