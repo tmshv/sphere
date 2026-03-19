@@ -21,6 +21,9 @@ vi.mock("../actions", () => {
                     fulfilled: fulfilledCreator,
                 },
             },
+            selection: {
+                selectSource: (payload: unknown) => ({ type: "selection/selectSource", payload }),
+            },
         },
     }
 })
@@ -64,5 +67,65 @@ describe("add-source listener middleware", () => {
         await vi.runAllTimersAsync()
 
         expect(vi.mocked(logger.info)).toHaveBeenCalledWith({ action }, "Source was added")
+    })
+
+    test("dispatches selectSource with lastAdded when source is added", async () => {
+        vi.clearAllMocks()
+
+        const sourceId = "source-1"
+        const dispatchedActions: unknown[] = []
+        const captureMiddleware = () => (next: (a: unknown) => unknown) => (action: unknown) => {
+            dispatchedActions.push(action)
+            return next(action)
+        }
+
+        const store = configureStore({
+            reducer: (state: any = { source: { lastAdded: sourceId, items: { [sourceId]: {} } } }) => state,
+            middleware: getDefaultMiddleware =>
+                getDefaultMiddleware()
+                    .prepend(listener.middleware)
+                    .concat(captureMiddleware as any),
+        })
+
+        store.dispatch({
+            type: FULFILLED_TYPE,
+            payload: undefined,
+            meta: { requestId: "test-request", arg: undefined, requestStatus: "fulfilled" },
+        })
+
+        await vi.runAllTimersAsync()
+
+        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "selection/selectSource")
+        expect(selectSourceAction).toBeDefined()
+        expect((selectSourceAction as any).payload.sourceId).toBe(sourceId)
+    })
+
+    test("does not dispatch selectSource when lastAdded is undefined", async () => {
+        vi.clearAllMocks()
+
+        const dispatchedActions: unknown[] = []
+        const captureMiddleware = () => (next: (a: unknown) => unknown) => (action: unknown) => {
+            dispatchedActions.push(action)
+            return next(action)
+        }
+
+        const store = configureStore({
+            reducer: (state: any = { source: { lastAdded: undefined, items: {} } }) => state,
+            middleware: getDefaultMiddleware =>
+                getDefaultMiddleware()
+                    .prepend(listener.middleware)
+                    .concat(captureMiddleware as any),
+        })
+
+        store.dispatch({
+            type: FULFILLED_TYPE,
+            payload: undefined,
+            meta: { requestId: "test-request", arg: undefined, requestStatus: "fulfilled" },
+        })
+
+        await vi.runAllTimersAsync()
+
+        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "selection/selectSource")
+        expect(selectSourceAction).toBeUndefined()
     })
 })

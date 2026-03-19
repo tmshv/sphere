@@ -7,7 +7,7 @@ import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
 import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
 import { selectors } from "@/store"
-import { selectShowAttribution } from "@/store/app"
+import { selectActiveSidebarTab, selectShowAttribution } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
@@ -21,10 +21,10 @@ import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
 
 const selectLayers = createSelector(
-    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
-    (drawing, items, allIds) => {
-        // Do not show layers in draw mode
-        if (drawing) {
+    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds, selectActiveSidebarTab],
+    (drawing, items, allIds, activeSidebarTab) => {
+        // Do not show layers in draw mode or when Sources tab is active
+        if (drawing || activeSidebarTab !== "layers") {
             return []
         }
         return allIds

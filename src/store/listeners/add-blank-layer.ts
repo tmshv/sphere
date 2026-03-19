@@ -73,6 +73,7 @@ listener.startListening({
                 layerId,
             }),
         )
+        listenerApi.dispatch(actions.app.setActiveSidebarTab("layers"))
     },
 })
 

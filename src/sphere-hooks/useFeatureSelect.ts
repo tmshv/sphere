@@ -43,10 +43,8 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                 return
             }
             if (previewLayerIds.length > 0) {
-                const previewFeatures = queryFeaturesInPoint(event.target, event.point, previewLayerIds)
-                if (previewFeatures.length > 0) {
-                    return
-                }
+                // Source preview is active; map clicks don't affect source selection
+                return
             }
             dispatch(actions.selection.reset())
         })
