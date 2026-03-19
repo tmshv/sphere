@@ -1,26 +1,11 @@
 import useFeatureClick from "@/hooks/useFeatureClick"
 import { actions } from "@/store"
-import type { RootState } from "@/store"
-import { selectActiveSidebarTab } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { SourceType } from "@/types"
-import { createSelector } from "@reduxjs/toolkit"
+import { selectPreviewSourceId } from "@/store/selectors"
 import { useEffect, useMemo } from "react"
 import { Layer, useMap } from "react-map-gl/maplibre"
 
 const PREVIEW_COLOR = "#1c7ed6"
-
-const selectPreviewSourceId = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
-    (sourceId, items, tab) => {
-        if (tab !== "sources") return undefined
-        if (!sourceId) return undefined
-        const source = items[sourceId]
-        if (!source) return undefined
-        if (source.type !== SourceType.Geojson && source.type !== SourceType.FeatureCollection) return undefined
-        return sourceId
-    },
-)
 
 export type SourcePreviewLayerProps = {
     mapId: string
@@ -35,11 +20,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
     const layerIds = useMemo(
         () =>
             sourceId
-                ? [
-                      `preview-${sourceId}-point`,
-                      `preview-${sourceId}-line`,
-                      `preview-${sourceId}-polygon`,
-                  ]
+                ? [`preview-${sourceId}-point`, `preview-${sourceId}-line`, `preview-${sourceId}-polygon`]
                 : undefined,
         [sourceId],
     )
