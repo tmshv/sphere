@@ -447,7 +447,7 @@ git commit -m "feat: add SourcePreviewLayer component for source map preview"
 
 **Context:** Mount after the `sourceIds.map(...)` block so MapLibre sources are registered before the preview layers reference them. Pass the same `mapId` already available in `MapBody` and `delay={50}` matching `useFeatureProperties`.
 
-- [ ] **Step 1: Import and mount**
+- [x] **Step 1: Import and mount**
 
 Add import in `src/components/SphereMap/map-body.tsx`:
 
@@ -461,7 +461,7 @@ Add inside the JSX return after `{sourceIds.map(id => <SphereSource key={id} id=
 <SourcePreviewLayer mapId={mapId} delay={50} />
 ```
 
-- [ ] **Step 2: Run lint + full test suite**
+- [x] **Step 2: Run lint + full test suite**
 
 ```bash
 npm run lint && npm test -- --run
@@ -469,7 +469,7 @@ npm run lint && npm test -- --run
 
 Expected: no errors, all tests pass.
 
-- [ ] **Step 3: Build to verify no type errors**
+- [x] **Step 3: Build to verify no type errors**
 
 ```bash
 npm run build
@@ -477,7 +477,7 @@ npm run build
 
 Expected: clean build.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/SphereMap/map-body.tsx
