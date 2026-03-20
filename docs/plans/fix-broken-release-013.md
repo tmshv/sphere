@@ -73,11 +73,11 @@ No logging, no user feedback. If `invoke("source_get")` fails in production, pre
 ## Fix Plan
 
 ### Task 1: Remove tab-gating from `selectLayers`
-- **File**: `src/components/SphereMap/map-body.tsx`
-- Remove `activeSidebarTab !== "layers"` from the `if` condition in `selectLayers`
-- Keep only `drawing` condition (layers hidden during draw mode — correct behavior)
-- Result: user layers always visible regardless of active tab
-- The `SourcePreviewLayer` still renders as an additional overlay on the Sources tab — harmless since it uses a separate `sphere-preview` MapLibre source with its own layer IDs
+- [x] **File**: `src/components/SphereMap/map-body.tsx`
+- [x] Remove `activeSidebarTab !== "layers"` from the `if` condition in `selectLayers`
+- [x] Keep only `drawing` condition (layers hidden during draw mode — correct behavior)
+- [x] Result: user layers always visible regardless of active tab
+- [x] The `SourcePreviewLayer` still renders as an additional overlay on the Sources tab — harmless since it uses a separate `sphere-preview` MapLibre source with its own layer IDs
 
 ```ts
 // Before:
