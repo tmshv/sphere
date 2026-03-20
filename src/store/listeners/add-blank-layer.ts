@@ -1,6 +1,6 @@
 import { nextColor } from "@/lib/color-scheme"
 import { nextId } from "@/lib/nextId"
-import predictLayerType from "@/lib/predict-layer-type"
+import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
 import { LayerType, SourceType } from "@/types"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
@@ -46,7 +46,7 @@ listener.startListening({
                 (source.type === SourceType.FeatureCollection && !source.pending) ||
                 source.type === SourceType.Geojson
             ) {
-                const layerType = predictLayerType(source.meta) ?? LayerType.Point
+                const layerType = predictLayerType(source.meta) ?? fallbackLayerType(source.meta)
                 listenerApi.dispatch(
                     actions.layer.setType({
                         id: layerId,

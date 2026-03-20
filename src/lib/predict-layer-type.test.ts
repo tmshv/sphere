@@ -1,5 +1,5 @@
 import { LayerType } from "@/types"
-import predictLayerType from "./predict-layer-type"
+import predictLayerType, { fallbackLayerType } from "./predict-layer-type"
 
 describe("predictLayerType", () => {
     it("should return Point when there are points but no lines or polygons", () => {
@@ -25,5 +25,27 @@ describe("predictLayerType", () => {
     it("should return undefined when all counts are zero", () => {
         const result = predictLayerType({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
         expect(result).toBeUndefined()
+    })
+})
+
+describe("fallbackLayerType", () => {
+    it("should return Point when pointsCount > 0", () => {
+        const result = fallbackLayerType({ columns: {}, pointsCount: 5, linesCount: 3, polygonsCount: 2 })
+        expect(result).toBe(LayerType.Point)
+    })
+
+    it("should return Line when no points but linesCount > 0", () => {
+        const result = fallbackLayerType({ columns: {}, pointsCount: 0, linesCount: 3, polygonsCount: 2 })
+        expect(result).toBe(LayerType.Line)
+    })
+
+    it("should return Polygon when only polygonsCount > 0", () => {
+        const result = fallbackLayerType({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 2 })
+        expect(result).toBe(LayerType.Polygon)
+    })
+
+    it("should return Point when all counts are zero", () => {
+        const result = fallbackLayerType({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
+        expect(result).toBe(LayerType.Point)
     })
 })

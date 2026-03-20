@@ -12,6 +12,7 @@ vi.mock("@/lib/color-scheme", () => ({
 
 vi.mock("@/lib/predict-layer-type", () => ({
     default: vi.fn(),
+    fallbackLayerType: vi.fn(),
 }))
 
 vi.mock("../actions", () => {
@@ -38,7 +39,7 @@ vi.mock("../actions", () => {
     }
 })
 
-import predictLayerType from "@/lib/predict-layer-type"
+import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
 import listener from "./add-blank-layer"
 
 function makeStore(state: Record<string, unknown> = {}) {
@@ -188,6 +189,7 @@ describe("add-blank-layer listener middleware", () => {
             },
         })
         vi.mocked(predictLayerType).mockReturnValue(undefined)
+        vi.mocked(fallbackLayerType).mockReturnValue(LayerType.Point)
 
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
@@ -195,6 +197,32 @@ describe("add-blank-layer listener middleware", () => {
         const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
         expect(setTypeAction).toBeDefined()
         expect((setTypeAction as any).payload.type).toBe(LayerType.Point)
+    })
+
+    test("falls back to LayerType.Line for a lines+polygons mixed source (no points)", async () => {
+        const sourceId = "lines-polygons-source"
+        const { store, dispatchedActions } = makeStore({
+            source: {
+                items: {
+                    [sourceId]: {
+                        id: sourceId,
+                        type: SourceType.Geojson,
+                        name: "test",
+                        meta: { columns: {}, pointsCount: 0, linesCount: 5, polygonsCount: 3 },
+                        pending: false,
+                    },
+                },
+            },
+        })
+        vi.mocked(predictLayerType).mockReturnValue(undefined)
+        vi.mocked(fallbackLayerType).mockReturnValue(LayerType.Line)
+
+        store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
+        await vi.runAllTimersAsync()
+
+        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        expect(setTypeAction).toBeDefined()
+        expect((setTypeAction as any).payload.type).toBe(LayerType.Line)
     })
 
     test("does not dispatch setType when FeatureCollection source is pending", async () => {

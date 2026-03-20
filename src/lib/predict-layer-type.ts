@@ -16,3 +16,10 @@ export default function predictLayerType({
     }
     return undefined
 }
+
+export function fallbackLayerType({ pointsCount, linesCount, polygonsCount }: SourceMetadata): LayerType {
+    if (pointsCount > 0) return LayerType.Point
+    if (linesCount > 0) return LayerType.Line
+    if (polygonsCount > 0) return LayerType.Polygon
+    return LayerType.Point
+}

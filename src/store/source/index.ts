@@ -71,12 +71,7 @@ export const sourceSlice = createSlice({
                 fractionIndex: NEW_SOURCE_INDEX,
                 pending: false,
                 editable: true,
-                meta: {
-                    columns: {},
-                    pointsCount: 0,
-                    linesCount: 0,
-                    polygonsCount: 0,
-                },
+                meta: computeGeometryMeta(dataset),
             }
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
