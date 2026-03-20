@@ -21,4 +21,9 @@ describe("predictLayerType", () => {
         const result = predictLayerType({ columns: {}, pointsCount: 1, linesCount: 1, polygonsCount: 1 })
         expect(result).toBeUndefined()
     })
+
+    it("should return undefined when all counts are zero", () => {
+        const result = predictLayerType({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
+        expect(result).toBeUndefined()
+    })
 })
