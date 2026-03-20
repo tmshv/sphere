@@ -1,6 +1,7 @@
 import { EMPTY_GEOJSON } from "@/const"
 import useFeatureProperties from "@/hooks/useFeatureProperties"
 import { tableu10 } from "@/lib/color-scheme"
+import logger from "@/logger"
 import { useAppSelector } from "@/store/hooks"
 import { selectPreviewSourceId } from "@/store/selectors"
 import { SourceType } from "@/types"
@@ -48,7 +49,8 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                 .then(json => {
                     setPreviewData(JSON.parse(json))
                 })
-                .catch(() => {
+                .catch(err => {
+                    logger.error({ err }, "Failed to fetch preview data for source %s", sourceId)
                     setPreviewData(EMPTY_GEOJSON as GeoJSON.FeatureCollection)
                 })
         }

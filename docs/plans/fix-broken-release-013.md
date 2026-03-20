@@ -103,9 +103,9 @@ listenerApi.dispatch(actions.layer.setType({ id: layerId, type: layerType }))
 ```
 
 ### Task 3: Add error logging in `SourcePreviewLayer`
-- [ ] **File**: `src/components/SphereMap/SourcePreviewLayer.tsx`
-- [ ] Import `logger` and log the error in the catch block
-- [ ] Helps diagnose production issues without changing user-facing behavior
+- [x] **File**: `src/components/SphereMap/SourcePreviewLayer.tsx`
+- [x] Import `logger` and log the error in the catch block
+- [x] Helps diagnose production issues without changing user-facing behavior
 
 ```ts
 .catch(err => {
