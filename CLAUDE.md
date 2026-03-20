@@ -130,10 +130,6 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |
 
-## Important Build Constraints
-
-**esbuild target must be es2022+**: Both `build.target` and `optimizeDeps.esbuildOptions.target` in `vite.config.ts` must remain `es2022` or higher. Lower targets cause esbuild to inject `__publicField` helper calls into `maplibre-gl`, breaking its Web Worker blob creation at runtime. `tsconfig.json` `useDefineForClassFields` must stay `false` to match. CI checks the build output for this regression. Verified with maplibre-gl 5.20.0: `__publicField` still absent from build output, so the constraint remains necessary. Check again when upgrading. See [#102](https://github.com/tmshv/sphere/issues/102).
-
 ## Known Issues / Technical Debt
 
 1. **Error handling** - `libsphere` errors now carry path context via `SphereError`; `src-tauri` commands still convert errors to strings at the IPC boundary, discarding structure
