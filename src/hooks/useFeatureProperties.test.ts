@@ -43,7 +43,7 @@ describe("useFeatureProperties", () => {
 
     beforeEach(() => {
         dispatch = vi.fn()
-        vi.mocked(useAppDispatch).mockReturnValue(dispatch)
+        vi.mocked(useAppDispatch).mockReturnValue(dispatch as any)
         vi.mocked(useFeatureClick).mockReturnValue(undefined)
     })
 
