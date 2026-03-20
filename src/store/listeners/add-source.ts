@@ -3,7 +3,10 @@ import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
 
-async function selectLastAdded(action: unknown, listenerApi: { getState: () => unknown; dispatch: (a: unknown) => void }) {
+async function selectLastAdded(
+    action: unknown,
+    listenerApi: { getState: () => unknown; dispatch: (a: unknown) => void },
+) {
     logger.info({ action }, "Source was added")
     const state = listenerApi.getState() as RootState
     const sourceId = state.source.lastAdded

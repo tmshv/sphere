@@ -71,17 +71,13 @@ describe("useFeatureProperties", () => {
         const features = [{ id: 1, properties: null }] as any
         vi.mocked(useFeatureClick).mockReturnValue(features)
         renderHook(() => useFeatureProperties(undefined, "layer-1", 0))
-        expect(dispatch).toHaveBeenCalledWith(
-            expect.objectContaining({ payload: { values: [{}] } }),
-        )
+        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{}] } }))
     })
 
     it("only dispatches reset (not set) when ref is undefined", () => {
         renderHook(() => useFeatureProperties(undefined, "layer-1", 0))
         expect(dispatch).toHaveBeenCalledTimes(1)
-        expect(dispatch).toHaveBeenCalledWith(
-            expect.objectContaining({ type: expect.stringContaining("reset") }),
-        )
+        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: expect.stringContaining("reset") }))
     })
 
     it("does not register map listeners when layerIds is undefined", () => {
@@ -121,9 +117,7 @@ describe("useFeatureProperties", () => {
             })
         })
 
-        expect(dispatch).toHaveBeenCalledWith(
-            expect.objectContaining({ payload: { values: [{ x: 1 }] } }),
-        )
+        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }] } }))
     })
 
     it("dispatches reset on mousemove with empty features array", () => {
@@ -181,9 +175,7 @@ describe("useFeatureProperties", () => {
             })
         })
 
-        expect(dispatch).toHaveBeenCalledWith(
-            expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }),
-        )
+        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }))
     })
 
     it("includes features with undefined id even if duplicated on mousemove", () => {
@@ -201,9 +193,7 @@ describe("useFeatureProperties", () => {
             })
         })
 
-        expect(dispatch).toHaveBeenCalledWith(
-            expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }),
-        )
+        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }))
     })
 
     it("skips mousemove dispatch when click features are active", () => {
