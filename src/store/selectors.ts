@@ -7,6 +7,7 @@ import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
 import { selectionSlice as selection } from "./selection"
 import { sourceSlice as source } from "./source"
+import { selectIsShowTerrain } from "./terrain"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -57,6 +58,9 @@ export const selectors = {
     },
     mapStyle: {
         style: selectMapStyle,
+    },
+    terrain: {
+        show: selectIsShowTerrain,
     },
     source: source.selectors,
     layer: {
