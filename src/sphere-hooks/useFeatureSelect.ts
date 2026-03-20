@@ -9,8 +9,7 @@ import type { MapRef } from "react-map-gl/maplibre"
 
 const selectClickableLayerIds = createSelector(
     [selectors.layer.visibleIds, selectPreviewSourceId],
-    (layerIds, previewSourceId) =>
-        previewSourceId ? [...layerIds, ...PREVIEW_LAYER_IDS] : layerIds,
+    (layerIds, previewSourceId) => (previewSourceId ? [...layerIds, ...PREVIEW_LAYER_IDS] : layerIds),
 )
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
