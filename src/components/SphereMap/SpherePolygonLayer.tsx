@@ -56,7 +56,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 layout={{
                     visibility: visible ? "visible" : "none",
                 }}
-                filter={["==", ["geometry-type"], "Polygon"]}
+                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -69,7 +69,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["==", ["geometry-type"], "Polygon"]}
+                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -82,7 +82,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["==", ["geometry-type"], "Polygon"]}
+                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
             />
             <Layer
                 id={`${layerId}-selected`}
