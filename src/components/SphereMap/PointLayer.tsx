@@ -44,7 +44,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
                 layout={{
                     visibility: visibility(visible),
                 }}
-                filter={["==", ["geometry-type"], "Point"]}
+                filter={["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]]}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer

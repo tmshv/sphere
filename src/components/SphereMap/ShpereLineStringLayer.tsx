@@ -51,7 +51,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["==", ["geometry-type"], "LineString"]}
+                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -64,7 +64,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["==", ["geometry-type"], "LineString"]}
+                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer

@@ -4,11 +4,7 @@ import { useEffect } from "react"
 import type { MapGeoJSONFeature, MapRef } from "react-map-gl/maplibre"
 import useFeatureClick from "./useFeatureClick"
 
-export default function useFeatureProperties(
-    ref: MapRef | undefined,
-    layerIds: string | string[] | undefined,
-    delay: number,
-) {
+export default function useFeatureProperties(ref: MapRef | undefined, layerIds: string[], delay: number) {
     const dispatch = useAppDispatch()
     const features = useFeatureClick(ref, layerIds, delay)
 
@@ -20,12 +16,11 @@ export default function useFeatureProperties(
         }
 
         const map = ref?.getMap()
-        if (!map || !layerIds) {
+        if (!map) {
             return
         }
 
-        const ids = Array.isArray(layerIds) ? layerIds : [layerIds]
-        const handlers = ids.flatMap(id => [
+        const handlers = layerIds.flatMap(id => [
             map.on("mousemove", id, event => {
                 if (features) {
                     return

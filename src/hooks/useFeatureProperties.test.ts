@@ -49,7 +49,7 @@ describe("useFeatureProperties", () => {
 
     it("dispatches reset when no features are clicked", () => {
         vi.mocked(useFeatureClick).mockReturnValue(undefined)
-        renderHook(() => useFeatureProperties(undefined, undefined, 0))
+        renderHook(() => useFeatureProperties(undefined, [], 0))
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: expect.stringContaining("reset") }))
     })
 
@@ -59,7 +59,7 @@ describe("useFeatureProperties", () => {
             { id: 2, properties: { name: "B" } },
         ] as any
         vi.mocked(useFeatureClick).mockReturnValue(features)
-        renderHook(() => useFeatureProperties(undefined, "layer-1", 0))
+        renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
         expect(dispatch).toHaveBeenCalledWith(
             expect.objectContaining({
                 payload: { values: [{ name: "A" }, { name: "B" }] },
@@ -70,20 +70,20 @@ describe("useFeatureProperties", () => {
     it("uses empty object for features with null properties", () => {
         const features = [{ id: 1, properties: null }] as any
         vi.mocked(useFeatureClick).mockReturnValue(features)
-        renderHook(() => useFeatureProperties(undefined, "layer-1", 0))
+        renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{}] } }))
     })
 
     it("only dispatches reset (not set) when ref is undefined", () => {
-        renderHook(() => useFeatureProperties(undefined, "layer-1", 0))
+        renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
         expect(dispatch).toHaveBeenCalledTimes(1)
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: expect.stringContaining("reset") }))
     })
 
-    it("does not register map listeners when layerIds is undefined", () => {
+    it("does not register map listeners when layerIds is empty", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, undefined, 0))
+        renderHook(() => useFeatureProperties(ref, [], 0))
         expect(map.on).not.toHaveBeenCalled()
     })
 
@@ -97,18 +97,10 @@ describe("useFeatureProperties", () => {
         expect(map.on).toHaveBeenCalledWith("mouseout", "layer-2", expect.any(Function))
     })
 
-    it("registers listeners for a single string layerId", () => {
-        const map = makeMockMap()
-        const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
-        expect(map.on).toHaveBeenCalledWith("mousemove", "layer-1", expect.any(Function))
-        expect(map.on).toHaveBeenCalledWith("mouseout", "layer-1", expect.any(Function))
-    })
-
     it("dispatches set on mousemove with features", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -123,7 +115,7 @@ describe("useFeatureProperties", () => {
     it("dispatches reset on mousemove with empty features array", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -136,7 +128,7 @@ describe("useFeatureProperties", () => {
     it("dispatches reset on mousemove with no features field", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -149,7 +141,7 @@ describe("useFeatureProperties", () => {
     it("dispatches reset on mouseout", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -162,7 +154,7 @@ describe("useFeatureProperties", () => {
     it("deduplicates features with the same id on mousemove", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -181,7 +173,7 @@ describe("useFeatureProperties", () => {
     it("includes features with undefined id even if duplicated on mousemove", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -201,7 +193,7 @@ describe("useFeatureProperties", () => {
         vi.mocked(useFeatureClick).mockReturnValue(features)
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
@@ -218,7 +210,7 @@ describe("useFeatureProperties", () => {
         vi.mocked(useFeatureClick).mockReturnValue(features)
         const map = makeMockMap()
         const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, "layer-1", 0))
+        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {

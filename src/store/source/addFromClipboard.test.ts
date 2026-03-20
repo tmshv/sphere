@@ -160,6 +160,112 @@ describe("addFromClipboard thunk", () => {
         expect(mockAddFeatureCollection).not.toHaveBeenCalled()
     })
 
+    test("expands a top-level GeometryCollection into a FeatureCollection", async () => {
+        const gc: GeoJSON.GeometryCollection = {
+            type: "GeometryCollection",
+            geometries: [
+                { type: "Point", coordinates: [1, 2] },
+                {
+                    type: "LineString",
+                    coordinates: [
+                        [0, 0],
+                        [1, 1],
+                    ],
+                },
+            ],
+        }
+        mockReadText.mockResolvedValue(JSON.stringify(gc))
+
+        await addFromClipboard()(store.dispatch, store.getState, undefined)
+
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
+        const call = mockAddFeatureCollection.mock.calls[0][0]
+        expect(call.dataset?.features).toHaveLength(2)
+        expect(call.dataset?.features[0].geometry.type).toBe("Point")
+        expect(call.dataset?.features[1].geometry.type).toBe("LineString")
+    })
+
+    test("expands a Feature with GeometryCollection geometry into multiple features", async () => {
+        const feature: GeoJSON.Feature = {
+            type: "Feature",
+            geometry: {
+                type: "GeometryCollection",
+                geometries: [
+                    { type: "Point", coordinates: [1, 2] },
+                    {
+                        type: "LineString",
+                        coordinates: [
+                            [0, 0],
+                            [1, 1],
+                        ],
+                    },
+                ],
+            },
+            properties: { name: "test" },
+        }
+        mockReadText.mockResolvedValue(JSON.stringify(feature))
+
+        await addFromClipboard()(store.dispatch, store.getState, undefined)
+
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
+        const call = mockAddFeatureCollection.mock.calls[0][0]
+        expect(call.dataset?.features).toHaveLength(2)
+        expect(call.dataset?.features[0].geometry.type).toBe("Point")
+        expect(call.dataset?.features[0].properties).toEqual({ name: "test" })
+        expect(call.dataset?.features[1].geometry.type).toBe("LineString")
+    })
+
+    test("expands FeatureCollection features with GeometryCollection geometry", async () => {
+        const fc: GeoJSON.FeatureCollection = {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    geometry: { type: "Point", coordinates: [0, 0] },
+                    properties: { a: 1 },
+                },
+                {
+                    type: "Feature",
+                    geometry: {
+                        type: "GeometryCollection",
+                        geometries: [
+                            {
+                                type: "LineString",
+                                coordinates: [
+                                    [0, 0],
+                                    [1, 1],
+                                ],
+                            },
+                            {
+                                type: "Polygon",
+                                coordinates: [
+                                    [
+                                        [0, 0],
+                                        [1, 0],
+                                        [1, 1],
+                                        [0, 0],
+                                    ],
+                                ],
+                            },
+                        ],
+                    },
+                    properties: { b: 2 },
+                },
+            ],
+        }
+        mockReadText.mockResolvedValue(JSON.stringify(fc))
+
+        await addFromClipboard()(store.dispatch, store.getState, undefined)
+
+        expect(mockAddFeatureCollection).toHaveBeenCalledOnce()
+        const call = mockAddFeatureCollection.mock.calls[0][0]
+        expect(call.dataset?.features).toHaveLength(3)
+        expect(call.dataset?.features[0].geometry.type).toBe("Point")
+        expect(call.dataset?.features[1].geometry.type).toBe("LineString")
+        expect(call.dataset?.features[1].properties).toEqual({ b: 2 })
+        expect(call.dataset?.features[2].geometry.type).toBe("Polygon")
+    })
+
     test("handles features with null properties without throwing", async () => {
         const fc: GeoJSON.FeatureCollection = {
             type: "FeatureCollection",

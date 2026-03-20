@@ -15,17 +15,44 @@ const GEOJSON_TYPES = new Set([
     "GeometryCollection",
 ])
 
+function expandFeature(feature: GeoJSON.Feature): GeoJSON.Feature[] {
+    if (feature.geometry?.type === "GeometryCollection") {
+        const gc = feature.geometry as GeoJSON.GeometryCollection
+        return gc.geometries.map(geometry => ({
+            type: "Feature" as const,
+            geometry,
+            properties: { ...feature.properties },
+        }))
+    }
+    return [feature]
+}
+
 function toFeatureCollection(data: any): GeoJSON.FeatureCollection | null {
     if (data.type === "FeatureCollection") {
-        return data as GeoJSON.FeatureCollection
+        const fc = data as GeoJSON.FeatureCollection
+        return {
+            type: "FeatureCollection",
+            features: fc.features.flatMap(expandFeature),
+        }
     }
     if (data.type === "Feature") {
         return {
             type: "FeatureCollection",
-            features: [data as GeoJSON.Feature],
+            features: expandFeature(data as GeoJSON.Feature),
         }
     }
-    // Geometry type
+    if (data.type === "GeometryCollection") {
+        const gc = data as GeoJSON.GeometryCollection
+        return {
+            type: "FeatureCollection",
+            features: gc.geometries.map(geometry => ({
+                type: "Feature" as const,
+                geometry,
+                properties: {},
+            })),
+        }
+    }
+    // Simple geometry type
     return {
         type: "FeatureCollection",
         features: [

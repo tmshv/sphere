@@ -21,7 +21,7 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             break
         }
         case "mbtiles": {
-            const url = `file://${path}`
+            const url = encodeURI(`file://${path}`)
             thunkAPI.dispatch(
                 source.addFromUrl({
                     url,
@@ -32,7 +32,7 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             break
         }
         default: {
-            const url = `file://${path}`
+            const url = encodeURI(`file://${path}`)
             thunkAPI.dispatch(
                 source.addFromUrl({
                     url,

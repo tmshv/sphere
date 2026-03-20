@@ -7,8 +7,9 @@ import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
 import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
 import { selectors } from "@/store"
-import { selectActiveSidebarTab, selectShowAttribution } from "@/store/app"
+import { selectShowAttribution } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
+import { selectPreviewSourceId } from "@/store/selectors"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
 import { createSelector } from "@reduxjs/toolkit"
@@ -21,10 +22,10 @@ import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
 
 const selectLayers = createSelector(
-    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds, selectActiveSidebarTab],
-    (drawing, items, allIds, activeSidebarTab) => {
-        // Do not show layers in draw mode or when Sources tab is active
-        if (drawing || activeSidebarTab !== "layers") {
+    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
+    (drawing, items, allIds) => {
+        // Do not show layers in draw mode
+        if (drawing) {
             return []
         }
         return allIds
@@ -63,6 +64,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(selectors.source.allIds)
     const layers = useAppSelector(selectLayers)
+    const previewSourceId = useAppSelector(selectPreviewSourceId)
 
     return (
         <>
@@ -70,7 +72,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
-            {!drawing && <SourcePreviewLayer mapId={mapId} delay={50} />}
+            {!drawing && previewSourceId && <SourcePreviewLayer mapId={mapId} delay={50} />}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
                     <FilteredLayerSource layerId={id} />

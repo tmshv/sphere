@@ -58,13 +58,14 @@ Before modifying any code file, check whether it has tests. All code must be cov
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
-  - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active; uses `preview-${sourceId}-*` layer ID prefix to avoid collisions with user-authored layers; deactivates `useFeatureProperties` via `selectActiveSidebarTab` to prevent properties slice conflicts
+  - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active; uses `preview-${sourceId}-*` layer ID prefix to avoid collisions with user-authored layers; passes `undefined` to `useFeatureProperties` when no preview source is active (deactivates feature property lookup to prevent properties slice conflicts)
+  - `map-body.tsx` `selectLayers` - suppresses user layers only during draw mode; tab state must NOT gate layer visibility (doing so was a v0.13.0 regression that hid user layers on the Sources tab)
 - `components/LeftSidebar/` - Sources and layers management
 - `store/effects/` - Side effects (file loading, etc.)
 - `ui/` - Reusable UI components (built on Mantine)
 
 **Hooks** (`src/hooks/`):
-- `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string | string[] | undefined` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
+- `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
 
 ### Backend (`src-tauri/`)
 
