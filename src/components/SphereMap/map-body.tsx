@@ -9,6 +9,7 @@ import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
 import { selectors } from "@/store"
 import { selectShowAttribution } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
+import { selectPreviewSourceId } from "@/store/selectors"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
 import { createSelector } from "@reduxjs/toolkit"
@@ -63,6 +64,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(selectors.source.allIds)
     const layers = useAppSelector(selectLayers)
+    const previewSourceId = useAppSelector(selectPreviewSourceId)
 
     return (
         <>
@@ -70,7 +72,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
-            {!drawing && <SourcePreviewLayer mapId={mapId} delay={50} />}
+            {!drawing && previewSourceId && <SourcePreviewLayer mapId={mapId} delay={50} />}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
                     <FilteredLayerSource layerId={id} />

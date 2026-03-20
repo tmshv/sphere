@@ -56,11 +56,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
         }
     }, [sourceId, source])
 
-    useFeatureProperties(map, sourceId ? PREVIEW_LAYER_IDS : undefined, delay)
-
-    if (!sourceId) {
-        return null
-    }
+    useFeatureProperties(map, PREVIEW_LAYER_IDS, delay)
 
     const [pointId, lineOutlineId, lineId, polygonId, polygonOutline0Id, polygonOutline1Id] = PREVIEW_LAYER_IDS
 

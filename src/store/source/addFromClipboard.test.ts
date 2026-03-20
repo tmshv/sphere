@@ -165,7 +165,13 @@ describe("addFromClipboard thunk", () => {
             type: "GeometryCollection",
             geometries: [
                 { type: "Point", coordinates: [1, 2] },
-                { type: "LineString", coordinates: [[0, 0], [1, 1]] },
+                {
+                    type: "LineString",
+                    coordinates: [
+                        [0, 0],
+                        [1, 1],
+                    ],
+                },
             ],
         }
         mockReadText.mockResolvedValue(JSON.stringify(gc))
@@ -186,7 +192,13 @@ describe("addFromClipboard thunk", () => {
                 type: "GeometryCollection",
                 geometries: [
                     { type: "Point", coordinates: [1, 2] },
-                    { type: "LineString", coordinates: [[0, 0], [1, 1]] },
+                    {
+                        type: "LineString",
+                        coordinates: [
+                            [0, 0],
+                            [1, 1],
+                        ],
+                    },
                 ],
             },
             properties: { name: "test" },
@@ -217,8 +229,24 @@ describe("addFromClipboard thunk", () => {
                     geometry: {
                         type: "GeometryCollection",
                         geometries: [
-                            { type: "LineString", coordinates: [[0, 0], [1, 1]] },
-                            { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+                            {
+                                type: "LineString",
+                                coordinates: [
+                                    [0, 0],
+                                    [1, 1],
+                                ],
+                            },
+                            {
+                                type: "Polygon",
+                                coordinates: [
+                                    [
+                                        [0, 0],
+                                        [1, 0],
+                                        [1, 1],
+                                        [0, 0],
+                                    ],
+                                ],
+                            },
                         ],
                     },
                     properties: { b: 2 },

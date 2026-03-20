@@ -65,7 +65,7 @@ Before modifying any code file, check whether it has tests. All code must be cov
 - `ui/` - Reusable UI components (built on Mantine)
 
 **Hooks** (`src/hooks/`):
-- `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string | string[] | undefined` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
+- `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
 
 ### Backend (`src-tauri/`)
 
