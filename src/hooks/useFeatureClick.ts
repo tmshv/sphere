@@ -1,8 +1,12 @@
-import type { Map as MaplibreMap, MapGeoJSONFeature } from "maplibre-gl"
+import type { MapGeoJSONFeature, Map as MaplibreMap } from "maplibre-gl"
 import { useEffect, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
-export default function useFeatureClick(ref: MapRef | undefined, layerId: string | undefined, delay: number) {
+export default function useFeatureClick(
+    ref: MapRef | undefined,
+    layerId: string | string[] | undefined,
+    delay: number,
+) {
     const [features, setFeatures] = useState<MapGeoJSONFeature[] | undefined>()
 
     useEffect(() => {
@@ -10,18 +14,24 @@ export default function useFeatureClick(ref: MapRef | undefined, layerId: string
         if (!map) {
             return
         }
-        if (!layerId) {
+        const ids = Array.isArray(layerId) ? layerId : layerId ? [layerId] : []
+        if (ids.length === 0) {
+            setFeatures(undefined)
             return
         }
 
         let clickTime = 0
-        const click = map.on("click", layerId, event => {
-            if (!event.features) {
-                return
-            }
-            clickTime = Date.now()
-            setFeatures(event.features)
-        })
+
+        const layerListeners = ids.map(id =>
+            map.on("click", id, event => {
+                if (!event.features) {
+                    return
+                }
+                clickTime = Date.now()
+                setFeatures(event.features)
+            }),
+        )
+
         const clickOutside = map.on("click", () => {
             if (Date.now() - clickTime < delay) {
                 return
@@ -30,7 +40,9 @@ export default function useFeatureClick(ref: MapRef | undefined, layerId: string
         })
 
         return () => {
-            click.unsubscribe()
+            for (const listener of layerListeners) {
+                listener.unsubscribe()
+            }
             clickOutside.unsubscribe()
         }
     }, [ref, layerId, delay])

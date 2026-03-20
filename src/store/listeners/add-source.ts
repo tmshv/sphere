@@ -1,33 +1,28 @@
 import logger from "@/logger"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
+import type { RootState } from ".."
 import { actions } from "../actions"
+
+async function selectLastAdded(
+    action: unknown,
+    listenerApi: { getState: () => unknown; dispatch: (a: unknown) => void },
+) {
+    logger.info({ action }, "Source was added")
+    const state = listenerApi.getState() as RootState
+    const sourceId = state.source.lastAdded
+    if (sourceId) {
+        listenerApi.dispatch(actions.selection.selectSource({ sourceId }))
+    }
+}
 
 const listener = createListenerMiddleware()
 listener.startListening({
     actionCreator: actions.source.addFromUrl.fulfilled,
-    effect: async action => {
-        logger.info({ action }, "Source was added")
-        // const { sourceId, name, meta } = action.payload
-        //
-        // const layerType = predictLayerType(meta)
-        // if (!layerType) {
-        //     return
-        // }
-        //
-        // const layerId = nextId("layer")
-        // listenerApi.dispatch(actions.layer.addLayer({
-        //     id: layerId,
-        //     sourceId,
-        //     fractionIndex: Math.random(),
-        //     visible: true,
-        //     name: name,
-        //     color: "#1c7ed6",
-        // }))
-        // listenerApi.dispatch(actions.layer.setType({
-        //     id: layerId,
-        //     type: layerType,
-        // }))
-    },
+    effect: selectLastAdded,
+})
+listener.startListening({
+    actionCreator: actions.source.addFromClipboard.fulfilled,
+    effect: selectLastAdded,
 })
 
 export default listener

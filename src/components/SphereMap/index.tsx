@@ -11,6 +11,7 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectors.mapStyle.style)
+    const showTerrain = useAppSelector(selectors.terrain.show)
 
     return (
         <MapGL
@@ -31,7 +32,9 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 logger.error("Got maplibre error %s", error)
             }}
         >
-            <Source id={"mapbox-dem"} type={"raster-dem"} url={"mapbox://mapbox.mapbox-terrain-dem-v1"} />
+            {showTerrain && (
+                <Source id={"mapbox-dem"} type={"raster-dem"} url={"mapbox://mapbox.mapbox-terrain-dem-v1"} />
+            )}
             <MapBody mapId={id} />
         </MapGL>
     )

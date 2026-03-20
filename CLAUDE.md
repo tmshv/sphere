@@ -49,7 +49,7 @@ Before modifying any code file, check whether it has tests. All code must be cov
 ### Frontend (`src/`)
 
 **State Management**: Redux Toolkit with listener middleware for side effects. Key slices:
-- `app` - UI state (dark theme, sidebar visibility)
+- `app` - UI state (dark theme, sidebar visibility, active sidebar tab)
 - `layer` - Layer management and styling
 - `source` - Data source management
 - `selection` - Selected map features
@@ -58,9 +58,13 @@ Before modifying any code file, check whether it has tests. All code must be cov
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
+  - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active; uses `preview-${sourceId}-*` layer ID prefix to avoid collisions with user-authored layers; deactivates `useFeatureProperties` via `selectActiveSidebarTab` to prevent properties slice conflicts
 - `components/LeftSidebar/` - Sources and layers management
 - `store/effects/` - Side effects (file loading, etc.)
 - `ui/` - Reusable UI components (built on Mantine)
+
+**Hooks** (`src/hooks/`):
+- `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string | string[] | undefined` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
 
 ### Backend (`src-tauri/`)
 
