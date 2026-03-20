@@ -91,10 +91,10 @@ if (drawing) {
 ```
 
 ### Task 2: Add fallback type in `add-blank-layer` when prediction fails
-- **File**: `src/store/listeners/add-blank-layer.ts`
-- When `predictLayerType` returns `undefined`, fall back to `LayerType.Point` as default
-- This ensures the layer is always visible when created, even for mixed-geometry or unknown sources
-- The user can change the type afterwards in the Layer panel
+- [x] **File**: `src/store/listeners/add-blank-layer.ts`
+- [x] When `predictLayerType` returns `undefined`, fall back to `LayerType.Point` as default
+- [x] This ensures the layer is always visible when created, even for mixed-geometry or unknown sources
+- [x] The user can change the type afterwards in the Layer panel
 
 ```ts
 // For both FeatureCollection and Geojson type blocks:

@@ -1,7 +1,7 @@
 import { nextColor } from "@/lib/color-scheme"
 import { nextId } from "@/lib/nextId"
 import predictLayerType from "@/lib/predict-layer-type"
-import { SourceType } from "@/types"
+import { LayerType, SourceType } from "@/types"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
@@ -43,28 +43,24 @@ listener.startListening({
 
             // try to predict default layer view
             if (source.type === SourceType.FeatureCollection && !source.pending) {
-                const layerType = predictLayerType(source.meta)
-                if (layerType) {
-                    listenerApi.dispatch(
-                        actions.layer.setType({
-                            id: layerId,
-                            type: layerType,
-                        }),
-                    )
-                }
+                const layerType = predictLayerType(source.meta) ?? LayerType.Point
+                listenerApi.dispatch(
+                    actions.layer.setType({
+                        id: layerId,
+                        type: layerType,
+                    }),
+                )
             }
 
             // predict default layer view for GeoJSON
             if (source.type === SourceType.Geojson) {
-                const layerType = predictLayerType(source.meta)
-                if (layerType) {
-                    listenerApi.dispatch(
-                        actions.layer.setType({
-                            id: layerId,
-                            type: layerType,
-                        }),
-                    )
-                }
+                const layerType = predictLayerType(source.meta) ?? LayerType.Point
+                listenerApi.dispatch(
+                    actions.layer.setType({
+                        id: layerId,
+                        type: layerType,
+                    }),
+                )
             }
         }
 
