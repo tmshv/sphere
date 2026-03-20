@@ -70,7 +70,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
-            <SourcePreviewLayer mapId={mapId} delay={50} />
+            {!drawing && <SourcePreviewLayer mapId={mapId} delay={50} />}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
                     <FilteredLayerSource layerId={id} />
