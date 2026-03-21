@@ -157,6 +157,14 @@ describe("selectPreviewLayerIds", () => {
         expect(selectPreviewLayerIds(state)).toEqual([])
     })
 
+    test("returns empty array when selected source does not exist in items", () => {
+        const state = makeRootState({
+            selection: { sourceId: "missing" },
+            source: { items: {} },
+        })
+        expect(selectPreviewLayerIds(state)).toEqual([])
+    })
+
     test("returns 3 IDs for GeoJSON source", () => {
         const state = makeRootState({
             selection: { sourceId: "s1" },
