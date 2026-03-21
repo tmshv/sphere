@@ -48,8 +48,8 @@ Existing layer components (`PointLayer`, `SphereLineStringLayer`, `SpherePolygon
 ### Task 4: Update `selectors.test.ts`
 **File:** `src/store/selectors.test.ts`
 
-- [ ] Change existing "returns undefined when source type is MVT" test to "returns sourceId when source type is MVT".
-- [ ] Add `describe("selectPreviewLayerIds")` block:
+- [x] Change existing "returns undefined when source type is MVT" test to "returns sourceId when source type is MVT".
+- [x] Add `describe("selectPreviewLayerIds")` block:
   - Returns `[]` when not on Sources tab.
   - Returns `[]` when no source selected.
   - Returns 3 IDs for GeoJSON source.
