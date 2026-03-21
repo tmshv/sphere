@@ -34,14 +34,14 @@ Existing layer components (`PointLayer`, `SphereLineStringLayer`, `SpherePolygon
 ### Task 3: Rewrite `SourcePreviewLayer`
 **File:** `src/components/SphereMap/SourcePreviewLayer.tsx`
 
-- [ ] Remove: `PREVIEW_SOURCE_ID`, static `PREVIEW_LAYER_IDS` export, all raw `<Layer>` elements, the `sphere-preview` `<Source>`, and the `useEffect` that fetches GeoJSON.
-- [ ] Import: `PointLayer`, `SphereLineStringLayer`, `SpherePolygonLayer`, `selectPreviewLayerIds`.
-- [ ] Read `sourceId` via `selectPreviewSourceId`, read source object from `state.source.items[sourceId]`.
-- [ ] Read `layerIds` via `selectPreviewLayerIds` and pass to `useFeatureProperties(map, layerIds, delay)`.
-- [ ] Render per source type:
-  - **GeoJSON/FeatureCollection**: one set of `PointLayer` / `SphereLineStringLayer` / `SpherePolygonLayer` pointing at `sourceId` (no `sourceLayer` prop). Layer IDs: `preview-{sourceId}-point/line/polygon`.
-  - **MVT**: iterate `source.sourceLayers`, render all three components per layer with `sourceLayer={sl.id}`. Layer IDs: `preview-{sourceId}-{sl.id}-point/line/polygon`.
-  - Use `tableu10[0]` as preview color and `visible={true}` for all.
+- [x] Remove: `PREVIEW_SOURCE_ID`, static `PREVIEW_LAYER_IDS` export, all raw `<Layer>` elements, the `sphere-preview` `<Source>`, and the `useEffect` that fetches GeoJSON.
+- [x] Import: `PointLayer`, `SphereLineStringLayer`, `SpherePolygonLayer`, `selectPreviewLayerIds`.
+- [x] Read `sourceId` via `selectPreviewSourceId`, read source object from `state.source.items[sourceId]`.
+- [x] Read `layerIds` via `selectPreviewLayerIds` and pass to `useFeatureProperties(map, layerIds, delay)`.
+- [x] Render per source type:
+  - **GeoJSON/FeatureCollection**: one set of `PointLayer` / `SphereLineStringLayer` / `SpherePolygonLayer` pointing at `sourceId` (no `sourceLayer` prop). Layer IDs: `preview-{sourceId}-point/line/polygon`. ✓
+  - **MVT**: iterate `source.sourceLayers`, render all three components per layer with `sourceLayer={sl.id}`. Layer IDs: `preview-{sourceId}-{sl.id}-point/line/polygon`. ✓
+  - Use `tableu10[0]` as preview color and `visible={true}` for all. ✓
 
 `map-body.tsx` requires **no changes** — the `previewSourceId` guard works correctly once the selector includes MVT.
 
