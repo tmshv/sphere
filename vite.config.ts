@@ -45,7 +45,7 @@ export default defineConfig({
         // produce sourcemaps for debug builds
         sourcemap: !!process.env.TAURI_DEBUG,
 
-        rollupOptions: {
+        rolldownOptions: {
             input: {
                 main: resolve(__dirname, "index.html"),
                 properties: resolve(__dirname, "properties.html"),
