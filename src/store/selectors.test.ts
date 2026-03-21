@@ -102,6 +102,14 @@ describe("selectPreviewSourceId", () => {
         expect(selectPreviewSourceId(state)).toBeUndefined()
     })
 
+    test("returns undefined when MVT source is pending", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: { ...mvtSource, pending: true } } },
+        })
+        expect(selectPreviewSourceId(state)).toBeUndefined()
+    })
+
     test("returns sourceId for Geojson source on sources tab", () => {
         const state = makeRootState({
             selection: { sourceId: "s1" },
@@ -200,6 +208,22 @@ describe("selectPreviewLayerIds", () => {
         const state = makeRootState({
             selection: { sourceId: "s1" },
             source: { items: { s1: { ...geojsonSource, pending: true } } },
+        })
+        expect(selectPreviewLayerIds(state)).toEqual([])
+    })
+
+    test("returns empty array when MVT source is pending", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: { ...mvtSource, pending: true } } },
+        })
+        expect(selectPreviewLayerIds(state)).toEqual([])
+    })
+
+    test("returns empty array for MVT source with no sourceLayers", () => {
+        const state = makeRootState({
+            selection: { sourceId: "s1" },
+            source: { items: { s1: { ...mvtSource, sourceLayers: [] } } },
         })
         expect(selectPreviewLayerIds(state)).toEqual([])
     })
