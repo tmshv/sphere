@@ -41,11 +41,41 @@ export const selectPreviewSourceId = createSelector(
     (sourceId, items, tab) => {
         if (tab !== "sources") return undefined
         if (!sourceId) return undefined
-        const source = items[sourceId]
-        if (!source) return undefined
-        if (source.type !== SourceType.Geojson && source.type !== SourceType.FeatureCollection) return undefined
-        if (source.pending) return undefined
+        const src = items[sourceId]
+        if (!src) return undefined
+        if (
+            src.type !== SourceType.Geojson &&
+            src.type !== SourceType.FeatureCollection &&
+            src.type !== SourceType.MVT
+        ) return undefined
+        if (src.pending) return undefined
         return sourceId
+    },
+)
+
+export const selectPreviewLayerIds = createSelector(
+    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    (sourceId, items, tab): string[] => {
+        if (tab !== "sources") return []
+        if (!sourceId) return []
+        const src = items[sourceId]
+        if (!src) return []
+        if (src.pending) return []
+        if (src.type === SourceType.Geojson || src.type === SourceType.FeatureCollection) {
+            return [
+                `preview-${sourceId}-point`,
+                `preview-${sourceId}-line`,
+                `preview-${sourceId}-polygon`,
+            ]
+        }
+        if (src.type === SourceType.MVT) {
+            return src.sourceLayers.flatMap(sl => [
+                `preview-${sourceId}-${sl.id}-point`,
+                `preview-${sourceId}-${sl.id}-line`,
+                `preview-${sourceId}-${sl.id}-polygon`,
+            ])
+        }
+        return []
     },
 )
 
