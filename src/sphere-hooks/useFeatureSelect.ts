@@ -1,21 +1,20 @@
 import { queryFeaturesInPoint } from "@/lib/maplibre"
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { selectPreviewSourceId } from "@/store/selectors"
-import { PREVIEW_LAYER_IDS } from "@/components/SphereMap/SourcePreviewLayer"
+import { selectPreviewLayerIds } from "@/store/selectors"
 import { createSelector } from "@reduxjs/toolkit"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
 const selectClickableLayerIds = createSelector(
-    [selectors.layer.visibleIds, selectPreviewSourceId],
-    (layerIds, previewSourceId) => (previewSourceId ? [...layerIds, ...PREVIEW_LAYER_IDS] : layerIds),
+    [selectors.layer.visibleIds, selectPreviewLayerIds],
+    (layerIds, previewLayerIds) => (previewLayerIds.length > 0 ? [...layerIds, ...previewLayerIds] : layerIds),
 )
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectClickableLayerIds)
-    const previewSourceId = useAppSelector(selectPreviewSourceId)
+    const previewLayerIds = useAppSelector(selectPreviewLayerIds)
 
     useEffect(() => {
         const map = ref?.getMap()
@@ -35,7 +34,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                 )
                 return
             }
-            if (previewSourceId) {
+            if (previewLayerIds.length > 0) {
                 // Source preview is active; map clicks don't affect source selection
                 return
             }
@@ -45,7 +44,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
         return () => {
             click.unsubscribe()
         }
-    }, [dispatch, ref, layerIds, previewSourceId])
+    }, [dispatch, ref, layerIds, previewLayerIds])
 
     return null
 }

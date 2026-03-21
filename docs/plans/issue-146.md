@@ -26,19 +26,19 @@ Existing layer components (`PointLayer`, `SphereLineStringLayer`, `SpherePolygon
 ### Task 2: Update `useFeatureSelect`
 **File:** `src/sphere-hooks/useFeatureSelect.ts`
 
-- Remove import of `PREVIEW_LAYER_IDS` from `SourcePreviewLayer`.
-- Import `selectPreviewLayerIds` from `@/store/selectors`.
-- Update `selectClickableLayerIds` to spread `previewLayerIds` (from `selectPreviewLayerIds`) instead of `PREVIEW_LAYER_IDS`.
-- Update condition: check `previewLayerIds.length > 0` instead of `previewSourceId`.
+- [x] Remove import of `PREVIEW_LAYER_IDS` from `SourcePreviewLayer`.
+- [x] Import `selectPreviewLayerIds` from `@/store/selectors`.
+- [x] Update `selectClickableLayerIds` to spread `previewLayerIds` (from `selectPreviewLayerIds`) instead of `PREVIEW_LAYER_IDS`.
+- [x] Update condition: check `previewLayerIds.length > 0` instead of `previewSourceId`.
 
 ### Task 3: Rewrite `SourcePreviewLayer`
 **File:** `src/components/SphereMap/SourcePreviewLayer.tsx`
 
-- Remove: `PREVIEW_SOURCE_ID`, static `PREVIEW_LAYER_IDS` export, all raw `<Layer>` elements, the `sphere-preview` `<Source>`, and the `useEffect` that fetches GeoJSON.
-- Import: `PointLayer`, `SphereLineStringLayer`, `SpherePolygonLayer`, `selectPreviewLayerIds`.
-- Read `sourceId` via `selectPreviewSourceId`, read source object from `state.source.items[sourceId]`.
-- Read `layerIds` via `selectPreviewLayerIds` and pass to `useFeatureProperties(map, layerIds, delay)`.
-- Render per source type:
+- [ ] Remove: `PREVIEW_SOURCE_ID`, static `PREVIEW_LAYER_IDS` export, all raw `<Layer>` elements, the `sphere-preview` `<Source>`, and the `useEffect` that fetches GeoJSON.
+- [ ] Import: `PointLayer`, `SphereLineStringLayer`, `SpherePolygonLayer`, `selectPreviewLayerIds`.
+- [ ] Read `sourceId` via `selectPreviewSourceId`, read source object from `state.source.items[sourceId]`.
+- [ ] Read `layerIds` via `selectPreviewLayerIds` and pass to `useFeatureProperties(map, layerIds, delay)`.
+- [ ] Render per source type:
   - **GeoJSON/FeatureCollection**: one set of `PointLayer` / `SphereLineStringLayer` / `SpherePolygonLayer` pointing at `sourceId` (no `sourceLayer` prop). Layer IDs: `preview-{sourceId}-point/line/polygon`.
   - **MVT**: iterate `source.sourceLayers`, render all three components per layer with `sourceLayer={sl.id}`. Layer IDs: `preview-{sourceId}-{sl.id}-point/line/polygon`.
   - Use `tableu10[0]` as preview color and `visible={true}` for all.
@@ -48,8 +48,8 @@ Existing layer components (`PointLayer`, `SphereLineStringLayer`, `SpherePolygon
 ### Task 4: Update `selectors.test.ts`
 **File:** `src/store/selectors.test.ts`
 
-- Change existing "returns undefined when source type is MVT" test to "returns sourceId when source type is MVT".
-- Add `describe("selectPreviewLayerIds")` block:
+- [ ] Change existing "returns undefined when source type is MVT" test to "returns sourceId when source type is MVT".
+- [ ] Add `describe("selectPreviewLayerIds")` block:
   - Returns `[]` when not on Sources tab.
   - Returns `[]` when no source selected.
   - Returns 3 IDs for GeoJSON source.
