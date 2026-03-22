@@ -14,22 +14,21 @@ import { useAppDispatch } from "@/store/hooks"
 import useFeatureClick from "./useFeatureClick"
 import useFeatureProperties from "./useFeatureProperties"
 
-function makeMockMap() {
+function makeMockMap(queryResult: any[] = []) {
     const handlers: Map<string, { fn: Function; unsubscribe: ReturnType<typeof vi.fn> }[]> = new Map()
     return {
-        on: vi.fn((event: string, layerId: string, fn: Function) => {
-            const key = `${event}:${layerId}`
+        on: vi.fn((event: string, fn: Function) => {
             const unsub = vi.fn()
-            if (!handlers.has(key)) handlers.set(key, [])
-            handlers.get(key)!.push({ fn, unsubscribe: unsub })
+            if (!handlers.has(event)) handlers.set(event, [])
+            handlers.get(event)!.push({ fn, unsubscribe: unsub })
             return { unsubscribe: unsub }
         }),
-        fire(event: string, layerId: string, payload: object = {}) {
-            const key = `${event}:${layerId}`
-            for (const h of handlers.get(key) ?? []) h.fn(payload)
+        queryRenderedFeatures: vi.fn((_point: any, _opts: any) => queryResult),
+        fire(event: string, payload: object = {}) {
+            for (const h of handlers.get(event) ?? []) h.fn(payload)
         },
-        getHandlers(event: string, layerId: string) {
-            return handlers.get(`${event}:${layerId}`) ?? []
+        getHandlers(event: string) {
+            return handlers.get(event) ?? []
         },
     }
 }
@@ -87,52 +86,37 @@ describe("useFeatureProperties", () => {
         expect(map.on).not.toHaveBeenCalled()
     })
 
-    it("registers mousemove and mouseout listeners for each layer id", () => {
+    it("registers a single mousemove and mouseout listener on the map", () => {
         const map = makeMockMap()
         const ref = makeRef(map)
         renderHook(() => useFeatureProperties(ref, ["layer-1", "layer-2"], 0))
-        expect(map.on).toHaveBeenCalledWith("mousemove", "layer-1", expect.any(Function))
-        expect(map.on).toHaveBeenCalledWith("mouseout", "layer-1", expect.any(Function))
-        expect(map.on).toHaveBeenCalledWith("mousemove", "layer-2", expect.any(Function))
-        expect(map.on).toHaveBeenCalledWith("mouseout", "layer-2", expect.any(Function))
+        expect(map.on).toHaveBeenCalledWith("mousemove", expect.any(Function))
+        expect(map.on).toHaveBeenCalledWith("mouseout", expect.any(Function))
+        expect(map.on).toHaveBeenCalledTimes(2)
     })
 
-    it("dispatches set on mousemove with features", () => {
-        const map = makeMockMap()
+    it("dispatches set on mousemove when queryRenderedFeatures returns features", () => {
+        const map = makeMockMap([{ id: 1, properties: { x: 1 } }])
         const ref = makeRef(map)
         renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
-            map.fire("mousemove", "layer-1", {
-                features: [{ id: 1, properties: { x: 1 } }],
-            })
+            map.fire("mousemove", { point: { x: 0, y: 0 } })
         })
 
+        expect(map.queryRenderedFeatures).toHaveBeenCalledWith({ x: 0, y: 0 }, { layers: ["layer-1"] })
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }] } }))
     })
 
-    it("dispatches reset on mousemove with empty features array", () => {
-        const map = makeMockMap()
+    it("dispatches reset on mousemove when queryRenderedFeatures returns empty", () => {
+        const map = makeMockMap([])
         const ref = makeRef(map)
         renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
-            map.fire("mousemove", "layer-1", { features: [] })
-        })
-
-        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: expect.stringContaining("reset") }))
-    })
-
-    it("dispatches reset on mousemove with no features field", () => {
-        const map = makeMockMap()
-        const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
-        dispatch.mockClear()
-
-        act(() => {
-            map.fire("mousemove", "layer-1", {})
+            map.fire("mousemove", { point: { x: 0, y: 0 } })
         })
 
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: expect.stringContaining("reset") }))
@@ -145,44 +129,24 @@ describe("useFeatureProperties", () => {
         dispatch.mockClear()
 
         act(() => {
-            map.fire("mouseout", "layer-1")
+            map.fire("mouseout")
         })
 
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: expect.stringContaining("reset") }))
     })
 
     it("deduplicates features with the same id on mousemove", () => {
-        const map = makeMockMap()
+        const map = makeMockMap([
+            { id: 1, properties: { x: 1 } },
+            { id: 1, properties: { x: 1 } },
+            { id: 2, properties: { x: 2 } },
+        ])
         const ref = makeRef(map)
         renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
-            map.fire("mousemove", "layer-1", {
-                features: [
-                    { id: 1, properties: { x: 1 } },
-                    { id: 1, properties: { x: 1 } },
-                    { id: 2, properties: { x: 2 } },
-                ],
-            })
-        })
-
-        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }))
-    })
-
-    it("includes features with undefined id even if duplicated on mousemove", () => {
-        const map = makeMockMap()
-        const ref = makeRef(map)
-        renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
-        dispatch.mockClear()
-
-        act(() => {
-            map.fire("mousemove", "layer-1", {
-                features: [
-                    { id: undefined, properties: { x: 1 } },
-                    { id: undefined, properties: { x: 2 } },
-                ],
-            })
+            map.fire("mousemove", { point: { x: 0, y: 0 } })
         })
 
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }))
@@ -191,15 +155,13 @@ describe("useFeatureProperties", () => {
     it("skips mousemove dispatch when click features are active", () => {
         const features = [{ id: 1, properties: { clicked: true } }] as any
         vi.mocked(useFeatureClick).mockReturnValue(features)
-        const map = makeMockMap()
+        const map = makeMockMap([{ id: 2, properties: { hovered: true } }])
         const ref = makeRef(map)
         renderHook(() => useFeatureProperties(ref, ["layer-1"], 0))
         dispatch.mockClear()
 
         act(() => {
-            map.fire("mousemove", "layer-1", {
-                features: [{ id: 2, properties: { hovered: true } }],
-            })
+            map.fire("mousemove", { point: { x: 0, y: 0 } })
         })
 
         expect(dispatch).not.toHaveBeenCalled()
@@ -214,7 +176,7 @@ describe("useFeatureProperties", () => {
         dispatch.mockClear()
 
         act(() => {
-            map.fire("mouseout", "layer-1")
+            map.fire("mouseout")
         })
 
         expect(dispatch).not.toHaveBeenCalled()
@@ -227,12 +189,7 @@ describe("useFeatureProperties", () => {
 
         unmount()
 
-        const allHandlers = [
-            ...map.getHandlers("mousemove", "layer-1"),
-            ...map.getHandlers("mouseout", "layer-1"),
-            ...map.getHandlers("mousemove", "layer-2"),
-            ...map.getHandlers("mouseout", "layer-2"),
-        ]
+        const allHandlers = [...map.getHandlers("mousemove"), ...map.getHandlers("mouseout")]
         for (const h of allHandlers) {
             expect(h.unsubscribe).toHaveBeenCalled()
         }

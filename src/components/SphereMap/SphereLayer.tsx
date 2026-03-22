@@ -4,6 +4,7 @@ import { assertUnreachable } from "@/lib"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
+import type { LayerRenderType } from "@/types"
 import { LayerType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
 import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
@@ -25,9 +26,7 @@ function createGetImageFunction({ srcField, valueField }: { srcField: string; va
     }
 }
 
-type Type = "Point" | "LineString" | "Polygon" | "photo" | "layer" | "unknown"
-
-type SelectTuple<T> = [Type, T | null]
+type SelectTuple<T> = [LayerRenderType, T | null]
 
 const select = createSelector(
     [

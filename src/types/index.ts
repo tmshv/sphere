@@ -1,5 +1,7 @@
 export type Projection = "mercator" | "globe"
 
+export type LayerRenderType = "Point" | "LineString" | "Polygon" | "photo" | "layer" | "unknown"
+
 export enum SourceType {
     FeatureCollection = "FeatureCollection",
     Geojson = "GeoJSON",

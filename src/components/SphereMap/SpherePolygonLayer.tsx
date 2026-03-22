@@ -83,6 +83,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     visibility: visibility(visible),
                 }}
                 filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                {...sourceLayerProp(sourceLayer)}
             />
             <Layer
                 id={`${layerId}-selected`}

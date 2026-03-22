@@ -35,6 +35,10 @@ npm version patch         # Bump version in package.json, tauri.conf.json, Cargo
 
 Before modifying any code file, check whether it has tests. All code must be covered by tests before making changes. If tests are missing, write them first, then implement the change.
 
+## Formatting
+
+Run `npm run format` after every code modification.
+
 ## Code Style
 
 - Double quotes, no semicolons, 4-space indentation
@@ -58,7 +62,7 @@ Before modifying any code file, check whether it has tests. All code must be cov
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
-  - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active; uses `preview-${sourceId}-*` layer ID prefix to avoid collisions with user-authored layers; passes `undefined` to `useFeatureProperties` when no preview source is active (deactivates feature property lookup to prevent properties slice conflicts)
+  - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active. Points layer components directly at the already-mounted MapLibre source (no duplicate source created). For GeoJSON/FeatureCollection sources, renders one set of `PointLayer`/`SphereLineStringLayer`/`SpherePolygonLayer` using `preview-${sourceId}-{geometry}` layer IDs. For MVT sources, iterates `source.sourceLayers` and renders all three components per named vector layer using `preview-${sourceId}-${sl.id}-{geometry}` IDs. Passes `selectPreviewLayerIds` result to `useFeatureProperties` (empty array when no preview active, which deactivates feature property lookup to prevent properties slice conflicts). `selectPreviewLayerIds` (in `store/selectors.ts`) is the single authoritative source of which layers are clickable during preview — used by both `SourcePreviewLayer` and `useFeatureSelect`
   - `map-body.tsx` `selectLayers` - suppresses user layers only during draw mode; tab state must NOT gate layer visibility (doing so was a v0.13.0 regression that hid user layers on the Sources tab)
 - `components/LeftSidebar/` - Sources and layers management
 - `store/effects/` - Side effects (file loading, etc.)

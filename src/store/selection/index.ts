@@ -25,6 +25,9 @@ export const selectionSlice = createSlice({
             state.sourceId = undefined
             state.selectedIds = []
         },
+        resetFeature: state => {
+            state.selectedIds = []
+        },
         // removeSource: (state, action: PayloadAction<string>) => {
         //     const sourceId = action.payload
         //     delete state.items[sourceId]
@@ -55,7 +58,6 @@ export const selectionSlice = createSlice({
     },
 })
 
-export const selectCurrentLayer = (state: RootState) => state.selection.layerId
 export const selectProperties = (state: RootState) => {
     const layerId = state.selection.layerId
     if (!layerId) {
