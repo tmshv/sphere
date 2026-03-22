@@ -44,12 +44,12 @@ initialState = { activeTool: "pan" }  // pan active by default
 - [x] Return `void`
 
 ### Task 4: Mount hook + add button in `src/components/MapStatusbar/index.tsx`
-- [ ] Call `usePanMode(ref)` (ref already available from `useMap()`)
-- [ ] `useAppSelector(selectors.tools.selectPanEnabled)` for button state
-- [ ] On click: `dispatch(actions.tools.setTool(panEnabled ? null : "pan"))`
-- [ ] Use `IconHandMove` (or `IconHandStop`) from `@tabler/icons`
-- [ ] Apply `s.active` class when `panEnabled === true`
-- [ ] Place button left of the spacer `<div className={s.s} />`
+- [x] Call `usePanMode(ref)` (ref already available from `useMap()`)
+- [x] `useAppSelector(selectors.tools.selectPanEnabled)` for button state
+- [x] On click: `dispatch(actions.tools.setTool(panEnabled ? null : "pan"))`
+- [x] Use `IconHandMove` (or `IconHandStop`) from `@tabler/icons`
+- [x] Apply `s.active` class when `panEnabled === true`
+- [x] Place button left of the spacer `<div className={s.s} />`
 
 ### Task 5: Format
 - [ ] Run `npm run format`
