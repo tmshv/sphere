@@ -38,10 +38,10 @@ initialState = { activeTool: "pan" }  // pan active by default
 - [x] `src/store/selectors.ts` — import `toolsSlice`, add `tools: tools.selectors` to `selectors` object
 
 ### Task 3: Create `src/hooks/usePanMode.ts`
-- [ ] Accept `ref?: MapRef` (same signature as `useZoom`, `usePitch`)
-- [ ] Read `panEnabled` via `useAppSelector(selectors.tools.selectPanEnabled)`
-- [ ] `useEffect` on `[ref, panEnabled]`: call `ref.getMap().dragPan.enable()` or `.disable()`
-- [ ] Return `void`
+- [x] Accept `ref?: MapRef` (same signature as `useZoom`, `usePitch`)
+- [x] Read `panEnabled` via `useAppSelector(selectors.tools.selectPanEnabled)`
+- [x] `useEffect` on `[ref, panEnabled]`: call `ref.getMap().dragPan.enable()` or `.disable()`
+- [x] Return `void`
 
 ### Task 4: Mount hook + add button in `src/components/MapStatusbar/index.tsx`
 - [ ] Call `usePanMode(ref)` (ref already available from `useMap()`)
