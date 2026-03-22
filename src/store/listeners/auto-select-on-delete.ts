@@ -18,7 +18,10 @@ listener.startListening({
         const { items, allIds } = before.layer
         const sorted = [...allIds].sort((a, b) => items[a].fractionIndex - items[b].fractionIndex)
         const idx = sorted.indexOf(deletedLayerId)
-        const nextId = sorted[idx + 1] ?? sorted[idx - 1] ?? undefined
+        if (idx === -1) {
+            return
+        }
+        const nextId = sorted[idx + 1] ?? sorted[idx - 1]
 
         listenerApi.dispatch(actions.selection.selectLayer({ layerId: nextId }))
     },
@@ -37,7 +40,7 @@ listener.startListening({
 
         const allIds = before.source.allIds
         const idx = allIds.indexOf(deletedSourceId)
-        const nextId = allIds[idx + 1] ?? allIds[idx - 1] ?? undefined
+        const nextId = allIds[idx + 1] ?? allIds[idx - 1]
 
         listenerApi.dispatch(actions.selection.selectSource({ sourceId: nextId }))
     },

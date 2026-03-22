@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { layerSlice } from "../layer"
+import { sourceSlice } from "../source"
 
 // Define a type for the slice state
 type SelectionState = {
@@ -51,6 +52,11 @@ export const selectionSlice = createSlice({
         builder.addCase(layerSlice.actions.removeLayer, (state, action) => {
             if (state.layerId === action.payload) {
                 state.layerId = undefined
+            }
+        })
+        builder.addCase(sourceSlice.actions.removeSource, (state, action) => {
+            if (state.sourceId === action.payload) {
+                state.sourceId = undefined
             }
         })
     },
