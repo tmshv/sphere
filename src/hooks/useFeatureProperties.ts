@@ -1,7 +1,8 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { deduplicate } from "@/lib/array"
 import { useEffect } from "react"
-import type { MapGeoJSONFeature, MapRef } from "react-map-gl/maplibre"
+import type { MapRef } from "react-map-gl/maplibre"
 import useFeatureClick from "./useFeatureClick"
 
 export default function useFeatureProperties(ref: MapRef | undefined, layerIds: string[], delay: number) {
@@ -33,25 +34,10 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
                 dispatch(actions.properties.reset())
                 return
             }
-            // Collect values from all hovered features, dropping duplicates.
-            // Key includes sourceLayer because MVT feature IDs are only unique within
-            // a source layer — two features from different source layers can share the same id.
-            // For features without an id (GeoJSON without explicit ids), deduplicate by
-            // properties content so the same feature rendered on multiple sublayers
-            // (e.g. polygon fill + outline) appears only once.
-            const seen = new Set<string>()
-            const deduped: MapGeoJSONFeature[] = []
-            for (const f of hovered) {
-                const featureKey =
-                    f.id !== undefined
-                        ? `${f.id}`
-                        : `${JSON.stringify(f.properties ?? {})}:${JSON.stringify(f.geometry)}`
-                const key = `${f.source ?? ""}:${f.sourceLayer ?? ""}:${featureKey}`
-                if (!seen.has(key)) {
-                    seen.add(key)
-                    deduped.push(f)
-                }
-            }
+            // Deduplicate: MVT feature IDs are only unique within a source layer,
+            // so key by source + sourceLayer + id. GeoJSON features are guaranteed
+            // to have numeric IDs assigned by the Rust backend.
+            const deduped = deduplicate(hovered, f => `${f.source ?? ""}:${f.sourceLayer ?? ""}:${f.id}`)
             dispatch(actions.properties.set({ values: deduped.map(f => f.properties ?? {}) }))
         })
 

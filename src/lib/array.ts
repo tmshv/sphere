@@ -35,3 +35,16 @@ export function zip<T0, T1>(a: T0[], b: T1[]): [T0, T1][] {
         [] as [T0, T1][],
     )
 }
+
+export function deduplicate<T, K extends string | number>(items: T[], keyFn: (item: T) => K): T[] {
+    const seen = new Set<K>()
+    const result: T[] = []
+    for (const item of items) {
+        const key = keyFn(item)
+        if (!seen.has(key)) {
+            seen.add(key)
+            result.push(item)
+        }
+    }
+    return result
+}
