@@ -165,54 +165,42 @@ describe("selectPreviewLayerIds", () => {
         expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
-    test("returns 6 IDs for GeoJSON source", () => {
+    test("returns 3 IDs for GeoJSON source", () => {
         const state = makeRootState({
             selection: { sourceId: "s1" },
             source: { items: { s1: geojsonSource } },
         })
         expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-point",
-            "preview-s1-line-outline",
             "preview-s1-line",
             "preview-s1-polygon",
-            "preview-s1-polygon-outline-0",
-            "preview-s1-polygon-outline-1",
         ])
     })
 
-    test("returns 6 IDs for FeatureCollection source", () => {
+    test("returns 3 IDs for FeatureCollection source", () => {
         const state = makeRootState({
             selection: { sourceId: "s1" },
             source: { items: { s1: fcSource } },
         })
         expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-point",
-            "preview-s1-line-outline",
             "preview-s1-line",
             "preview-s1-polygon",
-            "preview-s1-polygon-outline-0",
-            "preview-s1-polygon-outline-1",
         ])
     })
 
-    test("returns 6 * sourceLayers.length IDs for MVT source", () => {
+    test("returns 3 * sourceLayers.length IDs for MVT source", () => {
         const state = makeRootState({
             selection: { sourceId: "s1" },
             source: { items: { s1: mvtSource } },
         })
         expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-roads-point",
-            "preview-s1-roads-line-outline",
             "preview-s1-roads-line",
             "preview-s1-roads-polygon",
-            "preview-s1-roads-polygon-outline-0",
-            "preview-s1-roads-polygon-outline-1",
             "preview-s1-water-point",
-            "preview-s1-water-line-outline",
             "preview-s1-water-line",
             "preview-s1-water-polygon",
-            "preview-s1-water-polygon-outline-0",
-            "preview-s1-water-polygon-outline-1",
         ])
     })
 
