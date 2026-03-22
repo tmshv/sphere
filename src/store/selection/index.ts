@@ -48,8 +48,10 @@ export const selectionSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder.addCase(layerSlice.actions.removeLayer, (state, _action) => {
-            state.layerId = undefined
+        builder.addCase(layerSlice.actions.removeLayer, (state, action) => {
+            if (state.layerId === action.payload) {
+                state.layerId = undefined
+            }
         })
     },
     selectors: {

@@ -19,7 +19,7 @@ After deleting a layer/source:
 ## Implementation Plan
 
 ### Task 1: Fix extraReducer in `selectionSlice` for `removeLayer`
-- [ ] In `src/store/selection/index.ts`, change the `removeLayer` extraReducer so it only clears `layerId` when the deleted layer IS the currently selected one (instead of always clearing).
+- [x] In `src/store/selection/index.ts`, change the `removeLayer` extraReducer so it only clears `layerId` when the deleted layer IS the currently selected one (instead of always clearing).
 
 ### Task 2: Add `auto-select-on-delete` listener
 - [ ] Create `src/store/listeners/auto-select-on-delete.ts`
