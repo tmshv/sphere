@@ -48,6 +48,19 @@ Run `npm run format` after every code modification.
 - Use `function Component({ prop }: ComponentProps) {}` syntax for React components, not arrow functions
 - Use maplibre types (`MapEventType`, `MapLayerEventType`, `Listener`, etc.) when working with map event handlers
 
+## Forbidden Patterns
+
+The following code smells are strictly forbidden:
+
+- **Out-of-bounds index access** — never rely on `arr[i]` returning `undefined` when `i` is out of range. Use `.at()` with bounds-safe logic, `.slice()`, or `.filter()` to produce a range before indexing.
+- **Non-null assertions (`!`)** — never use `foo!` to silence TypeScript. Narrow the type explicitly with a guard or early return instead.
+- **Untyped `as` casts** — never cast with `as SomeType` to suppress type errors. Fix the type mismatch at its source.
+- **`any` type** — never use `any`. Use `unknown` with a type guard, or a proper interface/union.
+- **Magic numbers and strings** — inline literals with no explanation (e.g. `* 0.0174533`, `status === 2`) must be replaced with named constants or enums.
+- **Nested ternaries** — more than one level of `? :` nesting is forbidden. Use `if/else` or a lookup table instead.
+- **`console.log` left in code** — debug logging must be removed before committing.
+- **Ignoring returned errors** — never discard a `Promise` without `.catch()` or `await` in an async context. Never silently swallow errors in `catch (e) {}`.
+
 ## Architecture
 
 ### Frontend (`src/`)

@@ -21,7 +21,8 @@ listener.startListening({
         if (idx === -1) {
             return
         }
-        const nextId = sorted[idx + 1] ?? sorted[idx - 1]
+        const remaining = sorted.filter(id => id !== deletedLayerId)
+        const nextId = remaining.at(idx) ?? remaining.at(idx - 1)
 
         listenerApi.dispatch(actions.selection.selectLayer({ layerId: nextId }))
     },
@@ -43,7 +44,8 @@ listener.startListening({
         if (idx === -1) {
             return
         }
-        const nextId = allIds[idx + 1] ?? allIds[idx - 1]
+        const remaining = allIds.filter(id => id !== deletedSourceId)
+        const nextId = remaining.at(idx) ?? remaining.at(idx - 1)
 
         listenerApi.dispatch(actions.selection.selectSource({ sourceId: nextId }))
     },
