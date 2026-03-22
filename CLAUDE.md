@@ -143,6 +143,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
 | `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
 | `source_get_column_stats` | Histogram + min/max/mean/unique counts for one column: `(id, column) -> ColumnStats` |
+| `source_query_rect`       | Rect spatial query: `(id, bbox: [west,south,east,north], mode: "include"\|"intersect") -> Vec<i64>` |
 | `mbtiles_get_tile`        | Get single tile from MBTiles |
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |
