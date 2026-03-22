@@ -13,7 +13,6 @@ const selectClickableLayerIds = createSelector(
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectClickableLayerIds)
-    const previewLayerIds = useAppSelector(selectors.preview.layerIds)
 
     useEffect(() => {
         const map = ref?.getMap()
@@ -33,17 +32,13 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                 )
                 return
             }
-            if (previewLayerIds.length > 0) {
-                // Source preview is active; map clicks don't affect source selection
-                return
-            }
             dispatch(actions.selection.reset())
         })
 
         return () => {
             click.unsubscribe()
         }
-    }, [dispatch, ref, layerIds, previewLayerIds])
+    }, [dispatch, ref, layerIds])
 
     return null
 }
