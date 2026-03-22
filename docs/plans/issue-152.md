@@ -33,9 +33,9 @@ initialState = { activeTool: "pan" }  // pan active by default
 - [x] Export `toolsSlice` and default reducer
 
 ### Task 2: Register in store files
-- [ ] `src/store/index.ts` — add `tools: toolsReducer` to `configureStore.reducer`
-- [ ] `src/store/actions.ts` — add `tools: toolsSlice.actions`
-- [ ] `src/store/selectors.ts` — import `toolsSlice`, add `tools: tools.selectors` to `selectors` object
+- [x] `src/store/index.ts` — add `tools: toolsReducer` to `configureStore.reducer`
+- [x] `src/store/actions.ts` — add `tools: toolsSlice.actions`
+- [x] `src/store/selectors.ts` — import `toolsSlice`, add `tools: tools.selectors` to `selectors` object
 
 ### Task 3: Create `src/hooks/usePanMode.ts`
 - [ ] Accept `ref?: MapRef` (same signature as `useZoom`, `usePitch`)

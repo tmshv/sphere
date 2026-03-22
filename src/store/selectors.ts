@@ -8,6 +8,7 @@ import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId }
 import { selectionSlice as selection } from "./selection"
 import { sourceSlice as source } from "./source"
 import { selectIsShowTerrain } from "./terrain"
+import { toolsSlice as tools } from "./tools"
 export type { PreviewLayerSpec } from "./preview"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
@@ -64,4 +65,5 @@ export const selectors = {
         layerSpecs: selectPreviewLayerSpecs,
         layerIds: selectPreviewLayerIds,
     },
+    tools: tools.selectors,
 }

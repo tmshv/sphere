@@ -13,6 +13,7 @@ import sky from "./sky"
 import source from "./source"
 import terrain from "./terrain"
 import tileBoundaries from "./tile-boundaries"
+import tools from "./tools"
 export { actions } from "./actions"
 export { selectors } from "./selectors"
 
@@ -30,6 +31,7 @@ export const store = configureStore({
         layer,
         selection,
         properties,
+        tools,
     },
     middleware: getDefaultMiddleWare => {
         return getDefaultMiddleWare()
