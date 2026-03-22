@@ -52,7 +52,7 @@ initialState = { activeTool: "pan" }  // pan active by default
 - [x] Place button left of the spacer `<div className={s.s} />`
 
 ### Task 5: Format
-- [ ] Run `npm run format`
+- [x] Run `npm run format`
 
 ---
 
