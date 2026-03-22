@@ -59,6 +59,7 @@ Run `npm run format` after every code modification.
 - `selection` - Selected map features
 - `draw` - Drawing mode state
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
+- `tools` - Active map tool state (`activeTool: Tool | null`); `"pan"` = drag-pan enabled (default), `null` = map frozen
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
@@ -70,6 +71,7 @@ Run `npm run format` after every code modification.
 
 **Hooks** (`src/hooks/`):
 - `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
+- `usePanMode` - Reads `selectors.tools.selectPanEnabled` and calls `dragPan.enable()`/`.disable()` on the map ref to sync MapLibre handler state with Redux
 
 ### Backend (`src-tauri/`)
 
