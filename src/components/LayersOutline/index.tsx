@@ -1,6 +1,5 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { selectCurrentLayer } from "@/store/selection"
 import { Outline, type OutlineOnMove, type OutlineRenderItem } from "@/ui/Outline"
 import { OutlineItem } from "@/ui/Outline/OutlineItem"
 import { ActionIcon } from "@mantine/core"
@@ -10,7 +9,7 @@ import { useCallback } from "react"
 import { Icon } from "./Icon"
 
 const selectLayers = createSelector(
-    [selectCurrentLayer, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
+    [selectors.selection.currentLayerId, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
     (selectedLayerId, dark, items, allIds) => {
         return allIds
             .map(id => {

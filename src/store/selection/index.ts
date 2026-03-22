@@ -55,7 +55,6 @@ export const selectionSlice = createSlice({
     },
 })
 
-export const selectCurrentLayer = (state: RootState) => state.selection.layerId
 export const selectProperties = (state: RootState) => {
     const layerId = state.selection.layerId
     if (!layerId) {
