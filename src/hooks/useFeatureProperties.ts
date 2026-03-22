@@ -42,9 +42,10 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
             const seen = new Set<string>()
             const deduped: MapGeoJSONFeature[] = []
             for (const f of hovered) {
-                const featureKey = f.id !== undefined
-                    ? `${f.id}`
-                    : `${JSON.stringify(f.properties ?? {})}:${JSON.stringify(f.geometry)}`
+                const featureKey =
+                    f.id !== undefined
+                        ? `${f.id}`
+                        : `${JSON.stringify(f.properties ?? {})}:${JSON.stringify(f.geometry)}`
                 const key = `${f.source ?? ""}:${f.sourceLayer ?? ""}:${featureKey}`
                 if (!seen.has(key)) {
                     seen.add(key)

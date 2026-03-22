@@ -1,13 +1,14 @@
 import { STYLE_OSM } from "@/const"
-import { SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
-import { appSlice as app, selectActiveSidebarTab } from "./app"
+import { appSlice as app, } from "./app"
 import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
+import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"
 import { selectionSlice as selection } from "./selection"
 import { sourceSlice as source } from "./source"
 import { selectIsShowTerrain } from "./terrain"
+export type { PreviewLayerSpec } from "./preview"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -36,55 +37,6 @@ const visibleIds = createSelector([layer.selectors.items, layer.selectors.allIds
     allIds.filter(id => items[id].visible),
 )
 
-export const selectPreviewSourceId = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
-    (sourceId, items, tab) => {
-        if (tab !== "sources") return undefined
-        if (!sourceId) return undefined
-        const src = items[sourceId]
-        if (!src) return undefined
-        if (
-            src.type !== SourceType.Geojson &&
-            src.type !== SourceType.FeatureCollection &&
-            src.type !== SourceType.MVT
-        ) return undefined
-        if (src.pending) return undefined
-        return sourceId
-    },
-)
-
-export const selectPreviewLayerIds = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
-    (sourceId, items, tab): string[] => {
-        if (tab !== "sources") return []
-        if (!sourceId) return []
-        const src = items[sourceId]
-        if (!src) return []
-        if (src.pending) return []
-        if (src.type === SourceType.Geojson || src.type === SourceType.FeatureCollection) {
-            return [
-                `preview-${sourceId}-point`,
-                `preview-${sourceId}-line-outline`,
-                `preview-${sourceId}-line`,
-                `preview-${sourceId}-polygon`,
-                `preview-${sourceId}-polygon-outline-0`,
-                `preview-${sourceId}-polygon-outline-1`,
-            ]
-        }
-        if (src.type === SourceType.MVT) {
-            return src.sourceLayers.flatMap(sl => [
-                `preview-${sourceId}-${sl.id}-point`,
-                `preview-${sourceId}-${sl.id}-line-outline`,
-                `preview-${sourceId}-${sl.id}-line`,
-                `preview-${sourceId}-${sl.id}-polygon`,
-                `preview-${sourceId}-${sl.id}-polygon-outline-0`,
-                `preview-${sourceId}-${sl.id}-polygon-outline-1`,
-            ])
-        }
-        return []
-    },
-)
-
 export const selectors = {
     app: app.selectors,
     draw: draw.selectors,
@@ -106,5 +58,10 @@ export const selectors = {
     selection: selection.selectors,
     tileBoundaries: {
         show: showTileBoundaries,
+    },
+    preview: {
+        sourceId: selectPreviewSourceId,
+        layerSpecs: selectPreviewLayerSpecs,
+        layerIds: selectPreviewLayerIds,
     },
 }

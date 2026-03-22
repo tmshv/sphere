@@ -1,7 +1,11 @@
 import { STYLE_OSM } from "@/const"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
-import { selectChangeProjectionAvailable, selectMapStyle, selectPreviewLayerIds, selectPreviewSourceId, selectors } from "./selectors"
+import {
+    selectChangeProjectionAvailable,
+    selectMapStyle,
+    selectors,
+} from "./selectors"
 
 const makeRootState = (overrides: Record<string, any> = {}) =>
     ({
@@ -67,7 +71,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectPreviewSourceId(state)).toBeUndefined()
+        expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns undefined when no source is selected", () => {
@@ -75,7 +79,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: undefined },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectPreviewSourceId(state)).toBeUndefined()
+        expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns undefined when selected source does not exist in items", () => {
@@ -83,7 +87,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "missing" },
             source: { items: {} },
         })
-        expect(selectPreviewSourceId(state)).toBeUndefined()
+        expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns sourceId when source type is MVT", () => {
@@ -91,7 +95,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: mvtSource } },
         })
-        expect(selectPreviewSourceId(state)).toBe("s1")
+        expect(selectors.preview.sourceId(state)).toBe("s1")
     })
 
     test("returns undefined when source is pending", () => {
@@ -99,7 +103,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: { ...geojsonSource, pending: true } } },
         })
-        expect(selectPreviewSourceId(state)).toBeUndefined()
+        expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns undefined when MVT source is pending", () => {
@@ -107,7 +111,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: { ...mvtSource, pending: true } } },
         })
-        expect(selectPreviewSourceId(state)).toBeUndefined()
+        expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns sourceId for Geojson source on sources tab", () => {
@@ -115,7 +119,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectPreviewSourceId(state)).toBe("s1")
+        expect(selectors.preview.sourceId(state)).toBe("s1")
     })
 
     test("returns sourceId for FeatureCollection source on sources tab", () => {
@@ -123,7 +127,7 @@ describe("selectPreviewSourceId", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: fcSource } },
         })
-        expect(selectPreviewSourceId(state)).toBe("s1")
+        expect(selectors.preview.sourceId(state)).toBe("s1")
     })
 })
 
@@ -146,7 +150,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when no source selected", () => {
@@ -154,7 +158,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: undefined },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when selected source does not exist in items", () => {
@@ -162,7 +166,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "missing" },
             source: { items: {} },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns 6 IDs for GeoJSON source", () => {
@@ -170,7 +174,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([
+        expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-point",
             "preview-s1-line-outline",
             "preview-s1-line",
@@ -185,7 +189,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: fcSource } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([
+        expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-point",
             "preview-s1-line-outline",
             "preview-s1-line",
@@ -200,7 +204,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: mvtSource } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([
+        expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-roads-point",
             "preview-s1-roads-line-outline",
             "preview-s1-roads-line",
@@ -221,7 +225,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: rasterSource } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when source is pending", () => {
@@ -229,7 +233,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: { ...geojsonSource, pending: true } } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when MVT source is pending", () => {
@@ -237,7 +241,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: { ...mvtSource, pending: true } } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array for MVT source with no sourceLayers", () => {
@@ -245,7 +249,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: { ...mvtSource, sourceLayers: [] } } },
         })
-        expect(selectPreviewLayerIds(state)).toEqual([])
+        expect(selectors.preview.layerIds(state)).toEqual([])
     })
 })
 

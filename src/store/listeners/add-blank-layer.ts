@@ -1,7 +1,7 @@
 import { nextColor } from "@/lib/color-scheme"
 import { nextId } from "@/lib/nextId"
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
-import { LayerType, SourceType } from "@/types"
+import { SourceType } from "@/types"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"

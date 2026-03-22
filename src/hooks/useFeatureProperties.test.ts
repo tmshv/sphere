@@ -169,7 +169,17 @@ describe("useFeatureProperties", () => {
     })
 
     it("deduplicates features with undefined id, same properties and same geometry from same source on mousemove", () => {
-        const geometry = { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] }
+        const geometry = {
+            type: "Polygon",
+            coordinates: [
+                [
+                    [0, 0],
+                    [1, 0],
+                    [1, 1],
+                    [0, 0],
+                ],
+            ],
+        }
         const map = makeMockMap([
             { id: undefined, source: "s", sourceLayer: "", properties: { x: 1 }, geometry },
             { id: undefined, source: "s", sourceLayer: "", properties: { x: 1 }, geometry },
@@ -186,8 +196,28 @@ describe("useFeatureProperties", () => {
     })
 
     it("preserves distinct features with undefined id, same properties but different geometries from same source on mousemove", () => {
-        const geometry1 = { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] }
-        const geometry2 = { type: "Polygon", coordinates: [[[2, 2], [3, 2], [3, 3], [2, 2]]] }
+        const geometry1 = {
+            type: "Polygon",
+            coordinates: [
+                [
+                    [0, 0],
+                    [1, 0],
+                    [1, 1],
+                    [0, 0],
+                ],
+            ],
+        }
+        const geometry2 = {
+            type: "Polygon",
+            coordinates: [
+                [
+                    [2, 2],
+                    [3, 2],
+                    [3, 3],
+                    [2, 2],
+                ],
+            ],
+        }
         const map = makeMockMap([
             { id: undefined, source: "s", sourceLayer: "", properties: { x: 1 }, geometry: geometry1 },
             { id: undefined, source: "s", sourceLayer: "", properties: { x: 1 }, geometry: geometry2 },
@@ -240,10 +270,7 @@ describe("useFeatureProperties", () => {
 
         unmount()
 
-        const allHandlers = [
-            ...map.getHandlers("mousemove"),
-            ...map.getHandlers("mouseout"),
-        ]
+        const allHandlers = [...map.getHandlers("mousemove"), ...map.getHandlers("mouseout")]
         for (const h of allHandlers) {
             expect(h.unsubscribe).toHaveBeenCalled()
         }
