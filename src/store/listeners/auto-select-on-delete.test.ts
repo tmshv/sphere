@@ -128,6 +128,46 @@ describe("auto-select-on-delete listener: layer branch", () => {
         expect(selectAction).toMatchObject({ payload: { layerId: undefined } })
     })
 
+    test("selects next layer when a middle layer is deleted", async () => {
+        const { store, dispatchedActions } = makeStore({
+            selection: { layerId: "l2" },
+            layer: {
+                allIds: ["l1", "l2", "l3"],
+                items: {
+                    l1: { fractionIndex: 0 },
+                    l2: { fractionIndex: 1 },
+                    l3: { fractionIndex: 2 },
+                },
+            },
+        })
+
+        store.dispatch({ type: "layer/removeLayer", payload: "l2" })
+        await vi.runAllTimersAsync()
+
+        const selectAction = dispatchedActions.find(a => a.type === "selection/selectLayer")
+        expect(selectAction).toMatchObject({ payload: { layerId: "l3" } })
+    })
+
+    test("uses fractionIndex order, not allIds order, to pick next layer", async () => {
+        const { store, dispatchedActions } = makeStore({
+            selection: { layerId: "l1" },
+            layer: {
+                allIds: ["l3", "l1", "l2"],
+                items: {
+                    l1: { fractionIndex: 1 },
+                    l2: { fractionIndex: 2 },
+                    l3: { fractionIndex: 0 },
+                },
+            },
+        })
+
+        store.dispatch({ type: "layer/removeLayer", payload: "l1" })
+        await vi.runAllTimersAsync()
+
+        const selectAction = dispatchedActions.find(a => a.type === "selection/selectLayer")
+        expect(selectAction).toMatchObject({ payload: { layerId: "l2" } })
+    })
+
     test("does not dispatch when deletedLayerId is not found in sorted list", async () => {
         const { store, dispatchedActions } = makeStore({
             selection: { layerId: "l-ghost" },
@@ -192,6 +232,19 @@ describe("auto-select-on-delete listener: source branch", () => {
 
         const selectAction = dispatchedActions.find(a => a.type === "selection/selectSource")
         expect(selectAction).toMatchObject({ payload: { sourceId: "s2" } })
+    })
+
+    test("selects next source when a middle source is deleted", async () => {
+        const { store, dispatchedActions } = makeStore({
+            selection: { sourceId: "s2" },
+            source: { allIds: ["s1", "s2", "s3"] },
+        })
+
+        store.dispatch({ type: "source/removeSource", payload: "s2" })
+        await vi.runAllTimersAsync()
+
+        const selectAction = dispatchedActions.find(a => a.type === "selection/selectSource")
+        expect(selectAction).toMatchObject({ payload: { sourceId: "s3" } })
     })
 
     test("does not dispatch when deletedSourceId is not found in allIds", async () => {
