@@ -170,11 +170,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: geojsonSource } },
         })
-        expect(selectors.preview.layerIds(state)).toEqual([
-            "preview-s1-point",
-            "preview-s1-line",
-            "preview-s1-polygon",
-        ])
+        expect(selectors.preview.layerIds(state)).toEqual(["preview-s1-point", "preview-s1-line", "preview-s1-polygon"])
     })
 
     test("returns 3 IDs for FeatureCollection source", () => {
@@ -182,11 +178,7 @@ describe("selectPreviewLayerIds", () => {
             selection: { sourceId: "s1" },
             source: { items: { s1: fcSource } },
         })
-        expect(selectors.preview.layerIds(state)).toEqual([
-            "preview-s1-point",
-            "preview-s1-line",
-            "preview-s1-polygon",
-        ])
+        expect(selectors.preview.layerIds(state)).toEqual(["preview-s1-point", "preview-s1-line", "preview-s1-polygon"])
     })
 
     test("returns 3 * sourceLayers.length IDs for MVT source", () => {

@@ -109,11 +109,7 @@ export const selectPreviewLayerIds = createSelector(
         if (!src) return []
         if (src.pending) return []
         if (src.type === SourceType.Geojson || src.type === SourceType.FeatureCollection) {
-            return [
-                `preview-${sourceId}-point`,
-                `preview-${sourceId}-line`,
-                `preview-${sourceId}-polygon`,
-            ]
+            return [`preview-${sourceId}-point`, `preview-${sourceId}-line`, `preview-${sourceId}-polygon`]
         }
         if (src.type === SourceType.MVT) {
             return src.sourceLayers.flatMap(sl => [
