@@ -16,8 +16,21 @@ export type PreviewLayerSpec =
           color: string
           options: { minRadius: number; maxRadius: number }
       }
-    | { kind: Extract<LayerRenderType, "LineString">; layerId: string; sourceId: string; sourceLayer?: string; color: string; thick: false }
-    | { kind: Extract<LayerRenderType, "Polygon">; layerId: string; sourceId: string; sourceLayer?: string; color: string }
+    | {
+          kind: Extract<LayerRenderType, "LineString">
+          layerId: string
+          sourceId: string
+          sourceLayer?: string
+          color: string
+          thick: false
+      }
+    | {
+          kind: Extract<LayerRenderType, "Polygon">
+          layerId: string
+          sourceId: string
+          sourceLayer?: string
+          color: string
+      }
 
 export const selectPreviewSourceId = createSelector(
     [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
@@ -43,7 +56,13 @@ export const selectPreviewLayerSpecs = createSelector(
         if (src.type === SourceType.Geojson || src.type === SourceType.FeatureCollection) {
             return [
                 { kind: "Point", layerId: `preview-${sourceId}-point`, sourceId, color: PREVIEW_COLOR, options: opts },
-                { kind: "LineString", layerId: `preview-${sourceId}-line`, sourceId, color: PREVIEW_COLOR, thick: false },
+                {
+                    kind: "LineString",
+                    layerId: `preview-${sourceId}-line`,
+                    sourceId,
+                    color: PREVIEW_COLOR,
+                    thick: false,
+                },
                 { kind: "Polygon", layerId: `preview-${sourceId}-polygon`, sourceId, color: PREVIEW_COLOR },
             ]
         }

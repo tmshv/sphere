@@ -1,7 +1,7 @@
 import { STYLE_OSM } from "@/const"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
-import { appSlice as app, } from "./app"
+import { appSlice as app } from "./app"
 import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
 import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"

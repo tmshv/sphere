@@ -1,11 +1,7 @@
 import { STYLE_OSM } from "@/const"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
-import {
-    selectChangeProjectionAvailable,
-    selectMapStyle,
-    selectors,
-} from "./selectors"
+import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
 
 const makeRootState = (overrides: Record<string, any> = {}) =>
     ({
