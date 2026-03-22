@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest"
-import { layerSlice } from "../layer"
 import reducer, { selectionSlice } from "./index"
 
 const { reset, selectSource, selectLayer, selectOne } = selectionSlice.actions
@@ -27,6 +26,12 @@ describe("selectionSlice reducer", () => {
         expect(state.sourceId).toBe("s1")
     })
 
+    test("selectSource with undefined clears sourceId", () => {
+        const prev = { sourceId: "s1", layerId: undefined, selectedIds: [] }
+        const state = reducer(prev, selectSource({ sourceId: undefined }))
+        expect(state.sourceId).toBeUndefined()
+    })
+
     test("selectLayer sets layerId", () => {
         const state = reducer(undefined, selectLayer({ layerId: "l1" }))
         expect(state.layerId).toBe("l1")
@@ -42,18 +47,6 @@ describe("selectionSlice reducer", () => {
         const state = reducer(undefined, selectOne({ layerId: "l1", featureId: 42 }))
         expect(state.layerId).toBe("l1")
         expect(state.selectedIds).toEqual([42])
-    })
-
-    test("removeLayer extra reducer clears layerId", () => {
-        const prev = { sourceId: undefined, layerId: "l1", selectedIds: [] }
-        const state = reducer(prev, layerSlice.actions.removeLayer("l1"))
-        expect(state.layerId).toBeUndefined()
-    })
-
-    test("removeLayer does not affect sourceId", () => {
-        const prev = { sourceId: "s1", layerId: "l1", selectedIds: [] }
-        const state = reducer(prev, layerSlice.actions.removeLayer("l1"))
-        expect(state.sourceId).toBe("s1")
     })
 })
 
