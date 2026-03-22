@@ -25,6 +25,9 @@ export const selectionSlice = createSlice({
             state.sourceId = undefined
             state.selectedIds = []
         },
+        resetFeature: state => {
+            state.selectedIds = []
+        },
         // removeSource: (state, action: PayloadAction<string>) => {
         //     const sourceId = action.payload
         //     delete state.items[sourceId]
