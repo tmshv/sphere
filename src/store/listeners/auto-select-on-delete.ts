@@ -40,6 +40,9 @@ listener.startListening({
 
         const allIds = before.source.allIds
         const idx = allIds.indexOf(deletedSourceId)
+        if (idx === -1) {
+            return
+        }
         const nextId = allIds[idx + 1] ?? allIds[idx - 1]
 
         listenerApi.dispatch(actions.selection.selectSource({ sourceId: nextId }))

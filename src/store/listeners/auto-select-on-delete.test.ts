@@ -198,6 +198,18 @@ describe("auto-select-on-delete listener: source branch", () => {
         expect((selectAction as any).payload.sourceId).toBe("s2")
     })
 
+    test("does not dispatch when deletedSourceId is not found in allIds", async () => {
+        const { store, dispatchedActions } = makeStore({
+            selection: { sourceId: "s-ghost" },
+            source: { allIds: ["s1"] },
+        })
+
+        store.dispatch({ type: "source/removeSource", payload: "s-ghost" })
+        await vi.runAllTimersAsync()
+
+        expect(dispatchedActions.find((a: any) => a.type === "selection/selectSource")).toBeUndefined()
+    })
+
     test("dispatches selectSource with undefined when only one source is deleted", async () => {
         const { store, dispatchedActions } = makeStore({
             selection: { sourceId: "s1" },
