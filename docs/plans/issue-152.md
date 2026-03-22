@@ -26,11 +26,11 @@ initialState = { activeTool: "pan" }  // pan active by default
 ## Plan
 
 ### Task 1: Create `src/store/tools.ts`
-- [ ] Define `type Tool = "pan"` and `ToolsState = { activeTool: Tool | null }`
-- [ ] `createSlice` named `"tools"`, `initialState = { activeTool: "pan" }`
-- [ ] Reducer: `setTool(state, action: PayloadAction<Tool | null>)` sets `activeTool`
-- [ ] Inline `selectors`: `selectActiveTool`, `selectPanEnabled: state => state.activeTool === "pan"`
-- [ ] Export `toolsSlice` and default reducer
+- [x] Define `type Tool = "pan"` and `ToolsState = { activeTool: Tool | null }`
+- [x] `createSlice` named `"tools"`, `initialState = { activeTool: "pan" }`
+- [x] Reducer: `setTool(state, action: PayloadAction<Tool | null>)` sets `activeTool`
+- [x] Inline `selectors`: `selectActiveTool`, `selectPanEnabled: state => state.activeTool === "pan"`
+- [x] Export `toolsSlice` and default reducer
 
 ### Task 2: Register in store files
 - [ ] `src/store/index.ts` — add `tools: toolsReducer` to `configureStore.reducer`
