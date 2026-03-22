@@ -5,14 +5,6 @@ import { createSelector } from "@reduxjs/toolkit"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
-// Outline sublayers (e.g. `preview-…-line-outline`, `preview-…-polygon-outline-0`) are
-// included in clickable IDs so hover/click reaches them, but they have no `-selected` sibling.
-// Normalize them back to their owning base layer ID before dispatching selectOne.
-function resolveBaseLayerId(layerId: string, previewLayerIds: string[]): string {
-    if (!previewLayerIds.includes(layerId)) return layerId
-    return layerId.replace(/-outline(?:-\d+)?$/, "")
-}
-
 const selectClickableLayerIds = createSelector(
     [selectors.layer.visibleIds, selectors.preview.layerIds],
     (layerIds, previewLayerIds) => (previewLayerIds.length > 0 ? [...layerIds, ...previewLayerIds] : layerIds),
@@ -33,11 +25,9 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
             const features = queryFeaturesInPoint(event.target, event.point, layerIds)
             if (features.length > 0) {
                 const f = features[0]
-                const rawLayerId = f.layer.id
-                const resolvedLayerId = resolveBaseLayerId(rawLayerId, previewLayerIds)
                 dispatch(
                     actions.selection.selectOne({
-                        layerId: resolvedLayerId,
+                        layerId: f.layer.id,
                         featureId: f.id as number,
                     }),
                 )
