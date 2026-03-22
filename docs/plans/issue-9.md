@@ -22,17 +22,17 @@ After deleting a layer/source:
 - [x] In `src/store/selection/index.ts`, change the `removeLayer` extraReducer so it only clears `layerId` when the deleted layer IS the currently selected one (instead of always clearing).
 
 ### Task 2: Add `auto-select-on-delete` listener
-- [ ] Create `src/store/listeners/auto-select-on-delete.ts`
-- [ ] Add listener for `layerSlice.actions.removeLayer`:
+- [x] Create `src/store/listeners/auto-select-on-delete.ts`
+- [x] Add listener for `layerSlice.actions.removeLayer`:
   - Read state **before** dispatch to determine: sorted layer list (by `fractionIndex`), index of deleted layer, current `selection.layerId`
   - After dispatch: if deleted layer was selected, find next layer (index+1) or previous (index-1 fallback) and dispatch `selectLayer`; if none remain, dispatch `selectLayer({ layerId: undefined })`
-- [ ] Add listener for `sourceSlice.actions.removeSource`:
+- [x] Add listener for `sourceSlice.actions.removeSource`:
   - Read state **before** dispatch to determine: `allIds` order, index of deleted source, current `selection.sourceId`
   - After dispatch: if deleted source was selected, find next source (index+1) or previous fallback and dispatch `selectSource`; if none remain, clear sourceId by dispatching `selectSource({ sourceId: undefined })`
   - Also handles the existing stale-reference bug (sourceId was never cleared on remove)
 
 ### Task 3: Register the listener
-- [ ] In `src/store/listeners/index.ts` (or wherever listeners are registered), import and register `autoSelectOnDelete` listener
+- [x] In `src/store/listeners/index.ts` (or wherever listeners are registered), import and register `autoSelectOnDelete` listener
 
 ## Critical Files
 

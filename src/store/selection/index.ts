@@ -36,7 +36,7 @@ export const selectionSlice = createSlice({
         //         state.lastAdded = undefined
         //     }
         // },
-        selectSource: (state, action: PayloadAction<{ sourceId: Id }>) => {
+        selectSource: (state, action: PayloadAction<{ sourceId?: Id }>) => {
             state.sourceId = action.payload.sourceId
         },
         selectLayer: (state, action: PayloadAction<{ layerId?: Id }>) => {
