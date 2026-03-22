@@ -147,6 +147,10 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |
 
+## UX Principles
+
+- **Honest empty state** — never fake state or show placeholders that imply data exists. If a filter (e.g. "Selected" in the attribute table) yields no results because nothing is selected, show an empty table. Do not hide the control or substitute a message that obscures the real state.
+
 ## Known Issues / Technical Debt
 
 1. **Error handling** - `libsphere` errors now carry path context via `SphereError`; `src-tauri` commands still convert errors to strings at the IPC boundary, discarding structure
