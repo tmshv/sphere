@@ -74,7 +74,10 @@ describe("lib/array/deduplicate", () => {
     })
 
     test("preserves the first occurrence", () => {
-        const items = [{ id: 1, v: "first" }, { id: 1, v: "second" }]
+        const items = [
+            { id: 1, v: "first" },
+            { id: 1, v: "second" },
+        ]
         const result = deduplicate(items, x => String(x.id))
         expect(result).toHaveLength(1)
         expect(result[0].v).toBe("first")
@@ -87,7 +90,11 @@ describe("lib/array/deduplicate", () => {
     })
 
     test("deduplicates by numeric key", () => {
-        const items = [{ id: 1, v: "a" }, { id: 2, v: "b" }, { id: 1, v: "c" }]
+        const items = [
+            { id: 1, v: "a" },
+            { id: 2, v: "b" },
+            { id: 1, v: "c" },
+        ]
         const result = deduplicate(items, x => x.id)
         expect(result).toHaveLength(2)
         expect(result[0].v).toBe("a")

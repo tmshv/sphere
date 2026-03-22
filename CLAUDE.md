@@ -35,6 +35,10 @@ npm version patch         # Bump version in package.json, tauri.conf.json, Cargo
 
 Before modifying any code file, check whether it has tests. All code must be covered by tests before making changes. If tests are missing, write them first, then implement the change.
 
+## Formatting
+
+Run `npm run format` after every code modification.
+
 ## Code Style
 
 - Double quotes, no semicolons, 4-space indentation
