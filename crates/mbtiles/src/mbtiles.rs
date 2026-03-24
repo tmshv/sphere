@@ -136,9 +136,11 @@ impl MBTiles {
                 &_ => {}
             }
         }
-        if let Some(fmt) = meta.format {
-            let normalized = if fmt == "jpeg" { "jpg".to_string() } else { fmt };
-            tilejson.set_format(normalized);
+        let normalized_format = meta.format.map(|fmt| {
+            if fmt == "jpeg" { "jpg".to_string() } else { fmt }
+        });
+        if let Some(ref fmt) = normalized_format {
+            tilejson.set_format(fmt.clone());
         }
         tilejson.set_zoom(minzoom, maxzoom);
         tilejson.add_tile(self.source.clone());
@@ -150,6 +152,12 @@ impl MBTiles {
             }
             None => (),
         };
+        // Re-apply normalized format after merge to prevent json metadata from overwriting it
+        if let Some(fmt) = normalized_format {
+            if let Some(obj) = result.as_object_mut() {
+                obj.insert("format".to_string(), serde_json::Value::String(fmt));
+            }
+        }
         Ok(result)
     }
 
