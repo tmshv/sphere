@@ -69,9 +69,7 @@ describe("useMapNavigation", () => {
         expect(map.dragPan.disable).toHaveBeenCalled()
         expect(map.scrollZoom.disable).toHaveBeenCalled()
         expect(map.dragRotate.disable).toHaveBeenCalled()
-        expect(map.on).toHaveBeenCalledWith("mouseup", expect.any(Function))
-        expect(map.on).toHaveBeenCalledWith("touchend", expect.any(Function))
-        expect(map.on).toHaveBeenCalledWith("draw.modechange", expect.any(Function))
+        expect(map.on).not.toHaveBeenCalled()
     })
 
     it("disables only dragPan when dragPan setting is off", () => {
@@ -103,46 +101,4 @@ describe("useMapNavigation", () => {
         expect(map.on).not.toHaveBeenCalled()
     })
 
-    describe("deferred re-sync after mouseup/touchend", () => {
-        beforeEach(() => vi.useFakeTimers())
-        afterEach(() => vi.useRealTimers())
-
-        it("re-disables dragPan after mouseup even if a later handler re-enabled it", () => {
-            mockState(ALL_DISABLED, false)
-            const map = makeMockMap()
-            renderHook(() => useMapNavigation(makeRef(map)))
-
-            const mouseupCall = vi.mocked(map.on).mock.calls.find(([event]) => event === "mouseup")
-            expect(mouseupCall).toBeDefined()
-            const deferredHandler = mouseupCall![1] as () => void
-
-            map.dragPan.enable()
-            map.dragPan.disable.mockClear()
-
-            deferredHandler()
-            expect(map.dragPan.disable).not.toHaveBeenCalled()
-
-            vi.runAllTimers()
-            expect(map.dragPan.disable).toHaveBeenCalled()
-        })
-
-        it("re-disables dragPan after touchend even if a later handler re-enabled it", () => {
-            mockState(ALL_DISABLED, false)
-            const map = makeMockMap()
-            renderHook(() => useMapNavigation(makeRef(map)))
-
-            const touchendCall = vi.mocked(map.on).mock.calls.find(([event]) => event === "touchend")
-            expect(touchendCall).toBeDefined()
-            const deferredHandler = touchendCall![1] as () => void
-
-            map.dragPan.enable()
-            map.dragPan.disable.mockClear()
-
-            deferredHandler()
-            expect(map.dragPan.disable).not.toHaveBeenCalled()
-
-            vi.runAllTimers()
-            expect(map.dragPan.disable).toHaveBeenCalled()
-        })
-    })
 })

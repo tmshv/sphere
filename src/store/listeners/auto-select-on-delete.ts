@@ -47,9 +47,7 @@ listener.startListening({
         const remaining = allIds.filter(id => id !== deletedSourceId)
         const nextId = remaining.at(idx) ?? remaining.at(idx - 1)
 
-        if (nextId) {
-            listenerApi.dispatch(actions.source.select(nextId))
-        }
+        listenerApi.dispatch(actions.source.select(nextId))
     },
 })
 

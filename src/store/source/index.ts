@@ -158,7 +158,7 @@ export const sourceSlice = createSlice({
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
-        select: (state, action: PayloadAction<Id>) => {
+        select: (state, action: PayloadAction<Id | undefined>) => {
             state.selectedId = action.payload
         },
         removeSource: (state, action: PayloadAction<string>) => {
