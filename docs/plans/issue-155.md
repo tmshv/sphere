@@ -115,7 +115,7 @@ thunkAPI.dispatch(
 ### Task 7: Render raster MVT as a MapLibre raster source
 **File:** `src/components/SphereMap/SphereSource.tsx`
 
-- [ ] Define the raster formats constant and branch on `source.format` in both selector and JSX render:
+- [x] Define the raster formats constant and branch on `source.format` in both selector and JSX render:
 ```typescript
 const RASTER_MVT_FORMATS = new Set(["png", "jpg", "webp"] as const)
 ```

@@ -8,6 +8,8 @@ import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
 import { Source, type SourceProps } from "react-map-gl/maplibre"
 
+const RASTER_MVT_FORMATS = new Set(["png", "jpg", "webp"] as const)
+
 export const selectSource = createSelector([(state: RootState, id: string) => state.source.items[id]], source => {
     if (!source) {
         return null
@@ -26,6 +28,13 @@ export const selectSource = createSelector([(state: RootState, id: string) => st
             return null
         }
         case SourceType.MVT: {
+            if (RASTER_MVT_FORMATS.has(source.format)) {
+                return {
+                    id,
+                    type: "raster",
+                    url: `sphere://mbtiles/${id}`,
+                } as SourceProps
+            }
             return {
                 id,
                 type: "vector",
@@ -83,6 +92,9 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             return <Source id={id} type="geojson" data={geojsonData} />
         }
         case SourceType.MVT: {
+            if (RASTER_MVT_FORMATS.has(source.format)) {
+                return <Source id={id} type="raster" url={`sphere://mbtiles/${id}`} />
+            }
             return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />
         }
         case SourceType.Raster: {
