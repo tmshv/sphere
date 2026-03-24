@@ -34,6 +34,7 @@ type SourceState = {
     items: Record<string, Source>
     allIds: Id[]
     lastAdded?: Id
+    selectedId?: Id
     // pendingItems: PendingSource[]
 }
 
@@ -53,6 +54,7 @@ export const sourceSlice = createSlice({
             state.items = {}
             state.allIds = []
             state.lastAdded = undefined
+            state.selectedId = undefined
         },
         addFeatureCollection: (
             state,
@@ -156,12 +158,18 @@ export const sourceSlice = createSlice({
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
+        select: (state, action: PayloadAction<Id | undefined>) => {
+            state.selectedId = action.payload
+        },
         removeSource: (state, action: PayloadAction<string>) => {
             const sourceId = action.payload
             delete state.items[sourceId]
             state.allIds = state.allIds.filter(id => id !== sourceId)
             if (state.lastAdded === sourceId) {
                 state.lastAdded = undefined
+            }
+            if (state.selectedId === sourceId) {
+                state.selectedId = undefined
             }
         },
         setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
@@ -189,6 +197,7 @@ export const sourceSlice = createSlice({
     selectors: {
         allIds: state => state.allIds,
         items: state => state.items,
+        selectSelectedId: state => state.selectedId,
     },
 })
 

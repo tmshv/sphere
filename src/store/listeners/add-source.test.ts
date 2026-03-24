@@ -20,9 +20,7 @@ vi.mock("../actions", () => {
             source: {
                 addFromUrl: { fulfilled: makeFulfilled("source/addFromUrl/fulfilled") },
                 addFromClipboard: { fulfilled: makeFulfilled("source/addFromClipboard/fulfilled") },
-            },
-            selection: {
-                selectSource: (payload: unknown) => ({ type: "selection/selectSource", payload }),
+                select: (payload: unknown) => ({ type: "source/select", payload }),
             },
         },
     }
@@ -97,9 +95,9 @@ describe("add-source listener middleware", () => {
 
         await vi.runAllTimersAsync()
 
-        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "selection/selectSource")
+        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "source/select")
         expect(selectSourceAction).toBeDefined()
-        expect((selectSourceAction as any).payload.sourceId).toBe(sourceId)
+        expect((selectSourceAction as any).payload).toBe(sourceId)
     })
 
     test("does not dispatch selectSource when lastAdded is undefined", async () => {
@@ -127,7 +125,7 @@ describe("add-source listener middleware", () => {
 
         await vi.runAllTimersAsync()
 
-        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "selection/selectSource")
+        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "source/select")
         expect(selectSourceAction).toBeUndefined()
     })
 
@@ -157,8 +155,8 @@ describe("add-source listener middleware", () => {
 
         await vi.runAllTimersAsync()
 
-        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "selection/selectSource")
+        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "source/select")
         expect(selectSourceAction).toBeDefined()
-        expect((selectSourceAction as any).payload.sourceId).toBe(sourceId)
+        expect((selectSourceAction as any).payload).toBe(sourceId)
     })
 })

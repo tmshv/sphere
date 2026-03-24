@@ -1,4 +1,4 @@
-import { actions } from "@/store"
+import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
 import { ActionBar, type ActionBarOnClick } from "@/ui/ActionBar"
@@ -12,9 +12,7 @@ import { StyledAccordion } from "./StyledAccordion"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
-    const sourceId = useAppSelector(state => {
-        return state.selection.sourceId
-    })
+    const sourceId = useAppSelector(selectors.source.selectSelectedId)
     const [showModal, setShowModal] = useState(false)
     const [value, setValue] = useState<string[]>(["outline", "source-properties"])
     const form = useForm({

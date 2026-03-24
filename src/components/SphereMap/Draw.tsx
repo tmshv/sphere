@@ -51,7 +51,7 @@ export default function Draw({ mapId }: DrawProps) {
     }, [data, draw])
 
     const onCancel = useCallback(() => {
-        dispatch(actions.draw.reset())
+        dispatch(actions.tools.reset())
     }, [dispatch])
 
     const onDone = useCallback(() => {
@@ -63,6 +63,7 @@ export default function Draw({ mapId }: DrawProps) {
                 featureCollection,
             }),
         )
+        dispatch(actions.tools.reset())
     }, [dispatch, sourceId, draw])
 
     return (

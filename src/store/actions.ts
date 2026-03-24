@@ -13,7 +13,9 @@ import { selectionSlice } from "./selection"
 import { skySlice } from "./sky"
 import { actions as sourceActions } from "./source"
 import { terrainSlice } from "./terrain"
+import { mapInteractionSlice } from "./map-interaction"
 import { tileBoundariesSlice } from "./tile-boundaries"
+import { toolsSlice } from "./tools"
 
 export const actions = {
     app: appSlice.actions,
@@ -29,6 +31,8 @@ export const actions = {
     map: mapActions,
     selection: selectionSlice.actions,
     properties: propertiesSlice.actions,
+    mapInteraction: mapInteractionSlice.actions,
+    tools: toolsSlice.actions,
     addFile,
     addMultipleFiles,
     openFiles,

@@ -1,3 +1,4 @@
+import useMapNavigation from "@/hooks/useMapNavigation"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
@@ -46,6 +47,7 @@ export type MapBodyProps = {
 export default function MapBody({ mapId }: MapBodyProps) {
     useMapStore(mapId)
     const { [mapId]: map } = useMap()
+    useMapNavigation(map)
 
     const terrain = useAppSelector(selectTerrainSpecification)
     useTerrain(map, terrain)
