@@ -33,7 +33,7 @@ MBTiles files can contain either vector tiles (PBF) or raster tiles (PNG/JPEG/We
 ### Task 2: Wire format into MBTiles TileJSON
 **File:** `crates/mbtiles/src/mbtiles.rs`
 
-- [ ] After the while loop (line 138), before `tilejson.set_zoom(...)`, add:
+- [x] After the while loop (line 138), before `tilejson.set_zoom(...)`, add:
 ```rust
 if let Some(fmt) = meta.format {
     tilejson.set_format(fmt);

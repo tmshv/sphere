@@ -136,6 +136,9 @@ impl MBTiles {
                 &_ => {}
             }
         }
+        if let Some(fmt) = meta.format {
+            tilejson.set_format(fmt);
+        }
         tilejson.set_zoom(minzoom, maxzoom);
         tilejson.add_tile(self.source.clone());
 
