@@ -97,7 +97,7 @@ addMVTSource: (
 ### Task 6: Pass `format` from TileJSON in `addFromUrl`
 **File:** `src/store/source/addFromUrl.ts`
 
-- [ ] In the `SourceType.MVT` case, read `tilejson.format` and pass it through. Fall back to `"pbf"` when absent (older/non-conformant files):
+- [x] In the `SourceType.MVT` case, read `tilejson.format` and pass it through. Fall back to `"pbf"` when absent (older/non-conformant files):
 
 ```typescript
 const RASTER_FORMATS = new Set<TileJSON["format"]>(["png", "jpg", "webp"])
