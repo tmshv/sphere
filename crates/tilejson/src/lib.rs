@@ -171,6 +171,10 @@ pub struct Tilejson3 {
     // When tiles change significantly, such as updating a vector tile layer name, the major version MUST be increased.
     // Implementations MUST NOT use tiles with different major versions.
     version: Option<String>,
+
+    // The tile format. Common values: "pbf" (vector), "png", "jpg", "webp" (raster).
+    // When describing raster tiles, vector_layers is not required.
+    format: Option<String>,
 }
 
 impl Tilejson3 {
@@ -190,6 +194,7 @@ impl Tilejson3 {
             bounds: None,
             minzoom: MINZOOM,
             maxzoom: MAXZOOM,
+            format: None,
         }
     }
 
@@ -248,6 +253,11 @@ impl Tilejson3 {
         self
     }
 
+    pub fn set_format(&mut self, value: String) -> &Tilejson3 {
+        self.format = Some(value);
+        self
+    }
+
     pub fn set_zoom(&mut self, minzoom: i32, maxzoom: i32) -> &Tilejson3 {
         if minzoom > maxzoom {
             return self;
@@ -282,6 +292,7 @@ impl Tilejson3 {
             "template": self.template,
             "version": self.version,
             "vector_layers": self.vector_layers,
+            "format": self.format,
         })
     }
 }
@@ -406,6 +417,16 @@ mod tests {
         tilejson.set_zoom(10, 5);
         assert_eq!(tilejson.minzoom, 0);
         assert_eq!(tilejson.maxzoom, 30);
+    }
+
+    #[test]
+    fn test_set_format() {
+        let mut tilejson = Tilejson3::new();
+        assert!(tilejson.format.is_none());
+        tilejson.set_format("png".into());
+        assert_eq!(tilejson.format, Some("png".into()));
+        let json_value = tilejson.as_json();
+        assert_eq!(json_value["format"].as_str(), Some("png"));
     }
 
     #[test]

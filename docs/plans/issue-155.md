@@ -24,16 +24,16 @@ MBTiles files can contain either vector tiles (PBF) or raster tiles (PNG/JPEG/We
 ### Task 1: Expose `format` from Rust TileJSON
 **File:** `crates/tilejson/src/lib.rs`
 
-1. Add `format: Option<String>` field to `Tilejson3` struct.
-2. Initialize as `None` in `Tilejson3::new()`.
-3. Add `set_format(&mut self, value: String)` method.
-4. Include `"format": self.format` in `as_json()`.
-5. Add test `test_set_format` confirming round-trip through `as_json()`.
+- [x] Add `format: Option<String>` field to `Tilejson3` struct.
+- [x] Initialize as `None` in `Tilejson3::new()`.
+- [x] Add `set_format(&mut self, value: String)` method.
+- [x] Include `"format": self.format` in `as_json()`.
+- [x] Add test `test_set_format` confirming round-trip through `as_json()`.
 
 ### Task 2: Wire format into MBTiles TileJSON
 **File:** `crates/mbtiles/src/mbtiles.rs`
 
-After the while loop (line 138), before `tilejson.set_zoom(...)`, add:
+- [ ] After the while loop (line 138), before `tilejson.set_zoom(...)`, add:
 ```rust
 if let Some(fmt) = meta.format {
     tilejson.set_format(fmt);
@@ -44,13 +44,15 @@ No other backend changes needed — `mbtiles_get_metadata` already serializes th
 ### Task 3: Add `format` to TypeScript TileJSON type
 **File:** `src/types/tilejson.ts`
 
-Add optional field:
+- [ ] Add optional field:
 ```typescript
 format?: "pbf" | "png" | "jpg" | "webp"
 ```
 
 ### Task 4: Add `format` to `VectorSource` type
 **File:** `src/types/source.ts`
+
+- [ ] Add `format` field:
 
 ```typescript
 export type VectorSource = {
@@ -67,7 +69,7 @@ export type VectorSource = {
 ### Task 5: Accept `format` in `addMVTSource` reducer
 **File:** `src/store/source/index.ts`
 
-Add `format` to the `addMVTSource` payload type and store it on the source item:
+- [ ] Add `format` to the `addMVTSource` payload type and store it on the source item:
 
 ```typescript
 addMVTSource: (
@@ -95,7 +97,7 @@ addMVTSource: (
 ### Task 6: Pass `format` from TileJSON in `addFromUrl`
 **File:** `src/store/source/addFromUrl.ts`
 
-In the `SourceType.MVT` case, read `tilejson.format` and pass it through. Fall back to `"pbf"` when absent (older/non-conformant files):
+- [ ] In the `SourceType.MVT` case, read `tilejson.format` and pass it through. Fall back to `"pbf"` when absent (older/non-conformant files):
 
 ```typescript
 const RASTER_FORMATS = new Set<TileJSON["format"]>(["png", "jpg", "webp"])
@@ -113,7 +115,7 @@ thunkAPI.dispatch(
 ### Task 7: Render raster MVT as a MapLibre raster source
 **File:** `src/components/SphereMap/SphereSource.tsx`
 
-Define the raster formats constant:
+- [ ] Define the raster formats constant and branch on `source.format` in both selector and JSX render:
 ```typescript
 const RASTER_MVT_FORMATS = new Set(["png", "jpg", "webp"] as const)
 ```
@@ -152,7 +154,7 @@ MapLibre will request TileJSON via `type: "json"` (already handled), then fetch 
 ### Task 8: Handle raster tile requests in SphereProtocol
 **File:** `src/lib/sphere-protocol.ts`
 
-Add `"image"` case to `handleMbtiles` switch (same implementation as `"arrayBuffer"`):
+- [ ] Add `"image"` case to `handleMbtiles` switch (same implementation as `"arrayBuffer"`):
 
 ```typescript
 case "image": {
