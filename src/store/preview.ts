@@ -128,7 +128,7 @@ export const selectPreviewLayerIds = createSelector(
         }
         if (src.type === SourceType.MVT) {
             if (RASTER_TILE_FORMATS.has(src.format)) {
-                return [`preview-${sourceId}-raster`]
+                return []
             }
             return src.sourceLayers.flatMap(sl => [
                 `preview-${sourceId}-${sl.id}-point`,
