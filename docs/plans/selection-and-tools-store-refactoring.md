@@ -35,75 +35,75 @@ and should be removed. The hook is also renamed to `useMapNavigation`.
 ## Task 3: Trim `selection` slice
 
 **`src/store/selection/index.ts`**
-- Remove `sourceId?: Id` and `layerId?: Id` from `SelectionState`
-- Remove reducers: `selectSource`, `selectLayer`
-- Remove selectors: `currentSourceId`, `currentLayerId`
-- Remove `extraReducers` block (the `removeLayer` handler moves to Task 2)
-- Keep: `selectedIds: number[]`, `reset`, `resetFeature`, `selectOne`
-- `reset` now only clears `selectedIds`
+- [x] Remove `sourceId?: Id` and `layerId?: Id` from `SelectionState`
+- [x] Remove reducers: `selectSource`, `selectLayer`
+- [x] Remove selectors: `currentSourceId`, `currentLayerId`
+- [x] Remove `extraReducers` block (the `removeLayer` handler moves to Task 2)
+- [x] Keep: `selectedIds: number[]`, `reset`, `resetFeature`, `selectOne`
+- [x] `reset` now only clears `selectedIds`
 
 ---
 
 ## Task 4: Update selectors facade
 
 **`src/store/selectors.ts`**
-- `selectors.source`: already `source.selectors` — `selectSelectedId` appears automatically
-- `selectors.layer`: currently `{ ...layer.selectors, visibleIds }` — `selectSelectedId` appears automatically
-- `selectors.selection`: no change needed; `currentSourceId`/`currentLayerId` are removed from the slice itself so they simply disappear from the facade
+- [x] `selectors.source`: already `source.selectors` — `selectSelectedId` appears automatically
+- [x] `selectors.layer`: currently `{ ...layer.selectors, visibleIds }` — `selectSelectedId` appears automatically
+- [x] `selectors.selection`: no change needed; `currentSourceId`/`currentLayerId` are removed from the slice itself so they simply disappear from the facade
 
 ---
 
 ## Task 5: Update `preview.ts`
 
 **`src/store/preview.ts`**
-- All three selectors currently read `state.selection.sourceId`
-- Change to `state.source.selectedId`
+- [x] All three selectors currently read `state.selection.sourceId`
+- [x] Change to `state.source.selectedId`
 
 ---
 
 ## Task 6: Update listeners
 
 **`src/store/listeners/add-source.ts`**
-- `actions.selection.selectSource({ sourceId })` → `actions.source.select(sourceId)`
+- [x] `actions.selection.selectSource({ sourceId })` → `actions.source.select(sourceId)`
 
 **`src/store/listeners/add-blank-layer.ts`**
-- `actions.selection.selectLayer({ layerId })` → `actions.layer.select(layerId)`
+- [x] `actions.selection.selectLayer({ layerId })` → `actions.layer.select(layerId)`
 
 **`src/store/listeners/select-features.ts`**
-- Pre-action state read: `state.selection.layerId` → `state.layer.selectedId`
+- [x] Pre-action state read: `state.selection.layerId` → `state.layer.selectedId`
 
 **`src/store/listeners/clear-selection.ts`**
-- Pre-action state read: `state.selection.layerId` → `state.layer.selectedId`
+- [x] Pre-action state read: `state.selection.layerId` → `state.layer.selectedId`
 
 ---
 
 ## Task 7: Update components and hooks
 
 **`src/components/SourcesOutline/index.tsx`**
-- `selectors.selection.currentSourceId` → `selectors.source.selectSelectedId`
-- `actions.selection.selectSource({ sourceId: id })` → `actions.source.select(id)`
+- [x] `selectors.selection.currentSourceId` → `selectors.source.selectSelectedId`
+- [x] `actions.selection.selectSource({ sourceId: id })` → `actions.source.select(id)`
 
 **`src/components/SourcePanel/index.tsx`**
-- `selectors.selection.currentSourceId` → `selectors.source.selectSelectedId`
+- [x] `selectors.selection.currentSourceId` → `selectors.source.selectSelectedId`
 
 **`src/components/LayersOutline/index.tsx`**
-- `selectors.selection.currentLayerId` → `selectors.layer.selectSelectedId`
-- `actions.selection.selectLayer({ layerId })` → `actions.layer.select(layerId)`
+- [x] `selectors.selection.currentLayerId` → `selectors.layer.selectSelectedId`
+- [x] `actions.selection.selectLayer({ layerId })` → `actions.layer.select(layerId)`
 
 **`src/components/LayerPanel/index.tsx`**
-- `selectors.selection.currentLayerId` → `selectors.layer.selectSelectedId`
+- [x] `selectors.selection.currentLayerId` → `selectors.layer.selectSelectedId`
 
 **`src/sphere-hooks/useFeatureProperties.ts`**
-- `selectors.selection.currentLayerId` → `selectors.layer.selectSelectedId`
+- [x] `selectors.selection.currentLayerId` → `selectors.layer.selectSelectedId`
 
 ---
 
 ## Task 8: Rename + fix `useMapNavigation`
 
 **Rename** `src/hooks/useNavigationMode.ts` → `src/hooks/useMapNavigation.ts`
-- Remove `const drawing = useAppSelector(selectors.draw.isDrawing)`
-- Remove `drawing` from the `useEffect` deps array
-- Remove the `// biome-ignore` comment
+- [x] Remove `const drawing = useAppSelector(selectors.draw.isDrawing)`
+- [x] Remove `drawing` from the `useEffect` deps array
+- [x] Remove the `// biome-ignore` comment
 
 **Why it's safe**: when `effectiveDragPan = false`, the hook registers a `draw.modechange`
 listener via `map.on("draw.modechange", sync)`. MapLibre-Draw fires this event on `onAdd` when
@@ -111,12 +111,12 @@ entering its initial mode (`simple_select`), so the re-disable happens correctly
 a Redux dep.
 
 **Rename** `src/hooks/useNavigationMode.test.ts` → `src/hooks/useMapNavigation.test.ts`
-- Remove `selectors.draw.isDrawing` from `mockState` helper
-- Remove the test "re-disables dragPan when Draw mounts and its onAdd re-enables it"
+- [x] Remove `selectors.draw.isDrawing` from `mockState` helper
+- [x] Remove the test "re-disables dragPan when Draw mounts and its onAdd re-enables it"
   (this tested the `drawing` dep trigger, which is removed)
 
 **`src/components/SphereMap/map-body.tsx`**
-- Update import: `useNavigationMode` → `useMapNavigation`
+- [x] Update import: `useNavigationMode` → `useMapNavigation`
 
 ---
 

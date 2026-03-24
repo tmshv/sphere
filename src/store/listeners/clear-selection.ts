@@ -13,7 +13,7 @@ listener.startListening({
             return
         }
         const state = listenerApi.getOriginalState() as RootState
-        const layerId = state.selection.layerId
+        const layerId = state.layer.selectedId
         if (!layerId) {
             return
         }

@@ -3,14 +3,12 @@ import type { MapRef } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store/selectors"
 
-export default function useNavigationMode(ref?: MapRef): void {
+export default function useMapNavigation(ref?: MapRef): void {
     const dragPan = useAppSelector(selectors.mapInteraction.selectDragPan)
     const scrollZoom = useAppSelector(selectors.mapInteraction.selectScrollZoom)
     const dragRotate = useAppSelector(selectors.mapInteraction.selectDragRotate)
     const navigationEnabled = useAppSelector(selectors.tools.selectNavigationEnabled)
-    const drawing = useAppSelector(selectors.draw.isDrawing)
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: drawing is a trigger dep — re-syncs when Draw mounts and its onAdd re-enables dragPan
     useEffect(() => {
         const map = ref?.getMap()
         if (!map) {
@@ -63,5 +61,5 @@ export default function useNavigationMode(ref?: MapRef): void {
                 map.off("draw.modechange", sync)
             }
         }
-    }, [ref, dragPan, scrollZoom, dragRotate, navigationEnabled, drawing])
+    }, [ref, dragPan, scrollZoom, dragRotate, navigationEnabled])
 }

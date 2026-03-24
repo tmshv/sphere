@@ -16,12 +16,13 @@ listener.startListening({
         const state = listenerApi.getOriginalState() as RootState
         const { featureId, layerId } = action.payload
 
-        const prevLayerId = state.selection.layerId
+        const prevLayerId = state.layer.selectedId
         if (prevLayerId && layerId !== prevLayerId) {
             map.setFilter(`${prevLayerId}-selected`, ["in", "id", ""])
         }
 
         map.setFilter(`${layerId}-selected`, ["in", "id", ...[featureId]])
+        listenerApi.dispatch(actions.layer.select(layerId))
     },
 })
 

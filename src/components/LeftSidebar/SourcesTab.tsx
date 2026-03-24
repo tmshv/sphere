@@ -13,7 +13,7 @@ import { StyledAccordion } from "./StyledAccordion"
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(state => {
-        return state.selection.sourceId
+        return state.source.selectedId
     })
     const [showModal, setShowModal] = useState(false)
     const [value, setValue] = useState<string[]>(["outline", "source-properties"])

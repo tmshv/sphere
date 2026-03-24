@@ -33,7 +33,7 @@ export type PreviewLayerSpec =
       }
 
 export const selectPreviewSourceId = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    [(state: RootState) => state.source.selectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab) => {
         if (tab !== "sources") return undefined
         if (!sourceId) return undefined
@@ -101,7 +101,7 @@ export const selectPreviewLayerSpecs = createSelector(
 )
 
 export const selectPreviewLayerIds = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    [(state: RootState) => state.source.selectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab): string[] => {
         if (tab !== "sources") return []
         if (!sourceId) return []

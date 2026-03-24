@@ -28,9 +28,7 @@ vi.mock("../actions", () => {
                 addLayer: (payload: unknown) => ({ type: "layer/addLayer", payload }),
                 setSource: (payload: unknown) => ({ type: "layer/setSource", payload }),
                 setType: (payload: unknown) => ({ type: "layer/setType", payload }),
-            },
-            selection: {
-                selectLayer: (payload: unknown) => ({ type: "selection/selectLayer", payload }),
+                select: (payload: unknown) => ({ type: "layer/select", payload }),
             },
             app: {
                 setActiveSidebarTab: (payload: unknown) => ({ type: "app/setActiveSidebarTab", payload }),

@@ -56,11 +56,7 @@ listener.startListening({
             }
         }
 
-        listenerApi.dispatch(
-            actions.selection.selectLayer({
-                layerId,
-            }),
-        )
+        listenerApi.dispatch(actions.layer.select(layerId))
         listenerApi.dispatch(actions.app.setActiveSidebarTab("layers"))
     },
 })

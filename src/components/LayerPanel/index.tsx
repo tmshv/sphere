@@ -32,7 +32,7 @@ const sourcesSelector = createSelector([selectors.source.items, selectors.source
 })
 
 export const selectCurrentLayerItem = createSelector(
-    [selectors.selection.currentLayerId, selectors.layer.items],
+    [selectors.layer.selectSelectedId, selectors.layer.items],
     (id, items) => (id ? (items[id] ?? null) : null),
 )
 
@@ -42,7 +42,7 @@ export const selectCurrentLayerSourceItem = createSelector(
 )
 
 export const layerSelector = createSelector(
-    [selectors.selection.currentLayerId, selectCurrentLayerItem, selectCurrentLayerSourceItem],
+    [selectors.layer.selectSelectedId, selectCurrentLayerItem, selectCurrentLayerSourceItem],
     (layerId, layer, source) => {
         if (!layerId || !layer) {
             return null
