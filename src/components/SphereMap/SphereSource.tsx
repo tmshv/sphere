@@ -32,6 +32,7 @@ export const selectSource = createSelector([(state: RootState, id: string) => st
                     id,
                     type: "raster",
                     url: `sphere://mbtiles/${id}`,
+                    tileSize: 256,
                 } as SourceProps
             }
             return {
@@ -92,7 +93,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
         }
         case SourceType.MVT: {
             if (RASTER_TILE_FORMATS.has(source.format)) {
-                return <Source id={id} type="raster" url={`sphere://mbtiles/${id}`} />
+                return <Source id={id} type="raster" url={`sphere://mbtiles/${id}`} tileSize={256} />
             }
             return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />
         }

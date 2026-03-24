@@ -5,7 +5,8 @@ export type TileJSON = {
 
     // The tile format.
     // Common values: "pbf" (vector), "png", "jpg", "webp" (raster).
-    format?: "pbf" | "png" | "jpg" | "webp"
+    // May be null when absent in the MBTiles metadata table.
+    format?: "pbf" | "png" | "jpg" | "webp" | null
 
     // An array of tile endpoints.
     // {z}, {x} and {y}, if present, are replaced with the corresponding integers.
