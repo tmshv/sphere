@@ -137,7 +137,8 @@ impl MBTiles {
             }
         }
         if let Some(fmt) = meta.format {
-            tilejson.set_format(fmt);
+            let normalized = if fmt == "jpeg" { "jpg".to_string() } else { fmt };
+            tilejson.set_format(normalized);
         }
         tilejson.set_zoom(minzoom, maxzoom);
         tilejson.add_tile(self.source.clone());

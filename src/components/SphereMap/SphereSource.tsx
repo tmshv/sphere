@@ -3,12 +3,11 @@ import { assertUnreachable } from "@/lib"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
+import { RASTER_TILE_FORMATS } from "@/types/tilejson"
 import { createSelector } from "@reduxjs/toolkit"
 import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
 import { Source, type SourceProps } from "react-map-gl/maplibre"
-
-const RASTER_MVT_FORMATS = new Set<"pbf" | "png" | "jpg" | "webp">(["png", "jpg", "webp"])
 
 export const selectSource = createSelector([(state: RootState, id: string) => state.source.items[id]], source => {
     if (!source) {
@@ -28,7 +27,7 @@ export const selectSource = createSelector([(state: RootState, id: string) => st
             return null
         }
         case SourceType.MVT: {
-            if (RASTER_MVT_FORMATS.has(source.format)) {
+            if (RASTER_TILE_FORMATS.has(source.format)) {
                 return {
                     id,
                     type: "raster",
@@ -92,7 +91,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             return <Source id={id} type="geojson" data={geojsonData} />
         }
         case SourceType.MVT: {
-            if (RASTER_MVT_FORMATS.has(source.format)) {
+            if (RASTER_TILE_FORMATS.has(source.format)) {
                 return <Source id={id} type="raster" url={`sphere://mbtiles/${id}`} />
             }
             return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />

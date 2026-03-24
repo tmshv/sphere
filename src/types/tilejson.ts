@@ -126,3 +126,5 @@ export type TileJSON = {
     // Implementations MUST NOT use tiles with different major versions.
     version?: string
 }
+
+export const RASTER_TILE_FORMATS = new Set<NonNullable<TileJSON["format"]>>(["png", "jpg", "webp"])

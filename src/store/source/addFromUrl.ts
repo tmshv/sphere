@@ -2,10 +2,8 @@ import { MbtilesReader } from "@/lib/mbtiles"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 import { SourceType } from "@/types"
-import type { TileJSON } from "@/types/tilejson"
+import { RASTER_TILE_FORMATS } from "@/types/tilejson"
 import { createAsyncThunk } from "@reduxjs/toolkit"
-
-const RASTER_FORMATS = new Set<NonNullable<TileJSON["format"]>>(["png", "jpg", "webp"])
 import { invoke } from "@tauri-apps/api/core"
 import { actions } from "."
 
@@ -40,7 +38,7 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                         name = tilejson.name
                     }
                     const format = tilejson.format ?? "pbf"
-                    const sourceLayers = RASTER_FORMATS.has(format)
+                    const sourceLayers = RASTER_TILE_FORMATS.has(format)
                         ? []
                         : (tilejson.vector_layers ?? []).map(({ id }) => ({ id, name: id }))
                     thunkAPI.dispatch(
