@@ -285,7 +285,7 @@ export const LayerPanel: React.FC = () => {
                 />
             )}
 
-            {!sourceLayers ? null : (
+            {!sourceLayers?.length ? null : (
                 <Select
                     size="xs"
                     label="Source layer"

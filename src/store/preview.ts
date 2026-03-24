@@ -79,7 +79,7 @@ export const selectPreviewLayerSpecs = createSelector(
                         kind: "Raster",
                         layerId: `preview-${sourceId}-raster`,
                         sourceId,
-                    } as PreviewLayerSpec,
+                    },
                 ]
             }
             return src.sourceLayers.flatMap(
