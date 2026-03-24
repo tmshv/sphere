@@ -24,10 +24,10 @@ and should be removed. The hook is also renamed to `useMapNavigation`.
 ## Task 2: Move layer selection into `layer` slice
 
 **`src/store/layer/index.ts`**
-- Add `selectedId?: Id` to `LayerState`
-- Add reducer `select(state, action: PayloadAction<Id | undefined>)` → sets `state.selectedId`
-- Add selector `selectSelectedId: state => state.selectedId`
-- In existing `removeLayer` reducer: also clear `selectedId` when the removed layer matches
+- [x] Add `selectedId?: Id` to `LayerState`
+- [x] Add reducer `select(state, action: PayloadAction<Id | undefined>)` → sets `state.selectedId`
+- [x] Add selector `selectSelectedId: state => state.selectedId`
+- [x] In existing `removeLayer` reducer: also clear `selectedId` when the removed layer matches
   (currently done in `selection` extraReducers — move here)
 
 ---
