@@ -154,7 +154,7 @@ MapLibre will request TileJSON via `type: "json"` (already handled), then fetch 
 ### Task 8: Handle raster tile requests in SphereProtocol
 **File:** `src/lib/sphere-protocol.ts`
 
-- [ ] Add `"image"` case to `handleMbtiles` switch (same implementation as `"arrayBuffer"`):
+- [x] Add `"image"` case to `handleMbtiles` switch (same implementation as `"arrayBuffer"`):
 
 ```typescript
 case "image": {

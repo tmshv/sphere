@@ -21,13 +21,14 @@ export class SphereProtocol {
             case "json": {
                 return reader.getTileJson()
             }
-            case "arrayBuffer": {
+            case "arrayBuffer":
+            case "image": {
                 const [z, x, y] = this.parseZXY(url)
-                const pbf = await reader.getTile({ z, x, y })
-                if (!pbf) {
+                const bytes = await reader.getTile({ z, x, y })
+                if (!bytes) {
                     return null
                 }
-                return pbf.buffer
+                return bytes.buffer
             }
             default: {
                 throw new Error(`SphereProtocol for ${url.host}/${type} is not implemented`)
