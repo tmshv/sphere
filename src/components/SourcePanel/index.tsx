@@ -97,13 +97,14 @@ export const SourcePanel: React.FC = () => {
                         }
                         case "edit": {
                             if (drawing) {
-                                dispatch(actions.draw.reset())
+                                dispatch(actions.tools.reset())
                             } else {
                                 dispatch(
                                     actions.draw.start({
                                         sourceId: source.id,
                                     }),
                                 )
+                                dispatch(actions.tools.setTool("draw"))
                             }
                             break
                         }
