@@ -52,7 +52,7 @@ format?: "pbf" | "png" | "jpg" | "webp"
 ### Task 4: Add `format` to `VectorSource` type
 **File:** `src/types/source.ts`
 
-- [ ] Add `format` field:
+- [x] Add `format` field:
 
 ```typescript
 export type VectorSource = {

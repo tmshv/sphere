@@ -13,6 +13,7 @@ export type VectorSource = {
     type: SourceType.MVT
     tilejson: TileJSON
     location: string
+    format: "pbf" | "png" | "jpg" | "webp"
     // layers:
     editable: false
     sourceLayers: { id: string; name: string }[]
