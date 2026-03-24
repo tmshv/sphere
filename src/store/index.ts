@@ -49,6 +49,7 @@ export const store = configureStore({
             .prepend(listeners.clearError.middleware)
             .prepend(listeners.mapInteractive.middleware)
             .prepend(listeners.resetTool.middleware)
+            .prepend(listeners.autoSelectOnDelete.middleware)
     },
 })
 
