@@ -34,6 +34,7 @@ type SourceState = {
     items: Record<string, Source>
     allIds: Id[]
     lastAdded?: Id
+    selectedId?: Id
     // pendingItems: PendingSource[]
 }
 
@@ -156,6 +157,9 @@ export const sourceSlice = createSlice({
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
+        select: (state, action: PayloadAction<Id>) => {
+            state.selectedId = action.payload
+        },
         removeSource: (state, action: PayloadAction<string>) => {
             const sourceId = action.payload
             delete state.items[sourceId]
@@ -189,6 +193,7 @@ export const sourceSlice = createSlice({
     selectors: {
         allIds: state => state.allIds,
         items: state => state.items,
+        selectSelectedId: state => state.selectedId,
     },
 })
 
