@@ -118,10 +118,11 @@ export const sourceSlice = createSlice({
                 name: string
                 location: string
                 tilejson: TileJSON
+                format: "pbf" | "png" | "jpg" | "webp"
                 sourceLayers?: { name: string; id: string }[]
             }>,
         ) => {
-            const { id, name, location, tilejson, sourceLayers } = action.payload
+            const { id, name, location, tilejson, format, sourceLayers } = action.payload
             state.items[id] = {
                 id,
                 name,
@@ -131,6 +132,7 @@ export const sourceSlice = createSlice({
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: false,
                 tilejson,
+                format,
                 sourceLayers: sourceLayers ?? [],
             }
             state.allIds.push(id)

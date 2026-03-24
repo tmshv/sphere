@@ -69,7 +69,7 @@ export type VectorSource = {
 ### Task 5: Accept `format` in `addMVTSource` reducer
 **File:** `src/store/source/index.ts`
 
-- [ ] Add `format` to the `addMVTSource` payload type and store it on the source item:
+- [x] Add `format` to the `addMVTSource` payload type and store it on the source item:
 
 ```typescript
 addMVTSource: (
