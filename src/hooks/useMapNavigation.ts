@@ -19,24 +19,20 @@ export default function useMapNavigation(ref?: MapRef): void {
         const effectiveScrollZoom = navigationEnabled && scrollZoom
         const effectiveDragRotate = navigationEnabled && dragRotate
 
-        const sync = () => {
-            if (effectiveDragPan) {
-                map.dragPan.enable()
-            } else {
-                map.dragPan.disable()
-            }
-            if (effectiveScrollZoom) {
-                map.scrollZoom.enable()
-            } else {
-                map.scrollZoom.disable()
-            }
-            if (effectiveDragRotate) {
-                map.dragRotate.enable()
-            } else {
-                map.dragRotate.disable()
-            }
+        if (effectiveDragPan) {
+            map.dragPan.enable()
+        } else {
+            map.dragPan.disable()
         }
-
-        sync()
+        if (effectiveScrollZoom) {
+            map.scrollZoom.enable()
+        } else {
+            map.scrollZoom.disable()
+        }
+        if (effectiveDragRotate) {
+            map.dragRotate.enable()
+        } else {
+            map.dragRotate.disable()
+        }
     }, [ref, dragPan, scrollZoom, dragRotate, navigationEnabled])
 }
