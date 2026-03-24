@@ -70,8 +70,8 @@ impl MBTiles {
         let mut minzoom: i32 = MINZOOM;
         let mut maxzoom: i32 = MAXZOOM;
         while let Some(row) = meta_rows.next()? {
-            let key: String = row.get(0).unwrap();
-            let value: String = row.get(1).unwrap();
+            let key: String = row.get(0)?;
+            let value: String = row.get(1)?;
             match key.as_ref() {
                 "name" => {
                     tilejson.set_name(value);
