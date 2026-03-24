@@ -44,7 +44,7 @@ No other backend changes needed — `mbtiles_get_metadata` already serializes th
 ### Task 3: Add `format` to TypeScript TileJSON type
 **File:** `src/types/tilejson.ts`
 
-- [ ] Add optional field:
+- [x] Add optional field:
 ```typescript
 format?: "pbf" | "png" | "jpg" | "webp"
 ```

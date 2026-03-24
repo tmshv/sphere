@@ -3,6 +3,10 @@ export type TileJSON = {
     // Describes the version of the TileJSON spec that is implemented by this JSON object.
     tilejson: "3.0.0"
 
+    // The tile format.
+    // Common values: "pbf" (vector), "png", "jpg", "webp" (raster).
+    format?: "pbf" | "png" | "jpg" | "webp"
+
     // An array of tile endpoints.
     // {z}, {x} and {y}, if present, are replaced with the corresponding integers.
     // If multiple endpoints are specified, clients may use any combination of endpoints.
