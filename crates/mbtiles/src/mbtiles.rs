@@ -132,7 +132,7 @@ impl MBTiles {
                 }
                 "type" => meta.mbtiles_type = Some(value),
                 "format" => meta.format = Some(value),
-                "json" => meta.json = Some(serde_json::from_str(&value).unwrap()),
+                "json" => meta.json = Some(serde_json::from_str(&value)?),
                 &_ => {}
             }
         }

@@ -1,9 +1,12 @@
+import type { RootState } from "@/store"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { selectSource } from "./SphereSource"
 
 function makeState(source: object) {
-    return { source: { items: { src1: { id: "src1", name: "test", fractionIndex: 0, ...source } } } } as any
+    return {
+        source: { items: { src1: { id: "src1", name: "test", fractionIndex: 0, ...source } } },
+    } as unknown as RootState
 }
 
 describe("selectSource MVT", () => {
@@ -35,7 +38,8 @@ describe("selectSource MVT", () => {
             pending: false,
         })
         const result = selectSource(state, "src1")
-        expect((result as any)?.url).not.toMatch(/^file:\/\//)
+        const url = result?.type === "vector" || result?.type === "raster" ? result.url : undefined
+        expect(url).not.toMatch(/^file:\/\//)
     })
 
     test("returns raster source type for png format", () => {
