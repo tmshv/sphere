@@ -1,5 +1,6 @@
 import { tableu10 } from "@/lib/color-scheme"
 import { type LayerRenderType, SourceType } from "@/types"
+import { RASTER_TILE_FORMATS } from "@/types/tilejson"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
 import { selectActiveSidebarTab } from "./app"
@@ -30,6 +31,11 @@ export type PreviewLayerSpec =
           sourceId: string
           sourceLayer?: string
           color: string
+      }
+    | {
+          kind: "Raster"
+          layerId: string
+          sourceId: string
       }
 
 export const selectPreviewSourceId = createSelector(
@@ -67,6 +73,15 @@ export const selectPreviewLayerSpecs = createSelector(
             ]
         }
         if (src.type === SourceType.MVT) {
+            if (RASTER_TILE_FORMATS.has(src.format)) {
+                return [
+                    {
+                        kind: "Raster",
+                        layerId: `preview-${sourceId}-raster`,
+                        sourceId,
+                    } as PreviewLayerSpec,
+                ]
+            }
             return src.sourceLayers.flatMap(
                 sl =>
                     [
@@ -112,6 +127,9 @@ export const selectPreviewLayerIds = createSelector(
             return [`preview-${sourceId}-point`, `preview-${sourceId}-line`, `preview-${sourceId}-polygon`]
         }
         if (src.type === SourceType.MVT) {
+            if (RASTER_TILE_FORMATS.has(src.format)) {
+                return [`preview-${sourceId}-raster`]
+            }
             return src.sourceLayers.flatMap(sl => [
                 `preview-${sourceId}-${sl.id}-point`,
                 `preview-${sourceId}-${sl.id}-line`,

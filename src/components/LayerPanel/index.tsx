@@ -2,6 +2,7 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import type { PhotoIconLayout } from "@/store/layer"
 import { LayerType, SourceType } from "@/types"
+import { RASTER_TILE_FORMATS } from "@/types/tilejson"
 import { ActionBar } from "@/ui/ActionBar"
 import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
@@ -19,15 +20,19 @@ const sourcesSelector = createSelector([selectors.source.items, selectors.source
         (acc, id) => {
             const source = items[id]
             if (!source.pending) {
+                const isRasterMvt =
+                    (source.type === SourceType.MVT && RASTER_TILE_FORMATS.has(source.format)) ||
+                    source.type === SourceType.Raster
                 acc.push({
                     value: id,
                     label: items[id].name,
                     type: items[id].type,
+                    isRasterMvt,
                 })
             }
             return acc
         },
-        [] as Array<Option & { type: SourceType }>,
+        [] as Array<Option & { type: SourceType; isRasterMvt: boolean }>,
     )
 })
 
@@ -97,6 +102,9 @@ export const layerSelector = createSelector(
             filterExpression: layer.filter?.expression ?? null,
             filterError: layer.filter?.error ?? null,
             isTileSource: source?.type === SourceType.MVT || source?.type === SourceType.Raster,
+            isRasterMvt:
+                (source?.type === SourceType.MVT && RASTER_TILE_FORMATS.has(source.format)) ||
+                source?.type === SourceType.Raster,
         }
     },
 )
@@ -129,6 +137,7 @@ export const LayerPanel: React.FC = () => {
         heatmapIntensity,
         filterError,
         isTileSource,
+        isRasterMvt,
     } = layer
 
     function handleFilterChange(text: string) {
@@ -234,16 +243,23 @@ export const LayerPanel: React.FC = () => {
                 placeholder="Pick one"
                 value={sourceId}
                 data={sources}
-                onChange={sourceId => {
-                    if (!sourceId) {
+                onChange={newSourceId => {
+                    if (!newSourceId) {
                         return
                     }
                     dispatch(
                         actions.layer.setSource({
                             id: layerId,
-                            sourceId,
+                            sourceId: newSourceId,
                         }),
                     )
+                    const selectedSource = sources.find(s => s.value === newSourceId)
+                    if (selectedSource?.isRasterMvt) {
+                        dispatch(actions.layer.setType({ id: layerId, type: LayerType.Raster }))
+                        dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
+                    } else if (type === LayerType.Raster) {
+                        dispatch(actions.layer.setType({ id: layerId, type: LayerType.Point }))
+                    }
                 }}
             />
 
@@ -296,15 +312,19 @@ export const LayerPanel: React.FC = () => {
                 label="View"
                 placeholder="Pick one"
                 value={type}
-                data={[
-                    { value: LayerType.Point, label: "Points" },
-                    { value: LayerType.Line, label: "Lines" },
-                    { value: LayerType.Polygon, label: "Polygons" },
-                    { value: LayerType.Photo, label: "Photos" },
-                    { value: LayerType.Heatmap, label: "Heatmap" },
-                    { value: LayerType.Raster, label: "Raster" },
-                    { value: LayerType.Extrusion, label: "Extrusion" },
-                ]}
+                data={
+                    isRasterMvt
+                        ? [{ value: LayerType.Raster, label: "Raster" }]
+                        : [
+                              { value: LayerType.Point, label: "Points" },
+                              { value: LayerType.Line, label: "Lines" },
+                              { value: LayerType.Polygon, label: "Polygons" },
+                              { value: LayerType.Photo, label: "Photos" },
+                              { value: LayerType.Heatmap, label: "Heatmap" },
+                              { value: LayerType.Raster, label: "Raster" },
+                              { value: LayerType.Extrusion, label: "Extrusion" },
+                          ]
+                }
                 onChange={value => {
                     if (value) {
                         dispatch(
