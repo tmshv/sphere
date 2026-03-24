@@ -100,5 +100,4 @@ describe("useMapNavigation", () => {
         expect(map.dragRotate.disable).toHaveBeenCalled()
         expect(map.on).not.toHaveBeenCalled()
     })
-
 })
