@@ -4,6 +4,7 @@ import draw from "./draw"
 import error from "./error"
 import layer from "./layer"
 import * as listeners from "./listeners"
+import mapInteraction from "./map-interaction"
 import { listener as mapListener } from "./map"
 import mapStyle from "./mapStyle"
 import projection from "./projection"
@@ -20,6 +21,7 @@ export { selectors } from "./selectors"
 export const store = configureStore({
     reducer: {
         app,
+        mapInteraction,
         draw,
         error,
         projection,

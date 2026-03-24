@@ -1,6 +1,6 @@
 import { MAP_ID } from "@/const"
 import { useCursor } from "@/hooks/useCursor"
-import usePanMode from "@/hooks/usePanMode"
+import useNavigationMode from "@/hooks/useNavigationMode"
 import { usePitch } from "@/hooks/usePitch"
 import { useZoom } from "@/hooks/useZoom"
 import { actions } from "@/store"
@@ -14,7 +14,6 @@ import { Statusbar } from "@/ui/Statusbar"
 import { ActionIcon, Badge, MantineProvider, type MantineTheme, createStyles } from "@mantine/core"
 import type { ActionIconProps } from "@mantine/core"
 import {
-    IconHandMove,
     IconLayoutSidebar,
     IconLiveView,
     IconMountain,
@@ -98,7 +97,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const dispatch = useAppDispatch()
     const { classes: s, cx } = useStyle()
     const { [id]: ref } = useMap()
-    usePanMode(ref)
+    useNavigationMode(ref)
     const [lng, lat] = useCursor(ref)
     const zoom = useZoom(ref)
     const pitch = usePitch(ref)
@@ -108,14 +107,9 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const sources = useAppSelector(selectSourcesAmount)
     const projection = useAppSelector(selectors.projection.projection)
     const changeProjection = useAppSelector(selectors.projection.changeProjectionAvailable)
-    const panEnabled = useAppSelector(selectors.tools.selectPanEnabled)
     const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
     const isGlobe = projection === "globe"
-
-    const togglePan = useCallback(() => {
-        dispatch(actions.tools.setTool(panEnabled ? null : "pan"))
-    }, [dispatch, panEnabled])
 
     const toggleSidebar = useCallback(() => {
         if (sidebar) {
@@ -200,10 +194,6 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                         {errorMessage}
                     </Badge>
                 )}
-
-                <ActionIcon className={cx(s.icon, { [s.active]: panEnabled })} onClick={togglePan}>
-                    <IconHandMove size={16} />
-                </ActionIcon>
 
                 <div className={s.s} />
 

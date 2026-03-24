@@ -3,8 +3,11 @@ import type { MapRef } from "react-map-gl/maplibre"
 import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store/selectors"
 
-export default function usePanMode(ref?: MapRef): void {
-    const panEnabled = useAppSelector(selectors.tools.selectPanEnabled)
+export default function useNavigationMode(ref?: MapRef): void {
+    const dragPan = useAppSelector(selectors.mapInteraction.selectDragPan)
+    const scrollZoom = useAppSelector(selectors.mapInteraction.selectScrollZoom)
+    const dragRotate = useAppSelector(selectors.mapInteraction.selectDragRotate)
+    const navigationEnabled = useAppSelector(selectors.tools.selectNavigationEnabled)
     const drawing = useAppSelector(selectors.draw.isDrawing)
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: drawing is a trigger dep — re-syncs when Draw mounts and its onAdd re-enables dragPan
@@ -14,17 +17,31 @@ export default function usePanMode(ref?: MapRef): void {
             return
         }
 
+        const effectiveDragPan = navigationEnabled && dragPan
+        const effectiveScrollZoom = navigationEnabled && scrollZoom
+        const effectiveDragRotate = navigationEnabled && dragRotate
+
         const sync = () => {
-            if (panEnabled) {
+            if (effectiveDragPan) {
                 map.dragPan.enable()
             } else {
                 map.dragPan.disable()
+            }
+            if (effectiveScrollZoom) {
+                map.scrollZoom.enable()
+            } else {
+                map.scrollZoom.disable()
+            }
+            if (effectiveDragRotate) {
+                map.dragRotate.enable()
+            } else {
+                map.dragRotate.disable()
             }
         }
 
         sync()
 
-        if (!panEnabled) {
+        if (!effectiveDragPan) {
             // The draw control mutates dragPan internally (setup toggle, box-select
             // end, direct-select drag end). Re-sync after these operations complete.
             // touchend is included because Draw's touch handlers also call dragPan.enable().
@@ -46,5 +63,5 @@ export default function usePanMode(ref?: MapRef): void {
                 map.off("draw.modechange", sync)
             }
         }
-    }, [ref, panEnabled, drawing])
+    }, [ref, dragPan, scrollZoom, dragRotate, navigationEnabled, drawing])
 }

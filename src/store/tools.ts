@@ -1,14 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
-export type Tool = "pan"
+export type Tool = "navigation"
 
 type ToolsState = {
     activeTool: Tool | null
 }
 
 const initialState: ToolsState = {
-    activeTool: "pan",
+    activeTool: "navigation",
 }
 
 export const toolsSlice = createSlice({
@@ -21,7 +21,7 @@ export const toolsSlice = createSlice({
     },
     selectors: {
         selectActiveTool: state => state.activeTool,
-        selectPanEnabled: state => state.activeTool === "pan",
+        selectNavigationEnabled: state => state.activeTool === "navigation",
     },
 })
 

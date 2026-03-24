@@ -1,0 +1,177 @@
+import { renderHook } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+vi.mock("@/store/hooks", () => ({
+    useAppSelector: vi.fn(),
+}))
+
+import { useAppSelector } from "@/store/hooks"
+import { selectors } from "@/store/selectors"
+import useNavigationMode from "./useNavigationMode"
+
+function makeMockMap() {
+    return {
+        dragPan: {
+            enable: vi.fn(),
+            disable: vi.fn(),
+        },
+        scrollZoom: {
+            enable: vi.fn(),
+            disable: vi.fn(),
+        },
+        dragRotate: {
+            enable: vi.fn(),
+            disable: vi.fn(),
+        },
+        on: vi.fn(),
+        off: vi.fn(),
+    }
+}
+
+function makeRef(map: ReturnType<typeof makeMockMap>) {
+    return { getMap: () => map } as any
+}
+
+const ALL_ENABLED = { dragPan: true, scrollZoom: true, dragRotate: true }
+const ALL_DISABLED = { dragPan: false, scrollZoom: false, dragRotate: false }
+
+function mockState(settings: typeof ALL_ENABLED, navigationEnabled: boolean, drawing = false) {
+    vi.mocked(useAppSelector).mockImplementation((selector: any) => {
+        if (selector === selectors.mapInteraction.selectDragPan) return settings.dragPan
+        if (selector === selectors.mapInteraction.selectScrollZoom) return settings.scrollZoom
+        if (selector === selectors.mapInteraction.selectDragRotate) return settings.dragRotate
+        if (selector === selectors.tools.selectNavigationEnabled) return navigationEnabled
+        if (selector === selectors.draw.isDrawing) return drawing
+        return undefined
+    })
+}
+
+describe("useNavigationMode", () => {
+    it("does nothing when ref is undefined", () => {
+        mockState(ALL_ENABLED, true)
+        renderHook(() => useNavigationMode(undefined))
+        // no error thrown
+    })
+
+    it("enables all handlers when navigation is active and all settings are on", () => {
+        mockState(ALL_ENABLED, true)
+        const map = makeMockMap()
+        renderHook(() => useNavigationMode(makeRef(map)))
+        expect(map.dragPan.enable).toHaveBeenCalled()
+        expect(map.scrollZoom.enable).toHaveBeenCalled()
+        expect(map.dragRotate.enable).toHaveBeenCalled()
+        expect(map.on).not.toHaveBeenCalled()
+    })
+
+    it("disables all handlers when navigation tool is inactive", () => {
+        mockState(ALL_ENABLED, false)
+        const map = makeMockMap()
+        renderHook(() => useNavigationMode(makeRef(map)))
+        expect(map.dragPan.disable).toHaveBeenCalled()
+        expect(map.scrollZoom.disable).toHaveBeenCalled()
+        expect(map.dragRotate.disable).toHaveBeenCalled()
+        expect(map.on).toHaveBeenCalledWith("mouseup", expect.any(Function))
+        expect(map.on).toHaveBeenCalledWith("touchend", expect.any(Function))
+        expect(map.on).toHaveBeenCalledWith("draw.modechange", expect.any(Function))
+    })
+
+    it("disables only dragPan when dragPan setting is off", () => {
+        mockState({ dragPan: false, scrollZoom: true, dragRotate: true }, true)
+        const map = makeMockMap()
+        renderHook(() => useNavigationMode(makeRef(map)))
+        expect(map.dragPan.disable).toHaveBeenCalled()
+        expect(map.scrollZoom.enable).toHaveBeenCalled()
+        expect(map.dragRotate.enable).toHaveBeenCalled()
+    })
+
+    it("disables only scrollZoom when scrollZoom setting is off", () => {
+        mockState({ dragPan: true, scrollZoom: false, dragRotate: true }, true)
+        const map = makeMockMap()
+        renderHook(() => useNavigationMode(makeRef(map)))
+        expect(map.dragPan.enable).toHaveBeenCalled()
+        expect(map.scrollZoom.disable).toHaveBeenCalled()
+        expect(map.dragRotate.enable).toHaveBeenCalled()
+        expect(map.on).not.toHaveBeenCalled()
+    })
+
+    it("disables only dragRotate when dragRotate setting is off", () => {
+        mockState({ dragPan: true, scrollZoom: true, dragRotate: false }, true)
+        const map = makeMockMap()
+        renderHook(() => useNavigationMode(makeRef(map)))
+        expect(map.dragPan.enable).toHaveBeenCalled()
+        expect(map.scrollZoom.enable).toHaveBeenCalled()
+        expect(map.dragRotate.disable).toHaveBeenCalled()
+        expect(map.on).not.toHaveBeenCalled()
+    })
+
+    it("re-disables dragPan when Draw mounts and its onAdd re-enables it", () => {
+        let drawing = false
+        vi.mocked(useAppSelector).mockImplementation((selector: any) => {
+            if (selector === selectors.mapInteraction.selectDragPan) return false
+            if (selector === selectors.mapInteraction.selectScrollZoom) return true
+            if (selector === selectors.mapInteraction.selectDragRotate) return true
+            if (selector === selectors.tools.selectNavigationEnabled) return true
+            if (selector === selectors.draw.isDrawing) return drawing
+            return undefined
+        })
+
+        const map = makeMockMap()
+        const { rerender } = renderHook(() => useNavigationMode(makeRef(map)))
+
+        expect(map.dragPan.disable).toHaveBeenCalled()
+        map.dragPan.disable.mockClear()
+
+        // Simulate Draw's onAdd re-enabling dragPan before useNavigationMode can react
+        map.dragPan.enable()
+        expect(map.dragPan.disable).not.toHaveBeenCalled()
+
+        // drawing becomes true (Draw mounted); useNavigationMode re-runs effect and re-disables
+        drawing = true
+        rerender()
+
+        expect(map.dragPan.disable).toHaveBeenCalled()
+    })
+
+    describe("deferred re-sync after mouseup/touchend", () => {
+        beforeEach(() => vi.useFakeTimers())
+        afterEach(() => vi.useRealTimers())
+
+        it("re-disables dragPan after mouseup even if a later handler re-enabled it", () => {
+            mockState(ALL_DISABLED, false)
+            const map = makeMockMap()
+            renderHook(() => useNavigationMode(makeRef(map)))
+
+            const mouseupCall = vi.mocked(map.on).mock.calls.find(([event]) => event === "mouseup")
+            expect(mouseupCall).toBeDefined()
+            const deferredHandler = mouseupCall![1] as () => void
+
+            map.dragPan.enable()
+            map.dragPan.disable.mockClear()
+
+            deferredHandler()
+            expect(map.dragPan.disable).not.toHaveBeenCalled()
+
+            vi.runAllTimers()
+            expect(map.dragPan.disable).toHaveBeenCalled()
+        })
+
+        it("re-disables dragPan after touchend even if a later handler re-enabled it", () => {
+            mockState(ALL_DISABLED, false)
+            const map = makeMockMap()
+            renderHook(() => useNavigationMode(makeRef(map)))
+
+            const touchendCall = vi.mocked(map.on).mock.calls.find(([event]) => event === "touchend")
+            expect(touchendCall).toBeDefined()
+            const deferredHandler = touchendCall![1] as () => void
+
+            map.dragPan.enable()
+            map.dragPan.disable.mockClear()
+
+            deferredHandler()
+            expect(map.dragPan.disable).not.toHaveBeenCalled()
+
+            vi.runAllTimers()
+            expect(map.dragPan.disable).toHaveBeenCalled()
+        })
+    })
+})
