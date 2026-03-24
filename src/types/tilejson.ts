@@ -5,8 +5,8 @@ export type TileJSON = {
 
     // The tile format.
     // Common values: "pbf" (vector), "png", "jpg", "webp" (raster).
-    // May be null when absent in the MBTiles metadata table.
-    format?: "pbf" | "png" | "jpg" | "webp" | null
+    // Absent when not specified in the MBTiles metadata table.
+    format?: "pbf" | "png" | "jpg" | "webp"
 
     // An array of tile endpoints.
     // {z}, {x} and {y}, if present, are replaced with the corresponding integers.
@@ -25,7 +25,7 @@ export type TileJSON = {
     // Note: When describinng a set of raster tiles or other tile format that does not have a "layers" concept (i.e. "format": "jpeg"),
     // the vector_layers key is not required.
     // Note: Will be added on merge step.
-    vector_layers: { id: string; fields: object; description?: string; minzoom?: number; maxzoom?: number }[]
+    vector_layers?: { id: string; fields: object; description?: string; minzoom?: number; maxzoom?: number }[]
 
     // Contains an attribution to be displayed when the map is shown to a user.
     // Implementations MAY decide to treat this as HTML or literal text.

@@ -274,7 +274,7 @@ impl Tilejson3 {
     }
 
     pub fn as_json(&self) -> Value {
-        json!({
+        let mut obj = json!({
             "tilejson": self.tilejson,
             "tiles": self.tiles,
             "attribution": self.attribution,
@@ -292,8 +292,11 @@ impl Tilejson3 {
             "template": self.template,
             "version": self.version,
             "vector_layers": self.vector_layers,
-            "format": self.format,
-        })
+        });
+        if let Some(ref fmt) = self.format {
+            obj["format"] = json!(fmt);
+        }
+        obj
     }
 }
 
@@ -439,5 +442,7 @@ mod tests {
         assert_eq!(json_value["tilejson"].as_str(), Some("3.0.0"));
         assert_eq!(json_value["tiles"].as_array().unwrap().len(), 1);
         assert_eq!(json_value["name"].as_str(), Some("My Tile Set"));
+        // format is absent (not null) when not set
+        assert!(json_value.get("format").is_none());
     }
 }
