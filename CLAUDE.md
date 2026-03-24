@@ -59,7 +59,7 @@ Run `npm run format` after every code modification.
 - `selection` - Selected map features
 - `draw` - Drawing mode state
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
-- `tools` - Active map tool state (`activeTool: Tool | null`); `"navigation"` = drag-pan/scroll-zoom/rotate enabled (default), `null` = map frozen
+- `tools` - Active map tool state (`activeTool: Tool | null`); `"navigation"` = drag-pan/scroll-zoom/rotate enabled (default), `"draw"` = drawing mode active, `null` = map frozen; `reset` action returns to `"navigation"` and triggers the `resetTool` listener which clears draw state if needed
 - `mapInteraction` - Fine-grained MapLibre handler toggles (`dragPan`, `scrollZoom`, `dragRotate`); combined with `tools` by `useMapNavigation`
 
 **Component Structure**:
@@ -72,7 +72,7 @@ Run `npm run format` after every code modification.
 
 **Hooks** (`src/hooks/`):
 - `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
-- `useMapNavigation` - Combines `selectors.mapInteraction` (dragPan/scrollZoom/dragRotate toggles) and `selectors.tools.selectNavigationEnabled` to sync MapLibre handler state with Redux. When dragPan is disabled, registers deferred `mouseup`/`touchend` listeners and a `draw.modechange` listener to re-disable after Draw's internal re-enables
+- `useMapNavigation` - Combines `selectors.mapInteraction` (dragPan/scrollZoom/dragRotate toggles) and `selectors.tools.selectNavigationEnabled` to sync MapLibre handler state with Redux
 
 ### Backend (`src-tauri/`)
 
