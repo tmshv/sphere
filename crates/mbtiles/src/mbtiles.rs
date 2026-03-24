@@ -152,10 +152,12 @@ impl MBTiles {
             }
             None => (),
         };
-        // Re-apply normalized format after merge to prevent json metadata from overwriting it
-        if let Some(fmt) = normalized_format {
-            if let Some(obj) = result.as_object_mut() {
-                obj.insert("format".to_string(), serde_json::Value::String(fmt));
+        // Normalize format in merged result: covers format from metadata table and json blob.
+        // Re-applying also prevents json metadata blob from overwriting the normalized value.
+        if let Some(obj) = result.as_object_mut() {
+            if let Some(serde_json::Value::String(fmt)) = obj.get("format") {
+                let normalized = if fmt == "jpeg" { "jpg".to_string() } else { fmt.clone() };
+                obj.insert("format".to_string(), serde_json::Value::String(normalized));
             }
         }
         Ok(result)
