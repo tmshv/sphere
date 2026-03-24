@@ -51,6 +51,8 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                             format,
                         }),
                     )
+                } else {
+                    logger.error("Failed to get TileJSON for source %s", id)
                 }
                 break
             }
@@ -68,6 +70,8 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                             location,
                         }),
                     )
+                } else {
+                    logger.error("Failed to get TileJSON for raster source %s", id)
                 }
                 break
             }

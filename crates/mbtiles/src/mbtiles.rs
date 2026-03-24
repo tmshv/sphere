@@ -177,15 +177,15 @@ impl MBTiles {
         )?;
         let (z, x, y) = tile.as_tms();
         let tile_bytes: Vec<u8> =
-            statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap()))?;
+            statement.query_row(params![z, x, y], |row| row.get(0))?;
         let f = get_tile_format(tile_bytes.as_slice());
         match f {
             TileFormat::Zlib => {
-                let t = unzip_tile(tile_bytes, TileFormat::Zlib).unwrap();
+                let t = unzip_tile(tile_bytes, TileFormat::Zlib).map_err(|_| MBTilesError::DB)?;
                 Ok(t)
             }
             TileFormat::Gzip => {
-                let t = unzip_tile(tile_bytes, TileFormat::Gzip).unwrap();
+                let t = unzip_tile(tile_bytes, TileFormat::Gzip).map_err(|_| MBTilesError::DB)?;
                 Ok(t)
             }
             _ => Ok(tile_bytes),
