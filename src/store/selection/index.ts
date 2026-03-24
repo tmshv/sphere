@@ -20,6 +20,9 @@ export const selectionSlice = createSlice({
         reset: state => {
             state.selectedIds = []
         },
+        resetFeature: state => {
+            state.selectedIds = []
+        },
         selectOne: (state, action: PayloadAction<{ layerId: Id; featureId: number }>) => {
             state.selectedIds = [action.payload.featureId]
         },

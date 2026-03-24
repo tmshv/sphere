@@ -54,6 +54,7 @@ export const sourceSlice = createSlice({
             state.items = {}
             state.allIds = []
             state.lastAdded = undefined
+            state.selectedId = undefined
         },
         addFeatureCollection: (
             state,
