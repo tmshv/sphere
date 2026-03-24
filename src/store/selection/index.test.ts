@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import reducer, { selectionSlice } from "./index"
 
-const { reset, resetFeature, selectOne } = selectionSlice.actions
+const { reset, selectOne } = selectionSlice.actions
 
 describe("selectionSlice reducer", () => {
     test("initial state", () => {
@@ -12,12 +12,6 @@ describe("selectionSlice reducer", () => {
     test("reset clears selectedIds", () => {
         const prev = { selectedIds: [1, 2] }
         const state = reducer(prev, reset())
-        expect(state.selectedIds).toEqual([])
-    })
-
-    test("resetFeature clears selectedIds", () => {
-        const prev = { selectedIds: [5] }
-        const state = reducer(prev, resetFeature())
         expect(state.selectedIds).toEqual([])
     })
 

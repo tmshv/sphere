@@ -2,10 +2,18 @@ import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import reducer, { sourceSlice } from "./index"
 
-const { addGeojsonSource, addMVTSource, addRasterSource, removeSource, setName, setData, addFeatureCollection } =
-    sourceSlice.actions
+const {
+    addGeojsonSource,
+    addMVTSource,
+    addRasterSource,
+    removeSource,
+    select,
+    setName,
+    setData,
+    addFeatureCollection,
+} = sourceSlice.actions
 // Note: addGeojsonSource no longer accepts a `dataset` parameter (M2: dataset removed from GeojsonSource)
-const { items, allIds } = sourceSlice.selectors
+const { items, allIds, selectSelectedId } = sourceSlice.selectors
 
 const makeRootState = (source: object) => ({ source }) as any
 
@@ -181,6 +189,59 @@ describe("sourceSlice reducer", () => {
         expect((state.items.s1 as any).dataset).toEqual(newDataset)
         expect(state.items.s1.pending).toBe(false)
     })
+
+    test("select sets selectedId", () => {
+        const prev = reducer(
+            undefined,
+            addGeojsonSource({
+                id: "s1",
+                name: "My Source",
+                location: "file.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        const state = reducer(prev, select("s1"))
+        expect(state.selectedId).toBe("s1")
+    })
+
+    test("removeSource clears selectedId when it matches", () => {
+        let state = reducer(
+            undefined,
+            addGeojsonSource({
+                id: "s1",
+                name: "My Source",
+                location: "file.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(state, select("s1"))
+        state = reducer(state, removeSource("s1"))
+        expect(state.selectedId).toBeUndefined()
+    })
+
+    test("removeSource does not clear selectedId when it does not match", () => {
+        let state = reducer(
+            undefined,
+            addGeojsonSource({
+                id: "s1",
+                name: "Source 1",
+                location: "file1.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(
+            state,
+            addGeojsonSource({
+                id: "s2",
+                name: "Source 2",
+                location: "file2.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(state, select("s1"))
+        state = reducer(state, removeSource("s2"))
+        expect(state.selectedId).toBe("s1")
+    })
 })
 
 describe("sourceSlice selectors", () => {
@@ -192,5 +253,15 @@ describe("sourceSlice selectors", () => {
     test("allIds returns id array", () => {
         const sourceState = { items: {}, allIds: ["s1", "s2"] }
         expect(allIds(makeRootState(sourceState))).toEqual(["s1", "s2"])
+    })
+
+    test("selectSelectedId returns undefined initially", () => {
+        const sourceState = { items: {}, allIds: [], selectedId: undefined }
+        expect(selectSelectedId(makeRootState(sourceState))).toBeUndefined()
+    })
+
+    test("selectSelectedId returns the selected id", () => {
+        const sourceState = { items: {}, allIds: [], selectedId: "s1" }
+        expect(selectSelectedId(makeRootState(sourceState))).toBe("s1")
     })
 })

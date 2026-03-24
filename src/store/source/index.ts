@@ -167,6 +167,9 @@ export const sourceSlice = createSlice({
             if (state.lastAdded === sourceId) {
                 state.lastAdded = undefined
             }
+            if (state.selectedId === sourceId) {
+                state.selectedId = undefined
+            }
         },
         setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
             const { id: sourceId, value } = action.payload

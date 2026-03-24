@@ -32,7 +32,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                 )
                 return
             }
-            dispatch(actions.selection.resetFeature())
+            dispatch(actions.selection.reset())
         })
 
         return () => {
