@@ -1,6 +1,5 @@
 import { MAP_ID } from "@/const"
 import { useCursor } from "@/hooks/useCursor"
-import useNavigationMode from "@/hooks/useNavigationMode"
 import { usePitch } from "@/hooks/usePitch"
 import { useZoom } from "@/hooks/useZoom"
 import { actions } from "@/store"
@@ -97,7 +96,6 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const dispatch = useAppDispatch()
     const { classes: s, cx } = useStyle()
     const { [id]: ref } = useMap()
-    useNavigationMode(ref)
     const [lng, lat] = useCursor(ref)
     const zoom = useZoom(ref)
     const pitch = usePitch(ref)
