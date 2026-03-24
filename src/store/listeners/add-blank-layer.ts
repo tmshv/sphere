@@ -1,7 +1,9 @@
 import { nextColor } from "@/lib/color-scheme"
 import { nextId } from "@/lib/nextId"
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
-import { SourceType } from "@/types"
+import { LayerType, SourceType } from "@/types"
+
+const RASTER_MVT_FORMATS = new Set<"pbf" | "png" | "jpg" | "webp">(["png", "jpg", "webp"])
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
@@ -51,6 +53,13 @@ listener.startListening({
                     actions.layer.setType({
                         id: layerId,
                         type: layerType,
+                    }),
+                )
+            } else if (source.type === SourceType.MVT && RASTER_MVT_FORMATS.has(source.format)) {
+                listenerApi.dispatch(
+                    actions.layer.setType({
+                        id: layerId,
+                        type: LayerType.Raster,
                     }),
                 )
             }

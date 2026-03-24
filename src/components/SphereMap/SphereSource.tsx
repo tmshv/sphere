@@ -8,7 +8,7 @@ import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
 import { Source, type SourceProps } from "react-map-gl/maplibre"
 
-const RASTER_MVT_FORMATS = new Set(["png", "jpg", "webp"] as const)
+const RASTER_MVT_FORMATS = new Set<"pbf" | "png" | "jpg" | "webp">(["png", "jpg", "webp"])
 
 export const selectSource = createSelector([(state: RootState, id: string) => state.source.items[id]], source => {
     if (!source) {

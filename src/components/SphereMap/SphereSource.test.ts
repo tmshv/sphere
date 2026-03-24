@@ -11,6 +11,7 @@ describe("selectSource MVT", () => {
         const state = makeState({
             type: SourceType.MVT,
             location: "file:///Users/foo/data.mbtiles",
+            format: "pbf",
             sourceLayers: [],
             tilejson: {},
             editable: false,
@@ -27,6 +28,7 @@ describe("selectSource MVT", () => {
         const state = makeState({
             type: SourceType.MVT,
             location: "file:///Users/foo/data.mbtiles",
+            format: "pbf",
             sourceLayers: [],
             tilejson: {},
             editable: false,
@@ -34,5 +36,64 @@ describe("selectSource MVT", () => {
         })
         const result = selectSource(state, "src1")
         expect((result as any)?.url).not.toMatch(/^file:\/\//)
+    })
+
+    test("returns raster source type for png format", () => {
+        const state = makeState({
+            type: SourceType.MVT,
+            location: "file:///Users/foo/raster.mbtiles",
+            format: "png",
+            sourceLayers: [],
+            tilejson: {},
+            editable: false,
+            pending: false,
+        })
+        const result = selectSource(state, "src1")
+        expect(result).toMatchObject({
+            type: "raster",
+            url: "sphere://mbtiles/src1",
+        })
+    })
+
+    test("returns raster source type for jpg format", () => {
+        const state = makeState({
+            type: SourceType.MVT,
+            location: "file:///Users/foo/raster.mbtiles",
+            format: "jpg",
+            sourceLayers: [],
+            tilejson: {},
+            editable: false,
+            pending: false,
+        })
+        const result = selectSource(state, "src1")
+        expect(result).toMatchObject({ type: "raster" })
+    })
+
+    test("returns raster source type for webp format", () => {
+        const state = makeState({
+            type: SourceType.MVT,
+            location: "file:///Users/foo/raster.mbtiles",
+            format: "webp",
+            sourceLayers: [],
+            tilejson: {},
+            editable: false,
+            pending: false,
+        })
+        const result = selectSource(state, "src1")
+        expect(result).toMatchObject({ type: "raster" })
+    })
+
+    test("returns vector source type for pbf format", () => {
+        const state = makeState({
+            type: SourceType.MVT,
+            location: "file:///Users/foo/vector.mbtiles",
+            format: "pbf",
+            sourceLayers: [],
+            tilejson: {},
+            editable: false,
+            pending: false,
+        })
+        const result = selectSource(state, "src1")
+        expect(result).toMatchObject({ type: "vector" })
     })
 })
