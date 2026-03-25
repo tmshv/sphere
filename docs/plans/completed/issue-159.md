@@ -10,24 +10,14 @@ The long-term fix (issues #163, #164) will unify data storage in the Rust backen
 
 ### Task 1: Set `editable: false` for Geojson sources
 
-**File:** `src/store/source/index.ts:108`
-
-In `addGeojsonSource`, change:
-```ts
-editable: true,
-```
-to:
-```ts
-editable: false,
-```
-
-That is all. The `selector` in `SourcePanel/index.tsx` already passes `source.editable` through unchanged, and the ActionBar item uses `disabled: !source.editable`.
+- [x] Set `editable: false` in `addGeojsonSource` (`src/store/source/index.ts`)
+- [x] Update `GeojsonSource` type to `editable: false` (`src/types/source.ts`)
+- [x] Update `makeGeojsonSource` test utility (`src/testutils.ts`)
 
 ### Task 2: Update the SourcePanel selector test
 
-**File:** `src/components/SourcePanel/index.test.ts`
-
-The existing test for a Geojson source asserts `editable: true`. Update to `editable: false`.
+- [x] Update `SourcePanel/index.test.ts` expectation to `editable: false`
+- [x] Add `editable` assertions to reducer tests (`src/store/source/index.test.ts`)
 
 ## Verification
 

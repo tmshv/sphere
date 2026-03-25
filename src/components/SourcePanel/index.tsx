@@ -96,6 +96,7 @@ export const SourcePanel: React.FC = () => {
                             break
                         }
                         case "edit": {
+                            if (!source.editable) break
                             if (drawing) {
                                 dispatch(actions.tools.reset())
                             } else {

@@ -50,6 +50,7 @@ export const store = configureStore({
             .prepend(listeners.mapInteractive.middleware)
             .prepend(listeners.resetTool.middleware)
             .prepend(listeners.autoSelectOnDelete.middleware)
+            .prepend(listeners.exitDrawOnSourceDelete.middleware)
     },
 })
 

@@ -1,5 +1,5 @@
 import { type Id, type SourceMetadata, SourceType } from "@/types"
-import type { FeatureCollecionSource, Source } from "@/types/source"
+import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
@@ -83,10 +83,9 @@ export const sourceSlice = createSlice({
             action: PayloadAction<{ id: Id; dataset: GeoJSON.FeatureCollection; meta: SourceMetadata }>,
         ) => {
             const { id, dataset, meta } = action.payload
-            const source = state.items[id] as FeatureCollecionSource
-            source.dataset = dataset
-            source.meta = meta
-            source.pending = false
+            const source = state.items[id]
+            if (!source || source.type !== SourceType.FeatureCollection) return
+            Object.assign(source, { dataset, meta, pending: false })
         },
         addGeojsonSource: (
             state,
@@ -105,7 +104,7 @@ export const sourceSlice = createSlice({
                 type: SourceType.Geojson,
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
-                editable: true,
+                editable: false,
                 meta,
             }
             state.allIds.push(id)
@@ -174,7 +173,9 @@ export const sourceSlice = createSlice({
         },
         setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
             const { id: sourceId, value } = action.payload
-            state.items[sourceId].name = value
+            const source = state.items[sourceId]
+            if (!source) return
+            source.name = value
         },
         setGeojsonMeta: (state, action: PayloadAction<{ id: Id; meta: SourceMetadata }>) => {
             const { id, meta } = action.payload
@@ -188,10 +189,9 @@ export const sourceSlice = createSlice({
         builder.addCase(drawSlice.actions.done, (state, action) => {
             const { sourceId: id, featureCollection } = action.payload
             const source = state.items[id]
-            if (source.type === SourceType.FeatureCollection && !source.pending) {
-                source.dataset = featureCollection
-                source.meta = computeGeometryMeta(featureCollection)
-            }
+            if (!source || source.type !== SourceType.FeatureCollection || source.pending) return
+            source.dataset = featureCollection
+            source.meta = computeGeometryMeta(featureCollection)
         })
     },
     selectors: {

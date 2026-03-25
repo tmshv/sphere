@@ -44,6 +44,7 @@ describe("sourceSlice reducer", () => {
         expect(state.items.s1).toBeDefined()
         expect(state.items.s1.name).toBe("My Source")
         expect(state.items.s1.type).toBe(SourceType.Geojson)
+        expect(state.items.s1.editable).toBe(false)
         expect(state.lastAdded).toBe("s1")
     })
 
@@ -96,6 +97,7 @@ describe("sourceSlice reducer", () => {
         )
         expect(state.allIds).toContain("s4")
         expect(state.items.s4.type).toBe(SourceType.FeatureCollection)
+        expect(state.items.s4.editable).toBe(true)
         expect(state.lastAdded).toBe("s4")
     })
 
