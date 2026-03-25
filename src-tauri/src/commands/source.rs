@@ -324,3 +324,18 @@ pub async fn source_get_column_stats(
         top_values,
     })
 }
+
+#[tauri::command]
+pub async fn source_query_rect(
+    id: String,
+    bbox: [f64; 4],
+    mode: String,
+    storage: State<'_, SourceStorage>,
+) -> Result<Vec<i64>, String> {
+    let fs = {
+        let store = storage.store.lock().unwrap();
+        let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+        entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
+    };
+    Ok(fs.query_rect(bbox, &mode))
+}

@@ -229,7 +229,7 @@ git commit -m "Add FeatureStore::query_rect with include/intersect modes"
 - Modify: `src-tauri/src/commands/source.rs`
 - Modify: `src-tauri/src/main.rs`
 
-- [ ] **Step 1: Add the command to `source.rs`**
+- [x] **Step 1: Add the command to `source.rs`**
 
 At the end of `src-tauri/src/commands/source.rs`, add:
 
@@ -252,7 +252,7 @@ pub async fn source_query_rect(
 
 Note the Arc clone pattern: `fs` is cloned inside the block so the Mutex guard drops before `query_rect` runs.
 
-- [ ] **Step 2: Register the command in `main.rs`**
+- [x] **Step 2: Register the command in `main.rs`**
 
 In `src-tauri/src/main.rs`, add to `tauri::generate_handler!`:
 
@@ -260,7 +260,7 @@ In `src-tauri/src/main.rs`, add to `tauri::generate_handler!`:
 commands::source::source_query_rect,
 ```
 
-- [ ] **Step 3: Verify it compiles**
+- [x] **Step 3: Verify it compiles**
 
 ```bash
 cd src-tauri && cargo build 2>&1 | grep -E "error|warning\[" | head -20
@@ -268,7 +268,7 @@ cd src-tauri && cargo build 2>&1 | grep -E "error|warning\[" | head -20
 
 Expected: no errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src-tauri/src/commands/source.rs src-tauri/src/main.rs
