@@ -367,11 +367,12 @@ pub async fn source_replace(
     data: String,
     storage: State<'_, SourceStorage>,
 ) -> Result<(), String> {
-    // Parse and assign IDs before acquiring the lock to avoid holding the mutex
-    // during potentially expensive JSON parsing.
+    // Parse, assign IDs, and build the feature store before acquiring the lock
+    // to avoid blocking concurrent IPC calls during expensive CPU work.
     let mut new_fc: geojson::FeatureCollection = serde_json::from_str(&data)
         .map_err(|e| format!("Failed to parse FeatureCollection: {}", e))?;
     assign_feature_ids(&mut new_fc);
+    let new_store = Arc::new(FeatureStore::from_features(new_fc.features.clone()));
 
     let mut store = storage.store.lock().unwrap();
     let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
@@ -380,7 +381,7 @@ pub async fn source_replace(
         _ => return Err(format!("Source {} is not an in-memory source", id)),
     }
     entry.source.data = SourceData::InMemory(new_fc);
-    entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
+    entry.store = Some(new_store);
     Ok(())
 }
 
