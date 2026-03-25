@@ -1275,7 +1275,7 @@ git commit -m "Gate useFeatureSelect: no-op in select tool mode"
 - Modify: `src/store/index.ts`
 - Modify: `src/store/source/showProperties.ts`
 
-- [ ] **Step 1: Create `selection-changed.ts`**
+- [x] **Step 1: Create `selection-changed.ts`**
 
 This listener serves two roles:
 1. On `selectMany`: fetch properties for the PropertiesPopup overlay
@@ -1347,21 +1347,21 @@ listener.startListening({
 export default listener
 ```
 
-- [ ] **Step 2: Register in `listeners/index.ts`**
+- [x] **Step 2: Register in `listeners/index.ts`**
 
 Add export:
 ```ts
 export { default as selectionChanged } from "./selection-changed"
 ```
 
-- [ ] **Step 3: Register in `store/index.ts`**
+- [x] **Step 3: Register in `store/index.ts`**
 
 Add to the middleware chain:
 ```ts
 .prepend(listeners.selectionChanged.middleware)
 ```
 
-- [ ] **Step 4: Relax `showProperties` source type guard**
+- [x] **Step 4: Relax `showProperties` source type guard**
 
 In `src/store/source/showProperties.ts`, update the guard:
 
@@ -1373,13 +1373,13 @@ if (source.type !== SourceType.Geojson) {
 if (source.type !== SourceType.Geojson && source.type !== SourceType.FeatureCollection) {
 ```
 
-- [ ] **Step 5: Format and confirm no TS errors**
+- [x] **Step 5: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/store/listeners/selection-changed.ts src/store/listeners/index.ts src/store/index.ts src/store/source/showProperties.ts
