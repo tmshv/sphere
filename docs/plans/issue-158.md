@@ -283,7 +283,7 @@ git commit -m "Add source_query_rect Tauri IPC command"
 - Modify: `src/store/selection/index.ts`
 - Modify: `src/store/selection/index.test.ts`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Add to `src/store/selection/index.test.ts`:
 
@@ -326,7 +326,7 @@ Also update the import line at the top:
 const { reset, selectSource, selectLayer, selectOne, selectMany } = selectionSlice.actions
 ```
 
-- [ ] **Step 2: Run tests to confirm failures**
+- [x] **Step 2: Run tests to confirm failures**
 
 ```bash
 npm test -- src/store/selection/index.test.ts 2>&1 | grep -E "FAIL|selectMany|selectOne clears"
@@ -334,7 +334,7 @@ npm test -- src/store/selection/index.test.ts 2>&1 | grep -E "FAIL|selectMany|se
 
 Expected: `selectMany` not found, `selectOne clears sourceId` fails.
 
-- [ ] **Step 3: Update `selectionSlice`**
+- [x] **Step 3: Update `selectionSlice`**
 
 In `src/store/selection/index.ts`, update `selectOne` and add `selectMany`:
 
@@ -359,7 +359,7 @@ selectMany: (state, action: PayloadAction<{ sourceId: Id; featureIds: number[] }
 },
 ```
 
-- [ ] **Step 4: Run tests to confirm they pass**
+- [x] **Step 4: Run tests to confirm they pass**
 
 ```bash
 npm test -- src/store/selection/index.test.ts 2>&1 | grep -E "PASS|FAIL"
@@ -367,7 +367,7 @@ npm test -- src/store/selection/index.test.ts 2>&1 | grep -E "PASS|FAIL"
 
 Expected: PASS
 
-- [ ] **Step 5: Format and commit**
+- [x] **Step 5: Format and commit**
 
 ```bash
 npm run format

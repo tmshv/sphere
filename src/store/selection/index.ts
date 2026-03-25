@@ -21,6 +21,7 @@ export const selectionSlice = createSlice({
     initialState,
     reducers: {
         reset: state => {
+            state.layerId = undefined
             state.sourceId = undefined
             state.selectedIds = []
         },
@@ -43,7 +44,13 @@ export const selectionSlice = createSlice({
         },
         selectOne: (state, action: PayloadAction<{ layerId: Id; featureId: number }>) => {
             state.layerId = action.payload.layerId
+            state.sourceId = undefined
             state.selectedIds = [action.payload.featureId]
+        },
+        selectMany: (state, action: PayloadAction<{ sourceId: Id; featureIds: number[] }>) => {
+            state.sourceId = action.payload.sourceId
+            state.layerId = undefined
+            state.selectedIds = action.payload.featureIds
         },
     },
     selectors: {
