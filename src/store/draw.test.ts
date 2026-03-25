@@ -6,11 +6,6 @@ const { isDrawing } = drawSlice.selectors
 
 const makeRootState = (draw: object) => ({ draw }) as any
 
-const emptyFeatureCollection: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [],
-}
-
 describe("drawSlice reducer", () => {
     test("initial state has no sourceId", () => {
         const state = reducer(undefined, { type: "@@INIT" })
@@ -24,7 +19,7 @@ describe("drawSlice reducer", () => {
 
     test("done clears sourceId", () => {
         const prev = { sourceId: "my-source" }
-        const state = reducer(prev, done({ sourceId: "my-source", featureCollection: emptyFeatureCollection }))
+        const state = reducer(prev, done({ sourceId: "my-source" }))
         expect(state.sourceId).toBeUndefined()
     })
 
