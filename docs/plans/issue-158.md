@@ -1133,7 +1133,7 @@ git commit -m "Add RectSelectOverlay rubber-band rect for multi-select"
 - Modify: `src/sphere-hooks/useFeatureSelect.ts`
 - Create: `src/sphere-hooks/useFeatureSelect.test.ts`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 `useFeatureSelect.ts` has no existing test file. Create `src/sphere-hooks/useFeatureSelect.test.ts`:
 
@@ -1182,7 +1182,7 @@ describe("useFeatureSelect", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to confirm they fail**
+- [x] **Step 2: Run tests to confirm they fail**
 
 ```bash
 npm test -- src/sphere-hooks/useFeatureSelect.test.ts
@@ -1190,7 +1190,7 @@ npm test -- src/sphere-hooks/useFeatureSelect.test.ts
 
 Expected: both tests fail — the hook does not yet read `mapTool` from the store.
 
-- [ ] **Step 3: Add the `mapTool` guard**
+- [x] **Step 3: Add the `mapTool` guard**
 
 Replace the body of `src/sphere-hooks/useFeatureSelect.ts` with:
 
@@ -1244,7 +1244,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
 
 The guard is placed before `map.on(...)` so no listener is registered when `mapTool === "select"`, meaning there is nothing to unsubscribe — returning `undefined` is correct. `mapTool` is added to the dependency array so the effect re-runs when the tool changes.
 
-- [ ] **Step 4: Run tests to confirm they pass**
+- [x] **Step 4: Run tests to confirm they pass**
 
 ```bash
 npm test -- src/sphere-hooks/useFeatureSelect.test.ts
@@ -1252,13 +1252,13 @@ npm test -- src/sphere-hooks/useFeatureSelect.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: Format and confirm no TS errors**
+- [x] **Step 5: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/sphere-hooks/useFeatureSelect.ts src/sphere-hooks/useFeatureSelect.test.ts

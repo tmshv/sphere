@@ -1,5 +1,6 @@
 import { queryFeaturesInPoint } from "@/lib/maplibre"
 import { actions, selectors } from "@/store"
+import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { createSelector } from "@reduxjs/toolkit"
 import { useEffect } from "react"
@@ -13,10 +14,11 @@ const selectClickableLayerIds = createSelector(
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectClickableLayerIds)
+    const mapTool = useAppSelector(selectMapTool)
 
     useEffect(() => {
         const map = ref?.getMap()
-        if (!map) {
+        if (!map || mapTool === "select") {
             return
         }
 
@@ -24,12 +26,11 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
             const features = queryFeaturesInPoint(event.target, event.point, layerIds)
             if (features.length > 0) {
                 const f = features[0]
-                dispatch(
-                    actions.selection.selectOne({
-                        layerId: f.layer.id,
-                        featureId: f.id as number,
-                    }),
-                )
+                const featureId = f.id
+                if (typeof featureId !== "number") {
+                    return
+                }
+                dispatch(actions.selection.selectOne({ layerId: f.layer.id, featureId }))
                 return
             }
             dispatch(actions.selection.resetFeature())
@@ -38,7 +39,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
         return () => {
             click.unsubscribe()
         }
-    }, [dispatch, ref, layerIds])
+    }, [dispatch, ref, layerIds, mapTool])
 
     return null
 }
