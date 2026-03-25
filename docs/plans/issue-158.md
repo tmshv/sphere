@@ -537,7 +537,7 @@ git commit -m "Replace filter-based selection sublayers with feature-state paint
 - Create: `src/sphere-hooks/useFeatureState.ts`
 - Modify: `src/components/SphereMap/map-body.tsx`
 
-- [ ] **Step 1: Write failing test for `useFeatureState`**
+- [x] **Step 1: Write failing test for `useFeatureState`**
 
 Add `src/sphere-hooks/useFeatureState.test.ts`. The test wraps the hook with a real Redux store pre-seeded with `selectedIds` and `sourceId` so we can assert `setFeatureState` calls:
 
@@ -592,7 +592,7 @@ describe("useFeatureState", () => {
 })
 ```
 
-- [ ] **Step 2: Run test to confirm it fails**
+- [x] **Step 2: Run test to confirm it fails**
 
 ```bash
 npm test -- src/sphere-hooks/useFeatureState.test.ts
@@ -600,7 +600,7 @@ npm test -- src/sphere-hooks/useFeatureState.test.ts
 
 Expected: FAIL with "Cannot find module './useFeatureState'"
 
-- [ ] **Step 3: Create `useFeatureState.ts`**
+- [x] **Step 3: Create `useFeatureState.ts`**
 
 ```ts
 import { selectors } from "@/store"
@@ -648,7 +648,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
 }
 ```
 
-- [ ] **Step 4: Run test to confirm it passes**
+- [x] **Step 4: Run test to confirm it passes**
 
 ```bash
 npm test -- src/sphere-hooks/useFeatureState.test.ts
@@ -656,7 +656,7 @@ npm test -- src/sphere-hooks/useFeatureState.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: Wire into `map-body.tsx`**
+- [x] **Step 5: Wire into `map-body.tsx`**
 
 In `src/components/SphereMap/map-body.tsx`, add the import and hook call:
 
@@ -667,13 +667,13 @@ import useFeatureState from "@/sphere-hooks/useFeatureState"
 useFeatureState(map)
 ```
 
-- [ ] **Step 6: Format and confirm no TS errors**
+- [x] **Step 6: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/sphere-hooks/useFeatureState.ts src/sphere-hooks/useFeatureState.test.ts src/components/SphereMap/map-body.tsx
