@@ -59,13 +59,13 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
   - `PendingFeatureCollecionSource`: remove `dataset?: GeoJSON.FeatureCollection` (type stays; becomes vestigial)
 
 ### Task 4: Update source slice
-- [ ] `src/store/source/index.ts`:
+- [x] `src/store/source/index.ts`:
   - Remove `addFeatureCollection` reducer
   - Remove `setData` reducer
   - Remove `extraReducer` for `drawSlice.actions.done` (was updating `source.dataset`)
   - Add `addInMemorySource({ id, name, location, meta })` reducer — creates `FeatureCollectionSource` with `version: 0`, `pending: false`
   - Add `bumpVersion(id: Id)` reducer — increments `version` for the named source
-- [ ] `src/store/source/index.test.ts`:
+- [x] `src/store/source/index.test.ts`:
   - Remove tests for `addFeatureCollection` and `setData`
   - Add tests for `addInMemorySource` (verify `version: 0`, `pending: false`, `location`, `meta`)
   - Add test for `bumpVersion` (verify `version` increments)
