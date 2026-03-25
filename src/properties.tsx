@@ -130,13 +130,15 @@ const View: React.FC = () => {
                 const stats = await reader.getColumnStats(col)
                 return [col, stats] as const
             }),
-        ).then(entries => {
-            const record: Record<string, ColumnStats> = {}
-            for (const [col, stats] of entries) {
-                if (stats) record[col] = stats
-            }
-            setColumnStats(record)
-        })
+        )
+            .then(entries => {
+                const record: Record<string, ColumnStats> = {}
+                for (const [col, stats] of entries) {
+                    if (stats) record[col] = stats
+                }
+                setColumnStats(record)
+            })
+            .catch(() => {})
     }, [sourceId, schema])
 
     function makeIdFilter(ids: number[]): unknown[] {
@@ -157,9 +159,12 @@ const View: React.FC = () => {
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
         const filterJson = effectiveFilter ? JSON.stringify(effectiveFilter) : undefined
-        reader.queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson).then(result => {
-            if (result) setPage(result)
-        })
+        reader
+            .queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson)
+            .then(result => {
+                if (result) setPage(result)
+            })
+            .catch(() => {})
     }, [sourceId, pageIndex, sorting, effectiveFilter])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {

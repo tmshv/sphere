@@ -23,9 +23,11 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const [dragStart, setDragStart] = useState<Point | null>(null)
     const [dragCurrent, setDragCurrent] = useState<Point | null>(null)
     const lastThrottle = useRef(0)
+    const queryGeneration = useRef(0)
 
     const queryAndSelect = useCallback(
         async (start: Point, current: Point, source: string) => {
+            const generation = ++queryGeneration.current
             const map = mapRef?.getMap()
             if (!map) {
                 return
@@ -46,6 +48,9 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
                 bbox,
                 mode,
             })
+            if (generation !== queryGeneration.current) {
+                return
+            }
             dispatch(actions.selection.selectMany({ sourceId: source, featureIds }))
         },
         [dispatch, mapRef],
