@@ -1,5 +1,6 @@
 import { useDrawControl } from "@/hooks/useDrawControl"
 import type { OnChangeDraw } from "@/hooks/useDrawControl"
+import logger from "@/logger"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { Overlay } from "@/ui/Overlay"
@@ -37,7 +38,9 @@ export default function Draw({ mapId }: DrawProps) {
         if (!sourceId) return
         invoke<string>("source_get", { id: sourceId })
             .then(json => draw.set(JSON.parse(json)))
-            .catch(() => {})
+            .catch(err => {
+                logger.error("Failed to load draw source %s: %s", sourceId, err)
+            })
     }, [sourceId, draw])
 
     const onCancel = useCallback(() => {
@@ -53,8 +56,9 @@ export default function Draw({ mapId }: DrawProps) {
             })
             dispatch(actions.source.bumpVersion(sourceId))
             dispatch(actions.draw.done({ sourceId }))
-        } catch (_err) {
+        } catch (err) {
             // IPC failure — do not commit state changes, but still exit draw mode
+            logger.error("Failed to save draw source %s: %s", sourceId, err)
         }
         dispatch(actions.tools.reset())
     }, [dispatch, sourceId, draw])

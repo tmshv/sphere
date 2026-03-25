@@ -1,5 +1,6 @@
 import { EMPTY_GEOJSON } from "@/const"
 import { assertUnreachable } from "@/lib"
+import logger from "@/logger"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
@@ -80,14 +81,18 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             .then(json => {
                 setGeojsonData(JSON.parse(json))
             })
-            .catch(() => {})
+            .catch(err => {
+                logger.error("Failed to fetch GeoJSON source %s: %s", id, err)
+            })
     }, [id, sourceType])
 
     useEffect(() => {
         if (version === null) return
         invoke<string>("source_get", { id })
             .then(json => setGeojsonData(JSON.parse(json)))
-            .catch(() => {})
+            .catch(err => {
+                logger.error("Failed to fetch source %s version %d: %s", id, version, err)
+            })
     }, [id, version])
 
     if (!source) {

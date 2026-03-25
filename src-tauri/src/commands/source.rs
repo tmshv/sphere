@@ -387,6 +387,21 @@ pub async fn source_patch(
     patch: SourcePatch,
     storage: State<'_, SourceStorage>,
 ) -> Result<(), String> {
+    // Parse all features before acquiring the lock to avoid partial state on error.
+    let updated_features: Vec<geojson::Feature> = patch.updated.iter()
+        .map(|v| {
+            serde_json::from_value(v.clone())
+                .map_err(|e| format!("Failed to parse updated feature: {}", e))
+        })
+        .collect::<Result<_, _>>()?;
+
+    let added_features: Vec<geojson::Feature> = patch.added.iter()
+        .map(|v| {
+            serde_json::from_value(v.clone())
+                .map_err(|e| format!("Failed to parse added feature: {}", e))
+        })
+        .collect::<Result<_, _>>()?;
+
     let mut store = storage.store.lock().unwrap();
     let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
     let fc = match &mut entry.source.data {
@@ -406,17 +421,13 @@ pub async fn source_patch(
         }))
     });
 
-    for updated_val in &patch.updated {
-        let updated_feature: geojson::Feature = serde_json::from_value(updated_val.clone())
-            .map_err(|e| format!("Failed to parse updated feature: {}", e))?;
-        if let Some(pos) = fc.features.iter().position(|f| f.id == updated_feature.id) {
-            fc.features[pos] = updated_feature;
+    for updated_feature in updated_features {
+        if let Some(feat) = fc.features.iter_mut().find(|f| f.id == updated_feature.id) {
+            *feat = updated_feature;
         }
     }
 
-    for added_val in &patch.added {
-        let added_feature: geojson::Feature = serde_json::from_value(added_val.clone())
-            .map_err(|e| format!("Failed to parse added feature: {}", e))?;
+    for added_feature in added_features {
         fc.features.push(added_feature);
     }
     assign_feature_ids(fc);

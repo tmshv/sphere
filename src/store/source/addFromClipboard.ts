@@ -28,25 +28,23 @@ function expandFeature(feature: GeoJSON.Feature): GeoJSON.Feature[] {
     return [feature]
 }
 
-function toFeatureCollection(data: any): GeoJSON.FeatureCollection | null {
+function toFeatureCollection(data: GeoJSON.GeoJSON): GeoJSON.FeatureCollection | null {
     if (data.type === "FeatureCollection") {
-        const fc = data as GeoJSON.FeatureCollection
         return {
             type: "FeatureCollection",
-            features: fc.features.flatMap(expandFeature),
+            features: data.features.flatMap(expandFeature),
         }
     }
     if (data.type === "Feature") {
         return {
             type: "FeatureCollection",
-            features: expandFeature(data as GeoJSON.Feature),
+            features: expandFeature(data),
         }
     }
     if (data.type === "GeometryCollection") {
-        const gc = data as GeoJSON.GeometryCollection
         return {
             type: "FeatureCollection",
-            features: gc.geometries.map(geometry => ({
+            features: data.geometries.map(geometry => ({
                 type: "Feature" as const,
                 geometry,
                 properties: {},
@@ -59,7 +57,7 @@ function toFeatureCollection(data: any): GeoJSON.FeatureCollection | null {
         features: [
             {
                 type: "Feature",
-                geometry: data as GeoJSON.Geometry,
+                geometry: data,
                 properties: {},
             },
         ],
@@ -73,7 +71,7 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
             return
         }
 
-        let data: any
+        let data: unknown
         try {
             data = JSON.parse(text)
         } catch {
@@ -81,12 +79,18 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
             return
         }
 
-        if (!data || typeof data !== "object" || !GEOJSON_TYPES.has(data.type)) {
+        if (
+            !data ||
+            typeof data !== "object" ||
+            !("type" in data) ||
+            typeof (data as { type: unknown }).type !== "string" ||
+            !GEOJSON_TYPES.has((data as { type: string }).type)
+        ) {
             logger.warn("Clipboard content is not valid GeoJSON")
             return
         }
 
-        const dataset = toFeatureCollection(data)
+        const dataset = toFeatureCollection(data as GeoJSON.GeoJSON)
         if (!dataset) {
             return
         }

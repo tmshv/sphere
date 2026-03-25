@@ -112,11 +112,11 @@ describe("selector (SourcePanel)", () => {
             id: "s1",
             name: "Source s1",
             type: SourceType.FeatureCollection,
-            location: undefined,
+            location: "memory://s1",
+            version: 0,
             fractionIndex: 0,
             editable: true,
             pending: false,
-            dataset: { type: "FeatureCollection", features: [] },
             meta: { columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 },
         }
         const state = makeRootState({
