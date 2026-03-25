@@ -1,15 +1,16 @@
 import { makeGeojsonSource } from "@/testutils"
+import type { RootState } from "@/store"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { selectCurrentSourceItem, selector } from "./index"
 
-const makeRootState = (overrides: Record<string, any> = {}) =>
+const makeRootState = (overrides: object = {}) =>
     ({
         selection: { selectedIds: [] },
         layer: { items: {}, allIds: [] },
         source: { items: {}, allIds: [] },
         ...overrides,
-    }) as any
+    }) as unknown as RootState
 
 describe("selectCurrentSourceItem", () => {
     test("returns null when no source is selected", () => {
