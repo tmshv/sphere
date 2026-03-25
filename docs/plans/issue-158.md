@@ -1479,14 +1479,14 @@ git commit -m "Add All/Selected toggle to properties table window"
 **Files:**
 - Modify: `CLAUDE.md`
 
-- [ ] **Step 1: Add `source_query_rect` to the IPC Commands table**
+- [x] **Step 1: Add `source_query_rect` to the IPC Commands table**
 
 The table entry (already partially added — verify and finalize):
 ```
 | `source_query_rect` | Rect spatial query: `(id, bbox: [west,south,east,north], mode: "include"\|"intersect") -> Vec<i64>` |
 ```
 
-- [ ] **Step 2: Run full test suite**
+- [x] **Step 2: Run full test suite**
 
 ```bash
 npm test 2>&1 | grep -E "PASS|FAIL|Tests"
@@ -1494,7 +1494,7 @@ npm test 2>&1 | grep -E "PASS|FAIL|Tests"
 
 Expected: all tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add CLAUDE.md

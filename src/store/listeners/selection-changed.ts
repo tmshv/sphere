@@ -1,6 +1,6 @@
-import { actions } from "@/store"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
+import { actions } from "../actions"
 import { invoke } from "@tauri-apps/api/core"
 import { emit } from "@tauri-apps/api/event"
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
