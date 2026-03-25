@@ -129,7 +129,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
 - [x] `src/components/SphereMap/SphereSource.test.ts` — add test: `selectSource` returns `null` for `FeatureCollection` type
 
 ### Task 9: Update Draw.tsx
-- [ ] `src/components/SphereMap/Draw.tsx`:
+- [x] `src/components/SphereMap/Draw.tsx`:
   - Remove the Redux selector that reads `source.dataset` (the `data` selector, lines 18–31)
   - Add a `useEffect` to load features on enter:
     ```tsx
