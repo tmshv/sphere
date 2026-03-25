@@ -215,7 +215,7 @@ impl Source {
                 src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::InMemory(_) => Err("use FeatureStore".into()),
-            _ => Err("Getting schema is not implemented for this type of file".into()),
+            SourceData::Mbtiles(_) => Err("Getting schema is not implemented for this type of file".into()),
         }
     }
     // pub fn to_geo(&self) -> SResult<geo::Geometry<f64>> {
