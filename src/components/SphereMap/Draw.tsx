@@ -21,6 +21,9 @@ export default function Draw({ mapId }: DrawProps) {
             return null
         }
         const source = state.source.items[sourceId]
+        if (!source) {
+            return null
+        }
         if (source.type === SourceType.FeatureCollection && !source.pending) {
             return source.dataset
         }
