@@ -963,7 +963,7 @@ git commit -m "Add mapTool state and MapToolbar floating component"
 - Create: `src/components/SphereMap/RectSelectOverlay.tsx`
 - Modify: `src/components/SphereMap/map-body.tsx`
 
-- [ ] **Step 1: Create `RectSelectOverlay.tsx`**
+- [x] **Step 1: Create `RectSelectOverlay.tsx`**
 
 ```tsx
 import { actions, selectors } from "@/store"
@@ -1101,7 +1101,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
 }
 ```
 
-- [ ] **Step 2: Mount `RectSelectOverlay` in `map-body.tsx`**
+- [x] **Step 2: Mount `RectSelectOverlay` in `map-body.tsx`**
 
 Add import and render:
 
@@ -1112,13 +1112,13 @@ import RectSelectOverlay from "./RectSelectOverlay"
 <RectSelectOverlay mapRef={map} />
 ```
 
-- [ ] **Step 3: Format and confirm no TS errors**
+- [x] **Step 3: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/SphereMap/RectSelectOverlay.tsx src/components/SphereMap/map-body.tsx
