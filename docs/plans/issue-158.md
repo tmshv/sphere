@@ -690,7 +690,7 @@ git commit -m "Add useFeatureState hook for feature-state based selection highli
 - Modify: `src/store/listeners/index.ts`
 - Modify: `src/store/index.ts`
 
-- [ ] **Step 1: Update `clear-selection.ts`**
+- [x] **Step 1: Update `clear-selection.ts`**
 
 Replace the body of the listener effect:
 
@@ -726,14 +726,14 @@ listener.startListening({
 export default listener
 ```
 
-- [ ] **Step 2: Remove `select-features.ts`**
+- [x] **Step 2: Remove `select-features.ts`**
 
 Delete the file:
 ```bash
 rm src/store/listeners/select-features.ts
 ```
 
-- [ ] **Step 3: Update `listeners/index.ts`**
+- [x] **Step 3: Update `listeners/index.ts`**
 
 Remove the `selectFeatures` export; add `selectionChanged` (to be created in Task 11):
 
@@ -743,17 +743,17 @@ export { default as selectFeatures } from "./select-features"
 // (leave selectionChanged for Task 11)
 ```
 
-- [ ] **Step 4: Update `store/index.ts`**
+- [x] **Step 4: Update `store/index.ts`**
 
 Remove `.prepend(listeners.selectFeatures.middleware)` from the middleware chain. Leave a comment for `selectionChanged` to be added in Task 11.
 
-- [ ] **Step 5: Format and confirm no TS errors**
+- [x] **Step 5: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/store/listeners/clear-selection.ts src/store/listeners/index.ts src/store/index.ts
