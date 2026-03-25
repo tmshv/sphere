@@ -1,5 +1,4 @@
 import { useDrawControl } from "@/hooks/useDrawControl"
-import type { OnChangeDraw } from "@/hooks/useDrawControl"
 import logger from "@/logger"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
@@ -16,7 +15,7 @@ export type DrawProps = {
 export default function Draw({ mapId }: DrawProps) {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(state => state.draw.sourceId)
-    const onChange = useCallback<OnChangeDraw>(async (_event, _draw) => {}, [])
+    const onChange = useCallback(async () => {}, [])
 
     const { [mapId]: ref } = useMap()
     const draw = useDrawControl({
@@ -47,27 +46,15 @@ export default function Draw({ mapId }: DrawProps) {
         dispatch(actions.tools.reset())
     }, [dispatch])
 
-    const onDone = useCallback(async () => {
+    const onDone = useCallback(() => {
         if (!sourceId) return
-        try {
-            await invoke("source_replace", {
-                id: sourceId,
-                data: draw.getAll(),
-            })
-            dispatch(actions.source.bumpVersion(sourceId))
-            dispatch(actions.draw.done({ sourceId }))
-        } catch (err) {
-            // IPC failure — do not commit state changes and keep draw mode active so the user can retry
-            logger.error("Failed to save draw source %s: %s", sourceId, err)
-            return
-        }
-        dispatch(actions.tools.reset())
+        dispatch(actions.draw.commit({ sourceId, data: draw.getAll() }))
     }, [dispatch, sourceId, draw])
 
     return (
         <Overlay
             bottom={
-                <Flex gap={"xs"}>
+                <Flex gap="xs">
                     <Button size="xs" color="gray" onClick={onCancel}>
                         Cancel
                     </Button>
