@@ -54,7 +54,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
 - [x] `src-tauri/src/main.rs` — register `source_add_data`, `source_replace`, `source_patch` in `tauri::generate_handler!`
 
 ### Task 3: Update TypeScript types
-- [ ] `src/types/source.ts`:
+- [x] `src/types/source.ts`:
   - `FeatureCollecionSource`: remove `dataset: GeoJSON.FeatureCollection`, add `version: number`, change `location?: string` → `location: string`
   - `PendingFeatureCollecionSource`: remove `dataset?: GeoJSON.FeatureCollection` (type stays; becomes vestigial)
 
