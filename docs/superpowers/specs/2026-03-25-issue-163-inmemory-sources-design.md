@@ -35,7 +35,7 @@ Bump `libsphere` minor version (e.g. `0.x.0 → 0.(x+1).0`) and run `cargo updat
 
 #### `source_add_data(name: String, data: String) -> Result<SourceAddResult, String>`
 
-- Parse `data` as `geojson::FeatureCollection`
+- Parse `data` as `geojson::FeatureCollection` — reject with an error if parsing fails. The frontend always passes a serialized FeatureCollection (the `addFromClipboard` thunk wraps single Feature/Geometry inputs into a FC before calling IPC, and `empty.ts` always sends an empty FC), so non-FC inputs are a caller bug
 - Generate a UUID as the source id
 - Create `Source { id, name, location: format!("memory://{id}"), data: SourceData::InMemory(fc) }`
 - Build `FeatureStore` and store `SourceEntry` in `SourceStorage`
@@ -47,25 +47,27 @@ Bump `libsphere` minor version (e.g. `0.x.0 → 0.(x+1).0`) and run `cargo updat
 - Assert the source data is `InMemory` (only in-memory sources are replaceable)
 - Parse `data` as `geojson::FeatureCollection`
 - Replace `entry.source.data = SourceData::InMemory(new_fc)`
-- Rebuild `entry.store = Some(Arc::new(build_feature_store(&entry.source)?))`
+- Rebuild `entry.store = Some(Arc::new(build_feature_store(&entry.source)?))` — hold the lock through this step (same TOCTOU concern as `source_patch`)
 
 #### `source_patch(id: String, patch: SourcePatch) -> Result<(), String>`
 
 `SourcePatch` struct (deserializable from JSON):
 ```rust
 pub struct SourcePatch {
-    pub added: Vec<serde_json::Value>,    // new features
-    pub updated: Vec<serde_json::Value>,  // features with matching id to replace
-    pub deleted: Vec<serde_json::Value>,  // feature IDs (string or number) to remove
+    pub added: Vec<serde_json::Value>,       // new features (full GeoJSON Feature objects)
+    pub updated: Vec<serde_json::Value>,     // replacement features (full GeoJSON Feature objects, matched by id)
+    pub deleted_ids: Vec<serde_json::Value>, // bare feature IDs (JSON string or number) to remove
 }
 ```
 
+Note: `deleted_ids` holds bare feature IDs (e.g. `"abc123"` or `42`), not feature objects. This avoids ambiguity with `added`/`updated` which hold full features.
+
 Logic:
-1. Lock storage, get mutable `InMemory` FC
-2. Apply `deleted`: remove features whose `id` matches any value in `deleted`
-3. Apply `updated`: for each entry, find feature with matching `id` and replace it
+1. Lock storage, get mutable `InMemory` FC — hold the lock for the entire operation through rebuild
+2. Apply `deleted_ids`: remove features whose `id` field matches any value in `deleted_ids`
+3. Apply `updated`: for each entry, find feature with matching `id` and replace it in-place
 4. Apply `added`: append new features to the FC
-5. Rebuild `FeatureStore`
+5. Rebuild `FeatureStore` while still holding the lock (prevents TOCTOU race)
 
 All three commands are registered in `main.rs` via `tauri::generate_handler!`.
 
@@ -83,7 +85,7 @@ export type FeatureCollecionSource = {
 }
 ```
 
-**`PendingFeatureCollecionSource`** — remove `dataset?: GeoJSON.FeatureCollection`.
+**`PendingFeatureCollecionSource`** — remove `dataset?: GeoJSON.FeatureCollection`. Note: this type becomes dead code after this change — no reducer creates a source with `pending: true`. The type and its `!source.pending` guards are left in place for now but are vestigial.
 
 ### Frontend Source Slice (`src/store/source/index.ts`)
 
@@ -123,7 +125,9 @@ done: PayloadAction<{ sourceId: Id }>
 
 ### Frontend `SphereSource.tsx`
 
-**`selectSource` selector** — `FeatureCollection` case returns `null` (data fetched async, same as `Geojson`).
+**`selectSource` selector** — two places in `SphereSource.tsx` access `source.dataset` and must both be updated:
+- Line 24 (in `selectSource`): `FeatureCollection` case currently returns `{ type: "geojson", data: source.dataset ?? EMPTY_GEOJSON }` — change to return `null`
+- Line 91 (in JSX render): `<Source ... data={source.dataset ?? EMPTY_GEOJSON} />` — change to `<Source ... data={geojsonData} />` (the async-fetched state)
 
 **Component** — `FeatureCollection` and `Geojson` both render `<Source id={id} type="geojson" data={geojsonData} />`.
 
@@ -170,6 +174,23 @@ dispatch(actions.tools.reset())
 
 The draw component no longer reads from `state.source.items[sourceId].dataset`.
 
+`bumpVersion` and `draw.done` order does not matter — `draw.done` only clears `draw.sourceId` and does not read `version`.
+
+### Frontend `zoom-to.ts` listener (`src/store/listeners/zoom-to.ts`)
+
+The `FeatureCollection` case currently zooms using `turf.bbox(source.dataset)`. After removing `dataset`, this must use the Rust backend instead — consistent with how `Geojson` sources get bounds:
+
+```ts
+case SourceType.FeatureCollection: {
+    const reader = new SourceReader(sourceId)
+    const bounds = await reader.getBounds()
+    if (bounds) {
+        listenerApi.dispatch(actions.map.fitBounds({ mapId, bounds }))
+    }
+    break
+}
+```
+
 ## Data Flow After Change
 
 ```
@@ -193,10 +214,19 @@ Draw edit
 
 ## Testing
 
-- `addFromClipboard.test.ts` — mock `@tauri-apps/api/core` (`invoke`), replace mocked `addFeatureCollection` with `addInMemorySource`; test that IPC is called with correct GeoJSON and metadata action is dispatched
-- `empty.ts` — add tests following the same pattern
-- `SphereSource.test.ts` — add test that `selectSource` returns `null` for `FeatureCollection` type
-- Rust unit tests for `source_add_data`, `source_replace`, `source_patch`
+**`addFromClipboard.test.ts`** — all existing `call.dataset` assertions are removed. New pattern for every positive test case:
+- Mock `@tauri-apps/api/core` `invoke` to return `{ id: "test-id", name: "Pasted GeoJSON", location: "memory://test-id" }`
+- Replace mock of `addFeatureCollection` with mock of `addInMemorySource`
+- Assert `invoke` was called with `"source_add_data"` and a `data` arg that round-trips as valid JSON with the correct feature count, geometry types, and properties (replacing the old `call.dataset.features` assertions)
+- Assert `addInMemorySource` was called with `{ id: "test-id", name: "Pasted GeoJSON", location: "memory://test-id", meta }` where `meta` has the correct `pointsCount`/`linesCount`/`polygonsCount`
+- Apply this pattern to all ~12 existing positive test cases (FeatureCollection, Feature, Geometry, GeometryCollection wrapping, property preservation, etc.)
+- Negative-path tests (empty clipboard, invalid JSON, etc.) remain structurally unchanged; assert `invoke` was not called instead of `addFeatureCollection`
+
+**`empty.ts` tests** — new file; mock `invoke` returning `{ id, name, location }`; assert `addInMemorySource` called with empty meta.
+
+**`SphereSource.test.ts`** — add test that `selectSource` returns `null` for a `FeatureCollection` source (the component fetches data async).
+
+**Rust unit tests** — `source_add_data`, `source_replace`, `source_patch` in `src-tauri/src/commands/source.rs` or a dedicated test module.
 
 ## Out of Scope
 
