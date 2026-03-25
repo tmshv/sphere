@@ -52,7 +52,7 @@ export default function Draw({ mapId }: DrawProps) {
         try {
             await invoke("source_replace", {
                 id: sourceId,
-                data: JSON.stringify(draw.getAll()),
+                data: draw.getAll(),
             })
             dispatch(actions.source.bumpVersion(sourceId))
             dispatch(actions.draw.done({ sourceId }))

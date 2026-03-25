@@ -85,8 +85,8 @@ describe("addFromClipboard thunk", () => {
 
         expect(mockInvoke).toHaveBeenCalledOnce()
         expect(mockInvoke).toHaveBeenCalledWith("source_add_data", expect.objectContaining({ name: "Pasted GeoJSON" }))
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: GeoJSON.FeatureCollection }]
+        const parsed = args.data
         expect(parsed.type).toBe("FeatureCollection")
         expect(parsed.features).toHaveLength(1)
     })
@@ -113,8 +113,8 @@ describe("addFromClipboard thunk", () => {
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: GeoJSON.FeatureCollection }]
+        const parsed = args.data
         expect(parsed.type).toBe("FeatureCollection")
         expect(parsed.features).toHaveLength(1)
         expect(parsed.features[0]).toEqual(feature)
@@ -126,8 +126,8 @@ describe("addFromClipboard thunk", () => {
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: GeoJSON.FeatureCollection }]
+        const parsed = args.data
         expect(parsed.type).toBe("FeatureCollection")
         expect(parsed.features).toHaveLength(1)
         expect(parsed.features[0].geometry).toEqual(geometry)
@@ -216,8 +216,8 @@ describe("addFromClipboard thunk", () => {
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: GeoJSON.FeatureCollection }]
+        const parsed = args.data
         expect(parsed.features).toHaveLength(2)
         expect(parsed.features[0].geometry.type).toBe("Point")
         expect(parsed.features[1].geometry.type).toBe("LineString")
@@ -246,8 +246,8 @@ describe("addFromClipboard thunk", () => {
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: GeoJSON.FeatureCollection }]
+        const parsed = args.data
         expect(parsed.features).toHaveLength(2)
         expect(parsed.features[0].geometry.type).toBe("Point")
         expect(parsed.features[0].properties).toEqual({ name: "test" })
@@ -297,8 +297,8 @@ describe("addFromClipboard thunk", () => {
         await addFromClipboard()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: GeoJSON.FeatureCollection }]
+        const parsed = args.data
         expect(parsed.features).toHaveLength(3)
         expect(parsed.features[0].geometry.type).toBe("Point")
         expect(parsed.features[1].geometry.type).toBe("LineString")

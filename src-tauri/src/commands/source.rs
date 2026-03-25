@@ -336,11 +336,10 @@ pub struct SourcePatch {
 #[tauri::command]
 pub async fn source_add_data(
     name: String,
-    data: String,
+    data: geojson::FeatureCollection,
     storage: State<'_, SourceStorage>,
 ) -> Result<SourceAddResult, String> {
-    let mut fc: geojson::FeatureCollection = serde_json::from_str(&data)
-        .map_err(|e| format!("Failed to parse FeatureCollection: {}", e))?;
+    let mut fc = data;
     assign_feature_ids(&mut fc);
     let id = uuid::Uuid::new_v4().to_string();
     let location = format!("memory://{}", id);
@@ -364,13 +363,12 @@ pub async fn source_add_data(
 #[tauri::command]
 pub async fn source_replace(
     id: String,
-    data: String,
+    data: geojson::FeatureCollection,
     storage: State<'_, SourceStorage>,
 ) -> Result<(), String> {
-    // Parse, assign IDs, and build the feature store before acquiring the lock
+    // Assign IDs and build the feature store before acquiring the lock
     // to avoid blocking concurrent IPC calls during expensive CPU work.
-    let mut new_fc: geojson::FeatureCollection = serde_json::from_str(&data)
-        .map_err(|e| format!("Failed to parse FeatureCollection: {}", e))?;
+    let mut new_fc = data;
     assign_feature_ids(&mut new_fc);
     let new_store = Arc::new(FeatureStore::from_features(new_fc.features.clone()));
 

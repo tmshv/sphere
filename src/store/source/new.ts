@@ -7,10 +7,9 @@ import { actions } from "."
 const action = createAsyncThunk("source/new", async (_: undefined, thunkAPI) => {
     const name = `New ${nextId("source")}`
     try {
-        const emptyData = JSON.stringify({ type: "FeatureCollection", features: [] })
         const result = await invoke<{ id: string; name: string; location: string }>("source_add_data", {
             name,
-            data: emptyData,
+            data: { type: "FeatureCollection", features: [] },
         })
         thunkAPI.dispatch(
             actions.addInMemorySource({

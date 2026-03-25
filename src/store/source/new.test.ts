@@ -51,10 +51,8 @@ describe("new thunk", () => {
 
         expect(mockInvoke).toHaveBeenCalledOnce()
         expect(mockInvoke).toHaveBeenCalledWith("source_add_data", expect.objectContaining({ name: "New source-0" }))
-        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
-        const parsed = JSON.parse(args.data)
-        expect(parsed.type).toBe("FeatureCollection")
-        expect(parsed.features).toHaveLength(0)
+        const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: Record<string, unknown> }]
+        expect(args.data).toEqual({ type: "FeatureCollection", features: [] })
     })
 
     test("dispatches addInMemorySource with all-zero meta and IPC result", async () => {

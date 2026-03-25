@@ -97,7 +97,7 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
 
         const result = await invoke<{ id: string; name: string; location: string }>("source_add_data", {
             name: "Pasted GeoJSON",
-            data: JSON.stringify(dataset),
+            data: dataset,
         })
         const meta = computeGeometryMeta(dataset)
         thunkAPI.dispatch(
