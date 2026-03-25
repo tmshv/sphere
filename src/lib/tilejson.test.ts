@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { isRasterTileFormat } from "@/types/tilejson"
+import { isRasterTileFormat } from "@/lib/tilejson"
 
 describe("isRasterTileFormat", () => {
     test("returns true for png", () => {

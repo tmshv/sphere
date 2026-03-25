@@ -1,5 +1,5 @@
 import { LayerType, SourceType } from "@/types"
-import { isRasterTileFormat } from "@/types/tilejson"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"

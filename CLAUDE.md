@@ -83,6 +83,10 @@ The following code smells are strictly forbidden:
 - `store/effects/` - Side effects (file loading, etc.)
 - `ui/` - Reusable UI components (built on Mantine)
 
+**Directory conventions**:
+- `src/types/` — TypeScript types and interfaces only. No runtime logic, no functions, no constants.
+- `src/lib/` — Pure helper functions and utilities. If a function relates to a type from `src/types/`, put it in a same-named file here (e.g. `src/lib/tilejson.ts` for helpers that operate on `TileJSON`).
+
 **Hooks** (`src/hooks/`):
 - `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
 - `useMapNavigation` - Combines `selectors.mapInteraction` (dragPan/scrollZoom/dragRotate toggles) and `selectors.tools.selectNavigationEnabled` to sync MapLibre handler state with Redux
