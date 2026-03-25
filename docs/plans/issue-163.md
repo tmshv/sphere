@@ -156,7 +156,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
   - Remove the old `useEffect` that called `draw.set(data)` on data change
 
 ### Task 10: Update zoom-to.ts listener
-- [ ] `src/store/listeners/zoom-to.ts`:
+- [x] `src/store/listeners/zoom-to.ts`:
   - `FeatureCollection` case: replace `turf.bbox(source.dataset)` with `SourceReader.getBounds()`:
     ```ts
     case SourceType.FeatureCollection: {
