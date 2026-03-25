@@ -1,9 +1,11 @@
 import { invoke } from "@tauri-apps/api/core"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import logger from "@/logger"
+import { nextId } from "@/lib/nextId"
 import { actions } from "."
 
-const action = createAsyncThunk("source/empty", async (name: string, thunkAPI) => {
+const action = createAsyncThunk("source/empty", async (_: void, thunkAPI) => {
+    const name = `New ${nextId("source")}`
     try {
         const emptyData = JSON.stringify({ type: "FeatureCollection", features: [] })
         const result = await invoke<{ id: string; name: string; location: string }>("source_add_data", {

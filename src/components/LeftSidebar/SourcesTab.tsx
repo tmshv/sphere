@@ -1,6 +1,5 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { nextId } from "@/lib/nextId"
 import logger from "@/logger"
 import { SourceType } from "@/types"
 import { ActionBar, type ActionBarOnClick } from "@/ui/ActionBar"
@@ -43,8 +42,7 @@ export const SourcesTab: React.FC = () => {
                     break
                 }
                 case "new": {
-                    const id = nextId("source")
-                    dispatch(actions.source.empty(`New ${id}`)).catch(err => {
+                    dispatch(actions.source.empty()).catch(err => {
                         logger.error("Failed to create new source: %s", err)
                     })
                     break

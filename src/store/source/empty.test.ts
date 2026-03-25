@@ -13,6 +13,10 @@ vi.mock("@/logger", () => ({
     },
 }))
 
+vi.mock("@/lib/nextId", () => ({
+    nextId: vi.fn().mockReturnValue("source-0"),
+}))
+
 vi.mock(".", () => ({
     actions: {
         addInMemorySource: vi.fn().mockImplementation((payload: unknown) => ({
@@ -43,10 +47,10 @@ describe("empty thunk", () => {
     })
 
     test("calls invoke with source_add_data and an empty FeatureCollection", async () => {
-        await empty("My Layer")(store.dispatch, store.getState, undefined)
+        await empty()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        expect(mockInvoke).toHaveBeenCalledWith("source_add_data", expect.objectContaining({ name: "My Layer" }))
+        expect(mockInvoke).toHaveBeenCalledWith("source_add_data", expect.objectContaining({ name: "New source-0" }))
         const [, args] = mockInvoke.mock.calls[0] as [string, { name: string; data: string }]
         const parsed = JSON.parse(args.data)
         expect(parsed.type).toBe("FeatureCollection")
@@ -54,7 +58,7 @@ describe("empty thunk", () => {
     })
 
     test("dispatches addInMemorySource with all-zero meta and IPC result", async () => {
-        await empty("My Layer")(store.dispatch, store.getState, undefined)
+        await empty()(store.dispatch, store.getState, undefined)
 
         expect(mockAddInMemorySource).toHaveBeenCalledOnce()
         const call = mockAddInMemorySource.mock.calls[0][0]
@@ -70,7 +74,7 @@ describe("empty thunk", () => {
     test("does not dispatch addInMemorySource when invoke rejects", async () => {
         mockInvoke.mockRejectedValue(new Error("IPC error"))
 
-        await empty("My Layer")(store.dispatch, store.getState, undefined)
+        await empty()(store.dispatch, store.getState, undefined)
 
         expect(mockAddInMemorySource).not.toHaveBeenCalled()
     })

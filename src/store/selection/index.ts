@@ -2,7 +2,6 @@ import type { Id } from "@/types"
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
-
 // Define a type for the slice state
 type SelectionState = {
     selectedIds: number[]
