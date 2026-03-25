@@ -103,11 +103,12 @@ describe("sourceSlice reducer", () => {
         expect(state.items.s4.pending).toBe(false)
         expect(state.lastAdded).toBe("s4")
         const s4 = state.items.s4
-        if (s4.type === SourceType.FeatureCollection && !s4.pending) {
-            expect(s4.version).toBe(0)
-            expect(s4.location).toBe("memory://s4")
-            expect(s4.meta).toEqual(meta)
+        if (s4.type !== SourceType.FeatureCollection || s4.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
         }
+        expect(s4.version).toBe(0)
+        expect(s4.location).toBe("memory://s4")
+        expect(s4.meta).toEqual(meta)
     })
 
     test("bumpVersion increments version for FeatureCollection source", () => {
@@ -118,14 +119,16 @@ describe("sourceSlice reducer", () => {
         )
         state = reducer(state, bumpVersion("s4"))
         const s4 = state.items.s4
-        if (s4.type === SourceType.FeatureCollection && !s4.pending) {
-            expect(s4.version).toBe(1)
+        if (s4.type !== SourceType.FeatureCollection || s4.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
         }
+        expect(s4.version).toBe(1)
         state = reducer(state, bumpVersion("s4"))
         const s4b = state.items.s4
-        if (s4b.type === SourceType.FeatureCollection && !s4b.pending) {
-            expect(s4b.version).toBe(2)
+        if (s4b.type !== SourceType.FeatureCollection || s4b.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
         }
+        expect(s4b.version).toBe(2)
     })
 
     test("bumpVersion does nothing for non-FeatureCollection source", () => {

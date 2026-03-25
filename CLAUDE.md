@@ -150,6 +150,9 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
 | `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
 | `source_get_column_stats` | Histogram + min/max/mean/unique counts for one column: `(id, column) -> ColumnStats` |
+| `source_add_data`         | Create an in-memory source from a GeoJSON FeatureCollection string: `(name, data) -> { id, name, location, source_type }` |
+| `source_replace`          | Replace all features of an in-memory source: `(id, data: GeoJSON string) -> ()` |
+| `source_patch`            | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |
 | `mbtiles_get_tile`        | Get single tile from MBTiles |
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |

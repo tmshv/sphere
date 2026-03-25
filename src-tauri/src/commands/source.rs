@@ -398,7 +398,7 @@ pub async fn source_patch(
         !patch.deleted_ids.iter().any(|del_id| f.id.as_ref().map_or(false, |fid| {
             match (fid, del_id) {
                 (geojson::feature::Id::Number(n), serde_json::Value::Number(m)) => {
-                    n.as_u64() == m.as_u64()
+                    n.as_f64() == m.as_f64()
                 }
                 (geojson::feature::Id::String(s), serde_json::Value::String(t)) => s == t,
                 _ => false,
@@ -419,6 +419,7 @@ pub async fn source_patch(
             .map_err(|e| format!("Failed to parse added feature: {}", e))?;
         fc.features.push(added_feature);
     }
+    assign_feature_ids(fc);
 
     entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
     Ok(())

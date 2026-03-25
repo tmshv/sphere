@@ -46,12 +46,16 @@ export default function Draw({ mapId }: DrawProps) {
 
     const onDone = useCallback(async () => {
         if (!sourceId) return
-        await invoke("source_replace", {
-            id: sourceId,
-            data: JSON.stringify(draw.getAll()),
-        })
-        dispatch(actions.source.bumpVersion(sourceId))
-        dispatch(actions.draw.done({ sourceId }))
+        try {
+            await invoke("source_replace", {
+                id: sourceId,
+                data: JSON.stringify(draw.getAll()),
+            })
+            dispatch(actions.source.bumpVersion(sourceId))
+            dispatch(actions.draw.done({ sourceId }))
+        } catch (_err) {
+            // IPC failure — do not commit state changes, but still exit draw mode
+        }
         dispatch(actions.tools.reset())
     }, [dispatch, sourceId, draw])
 
