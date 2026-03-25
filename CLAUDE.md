@@ -78,10 +78,14 @@ The following code smells are strictly forbidden:
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
   - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active. Points layer components directly at the already-mounted MapLibre source (no duplicate source created). For GeoJSON/FeatureCollection sources, renders one set of `PointLayer`/`SphereLineStringLayer`/`SpherePolygonLayer` using `preview-${sourceId}-{geometry}` layer IDs. For MVT sources, iterates `source.sourceLayers` and renders all three components per named vector layer using `preview-${sourceId}-${sl.id}-{geometry}` IDs. Passes `selectPreviewLayerIds` result to `useFeatureProperties` (empty array when no preview active, which deactivates feature property lookup to prevent properties slice conflicts). `selectPreviewLayerIds` (in `store/selectors.ts`) is the single authoritative source of which layers are clickable during preview — used by both `SourcePreviewLayer` and `useFeatureSelect`
-  - `map-body.tsx` `selectLayers` - suppresses user layers only during draw mode; tab state must NOT gate layer visibility (doing so was a v0.13.0 regression that hid user layers on the Sources tab)
+  - `map-body.tsx` `selectLayers` - suppresses user layers during draw mode and when a source is actively previewed (`previewSourceId` defined); the v0.13.0 regression (hiding layers on source tab unconditionally) was fixed, but source-preview isolation (hiding layers when a specific source is selected for preview) is intentional
 - `components/LeftSidebar/` - Sources and layers management
 - `store/effects/` - Side effects (file loading, etc.)
 - `ui/` - Reusable UI components (built on Mantine)
+
+**Directory conventions**:
+- `src/types/` — TypeScript types and interfaces only. No runtime logic, no functions, no constants.
+- `src/lib/` — Pure helper functions and utilities. If a function relates to a type from `src/types/`, put it in a same-named file here (e.g. `src/lib/tilejson.ts` for helpers that operate on `TileJSON`).
 
 **Hooks** (`src/hooks/`):
 - `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
@@ -149,6 +153,13 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `mbtiles_get_tile`        | Get single tile from MBTiles |
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |
+
+## State Management Principles
+
+- **Logic belongs outside components** — React components must only dispatch actions and render derived state. Business logic lives in listener middleware (`store/listeners/`), not in event handlers inside components.
+- **Never destroy user input silently** — listeners and reducers must not clear or overwrite user-entered data (filters, field values, etc.) as a side effect of an unrelated action. There is no undo. If two pieces of state become inconsistent (e.g. a vector layer type on a raster source), the selector is responsible for ignoring or suppressing the invalid combination — not the store.
+- **Derived state belongs in selectors** — computed values like option lists, flags, or filtered arrays must be computed in `createSelector` calls, not inline in JSX.
+- **One place per concept** — constants, sets, and predicates (e.g. `RASTER_TILE_FORMATS`, `isRasterTileFormat`) are defined once and imported everywhere. Never inline the same logic in multiple components.
 
 ## UX Principles
 

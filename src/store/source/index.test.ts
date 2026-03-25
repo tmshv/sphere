@@ -55,6 +55,7 @@ describe("sourceSlice reducer", () => {
                 id: "s2",
                 name: "MVT Source",
                 location: "tiles.mbtiles",
+                format: "pbf",
                 tilejson: {
                     tilejson: "3.0.0",
                     tiles: [],
@@ -69,6 +70,10 @@ describe("sourceSlice reducer", () => {
         )
         expect(state.allIds).toContain("s2")
         expect(state.items.s2.type).toBe(SourceType.MVT)
+        const s2 = state.items.s2
+        if (s2.type === SourceType.MVT) {
+            expect(s2.format).toBe("pbf")
+        }
         expect(state.lastAdded).toBe("s2")
     })
 

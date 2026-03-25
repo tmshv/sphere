@@ -2,6 +2,7 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import type { PhotoIconLayout } from "@/store/layer"
 import { LayerType, SourceType } from "@/types"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { ActionBar } from "@/ui/ActionBar"
 import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
@@ -13,6 +14,17 @@ type Option = {
     value: string
     label: string
 }
+
+const RASTER_LAYER_TYPE_OPTIONS = [{ value: LayerType.Raster, label: "Raster" }]
+
+const ALL_LAYER_TYPE_OPTIONS = [
+    { value: LayerType.Point, label: "Points" },
+    { value: LayerType.Line, label: "Lines" },
+    { value: LayerType.Polygon, label: "Polygons" },
+    { value: LayerType.Photo, label: "Photos" },
+    { value: LayerType.Heatmap, label: "Heatmap" },
+    { value: LayerType.Extrusion, label: "Extrusion" },
+]
 
 const sourcesSelector = createSelector([selectors.source.items, selectors.source.allIds], (items, allIds) => {
     return allIds.reduce(
@@ -57,7 +69,7 @@ export const layerSelector = createSelector(
                         value: id,
                         label: id,
                     }))
-                    const vl = source.tilejson.vector_layers.find(x => x.id === layer.sourceLayer)
+                    const vl = source.tilejson.vector_layers?.find(x => x.id === layer.sourceLayer)
                     if (vl) {
                         fields = Object.keys(vl.fields)
                     }
@@ -97,6 +109,14 @@ export const layerSelector = createSelector(
             filterExpression: layer.filter?.expression ?? null,
             filterError: layer.filter?.error ?? null,
             isTileSource: source?.type === SourceType.MVT || source?.type === SourceType.Raster,
+            isRasterMvt:
+                (source?.type === SourceType.MVT && isRasterTileFormat(source.format)) ||
+                source?.type === SourceType.Raster,
+            layerTypeOptions:
+                (source?.type === SourceType.MVT && isRasterTileFormat(source.format)) ||
+                source?.type === SourceType.Raster
+                    ? RASTER_LAYER_TYPE_OPTIONS
+                    : ALL_LAYER_TYPE_OPTIONS,
         }
     },
 )
@@ -234,14 +254,14 @@ export const LayerPanel: React.FC = () => {
                 placeholder="Pick one"
                 value={sourceId}
                 data={sources}
-                onChange={sourceId => {
-                    if (!sourceId) {
+                onChange={newSourceId => {
+                    if (!newSourceId) {
                         return
                     }
                     dispatch(
                         actions.layer.setSource({
                             id: layerId,
-                            sourceId,
+                            sourceId: newSourceId,
                         }),
                     )
                 }}
@@ -269,7 +289,7 @@ export const LayerPanel: React.FC = () => {
                 />
             )}
 
-            {!sourceLayers ? null : (
+            {!sourceLayers?.length ? null : (
                 <Select
                     size="xs"
                     label="Source layer"
@@ -296,15 +316,7 @@ export const LayerPanel: React.FC = () => {
                 label="View"
                 placeholder="Pick one"
                 value={type}
-                data={[
-                    { value: LayerType.Point, label: "Points" },
-                    { value: LayerType.Line, label: "Lines" },
-                    { value: LayerType.Polygon, label: "Polygons" },
-                    { value: LayerType.Photo, label: "Photos" },
-                    { value: LayerType.Heatmap, label: "Heatmap" },
-                    { value: LayerType.Raster, label: "Raster" },
-                    { value: LayerType.Extrusion, label: "Extrusion" },
-                ]}
+                data={layer.layerTypeOptions}
                 onChange={value => {
                     if (value) {
                         dispatch(

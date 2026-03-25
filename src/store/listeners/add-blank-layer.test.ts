@@ -253,6 +253,7 @@ describe("add-blank-layer listener middleware", () => {
                         id: sourceId,
                         type: SourceType.MVT,
                         name: "test",
+                        format: "pbf",
                         sourceLayers: [],
                         pending: false,
                     },
@@ -264,5 +265,30 @@ describe("add-blank-layer listener middleware", () => {
         await vi.runAllTimersAsync()
 
         expect(dispatchedActions.find((a: any) => a.type === "layer/setType")).toBeUndefined()
+    })
+
+    test("dispatches setType Raster for raster MVT source", async () => {
+        const sourceId = "raster-mbtiles-source"
+        const { store, dispatchedActions } = makeStore({
+            source: {
+                items: {
+                    [sourceId]: {
+                        id: sourceId,
+                        type: SourceType.MVT,
+                        name: "test",
+                        format: "png",
+                        sourceLayers: [],
+                        pending: false,
+                    },
+                },
+            },
+        })
+
+        store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
+        await vi.runAllTimersAsync()
+
+        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        expect(setTypeAction).toBeDefined()
+        expect((setTypeAction as any).payload.type).toBe(LayerType.Raster)
     })
 })
