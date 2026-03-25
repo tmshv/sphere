@@ -22,10 +22,10 @@ import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
 
 const selectLayers = createSelector(
-    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
-    (drawing, items, allIds) => {
-        // Do not show layers in draw mode
-        if (drawing) {
+    [selectors.draw.isDrawing, selectors.preview.sourceId, selectors.layer.items, selectors.layer.allIds],
+    (drawing, previewSourceId, items, allIds) => {
+        // Do not show layers in draw mode or when a source is actively previewed
+        if (drawing || previewSourceId) {
             return []
         }
         return allIds
