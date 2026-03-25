@@ -6,7 +6,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import addFromClipboard from "./addFromClipboard"
 import addFromUrl from "./addFromUrl"
-import empty from "./empty"
+import newSource from "./new"
 import reload from "./reload"
 import { showProperties } from "./showProperties"
 
@@ -200,7 +200,7 @@ export const actions = {
     addFromClipboard,
     showProperties,
     reload,
-    empty,
+    new: newSource,
 }
 
 // Other code such as selectors can use the imported `RootState` type

@@ -28,14 +28,14 @@ vi.mock(".", () => ({
 
 import { invoke } from "@tauri-apps/api/core"
 import { actions } from "."
-import empty from "./empty"
+import newSource from "./new"
 
 const mockInvoke = vi.mocked(invoke)
 const mockAddInMemorySource = vi.mocked(actions.addInMemorySource)
 
 const makeStore = () => configureStore({ reducer: (state: Record<string, never> = {}) => state })
 
-describe("empty thunk", () => {
+describe("new thunk", () => {
     let store: ReturnType<typeof makeStore>
     let dispatchSpy: MockInstance
 
@@ -47,7 +47,7 @@ describe("empty thunk", () => {
     })
 
     test("calls invoke with source_add_data and an empty FeatureCollection", async () => {
-        await empty()(store.dispatch, store.getState, undefined)
+        await newSource()(store.dispatch, store.getState, undefined)
 
         expect(mockInvoke).toHaveBeenCalledOnce()
         expect(mockInvoke).toHaveBeenCalledWith("source_add_data", expect.objectContaining({ name: "New source-0" }))
@@ -58,7 +58,7 @@ describe("empty thunk", () => {
     })
 
     test("dispatches addInMemorySource with all-zero meta and IPC result", async () => {
-        await empty()(store.dispatch, store.getState, undefined)
+        await newSource()(store.dispatch, store.getState, undefined)
 
         expect(mockAddInMemorySource).toHaveBeenCalledOnce()
         const call = mockAddInMemorySource.mock.calls[0][0]
@@ -74,7 +74,7 @@ describe("empty thunk", () => {
     test("does not dispatch addInMemorySource when invoke rejects", async () => {
         mockInvoke.mockRejectedValue(new Error("IPC error"))
 
-        await empty()(store.dispatch, store.getState, undefined)
+        await newSource()(store.dispatch, store.getState, undefined)
 
         expect(mockAddInMemorySource).not.toHaveBeenCalled()
     })
