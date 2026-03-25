@@ -93,7 +93,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
   - Negative-path tests: assert `invoke` was NOT called instead of `addFeatureCollection`
 
 ### Task 7: Update empty thunk
-- [ ] `src/store/source/empty.ts`:
+- [x] `src/store/source/empty.ts`:
   - Replace direct `dispatch(actions.addFeatureCollection(...))` with IPC call:
     ```ts
     const emptyData = JSON.stringify({ type: "FeatureCollection", features: [] })
