@@ -771,7 +771,7 @@ git commit -m "Replace select-features listener with useFeatureState hook"
 - Create: `src/components/SphereMap/MapToolbar.tsx`
 - Modify: `src/components/SphereMap/map-body.tsx`
 
-- [ ] **Step 1: Write failing tests for `mapTool`**
+- [x] **Step 1: Write failing tests for `mapTool`**
 
 Add to `src/store/app.test.ts` (create if missing):
 
@@ -800,13 +800,13 @@ describe("app slice mapTool", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to confirm failure**
+- [x] **Step 2: Run tests to confirm failure**
 
 ```bash
 npm test -- src/store/app.test.ts 2>&1 | grep -E "FAIL|setMapTool"
 ```
 
-- [ ] **Step 3: Add `mapTool` to `app.ts`**
+- [x] **Step 3: Add `mapTool` to `app.ts`**
 
 In `src/store/app.ts`, add to `AppState` and `initialState`, and add a `setMapTool` reducer:
 
@@ -841,13 +841,13 @@ const prev = { ...reducer(undefined, { type: "@@INIT" }), zenMode: true }
 
 Apply this pattern to all 5 existing `prev` objects in the `appSlice reducer` describe block.
 
-- [ ] **Step 4: Run tests to confirm they pass**
+- [x] **Step 4: Run tests to confirm they pass**
 
 ```bash
 npm test -- src/store/app.test.ts 2>&1 | grep -E "PASS|FAIL"
 ```
 
-- [ ] **Step 5: Create `MapToolbar.tsx`**
+- [x] **Step 5: Create `MapToolbar.tsx`**
 
 ```tsx
 import { actions } from "@/store"
@@ -931,7 +931,7 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
 }
 ```
 
-- [ ] **Step 6: Mount `MapToolbar` in `map-body.tsx`**
+- [x] **Step 6: Mount `MapToolbar` in `map-body.tsx`**
 
 Add import and render inside `MapBody`:
 
@@ -942,13 +942,13 @@ import MapToolbar from "./MapToolbar"
 <MapToolbar mapRef={map} />
 ```
 
-- [ ] **Step 7: Format and confirm no TS errors**
+- [x] **Step 7: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/store/app.ts src/store/app.test.ts src/components/SphereMap/MapToolbar.tsx src/components/SphereMap/map-body.tsx
