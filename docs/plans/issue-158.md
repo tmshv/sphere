@@ -50,7 +50,7 @@
 **Files:**
 - Modify: `crates/libsphere/src/store.rs`
 
-- [ ] **Step 1: Write failing tests for `query_rect`**
+- [x] **Step 1: Write failing tests for `query_rect`**
 
 Add to the `#[cfg(test)]` block in `crates/libsphere/src/store.rs`:
 
@@ -138,7 +138,7 @@ fn test_query_rect_feature_without_id_excluded() {
 }
 ```
 
-- [ ] **Step 2: Run tests to confirm they fail**
+- [x] **Step 2: Run tests to confirm they fail**
 
 ```bash
 cd src-tauri && cargo test -p libsphere -- store::tests::test_query_rect 2>&1 | grep -E "FAILED|error|test_query_rect"
@@ -146,7 +146,7 @@ cd src-tauri && cargo test -p libsphere -- store::tests::test_query_rect 2>&1 | 
 
 Expected: compile error or `test_query_rect` functions not found.
 
-- [ ] **Step 3: Implement `query_rect` on `FeatureStore`**
+- [x] **Step 3: Implement `query_rect` on `FeatureStore`**
 
 In `crates/libsphere/src/store.rs`, add at the top of the file:
 ```rust
@@ -206,7 +206,7 @@ pub fn query_rect(&self, bbox: [f64; 4], mode: &str) -> Vec<i64> {
 }
 ```
 
-- [ ] **Step 4: Run tests to confirm they pass**
+- [x] **Step 4: Run tests to confirm they pass**
 
 ```bash
 cd src-tauri && cargo test -p libsphere -- store::tests::test_query_rect 2>&1 | grep -E "ok|FAILED|error"
@@ -214,7 +214,7 @@ cd src-tauri && cargo test -p libsphere -- store::tests::test_query_rect 2>&1 | 
 
 Expected: all `test_query_rect_*` tests show `ok`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/libsphere/src/store.rs
