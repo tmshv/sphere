@@ -1,6 +1,6 @@
 [package]
 name = "sphere"
-version = "0.13.3"
+version = "0.14.0"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
