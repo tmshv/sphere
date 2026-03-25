@@ -75,7 +75,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
 - [x] `src/store/draw.test.ts` — update `done` action tests to use payload `{ sourceId: "s1" }` only (remove `featureCollection` from test payloads)
 
 ### Task 6: Update addFromClipboard thunk and tests
-- [ ] `src/store/source/addFromClipboard.ts`:
+- [x] `src/store/source/addFromClipboard.ts`:
   - After building the `GeoJSON.FeatureCollection` (existing `toFeatureCollection` logic unchanged)
   - Replace `const id = crypto.randomUUID(); dispatch(actions.addFeatureCollection(...))` with:
     ```ts
@@ -86,7 +86,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
     const meta = computeGeometryMeta(dataset)
     thunkAPI.dispatch(actions.addInMemorySource({ id: result.id, name: result.name, location: result.location, meta }))
     ```
-- [ ] `src/store/source/addFromClipboard.test.ts` — rewrite all positive test assertions:
+- [x] `src/store/source/addFromClipboard.test.ts` — rewrite all positive test assertions:
   - Mock `@tauri-apps/api/core` (`invoke`) to return `{ id: "test-id", name: "Pasted GeoJSON", location: "memory://test-id" }`
   - Replace mock of `addFeatureCollection` with mock of `addInMemorySource`
   - For each test case assert: `invoke` called with `"source_add_data"` and the correct `data` JSON string (feature count/geometry types), and `addInMemorySource` called with correct `meta`

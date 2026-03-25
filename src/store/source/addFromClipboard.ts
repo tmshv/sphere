@@ -1,7 +1,8 @@
 import logger from "@/logger"
 import { createAsyncThunk } from "@reduxjs/toolkit"
+import { invoke } from "@tauri-apps/api/core"
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
-import { actions } from "."
+import { actions, computeGeometryMeta } from "."
 
 const GEOJSON_TYPES = new Set([
     "FeatureCollection",
@@ -90,13 +91,13 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
             return
         }
 
-        const id = crypto.randomUUID()
+        const result = await invoke<{ id: string; name: string; location: string }>("source_add_data", {
+            name: "Pasted GeoJSON",
+            data: JSON.stringify(dataset),
+        })
+        const meta = computeGeometryMeta(dataset)
         thunkAPI.dispatch(
-            actions.addFeatureCollection({
-                id,
-                name: "Pasted GeoJSON",
-                dataset,
-            }),
+            actions.addInMemorySource({ id: result.id, name: result.name, location: result.location, meta }),
         )
     } catch (error) {
         logger.error("Failed to paste GeoJSON from clipboard: %s", error)
