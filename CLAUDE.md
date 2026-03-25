@@ -11,7 +11,6 @@ Sphere is a geospatial data visualization and editing desktop application built 
 - Branch names use the format `issue-XX` (e.g. `issue-79`)
 - Commit messages are single-line
 - PR descriptions contain only a short summary of what was done (no test plan section)
-
 ## Build & Development Commands
 
 ```bash
@@ -30,6 +29,8 @@ npm run tauri build      # Build production app
 # Versioning
 npm version patch         # Bump version in package.json, tauri.conf.json, Cargo.toml, and Cargo.lock
 ```
+
+When modifying any file inside a `crates/<name>/` directory, bump the minor version of that crate in its `Cargo.toml` (e.g. `0.1.0` → `0.2.0`) and run `cargo update -p <name>` from the workspace root (`src-tauri/`) to update the lock file. Bump only once per PR, not per commit.
 
 ## Testing Policy
 
