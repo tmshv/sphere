@@ -57,8 +57,9 @@ export default function Draw({ mapId }: DrawProps) {
             dispatch(actions.source.bumpVersion(sourceId))
             dispatch(actions.draw.done({ sourceId }))
         } catch (err) {
-            // IPC failure — do not commit state changes, but still exit draw mode
+            // IPC failure — do not commit state changes and keep draw mode active so the user can retry
             logger.error("Failed to save draw source %s: %s", sourceId, err)
+            return
         }
         dispatch(actions.tools.reset())
     }, [dispatch, sourceId, draw])
