@@ -1,3 +1,4 @@
+import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
 import { sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
@@ -21,7 +22,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
     color,
     visible,
 }) => {
-    const [fill, outline0, outline1, selected] = useMemo(() => {
+    const [fill, outline0, outline1] = useMemo(() => {
         const fill: FillPaint = {
             "fill-color": color,
             "fill-opacity": 0.25,
@@ -35,15 +36,21 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
             // "line-offset": 0,
         }
         const outline1: LinePaint = {
-            "line-color": color,
-            "line-width": 1,
-        }
-        const selected: LinePaint = {
-            "line-color": "white",
-            "line-width": 3,
+            "line-color": [
+                "let",
+                "sel",
+                ["boolean", ["feature-state", "selected"], false],
+                ["case", ["var", "sel"], FEATURE_HIGHLIGHT_COLOR, color],
+            ],
+            "line-width": [
+                "let",
+                "sel",
+                ["boolean", ["feature-state", "selected"], false],
+                ["case", ["var", "sel"], 3, 1],
+            ],
         }
 
-        return [fill, outline0, outline1, selected]
+        return [fill, outline0, outline1]
     }, [color])
 
     return (
@@ -83,19 +90,6 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     visibility: visibility(visible),
                 }}
                 filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
-                {...sourceLayerProp(sourceLayer)}
-            />
-            <Layer
-                id={`${layerId}-selected`}
-                source={sourceId}
-                type={"line"}
-                paint={selected}
-                layout={{
-                    "line-cap": "round",
-                    "line-join": "round",
-                    visibility: visibility(visible),
-                }}
-                filter={["in", "id", ""]}
                 {...sourceLayerProp(sourceLayer)}
             />
         </>

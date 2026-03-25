@@ -437,13 +437,13 @@ The `let`/`var` pattern for feature-state paint:
 ]
 ```
 
-- [ ] **Step 1: Add `FEATURE_HIGHLIGHT_COLOR` to `src/const.ts`**
+- [x] **Step 1: Add `FEATURE_HIGHLIGHT_COLOR` to `src/const.ts`**
 
 ```ts
 export const FEATURE_HIGHLIGHT_COLOR = "#00E5FF"
 ```
 
-- [ ] **Step 2: Update `PointLayer.tsx`**
+- [x] **Step 2: Update `PointLayer.tsx`**
 
 Remove the `selected` paint object and the `${layerId}-selected` `<Layer>`. Import the constant and update the circle paint to use feature-state:
 
@@ -470,7 +470,7 @@ const circle: CirclePaint = {
 // Keep only the main <Layer id={layerId} ...>
 ```
 
-- [ ] **Step 3: Update `ShpereLineStringLayer.tsx`**
+- [x] **Step 3: Update `ShpereLineStringLayer.tsx`**
 
 Remove the `selected` paint and the `${layerId}-selected` `<Layer>`. Import the constant and update the main line paint:
 
@@ -492,7 +492,7 @@ const line: LinePaint = {
 // Remove ${layerId}-selected <Layer> entirely
 ```
 
-- [ ] **Step 4: Update `SpherePolygonLayer.tsx`**
+- [x] **Step 4: Update `SpherePolygonLayer.tsx`**
 
 Remove the `selected` paint and the `${layerId}-selected` `<Layer>`. Import the constant and update the outline-1 layer to change color on selection:
 
@@ -514,7 +514,7 @@ const outline1: LinePaint = {
 // Remove ${layerId}-selected <Layer> entirely
 ```
 
-- [ ] **Step 5: Format and confirm no TS errors**
+- [x] **Step 5: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
@@ -522,7 +522,7 @@ npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/const.ts src/components/SphereMap/PointLayer.tsx src/components/SphereMap/ShpereLineStringLayer.tsx src/components/SphereMap/SpherePolygonLayer.tsx

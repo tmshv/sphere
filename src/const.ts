@@ -28,3 +28,4 @@ export const EMPTY_GEOJSON = {
     type: "FeatureCollection",
     features: [],
 }
+export const FEATURE_HIGHLIGHT_COLOR = "#00E5FF"
