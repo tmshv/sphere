@@ -155,16 +155,14 @@ impl Source {
     }
 
     pub fn to_feature_collection(&self) -> Result<geojson::FeatureCollection, String> {
-        if let SourceData::InMemory(fc) = &self.data {
-            return Ok(fc.clone());
-        }
         let raw = match &self.data {
+            SourceData::InMemory(fc) => return Ok(fc.clone()),
             SourceData::Shapefile(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Geojson(src) => src.read().map_err(|e| e.to_string())?,
             SourceData::GeojsonSeq(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Csv(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Gpx(src) => src.to_geojson().map_err(|e| e.to_string())?,
-            _ => return Err("No".into()),
+            SourceData::Mbtiles(_) => return Err("MBTiles sources cannot be converted to FeatureCollection".into()),
         };
         let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
         let mut fc = match geojson {

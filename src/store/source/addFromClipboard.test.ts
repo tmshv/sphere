@@ -101,6 +101,9 @@ describe("addFromClipboard thunk", () => {
         expect(call.id).toBe("test-id")
         expect(call.name).toBe("Pasted GeoJSON")
         expect(call.location).toBe("memory://test-id")
+        expect(call.meta.pointsCount).toBe(1)
+        expect(call.meta.linesCount).toBe(0)
+        expect(call.meta.polygonsCount).toBe(0)
         expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "source/addInMemorySource" }))
     })
 

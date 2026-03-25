@@ -131,6 +131,24 @@ describe("sourceSlice reducer", () => {
         expect(s4b.version).toBe(2)
     })
 
+    test("bumpVersion does nothing for pending FeatureCollection source", () => {
+        const state = {
+            items: {
+                s4: {
+                    id: "s4",
+                    name: "FC Source",
+                    fractionIndex: 0,
+                    type: SourceType.FeatureCollection,
+                    editable: true as const,
+                    pending: true as const,
+                },
+            },
+            allIds: ["s4"],
+        }
+        const next = reducer(state as any, bumpVersion("s4"))
+        expect(next.items.s4).toEqual(state.items.s4)
+    })
+
     test("bumpVersion does nothing for non-FeatureCollection source", () => {
         let state = reducer(
             undefined,
