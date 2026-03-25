@@ -21,8 +21,8 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
 - [x] Run `cargo update -p libsphere` from workspace root to update lock file
 
 ### Task 2: Add new Tauri commands
-- [ ] `src-tauri/Cargo.toml` — add `uuid = { version = "1", features = ["v4"] }` for UUID generation
-- [ ] `src-tauri/src/commands/source.rs` — add `SourcePatch` struct:
+- [x] `src-tauri/Cargo.toml` — add `uuid = { version = "1", features = ["v4"] }` for UUID generation
+- [x] `src-tauri/src/commands/source.rs` — add `SourcePatch` struct:
   ```rust
   #[derive(serde::Deserialize, Debug)]
   pub struct SourcePatch {
@@ -31,27 +31,27 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
       pub deleted_ids: Vec<serde_json::Value>,
   }
   ```
-- [ ] Add `source_add_data(name: String, data: String, storage: State<'_, SourceStorage>) -> Result<SourceAddResult, String>`:
+- [x] Add `source_add_data(name: String, data: String, storage: State<'_, SourceStorage>) -> Result<SourceAddResult, String>`:
   - Parse `data` as `geojson::FeatureCollection` (reject non-FC with error — frontend always sends a FC)
   - Call `assign_feature_ids(&mut fc)` (reuse `libsphere::schema::assign_feature_ids`)
   - Generate UUID: `uuid::Uuid::new_v4().to_string()`
   - Create `Source { id, name, location: format!("memory://{id}"), data: SourceData::InMemory(fc) }`
   - Build `FeatureStore`, store `SourceEntry`, return `SourceAddResult { id, name, location, source_type: "geojson".into() }`
-- [ ] Add `source_replace(id: String, data: String, storage: State<'_, SourceStorage>) -> Result<(), String>`:
+- [x] Add `source_replace(id: String, data: String, storage: State<'_, SourceStorage>) -> Result<(), String>`:
   - Lock storage for the entire operation (replace + rebuild)
   - Get mutable entry, assert `SourceData::InMemory`
   - Parse `data` as `geojson::FeatureCollection`
   - Call `assign_feature_ids(&mut new_fc)` to normalize IDs
   - Replace `entry.source.data = SourceData::InMemory(new_fc)`
   - Rebuild: `entry.store = Some(Arc::new(build_feature_store(&entry.source)?))`
-- [ ] Add `source_patch(id: String, patch: SourcePatch, storage: State<'_, SourceStorage>) -> Result<(), String>`:
+- [x] Add `source_patch(id: String, patch: SourcePatch, storage: State<'_, SourceStorage>) -> Result<(), String>`:
   - Lock storage for the entire operation
   - Get mutable `InMemory` FC
   - Apply `deleted_ids`: remove features whose `.id` field matches any value in `deleted_ids`
   - Apply `updated`: find feature with matching `.id` and replace in-place
   - Apply `added`: parse and append new features
   - Rebuild `FeatureStore`
-- [ ] `src-tauri/src/main.rs` — register `source_add_data`, `source_replace`, `source_patch` in `tauri::generate_handler!`
+- [x] `src-tauri/src/main.rs` — register `source_add_data`, `source_replace`, `source_patch` in `tauri::generate_handler!`
 
 ### Task 3: Update TypeScript types
 - [ ] `src/types/source.ts`:
