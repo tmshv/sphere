@@ -150,6 +150,12 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |
 
+## State Management Principles
+
+- **Logic belongs outside components** — React components must only dispatch actions and render derived state. Business logic (e.g. "switching to a raster source should reset the layer type") lives in listener middleware (`store/listeners/`), not in event handlers inside components.
+- **Derived state belongs in selectors** — computed values like option lists, flags, or filtered arrays must be computed in `createSelector` calls, not inline in JSX.
+- **One place per concept** — constants, sets, and predicates (e.g. `RASTER_TILE_FORMATS`, `isRasterTileFormat`) are defined once and imported everywhere. Never inline the same logic in multiple components.
+
 ## UX Principles
 
 - **Honest empty state** — never fake state or show placeholders that imply data exists. If a filter (e.g. "Selected" in the attribute table) yields no results because nothing is selected, show an empty table. Do not hide the control or substitute a message that obscures the real state.
