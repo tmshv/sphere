@@ -76,11 +76,16 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     switch (type) {
         case SourceType.FeatureCollection: {
             return (
-                <Source id={id} type="geojson" data={source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection)} />
+                <Source
+                    id={id}
+                    type="geojson"
+                    data={source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection)}
+                    promoteId="id"
+                />
             )
         }
         case SourceType.Geojson: {
-            return <Source id={id} type="geojson" data={geojsonData} />
+            return <Source id={id} type="geojson" data={geojsonData} promoteId="id" />
         }
         case SourceType.MVT: {
             return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />

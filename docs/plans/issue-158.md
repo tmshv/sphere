@@ -382,7 +382,7 @@ git commit -m "Add selectMany action and fix selectOne to clear sourceId"
 **Files:**
 - Modify: `src/components/SphereMap/SphereSource.tsx`
 
-- [ ] **Step 1: Add `promoteId="id"` to both GeoJSON source branches**
+- [x] **Step 1: Add `promoteId="id"` to both GeoJSON source branches**
 
 In `src/components/SphereMap/SphereSource.tsx`, update `FeatureCollection` and `Geojson` branches:
 
@@ -398,7 +398,7 @@ In `src/components/SphereMap/SphereSource.tsx`, update `FeatureCollection` and `
 
 MVT and Raster branches are unchanged.
 
-- [ ] **Step 2: Format and confirm no TS errors**
+- [x] **Step 2: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
@@ -406,7 +406,7 @@ npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 
 Expected: no TypeScript errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/SphereMap/SphereSource.tsx
