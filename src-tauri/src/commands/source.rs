@@ -416,7 +416,7 @@ pub async fn source_patch(
         !patch.deleted_ids.iter().any(|del_id| f.id.as_ref().map_or(false, |fid| {
             match (fid, del_id) {
                 (geojson::feature::Id::Number(n), serde_json::Value::Number(m)) => {
-                    n.as_u64() == m.as_u64()
+                    n.as_f64() == m.as_f64()
                 }
                 (geojson::feature::Id::String(s), serde_json::Value::String(t)) => s == t,
                 _ => false,
