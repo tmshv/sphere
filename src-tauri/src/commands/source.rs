@@ -1,10 +1,10 @@
 use libsphere::FeatureStore;
 use libsphere::Bounds;
 use libsphere::PageResult;
-use libsphere::schema::SourceSchema;
+use libsphere::schema::{assign_feature_ids, SourceSchema};
 use libsphere::source::{Source, SourceData};
 use mbtiles::tile::Tile;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -324,4 +324,102 @@ pub async fn source_get_column_stats(
         unique_count,
         top_values,
     })
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SourcePatch {
+    pub added: Vec<serde_json::Value>,
+    pub updated: Vec<serde_json::Value>,
+    pub deleted_ids: Vec<serde_json::Value>,
+}
+
+#[tauri::command]
+pub async fn source_add_data(
+    name: String,
+    data: String,
+    storage: State<'_, SourceStorage>,
+) -> Result<SourceAddResult, String> {
+    let mut fc: geojson::FeatureCollection = serde_json::from_str(&data)
+        .map_err(|e| format!("Failed to parse FeatureCollection: {}", e))?;
+    assign_feature_ids(&mut fc);
+    let id = uuid::Uuid::new_v4().to_string();
+    let location = format!("memory://{}", id);
+    let source = Source {
+        id: id.clone(),
+        name: name.clone(),
+        location: location.clone(),
+        data: SourceData::InMemory(fc),
+    };
+    let store = Arc::new(build_feature_store(&source)?);
+    let entry = SourceEntry { source, store: Some(store) };
+    storage.store.lock().unwrap().insert(id.clone(), entry);
+    Ok(SourceAddResult {
+        id,
+        name,
+        location,
+        source_type: "geojson".into(),
+    })
+}
+
+#[tauri::command]
+pub async fn source_replace(
+    id: String,
+    data: String,
+    storage: State<'_, SourceStorage>,
+) -> Result<(), String> {
+    let mut store = storage.store.lock().unwrap();
+    let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
+    match &entry.source.data {
+        SourceData::InMemory(_) => {}
+        _ => return Err(format!("Source {} is not an in-memory source", id)),
+    }
+    let mut new_fc: geojson::FeatureCollection = serde_json::from_str(&data)
+        .map_err(|e| format!("Failed to parse FeatureCollection: {}", e))?;
+    assign_feature_ids(&mut new_fc);
+    entry.source.data = SourceData::InMemory(new_fc);
+    entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn source_patch(
+    id: String,
+    patch: SourcePatch,
+    storage: State<'_, SourceStorage>,
+) -> Result<(), String> {
+    let mut store = storage.store.lock().unwrap();
+    let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
+    let fc = match &mut entry.source.data {
+        SourceData::InMemory(fc) => fc,
+        _ => return Err(format!("Source {} is not an in-memory source", id)),
+    };
+
+    fc.features.retain(|f| {
+        !patch.deleted_ids.iter().any(|del_id| f.id.as_ref().map_or(false, |fid| {
+            match (fid, del_id) {
+                (geojson::feature::Id::Number(n), serde_json::Value::Number(m)) => {
+                    n.as_u64() == m.as_u64()
+                }
+                (geojson::feature::Id::String(s), serde_json::Value::String(t)) => s == t,
+                _ => false,
+            }
+        }))
+    });
+
+    for updated_val in &patch.updated {
+        let updated_feature: geojson::Feature = serde_json::from_value(updated_val.clone())
+            .map_err(|e| format!("Failed to parse updated feature: {}", e))?;
+        if let Some(pos) = fc.features.iter().position(|f| f.id == updated_feature.id) {
+            fc.features[pos] = updated_feature;
+        }
+    }
+
+    for added_val in &patch.added {
+        let added_feature: geojson::Feature = serde_json::from_value(added_val.clone())
+            .map_err(|e| format!("Failed to parse added feature: {}", e))?;
+        fc.features.push(added_feature);
+    }
+
+    entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
+    Ok(())
 }

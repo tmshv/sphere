@@ -40,6 +40,9 @@ async fn main() {
             commands::source::source_query_page,
             commands::source::source_get_column_stats,
             commands::source::source_get_filtered,
+            commands::source::source_add_data,
+            commands::source::source_replace,
+            commands::source::source_patch,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();
