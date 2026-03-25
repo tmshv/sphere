@@ -106,7 +106,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
   - Change to `createAsyncThunk` since it now needs `await`
 
 ### Task 8: Update SphereSource.tsx
-- [ ] `src/components/SphereMap/SphereSource.tsx`:
+- [x] `src/components/SphereMap/SphereSource.tsx`:
   - `selectSource` — `FeatureCollection` case: return `null` (data fetched async; remove `source.dataset` reference at line 24)
   - Add `version` selector:
     ```tsx
@@ -126,7 +126,7 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
     }, [id, version])
     ```
   - JSX `FeatureCollection` case: change from `<Source ... data={source.dataset ?? EMPTY_GEOJSON} />` to `<Source id={id} type="geojson" data={geojsonData} />` (remove `source.dataset` reference at line 91)
-- [ ] `src/components/SphereMap/SphereSource.test.ts` — add test: `selectSource` returns `null` for `FeatureCollection` type
+- [x] `src/components/SphereMap/SphereSource.test.ts` — add test: `selectSource` returns `null` for `FeatureCollection` type
 
 ### Task 9: Update Draw.tsx
 - [ ] `src/components/SphereMap/Draw.tsx`:
