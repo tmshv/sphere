@@ -13,12 +13,12 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
 ## Tasks
 
 ### Task 1: Add `SourceData::InMemory` to libsphere
-- [ ] `crates/libsphere/src/source.rs` — add `InMemory(geojson::FeatureCollection)` to `SourceData` enum
-- [ ] Implement `to_feature_collection()` for `InMemory`: clone the stored FC and return it (no need to call `assign_feature_ids` here — IDs are assigned at storage time in `source_add_data`/`source_replace`)
-- [ ] Implement `get_bounds()` for `InMemory`: return `None` (the `FeatureStore` always provides bounds for InMemory sources)
-- [ ] Implement `get_schema()` for `InMemory`: return `Err("use FeatureStore".into())` (FeatureStore is always present; `source_get_schema` uses `entry.store` first)
-- [ ] `crates/libsphere/Cargo.toml` — bump version `0.2.0` → `0.3.0`
-- [ ] Run `cargo update -p libsphere` from workspace root to update lock file
+- [x] `crates/libsphere/src/source.rs` — add `InMemory(geojson::FeatureCollection)` to `SourceData` enum
+- [x] Implement `to_feature_collection()` for `InMemory`: clone the stored FC and return it (no need to call `assign_feature_ids` here — IDs are assigned at storage time in `source_add_data`/`source_replace`)
+- [x] Implement `get_bounds()` for `InMemory`: return `None` (the `FeatureStore` always provides bounds for InMemory sources)
+- [x] Implement `get_schema()` for `InMemory`: return `Err("use FeatureStore".into())` (FeatureStore is always present; `source_get_schema` uses `entry.store` first)
+- [x] `crates/libsphere/Cargo.toml` — bump version `0.2.0` → `0.3.0`
+- [x] Run `cargo update -p libsphere` from workspace root to update lock file
 
 ### Task 2: Add new Tauri commands
 - [ ] `src-tauri/Cargo.toml` — add `uuid = { version = "1", features = ["v4"] }` for UUID generation
