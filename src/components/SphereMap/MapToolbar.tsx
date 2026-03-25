@@ -28,6 +28,13 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
         }
     }, [mapRef, mapTool])
 
+    // Reset to pan when leaving Sources tab to prevent dragPan staying disabled
+    useEffect(() => {
+        if (activeTab !== "sources") {
+            dispatch(actions.app.setMapTool("pan"))
+        }
+    }, [activeTab, dispatch])
+
     // Escape key returns to pan
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {

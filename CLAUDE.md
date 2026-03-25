@@ -66,10 +66,10 @@ The following code smells are strictly forbidden:
 ### Frontend (`src/`)
 
 **State Management**: Redux Toolkit with listener middleware for side effects. Key slices:
-- `app` - UI state (dark theme, sidebar visibility, active sidebar tab)
+- `app` - UI state (dark theme, sidebar visibility, active sidebar tab, map tool mode (`"pan"` | `"select"`))
 - `layer` - Layer management and styling
 - `source` - Data source management
-- `selection` - Selected map features
+- `selection` - Selected map features. `selectOne` sets `layerId`, clears `sourceId`; `selectMany` sets `sourceId`, clears `layerId` — mutually exclusive, and `useFeatureState` depends on this invariant
 - `draw` - Drawing mode state
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
 
@@ -77,6 +77,8 @@ The following code smells are strictly forbidden:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
   - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active. Points layer components directly at the already-mounted MapLibre source (no duplicate source created). For GeoJSON/FeatureCollection sources, renders one set of `PointLayer`/`SphereLineStringLayer`/`SpherePolygonLayer` using `preview-${sourceId}-{geometry}` layer IDs. For MVT sources, iterates `source.sourceLayers` and renders all three components per named vector layer using `preview-${sourceId}-${sl.id}-{geometry}` IDs. Passes `selectPreviewLayerIds` result to `useFeatureProperties` (empty array when no preview active, which deactivates feature property lookup to prevent properties slice conflicts). `selectPreviewLayerIds` (in `store/selectors.ts`) is the single authoritative source of which layers are clickable during preview — used by both `SourcePreviewLayer` and `useFeatureSelect`
   - `map-body.tsx` `selectLayers` - suppresses user layers only during draw mode; tab state must NOT gate layer visibility (doing so was a v0.13.0 regression that hid user layers on the Sources tab)
+  - `MapToolbar` - Floating Pan/Rect-Select toggle, visible on Sources tab only. Resets to `"pan"` whenever the user leaves the Sources tab (to avoid leaving `dragPan` disabled). Escape key also resets to pan
+  - `RectSelectOverlay` - Transparent overlay that captures mouse drag when `mapTool === "select"`. Drag left-to-right = `"include"` mode (solid border); right-to-left = `"intersect"` mode (dashed border). Calls `source_query_rect` and dispatches `selectMany`. Requires `selectors.selection.currentSourceId` to be set (set by `selectMany`; absent when `selectOne` used)
 - `components/LeftSidebar/` - Sources and layers management
 - `store/effects/` - Side effects (file loading, etc.)
 - `ui/` - Reusable UI components (built on Mantine)
@@ -84,10 +86,14 @@ The following code smells are strictly forbidden:
 **Hooks** (`src/hooks/`):
 - `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
 
+**Sphere Hooks** (`src/sphere-hooks/`):
+- `useFeatureState` - Drives MapLibre `setFeatureState({ selected: true })` for all `selectedIds` in the selection slice. Resolves the MapLibre source ID from `layerId` (via `layer.items`) for single-feature selections, or from `selectionSourceId` directly for multi-select (`selectMany`). Requires `promoteId="id"` on the source (set by `SphereSource`). Clears previous highlights via `removeFeatureState` before applying new ones
+- `useFeatureSelect` - No-op in pan tool mode; in select tool mode registers a click handler that dispatches `selectOne` for numeric feature IDs or `resetFeature` for clicks on empty space
+
 ### Backend (`src-tauri/`)
 
 Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
-- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics, rect spatial queries
 - `system.rs` - System utilities (show in finder)
 
 State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source` and an optional `FeatureStore` (built at load time; absent for MBTiles sources).
@@ -128,6 +134,10 @@ State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with
 **Event System**: Tauri events handle:
 - Theme changes (system dark/light mode)
 - Drag-and-drop file handling
+- Inter-window events for the properties table window:
+  - `properties-set` — main → properties window: sets source, schema, filter expression
+  - `properties-init` — properties window → main: signals window is ready
+  - `properties-selection-changed` — main → properties window: `{ sourceId, selectedIds }` emitted on every `selectOne`/`selectMany` to drive the All/Selected filter toggle
 
 **Plugins Used**: fs, dialog, http, clipboard
 

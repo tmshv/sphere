@@ -3,12 +3,12 @@ import { selectMapTool } from "@/store/app"
 import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { invoke } from "@tauri-apps/api/core"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
 type Point = { x: number; y: number }
 
-const RECT_FILL_ALPHA = "18" // hex alpha ~10% opacity
+const RECT_FILL_OPACITY = 0.1
 const THROTTLE_MS = 50
 
 export type RectSelectOverlayProps = {
@@ -30,9 +30,16 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             if (!map) {
                 return
             }
+            const containerRect = map.getContainer().getBoundingClientRect()
             const mode = current.x >= start.x ? "include" : "intersect"
-            const sw = map.unproject([Math.min(start.x, current.x), Math.max(start.y, current.y)])
-            const ne = map.unproject([Math.max(start.x, current.x), Math.min(start.y, current.y)])
+            const sw = map.unproject([
+                Math.min(start.x, current.x) - containerRect.left,
+                Math.max(start.y, current.y) - containerRect.top,
+            ])
+            const ne = map.unproject([
+                Math.max(start.x, current.x) - containerRect.left,
+                Math.min(start.y, current.y) - containerRect.top,
+            ])
             const bbox: [number, number, number, number] = [sw.lng, sw.lat, ne.lng, ne.lat]
             const featureIds = await invoke<number[]>("source_query_rect", {
                 id: source,
@@ -89,6 +96,21 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         [dragStart, sourceId, queryAndSelect, dispatch],
     )
 
+    // Cancel drag if mouse button is released outside the overlay
+    useEffect(() => {
+        if (!dragStart) {
+            return
+        }
+        const onWindowMouseUp = () => {
+            setDragStart(null)
+            setDragCurrent(null)
+        }
+        window.addEventListener("mouseup", onWindowMouseUp)
+        return () => {
+            window.removeEventListener("mouseup", onWindowMouseUp)
+        }
+    }, [dragStart])
+
     if (mapTool !== "select") {
         return null
     }
@@ -109,7 +131,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             width,
             height,
             border: `2px ${isInclude ? "solid" : "dashed"} ${FEATURE_HIGHLIGHT_COLOR}`,
-            background: `${FEATURE_HIGHLIGHT_COLOR}${RECT_FILL_ALPHA}`,
+            background: `color-mix(in srgb, ${FEATURE_HIGHLIGHT_COLOR} ${RECT_FILL_OPACITY * 100}%, transparent)`,
             pointerEvents: "none",
         }
     })()
