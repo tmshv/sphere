@@ -173,7 +173,9 @@ export const sourceSlice = createSlice({
         },
         setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
             const { id: sourceId, value } = action.payload
-            state.items[sourceId].name = value
+            const source = state.items[sourceId]
+            if (!source) return
+            source.name = value
         },
         setGeojsonMeta: (state, action: PayloadAction<{ id: Id; meta: SourceMetadata }>) => {
             const { id, meta } = action.payload
