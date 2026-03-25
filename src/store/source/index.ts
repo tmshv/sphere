@@ -1,5 +1,5 @@
 import { type Id, type SourceMetadata, SourceType } from "@/types"
-import type { FeatureCollecionSource, Source } from "@/types/source"
+import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
@@ -83,10 +83,9 @@ export const sourceSlice = createSlice({
             action: PayloadAction<{ id: Id; dataset: GeoJSON.FeatureCollection; meta: SourceMetadata }>,
         ) => {
             const { id, dataset, meta } = action.payload
-            const source = state.items[id] as FeatureCollecionSource
-            source.dataset = dataset
-            source.meta = meta
-            source.pending = false
+            const source = state.items[id]
+            if (!source || source.type !== SourceType.FeatureCollection) return
+            Object.assign(source, { dataset, meta, pending: false })
         },
         addGeojsonSource: (
             state,
