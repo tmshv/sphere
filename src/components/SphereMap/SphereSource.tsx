@@ -18,11 +18,8 @@ export const selectSource = createSelector(
         const { type, id } = source
         switch (type) {
             case SourceType.FeatureCollection: {
-                return {
-                    id,
-                    type: "geojson",
-                    data: source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection),
-                }
+                // Data is fetched asynchronously via IPC; not stored in Redux.
+                return null
             }
             case SourceType.Geojson: {
                 // Data is fetched directly in the component to avoid storing it in Redux.
@@ -69,6 +66,12 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
 
     const sourceType = source?.type
 
+    const version = useAppSelector(state => {
+        const s = state.source.items[id]
+        if (s?.type === SourceType.FeatureCollection && !s.pending) return s.version
+        return null
+    })
+
     useEffect(() => {
         if (!sourceType || sourceType !== SourceType.Geojson) {
             return
@@ -80,6 +83,13 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             .catch(() => {})
     }, [id, sourceType])
 
+    useEffect(() => {
+        if (version === null) return
+        invoke<string>("source_get", { id })
+            .then(json => setGeojsonData(JSON.parse(json)))
+            .catch(() => {})
+    }, [id, version])
+
     if (!source) {
         return null
     }
@@ -87,9 +97,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const { type } = source
     switch (type) {
         case SourceType.FeatureCollection: {
-            return (
-                <Source id={id} type="geojson" data={source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection)} />
-            )
+            return <Source id={id} type="geojson" data={geojsonData} />
         }
         case SourceType.Geojson: {
             return <Source id={id} type="geojson" data={geojsonData} />

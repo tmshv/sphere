@@ -9,6 +9,21 @@ function makeState(source: object) {
     } as unknown as RootState
 }
 
+describe("selectSource FeatureCollection", () => {
+    test("returns null (data fetched async via IPC)", () => {
+        const state = makeState({
+            type: SourceType.FeatureCollection,
+            location: "memory://test-id",
+            version: 0,
+            editable: true,
+            pending: false,
+            meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+        })
+        const result = selectSource(state, "src1")
+        expect(result).toBeNull()
+    })
+})
+
 describe("selectSource MVT", () => {
     test("uses sphere://mbtiles/{id} as url, not location", () => {
         const state = makeState({
