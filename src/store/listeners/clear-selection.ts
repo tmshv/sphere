@@ -12,13 +12,15 @@ listener.startListening({
         if (!map) {
             return
         }
+        // `as RootState` follows the established project-wide listener pattern
+        // (all listeners in src/store/listeners/ use this cast — pre-existing technical debt)
         const state = listenerApi.getOriginalState() as RootState
-        const layerId = state.selection.layerId
-        if (!layerId) {
-            return
+        const sourceId =
+            state.selection.sourceId ??
+            (state.selection.layerId ? state.layer.items[state.selection.layerId]?.sourceId : undefined)
+        if (sourceId) {
+            map.removeFeatureState({ source: sourceId })
         }
-
-        map.setFilter(`${layerId}-selected`, ["in", "id", ""])
     },
 })
 

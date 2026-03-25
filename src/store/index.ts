@@ -32,19 +32,21 @@ export const store = configureStore({
         properties,
     },
     middleware: getDefaultMiddleWare => {
-        return getDefaultMiddleWare()
-            .prepend(mapListener.middleware)
-            .prepend(listeners.addBlankLayer.middleware)
-            .prepend(listeners.forceResizeMap.middleware)
-            .prepend(listeners.clearSelection.middleware)
-            .prepend(listeners.selectFeatures.middleware)
-            .prepend(listeners.zoomTo.middleware)
-            .prepend(listeners.addSource.middleware)
-            .prepend(listeners.duplicateLayer.middleware)
-            .prepend(listeners.fail.middleware)
-            .prepend(listeners.clearError.middleware)
-            .prepend(listeners.mapInteractive.middleware)
-            .prepend(listeners.autoSelectOnDelete.middleware)
+        return (
+            getDefaultMiddleWare()
+                .prepend(mapListener.middleware)
+                .prepend(listeners.addBlankLayer.middleware)
+                .prepend(listeners.forceResizeMap.middleware)
+                .prepend(listeners.clearSelection.middleware)
+                // selectionChanged will be added in Task 11
+                .prepend(listeners.zoomTo.middleware)
+                .prepend(listeners.addSource.middleware)
+                .prepend(listeners.duplicateLayer.middleware)
+                .prepend(listeners.fail.middleware)
+                .prepend(listeners.clearError.middleware)
+                .prepend(listeners.mapInteractive.middleware)
+                .prepend(listeners.autoSelectOnDelete.middleware)
+        )
     },
 })
 
