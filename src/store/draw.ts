@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import type { Id } from "@turf/helpers"
+import type { Id } from "@/types"
 
 // Define a type for the slice state
 type DrawState = {

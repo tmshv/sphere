@@ -29,9 +29,9 @@ describe("drawSlice reducer", () => {
         expect(state.sourceId).toBeUndefined()
     })
 
-    test("start with numeric id sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: 42 }))
-        expect(state.sourceId).toBe(42)
+    test("start with another id sets sourceId", () => {
+        const state = reducer(undefined, start({ sourceId: "source-42" }))
+        expect(state.sourceId).toBe("source-42")
     })
 })
 
@@ -44,7 +44,7 @@ describe("drawSlice selectors", () => {
         expect(isDrawing(makeRootState({ sourceId: "my-source" }))).toBe(true)
     })
 
-    test("isDrawing returns true when sourceId is a number", () => {
-        expect(isDrawing(makeRootState({ sourceId: 1 }))).toBe(true)
+    test("isDrawing returns true when sourceId is a non-empty string", () => {
+        expect(isDrawing(makeRootState({ sourceId: "src-1" }))).toBe(true)
     })
 })
