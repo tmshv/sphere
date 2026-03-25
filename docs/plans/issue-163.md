@@ -71,8 +71,8 @@ Spec: `docs/superpowers/specs/2026-03-25-issue-163-inmemory-sources-design.md`
   - Add test for `bumpVersion` (verify `version` increments)
 
 ### Task 5: Update draw slice
-- [ ] `src/store/draw.ts` — change `done` payload from `{ sourceId: Id; featureCollection: GeoJSON.FeatureCollection }` to `{ sourceId: Id }` (the FC is no longer passed through Redux)
-- [ ] `src/store/draw.test.ts` — update `done` action tests to use payload `{ sourceId: "s1" }` only (remove `featureCollection` from test payloads)
+- [x] `src/store/draw.ts` — change `done` payload from `{ sourceId: Id; featureCollection: GeoJSON.FeatureCollection }` to `{ sourceId: Id }` (the FC is no longer passed through Redux)
+- [x] `src/store/draw.test.ts` — update `done` action tests to use payload `{ sourceId: "s1" }` only (remove `featureCollection` from test payloads)
 
 ### Task 6: Update addFromClipboard thunk and tests
 - [ ] `src/store/source/addFromClipboard.ts`:
