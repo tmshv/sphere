@@ -2,7 +2,7 @@ import "./style.css"
 
 import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
 import type { SourceMetadata } from "@/types"
-import { Box, createStyles } from "@mantine/core"
+import { Box, SegmentedControl, createStyles } from "@mantine/core"
 import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
 import { type UnlistenFn, emit, listen } from "@tauri-apps/api/event"
 import React, { useEffect, useState, useCallback } from "react"
@@ -87,6 +87,8 @@ const View: React.FC = () => {
     const [columnStats, setColumnStats] = useState<Record<string, ColumnStats>>({})
     const [sorting, setSorting] = useState<SortingState>([])
     const [pageIndex, setPageIndex] = useState(0)
+    const [attributeFilter, setAttributeFilter] = useState<"all" | "selected">("all")
+    const [selectionData, setSelectionData] = useState<{ sourceId: string; selectedIds: number[] } | null>(null)
 
     // Listen for source info from the main window
     useEffect(() => {
@@ -97,6 +99,19 @@ const View: React.FC = () => {
             setFilterExpression(event.payload.filterExpression)
             setPageIndex(0)
             setSorting([])
+        }).then(fn => {
+            stop = fn
+        })
+        return () => {
+            stop?.()
+        }
+    }, [])
+
+    // Listen for selection changes from the main window
+    useEffect(() => {
+        let stop: UnlistenFn | undefined
+        listen<{ sourceId: string; selectedIds: number[] }>("properties-selection-changed", event => {
+            setSelectionData(event.payload)
         }).then(fn => {
             stop = fn
         })
@@ -124,17 +139,28 @@ const View: React.FC = () => {
         })
     }, [sourceId, schema])
 
+    function makeIdFilter(ids: number[]): unknown[] {
+        return ["in", ["id"], ["literal", ids]]
+    }
+
+    const effectiveFilter = (() => {
+        if (attributeFilter === "selected" && selectionData && selectionData.sourceId === sourceId) {
+            return makeIdFilter(selectionData.selectedIds)
+        }
+        return filterExpression
+    })()
+
     // Fetch page when sourceId, page index, sorting, or filter changes
     useEffect(() => {
         if (!sourceId) return
         const reader = new SourceReader(sourceId)
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
-        const filterJson = filterExpression ? JSON.stringify(filterExpression) : undefined
+        const filterJson = effectiveFilter ? JSON.stringify(effectiveFilter) : undefined
         reader.queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson).then(result => {
             if (result) setPage(result)
         })
-    }, [sourceId, pageIndex, sorting, filterExpression])
+    }, [sourceId, pageIndex, sorting, effectiveFilter])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {
@@ -156,16 +182,31 @@ const View: React.FC = () => {
     const totalPages = Math.ceil(page.total_matching / PAGE_SIZE)
 
     return (
-        <PropertesTable
-            columns={columns}
-            meta={meta}
-            data={rows}
-            pageIndex={pageIndex}
-            pageCount={totalPages}
-            sorting={sorting}
-            onPageChange={setPageIndex}
-            onSortingChange={handleSortingChange}
-        />
+        <>
+            <SegmentedControl
+                size="xs"
+                value={attributeFilter}
+                onChange={v => {
+                    if (v === "all" || v === "selected") {
+                        setAttributeFilter(v)
+                    }
+                }}
+                data={[
+                    { label: "All", value: "all" },
+                    { label: "Selected", value: "selected" },
+                ]}
+            />
+            <PropertesTable
+                columns={columns}
+                meta={meta}
+                data={rows}
+                pageIndex={pageIndex}
+                pageCount={totalPages}
+                sorting={sorting}
+                onPageChange={setPageIndex}
+                onSortingChange={handleSortingChange}
+            />
+        </>
     )
 }
 

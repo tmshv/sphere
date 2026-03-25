@@ -1393,7 +1393,7 @@ git commit -m "Add selection-changed listener and relax showProperties guard"
 **Files:**
 - Modify: `src/properties.tsx`
 
-- [ ] **Step 1: Add All/Selected toggle and selection listener**
+- [x] **Step 1: Add All/Selected toggle and selection listener**
 
 In `src/properties.tsx`, add a `SegmentedControl` from Mantine and the `properties-selection-changed` event listener.
 
@@ -1459,13 +1459,13 @@ Add the toggle to the JSX (above the table):
 
 When "Selected" is active and `selectionData.selectedIds` is empty, the filter returns nothing — honest empty table.
 
-- [ ] **Step 2: Format and confirm no TS errors**
+- [x] **Step 2: Format and confirm no TS errors**
 
 ```bash
 npm run format && npm run build 2>&1 | grep -E "error TS|Error"
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/properties.tsx
