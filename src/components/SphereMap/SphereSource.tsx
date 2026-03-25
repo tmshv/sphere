@@ -3,7 +3,7 @@ import { assertUnreachable } from "@/lib"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import { RASTER_TILE_FORMATS } from "@/types/tilejson"
+import { isRasterTileFormat } from "@/types/tilejson"
 import { createSelector } from "@reduxjs/toolkit"
 import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
@@ -29,7 +29,7 @@ export const selectSource = createSelector(
                 return null
             }
             case SourceType.MVT: {
-                if (RASTER_TILE_FORMATS.has(source.format)) {
+                if (isRasterTileFormat(source.format)) {
                     return {
                         id,
                         type: "raster",
@@ -95,7 +95,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             return <Source id={id} type="geojson" data={geojsonData} />
         }
         case SourceType.MVT: {
-            if (RASTER_TILE_FORMATS.has(source.format)) {
+            if (isRasterTileFormat(source.format)) {
                 return <Source id={id} type="raster" url={`sphere://mbtiles/${id}`} tileSize={256} />
             }
             return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />

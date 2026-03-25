@@ -2,7 +2,7 @@ import { nextColor } from "@/lib/color-scheme"
 import { nextId } from "@/lib/nextId"
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
 import { LayerType, SourceType } from "@/types"
-import { RASTER_TILE_FORMATS } from "@/types/tilejson"
+import { isRasterTileFormat } from "@/types/tilejson"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
@@ -54,7 +54,7 @@ listener.startListening({
                         type: layerType,
                     }),
                 )
-            } else if (source.type === SourceType.MVT && RASTER_TILE_FORMATS.has(source.format)) {
+            } else if (source.type === SourceType.MVT && isRasterTileFormat(source.format)) {
                 listenerApi.dispatch(
                     actions.layer.setType({
                         id: layerId,
