@@ -78,7 +78,7 @@ describe("selector (SourcePanel)", () => {
         expect(result?.name).toBe("Source s1")
         expect(result?.type).toBe(SourceType.Geojson)
         expect(result?.location).toBe("/path/to/s1.geojson")
-        expect(result?.editable).toBe(true)
+        expect(result?.editable).toBe(false)
         expect(result?.reloadDisabled).toBe(false)
     })
 

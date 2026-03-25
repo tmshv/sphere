@@ -105,7 +105,7 @@ export const sourceSlice = createSlice({
                 type: SourceType.Geojson,
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
-                editable: true,
+                editable: false,
                 meta,
             }
             state.allIds.push(id)
