@@ -4,7 +4,7 @@ import logger from "@/logger"
 import { nextId } from "@/lib/nextId"
 import { actions } from "."
 
-const action = createAsyncThunk("source/new", async (_: void, thunkAPI) => {
+const action = createAsyncThunk("source/new", async (_: undefined, thunkAPI) => {
     const name = `New ${nextId("source")}`
     try {
         const emptyData = JSON.stringify({ type: "FeatureCollection", features: [] })
