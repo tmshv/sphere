@@ -41,6 +41,7 @@ pub enum SourceData {
     Mbtiles(Tiles),
     Csv(Csv),
     Gpx(Gpx),
+    InMemory(geojson::FeatureCollection),
     // Pmtiles,
 }
 
@@ -154,6 +155,9 @@ impl Source {
     }
 
     pub fn to_feature_collection(&self) -> Result<geojson::FeatureCollection, String> {
+        if let SourceData::InMemory(fc) = &self.data {
+            return Ok(fc.clone());
+        }
         let raw = match &self.data {
             SourceData::Shapefile(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Geojson(src) => src.read().map_err(|e| e.to_string())?,
@@ -212,6 +216,7 @@ impl Source {
             SourceData::Gpx(src) => {
                 src.get_schema().map_err(|e| e.to_string())
             }
+            SourceData::InMemory(_) => Err("use FeatureStore".into()),
             _ => Err("Getting schema is not implemented for this type of file".into()),
         }
     }

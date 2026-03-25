@@ -83,6 +83,7 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
                     SourceData::Shapefile(_) => "shapefile".into(),
                     SourceData::Csv(_) => "csv".into(),
                     SourceData::Gpx(_) => "gpx".into(),
+                    SourceData::InMemory(_) => "geojson".into(),
                 },
             };
             let id = source.id.clone();
