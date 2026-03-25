@@ -23,7 +23,6 @@ const ALL_LAYER_TYPE_OPTIONS = [
     { value: LayerType.Polygon, label: "Polygons" },
     { value: LayerType.Photo, label: "Photos" },
     { value: LayerType.Heatmap, label: "Heatmap" },
-    { value: LayerType.Raster, label: "Raster" },
     { value: LayerType.Extrusion, label: "Extrusion" },
 ]
 

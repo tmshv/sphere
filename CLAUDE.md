@@ -156,7 +156,8 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 
 ## State Management Principles
 
-- **Logic belongs outside components** — React components must only dispatch actions and render derived state. Business logic (e.g. "switching to a raster source should reset the layer type") lives in listener middleware (`store/listeners/`), not in event handlers inside components.
+- **Logic belongs outside components** — React components must only dispatch actions and render derived state. Business logic lives in listener middleware (`store/listeners/`), not in event handlers inside components.
+- **Never destroy user input silently** — listeners and reducers must not clear or overwrite user-entered data (filters, field values, etc.) as a side effect of an unrelated action. There is no undo. If two pieces of state become inconsistent (e.g. a vector layer type on a raster source), the selector is responsible for ignoring or suppressing the invalid combination — not the store.
 - **Derived state belongs in selectors** — computed values like option lists, flags, or filtered arrays must be computed in `createSelector` calls, not inline in JSX.
 - **One place per concept** — constants, sets, and predicates (e.g. `RASTER_TILE_FORMATS`, `isRasterTileFormat`) are defined once and imported everywhere. Never inline the same logic in multiple components.
 
