@@ -55,10 +55,10 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const { type } = source
     switch (type) {
         case SourceType.FeatureCollection: {
-            return <Source id={id} type="geojson" data={geojsonData} promoteId="id" />
+            return <Source id={id} type="geojson" data={geojsonData} />
         }
         case SourceType.Geojson: {
-            return <Source id={id} type="geojson" data={geojsonData} promoteId="id" />
+            return <Source id={id} type="geojson" data={geojsonData} />
         }
         case SourceType.MVT: {
             if (isRasterTileFormat(source.format)) {

@@ -22,20 +22,10 @@ export const PointLayer: React.FC<PointLayerProps> = ({ layerId, sourceId, sourc
     const circle = useMemo(() => {
         const radius = options?.maxRadius ?? 4
         const circle: CirclePaint = {
-            "circle-color": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], FEATURE_HIGHLIGHT_COLOR, color],
-            ],
+            "circle-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
             "circle-radius": radius,
             "circle-stroke-color": "white",
-            "circle-stroke-width": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], 3, 1],
-            ],
+            "circle-stroke-width": 1,
         }
         return circle
     }, [color, options])
