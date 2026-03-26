@@ -341,7 +341,7 @@ pub async fn source_add_data(
 ) -> Result<SourceAddResult, String> {
     let mut fc = data;
     assign_feature_ids(&mut fc);
-    let id = uuid::Uuid::new_v4().to_string();
+    let id = crate::id::generate_id();
     let location = format!("memory://{}", id);
     let source = Source {
         id: id.clone(),
