@@ -342,7 +342,7 @@ pub async fn source_add_data(
     let mut fc = data;
     assign_feature_ids(&mut fc);
     let id = crate::id::generate_id();
-    let location = format!("memory://{}", id);
+    let location = format!("sphere://{}", id);
     let source = Source {
         id: id.clone(),
         name: name.clone(),

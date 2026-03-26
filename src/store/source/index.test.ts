@@ -93,7 +93,7 @@ describe("sourceSlice reducer", () => {
             addInMemorySource({
                 id: "s4",
                 name: "FC Source",
-                location: "memory://s4",
+                location: "sphere://s4",
                 meta,
             }),
         )
@@ -107,7 +107,7 @@ describe("sourceSlice reducer", () => {
             throw new Error("Expected non-pending FeatureCollectionSource")
         }
         expect(s4.version).toBe(0)
-        expect(s4.location).toBe("memory://s4")
+        expect(s4.location).toBe("sphere://s4")
         expect(s4.meta).toEqual(meta)
     })
 
@@ -115,7 +115,7 @@ describe("sourceSlice reducer", () => {
         const meta = { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 }
         let state = reducer(
             undefined,
-            addInMemorySource({ id: "s4", name: "FC Source", location: "memory://s4", meta }),
+            addInMemorySource({ id: "s4", name: "FC Source", location: "sphere://s4", meta }),
         )
         state = reducer(state, bumpVersion("s4"))
         const s4 = state.items.s4

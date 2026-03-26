@@ -50,6 +50,19 @@ The script `scripts/version.js` copies the version from `package.json` into the 
 4. Open the draft release on GitHub, edit the release notes, and publish it.
 
 
+## Internal URL Scheme
+
+Sphere uses a custom `sphere://` protocol to access loaded data sources by ID:
+
+| URL                                     | Description         |
+|-----------------------------------------|---------------------|
+| `sphere://{id}`                         | Source GeoJSON data |
+| `sphere://{id}/tilejson`                | TileJSON metadata   |
+| `sphere://{id}/tile?z={z}&x={x}&y={y}`  | Tile bytes          |
+
+Source IDs are short alphanumeric strings (e.g. `K7X2MR`) generated when a source is loaded. File-based sources use a SHA-256 digest of the source URL as their ID.
+
+
 ## Related Links
 
 - [kt-companion.vercel.app](https://kt-companion.vercel.app)

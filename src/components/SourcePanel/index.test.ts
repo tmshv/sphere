@@ -112,7 +112,7 @@ describe("selector (SourcePanel)", () => {
             id: "s1",
             name: "Source s1",
             type: SourceType.FeatureCollection,
-            location: "memory://s1",
+            location: "sphere://s1",
             version: 0,
             fractionIndex: 0,
             editable: true,

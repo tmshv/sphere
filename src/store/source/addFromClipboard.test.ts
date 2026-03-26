@@ -6,7 +6,7 @@ vi.mock("@tauri-apps/plugin-clipboard-manager", () => ({
 }))
 
 vi.mock("@tauri-apps/api/core", () => ({
-    invoke: vi.fn().mockResolvedValue({ id: "test-id", name: "Pasted GeoJSON", location: "memory://test-id" }),
+    invoke: vi.fn().mockResolvedValue({ id: "test-id", name: "Pasted GeoJSON", location: "sphere://test-id" }),
 }))
 
 vi.mock("@/logger", () => ({
@@ -73,7 +73,7 @@ describe("addFromClipboard thunk", () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
-        mockInvoke.mockResolvedValue({ id: "test-id", name: "Pasted GeoJSON", location: "memory://test-id" })
+        mockInvoke.mockResolvedValue({ id: "test-id", name: "Pasted GeoJSON", location: "sphere://test-id" })
         store = makeStore()
         dispatchSpy = vi.spyOn(store, "dispatch")
     })
@@ -100,7 +100,7 @@ describe("addFromClipboard thunk", () => {
         const call = mockAddInMemorySource.mock.calls[0][0]
         expect(call.id).toBe("test-id")
         expect(call.name).toBe("Pasted GeoJSON")
-        expect(call.location).toBe("memory://test-id")
+        expect(call.location).toBe("sphere://test-id")
         expect(call.meta.pointsCount).toBe(1)
         expect(call.meta.linesCount).toBe(0)
         expect(call.meta.polygonsCount).toBe(0)
@@ -136,8 +136,8 @@ describe("addFromClipboard thunk", () => {
     test("calls invoke twice with different data per call", async () => {
         mockReadText.mockResolvedValue(JSON.stringify(featureCollection))
         mockInvoke
-            .mockResolvedValueOnce({ id: "id-1", name: "Pasted GeoJSON", location: "memory://id-1" })
-            .mockResolvedValueOnce({ id: "id-2", name: "Pasted GeoJSON", location: "memory://id-2" })
+            .mockResolvedValueOnce({ id: "id-1", name: "Pasted GeoJSON", location: "sphere://id-1" })
+            .mockResolvedValueOnce({ id: "id-2", name: "Pasted GeoJSON", location: "sphere://id-2" })
 
         await addFromClipboard()(store.dispatch, store.getState, undefined)
         await addFromClipboard()(store.dispatch, store.getState, undefined)

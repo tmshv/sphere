@@ -62,9 +62,9 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
         }
         case SourceType.MVT: {
             if (isRasterTileFormat(source.format)) {
-                return <Source id={id} type="raster" url={`sphere://mbtiles/${id}`} tileSize={256} />
+                return <Source id={id} type="raster" url={`sphere://${id}/tilejson`} tileSize={256} />
             }
-            return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />
+            return <Source id={id} type="vector" url={`sphere://${id}/tilejson`} />
         }
         case SourceType.Raster: {
             return <Source id={id} type="raster" url={source.location} />

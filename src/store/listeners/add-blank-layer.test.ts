@@ -154,7 +154,7 @@ describe("add-blank-layer listener middleware", () => {
                         id: sourceId,
                         type: SourceType.FeatureCollection,
                         name: "test",
-                        location: "memory://fc-source",
+                        location: "sphere://fc-source",
                         version: 0,
                         editable: true,
                         fractionIndex: 0,

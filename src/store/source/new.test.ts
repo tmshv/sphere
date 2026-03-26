@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit"
 import { type MockInstance, beforeEach, describe, expect, test, vi } from "vitest"
 
 vi.mock("@tauri-apps/api/core", () => ({
-    invoke: vi.fn().mockResolvedValue({ id: "empty-id", name: "empty", location: "memory://empty-id" }),
+    invoke: vi.fn().mockResolvedValue({ id: "empty-id", name: "empty", location: "sphere://empty-id" }),
 }))
 
 vi.mock("@/logger", () => ({
@@ -41,7 +41,7 @@ describe("new thunk", () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
-        mockInvoke.mockResolvedValue({ id: "empty-id", name: "My Layer", location: "memory://empty-id" })
+        mockInvoke.mockResolvedValue({ id: "empty-id", name: "My Layer", location: "sphere://empty-id" })
         store = makeStore()
         dispatchSpy = vi.spyOn(store, "dispatch")
     })
@@ -62,7 +62,7 @@ describe("new thunk", () => {
         const call = mockAddInMemorySource.mock.calls[0][0]
         expect(call.id).toBe("empty-id")
         expect(call.name).toBe("My Layer")
-        expect(call.location).toBe("memory://empty-id")
+        expect(call.location).toBe("sphere://empty-id")
         expect(call.meta.pointsCount).toBe(0)
         expect(call.meta.linesCount).toBe(0)
         expect(call.meta.polygonsCount).toBe(0)

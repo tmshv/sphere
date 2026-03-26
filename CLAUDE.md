@@ -128,9 +128,15 @@ State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with
 
 **IPC Communication**: Frontend invokes Rust commands via `@tauri-apps/api` `invoke()` function.
 
-**Custom Protocols**: The app registers custom URL protocols for accessing sources:
-- `sphere://source{path}` - Access loaded geospatial sources
-- `sphere://mbtiles{path}` - Access MBTiles tile data
+**Custom Protocols**: The app registers a `sphere://` MapLibre protocol for accessing sources by ID:
+
+| URL                                     | Purpose            |
+|-----------------------------------------|--------------------|
+| `sphere://{id}`                         | Source GeoJSON data |
+| `sphere://{id}/tilejson`                | TileJSON metadata  |
+| `sphere://{id}/tile?z={z}&x={x}&y={y}` | Tile bytes         |
+
+The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `MbtilesReader`, everything else to `SourceReader`. The source ID is extracted from `url.host`.
 
 **CSV source URI params**: When loading CSV files, the `sphere://source` URI accepts query parameters: `?x=<field>&y=<field>` for lon/lat column names (defaults: `lng`/`lat`), `?wkt=<field>` for a WKT geometry column. When a source is stored, features are assigned integer IDs starting from 1 (after the max existing numeric ID). Original string IDs are preserved in `properties["$id"]`.
 
