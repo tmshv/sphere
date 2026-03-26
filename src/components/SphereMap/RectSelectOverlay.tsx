@@ -18,7 +18,7 @@ export type RectSelectOverlayProps = {
 export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
-    const sourceId = useAppSelector(selectors.selection.currentSourceId)
+    const sourceId = useAppSelector(selectors.source.selectSelectedId)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
     const [dragCurrent, setDragCurrent] = useState<Point | null>(null)
