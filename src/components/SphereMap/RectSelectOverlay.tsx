@@ -1,6 +1,6 @@
 import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
-import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
+import { appSlice } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { invoke } from "@tauri-apps/api/core"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -19,6 +19,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
     const sourceId = useAppSelector(selectors.source.selectSelectedId)
+    const isDark = useAppSelector(appSlice.selectors.isDark)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
     const [dragCurrent, setDragCurrent] = useState<Point | null>(null)
@@ -120,11 +121,15 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         return null
     }
 
+    const rectColor = isDark ? "#ffffff" : "#000000"
+    const outlineColor = isDark ? "#000000" : "#ffffff"
+
     const rectStyle: React.CSSProperties = (() => {
         if (!dragStart || !dragCurrent) {
             return { display: "none" }
         }
         const isInclude = dragCurrent.x >= dragStart.x
+        const borderStyle = isInclude ? "solid" : "dashed"
         const left = Math.min(dragStart.x, dragCurrent.x)
         const top = Math.min(dragStart.y, dragCurrent.y)
         const width = Math.abs(dragCurrent.x - dragStart.x)
@@ -135,8 +140,10 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             top,
             width,
             height,
-            border: `2px ${isInclude ? "solid" : "dashed"} ${FEATURE_HIGHLIGHT_COLOR}`,
-            background: `color-mix(in srgb, ${FEATURE_HIGHLIGHT_COLOR} ${RECT_FILL_OPACITY * 100}%, transparent)`,
+            border: `1.5px ${borderStyle} ${rectColor}`,
+            outline: `1.5px ${borderStyle} ${outlineColor}`,
+            outlineOffset: "0px",
+            background: `color-mix(in srgb, ${rectColor} ${RECT_FILL_OPACITY * 100}%, transparent)`,
             pointerEvents: "none",
         }
     })()
