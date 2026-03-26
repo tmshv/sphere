@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::{Result, SphereError};
 
 fn sphere_url(name: &str) -> String {
-    format!("sphere://mbtiles/{}?z={{z}}&x={{x}}&y={{y}}", name)
+    format!("sphere://{name}/tile?z={{z}}&x={{x}}&y={{y}}")
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

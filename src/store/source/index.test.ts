@@ -9,18 +9,13 @@ const {
     removeSource,
     select,
     setName,
-    setData,
-    addFeatureCollection,
+    addInMemorySource,
+    bumpVersion,
 } = sourceSlice.actions
 // Note: addGeojsonSource no longer accepts a `dataset` parameter (M2: dataset removed from GeojsonSource)
 const { items, allIds, selectSelectedId } = sourceSlice.selectors
 
 const makeRootState = (source: object) => ({ source }) as any
-
-const emptyFeatureCollection: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [],
-}
 
 describe("sourceSlice reducer", () => {
     test("initial state", () => {
@@ -91,19 +86,81 @@ describe("sourceSlice reducer", () => {
         expect(state.lastAdded).toBe("s3")
     })
 
-    test("addFeatureCollection adds to items and allIds, sets lastAdded", () => {
+    test("addInMemorySource adds to items and allIds, sets version 0 and pending false", () => {
+        const meta = { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 }
         const state = reducer(
             undefined,
-            addFeatureCollection({
+            addInMemorySource({
                 id: "s4",
                 name: "FC Source",
-                dataset: emptyFeatureCollection,
+                location: "sphere://s4",
+                meta,
             }),
         )
         expect(state.allIds).toContain("s4")
         expect(state.items.s4.type).toBe(SourceType.FeatureCollection)
         expect(state.items.s4.editable).toBe(true)
+        expect(state.items.s4.pending).toBe(false)
         expect(state.lastAdded).toBe("s4")
+        const s4 = state.items.s4
+        if (s4.type !== SourceType.FeatureCollection || s4.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
+        }
+        expect(s4.version).toBe(0)
+        expect(s4.location).toBe("sphere://s4")
+        expect(s4.meta).toEqual(meta)
+    })
+
+    test("bumpVersion increments version for FeatureCollection source", () => {
+        const meta = { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 }
+        let state = reducer(
+            undefined,
+            addInMemorySource({ id: "s4", name: "FC Source", location: "sphere://s4", meta }),
+        )
+        state = reducer(state, bumpVersion("s4"))
+        const s4 = state.items.s4
+        if (s4.type !== SourceType.FeatureCollection || s4.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
+        }
+        expect(s4.version).toBe(1)
+        state = reducer(state, bumpVersion("s4"))
+        const s4b = state.items.s4
+        if (s4b.type !== SourceType.FeatureCollection || s4b.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
+        }
+        expect(s4b.version).toBe(2)
+    })
+
+    test("bumpVersion does nothing for pending FeatureCollection source", () => {
+        const state = {
+            items: {
+                s4: {
+                    id: "s4",
+                    name: "FC Source",
+                    fractionIndex: 0,
+                    type: SourceType.FeatureCollection,
+                    editable: true as const,
+                    pending: true as const,
+                },
+            },
+            allIds: ["s4"],
+        }
+        const next = reducer(state as any, bumpVersion("s4"))
+        expect(next.items.s4).toEqual(state.items.s4)
+    })
+
+    test("bumpVersion does nothing for non-FeatureCollection source", () => {
+        let state = reducer(
+            undefined,
+            addGeojsonSource({
+                id: "s1",
+                name: "My Source",
+                location: "file.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(state, bumpVersion("s1"))
+        expect(state.items.s1.type).toBe(SourceType.Geojson)
     })
 
     test("removeSource removes from items and allIds", () => {
@@ -170,31 +227,6 @@ describe("sourceSlice reducer", () => {
         )
         const state = reducer(prev, setName({ id: "s1", value: "New Name" }))
         expect(state.items.s1.name).toBe("New Name")
-    })
-
-    test("setData updates dataset and meta", () => {
-        const prev = reducer(
-            undefined,
-            addFeatureCollection({
-                id: "s1",
-                name: "My Source",
-                dataset: emptyFeatureCollection,
-            }),
-        )
-        const newDataset: GeoJSON.FeatureCollection = {
-            type: "FeatureCollection",
-            features: [{ type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: {} }],
-        }
-        const state = reducer(
-            prev,
-            setData({
-                id: "s1",
-                dataset: newDataset,
-                meta: { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 },
-            }),
-        )
-        expect((state.items.s1 as any).dataset).toEqual(newDataset)
-        expect(state.items.s1.pending).toBe(false)
     })
 
     test("select sets selectedId", () => {

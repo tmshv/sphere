@@ -29,8 +29,8 @@ export type RasterSource = {
 
 export type FeatureCollecionSource = {
     type: SourceType.FeatureCollection
-    location?: string
-    dataset: GeoJSON.FeatureCollection
+    location: string
+    version: number
     editable: true
     pending: false
     meta: SourceMetadata
@@ -39,7 +39,6 @@ export type FeatureCollecionSource = {
 export type PendingFeatureCollecionSource = {
     type: SourceType.FeatureCollection
     location?: string
-    dataset?: GeoJSON.FeatureCollection
     editable: true
     pending: true
 }

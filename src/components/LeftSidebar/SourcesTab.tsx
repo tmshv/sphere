@@ -1,5 +1,6 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import logger from "@/logger"
 import { SourceType } from "@/types"
 import { ActionBar, type ActionBarOnClick } from "@/ui/ActionBar"
 import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
@@ -41,7 +42,9 @@ export const SourcesTab: React.FC = () => {
                     break
                 }
                 case "new": {
-                    dispatch(actions.source.empty())
+                    dispatch(actions.source.new()).catch(err => {
+                        logger.error("Failed to create new source: %s", err)
+                    })
                     break
                 }
                 default: {

@@ -11,7 +11,6 @@ Sphere is a geospatial data visualization and editing desktop application built 
 - Branch names use the format `issue-XX` (e.g. `issue-79`)
 - Commit messages are single-line
 - PR descriptions contain only a short summary of what was done (no test plan section)
-
 ## Build & Development Commands
 
 ```bash
@@ -30,6 +29,8 @@ npm run tauri build      # Build production app
 # Versioning
 npm version patch         # Bump version in package.json, tauri.conf.json, Cargo.toml, and Cargo.lock
 ```
+
+When modifying any file inside a `crates/<name>/` directory, bump the minor version of that crate in its `Cargo.toml` (e.g. `0.1.0` → `0.2.0`) and run `cargo update -p <name>` from the workspace root (`src-tauri/`) to update the lock file. Bump only once per PR, not per commit.
 
 ## Testing Policy
 
@@ -68,7 +69,7 @@ The following code smells are strictly forbidden:
 **State Management**: Redux Toolkit with listener middleware for side effects. Key slices:
 - `app` - UI state (dark theme, sidebar visibility, active sidebar tab)
 - `layer` - Layer management and styling
-- `source` - Data source management
+- `source` - Data source management; `FeatureCollecionSource` stores no GeoJSON in Redux — data lives in the Rust backend. A `version: number` field acts as a cache-bust signal: `bumpVersion(id)` increments it, which triggers `SphereSource` to re-fetch via `source_get` IPC.
 - `selection` - Selected map features
 - `draw` - Drawing mode state
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
@@ -77,6 +78,7 @@ The following code smells are strictly forbidden:
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
+  - `SphereSource` — Renders a MapLibre `<Source>` for each Redux source entry. For `FeatureCollection` sources, data is never stored in Redux; the component watches `version` from the source slice and fetches via `source_get` IPC whenever it increments. For `Geojson` sources, data is fetched once on mount via `source_get` IPC. The draw tool (`Draw.tsx`) loads existing features on mount via `source_get` IPC (not from Redux state). On "Done", it calls `source_replace` IPC to persist the edited FeatureCollection, dispatches `bumpVersion` to trigger `SphereSource` to re-fetch, then dispatches `draw.done` and `tools.reset`. If `source_replace` fails, draw mode stays active.
   - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active. Points layer components directly at the already-mounted MapLibre source (no duplicate source created). For GeoJSON/FeatureCollection sources, renders one set of `PointLayer`/`SphereLineStringLayer`/`SpherePolygonLayer` using `preview-${sourceId}-{geometry}` layer IDs. For MVT sources, iterates `source.sourceLayers` and renders all three components per named vector layer using `preview-${sourceId}-${sl.id}-{geometry}` IDs. Passes `selectPreviewLayerIds` result to `useFeatureProperties` (empty array when no preview active, which deactivates feature property lookup to prevent properties slice conflicts). `selectPreviewLayerIds` (in `store/selectors.ts`) is the single authoritative source of which layers are clickable during preview — used by both `SourcePreviewLayer` and `useFeatureSelect`
   - `map-body.tsx` `selectLayers` - suppresses user layers during draw mode and when a source is actively previewed (`previewSourceId` defined); the v0.13.0 regression (hiding layers on source tab unconditionally) was fixed, but source-preview isolation (hiding layers when a specific source is selected for preview) is intentional
 - `components/LeftSidebar/` - Sources and layers management
@@ -126,9 +128,15 @@ State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with
 
 **IPC Communication**: Frontend invokes Rust commands via `@tauri-apps/api` `invoke()` function.
 
-**Custom Protocols**: The app registers custom URL protocols for accessing sources:
-- `sphere://source{path}` - Access loaded geospatial sources
-- `sphere://mbtiles{path}` - Access MBTiles tile data
+**Custom Protocols**: The app registers a `sphere://` MapLibre protocol for accessing sources by ID:
+
+| URL                                     | Purpose            |
+|-----------------------------------------|--------------------|
+| `sphere://{id}`                         | Source GeoJSON data |
+| `sphere://{id}/tilejson`                | TileJSON metadata  |
+| `sphere://{id}/tile?z={z}&x={x}&y={y}` | Tile bytes         |
+
+The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `MbtilesReader`, everything else to `SourceReader`. The source ID is extracted from `url.host`.
 
 **CSV source URI params**: When loading CSV files, the `sphere://source` URI accepts query parameters: `?x=<field>&y=<field>` for lon/lat column names (defaults: `lng`/`lat`), `?wkt=<field>` for a WKT geometry column. When a source is stored, features are assigned integer IDs starting from 1 (after the max existing numeric ID). Original string IDs are preserved in `properties["$id"]`.
 
@@ -150,6 +158,9 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
 | `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
 | `source_get_column_stats` | Histogram + min/max/mean/unique counts for one column: `(id, column) -> ColumnStats` |
+| `source_add_data`         | Create an in-memory source from a GeoJSON FeatureCollection string: `(name, data) -> { id, name, location, source_type }` |
+| `source_replace`          | Replace all features of an in-memory source: `(id, data: GeoJSON string) -> ()` |
+| `source_patch`            | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |
 | `mbtiles_get_tile`        | Get single tile from MBTiles |
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `show_in_finder`          | Open file location in system explorer |

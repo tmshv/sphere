@@ -4,8 +4,8 @@ import draw from "./draw"
 import error from "./error"
 import layer from "./layer"
 import * as listeners from "./listeners"
-import mapInteraction from "./map-interaction"
 import { listener as mapListener } from "./map"
+import mapInteraction from "./map-interaction"
 import mapStyle from "./mapStyle"
 import projection from "./projection"
 import properties from "./properties"
@@ -51,6 +51,7 @@ export const store = configureStore({
             .prepend(listeners.resetTool.middleware)
             .prepend(listeners.autoSelectOnDelete.middleware)
             .prepend(listeners.exitDrawOnSourceDelete.middleware)
+            .prepend(listeners.saveDraw.middleware)
     },
 })
 

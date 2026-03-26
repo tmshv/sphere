@@ -647,7 +647,7 @@ checksum = "f9fbbcab51052fe104eb5e5d351cf728d30a5be1fe14d9be8a3b097481fb97de"
 
 [[package]]
 name = "libsphere"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "csv",
  "geo",
@@ -705,7 +705,7 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "mbtiles"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "flate2",
  "rusqlite",
@@ -1072,7 +1072,7 @@ dependencies = [
 
 [[package]]
 name = "tilejson"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",

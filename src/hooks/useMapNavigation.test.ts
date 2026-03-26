@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 vi.mock("@/store/hooks", () => ({
     useAppSelector: vi.fn(),
@@ -33,7 +33,6 @@ function makeRef(map: ReturnType<typeof makeMockMap>) {
 }
 
 const ALL_ENABLED = { dragPan: true, scrollZoom: true, dragRotate: true }
-const ALL_DISABLED = { dragPan: false, scrollZoom: false, dragRotate: false }
 
 function mockState(settings: typeof ALL_ENABLED, navigationEnabled: boolean) {
     vi.mocked(useAppSelector).mockImplementation((selector: any) => {

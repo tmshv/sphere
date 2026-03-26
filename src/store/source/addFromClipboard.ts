@@ -1,7 +1,8 @@
 import logger from "@/logger"
 import { createAsyncThunk } from "@reduxjs/toolkit"
+import { invoke } from "@tauri-apps/api/core"
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
-import { actions } from "."
+import { actions, computeGeometryMeta } from "."
 
 const GEOJSON_TYPES = new Set([
     "FeatureCollection",
@@ -27,25 +28,23 @@ function expandFeature(feature: GeoJSON.Feature): GeoJSON.Feature[] {
     return [feature]
 }
 
-function toFeatureCollection(data: any): GeoJSON.FeatureCollection | null {
+function toFeatureCollection(data: GeoJSON.GeoJSON): GeoJSON.FeatureCollection | null {
     if (data.type === "FeatureCollection") {
-        const fc = data as GeoJSON.FeatureCollection
         return {
             type: "FeatureCollection",
-            features: fc.features.flatMap(expandFeature),
+            features: data.features.flatMap(expandFeature),
         }
     }
     if (data.type === "Feature") {
         return {
             type: "FeatureCollection",
-            features: expandFeature(data as GeoJSON.Feature),
+            features: expandFeature(data),
         }
     }
     if (data.type === "GeometryCollection") {
-        const gc = data as GeoJSON.GeometryCollection
         return {
             type: "FeatureCollection",
-            features: gc.geometries.map(geometry => ({
+            features: data.geometries.map(geometry => ({
                 type: "Feature" as const,
                 geometry,
                 properties: {},
@@ -58,7 +57,7 @@ function toFeatureCollection(data: any): GeoJSON.FeatureCollection | null {
         features: [
             {
                 type: "Feature",
-                geometry: data as GeoJSON.Geometry,
+                geometry: data,
                 properties: {},
             },
         ],
@@ -72,7 +71,7 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
             return
         }
 
-        let data: any
+        let data: unknown
         try {
             data = JSON.parse(text)
         } catch {
@@ -80,23 +79,29 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
             return
         }
 
-        if (!data || typeof data !== "object" || !GEOJSON_TYPES.has(data.type)) {
+        if (
+            !data ||
+            typeof data !== "object" ||
+            !("type" in data) ||
+            typeof (data as { type: unknown }).type !== "string" ||
+            !GEOJSON_TYPES.has((data as { type: string }).type)
+        ) {
             logger.warn("Clipboard content is not valid GeoJSON")
             return
         }
 
-        const dataset = toFeatureCollection(data)
+        const dataset = toFeatureCollection(data as GeoJSON.GeoJSON)
         if (!dataset) {
             return
         }
 
-        const id = crypto.randomUUID()
+        const result = await invoke<{ id: string; name: string; location: string }>("source_add_data", {
+            name: "Pasted GeoJSON",
+            data: dataset,
+        })
+        const meta = computeGeometryMeta(dataset)
         thunkAPI.dispatch(
-            actions.addFeatureCollection({
-                id,
-                name: "Pasted GeoJSON",
-                dataset,
-            }),
+            actions.addInMemorySource({ id: result.id, name: result.name, location: result.location, meta }),
         )
     } catch (error) {
         logger.error("Failed to paste GeoJSON from clipboard: %s", error)
