@@ -11,7 +11,7 @@ async function selectLastAdded(
     const state = listenerApi.getState() as RootState
     const sourceId = state.source.lastAdded
     if (sourceId) {
-        listenerApi.dispatch(actions.selection.selectSource({ sourceId }))
+        listenerApi.dispatch(actions.source.select(sourceId))
     }
 }
 

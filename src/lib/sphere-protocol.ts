@@ -16,54 +16,26 @@ export class SphereProtocol {
         return [Number.parseInt(z), Number.parseInt(x), Number.parseInt(y)]
     }
 
-    public async handleMbtiles(reader: MbtilesReader, url: URL, type: RequestType, _sig: AbortSignal) {
-        switch (type) {
-            case "json": {
-                return reader.getTileJson()
-            }
-            case "arrayBuffer": {
-                const [z, x, y] = this.parseZXY(url)
-                const pbf = await reader.getTile({ z, x, y })
-                if (!pbf) {
-                    return null
-                }
-                return pbf.buffer
-            }
-            default: {
-                throw new Error(`SphereProtocol for ${url.host}/${type} is not implemented`)
-            }
-        }
-    }
-
-    public async handleSource(reader: SourceReader, type: RequestType, _sig: AbortSignal) {
-        switch (type) {
-            case "json": {
-                return reader.getGeojson()
-            }
-            default: {
-                throw new Error(`SphereProtocol for ${type} is not implemented`)
-            }
-        }
-    }
-
     public createHandler(): AddProtocolAction {
-        return async (params, abort) => {
+        return async (params, _abort) => {
             const url = new URL(params.url)
-            switch (url.host) {
-                case "mbtiles": {
-                    const id = url.pathname.substring(1)
+            const id = url.host
+            const path = url.pathname
+            switch (path) {
+                case "/tilejson": {
                     const reader = new MbtilesReader(id)
-                    const data = await this.handleMbtiles(reader, url, params.type, abort.signal)
-                    return { data }
+                    return { data: await reader.getTileJson() }
                 }
-                case "source": {
-                    const id = url.pathname.substring(1)
-                    const reader = new SourceReader(id)
-                    const data = await this.handleSource(reader, params.type, abort.signal)
-                    return { data }
+                case "/tile": {
+                    const reader = new MbtilesReader(id)
+                    const [z, x, y] = this.parseZXY(url)
+                    const bytes = await reader.getTile({ z, x, y })
+                    if (!bytes) return { data: null }
+                    return { data: bytes.buffer }
                 }
                 default: {
-                    throw new Error(`SphereProtocol for ${url.host} is not implemented`)
+                    const reader = new SourceReader(id)
+                    return { data: await reader.getGeojson() }
                 }
             }
         }

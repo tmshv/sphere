@@ -53,6 +53,7 @@ type LayerState = {
     items: Record<string, Layer>
     allIds: Id[]
     lastAdded?: Id
+    selectedId?: Id
 }
 
 // Define the initial state using that type
@@ -76,6 +77,12 @@ export const layerSlice = createSlice({
             const layerId = action.payload
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
+            if (state.selectedId === layerId) {
+                state.selectedId = undefined
+            }
+        },
+        select: (state, action: PayloadAction<Id | undefined>) => {
+            state.selectedId = action.payload
         },
         setPositionBefore: (state, action: PayloadAction<{ layerId: Id; otherLayerId: Id }>) => {
             const { layerId, otherLayerId } = action.payload
@@ -238,6 +245,7 @@ export const layerSlice = createSlice({
     selectors: {
         allIds: state => state.allIds,
         items: state => state.items,
+        selectSelectedId: state => state.selectedId,
     },
 })
 

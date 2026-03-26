@@ -44,6 +44,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
                                 opacity: 0.5,
                                 backgroundColor: "#00000000",
                                 border: "none",
+                                cursor: "not-allowed",
+                                pointerEvents: "none",
                             },
                         }}
                         onClick={() => {

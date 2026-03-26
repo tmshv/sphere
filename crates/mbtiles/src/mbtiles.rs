@@ -70,8 +70,8 @@ impl MBTiles {
         let mut minzoom: i32 = MINZOOM;
         let mut maxzoom: i32 = MAXZOOM;
         while let Some(row) = meta_rows.next()? {
-            let key: String = row.get(0).unwrap();
-            let value: String = row.get(1).unwrap();
+            let key: String = row.get(0)?;
+            let value: String = row.get(1)?;
             match key.as_ref() {
                 "name" => {
                     tilejson.set_name(value);
@@ -132,9 +132,15 @@ impl MBTiles {
                 }
                 "type" => meta.mbtiles_type = Some(value),
                 "format" => meta.format = Some(value),
-                "json" => meta.json = Some(serde_json::from_str(&value).unwrap()),
+                "json" => meta.json = Some(serde_json::from_str(&value)?),
                 &_ => {}
             }
+        }
+        let normalized_format = meta.format.map(|fmt| {
+            if fmt == "jpeg" { "jpg".to_string() } else { fmt }
+        });
+        if let Some(ref fmt) = normalized_format {
+            tilejson.set_format(fmt.clone());
         }
         tilejson.set_zoom(minzoom, maxzoom);
         tilejson.add_tile(self.source.clone());
@@ -146,6 +152,14 @@ impl MBTiles {
             }
             None => (),
         };
+        // Normalize format in merged result: covers format from metadata table and json blob.
+        // Re-applying also prevents json metadata blob from overwriting the normalized value.
+        if let Some(obj) = result.as_object_mut() {
+            if let Some(serde_json::Value::String(fmt)) = obj.get("format") {
+                let normalized = if fmt == "jpeg" { "jpg".to_string() } else { fmt.clone() };
+                obj.insert("format".to_string(), serde_json::Value::String(normalized));
+            }
+        }
         Ok(result)
     }
 
@@ -163,15 +177,15 @@ impl MBTiles {
         )?;
         let (z, x, y) = tile.as_tms();
         let tile_bytes: Vec<u8> =
-            statement.query_row(params![z, x, y], |row| Ok(row.get(0).unwrap()))?;
+            statement.query_row(params![z, x, y], |row| row.get(0))?;
         let f = get_tile_format(tile_bytes.as_slice());
         match f {
             TileFormat::Zlib => {
-                let t = unzip_tile(tile_bytes, TileFormat::Zlib).unwrap();
+                let t = unzip_tile(tile_bytes, TileFormat::Zlib).map_err(|_| MBTilesError::DB)?;
                 Ok(t)
             }
             TileFormat::Gzip => {
-                let t = unzip_tile(tile_bytes, TileFormat::Gzip).unwrap();
+                let t = unzip_tile(tile_bytes, TileFormat::Gzip).map_err(|_| MBTilesError::DB)?;
                 Ok(t)
             }
             _ => Ok(tile_bytes),

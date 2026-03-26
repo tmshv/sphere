@@ -5,6 +5,7 @@ import error from "./error"
 import layer from "./layer"
 import * as listeners from "./listeners"
 import { listener as mapListener } from "./map"
+import mapInteraction from "./map-interaction"
 import mapStyle from "./mapStyle"
 import projection from "./projection"
 import properties from "./properties"
@@ -13,12 +14,14 @@ import sky from "./sky"
 import source from "./source"
 import terrain from "./terrain"
 import tileBoundaries from "./tile-boundaries"
+import tools from "./tools"
 export { actions } from "./actions"
 export { selectors } from "./selectors"
 
 export const store = configureStore({
     reducer: {
         app,
+        mapInteraction,
         draw,
         error,
         projection,
@@ -30,6 +33,7 @@ export const store = configureStore({
         layer,
         selection,
         properties,
+        tools,
     },
     middleware: getDefaultMiddleWare => {
         return getDefaultMiddleWare()
@@ -44,7 +48,10 @@ export const store = configureStore({
             .prepend(listeners.fail.middleware)
             .prepend(listeners.clearError.middleware)
             .prepend(listeners.mapInteractive.middleware)
+            .prepend(listeners.resetTool.middleware)
             .prepend(listeners.autoSelectOnDelete.middleware)
+            .prepend(listeners.exitDrawOnSourceDelete.middleware)
+            .prepend(listeners.saveDraw.middleware)
     },
 })
 

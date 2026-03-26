@@ -28,9 +28,7 @@ vi.mock("../actions", () => {
                 addLayer: (payload: unknown) => ({ type: "layer/addLayer", payload }),
                 setSource: (payload: unknown) => ({ type: "layer/setSource", payload }),
                 setType: (payload: unknown) => ({ type: "layer/setType", payload }),
-            },
-            selection: {
-                selectLayer: (payload: unknown) => ({ type: "selection/selectLayer", payload }),
+                select: (payload: unknown) => ({ type: "layer/select", payload }),
             },
             app: {
                 setActiveSidebarTab: (payload: unknown) => ({ type: "app/setActiveSidebarTab", payload }),
@@ -156,7 +154,10 @@ describe("add-blank-layer listener middleware", () => {
                         id: sourceId,
                         type: SourceType.FeatureCollection,
                         name: "test",
-                        dataset: { type: "FeatureCollection", features: [] },
+                        location: "sphere://fc-source",
+                        version: 0,
+                        editable: true,
+                        fractionIndex: 0,
                         meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 1 },
                         pending: false,
                     },
@@ -255,6 +256,7 @@ describe("add-blank-layer listener middleware", () => {
                         id: sourceId,
                         type: SourceType.MVT,
                         name: "test",
+                        format: "pbf",
                         sourceLayers: [],
                         pending: false,
                     },
@@ -266,5 +268,30 @@ describe("add-blank-layer listener middleware", () => {
         await vi.runAllTimersAsync()
 
         expect(dispatchedActions.find((a: any) => a.type === "layer/setType")).toBeUndefined()
+    })
+
+    test("dispatches setType Raster for raster MVT source", async () => {
+        const sourceId = "raster-mbtiles-source"
+        const { store, dispatchedActions } = makeStore({
+            source: {
+                items: {
+                    [sourceId]: {
+                        id: sourceId,
+                        type: SourceType.MVT,
+                        name: "test",
+                        format: "png",
+                        sourceLayers: [],
+                        pending: false,
+                    },
+                },
+            },
+        })
+
+        store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
+        await vi.runAllTimersAsync()
+
+        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        expect(setTypeAction).toBeDefined()
+        expect((setTypeAction as any).payload.type).toBe(LayerType.Raster)
     })
 })

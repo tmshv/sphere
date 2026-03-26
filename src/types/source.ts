@@ -5,7 +5,7 @@ export type GeojsonSource = {
     type: SourceType.Geojson
     meta: SourceMetadata
     location: string
-    editable: true
+    editable: false
     pending: false
 }
 
@@ -13,6 +13,7 @@ export type VectorSource = {
     type: SourceType.MVT
     tilejson: TileJSON
     location: string
+    format: "pbf" | "png" | "jpg" | "webp"
     // layers:
     editable: false
     sourceLayers: { id: string; name: string }[]
@@ -28,8 +29,8 @@ export type RasterSource = {
 
 export type FeatureCollecionSource = {
     type: SourceType.FeatureCollection
-    location?: string
-    dataset: GeoJSON.FeatureCollection
+    location: string
+    version: number
     editable: true
     pending: false
     meta: SourceMetadata
@@ -38,7 +39,6 @@ export type FeatureCollecionSource = {
 export type PendingFeatureCollecionSource = {
     type: SourceType.FeatureCollection
     location?: string
-    dataset?: GeoJSON.FeatureCollection
     editable: true
     pending: true
 }

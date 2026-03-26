@@ -16,9 +16,16 @@ const makeStore = (selectedIds: number[], sourceId: string | undefined, layerId:
 type MockMap = {
     setFeatureState: ReturnType<typeof vi.fn>
     removeFeatureState: ReturnType<typeof vi.fn>
+    getLayer: ReturnType<typeof vi.fn>
 }
 
 type MockMapRef = { getMap: () => MockMap }
+
+const makeMap = (): MockMap => ({
+    setFeatureState: vi.fn(),
+    removeFeatureState: vi.fn(),
+    getLayer: vi.fn(),
+})
 
 const makeMapRef = (map: MockMap): MockMapRef => ({
     getMap: () => map,
@@ -30,7 +37,7 @@ const wrapper =
 
 describe("useFeatureState", () => {
     it("calls setFeatureState for each selected id when sourceId is set", () => {
-        const map: MockMap = { setFeatureState: vi.fn(), removeFeatureState: vi.fn() }
+        const map = makeMap()
         const store = makeStore([1, 2], "src1", undefined)
         renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
         expect(map.setFeatureState).toHaveBeenCalledTimes(2)
@@ -39,9 +46,18 @@ describe("useFeatureState", () => {
     })
 
     it("does not call setFeatureState when selectedIds is empty", () => {
-        const map: MockMap = { setFeatureState: vi.fn(), removeFeatureState: vi.fn() }
+        const map = makeMap()
         const store = makeStore([], "src1", undefined)
         renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
         expect(map.setFeatureState).not.toHaveBeenCalled()
+    })
+
+    it("resolves source from MapLibre layer when not in Redux store (preview layers)", () => {
+        const map = makeMap()
+        map.getLayer.mockReturnValue({ source: "src1" })
+        const store = makeStore([5], undefined, "preview-src1-point")
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        expect(map.setFeatureState).toHaveBeenCalledTimes(1)
+        expect(map.setFeatureState).toHaveBeenCalledWith({ source: "src1", id: 5 }, { selected: true })
     })
 })

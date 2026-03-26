@@ -1,5 +1,6 @@
 import { tableu10 } from "@/lib/color-scheme"
 import { type LayerRenderType, SourceType } from "@/types"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
 import { selectActiveSidebarTab } from "./app"
@@ -31,9 +32,14 @@ export type PreviewLayerSpec =
           sourceLayer?: string
           color: string
       }
+    | {
+          kind: "Raster"
+          layerId: string
+          sourceId: string
+      }
 
 export const selectPreviewSourceId = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    [(state: RootState) => state.source.selectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab) => {
         if (tab !== "sources") return undefined
         if (!sourceId) return undefined
@@ -67,6 +73,15 @@ export const selectPreviewLayerSpecs = createSelector(
             ]
         }
         if (src.type === SourceType.MVT) {
+            if (isRasterTileFormat(src.format)) {
+                return [
+                    {
+                        kind: "Raster",
+                        layerId: `preview-${sourceId}-raster`,
+                        sourceId,
+                    },
+                ]
+            }
             return src.sourceLayers.flatMap(
                 sl =>
                     [
@@ -101,7 +116,7 @@ export const selectPreviewLayerSpecs = createSelector(
 )
 
 export const selectPreviewLayerIds = createSelector(
-    [(state: RootState) => state.selection.sourceId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    [(state: RootState) => state.source.selectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab): string[] => {
         if (tab !== "sources") return []
         if (!sourceId) return []
@@ -112,6 +127,9 @@ export const selectPreviewLayerIds = createSelector(
             return [`preview-${sourceId}-point`, `preview-${sourceId}-line`, `preview-${sourceId}-polygon`]
         }
         if (src.type === SourceType.MVT) {
+            if (isRasterTileFormat(src.format)) {
+                return []
+            }
             return src.sourceLayers.flatMap(sl => [
                 `preview-${sourceId}-${sl.id}-point`,
                 `preview-${sourceId}-${sl.id}-line`,

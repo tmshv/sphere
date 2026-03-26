@@ -24,8 +24,18 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
 }) => {
     const [fill, outline0, outline1] = useMemo(() => {
         const fill: FillPaint = {
-            "fill-color": color,
-            "fill-opacity": 0.25,
+            "fill-color": [
+                "let",
+                "sel",
+                ["boolean", ["feature-state", "selected"], false],
+                ["case", ["var", "sel"], FEATURE_HIGHLIGHT_COLOR, color],
+            ],
+            "fill-opacity": [
+                "let",
+                "sel",
+                ["boolean", ["feature-state", "selected"], false],
+                ["case", ["var", "sel"], 0.4, 0.25],
+            ],
         }
         const outline0: LinePaint = {
             "line-color": "white",

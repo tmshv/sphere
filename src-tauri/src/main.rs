@@ -1,6 +1,7 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
 mod commands;
+mod id;
 mod state;
 
 // use tokio::sync::mpsc;
@@ -41,6 +42,9 @@ async fn main() {
             commands::source::source_get_column_stats,
             commands::source::source_get_filtered,
             commands::source::source_query_rect,
+            commands::source::source_add_data,
+            commands::source::source_replace,
+            commands::source::source_patch,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();

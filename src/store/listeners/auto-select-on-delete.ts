@@ -9,7 +9,7 @@ listener.startListening({
     effect: async (action, listenerApi) => {
         const before = listenerApi.getOriginalState() as RootState
         const deletedLayerId = action.payload
-        const selectedLayerId = before.selection.layerId
+        const selectedLayerId = before.layer.selectedId
 
         if (selectedLayerId !== deletedLayerId) {
             return
@@ -24,7 +24,7 @@ listener.startListening({
         const remaining = sorted.filter(id => id !== deletedLayerId)
         const nextId = remaining.at(idx) ?? remaining.at(idx - 1)
 
-        listenerApi.dispatch(actions.selection.selectLayer({ layerId: nextId }))
+        listenerApi.dispatch(actions.layer.select(nextId))
     },
 })
 
@@ -33,7 +33,7 @@ listener.startListening({
     effect: async (action, listenerApi) => {
         const before = listenerApi.getOriginalState() as RootState
         const deletedSourceId = action.payload
-        const selectedSourceId = before.selection.sourceId
+        const selectedSourceId = before.source.selectedId
 
         if (selectedSourceId !== deletedSourceId) {
             return
@@ -47,7 +47,7 @@ listener.startListening({
         const remaining = allIds.filter(id => id !== deletedSourceId)
         const nextId = remaining.at(idx) ?? remaining.at(idx - 1)
 
-        listenerApi.dispatch(actions.selection.selectSource({ sourceId: nextId }))
+        listenerApi.dispatch(actions.source.select(nextId))
     },
 })
 

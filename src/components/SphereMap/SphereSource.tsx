@@ -1,49 +1,12 @@
 import { EMPTY_GEOJSON } from "@/const"
 import { assertUnreachable } from "@/lib"
-import type { RootState } from "@/store"
+import logger from "@/logger"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import { createSelector } from "@reduxjs/toolkit"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
-import { Source, type SourceProps } from "react-map-gl/maplibre"
-
-export const selectSource = createSelector([(state: RootState, id: string) => state.source.items[id]], source => {
-    if (!source) {
-        return null
-    }
-    const { type, id } = source
-    switch (type) {
-        case SourceType.FeatureCollection: {
-            return {
-                id,
-                type: "geojson",
-                data: source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection),
-            } as SourceProps
-        }
-        case SourceType.Geojson: {
-            // Data is fetched directly in the component to avoid storing it in Redux.
-            return null
-        }
-        case SourceType.MVT: {
-            return {
-                id,
-                type: "vector",
-                url: `sphere://mbtiles/${id}`,
-            } as SourceProps
-        }
-        case SourceType.Raster: {
-            return {
-                id,
-                type: "raster",
-                url: source.location,
-            } as SourceProps
-        }
-        default: {
-            assertUnreachable(type)
-        }
-    }
-})
+import { Source } from "react-map-gl/maplibre"
 
 export type SphereSourceProps = {
     id: string
@@ -57,6 +20,12 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
 
     const sourceType = source?.type
 
+    const version = useAppSelector(state => {
+        const s = state.source.items[id]
+        if (s?.type === SourceType.FeatureCollection && !s.pending) return s.version
+        return null
+    })
+
     useEffect(() => {
         if (!sourceType || sourceType !== SourceType.Geojson) {
             return
@@ -65,8 +34,19 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             .then(json => {
                 setGeojsonData(JSON.parse(json))
             })
-            .catch(() => {})
+            .catch(err => {
+                logger.error("Failed to fetch GeoJSON source %s: %s", id, err)
+            })
     }, [id, sourceType])
+
+    useEffect(() => {
+        if (version === null) return
+        invoke<string>("source_get", { id })
+            .then(json => setGeojsonData(JSON.parse(json)))
+            .catch(err => {
+                logger.error("Failed to fetch source %s version %d: %s", id, version, err)
+            })
+    }, [id, version])
 
     if (!source) {
         return null
@@ -75,20 +55,16 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const { type } = source
     switch (type) {
         case SourceType.FeatureCollection: {
-            return (
-                <Source
-                    id={id}
-                    type="geojson"
-                    data={source.dataset ?? (EMPTY_GEOJSON as GeoJSON.FeatureCollection)}
-                    promoteId="id"
-                />
-            )
+            return <Source id={id} type="geojson" data={geojsonData} promoteId="id" />
         }
         case SourceType.Geojson: {
             return <Source id={id} type="geojson" data={geojsonData} promoteId="id" />
         }
         case SourceType.MVT: {
-            return <Source id={id} type="vector" url={`sphere://mbtiles/${id}`} />
+            if (isRasterTileFormat(source.format)) {
+                return <Source id={id} type="raster" url={`sphere://${id}/tilejson`} tileSize={256} />
+            }
+            return <Source id={id} type="vector" url={`sphere://${id}/tilejson`} />
         }
         case SourceType.Raster: {
             return <Source id={id} type="raster" url={source.location} />

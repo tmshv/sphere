@@ -8,7 +8,7 @@ import { useCallback } from "react"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 
 const selector = createSelector(
-    [selectors.selection.currentSourceId, selectors.source.items, selectors.source.allIds],
+    [selectors.source.selectSelectedId, selectors.source.items, selectors.source.allIds],
     (currentId, items, allIds) =>
         allIds.map(id => {
             const s = items[id]
@@ -48,11 +48,7 @@ export const SourcesOutline: React.FC = () => {
                     label={name}
                     active={active}
                     onClick={() => {
-                        dispatch(
-                            actions.selection.selectSource({
-                                sourceId: id,
-                            }),
-                        )
+                        dispatch(actions.source.select(id))
                     }}
                     icon={<IconBraces size={16} color={getColor("blue")} />}
                 />

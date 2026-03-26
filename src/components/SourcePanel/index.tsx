@@ -10,11 +10,11 @@ import { useSelector } from "react-redux"
 const reloadAvailable = new Set([SourceType.Geojson])
 
 export const selectCurrentSourceItem = createSelector(
-    [selectors.selection.currentSourceId, selectors.source.items],
+    [selectors.source.selectSelectedId, selectors.source.items],
     (id, items) => (id ? (items[id] ?? null) : null),
 )
 
-export const selector = createSelector([selectors.selection.currentSourceId, selectCurrentSourceItem], (id, source) => {
+export const selector = createSelector([selectors.source.selectSelectedId, selectCurrentSourceItem], (id, source) => {
     if (!id || !source) {
         return null
     }
@@ -96,14 +96,16 @@ export const SourcePanel: React.FC = () => {
                             break
                         }
                         case "edit": {
+                            if (!source.editable) break
                             if (drawing) {
-                                dispatch(actions.draw.reset())
+                                dispatch(actions.tools.reset())
                             } else {
                                 dispatch(
                                     actions.draw.start({
                                         sourceId: source.id,
                                     }),
                                 )
+                                dispatch(actions.tools.setTool("draw"))
                             }
                             break
                         }

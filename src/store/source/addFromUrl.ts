@@ -2,6 +2,7 @@ import { MbtilesReader } from "@/lib/mbtiles"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 import { SourceType } from "@/types"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { invoke } from "@tauri-apps/api/core"
 import { actions } from "."
@@ -36,7 +37,10 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                     if (tilejson.name) {
                         name = tilejson.name
                     }
-                    const sourceLayers = (tilejson.vector_layers ?? []).map(({ id }) => ({ id, name: id }))
+                    const format = tilejson.format ?? "pbf"
+                    const sourceLayers = isRasterTileFormat(format)
+                        ? []
+                        : (tilejson.vector_layers ?? []).map(({ id }) => ({ id, name: id }))
                     thunkAPI.dispatch(
                         actions.addMVTSource({
                             id,
@@ -44,8 +48,11 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                             location,
                             sourceLayers,
                             tilejson,
+                            format,
                         }),
                     )
+                } else {
+                    logger.error("Failed to get TileJSON for source %s", id)
                 }
                 break
             }
@@ -63,6 +70,8 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                             location,
                         }),
                     )
+                } else {
+                    logger.error("Failed to get TileJSON for raster source %s", id)
                 }
                 break
             }
