@@ -1,12 +1,9 @@
-import { tableu10 } from "@/lib/color-scheme"
 import { type LayerRenderType, SourceType } from "@/types"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
 import { selectActiveSidebarTab } from "./app"
-
-const PREVIEW_COLOR = tableu10[0]
-const PREVIEW_RADIUS = 3
+import { PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 
 export type PreviewLayerSpec =
     | {

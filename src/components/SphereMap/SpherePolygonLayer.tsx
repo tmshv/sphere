@@ -24,40 +24,19 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
 }) => {
     const [fill, outline0, outline1] = useMemo(() => {
         const fill: FillPaint = {
-            "fill-color": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], FEATURE_HIGHLIGHT_COLOR, color],
-            ],
-            "fill-opacity": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], 0.4, 0.25],
-            ],
+            "fill-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
+            "fill-opacity": ["case", ["boolean", ["feature-state", "selected"], false], 0.15, 0.15],
+            "fill-outline-color": "black",
         }
         const outline0: LinePaint = {
+            // "line-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, "white"],
             "line-color": "white",
             "line-width": 1,
             "line-offset": -1,
-            // for double size
-            // "line-width": 3,
-            // "line-offset": 0,
         }
         const outline1: LinePaint = {
-            "line-color": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], FEATURE_HIGHLIGHT_COLOR, color],
-            ],
-            "line-width": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], 3, 1],
-            ],
+            "line-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
+            "line-width": 1, //["case", ["boolean", ["feature-state", "selected"], false], 3, 1],
         }
 
         return [fill, outline0, outline1]
@@ -71,7 +50,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 type={"fill"}
                 paint={fill}
                 layout={{
-                    visibility: visible ? "visible" : "none",
+                    visibility: visibility(visible),
                 }}
                 filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
                 {...sourceLayerProp(sourceLayer)}

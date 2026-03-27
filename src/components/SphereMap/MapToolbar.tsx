@@ -1,4 +1,4 @@
-import { actions } from "@/store"
+import { actions, selectors } from "@/store"
 import { selectActiveSidebarTab, selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { ActionIcon, Group } from "@mantine/core"
@@ -48,7 +48,9 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
         }
     }, [dispatch])
 
-    if (activeTab !== "sources") {
+    const zen = useAppSelector(selectors.app.isZen)
+
+    if (zen || activeTab !== "sources") {
         return null
     }
 
@@ -58,7 +60,7 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
             style={{
                 position: "absolute",
                 top: 12,
-                left: 12,
+                right: 12,
                 zIndex: 10,
                 background: "rgba(0,0,0,0.6)",
                 borderRadius: 6,

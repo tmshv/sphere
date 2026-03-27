@@ -25,22 +25,13 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
 }) => {
     const [outline, line] = useMemo(() => {
         const outline: LinePaint = {
-            "line-color": "#fff",
+            // "line-color": ["case", ["boolean", ["feature-state", "selected"], false], color, "#fff"],
+            "line-color": "white",
             "line-width": thick ? 4 : 3,
         }
         const line: LinePaint = {
-            "line-color": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], FEATURE_HIGHLIGHT_COLOR, color],
-            ],
-            "line-width": [
-                "let",
-                "sel",
-                ["boolean", ["feature-state", "selected"], false],
-                ["case", ["var", "sel"], thick ? 4 : 3, thick ? 2 : 1],
-            ],
+            "line-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
+            "line-width": thick ? 2 : 1,
         }
 
         return [outline, line]
