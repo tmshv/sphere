@@ -5,9 +5,9 @@ import { sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import type { LayerRenderType } from "@/types"
-import { LayerType } from "@/types"
+import { LayerType, SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
-import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
+import type { DataDrivenPropertyValueSpecification, FilterSpecification } from "maplibre-gl"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
 import type { GetImageFunction } from "../PhotoLayer/types"
 import { PointLayer } from "./PointLayer"
@@ -31,9 +31,12 @@ type SelectTuple<T> = [LayerRenderType, T | null]
 const select = createSelector(
     [
         (state: RootState, id: string) => state.layer.items[id],
-        // (state: RootState, id: string) => state.source.items[id],
+        (state: RootState, id: string) => {
+            const sourceId = state.layer.items[id]?.sourceId
+            return sourceId ? state.source.items[sourceId] : undefined
+        },
     ],
-    layer => {
+    (layer, source) => {
         const {
             id: layerId,
             sourceId: rawSourceId,
@@ -47,7 +50,10 @@ const select = createSelector(
             extrusion,
             filter,
         } = layer
-        const sourceId = filter ? `layer-${layerId}` : rawSourceId
+        const isMaplibreFiltered =
+            filter && source?.type === SourceType.MVT && !source.pending && source.format === "pbf"
+        const sourceId = filter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
+        const userFilter = isMaplibreFiltered ? (filter.expression as unknown[]) : null
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
         }
@@ -61,6 +67,7 @@ const select = createSelector(
                     color,
                     visible,
                     options: circle,
+                    userFilter,
                 }
                 return ["Point", props] as SelectTuple<PointLayerProps>
             }
@@ -72,6 +79,7 @@ const select = createSelector(
                     color,
                     visible,
                     thick: false,
+                    userFilter,
                 }
                 return ["LineString", props] as SelectTuple<SphereLineStringLayerProps>
             }
@@ -82,6 +90,7 @@ const select = createSelector(
                     sourceLayer,
                     color,
                     visible,
+                    userFilter,
                 }
                 return ["Polygon", props] as SelectTuple<SpherePolygonLayerProps>
             }
@@ -104,7 +113,9 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
-                    filter: ["==", ["geometry-type"], "Polygon"],
+                    filter: (userFilter
+                        ? ["all", ["==", ["geometry-type"], "Polygon"], userFilter]
+                        : ["==", ["geometry-type"], "Polygon"]) as FilterSpecification,
                     paint: {
                         "fill-extrusion-color": color,
                         "fill-extrusion-opacity": opacity,

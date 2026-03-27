@@ -276,7 +276,7 @@ The `select` selector currently computes `sourceId` as `filter ? \`layer-${layer
 - GeoJSON/FeatureCollection + filter → use `layer-${layerId}` sourceId, no `userFilter`
 - No filter → original sourceId, no `userFilter`
 
-- [ ] **Step 1: Add source lookup to the selector inputs**
+- [x] **Step 1: Add source lookup to the selector inputs**
 
 In `src/components/SphereMap/SphereLayer.tsx`, modify the `select` selector. Replace the current selector (lines 31-219):
 
@@ -305,7 +305,7 @@ const select = createSelector(
     (layer, source) => {
 ```
 
-- [ ] **Step 2: Compute filtering strategy**
+- [x] **Step 2: Compute filtering strategy**
 
 Replace the `sourceId` computation (line 50):
 
@@ -331,7 +331,7 @@ Add the required imports at the top of the file:
 import { SourceType } from "@/types"
 ```
 
-- [ ] **Step 3: Thread `userFilter` into layer props**
+- [x] **Step 3: Thread `userFilter` into layer props**
 
 For the `Point` case, add `userFilter` to props:
 
@@ -399,16 +399,16 @@ with:
 
 The `Heatmap`, `Raster`, and `Photo` cases remain unchanged — they don't use geometry-type filters that would benefit from combining.
 
-- [ ] **Step 4: Run lint and format**
+- [x] **Step 4: Run lint and format**
 
 Run: `npm run lint:fix && npm run format`
 
-- [ ] **Step 5: Run the full test suite to verify nothing is broken**
+- [x] **Step 5: Run the full test suite to verify nothing is broken**
 
 Run: `npm test`
 Expected: PASS (no component tests for SphereLayer exist, but this ensures no regressions)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/SphereMap/SphereLayer.tsx
