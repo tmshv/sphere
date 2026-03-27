@@ -1,6 +1,6 @@
 import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
-import type { LineLayerSpecification } from "maplibre-gl"
+import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { FilterSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
 
@@ -13,6 +13,7 @@ export type SphereLineStringLayerProps = {
     color: string
     visible: boolean
     thick: boolean
+    filter?: FilterSpecification
 }
 
 export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
@@ -22,10 +23,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
     color,
     visible,
     thick,
+    filter,
 }) => {
     const [outline, line] = useMemo(() => {
         const outline: LinePaint = {
-            // "line-color": ["case", ["boolean", ["feature-state", "selected"], false], color, "#fff"],
             "line-color": "white",
             "line-width": thick ? 4 : 3,
         }
@@ -49,7 +50,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -62,7 +66,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
         </>

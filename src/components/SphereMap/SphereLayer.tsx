@@ -1,11 +1,12 @@
 import { type FC, memo } from "react"
 import { PhotoLayer, type PhotoLayerProps } from "@/components/PhotoLayer"
 import { assertUnreachable } from "@/lib"
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import type { LayerRenderType } from "@/types"
-import { LayerType } from "@/types"
+import { LayerType, SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
 import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
@@ -31,9 +32,12 @@ type SelectTuple<T> = [LayerRenderType, T | null]
 const select = createSelector(
     [
         (state: RootState, id: string) => state.layer.items[id],
-        // (state: RootState, id: string) => state.source.items[id],
+        (state: RootState, id: string) => {
+            const sourceId = state.layer.items[id]?.sourceId
+            return sourceId ? state.source.items[sourceId] : undefined
+        },
     ],
-    layer => {
+    (layer, source) => {
         const {
             id: layerId,
             sourceId: rawSourceId,
@@ -45,9 +49,12 @@ const select = createSelector(
             heatmap,
             photo,
             extrusion,
-            filter,
+            filter: layerFilter,
         } = layer
-        const sourceId = filter ? `layer-${layerId}` : rawSourceId
+        const isMaplibreFiltered =
+            layerFilter && source?.type === SourceType.MVT && !source.pending && !isRasterTileFormat(source.format)
+        const sourceId = layerFilter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
+        const filter = isMaplibreFiltered ? layerFilter.expression : undefined
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
         }
@@ -61,6 +68,7 @@ const select = createSelector(
                     color,
                     visible,
                     options: circle,
+                    filter,
                 }
                 return ["Point", props] as SelectTuple<PointLayerProps>
             }
@@ -72,6 +80,7 @@ const select = createSelector(
                     color,
                     visible,
                     thick: false,
+                    filter,
                 }
                 return ["LineString", props] as SelectTuple<SphereLineStringLayerProps>
             }
@@ -82,6 +91,7 @@ const select = createSelector(
                     sourceLayer,
                     color,
                     visible,
+                    filter,
                 }
                 return ["Polygon", props] as SelectTuple<SpherePolygonLayerProps>
             }
@@ -104,7 +114,7 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
-                    filter: ["==", ["geometry-type"], "Polygon"],
+                    filter: combineFilters(["==", ["geometry-type"], "Polygon"], ...(filter ? [filter] : [])),
                     paint: {
                         "fill-extrusion-color": color,
                         "fill-extrusion-opacity": opacity,
@@ -125,6 +135,7 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
+                    ...(filter ? { filter: combineFilters(filter) } : {}),
                     paint: {
                         // Increase the heatmap weight based on frequency and property magnitude
                         // 'heatmap-weight': [
@@ -205,9 +216,10 @@ const select = createSelector(
                     iconSizeCluster: 50,
                     iconLayout: photo?.icon ?? "square",
                     getImage: createGetImageFunction({
-                        srcField: srcField!,
+                        srcField: srcField ?? "",
                         valueField,
                     }),
+                    filter,
                 }
                 return ["photo", props] as SelectTuple<PhotoLayerProps & { visible: boolean }>
             }

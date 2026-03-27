@@ -2,6 +2,7 @@ import { nextId } from "@/lib/nextId"
 import { SourceReader } from "@/lib/source-reader"
 import { useAppSelector } from "@/store/hooks"
 import { type Id, SourceType } from "@/types"
+import type { FilterSpecification } from "maplibre-gl"
 import type * as maplibregl from "maplibre-gl"
 import { useEffect, useState } from "react"
 
@@ -9,9 +10,10 @@ type UseFeaturesOptions = {
     layerId: Id
     sourceId: Id
     map?: maplibregl.Map
+    filter?: FilterSpecification
 }
 
-function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSON.Feature[] | null {
+function useTileFeatures({ map, sourceId, layerId, filter }: UseFeaturesOptions): GeoJSON.Feature[] | null {
     const [features, setFeatures] = useState<GeoJSON.Feature[]>([])
     const ok = useAppSelector(state => {
         const source = state.source.items[sourceId]
@@ -68,12 +70,12 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
             map.off("idle", onIdle)
             map.off("moveend", upd)
         }
-    }, [ok, layerId, map])
+    }, [ok, layerId, map, filter])
 
     return features.length > 0 ? features : null
 }
 
-export function useFeatures({ sourceId, layerId, map }: UseFeaturesOptions): GeoJSON.Feature[] {
+export function useFeatures({ sourceId, layerId, map, filter }: UseFeaturesOptions): GeoJSON.Feature[] {
     const [features, setFeatures] = useState<GeoJSON.Feature[]>([])
     const sourceIdForReader = useAppSelector(state => {
         const source = state.source.items[sourceId]
@@ -119,6 +121,7 @@ export function useFeatures({ sourceId, layerId, map }: UseFeaturesOptions): Geo
         sourceId,
         layerId,
         map,
+        filter,
     })
 
     return tf ?? features

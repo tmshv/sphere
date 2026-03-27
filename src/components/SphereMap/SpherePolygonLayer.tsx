@@ -1,6 +1,6 @@
 import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
-import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
+import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { FillLayerSpecification, FilterSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
 
@@ -13,6 +13,7 @@ export type SpherePolygonLayerProps = {
     sourceLayer?: string
     color: string
     visible: boolean
+    filter?: FilterSpecification
 }
 
 export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
@@ -21,6 +22,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
     sourceLayer,
     color,
     visible,
+    filter,
 }) => {
     const [fill, outline0, outline1] = useMemo(() => {
         const fill: FillPaint = {
@@ -29,14 +31,13 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
             "fill-outline-color": "black",
         }
         const outline0: LinePaint = {
-            // "line-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, "white"],
             "line-color": "white",
             "line-width": 1,
             "line-offset": -1,
         }
         const outline1: LinePaint = {
             "line-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
-            "line-width": 1, //["case", ["boolean", ["feature-state", "selected"], false], 3, 1],
+            "line-width": 1,
         }
 
         return [fill, outline0, outline1]
@@ -52,7 +53,10 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 layout={{
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -65,7 +69,10 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -78,7 +85,10 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
         </>
