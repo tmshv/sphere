@@ -2,7 +2,7 @@ import { actions, selectors } from "@/store"
 import { selectActiveSidebarTab, selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { ActionIcon, Group } from "@mantine/core"
-import { IconHandMove, IconRectangle } from "@tabler/icons"
+import { IconHandStop, IconPointer } from "@tabler/icons"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
@@ -59,8 +59,9 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
             spacing={4}
             style={{
                 position: "absolute",
-                top: 12,
-                right: 12,
+                bottom: 12,
+                left: "50%",
+                transform: "translateX(-50%)",
                 zIndex: 10,
                 background: "rgba(0,0,0,0.6)",
                 borderRadius: 6,
@@ -73,7 +74,7 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
                 title="Pan"
                 onClick={() => dispatch(actions.app.setMapTool("pan"))}
             >
-                <IconHandMove size={16} />
+                <IconHandStop size={16} />
             </ActionIcon>
             <ActionIcon
                 size="md"
@@ -81,7 +82,7 @@ export default function MapToolbar({ mapRef }: MapToolbarProps) {
                 title="Rect Select"
                 onClick={() => dispatch(actions.app.setMapTool("select"))}
             >
-                <IconRectangle size={16} />
+                <IconPointer size={16} />
             </ActionIcon>
         </Group>
     )
