@@ -8,7 +8,7 @@ import { useAppSelector } from "@/store/hooks"
 import type { LayerRenderType } from "@/types"
 import { LayerType, SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
-import type { DataDrivenPropertyValueSpecification, FilterSpecification } from "maplibre-gl"
+import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
 import type { GetImageFunction } from "../PhotoLayer/types"
 import { PointLayer } from "./PointLayer"
@@ -54,7 +54,7 @@ const select = createSelector(
         const isMaplibreFiltered =
             layerFilter && source?.type === SourceType.MVT && !source.pending && !isRasterTileFormat(source.format)
         const sourceId = layerFilter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
-        const filter = isMaplibreFiltered ? (layerFilter.expression as FilterSpecification) : undefined
+        const filter = isMaplibreFiltered ? layerFilter.expression : undefined
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
         }

@@ -1,8 +1,10 @@
+import { isValidFilterExpression } from "@/lib/maplibre"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
+import type { FilterSpecification } from "maplibre-gl"
 import { useAppDispatch } from "@/store/hooks"
 import type { PhotoIconLayout } from "@/store/layer"
 import { LayerType, SourceType } from "@/types"
-import { isRasterTileFormat } from "@/lib/tilejson"
 import { ActionBar } from "@/ui/ActionBar"
 import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
@@ -163,9 +165,9 @@ export const LayerPanel: React.FC = () => {
         }
         try {
             const expression = JSON.parse(text)
-            if (Array.isArray(expression)) {
+            if (Array.isArray(expression) && isValidFilterExpression(expression)) {
                 setFilterLocalError(null)
-                dispatch(actions.layer.setLayerFilter({ id: layerId, expression: expression as unknown[] }))
+                dispatch(actions.layer.setLayerFilter({ id: layerId, expression: expression as FilterSpecification }))
             }
         } catch {
             // don't show error while typing
@@ -178,6 +180,8 @@ export const LayerPanel: React.FC = () => {
             const expression = JSON.parse(filterText)
             if (!Array.isArray(expression)) {
                 setFilterLocalError("Filter must be a JSON array")
+            } else if (!isValidFilterExpression(expression)) {
+                setFilterLocalError("Invalid filter expression")
             }
         } catch {
             setFilterLocalError("Invalid JSON expression")
