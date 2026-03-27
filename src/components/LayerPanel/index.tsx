@@ -109,6 +109,9 @@ export const layerSelector = createSelector(
             filterExpression: layer.filter?.expression ?? null,
             filterError: layer.filter?.error ?? null,
             isTileSource: source?.type === SourceType.MVT || source?.type === SourceType.Raster,
+            isFilterable:
+                source?.type !== SourceType.Raster &&
+                !(source?.type === SourceType.MVT && isRasterTileFormat(source.format)),
             isRasterMvt:
                 (source?.type === SourceType.MVT && isRasterTileFormat(source.format)) ||
                 source?.type === SourceType.Raster,
@@ -149,6 +152,7 @@ export const LayerPanel: React.FC = () => {
         heatmapIntensity,
         filterError,
         isTileSource,
+        isFilterable,
     } = layer
 
     function handleFilterChange(text: string) {
@@ -267,7 +271,7 @@ export const LayerPanel: React.FC = () => {
                 }}
             />
 
-            {isTileSource ? null : (
+            {!isFilterable ? null : (
                 <TextInput
                     size="xs"
                     label="Filter"
