@@ -108,10 +108,10 @@ export const layerSelector = createSelector(
             extrusionHeightField: layer.extrusion?.heightField,
             filterExpression: layer.filter?.expression ?? null,
             filterError: layer.filter?.error ?? null,
-            isTileSource: source?.type === SourceType.MVT || source?.type === SourceType.Raster,
             isFilterable:
-                source?.type !== SourceType.Raster &&
-                !(source?.type === SourceType.MVT && isRasterTileFormat(source.format)),
+                !!source &&
+                source.type !== SourceType.Raster &&
+                !(source.type === SourceType.MVT && isRasterTileFormat(source.format)),
             isRasterMvt:
                 (source?.type === SourceType.MVT && isRasterTileFormat(source.format)) ||
                 source?.type === SourceType.Raster,
