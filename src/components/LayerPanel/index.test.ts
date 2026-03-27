@@ -1,5 +1,5 @@
-import { makeGeojsonSource } from "@/testutils"
-import { LayerType } from "@/types"
+import { makeGeojsonSource, makeMvtSource } from "@/testutils"
+import { LayerType, SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { layerSelector, selectCurrentLayerItem, selectCurrentLayerSourceItem } from "./index"
 
@@ -226,5 +226,59 @@ describe("layerSelector", () => {
 
         expect(result1).not.toBe(result2)
         expect(result2?.color).toBe("#00ff00")
+    })
+})
+
+describe("layerSelector isFilterable", () => {
+    test("is true for GeoJSON source", () => {
+        const source = makeGeojsonSource("s1")
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(true)
+    })
+
+    test("is true for MVT PBF source", () => {
+        const source = makeMvtSource("s1", { format: "pbf" })
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(true)
+    })
+
+    test("is false for MVT raster (png) source", () => {
+        const source = makeMvtSource("s1", { format: "png" })
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(false)
+    })
+
+    test("is false for Raster source", () => {
+        const source = {
+            id: "s1",
+            name: "Source s1",
+            type: SourceType.Raster,
+            location: "/path/to/s1.tif",
+            fractionIndex: 0,
+            editable: false,
+            pending: false,
+        }
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(false)
     })
 })

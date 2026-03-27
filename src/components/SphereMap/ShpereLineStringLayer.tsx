@@ -1,5 +1,5 @@
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
-import type { LineLayerSpecification } from "maplibre-gl"
+import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import type { FilterSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
 
@@ -12,6 +12,7 @@ export type SphereLineStringLayerProps = {
     color: string
     visible: boolean
     thick: boolean
+    filter?: FilterSpecification
 }
 
 export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
@@ -21,6 +22,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
     color,
     visible,
     thick,
+    filter,
 }) => {
     const [outline, line, selected] = useMemo(() => {
         const outline: LinePaint = {
@@ -51,7 +53,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -64,7 +69,10 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]]}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -77,7 +85,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", "id", ""]}
+                filter={combineFilters(["in", "id", ""], ...(filter ? [filter] : []))}
                 {...sourceLayerProp(sourceLayer)}
             />
         </>

@@ -57,6 +57,10 @@ export default defineConfig({
             "**/*.test.ts",
             "**/*.test.tsx",
         ],
+        exclude: [
+            "**/node_modules/**",
+            "**/.worktrees/**",
+        ],
         globals: true,
         environment: "happy-dom",
         setupFiles: ["./src/setupTests.ts"],
