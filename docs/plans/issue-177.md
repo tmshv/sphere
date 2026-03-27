@@ -140,7 +140,7 @@ git commit -m "Add makeMvtSource test factory"
 - Modify: `src/components/LayerPanel/index.tsx`
 - Modify: `src/components/LayerPanel/index.test.ts`
 
-- [ ] **Step 1: Write failing tests for `isFilterable`**
+- [x] **Step 1: Write failing tests for `isFilterable`**
 
 Add to `src/components/LayerPanel/index.test.ts`:
 
@@ -206,12 +206,12 @@ describe("layerSelector isFilterable", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npm test -- src/components/LayerPanel/index.test.ts`
 Expected: FAIL — `isFilterable` is not a property on the result
 
-- [ ] **Step 3: Add `isFilterable` to `layerSelector` and use it in the component**
+- [x] **Step 3: Add `isFilterable` to `layerSelector` and use it in the component**
 
 In `src/components/LayerPanel/index.tsx`, in the `layerSelector` return object (around line 88-121), replace:
 
@@ -248,16 +248,16 @@ with:
             {!isFilterable ? null : (
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npm test -- src/components/LayerPanel/index.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Run formatter**
+- [x] **Step 5: Run formatter**
 
 Run: `npm run format`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/LayerPanel/index.tsx src/components/LayerPanel/index.test.ts
