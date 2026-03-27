@@ -2,6 +2,7 @@ import { type FC, memo } from "react"
 import { PhotoLayer, type PhotoLayerProps } from "@/components/PhotoLayer"
 import { assertUnreachable } from "@/lib"
 import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import type { LayerRenderType } from "@/types"
@@ -51,7 +52,7 @@ const select = createSelector(
             filter,
         } = layer
         const isMaplibreFiltered =
-            filter && source?.type === SourceType.MVT && !source.pending && source.format === "pbf"
+            filter && source?.type === SourceType.MVT && !source.pending && !isRasterTileFormat(source.format)
         const sourceId = filter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
         const userFilter = isMaplibreFiltered ? filter.expression : null
         if (!sourceId || !type) {
@@ -134,6 +135,7 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
+                    ...(userFilter ? { filter: combineFilters(userFilter) } : {}),
                     paint: {
                         // Increase the heatmap weight based on frequency and property magnitude
                         // 'heatmap-weight': [
