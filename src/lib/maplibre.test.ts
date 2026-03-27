@@ -44,7 +44,9 @@ describe("isExpressionFilter", () => {
     })
 
     it("should return false for !in operator", () => {
-        expect(isExpressionFilter(["!in", ["get", "type"], ["literal", ["a"]]] as unknown as FilterSpecification)).toBe(false)
+        expect(isExpressionFilter(["!in", ["get", "type"], ["literal", ["a"]]] as unknown as FilterSpecification)).toBe(
+            false,
+        )
     })
 
     it("should return false for !has operator", () => {
