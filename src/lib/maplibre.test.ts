@@ -1,5 +1,5 @@
 import type { FilterSpecification } from "maplibre-gl"
-import { combineFilters, isValidFilterExpression, sourceLayerProp, visibility } from "./maplibre"
+import { combineFilters, isExpressionFilter, isValidFilterExpression, sourceLayerProp, visibility } from "./maplibre"
 
 describe("visibility", () => {
     it("should return 'visible' when the input is true", () => {
@@ -26,13 +26,65 @@ describe("sourceLayerProp", () => {
     })
 })
 
+describe("isExpressionFilter", () => {
+    it("should return true for modern equality expression", () => {
+        expect(isExpressionFilter(["==", ["get", "type"], "airport"] as FilterSpecification)).toBe(true)
+    })
+
+    it("should return false for legacy bare-string comparison", () => {
+        expect(isExpressionFilter(["==", "type", "airport"] as FilterSpecification)).toBe(false)
+    })
+
+    it("should return false for legacy $id key", () => {
+        expect(isExpressionFilter(["==", "$id", 42] as FilterSpecification)).toBe(false)
+    })
+
+    it("should return false for legacy $type key", () => {
+        expect(isExpressionFilter(["==", "$type", "Point"] as FilterSpecification)).toBe(false)
+    })
+
+    it("should return false for !in operator", () => {
+        expect(isExpressionFilter(["!in", ["get", "type"], ["literal", ["a"]]] as unknown as FilterSpecification)).toBe(false)
+    })
+
+    it("should return false for !has operator", () => {
+        expect(isExpressionFilter(["!has", "elevation"] as FilterSpecification)).toBe(false)
+    })
+
+    it("should return false for none operator", () => {
+        expect(isExpressionFilter(["none", ["has", "elevation"]] as FilterSpecification)).toBe(false)
+    })
+
+    it("should return true for modern in with expression haystack", () => {
+        expect(isExpressionFilter(["in", ["get", "type"], ["literal", ["a", "b"]]] as FilterSpecification)).toBe(true)
+    })
+
+    it("should return false for legacy in with scalar haystack", () => {
+        expect(isExpressionFilter(["in", "type", "airport"] as FilterSpecification)).toBe(false)
+    })
+
+    it("should return true for all with modern sub-filters", () => {
+        expect(
+            isExpressionFilter([
+                "all",
+                ["==", ["get", "type"], "airport"],
+                ["has", "elevation"],
+            ] as FilterSpecification),
+        ).toBe(true)
+    })
+
+    it("should return false for all containing a legacy sub-filter", () => {
+        expect(isExpressionFilter(["all", ["==", "type", "airport"]] as FilterSpecification)).toBe(false)
+    })
+})
+
 describe("isValidFilterExpression", () => {
     it("should return true for a valid equality expression", () => {
         expect(isValidFilterExpression(["==", ["get", "type"], "airport"])).toBe(true)
     })
 
-    it("should return true for a valid legacy filter", () => {
-        expect(isValidFilterExpression(["==", "type", "airport"])).toBe(true)
+    it("should return false for a legacy filter", () => {
+        expect(isValidFilterExpression(["==", "type", "airport"])).toBe(false)
     })
 
     it("should return false for an operator with no operands", () => {
