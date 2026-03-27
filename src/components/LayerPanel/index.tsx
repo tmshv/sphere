@@ -151,7 +151,6 @@ export const LayerPanel: React.FC = () => {
         heatmapRadius,
         heatmapIntensity,
         filterError,
-        isTileSource,
         isFilterable,
     } = layer
 

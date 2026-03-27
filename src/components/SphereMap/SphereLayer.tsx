@@ -1,13 +1,13 @@
 import { type FC, memo } from "react"
 import { PhotoLayer, type PhotoLayerProps } from "@/components/PhotoLayer"
 import { assertUnreachable } from "@/lib"
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { RootState } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import type { LayerRenderType } from "@/types"
 import { LayerType, SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
-import type { DataDrivenPropertyValueSpecification, FilterSpecification } from "maplibre-gl"
+import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
 import type { GetImageFunction } from "../PhotoLayer/types"
 import { PointLayer } from "./PointLayer"
@@ -53,7 +53,7 @@ const select = createSelector(
         const isMaplibreFiltered =
             filter && source?.type === SourceType.MVT && !source.pending && source.format === "pbf"
         const sourceId = filter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
-        const userFilter = isMaplibreFiltered ? (filter.expression as unknown[]) : null
+        const userFilter = isMaplibreFiltered ? filter.expression : null
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
         }
@@ -113,9 +113,7 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
-                    filter: (userFilter
-                        ? ["all", ["==", ["geometry-type"], "Polygon"], userFilter]
-                        : ["==", ["geometry-type"], "Polygon"]) as FilterSpecification,
+                    filter: combineFilters(["==", ["geometry-type"], "Polygon"], userFilter),
                     paint: {
                         "fill-extrusion-color": color,
                         "fill-extrusion-opacity": opacity,

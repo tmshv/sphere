@@ -1,4 +1,4 @@
-import type { Map as MaplibreMap, Point, PointLike } from "maplibre-gl"
+import type { FilterSpecification, Map as MaplibreMap, Point, PointLike } from "maplibre-gl"
 
 const QUERY_SIZE = 8
 
@@ -22,11 +22,12 @@ export function visibility(value: boolean): "visible" | "none" {
     return value ? "visible" : "none"
 }
 
-export function combineFilters(base: unknown[], userFilter?: unknown[] | null): unknown[] {
+// FilterSpecification is a complex union; dynamic construction requires a cast at this boundary
+export function combineFilters(base: unknown[], userFilter?: unknown[] | null): FilterSpecification {
     if (!userFilter) {
-        return base
+        return base as FilterSpecification
     }
-    return ["all", base, userFilter]
+    return ["all", base, userFilter] as unknown as FilterSpecification
 }
 
 export function sourceLayerProp(value?: string | null): object {

@@ -569,17 +569,17 @@ git commit -m "Accept userFilter in geometry layer components for MVT filtering"
 
 ### Task 6: End-to-end verification
 
-- [ ] **Step 1: Run the full test suite**
+- [x] **Step 1: Run the full test suite**
 
 Run: `npm test`
 Expected: All tests PASS
 
-- [ ] **Step 2: Run lint**
+- [x] **Step 2: Run lint**
 
 Run: `npm run lint`
 Expected: No errors
 
-- [ ] **Step 3: Build the frontend**
+- [x] **Step 3: Build the frontend**
 
 Run: `npm run build`
 Expected: Successful build with no type errors
