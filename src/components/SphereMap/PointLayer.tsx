@@ -1,5 +1,5 @@
 import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
-import type { CircleLayerSpecification } from "maplibre-gl"
+import type { CircleLayerSpecification, FilterSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
 
@@ -11,7 +11,7 @@ export type PointLayerProps = {
     sourceLayer?: string
     color: string
     visible: boolean
-    userFilter?: unknown[] | null
+    filter?: FilterSpecification
     options?: {
         maxRadius: number
         minRadius: number
@@ -25,7 +25,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({
     color,
     options,
     visible,
-    userFilter,
+    filter,
 }) => {
     const [circle, selected] = useMemo(() => {
         const radius = options?.maxRadius ?? 4
@@ -53,7 +53,10 @@ export const PointLayer: React.FC<PointLayerProps> = ({
                 layout={{
                     visibility: visibility(visible),
                 }}
-                filter={combineFilters(["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]], userFilter)}
+                filter={combineFilters(
+                    ["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]],
+                    ...(filter ? [filter] : []),
+                )}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -64,7 +67,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({
                 layout={{
                     visibility: visibility(visible),
                 }}
-                filter={["in", "id", ""]}
+                filter={combineFilters(["in", "id", ""], ...(filter ? [filter] : []))}
                 {...sourceLayerProp(sourceLayer)}
             />
         </>

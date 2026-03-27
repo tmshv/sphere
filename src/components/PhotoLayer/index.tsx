@@ -8,6 +8,7 @@ import { InvisibleCircleLayer } from "./InvisibleCircleLayer"
 import { PhotoCluster, type RenderPhotoFunction } from "./PhotoCluster"
 import { useFeatures } from "./hooks"
 import type { GetImageFunction } from "./types"
+import type { FilterSpecification } from "maplibre-gl"
 
 const PHOTO_CONTAINER_STYLE: React.CSSProperties = { position: "relative", zIndex: 0 }
 const MARKER_STYLE_ACTIVE: React.CSSProperties = { zIndex: 100 }
@@ -22,6 +23,7 @@ export type PhotoLayerProps = {
     iconLayout: ImageMarkerLayout
     iconSize: number
     iconSizeCluster?: number
+    filter?: FilterSpecification
 }
 
 export const PhotoLayer: React.FC<PhotoLayerProps> = ({
@@ -33,6 +35,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({
     iconLayout,
     iconSize,
     iconSizeCluster,
+    filter,
 }) => {
     const invisiblePointsLayer = `${layerId}-invisible-points`
     const dispatch = useDispatch()
@@ -42,6 +45,7 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({
         sourceId,
         layerId: invisiblePointsLayer,
         map: current?.getMap(),
+        filter,
     })
 
     useEffect(() => {
@@ -135,7 +139,12 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({
 
     return (
         <>
-            <InvisibleCircleLayer layerId={invisiblePointsLayer} sourceId={sourceId} sourceLayer={sourceLayer} />
+            <InvisibleCircleLayer
+                layerId={invisiblePointsLayer}
+                sourceId={sourceId}
+                sourceLayer={sourceLayer}
+                filter={filter}
+            />
             <PhotoCluster
                 radius={clusterRadius}
                 data={

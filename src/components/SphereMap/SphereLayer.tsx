@@ -8,7 +8,7 @@ import { useAppSelector } from "@/store/hooks"
 import type { LayerRenderType } from "@/types"
 import { LayerType, SourceType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
-import type { DataDrivenPropertyValueSpecification } from "maplibre-gl"
+import type { DataDrivenPropertyValueSpecification, FilterSpecification } from "maplibre-gl"
 import { Layer, type LayerProps } from "react-map-gl/maplibre"
 import type { GetImageFunction } from "../PhotoLayer/types"
 import { PointLayer } from "./PointLayer"
@@ -49,12 +49,12 @@ const select = createSelector(
             heatmap,
             photo,
             extrusion,
-            filter,
+            filter: layerFilter,
         } = layer
         const isMaplibreFiltered =
-            filter && source?.type === SourceType.MVT && !source.pending && !isRasterTileFormat(source.format)
-        const sourceId = filter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
-        const userFilter = isMaplibreFiltered ? filter.expression : null
+            layerFilter && source?.type === SourceType.MVT && !source.pending && !isRasterTileFormat(source.format)
+        const sourceId = layerFilter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
+        const filter = isMaplibreFiltered ? (layerFilter.expression as FilterSpecification) : undefined
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>
         }
@@ -68,7 +68,7 @@ const select = createSelector(
                     color,
                     visible,
                     options: circle,
-                    userFilter,
+                    filter,
                 }
                 return ["Point", props] as SelectTuple<PointLayerProps>
             }
@@ -80,7 +80,7 @@ const select = createSelector(
                     color,
                     visible,
                     thick: false,
-                    userFilter,
+                    filter,
                 }
                 return ["LineString", props] as SelectTuple<SphereLineStringLayerProps>
             }
@@ -91,7 +91,7 @@ const select = createSelector(
                     sourceLayer,
                     color,
                     visible,
-                    userFilter,
+                    filter,
                 }
                 return ["Polygon", props] as SelectTuple<SpherePolygonLayerProps>
             }
@@ -114,7 +114,7 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
-                    filter: combineFilters(["==", ["geometry-type"], "Polygon"], userFilter),
+                    filter: combineFilters(["==", ["geometry-type"], "Polygon"], ...(filter ? [filter] : [])),
                     paint: {
                         "fill-extrusion-color": color,
                         "fill-extrusion-opacity": opacity,
@@ -135,7 +135,7 @@ const select = createSelector(
                     layout: {
                         visibility: visibility(visible),
                     },
-                    ...(userFilter ? { filter: combineFilters(userFilter) } : {}),
+                    ...(filter ? { filter: combineFilters(filter) } : {}),
                     paint: {
                         // Increase the heatmap weight based on frequency and property magnitude
                         // 'heatmap-weight': [
@@ -216,9 +216,10 @@ const select = createSelector(
                     iconSizeCluster: 50,
                     iconLayout: photo?.icon ?? "square",
                     getImage: createGetImageFunction({
-                        srcField: srcField!,
+                        srcField: srcField ?? "",
                         valueField,
                     }),
+                    filter,
                 }
                 return ["photo", props] as SelectTuple<PhotoLayerProps & { visible: boolean }>
             }
