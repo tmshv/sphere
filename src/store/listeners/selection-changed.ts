@@ -23,7 +23,11 @@ const notifyPropertiesWindow = async (sourceId: string | undefined, selectedIds:
 listener.startListening({
     actionCreator: actions.selection.selectMany,
     effect: async (action, listenerApi) => {
-        const { featureIds } = action.payload
+        const { featureIds, provisional } = action.payload
+        if (provisional) {
+            return
+        }
+
         const dispatch = listenerApi.dispatch
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId

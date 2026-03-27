@@ -25,7 +25,7 @@ export const selectionSlice = createSlice({
         selectOne: (state, action: PayloadAction<{ featureId: number }>) => {
             state.selectedIds = [action.payload.featureId]
         },
-        selectMany: (state, action: PayloadAction<{ featureIds: number[] }>) => {
+        selectMany: (state, action: PayloadAction<{ featureIds: number[]; provisional: boolean }>) => {
             state.selectedIds = action.payload.featureIds
         },
     },

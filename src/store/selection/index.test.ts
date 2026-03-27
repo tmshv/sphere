@@ -22,12 +22,12 @@ describe("selectionSlice reducer", () => {
 
     test("selectMany sets selectedIds", () => {
         const prev = { selectedIds: [1] }
-        const state = reducer(prev, selectMany({ featureIds: [10, 20] }))
+        const state = reducer(prev, selectMany({ provisional: false, featureIds: [10, 20] }))
         expect(state.selectedIds).toEqual([10, 20])
     })
 
     test("selectMany then selectOne replaces selectedIds", () => {
-        let state = reducer(undefined, selectMany({ featureIds: [1, 2] }))
+        let state = reducer(undefined, selectMany({ provisional: false, featureIds: [1, 2] }))
         state = reducer(state, selectOne({ featureId: 5 }))
         expect(state.selectedIds).toEqual([5])
     })
@@ -36,6 +36,12 @@ describe("selectionSlice reducer", () => {
         const prev = { selectedIds: [1, 2] }
         const state = reducer(prev, reset())
         expect(state.selectedIds).toEqual([])
+    })
+
+    test("provisional selectMany still updates selectedIds", () => {
+        const prev = { selectedIds: [1] }
+        const state = reducer(prev, selectMany({ provisional: true, featureIds: [10, 20] }))
+        expect(state.selectedIds).toEqual([10, 20])
     })
 
     test("selectOne replaces previous selectedIds", () => {

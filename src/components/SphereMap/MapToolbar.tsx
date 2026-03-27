@@ -4,29 +4,11 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { ActionIcon, Group } from "@mantine/core"
 import { IconHandStop, IconPointer } from "@tabler/icons"
 import { useEffect } from "react"
-import type { MapRef } from "react-map-gl/maplibre"
 
-export type MapToolbarProps = {
-    mapRef: MapRef | undefined
-}
-
-export default function MapToolbar({ mapRef }: MapToolbarProps) {
+export default function MapToolbar() {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
     const activeTab = useAppSelector(selectActiveSidebarTab)
-
-    // Sync dragPan with tool state
-    useEffect(() => {
-        const map = mapRef?.getMap()
-        if (!map) {
-            return
-        }
-        if (mapTool === "select") {
-            map.dragPan.disable()
-        } else {
-            map.dragPan.enable()
-        }
-    }, [mapRef, mapTool])
 
     // Reset to pan when leaving Sources tab to prevent dragPan staying disabled
     useEffect(() => {

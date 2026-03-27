@@ -85,7 +85,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
                 </React.Fragment>
             ))}
             {!drawing ? null : <Draw mapId={mapId} />}
-            <MapToolbar mapRef={map} />
+            <MapToolbar />
             <RectSelectOverlay mapRef={map} />
         </>
     )
