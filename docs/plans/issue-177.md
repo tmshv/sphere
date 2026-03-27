@@ -99,7 +99,7 @@ git commit -m "Add combineFilters helper for composing MapLibre filter expressio
 **Files:**
 - Modify: `src/testutils.ts`
 
-- [ ] **Step 1: Add `makeMvtSource` factory**
+- [x] **Step 1: Add `makeMvtSource` factory**
 
 Add to `src/testutils.ts`:
 
@@ -121,11 +121,11 @@ export function makeMvtSource<T extends object>(id: string, overrides: T = {} as
 }
 ```
 
-- [ ] **Step 2: Run formatter**
+- [x] **Step 2: Run formatter**
 
 Run: `npm run format`
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/testutils.ts
