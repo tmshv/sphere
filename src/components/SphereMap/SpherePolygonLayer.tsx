@@ -1,4 +1,4 @@
-import { sourceLayerProp, visibility } from "@/lib/maplibre"
+import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { FillLayerSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
@@ -12,6 +12,7 @@ export type SpherePolygonLayerProps = {
     sourceLayer?: string
     color: string
     visible: boolean
+    userFilter?: unknown[] | null
 }
 
 export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
@@ -20,6 +21,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
     sourceLayer,
     color,
     visible,
+    userFilter,
 }) => {
     const [fill, outline0, outline1, selected] = useMemo(() => {
         const fill: FillPaint = {
@@ -56,7 +58,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 layout={{
                     visibility: visible ? "visible" : "none",
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                filter={combineFilters(["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]], userFilter)}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -69,7 +71,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                filter={combineFilters(["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]], userFilter)}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
@@ -82,7 +84,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                     "line-join": "round",
                     visibility: visibility(visible),
                 }}
-                filter={["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]]}
+                filter={combineFilters(["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]], userFilter)}
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer

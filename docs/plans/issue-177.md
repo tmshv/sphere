@@ -424,7 +424,7 @@ git commit -m "Extend SphereLayer selector with filtering strategy for MVT layer
 - Modify: `src/components/SphereMap/ShpereLineStringLayer.tsx`
 - Modify: `src/components/SphereMap/SpherePolygonLayer.tsx`
 
-- [ ] **Step 1: Update `PointLayer`**
+- [x] **Step 1: Update `PointLayer`**
 
 In `src/components/SphereMap/PointLayer.tsx`:
 
@@ -463,7 +463,7 @@ Replace the hardcoded filter on the main layer (not the `-selected` layer):
                 filter={combineFilters(["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]], userFilter)}
 ```
 
-- [ ] **Step 2: Update `SphereLineStringLayer`**
+- [x] **Step 2: Update `SphereLineStringLayer`**
 
 In `src/components/SphereMap/ShpereLineStringLayer.tsx`:
 
@@ -507,7 +507,7 @@ Replace the hardcoded filter on the outline layer (line 54) and the main line la
                 filter={combineFilters(["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]], userFilter)}
 ```
 
-- [ ] **Step 3: Update `SpherePolygonLayer`**
+- [x] **Step 3: Update `SpherePolygonLayer`**
 
 In `src/components/SphereMap/SpherePolygonLayer.tsx`:
 
@@ -549,16 +549,16 @@ Replace the hardcoded filter on the fill layer (line 59), outline-0 layer (line 
                 filter={combineFilters(["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]], userFilter)}
 ```
 
-- [ ] **Step 4: Run lint and format**
+- [x] **Step 4: Run lint and format**
 
 Run: `npm run lint:fix && npm run format`
 
-- [ ] **Step 5: Run the full test suite**
+- [x] **Step 5: Run the full test suite**
 
 Run: `npm test`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/SphereMap/PointLayer.tsx src/components/SphereMap/ShpereLineStringLayer.tsx src/components/SphereMap/SpherePolygonLayer.tsx
