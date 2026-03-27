@@ -22,6 +22,13 @@ export function visibility(value: boolean): "visible" | "none" {
     return value ? "visible" : "none"
 }
 
+export function combineFilters(base: unknown[], userFilter?: unknown[] | null): unknown[] {
+    if (!userFilter) {
+        return base
+    }
+    return ["all", base, userFilter]
+}
+
 export function sourceLayerProp(value?: string | null): object {
     if (!value) {
         return {}
