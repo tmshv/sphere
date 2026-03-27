@@ -7,19 +7,22 @@ type PrevSource = { sourceId: string; ids: number[] } | null
 
 export default function useFeatureState(ref: MapRef | undefined) {
     const selectedIds = useAppSelector(state => state.selection.selectedIds)
-    const layerId = useAppSelector(selectors.selection.currentLayerId)
-    const selectionSourceId = useAppSelector(selectors.selection.currentSourceId)
+    const selectedLayerId = useAppSelector(selectors.layer.selectSelectedId)
+    const selectedSourceId = useAppSelector(selectors.source.selectSelectedId)
     const layerItems = useAppSelector(state => state.layer.items)
 
     const sourceId = useMemo(() => {
-        if (layerId === undefined) return selectionSourceId
-        // Try Redux layer store first (user layers)
-        const fromStore = layerItems[layerId]?.sourceId
-        if (fromStore) return fromStore
-        // Fall back to querying MapLibre for the layer's source (preview layers)
-        const mapLayer = ref?.getMap()?.getLayer(layerId)
-        return (mapLayer as { source?: string } | undefined)?.source
-    }, [layerId, layerItems, selectionSourceId, ref])
+        // For layer-based selection: resolve source from the layer
+        if (selectedLayerId) {
+            const fromStore = layerItems[selectedLayerId]?.sourceId
+            if (fromStore) return fromStore
+            // Fall back to querying MapLibre for the layer's source (preview layers)
+            const mapLayer = ref?.getMap()?.getLayer(selectedLayerId)
+            return (mapLayer as { source?: string } | undefined)?.source
+        }
+        // For source-based selection (rect select): use source directly
+        return selectedSourceId
+    }, [selectedLayerId, layerItems, selectedSourceId, ref])
 
     const prevSource = useRef<PrevSource>(null)
 
@@ -44,5 +47,5 @@ export default function useFeatureState(ref: MapRef | undefined) {
         } else {
             prevSource.current = null
         }
-    }, [ref, selectedIds, layerId, selectionSourceId, sourceId])
+    }, [ref, selectedIds, sourceId])
 }

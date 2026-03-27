@@ -52,7 +52,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             if (generation !== queryGeneration.current) {
                 return
             }
-            dispatch(actions.selection.selectMany({ sourceId: source, featureIds }))
+            dispatch(actions.selection.selectMany({ featureIds }))
         },
         [dispatch, mapRef],
     )

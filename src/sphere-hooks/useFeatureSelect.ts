@@ -30,7 +30,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                 if (typeof featureId !== "number") {
                     return
                 }
-                dispatch(actions.selection.selectOne({ layerId: f.layer.id, featureId }))
+                dispatch(actions.selection.selectOne({ featureId }))
                 return
             }
             dispatch(actions.selection.resetFeature())

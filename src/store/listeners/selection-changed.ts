@@ -23,8 +23,10 @@ const notifyPropertiesWindow = async (sourceId: string | undefined, selectedIds:
 listener.startListening({
     actionCreator: actions.selection.selectMany,
     effect: async (action, listenerApi) => {
-        const { sourceId, featureIds } = action.payload
+        const { featureIds } = action.payload
         const dispatch = listenerApi.dispatch
+        const state = listenerApi.getState() as RootState
+        const sourceId = state.source.selectedId
 
         // Notify table window
         await notifyPropertiesWindow(sourceId, featureIds)
@@ -56,8 +58,8 @@ listener.startListening({
     actionCreator: actions.selection.selectOne,
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
-        const layerId = action.payload.layerId
-        const sourceId = state.layer.items[layerId]?.sourceId
+        const layerId = state.layer.selectedId
+        const sourceId = layerId ? state.layer.items[layerId]?.sourceId : undefined
         await notifyPropertiesWindow(sourceId, [action.payload.featureId])
     },
 })

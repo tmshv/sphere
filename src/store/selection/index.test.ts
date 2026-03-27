@@ -16,44 +16,31 @@ describe("selectionSlice reducer", () => {
     })
 
     test("selectOne sets selectedIds from featureId", () => {
-        const state = reducer(undefined, selectOne({ layerId: "l1", featureId: 42 }))
+        const state = reducer(undefined, selectOne({ featureId: 42 }))
         expect(state.selectedIds).toEqual([42])
     })
 
-    test("selectOne clears sourceId", () => {
-        const prev = { sourceId: "s1", layerId: undefined, selectedIds: [] }
-        const state = reducer(prev, selectOne({ layerId: "l1", featureId: 42 }))
-        expect(state.sourceId).toBeUndefined()
-        expect(state.layerId).toBe("l1")
-        expect(state.selectedIds).toEqual([42])
-    })
-
-    test("selectMany sets sourceId, clears layerId, sets selectedIds", () => {
-        const prev = { sourceId: undefined, layerId: "l1", selectedIds: [1] }
-        const state = reducer(prev, selectMany({ sourceId: "s2", featureIds: [10, 20] }))
-        expect(state.sourceId).toBe("s2")
-        expect(state.layerId).toBeUndefined()
+    test("selectMany sets selectedIds", () => {
+        const prev = { selectedIds: [1] }
+        const state = reducer(prev, selectMany({ featureIds: [10, 20] }))
         expect(state.selectedIds).toEqual([10, 20])
     })
 
-    test("selectMany and selectOne are mutually exclusive", () => {
-        let state = reducer(undefined, selectMany({ sourceId: "s1", featureIds: [1, 2] }))
-        state = reducer(state, selectOne({ layerId: "l1", featureId: 5 }))
-        expect(state.sourceId).toBeUndefined()
-        expect(state.layerId).toBe("l1")
+    test("selectMany then selectOne replaces selectedIds", () => {
+        let state = reducer(undefined, selectMany({ featureIds: [1, 2] }))
+        state = reducer(state, selectOne({ featureId: 5 }))
+        expect(state.selectedIds).toEqual([5])
     })
 
-    test("reset clears layerId, sourceId, and selectedIds", () => {
-        const prev = { sourceId: "s1", layerId: "l1", selectedIds: [1, 2] }
+    test("reset clears selectedIds after selectMany", () => {
+        const prev = { selectedIds: [1, 2] }
         const state = reducer(prev, reset())
-        expect(state.sourceId).toBeUndefined()
-        expect(state.layerId).toBeUndefined()
         expect(state.selectedIds).toEqual([])
     })
 
     test("selectOne replaces previous selectedIds", () => {
         const prev = { selectedIds: [1, 2] }
-        const state = reducer(prev, selectOne({ layerId: "l1", featureId: 99 }))
+        const state = reducer(prev, selectOne({ featureId: 99 }))
         expect(state.selectedIds).toEqual([99])
     })
 })

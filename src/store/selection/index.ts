@@ -1,11 +1,8 @@
-import type { Id } from "@/types"
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
 // Define a type for the slice state
 type SelectionState = {
-    layerId?: Id
-    sourceId?: Id
     selectedIds: number[]
 }
 
@@ -20,27 +17,20 @@ export const selectionSlice = createSlice({
     initialState,
     reducers: {
         reset: state => {
-            state.layerId = undefined
-            state.sourceId = undefined
             state.selectedIds = []
         },
         resetFeature: state => {
             state.selectedIds = []
         },
-        selectOne: (state, action: PayloadAction<{ layerId: Id; featureId: number }>) => {
-            state.layerId = action.payload.layerId
-            state.sourceId = undefined
+        selectOne: (state, action: PayloadAction<{ featureId: number }>) => {
             state.selectedIds = [action.payload.featureId]
         },
-        selectMany: (state, action: PayloadAction<{ sourceId: Id; featureIds: number[] }>) => {
-            state.sourceId = action.payload.sourceId
-            state.layerId = undefined
+        selectMany: (state, action: PayloadAction<{ featureIds: number[] }>) => {
             state.selectedIds = action.payload.featureIds
         },
     },
     selectors: {
-        currentLayerId: state => state.layerId,
-        currentSourceId: state => state.sourceId,
+        selectedIds: state => state.selectedIds,
     },
 })
 

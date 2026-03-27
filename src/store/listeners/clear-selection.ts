@@ -16,8 +16,8 @@ listener.startListening({
         // (all listeners in src/store/listeners/ use this cast — pre-existing technical debt)
         const state = listenerApi.getOriginalState() as RootState
         const sourceId =
-            state.selection.sourceId ??
-            (state.selection.layerId ? state.layer.items[state.selection.layerId]?.sourceId : undefined)
+            state.source.selectedId ??
+            (state.layer.selectedId ? state.layer.items[state.layer.selectedId]?.sourceId : undefined)
         if (sourceId) {
             map.removeFeatureState({ source: sourceId })
         }
