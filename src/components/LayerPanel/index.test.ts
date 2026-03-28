@@ -16,7 +16,7 @@ const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
 
 const makeRootState = (overrides: Record<string, any> = {}) =>
     ({
-        selection: { selectedIds: [] },
+        selection: { count: 0, version: 0 },
         layer: { items: {}, allIds: [] },
         source: { items: {}, allIds: [] },
         ...overrides,

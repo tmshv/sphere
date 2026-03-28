@@ -12,7 +12,7 @@ const makeStore = (mapTool: "pan" | "select") =>
             // layer.items + layer.allIds needed by selectors.layer.visibleIds
             layer: () => ({ items: {}, allIds: [] }),
             // selection + source needed by selectors.preview.layerIds (no preview Redux slice exists)
-            selection: () => ({ sourceId: undefined, layerId: undefined, selectedIds: [] }),
+            selection: () => ({ count: 0, version: 0 }),
             source: () => ({ items: {} }),
         },
     })

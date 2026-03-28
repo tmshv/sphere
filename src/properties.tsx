@@ -1,6 +1,7 @@
 import "./style.css"
 
 import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
+import { selectionQueryPage } from "@/lib/selection-ipc"
 import type { SourceMetadata } from "@/types"
 import { Box, SegmentedControl, createStyles } from "@mantine/core"
 import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
@@ -88,7 +89,7 @@ const View: React.FC = () => {
     const [sorting, setSorting] = useState<SortingState>([])
     const [pageIndex, setPageIndex] = useState(0)
     const [attributeFilter, setAttributeFilter] = useState<"all" | "selected">("all")
-    const [selectionData, setSelectionData] = useState<{ sourceId: string; selectedIds: number[] } | null>(null)
+    const [selectionData, setSelectionData] = useState<{ sourceId: string; count: number } | null>(null)
 
     // Listen for source info from the main window
     useEffect(() => {
@@ -110,7 +111,7 @@ const View: React.FC = () => {
     // Listen for selection changes from the main window
     useEffect(() => {
         let stop: UnlistenFn | undefined
-        listen<{ sourceId: string; selectedIds: number[] }>("properties-selection-changed", event => {
+        listen<{ sourceId: string; count: number }>("properties-selection-changed", event => {
             setSelectionData(event.payload)
         }).then(fn => {
             stop = fn
@@ -141,31 +142,31 @@ const View: React.FC = () => {
             .catch(() => {})
     }, [sourceId, schema])
 
-    function makeIdFilter(ids: number[]): unknown[] {
-        return ["in", ["id"], ["literal", ids]]
-    }
+    const isSelectionActive =
+        attributeFilter === "selected" && selectionData !== null && selectionData.sourceId === sourceId
 
-    const effectiveFilter = (() => {
-        if (attributeFilter === "selected" && selectionData && selectionData.sourceId === sourceId) {
-            return makeIdFilter(selectionData.selectedIds)
-        }
-        return filterExpression
-    })()
-
-    // Fetch page when sourceId, page index, sorting, or filter changes
+    // Fetch page when sourceId, page index, sorting, filter, or selection changes
     useEffect(() => {
         if (!sourceId) return
-        const reader = new SourceReader(sourceId)
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
-        const filterJson = effectiveFilter ? JSON.stringify(effectiveFilter) : undefined
+        if (isSelectionActive) {
+            selectionQueryPage(sourceId, pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc)
+                .then(result => {
+                    setPage(result)
+                })
+                .catch(() => {})
+            return
+        }
+        const reader = new SourceReader(sourceId)
+        const filterJson = filterExpression ? JSON.stringify(filterExpression) : undefined
         reader
             .queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson)
             .then(result => {
                 if (result) setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, sorting, effectiveFilter])
+    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive, selectionData])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {

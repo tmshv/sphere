@@ -10,7 +10,7 @@ const makeRootState = (overrides: Record<string, any> = {}) =>
         mapStyle: { value: "some-style" },
         layer: { items: {}, allIds: [] },
         app: { activeSidebarTab: "sources" },
-        selection: { selectedIds: [] },
+        selection: { count: 0, version: 0 },
         source: { items: {} },
         ...overrides,
     }) as any

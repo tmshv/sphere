@@ -6,7 +6,7 @@ import { selectCurrentSourceItem, selector } from "./index"
 
 const makeRootState = (overrides: object = {}) =>
     ({
-        selection: { selectedIds: [] },
+        selection: { count: 0, version: 0 },
         layer: { items: {}, allIds: [] },
         source: { items: {}, allIds: [] },
         ...overrides,
