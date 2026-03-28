@@ -1,4 +1,13 @@
 import { queryFeaturesInPoint } from "@/lib/maplibre"
+import { emitSelectionDelta } from "@/lib/selection-bus"
+import {
+    selectionSet,
+    selectionAdd,
+    selectionRemove,
+    selectionClear,
+    selectionApply,
+    selectionCount,
+} from "@/lib/selection-ipc"
 import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
@@ -22,18 +31,43 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
             return
         }
 
-        const click = map.on("click", event => {
+        const click = map.on("click", async event => {
             const features = queryFeaturesInPoint(event.target, event.point, layerIds)
+
             if (features.length > 0) {
                 const f = features[0]
                 const featureId = f.id
                 if (typeof featureId !== "number") {
                     return
                 }
-                dispatch(actions.selection.selectOne({ featureId }))
+
+                const nativeEvent = event.originalEvent
+                let delta
+                if (nativeEvent.shiftKey) {
+                    delta = await selectionAdd([featureId])
+                } else if (nativeEvent.ctrlKey || nativeEvent.metaKey) {
+                    delta = await selectionRemove([featureId])
+                } else {
+                    delta = await selectionSet([featureId])
+                }
+
+                emitSelectionDelta(delta)
+
+                const applyDelta = await selectionApply()
+                emitSelectionDelta(applyDelta)
+
+                const count = await selectionCount()
+                dispatch(actions.selection.sync({ count }))
+                dispatch(actions.selection.apply())
                 return
             }
-            dispatch(actions.selection.resetFeature())
+
+            // Click on empty space — clear selection
+            const delta = await selectionClear()
+            emitSelectionDelta(delta)
+
+            dispatch(actions.selection.reset())
+            dispatch(actions.selection.apply())
         })
 
         return () => {
