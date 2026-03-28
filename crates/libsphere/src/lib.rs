@@ -6,6 +6,7 @@ pub mod gpx;
 pub mod index;
 pub mod mbtiles;
 pub mod schema;
+pub mod selection;
 pub mod shape;
 pub mod source;
 pub mod store;
@@ -13,6 +14,7 @@ pub mod uri;
 
 pub use error::{Result, SphereError};
 pub use index::{Bbox, RstarIndex, SpatialIndex};
+pub use selection::{SelectionDelta, SelectionState};
 pub use store::{FeatureStore, PageResult};
 pub use uri::SphereUri;
 
