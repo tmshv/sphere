@@ -53,6 +53,7 @@ export const store = configureStore({
             .prepend(listeners.exitDrawOnSourceDelete.middleware)
             .prepend(listeners.saveDraw.middleware)
             .prepend(listeners.mapToolChanged.middleware)
+            .prepend(listeners.rectSelect.middleware)
     },
 })
 
