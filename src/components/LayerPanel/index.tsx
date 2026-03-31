@@ -534,6 +534,7 @@ export const LayerPanel: React.FC = () => {
                         />
                     </Input.Wrapper>
                     <Select
+                        searchable
                         size="xs"
                         label="Height field"
                         placeholder="Pick one"
@@ -568,6 +569,7 @@ export const LayerPanel: React.FC = () => {
                         />
                     </Input.Wrapper>
                     <Select
+                        searchable
                         size="xs"
                         label="Base field"
                         placeholder="Pick one"
