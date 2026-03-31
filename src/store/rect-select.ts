@@ -15,3 +15,8 @@ export const rectSelectCommit = createAction<{
     current: Point
     modifier: RectSelectModifier
 }>("rectSelect/commit")
+
+export const rectSelectClick = createAction<{
+    point: Point
+    modifier: RectSelectModifier
+}>("rectSelect/click")

@@ -2,18 +2,23 @@ import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { appSlice } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 import type { RectSelectModifier } from "@/store/rect-select"
 
 type Point = { x: number; y: number }
 
 const RECT_FILL_OPACITY = 0.1
+const DRAG_THRESHOLD = 3
 
 function getModifier(e: React.MouseEvent | MouseEvent): RectSelectModifier {
     if (e.shiftKey) return "shift"
     if (e.ctrlKey || e.metaKey) return "ctrl"
     return "none"
+}
+
+function distance(a: Point, b: Point): number {
+    return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
 
 export type RectSelectOverlayProps = {
@@ -28,12 +33,14 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
     const [dragCurrent, setDragCurrent] = useState<Point | null>(null)
+    const isDragging = useRef(false)
 
     const handleMouseDown = useCallback(
         (e: React.MouseEvent) => {
             if (!sourceId) return
+            isDragging.current = false
             setDragStart({ x: e.clientX, y: e.clientY })
-            setDragCurrent({ x: e.clientX, y: e.clientY })
+            setDragCurrent(null)
         },
         [sourceId],
     )
@@ -42,6 +49,14 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         (e: React.MouseEvent) => {
             if (!dragStart || !sourceId) return
             const current = { x: e.clientX, y: e.clientY }
+
+            if (!isDragging.current) {
+                if (distance(dragStart, current) < DRAG_THRESHOLD) {
+                    return
+                }
+                isDragging.current = true
+            }
+
             setDragCurrent(current)
             dispatch(
                 actions.rectSelect.drag({
@@ -57,14 +72,26 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const handleMouseUp = useCallback(
         (e: React.MouseEvent) => {
             if (!dragStart || !sourceId) return
-            const current = { x: e.clientX, y: e.clientY }
-            dispatch(
-                actions.rectSelect.commit({
-                    start: dragStart,
-                    current,
-                    modifier: getModifier(e),
-                }),
-            )
+
+            if (!isDragging.current) {
+                dispatch(
+                    actions.rectSelect.click({
+                        point: dragStart,
+                        modifier: getModifier(e),
+                    }),
+                )
+            } else {
+                const current = { x: e.clientX, y: e.clientY }
+                dispatch(
+                    actions.rectSelect.commit({
+                        start: dragStart,
+                        current,
+                        modifier: getModifier(e),
+                    }),
+                )
+            }
+
+            isDragging.current = false
             setDragStart(null)
             setDragCurrent(null)
         },
@@ -74,6 +101,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     useEffect(() => {
         if (!dragStart) return
         const onWindowMouseUp = () => {
+            isDragging.current = false
             setDragStart(null)
             setDragCurrent(null)
         }

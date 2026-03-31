@@ -1,6 +1,6 @@
 import { appSlice } from "./app"
 import { actions as drawActions } from "./draw"
-import { rectSelectDrag, rectSelectCommit } from "./rect-select"
+import { rectSelectDrag, rectSelectCommit, rectSelectClick } from "./rect-select"
 import addFile from "./effects/add-file"
 import addMultipleFiles from "./effects/add-multiple-files"
 import openFiles from "./effects/open-files"
@@ -37,6 +37,7 @@ export const actions = {
     rectSelect: {
         drag: rectSelectDrag,
         commit: rectSelectCommit,
+        click: rectSelectClick,
     },
     addFile,
     addMultipleFiles,

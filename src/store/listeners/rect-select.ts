@@ -1,12 +1,23 @@
 import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
+import { queryFeaturesInPoint } from "@/lib/maplibre"
 import { emitSelectionDelta } from "@/lib/selection-bus"
-import { selectionSet, selectionPreview, selectionAdd, selectionApply, selectionCount } from "@/lib/selection-ipc"
+import {
+    selectionSet,
+    selectionPreview,
+    selectionAdd,
+    selectionRemove,
+    selectionApply,
+    selectionClear,
+    selectionCount,
+} from "@/lib/selection-ipc"
 import { invoke } from "@tauri-apps/api/core"
+import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
-import { rectSelectDrag, rectSelectCommit } from "../rect-select"
+import { selectPreviewLayerIds } from "../preview"
+import { rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
 
 const THROTTLE_MS = 50
 
@@ -93,6 +104,54 @@ listener.startListening({
         const delta = modifier === "shift" ? await selectionAdd(featureIds) : await selectionSet(featureIds)
 
         emitSelectionDelta(delta)
+
+        const applyDelta = await selectionApply()
+        emitSelectionDelta(applyDelta)
+
+        const count = await selectionCount()
+        listenerApi.dispatch(actions.selection.sync({ count }))
+        listenerApi.dispatch(actions.selection.apply())
+    },
+})
+
+// Click: single feature selection in select tool mode
+listener.startListening({
+    actionCreator: rectSelectClick,
+    effect: async (action, listenerApi) => {
+        const state = listenerApi.getState() as RootState
+        const map = getMap(MAP_ID)
+        if (!map) return
+
+        const { point, modifier } = action.payload
+        const layerIds = selectPreviewLayerIds(state)
+        const containerRect = map.getContainer().getBoundingClientRect()
+        const mapPoint = new maplibregl.Point(point.x - containerRect.left, point.y - containerRect.top)
+        const features = queryFeaturesInPoint(map, mapPoint, layerIds)
+
+        if (features.length > 0) {
+            const featureId = features[0].id
+            if (typeof featureId !== "number") return
+
+            let delta
+            switch (modifier) {
+                case "shift": {
+                    delta = await selectionAdd([featureId])
+                    break
+                }
+                case "ctrl": {
+                    delta = await selectionRemove([featureId])
+                    break
+                }
+                default: {
+                    delta = await selectionSet([featureId])
+                    break
+                }
+            }
+            emitSelectionDelta(delta)
+        } else {
+            const delta = await selectionClear()
+            emitSelectionDelta(delta)
+        }
 
         const applyDelta = await selectionApply()
         emitSelectionDelta(applyDelta)
