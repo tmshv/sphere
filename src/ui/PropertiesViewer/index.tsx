@@ -17,9 +17,21 @@ const useStyles = createStyles(theme => ({
     },
 }))
 
+type PropertyValue = string | number | boolean | null | undefined
+
 export type PropertiesViewerProps = {
-    properties: { key: string; value: string }[]
+    properties: { key: string; value: PropertyValue }[]
     checkUrls?: boolean
+}
+
+function formatValue(value: PropertyValue): string {
+    if (value === null) {
+        return "null"
+    }
+    if (value === undefined) {
+        return ""
+    }
+    return String(value)
 }
 
 export const PropertiesViewer: React.FC<PropertiesViewerProps> = ({ properties, checkUrls = false }) => {
@@ -28,21 +40,25 @@ export const PropertiesViewer: React.FC<PropertiesViewerProps> = ({ properties, 
     return (
         <table className={s.table}>
             <tbody>
-                {properties.map(({ key, value }) => (
-                    <tr key={key}>
-                        <td className={s.key}>{key}</td>
-                        <td className={s.value}>
-                            {checkUrls && isUrl(value) ? (
-                                <Image src={value} width={120} height={120} />
-                            ) : (
-                                <span>{value}</span>
-                            )}
-                        </td>
-                        <td>
-                            <CopyButton value={value} />
-                        </td>
-                    </tr>
-                ))}
+                {properties.map(({ key, value }) => {
+                    const formatted = formatValue(value)
+
+                    return (
+                        <tr key={key}>
+                            <td className={s.key}>{key}</td>
+                            <td className={s.value}>
+                                {checkUrls && typeof value === "string" && isUrl(value) ? (
+                                    <Image src={value} width={120} height={120} />
+                                ) : (
+                                    <span>{formatted}</span>
+                                )}
+                            </td>
+                            <td>
+                                <CopyButton value={formatted} />
+                            </td>
+                        </tr>
+                    )
+                })}
             </tbody>
         </table>
     )
