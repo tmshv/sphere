@@ -36,24 +36,25 @@ export const store = configureStore({
         tools,
     },
     middleware: getDefaultMiddleWare => {
-        return getDefaultMiddleWare()
-            .prepend(mapListener.middleware)
-            .prepend(listeners.addBlankLayer.middleware)
-            .prepend(listeners.forceResizeMap.middleware)
-            .prepend(listeners.clearSelection.middleware)
-            .prepend(listeners.selectionChanged.middleware)
-            .prepend(listeners.zoomTo.middleware)
-            .prepend(listeners.addSource.middleware)
-            .prepend(listeners.duplicateLayer.middleware)
-            .prepend(listeners.fail.middleware)
-            .prepend(listeners.clearError.middleware)
-            .prepend(listeners.mapInteractive.middleware)
-            .prepend(listeners.resetTool.middleware)
-            .prepend(listeners.autoSelectOnDelete.middleware)
-            .prepend(listeners.exitDrawOnSourceDelete.middleware)
-            .prepend(listeners.saveDraw.middleware)
-            .prepend(listeners.mapToolChanged.middleware)
-            .prepend(listeners.rectSelect.middleware)
+        return getDefaultMiddleWare().prepend(
+            mapListener.middleware,
+            listeners.addBlankLayer.middleware,
+            listeners.forceResizeMap.middleware,
+            listeners.clearSelection.middleware,
+            listeners.selectionChanged.middleware,
+            listeners.zoomTo.middleware,
+            listeners.addSource.middleware,
+            listeners.duplicateLayer.middleware,
+            listeners.fail.middleware,
+            listeners.clearError.middleware,
+            listeners.mapInteractive.middleware,
+            listeners.resetTool.middleware,
+            listeners.autoSelectOnDelete.middleware,
+            listeners.exitDrawOnSourceDelete.middleware,
+            listeners.saveDraw.middleware,
+            listeners.mapToolChanged.middleware,
+            listeners.rectSelect.middleware,
+        )
     },
 })
 
