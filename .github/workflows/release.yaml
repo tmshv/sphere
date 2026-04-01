@@ -21,6 +21,8 @@ jobs:
             contents: write
         steps:
             - uses: actions/checkout@v6
+              with:
+                  token: ${{ secrets.PAT }}
 
             - name: setup node
               uses: actions/setup-node@v6
