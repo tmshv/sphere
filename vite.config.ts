@@ -45,10 +45,29 @@ export default defineConfig({
         // produce sourcemaps for debug builds
         sourcemap: !!process.env.TAURI_DEBUG,
 
+        chunkSizeWarningLimit: 2048,
         rolldownOptions: {
             input: {
                 main: resolve(__dirname, "index.html"),
                 properties: resolve(__dirname, "properties.html"),
+            },
+            output: {
+                codeSplitting: {
+                    groups: [
+                        {
+                            name: "main",
+                            test: /./,
+                            minSize: 0,
+                            priority: 0,
+                        },
+                        {
+                            name: "properties",
+                            test: /properties/,
+                            minSize: 0,
+                            priority: 1,
+                        },
+                    ],
+                },
             },
         },
     },
