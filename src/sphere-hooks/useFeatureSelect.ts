@@ -1,6 +1,7 @@
 import { queryFeaturesInPoint } from "@/lib/maplibre"
 import { emitSelectionDelta } from "@/lib/selection-bus"
 import {
+    type SelectionDelta,
     selectionSet,
     selectionAdd,
     selectionRemove,
@@ -42,7 +43,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                 }
 
                 const nativeEvent = event.originalEvent
-                let delta
+                let delta: SelectionDelta
                 if (nativeEvent.shiftKey) {
                     delta = await selectionAdd([featureId])
                 } else if (nativeEvent.ctrlKey || nativeEvent.metaKey) {

@@ -3,6 +3,7 @@ import { getMap } from "@/map"
 import { queryFeaturesInPoint } from "@/lib/maplibre"
 import { emitSelectionDelta } from "@/lib/selection-bus"
 import {
+    type SelectionDelta,
     selectionSet,
     selectionPreview,
     selectionAdd,
@@ -132,7 +133,7 @@ listener.startListening({
             const featureId = features[0].id
             if (typeof featureId !== "number") return
 
-            let delta
+            let delta: SelectionDelta
             switch (modifier) {
                 case "shift": {
                     delta = await selectionAdd([featureId])
