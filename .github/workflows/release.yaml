@@ -1,11 +1,50 @@
-name: "publish"
+name: "release"
+
 on:
-    push:
-        tags:
-            - "v*"
+    workflow_dispatch:
+        inputs:
+            bump:
+                description: "Version bump type"
+                required: true
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
 
 jobs:
+    version:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.bump.outputs.version }}
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+
+            - name: configure git
+              run: |
+                  git config user.name "${{ github.actor }}"
+                  git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+
+            - name: bump version
+              id: bump
+              run: |
+                  npm version ${{ inputs.bump }}
+                  echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+            - name: push version commit and tag
+              run: |
+                  git push
+                  git push --tags
+
     publish-tauri:
+        needs: version
         strategy:
             fail-fast: false
             matrix:
@@ -13,9 +52,13 @@ jobs:
                 # platform: [macos-latest, ubuntu-latest, windows-latest]
 
         runs-on: ${{ matrix.platform }}
+        permissions:
+            contents: write
 
         steps:
             - uses: actions/checkout@v6
+              with:
+                  ref: v${{ needs.version.outputs.version }}
 
             - name: setup node
               uses: actions/setup-node@v6
@@ -32,11 +75,6 @@ jobs:
             #   run: |
             #     sudo apt-get update
             #     sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
-
-            # - name: install dependencies (macos)
-            #   if: matrix.platform == 'macos-latest'
-            #   run: |
-            #     rustup target add x86_64-apple-darwin
 
             - name: install frontend dependencies
               run: npm ci
