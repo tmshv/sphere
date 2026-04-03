@@ -2,7 +2,9 @@ import { useCursor } from "@/hooks/useCursor"
 import { ContextMenu } from "@/ui/ContextMenu"
 import { CopyButton, Menu, Text } from "@mantine/core"
 import { IconCopy, IconSearch } from "@tabler/icons"
+import { useCallback, useEffect, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
+import type { MapLayerMouseEvent } from "react-map-gl/maplibre"
 
 export type LocationToString = (coord: [number, number]) => string
 
@@ -14,9 +16,32 @@ export type MapContextMenuProps = {
 export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocationValue }) => {
     const { [id]: ref } = useMap()
     const coord = useCursor(ref)
+    const [opened, setOpened] = useState(false)
+    const [position, setPosition] = useState<[number, number]>([0, 0])
+
+    useEffect(() => {
+        const map = ref?.getMap()
+        if (!map) return
+
+        const handler = (e: MapLayerMouseEvent) => {
+            e.preventDefault()
+            const rect = map.getContainer().getBoundingClientRect()
+            setPosition([e.point.x + rect.left, e.point.y + rect.top])
+            setOpened(true)
+        }
+
+        map.on("contextmenu", handler)
+        return () => {
+            map.off("contextmenu", handler)
+        }
+    }, [ref])
+
+    const handleClose = useCallback(() => {
+        setOpened(false)
+    }, [])
 
     return (
-        <ContextMenu>
+        <ContextMenu opened={opened} position={position} onClose={handleClose}>
             <Menu.Label>Map</Menu.Label>
             <CopyButton value={copyLocationValue(coord)}>
                 {({ copy }) => (
@@ -25,9 +50,6 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
                     </Menu.Item>
                 )}
             </CopyButton>
-            {/* <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item> */}
-            {/* <Menu.Item icon={<IconMessageCircle size={14} />}>Messages</Menu.Item> */}
-            {/* <Menu.Item icon={<IconPhoto size={14} />}>Gallery</Menu.Item> */}
             <Menu.Item
                 disabled
                 icon={<IconSearch size={14} />}
@@ -39,11 +61,6 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
             >
                 Search
             </Menu.Item>
-
-            {/* <Menu.Divider /> */}
-            {/* <Menu.Label>Danger zone</Menu.Label> */}
-            {/* <Menu.Item icon={<IconArrowsLeftRight size={14} />}>Transfer my data</Menu.Item> */}
-            {/* <Menu.Item color="red" icon={<IconTrash size={14} />}>Delete my account</Menu.Item> */}
         </ContextMenu>
     )
 }

@@ -1,55 +1,29 @@
 import { Menu } from "@mantine/core"
-import { useToggle } from "@mantine/hooks"
-import { useEffect, useState } from "react"
 
 export type ContextMenuProps = {
+    opened: boolean
+    position: [number, number]
+    onClose: () => void
     children: React.ReactNode
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
-    const [showContext, toggleShowContext] = useToggle<boolean>()
-    const [contextCoord, setContextCoord] = useState<[number, number]>([0, 0])
-
-    useEffect(() => {
-        const callback = (event: MouseEvent) => {
-            const xPos = event.clientX
-            const yPos = event.clientY
-
-            toggleShowContext(true)
-            setContextCoord([xPos, yPos])
-            event.preventDefault()
-            return false
-        }
-
-        document.addEventListener("contextmenu", callback, {
-            capture: true,
-        })
-
-        return () => {
-            document.removeEventListener("contextmenu", callback, {
-                capture: true,
-            })
-        }
-    }, [toggleShowContext])
-
+export const ContextMenu: React.FC<ContextMenuProps> = ({ opened, position, onClose, children }) => {
     return (
         <Menu
             shadow="md"
             width={200}
-            opened={showContext}
+            opened={opened}
             position={"right-start"}
             offset={10}
             closeOnClickOutside={true}
-            onClose={() => {
-                toggleShowContext(false)
-            }}
+            onClose={onClose}
         >
             <Menu.Target>
                 <div
                     style={{
                         position: "fixed",
-                        left: contextCoord[0],
-                        top: contextCoord[1],
+                        left: position[0],
+                        top: position[1],
                     }}
                 />
             </Menu.Target>
