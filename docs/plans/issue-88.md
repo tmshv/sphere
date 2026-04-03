@@ -40,7 +40,7 @@
 - Create: `src/components/LayerPanel/LayerFilter.tsx`
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Create LayerFilter component**
+- [x] **Step 1: Create LayerFilter component**
 
 Create `src/components/LayerPanel/LayerFilter.tsx`:
 
@@ -133,7 +133,7 @@ export const LayerFilter: FC<LayerFilterProps> = ({ layerId, filterExpression, f
 }
 ```
 
-- [ ] **Step 2: Replace filter logic in index.tsx with LayerFilter**
+- [x] **Step 2: Replace filter logic in index.tsx with LayerFilter**
 
 In `src/components/LayerPanel/index.tsx`:
 
@@ -154,11 +154,11 @@ In `src/components/LayerPanel/index.tsx`:
 )}
 ```
 
-- [ ] **Step 3: Format and verify**
+- [x] **Step 3: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/LayerPanel/LayerFilter.tsx src/components/LayerPanel/index.tsx

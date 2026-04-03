@@ -1,16 +1,14 @@
-import { isValidFilterExpression } from "@/lib/maplibre"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
-import type { FilterSpecification } from "maplibre-gl"
 import { useAppDispatch } from "@/store/hooks"
 import type { PhotoIconLayout } from "@/store/layer"
 import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
-import { ActionIcon, Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
+import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
-import { IconCopy, IconCrosshair, IconTrash, IconX } from "@tabler/icons"
-import { useEffect, useState } from "react"
+import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { LayerFilter } from "./LayerFilter"
 
 type Option = {
     value: string
@@ -130,13 +128,6 @@ export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const sources = useSelector(sourcesSelector)
     const layer = useSelector(layerSelector)
-    const [filterText, setFilterText] = useState("")
-    const [filterLocalError, setFilterLocalError] = useState<string | null>(null)
-    useEffect(() => {
-        setFilterText(layer?.filterExpression ? JSON.stringify(layer.filterExpression) : "")
-        setFilterLocalError(null)
-    }, [layer?.id, layer?.filterExpression])
-
     if (!layer) {
         return null
     }
@@ -155,44 +146,6 @@ export const LayerPanel: React.FC = () => {
         filterError,
         isFilterable,
     } = layer
-
-    function handleFilterChange(text: string) {
-        setFilterText(text)
-        if (!text.trim()) {
-            setFilterLocalError(null)
-            dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
-            return
-        }
-        try {
-            const expression = JSON.parse(text)
-            if (Array.isArray(expression) && isValidFilterExpression(expression)) {
-                setFilterLocalError(null)
-                dispatch(actions.layer.setLayerFilter({ id: layerId, expression: expression as FilterSpecification }))
-            }
-        } catch {
-            // don't show error while typing
-        }
-    }
-
-    function handleFilterBlur() {
-        if (!filterText.trim()) return
-        try {
-            const expression = JSON.parse(filterText)
-            if (!Array.isArray(expression)) {
-                setFilterLocalError("Filter must be a JSON array")
-            } else if (!isValidFilterExpression(expression)) {
-                setFilterLocalError("Invalid filter expression")
-            }
-        } catch {
-            setFilterLocalError("Invalid JSON expression")
-        }
-    }
-
-    function clearFilter() {
-        setFilterText("")
-        setFilterLocalError(null)
-        dispatch(actions.layer.setLayerFilter({ id: layerId, expression: null }))
-    }
 
     return (
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
@@ -275,25 +228,7 @@ export const LayerPanel: React.FC = () => {
             />
 
             {!isFilterable ? null : (
-                <TextInput
-                    size="xs"
-                    label="Filter"
-                    placeholder='["==", ["get", "field"], "value"]'
-                    value={filterText}
-                    error={filterLocalError ?? filterError ?? undefined}
-                    autoCorrect="off"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    rightSection={
-                        filterText ? (
-                            <ActionIcon size="xs" onClick={clearFilter}>
-                                <IconX size={10} />
-                            </ActionIcon>
-                        ) : null
-                    }
-                    onChange={e => handleFilterChange(e.currentTarget.value)}
-                    onBlur={handleFilterBlur}
-                />
+                <LayerFilter layerId={layerId} filterExpression={layer.filterExpression} filterError={filterError} />
             )}
 
             {!sourceLayers?.length ? null : (
