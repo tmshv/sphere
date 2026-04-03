@@ -391,7 +391,7 @@ git commit -m "extend draw slice with selectedIds and patch-based commit"
 **Files:**
 - Modify: `src/components/SphereMap/Draw.tsx`
 
-- [ ] **Step 1: Update Draw component**
+- [x] **Step 1: Update Draw component**
 
 Replace the full content of `src/components/SphereMap/Draw.tsx`:
 
@@ -564,16 +564,16 @@ export default function Draw({ mapId }: DrawProps) {
 }
 ```
 
-- [ ] **Step 2: Run lint**
+- [x] **Step 2: Run lint**
 
 Run: `npm run lint`
 Expected: no errors
 
-- [ ] **Step 3: Run format**
+- [x] **Step 3: Run format**
 
 Run: `npm run format`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/SphereMap/Draw.tsx
