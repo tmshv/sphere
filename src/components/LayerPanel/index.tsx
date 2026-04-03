@@ -8,6 +8,7 @@ import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@man
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { HeatmapControls } from "./HeatmapControls"
 import { LayerFilter } from "./LayerFilter"
 
 type Option = {
@@ -313,42 +314,7 @@ export const LayerPanel: React.FC = () => {
             )}
 
             {!(type === LayerType.Heatmap) ? null : (
-                <>
-                    <Input.Wrapper label="Radius" size="xs">
-                        <Slider
-                            label={"Radius"}
-                            size={"xs"}
-                            min={2}
-                            max={30}
-                            value={heatmapRadius}
-                            onChange={value => {
-                                dispatch(
-                                    actions.layer.setHeatmapParameters({
-                                        id: layerId,
-                                        radius: value,
-                                    }),
-                                )
-                            }}
-                        />
-                    </Input.Wrapper>
-                    <Input.Wrapper label="Intensity" size="xs">
-                        <Slider
-                            label={"Intensity"}
-                            size={"xs"}
-                            min={1}
-                            max={5}
-                            value={heatmapIntensity}
-                            onChange={value => {
-                                dispatch(
-                                    actions.layer.setHeatmapParameters({
-                                        id: layerId,
-                                        intensity: value,
-                                    }),
-                                )
-                            }}
-                        />
-                    </Input.Wrapper>
-                </>
+                <HeatmapControls layerId={layerId} heatmapRadius={heatmapRadius} heatmapIntensity={heatmapIntensity} />
             )}
 
             {!(type === LayerType.Photo) ? null : (

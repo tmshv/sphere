@@ -402,7 +402,7 @@ git commit -m "extract Point, Line, Polygon controls from LayerPanel"
 - Create: `src/components/LayerPanel/HeatmapControls.tsx`
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Create HeatmapControls component**
+- [x] **Step 1: Create HeatmapControls component**
 
 Create `src/components/LayerPanel/HeatmapControls.tsx`:
 
@@ -462,16 +462,16 @@ export const HeatmapControls: FC<HeatmapControlsProps> = ({ layerId, heatmapRadi
 }
 ```
 
-- [ ] **Step 2: Replace Heatmap section in index.tsx**
+- [x] **Step 2: Replace Heatmap section in index.tsx**
 
 1. Add import: `import { HeatmapControls } from "./HeatmapControls"`
 2. Remove the heatmap block (`{!(type === LayerType.Heatmap) ? null : (...)}`)
 
-- [ ] **Step 3: Format and verify**
+- [x] **Step 3: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/LayerPanel/HeatmapControls.tsx src/components/LayerPanel/index.tsx
