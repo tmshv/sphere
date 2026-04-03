@@ -3,10 +3,11 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
-import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
+import { Badge, ColorPicker, Flex, Input, Select, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { ExtrusionControls } from "./ExtrusionControls"
 import { HeatmapControls } from "./HeatmapControls"
 import { LayerFilter } from "./LayerFilter"
 import { PhotoControls } from "./PhotoControls"
@@ -328,78 +329,15 @@ export const LayerPanel: React.FC = () => {
             )}
 
             {!(type === LayerType.Extrusion) ? null : (
-                <>
-                    <Input.Wrapper label="Height" size="xs">
-                        <Slider
-                            label={"Height"}
-                            size={"xs"}
-                            min={0}
-                            max={10}
-                            value={layer.extrusionHeight}
-                            onChange={value => {
-                                dispatch(
-                                    actions.layer.setExtrusionOptions({
-                                        id: layerId,
-                                        height: value,
-                                    }),
-                                )
-                            }}
-                        />
-                    </Input.Wrapper>
-                    <Select
-                        searchable
-                        size="xs"
-                        label="Height field"
-                        placeholder="Pick one"
-                        value={layer.extrusionHeightField}
-                        data={layer.fields}
-                        onChange={value => {
-                            if (value) {
-                                dispatch(
-                                    actions.layer.setExtrusionOptions({
-                                        id: layerId,
-                                        heightField: value,
-                                    }),
-                                )
-                            }
-                        }}
-                    />
-                    <Input.Wrapper label="Base" size="xs">
-                        <Slider
-                            label={"Base"}
-                            size={"xs"}
-                            min={0}
-                            max={10}
-                            value={layer.extrusionBase}
-                            onChange={value => {
-                                dispatch(
-                                    actions.layer.setExtrusionOptions({
-                                        id: layerId,
-                                        base: value,
-                                    }),
-                                )
-                            }}
-                        />
-                    </Input.Wrapper>
-                    <Select
-                        searchable
-                        size="xs"
-                        label="Base field"
-                        placeholder="Pick one"
-                        value={layer.extrusionBaseField}
-                        data={layer.fields}
-                        onChange={value => {
-                            if (value) {
-                                dispatch(
-                                    actions.layer.setExtrusionOptions({
-                                        id: layerId,
-                                        baseField: value,
-                                    }),
-                                )
-                            }
-                        }}
-                    />
-                </>
+                <ExtrusionControls
+                    layerId={layerId}
+                    color={color}
+                    extrusionHeight={layer.extrusionHeight}
+                    extrusionHeightField={layer.extrusionHeightField}
+                    extrusionBase={layer.extrusionBase}
+                    extrusionBaseField={layer.extrusionBaseField}
+                    fields={layer.fields}
+                />
             )}
         </Flex>
     )

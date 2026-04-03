@@ -619,7 +619,7 @@ git commit -m "extract PhotoControls from LayerPanel"
 - Create: `src/components/LayerPanel/ExtrusionControls.tsx`
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Create ExtrusionControls component**
+- [x] **Step 1: Create ExtrusionControls component**
 
 Create `src/components/LayerPanel/ExtrusionControls.tsx`:
 
@@ -758,16 +758,16 @@ export const ExtrusionControls: FC<ExtrusionControlsProps> = ({
 }
 ```
 
-- [ ] **Step 2: Replace Extrusion section in index.tsx**
+- [x] **Step 2: Replace Extrusion section in index.tsx**
 
 1. Add import: `import { ExtrusionControls } from "./ExtrusionControls"`
 2. Remove the extrusion block (`{!(type === LayerType.Extrusion) ? null : (...)}`)
 
-- [ ] **Step 3: Format and verify**
+- [x] **Step 3: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/LayerPanel/ExtrusionControls.tsx src/components/LayerPanel/index.tsx
