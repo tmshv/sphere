@@ -340,6 +340,22 @@ mod tests {
     }
 
     #[test]
+    fn slice_skips_features_with_string_id() {
+        let mut fc = make_fc(&[1, 2]);
+        fc.features.push(Feature {
+            id: Some(Id::String("abc".into())),
+            geometry: Some(geojson::Geometry::new(geojson::Value::Point(vec![
+                0.0, 0.0,
+            ]))),
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        });
+        let result = slice_feature_collection(fc, &[1, 2]);
+        assert_eq!(result.features.len(), 2);
+    }
+
+    #[test]
     fn slice_preserves_feature_order() {
         let fc = make_fc(&[5, 3, 1, 4, 2]);
         let result = slice_feature_collection(fc, &[4, 1]);

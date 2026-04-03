@@ -134,6 +134,42 @@ describe("save-draw listener", () => {
         expect((doneAction?.payload as { sourceId: string }).sourceId).toBe(sourceId)
     })
 
+    test("calls source_patch when only added is non-empty", async () => {
+        const sourceId = "draw-source"
+        const addedOnlyPatch = { added: patch.added, updated: [], deleted_ids: [] }
+        const { store } = makeStore()
+
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch: addedOnlyPatch } })
+        await vi.runAllTimersAsync()
+
+        expect(mockInvoke).toHaveBeenCalledOnce()
+        expect(mockInvoke).toHaveBeenCalledWith("source_patch", { id: sourceId, patch: addedOnlyPatch })
+    })
+
+    test("calls source_patch when only updated is non-empty", async () => {
+        const sourceId = "draw-source"
+        const updatedOnlyPatch = { added: [], updated: patch.updated, deleted_ids: [] }
+        const { store } = makeStore()
+
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch: updatedOnlyPatch } })
+        await vi.runAllTimersAsync()
+
+        expect(mockInvoke).toHaveBeenCalledOnce()
+        expect(mockInvoke).toHaveBeenCalledWith("source_patch", { id: sourceId, patch: updatedOnlyPatch })
+    })
+
+    test("calls source_patch when only deleted_ids is non-empty", async () => {
+        const sourceId = "draw-source"
+        const deletedOnlyPatch = { added: [], updated: [], deleted_ids: patch.deleted_ids }
+        const { store } = makeStore()
+
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch: deletedOnlyPatch } })
+        await vi.runAllTimersAsync()
+
+        expect(mockInvoke).toHaveBeenCalledOnce()
+        expect(mockInvoke).toHaveBeenCalledWith("source_patch", { id: sourceId, patch: deletedOnlyPatch })
+    })
+
     test("skips IPC when patch is empty", async () => {
         const sourceId = "draw-source"
         const emptyPatch = { added: [], updated: [], deleted_ids: [] }
