@@ -22,13 +22,6 @@ async function main() {
     await handleHotkey()
     setupKeyboard(store)
 
-    store.dispatch(
-        actions.source.addFromUrl({
-            url: "file:///Users/tmshv/Workspace/designunit/sndl/20250416-10k.csv",
-            type: SourceType.Geojson,
-        }),
-    )
-
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <React.StrictMode>
             <ErrorBoundary FallbackComponent={RootErrorFallback}>
