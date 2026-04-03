@@ -34,6 +34,10 @@ export function selectionCount(): Promise<number> {
     return invoke<number>("selection_count")
 }
 
+export function selectionGetIds(): Promise<number[]> {
+    return invoke<number[]>("selection_get_ids")
+}
+
 export function selectionQueryPage(
     sourceId: string,
     offset: number,
