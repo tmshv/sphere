@@ -1,42 +1,32 @@
-import { fireEvent, render, screen } from "@/test-utils"
-import { act } from "react"
-import { describe, expect, it } from "vitest"
+import { render, screen } from "@/test-utils"
+import { describe, expect, it, vi } from "vitest"
 import { ContextMenu } from "."
 
 describe("ContextMenu", () => {
-    it("renders its children after a contextmenu event opens the menu", () => {
+    it("renders children when opened is true", () => {
         render(
-            <ContextMenu>
-                <div data-testid="child">hello</div>
-            </ContextMenu>,
-        )
-        fireEvent.contextMenu(document)
-        expect(screen.getByTestId("child")).toBeDefined()
-    })
-
-    it("shows the menu after a contextmenu event on document", () => {
-        render(
-            <ContextMenu>
+            <ContextMenu opened={true} position={[100, 200]} onClose={vi.fn()}>
                 <div data-testid="menu-item">Item</div>
             </ContextMenu>,
         )
-        fireEvent.contextMenu(document)
         expect(screen.getByTestId("menu-item")).toBeDefined()
     })
 
-    it("positions the Menu.Target div at the event's clientX/clientY", async () => {
+    it("does not render children when opened is false", () => {
+        render(
+            <ContextMenu opened={false} position={[100, 200]} onClose={vi.fn()}>
+                <div data-testid="menu-item">Item</div>
+            </ContextMenu>,
+        )
+        expect(screen.queryByTestId("menu-item")).toBeNull()
+    })
+
+    it("positions the target div at the given position", () => {
         const { container } = render(
-            <ContextMenu>
+            <ContextMenu opened={true} position={[100, 200]} onClose={vi.fn()}>
                 <div>Item</div>
             </ContextMenu>,
         )
-
-        await act(async () => {
-            document.dispatchEvent(
-                new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 100, clientY: 200 }),
-            )
-        })
-
         const target = container.querySelector("div[style]") as HTMLElement
         expect(target.style.left).toBe("100px")
         expect(target.style.top).toBe("200px")
