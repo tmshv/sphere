@@ -179,7 +179,7 @@ git commit -m "add slice_feature_collection to libsphere"
 - Modify: `src-tauri/src/commands/source.rs`
 - Modify: `src-tauri/src/main.rs`
 
-- [ ] **Step 1: Add the command**
+- [x] **Step 1: Add the command**
 
 In `src-tauri/src/commands/source.rs`, add after the `source_get` function:
 
@@ -198,16 +198,16 @@ pub async fn source_get_slice(
 }
 ```
 
-- [ ] **Step 2: Register the command**
+- [x] **Step 2: Register the command**
 
 In `src-tauri/src/main.rs`, add `commands::source::source_get_slice` to the `invoke_handler` array, after `source_get`.
 
-- [ ] **Step 3: Verify it compiles**
+- [x] **Step 3: Verify it compiles**
 
 Run: `cd src-tauri && cargo check`
 Expected: no errors
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src-tauri/src/commands/source.rs src-tauri/src/main.rs

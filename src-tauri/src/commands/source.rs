@@ -111,6 +111,19 @@ pub async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result
 }
 
 #[tauri::command]
+pub async fn source_get_slice(
+    id: String,
+    ids: Vec<i64>,
+    storage: State<'_, SourceStorage>,
+) -> Result<String, String> {
+    let store = storage.store.lock().unwrap();
+    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+    let fc = entry.source.to_feature_collection()?;
+    let result = libsphere::source::slice_feature_collection(fc, &ids);
+    serde_json::to_string(&result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) -> Result<SourceSchema, String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
