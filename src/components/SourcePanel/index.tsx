@@ -103,6 +103,7 @@ export const SourcePanel: React.FC = () => {
                                 dispatch(
                                     actions.draw.start({
                                         sourceId: source.id,
+                                        selectedIds: [],
                                     }),
                                 )
                                 dispatch(actions.tools.setTool("draw"))

@@ -2,32 +2,43 @@ import type { Id } from "@/types"
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
-// Define a type for the slice state
 type DrawState = {
     sourceId?: Id
-
-    // tool:
+    selectedIds: number[]
 }
 
-// Define the initial state using that type
-const initialState: DrawState = {}
+const initialState: DrawState = {
+    selectedIds: [],
+}
 
 export const drawSlice = createSlice({
     name: "draw",
     initialState,
     reducers: {
-        start: (state, action: PayloadAction<{ sourceId: Id }>) => {
+        start: (state, action: PayloadAction<{ sourceId: Id; selectedIds: number[] }>) => {
             state.sourceId = action.payload.sourceId
+            state.selectedIds = action.payload.selectedIds
         },
-        commit: (state, _: PayloadAction<{ sourceId: Id; data: GeoJSON.FeatureCollection }>) => {
-            // trigger action — listener handles the side effects
+        commit: (
+            state,
+            _: PayloadAction<{
+                sourceId: Id
+                patch: {
+                    added: GeoJSON.Feature[]
+                    updated: GeoJSON.Feature[]
+                    deleted_ids: (string | number)[]
+                }
+            }>,
+        ) => {
             return state
         },
         done: (state, _: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = undefined
+            state.selectedIds = []
         },
         reset: state => {
             state.sourceId = undefined
+            state.selectedIds = []
         },
     },
     selectors: {

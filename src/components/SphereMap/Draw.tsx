@@ -48,7 +48,12 @@ export default function Draw({ mapId }: DrawProps) {
 
     const onDone = useCallback(() => {
         if (!sourceId) return
-        dispatch(actions.draw.commit({ sourceId, data: draw.getAll() }))
+        dispatch(
+            actions.draw.commit({
+                sourceId,
+                patch: { added: [], updated: [], deleted_ids: [] },
+            }),
+        )
     }, [dispatch, sourceId, draw])
 
     return (

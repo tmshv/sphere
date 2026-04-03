@@ -13,25 +13,52 @@ describe("drawSlice reducer", () => {
     })
 
     test("start sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: "my-source" }))
+        const state = reducer(undefined, start({ sourceId: "my-source", selectedIds: [] }))
         expect(state.sourceId).toBe("my-source")
     })
 
+    test("start with another id sets sourceId", () => {
+        const state = reducer(undefined, start({ sourceId: "source-42", selectedIds: [] }))
+        expect(state.sourceId).toBe("source-42")
+    })
+
+    test("initial state has empty selectedIds", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(state.selectedIds).toEqual([])
+    })
+
+    test("start sets selectedIds", () => {
+        const state = reducer(undefined, start({ sourceId: "s1", selectedIds: [1, 2, 3] }))
+        expect(state.selectedIds).toEqual([1, 2, 3])
+    })
+
+    test("start with empty selectedIds", () => {
+        const state = reducer(undefined, start({ sourceId: "s1", selectedIds: [] }))
+        expect(state.selectedIds).toEqual([])
+    })
+
     test("done clears sourceId", () => {
-        const prev = { sourceId: "my-source" }
+        const prev = { sourceId: "my-source", selectedIds: [1, 2] }
         const state = reducer(prev, done({ sourceId: "my-source" }))
         expect(state.sourceId).toBeUndefined()
     })
 
+    test("done clears selectedIds", () => {
+        const prev = { sourceId: "s1", selectedIds: [1, 2] }
+        const state = reducer(prev, done({ sourceId: "s1" }))
+        expect(state.selectedIds).toEqual([])
+    })
+
     test("reset clears sourceId", () => {
-        const prev = { sourceId: "my-source" }
+        const prev = { sourceId: "my-source", selectedIds: [] }
         const state = reducer(prev, reset())
         expect(state.sourceId).toBeUndefined()
     })
 
-    test("start with another id sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: "source-42" }))
-        expect(state.sourceId).toBe("source-42")
+    test("reset clears selectedIds", () => {
+        const prev = { sourceId: "s1", selectedIds: [1, 2] }
+        const state = reducer(prev, reset())
+        expect(state.selectedIds).toEqual([])
     })
 })
 

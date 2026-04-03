@@ -246,7 +246,7 @@ git commit -m "add selectionGetIds IPC wrapper"
 - Modify: `src/store/draw.ts`
 - Modify: `src/store/draw.test.ts`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Add to `src/store/draw.test.ts`:
 
@@ -279,12 +279,12 @@ test("reset clears selectedIds", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npm test -- --run src/store/draw.test.ts`
 Expected: FAIL — `selectedIds` property missing, `start` action doesn't accept `selectedIds`
 
-- [ ] **Step 3: Update the draw slice**
+- [x] **Step 3: Update the draw slice**
 
 In `src/store/draw.ts`, change the state type:
 
@@ -348,7 +348,7 @@ reset: state => {
 },
 ```
 
-- [ ] **Step 4: Fix the existing test for `start`**
+- [x] **Step 4: Fix the existing test for `start`**
 
 The existing test `"start sets sourceId"` now needs `selectedIds`. Update it:
 
@@ -368,16 +368,16 @@ test("start with another id sets sourceId", () => {
 })
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `npm test -- --run src/store/draw.test.ts`
 Expected: PASS
 
-- [ ] **Step 6: Run format**
+- [x] **Step 6: Run format**
 
 Run: `npm run format`
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/store/draw.ts src/store/draw.test.ts
