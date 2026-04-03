@@ -103,8 +103,20 @@ export const SourcePanel: React.FC = () => {
                             if (drawing) {
                                 dispatch(actions.tools.reset())
                             } else {
-                                const selectionCount = store.getState().selection.count
-                                const selectedIds = selectionCount > 0 ? await selectionGetIds() : []
+                                const sel = store.getState().selection
+                                let selectedIds: number[] = []
+                                if (sel.count > 0 && sel.sourceId === source.id) {
+                                    const versionBefore = sel.version
+                                    try {
+                                        selectedIds = await selectionGetIds()
+                                    } catch {
+                                        selectedIds = []
+                                    }
+                                    const selAfter = store.getState().selection
+                                    if (selAfter.sourceId !== source.id || selAfter.version !== versionBefore) {
+                                        selectedIds = []
+                                    }
+                                }
                                 dispatch(
                                     actions.draw.start({
                                         sourceId: source.id,
