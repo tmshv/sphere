@@ -873,27 +873,27 @@ git commit -m "pass selected feature IDs when entering draw mode"
 
 ### Task 9: Integration — full test run and verify
 
-- [ ] **Step 1: Run all frontend tests**
+- [x] **Step 1: Run all frontend tests**
 
 Run: `npm test -- --run`
 Expected: all tests pass
 
-- [ ] **Step 2: Run Rust tests**
+- [x] **Step 2: Run Rust tests**
 
 Run: `cd src-tauri && cargo test -p libsphere -- source::tests`
 Expected: all pass
 
-- [ ] **Step 3: Run Rust check**
+- [x] **Step 3: Run Rust check**
 
 Run: `cd src-tauri && cargo check`
 Expected: no errors
 
-- [ ] **Step 4: Run frontend build**
+- [x] **Step 4: Run frontend build**
 
 Run: `npm run build`
 Expected: no errors
 
-- [ ] **Step 5: Run lint**
+- [x] **Step 5: Run lint**
 
 Run: `npm run lint`
 Expected: no errors
