@@ -1,7 +1,6 @@
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import type { PhotoIconLayout } from "@/store/layer"
 import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
 import { Badge, ColorPicker, Flex, Input, Select, Slider, TextInput } from "@mantine/core"
@@ -10,6 +9,7 @@ import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
 import { HeatmapControls } from "./HeatmapControls"
 import { LayerFilter } from "./LayerFilter"
+import { PhotoControls } from "./PhotoControls"
 
 type Option = {
     value: string
@@ -140,7 +140,6 @@ export const LayerPanel: React.FC = () => {
         name,
         type,
         color,
-        circleRange,
         clusterRadius,
         heatmapRadius,
         heatmapIntensity,
@@ -318,79 +317,14 @@ export const LayerPanel: React.FC = () => {
             )}
 
             {!(type === LayerType.Photo) ? null : (
-                <>
-                    <Input.Wrapper label="Radius" size="xs">
-                        <Slider
-                            label={"Radius"}
-                            size={"xs"}
-                            min={50}
-                            max={200}
-                            value={clusterRadius}
-                            onChange={value => {
-                                dispatch(
-                                    actions.layer.setPhotoClusterRadius({
-                                        id: layerId,
-                                        value,
-                                    }),
-                                )
-                            }}
-                        />
-                    </Input.Wrapper>
-                    <Select
-                        size="xs"
-                        label="Image field"
-                        placeholder="Pick one"
-                        value={layer.srcField}
-                        data={layer.fields}
-                        onChange={src => {
-                            if (src) {
-                                dispatch(
-                                    actions.layer.setPhotoField({
-                                        id: layerId,
-                                        src,
-                                    }),
-                                )
-                            }
-                        }}
-                    />
-                    <Select
-                        size="xs"
-                        label="Value field"
-                        placeholder="Pick one"
-                        value={layer.valueField}
-                        data={layer.fields}
-                        onChange={value => {
-                            if (value) {
-                                dispatch(
-                                    actions.layer.setPhotoField({
-                                        id: layerId,
-                                        value,
-                                    }),
-                                )
-                            }
-                        }}
-                    />
-                    <Select
-                        size="xs"
-                        label="Layout"
-                        placeholder="Pick one"
-                        value={layer.icon}
-                        data={[
-                            { value: "square", label: "Square" },
-                            { value: "circle", label: "Circle" },
-                        ]}
-                        onChange={(value: PhotoIconLayout) => {
-                            if (value) {
-                                dispatch(
-                                    actions.layer.setPhotoIconLayout({
-                                        id: layerId,
-                                        value,
-                                    }),
-                                )
-                            }
-                        }}
-                    />
-                </>
+                <PhotoControls
+                    layerId={layerId}
+                    clusterRadius={clusterRadius}
+                    srcField={layer.srcField}
+                    valueField={layer.valueField}
+                    icon={layer.icon}
+                    fields={layer.fields}
+                />
             )}
 
             {!(type === LayerType.Extrusion) ? null : (

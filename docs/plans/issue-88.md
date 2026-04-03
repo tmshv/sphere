@@ -486,7 +486,7 @@ git commit -m "extract HeatmapControls from LayerPanel"
 - Create: `src/components/LayerPanel/PhotoControls.tsx`
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Create PhotoControls component**
+- [x] **Step 1: Create PhotoControls component**
 
 Create `src/components/LayerPanel/PhotoControls.tsx`:
 
@@ -594,17 +594,17 @@ export const PhotoControls: FC<PhotoControlsProps> = ({
 }
 ```
 
-- [ ] **Step 2: Replace Photo section in index.tsx**
+- [x] **Step 2: Replace Photo section in index.tsx**
 
 1. Add import: `import { PhotoControls } from "./PhotoControls"`
 2. Remove the photo block (`{!(type === LayerType.Photo) ? null : (...)}`)
 3. Remove `PhotoIconLayout` import from index.tsx (no longer used there)
 
-- [ ] **Step 3: Format and verify**
+- [x] **Step 3: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/LayerPanel/PhotoControls.tsx src/components/LayerPanel/index.tsx
