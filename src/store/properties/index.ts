@@ -33,10 +33,11 @@ export const selectProperties = (state: RootState) => {
     return state.properties.values.map(values => {
         return Object.keys(values)
             .filter(key => !blacklist.has(key))
-            .map(key => ({
-                key,
-                value: values?.[key],
-            }))
+            .map(key => {
+                const raw = values?.[key]
+                const value = typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw ?? "")
+                return { key, value }
+            })
     })
 }
 

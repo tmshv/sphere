@@ -326,6 +326,21 @@ pub async fn source_get_column_stats(
     })
 }
 
+#[tauri::command]
+pub async fn source_query_rect(
+    id: String,
+    bbox: [f64; 4],
+    mode: String,
+    storage: State<'_, SourceStorage>,
+) -> Result<Vec<i64>, String> {
+    let fs = {
+        let store = storage.store.lock().unwrap();
+        let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+        entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
+    };
+    Ok(fs.query_rect(bbox, &mode))
+}
+
 #[derive(Deserialize, Debug)]
 pub struct SourcePatch {
     pub added: Vec<serde_json::Value>,
@@ -366,8 +381,6 @@ pub async fn source_replace(
     data: geojson::FeatureCollection,
     storage: State<'_, SourceStorage>,
 ) -> Result<(), String> {
-    // Assign IDs and build the feature store before acquiring the lock
-    // to avoid blocking concurrent IPC calls during expensive CPU work.
     let mut new_fc = data;
     assign_feature_ids(&mut new_fc);
     let new_store = Arc::new(FeatureStore::from_features(new_fc.features.clone()));
@@ -389,7 +402,6 @@ pub async fn source_patch(
     patch: SourcePatch,
     storage: State<'_, SourceStorage>,
 ) -> Result<(), String> {
-    // Parse all features before acquiring the lock to avoid partial state on error.
     let updated_features: Vec<geojson::Feature> = patch.updated.iter()
         .map(|v| {
             serde_json::from_value(v.clone())

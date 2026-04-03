@@ -1,3 +1,4 @@
+import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
 import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { FilterSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
@@ -24,21 +25,17 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
     thick,
     filter,
 }) => {
-    const [outline, line, selected] = useMemo(() => {
+    const [outline, line] = useMemo(() => {
         const outline: LinePaint = {
-            "line-color": "#fff",
+            "line-color": "white",
             "line-width": thick ? 4 : 3,
         }
         const line: LinePaint = {
-            "line-color": color,
+            "line-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
             "line-width": thick ? 2 : 1,
         }
-        const selected: LinePaint = {
-            "line-color": "white",
-            "line-width": thick ? 6 : 3,
-        }
 
-        return [outline, line, selected]
+        return [outline, line]
     }, [color, thick])
 
     return (
@@ -73,19 +70,6 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                     ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]],
                     ...(filter ? [filter] : []),
                 )}
-                {...sourceLayerProp(sourceLayer)}
-            />
-            <Layer
-                id={`${layerId}-selected`}
-                source={sourceId}
-                type={"line"}
-                paint={selected}
-                layout={{
-                    "line-cap": "round",
-                    "line-join": "round",
-                    visibility: visibility(visible),
-                }}
-                filter={combineFilters(["in", "id", ""], ...(filter ? [filter] : []))}
                 {...sourceLayerProp(sourceLayer)}
             />
         </>

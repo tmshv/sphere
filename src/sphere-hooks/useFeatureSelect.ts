@@ -1,5 +1,16 @@
 import { queryFeaturesInPoint } from "@/lib/maplibre"
+import { emitSelectionDelta } from "@/lib/selection-bus"
+import {
+    type SelectionDelta,
+    selectionSet,
+    selectionAdd,
+    selectionRemove,
+    selectionClear,
+    selectionApply,
+    selectionCount,
+} from "@/lib/selection-ipc"
 import { actions, selectors } from "@/store"
+import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { createSelector } from "@reduxjs/toolkit"
 import { useEffect } from "react"
@@ -13,32 +24,57 @@ const selectClickableLayerIds = createSelector(
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectClickableLayerIds)
+    const mapTool = useAppSelector(selectMapTool)
 
     useEffect(() => {
         const map = ref?.getMap()
-        if (!map) {
+        if (!map || mapTool === "select") {
             return
         }
 
-        const click = map.on("click", event => {
+        const click = map.on("click", async event => {
             const features = queryFeaturesInPoint(event.target, event.point, layerIds)
+
             if (features.length > 0) {
                 const f = features[0]
-                dispatch(
-                    actions.selection.selectOne({
-                        layerId: f.layer.id,
-                        featureId: f.id as number,
-                    }),
-                )
+                const featureId = f.id
+                if (typeof featureId !== "number") {
+                    return
+                }
+
+                const nativeEvent = event.originalEvent
+                let delta: SelectionDelta
+                if (nativeEvent.shiftKey) {
+                    delta = await selectionAdd([featureId])
+                } else if (nativeEvent.ctrlKey || nativeEvent.metaKey) {
+                    delta = await selectionRemove([featureId])
+                } else {
+                    delta = await selectionSet([featureId])
+                }
+
+                emitSelectionDelta(delta)
+
+                const applyDelta = await selectionApply()
+                emitSelectionDelta(applyDelta)
+
+                const count = await selectionCount()
+                dispatch(actions.selection.sync({ count }))
+                dispatch(actions.selection.apply())
                 return
             }
-            dispatch(actions.selection.resetFeature())
+
+            // Click on empty space — clear selection
+            const delta = await selectionClear()
+            emitSelectionDelta(delta)
+
+            dispatch(actions.selection.reset())
+            dispatch(actions.selection.apply())
         })
 
         return () => {
             click.unsubscribe()
         }
-    }, [dispatch, ref, layerIds])
+    }, [dispatch, ref, layerIds, mapTool])
 
     return null
 }

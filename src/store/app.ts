@@ -11,6 +11,7 @@ type AppState = {
     showLeftSidebar: boolean
     showRightSidebar: boolean
     activeSidebarTab: "sources" | "layers"
+    mapTool: "pan" | "select"
 }
 
 // Define the initial state using that type
@@ -22,6 +23,7 @@ const initialState: AppState = {
     showLeftSidebar: true,
     showRightSidebar: true,
     activeSidebarTab: "sources",
+    mapTool: "pan",
 }
 
 export const appSlice = createSlice({
@@ -56,6 +58,9 @@ export const appSlice = createSlice({
         setActiveSidebarTab: (state, action: PayloadAction<"sources" | "layers">) => {
             state.activeSidebarTab = action.payload
         },
+        setMapTool: (state, action: PayloadAction<"pan" | "select">) => {
+            state.mapTool = action.payload
+        },
     },
     selectors: {
         isZen: state => state.zenMode,
@@ -69,6 +74,7 @@ export const actions = {
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectActiveSidebarTab = (state: RootState) => state.app.activeSidebarTab
+export const selectMapTool = (state: RootState) => state.app.mapTool
 export const selectShowAttribution = (state: RootState) => state.app.showAttribution
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar

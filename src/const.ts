@@ -28,3 +28,7 @@ export const EMPTY_GEOJSON = {
     type: "FeatureCollection",
     features: [],
 }
+// export const FEATURE_HIGHLIGHT_COLOR = "#fbb13a"
+export const FEATURE_HIGHLIGHT_COLOR = "red"
+export const PREVIEW_COLOR = "black" // tableu10[0]
+export const PREVIEW_RADIUS = 3

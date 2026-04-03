@@ -1,28 +1,39 @@
 import { describe, expect, test } from "vitest"
 import reducer, { selectionSlice } from "./index"
 
-const { reset, selectOne } = selectionSlice.actions
+const { sync, reset, apply } = selectionSlice.actions
 
 describe("selectionSlice reducer", () => {
     test("initial state", () => {
         const state = reducer(undefined, { type: "@@INIT" })
-        expect(state.selectedIds).toEqual([])
+        expect(state.count).toBe(0)
+        expect(state.version).toBe(0)
     })
 
-    test("reset clears selectedIds", () => {
-        const prev = { selectedIds: [1, 2] }
-        const state = reducer(prev, reset())
-        expect(state.selectedIds).toEqual([])
+    test("sync updates count and bumps version", () => {
+        const state = reducer(undefined, sync({ count: 42 }))
+        expect(state.count).toBe(42)
+        expect(state.version).toBe(1)
     })
 
-    test("selectOne sets selectedIds from featureId", () => {
-        const state = reducer(undefined, selectOne({ layerId: "l1", featureId: 42 }))
-        expect(state.selectedIds).toEqual([42])
+    test("sync bumps version each time", () => {
+        let state = reducer(undefined, sync({ count: 10 }))
+        state = reducer(state, sync({ count: 20 }))
+        expect(state.count).toBe(20)
+        expect(state.version).toBe(2)
     })
 
-    test("selectOne replaces previous selectedIds", () => {
-        const prev = { selectedIds: [1, 2] }
-        const state = reducer(prev, selectOne({ layerId: "l1", featureId: 99 }))
-        expect(state.selectedIds).toEqual([99])
+    test("reset clears count and bumps version", () => {
+        let state = reducer(undefined, sync({ count: 10 }))
+        state = reducer(state, reset())
+        expect(state.count).toBe(0)
+        expect(state.version).toBe(2)
+    })
+
+    test("apply is a no-op on state", () => {
+        const prev = { count: 5, version: 3 }
+        const state = reducer(prev, apply())
+        expect(state.count).toBe(5)
+        expect(state.version).toBe(3)
     })
 })

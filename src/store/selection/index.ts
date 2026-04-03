@@ -1,31 +1,35 @@
-import type { Id } from "@/types"
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
-// Define a type for the slice state
 type SelectionState = {
-    selectedIds: number[]
+    count: number
+    version: number
 }
 
-// Define the initial state using that type
 const initialState: SelectionState = {
-    selectedIds: [],
+    count: 0,
+    version: 0,
 }
 
 export const selectionSlice = createSlice({
     name: "selection",
-    // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
+        sync: (state, action: PayloadAction<{ count: number }>) => {
+            state.count = action.payload.count
+            state.version += 1
+        },
         reset: state => {
-            state.selectedIds = []
+            state.count = 0
+            state.version += 1
         },
-        resetFeature: state => {
-            state.selectedIds = []
+        apply: () => {
+            // No state change — signal for listeners to fetch properties
         },
-        selectOne: (state, action: PayloadAction<{ layerId: Id; featureId: number }>) => {
-            state.selectedIds = [action.payload.featureId]
-        },
+    },
+    selectors: {
+        count: state => state.count,
+        version: state => state.version,
     },
 })
 

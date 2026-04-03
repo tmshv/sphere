@@ -3,6 +3,7 @@ import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
 import useFeatureSelect from "@/sphere-hooks/useFeatureSelect"
+import useFeatureState from "@/sphere-hooks/useFeatureState"
 import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
@@ -17,6 +18,7 @@ import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
 import { FilteredLayerSource } from "./FilteredLayerSource"
+import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
@@ -58,6 +60,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useProjection(map, "mercator")
     usePointerHover(mapId)
     useFeatureSelect(map)
+    useFeatureState(map)
     useFeatureProperties(map, 50)
     useTileBoundaries(map)
 
@@ -81,6 +84,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
                 </React.Fragment>
             ))}
             {!drawing ? null : <Draw mapId={mapId} />}
+            <RectSelectOverlay mapRef={map} />
         </>
     )
 }

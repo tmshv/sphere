@@ -1,19 +1,18 @@
 import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
-import { isAnyOf } from "@reduxjs/toolkit"
-import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { actions } from "../app"
-import { selectionSlice } from "../selection"
+import { isAnyOf, createListenerMiddleware } from "@reduxjs/toolkit"
+import { actions as appActions } from "../app"
+import { actions } from "../actions"
 
 const listener = createListenerMiddleware()
 listener.startListening({
     matcher: isAnyOf(
-        actions.toggleZenMode,
-        actions.showLeftSidebar,
-        actions.hideLeftSidebar,
-        actions.showRightSidebar,
-        actions.hideRightSidebar,
-        selectionSlice.actions.reset, // I'm not sure about this
+        appActions.toggleZenMode,
+        appActions.showLeftSidebar,
+        appActions.hideLeftSidebar,
+        appActions.showRightSidebar,
+        appActions.hideRightSidebar,
+        actions.selection.reset,
     ),
     effect: async (_, listenerApi) => {
         const map = getMap(MAP_ID)
@@ -21,7 +20,6 @@ listener.startListening({
             return
         }
 
-        // resize map in next tick
         await listenerApi.delay(0)
 
         map.resize()

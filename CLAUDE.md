@@ -67,10 +67,10 @@ The following code smells are strictly forbidden:
 ### Frontend (`src/`)
 
 **State Management**: Redux Toolkit with listener middleware for side effects. Key slices:
-- `app` - UI state (dark theme, sidebar visibility, active sidebar tab)
+- `app` - UI state (dark theme, sidebar visibility, active sidebar tab, map tool mode (`"pan"` | `"select"`))
 - `layer` - Layer management and styling
 - `source` - Data source management; `FeatureCollecionSource` stores no GeoJSON in Redux — data lives in the Rust backend. A `version: number` field acts as a cache-bust signal: `bumpVersion(id)` increments it, which triggers `SphereSource` to re-fetch via `source_get` IPC.
-- `selection` - Selected map features
+- `selection` - Selected map features. `selectOne` sets `layerId`, clears `sourceId`; `selectMany` sets `sourceId`, clears `layerId` — mutually exclusive, and `useFeatureState` depends on this invariant
 - `draw` - Drawing mode state
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
 - `tools` - Active map tool state (`activeTool: Tool | null`); `"navigation"` = drag-pan/scroll-zoom/rotate enabled (default), `"draw"` = drawing mode active, `null` = map frozen; `reset` action returns to `"navigation"` and triggers the `resetTool` listener which clears draw state if needed
@@ -81,6 +81,8 @@ The following code smells are strictly forbidden:
   - `SphereSource` — Renders a MapLibre `<Source>` for each Redux source entry. For `FeatureCollection` sources, data is never stored in Redux; the component watches `version` from the source slice and fetches via `source_get` IPC whenever it increments. For `Geojson` sources, data is fetched once on mount via `source_get` IPC. The draw tool (`Draw.tsx`) loads existing features on mount via `source_get` IPC (not from Redux state). On "Done", it calls `source_replace` IPC to persist the edited FeatureCollection, dispatches `bumpVersion` to trigger `SphereSource` to re-fetch, then dispatches `draw.done` and `tools.reset`. If `source_replace` fails, draw mode stays active.
   - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active. Points layer components directly at the already-mounted MapLibre source (no duplicate source created). For GeoJSON/FeatureCollection sources, renders one set of `PointLayer`/`SphereLineStringLayer`/`SpherePolygonLayer` using `preview-${sourceId}-{geometry}` layer IDs. For MVT sources, iterates `source.sourceLayers` and renders all three components per named vector layer using `preview-${sourceId}-${sl.id}-{geometry}` IDs. Passes `selectPreviewLayerIds` result to `useFeatureProperties` (empty array when no preview active, which deactivates feature property lookup to prevent properties slice conflicts). `selectPreviewLayerIds` (in `store/selectors.ts`) is the single authoritative source of which layers are clickable during preview — used by both `SourcePreviewLayer` and `useFeatureSelect`
   - `map-body.tsx` `selectLayers` - suppresses user layers during draw mode and when a source is actively previewed (`previewSourceId` defined); the v0.13.0 regression (hiding layers on source tab unconditionally) was fixed, but source-preview isolation (hiding layers when a specific source is selected for preview) is intentional
+  - `MapToolbar` - Floating Pan/Rect-Select toggle, visible on Sources tab only. Resets to `"pan"` whenever the user leaves the Sources tab (to avoid leaving `dragPan` disabled). Escape key also resets to pan
+  - `RectSelectOverlay` - Transparent overlay that captures mouse drag when `mapTool === "select"`. Drag left-to-right = `"include"` mode (solid border); right-to-left = `"intersect"` mode (dashed border). Calls `source_query_rect` and dispatches `selectMany`. Requires `selectors.selection.currentSourceId` to be set (set by `selectMany`; absent when `selectOne` used)
   - `SphereLayer` — The `select` selector reads both layer and source to determine filtering strategy per layer. For **MVT PBF** sources with a filter, the user's filter expression is passed as `userFilter` to geometry layer components (`PointLayer`, `SphereLineStringLayer`, `SpherePolygonLayer`), which combine it with their geometry-type filter via `combineFilters` (`["all", geometryFilter, userFilter]`). The source ID stays original — MapLibre applies the filter client-side on decoded vector tile features. For **GeoJSON/FeatureCollection** sources with a filter, the existing backend-filtered side-source approach is used (`sourceId` resolves to `layer-${layerId}`, `FilteredLayerSource` creates the side-source). `FilteredLayerSource` skips the backend IPC call for MVT PBF sources since filtering is handled by MapLibre natively.
 - `components/LeftSidebar/` - Sources and layers management
 - `store/effects/` - Side effects (file loading, etc.)
@@ -94,10 +96,14 @@ The following code smells are strictly forbidden:
 - `useFeatureClick` - Registers MapLibre click handlers; `layerId` accepts `string[]` so multiple layers (e.g. preview point/line/polygon layers) share one outside-click clear
 - `useMapNavigation` - Combines `selectors.mapInteraction` (dragPan/scrollZoom/dragRotate toggles) and `selectors.tools.selectNavigationEnabled` to sync MapLibre handler state with Redux
 
+**Sphere Hooks** (`src/sphere-hooks/`):
+- `useFeatureState` - Drives MapLibre `setFeatureState({ selected: true })` for all `selectedIds` in the selection slice. Resolves the MapLibre source ID from `layerId` (via `layer.items`) for single-feature selections, or from `selectionSourceId` directly for multi-select (`selectMany`). Requires `promoteId="id"` on the source (set by `SphereSource`). Clears previous highlights via `removeFeatureState` before applying new ones
+- `useFeatureSelect` - No-op in pan tool mode; in select tool mode registers a click handler that dispatches `selectOne` for numeric feature IDs or `resetFeature` for clicks on empty space
+
 ### Backend (`src-tauri/`)
 
 Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
-- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics, rect spatial queries
 - `system.rs` - System utilities (show in finder)
 
 State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source` and an optional `FeatureStore` (built at load time; absent for MBTiles sources).
@@ -144,6 +150,10 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
 **Event System**: Tauri events handle:
 - Theme changes (system dark/light mode)
 - Drag-and-drop file handling
+- Inter-window events for the properties table window:
+  - `properties-set` — main → properties window: sets source, schema, filter expression
+  - `properties-init` — properties window → main: signals window is ready
+  - `properties-selection-changed` — main → properties window: `{ sourceId, selectedIds }` emitted on every `selectOne`/`selectMany` to drive the All/Selected filter toggle
 
 **Plugins Used**: fs, dialog, http, clipboard
 
@@ -159,6 +169,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
 | `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
 | `source_get_column_stats` | Histogram + min/max/mean/unique counts for one column: `(id, column) -> ColumnStats` |
+| `source_query_rect`       | Rect spatial query: `(id, bbox: [west,south,east,north], mode: "include"\|"intersect") -> Vec<i64>` |
 | `source_add_data`         | Create an in-memory source from a GeoJSON FeatureCollection string: `(name, data) -> { id, name, location, source_type }` |
 | `source_replace`          | Replace all features of an in-memory source: `(id, data: GeoJSON string) -> ()` |
 | `source_patch`            | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |

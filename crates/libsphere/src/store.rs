@@ -1,3 +1,4 @@
+use geo::{Contains, Intersects};
 use geojson::Feature;
 use serde::Serialize;
 use serde_json::Value;
@@ -18,7 +19,6 @@ pub struct PageResult {
 
 pub struct FeatureStore {
     features: Vec<Feature>,
-    #[allow(dead_code)] // reserved for future bbox spatial queries
     index: Box<dyn SpatialIndex>,
     schema: SourceSchema,
     bounds: Option<Bbox>,
@@ -147,6 +147,46 @@ impl FeatureStore {
 
     pub fn schema(&self) -> &SourceSchema {
         &self.schema
+    }
+
+    /// Returns IDs of features that match the given rect and mode.
+    /// mode: "include" = feature fully inside rect, "intersect" = feature touches rect.
+    pub fn query_rect(&self, bbox: [f64; 4], mode: &str) -> Vec<i64> {
+        let [west, south, east, north] = bbox;
+        let rect = geo::Rect::new(
+            geo::coord! { x: west, y: south },
+            geo::coord! { x: east, y: north },
+        );
+        let candidates = self.index.query_bbox((west, south, east, north));
+        let mut result = Vec::new();
+        for idx in candidates {
+            let feature = &self.features[idx];
+            let id = match &feature.id {
+                Some(geojson::feature::Id::Number(n)) => match n.as_i64() {
+                    Some(v) => v,
+                    None => continue,
+                },
+                _ => continue,
+            };
+            let geometry = match &feature.geometry {
+                Some(g) => g,
+                None => continue,
+            };
+            let geo_geom: geo::Geometry<f64> = match geo::Geometry::try_from(geometry) {
+                Ok(g) => g,
+                Err(_) => continue,
+            };
+            let matches = match mode {
+                "include" => rect.contains(&geo_geom),
+                "intersect" => rect.intersects(&geo_geom),
+                _ => false,
+            };
+            if matches {
+                result.push(id);
+            }
+        }
+        result.sort();
+        result
     }
 }
 
@@ -489,5 +529,83 @@ mod tests {
         };
         let bbox = compute_feature_bbox(&feature).expect("bbox should be from explicit");
         assert_eq!(bbox, (1.0, 2.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn test_query_rect_include_point_inside() {
+        let features = vec![
+            Feature {
+                bbox: None,
+                geometry: Some(Geometry::new(GeoValue::Point(vec![1.0, 1.0]))),
+                id: Some(geojson::feature::Id::Number(serde_json::Number::from(1))),
+                properties: None,
+                foreign_members: None,
+            },
+            Feature {
+                bbox: None,
+                geometry: Some(Geometry::new(GeoValue::Point(vec![5.0, 5.0]))),
+                id: Some(geojson::feature::Id::Number(serde_json::Number::from(2))),
+                properties: None,
+                foreign_members: None,
+            },
+        ];
+        let store = FeatureStore::from_features(features);
+        let result = store.query_rect([0.0, 0.0, 2.0, 2.0], "include");
+        assert_eq!(result, vec![1i64]);
+    }
+
+    #[test]
+    fn test_query_rect_include_point_outside() {
+        let features = vec![Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::Point(vec![5.0, 5.0]))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(1))),
+            properties: None,
+            foreign_members: None,
+        }];
+        let store = FeatureStore::from_features(features);
+        let result = store.query_rect([0.0, 0.0, 2.0, 2.0], "include");
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_query_rect_intersect_line_crossing() {
+        // Line from (0.5, -1) to (0.5, 3) crosses the bbox (0,0,2,2)
+        let features = vec![Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::LineString(vec![
+                vec![0.5, -1.0],
+                vec![0.5, 3.0],
+            ]))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(1))),
+            properties: None,
+            foreign_members: None,
+        }];
+        let store = FeatureStore::from_features(features);
+        // include: line extends outside bbox → not included
+        assert!(store.query_rect([0.0, 0.0, 2.0, 2.0], "include").is_empty());
+        // intersect: line crosses bbox → selected
+        assert_eq!(store.query_rect([0.0, 0.0, 2.0, 2.0], "intersect"), vec![1i64]);
+    }
+
+    #[test]
+    fn test_query_rect_empty_store() {
+        let store = FeatureStore::from_features(vec![]);
+        assert!(store.query_rect([0.0, 0.0, 10.0, 10.0], "include").is_empty());
+        assert!(store.query_rect([0.0, 0.0, 10.0, 10.0], "intersect").is_empty());
+    }
+
+    #[test]
+    fn test_query_rect_feature_without_id_excluded() {
+        let features = vec![Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::Point(vec![1.0, 1.0]))),
+            id: None, // no id
+            properties: None,
+            foreign_members: None,
+        }];
+        let store = FeatureStore::from_features(features);
+        // Feature has no id — cannot be selected
+        assert!(store.query_rect([0.0, 0.0, 2.0, 2.0], "include").is_empty());
     }
 }

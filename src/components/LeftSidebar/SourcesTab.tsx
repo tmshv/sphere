@@ -42,7 +42,7 @@ export const SourcesTab: React.FC = () => {
                     break
                 }
                 case "new": {
-                    dispatch(actions.source.new()).catch(err => {
+                    dispatch(actions.source.new()).catch((err: unknown) => {
                         logger.error("Failed to create new source: %s", err)
                     })
                     break
