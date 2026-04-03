@@ -255,3 +255,96 @@ impl Source {
         }
     }
 }
+
+pub fn slice_feature_collection(
+    fc: geojson::FeatureCollection,
+    ids: &[i64],
+) -> geojson::FeatureCollection {
+    let filtered: Vec<geojson::Feature> = fc
+        .features
+        .into_iter()
+        .filter(|f| {
+            f.id.as_ref().map_or(false, |fid| match fid {
+                geojson::feature::Id::Number(n) => n.as_i64().map_or(false, |n| ids.contains(&n)),
+                _ => false,
+            })
+        })
+        .collect();
+    geojson::FeatureCollection {
+        bbox: None,
+        features: filtered,
+        foreign_members: None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geojson::{feature::Id, Feature, FeatureCollection};
+
+    fn make_feature(id: i64) -> Feature {
+        Feature {
+            id: Some(Id::Number(id.into())),
+            geometry: Some(geojson::Geometry::new(geojson::Value::Point(vec![
+                0.0, 0.0,
+            ]))),
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        }
+    }
+
+    fn make_fc(ids: &[i64]) -> FeatureCollection {
+        FeatureCollection {
+            features: ids.iter().map(|&id| make_feature(id)).collect(),
+            bbox: None,
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn slice_returns_matching_features() {
+        let fc = make_fc(&[1, 2, 3, 4, 5]);
+        let result = slice_feature_collection(fc, &[2, 4]);
+        assert_eq!(result.features.len(), 2);
+        assert_eq!(result.features[0].id, Some(Id::Number(2.into())));
+        assert_eq!(result.features[1].id, Some(Id::Number(4.into())));
+    }
+
+    #[test]
+    fn slice_returns_empty_when_no_match() {
+        let fc = make_fc(&[1, 2, 3]);
+        let result = slice_feature_collection(fc, &[10, 20]);
+        assert_eq!(result.features.len(), 0);
+    }
+
+    #[test]
+    fn slice_with_empty_ids_returns_empty() {
+        let fc = make_fc(&[1, 2, 3]);
+        let result = slice_feature_collection(fc, &[]);
+        assert_eq!(result.features.len(), 0);
+    }
+
+    #[test]
+    fn slice_skips_features_without_id() {
+        let mut fc = make_fc(&[1, 2]);
+        fc.features.push(Feature {
+            id: None,
+            geometry: None,
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        });
+        let result = slice_feature_collection(fc, &[1, 2]);
+        assert_eq!(result.features.len(), 2);
+    }
+
+    #[test]
+    fn slice_preserves_feature_order() {
+        let fc = make_fc(&[5, 3, 1, 4, 2]);
+        let result = slice_feature_collection(fc, &[4, 1]);
+        assert_eq!(result.features.len(), 2);
+        assert_eq!(result.features[0].id, Some(Id::Number(1.into())));
+        assert_eq!(result.features[1].id, Some(Id::Number(4.into())));
+    }
+}

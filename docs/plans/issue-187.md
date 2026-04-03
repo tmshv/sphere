@@ -55,7 +55,7 @@ git commit -m "add selection_get_ids IPC command"
 **Files:**
 - Modify: `crates/libsphere/src/source.rs`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Add at the bottom of `crates/libsphere/src/source.rs`:
 
@@ -131,12 +131,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd src-tauri && cargo test -p libsphere -- source::tests`
 Expected: FAIL — `slice_feature_collection` not found
 
-- [ ] **Step 3: Implement the function**
+- [x] **Step 3: Implement the function**
 
 Add in `crates/libsphere/src/source.rs`, before the `#[cfg(test)]` block:
 
@@ -159,12 +159,12 @@ pub fn slice_feature_collection(
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cd src-tauri && cargo test -p libsphere -- source::tests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/libsphere/src/source.rs
