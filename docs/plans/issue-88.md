@@ -173,7 +173,7 @@ git commit -m "extract LayerFilter from LayerPanel"
 - Create: `src/components/LayerPanel/PointControls.tsx`
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Create PointControls component**
+- [x] **Step 1: Create PointControls component**
 
 Create `src/components/LayerPanel/PointControls.tsx`:
 
@@ -247,7 +247,7 @@ export const PointControls: FC<PointControlsProps> = ({ layerId, color, circleRa
 }
 ```
 
-- [ ] **Step 2: Replace Point section in index.tsx**
+- [x] **Step 2: Replace Point section in index.tsx**
 
 In `src/components/LayerPanel/index.tsx`:
 
@@ -255,7 +255,7 @@ In `src/components/LayerPanel/index.tsx`:
 2. Remove the Point radius block (`{!(type === LayerType.Point) ? null : (...)}`)
 3. The color picker block will be removed later when all type controls are extracted
 
-- [ ] **Step 3: Format and verify**
+- [x] **Step 3: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 

@@ -9,6 +9,7 @@ import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
 import { LayerFilter } from "./LayerFilter"
+import { PointControls } from "./PointControls"
 
 type Option = {
     value: string
@@ -306,28 +307,6 @@ export const LayerPanel: React.FC = () => {
                             })}
                             onChange={color => {
                                 dispatch(actions.layer.setColor({ id: layerId, color }))
-                            }}
-                        />
-                    </Input.Wrapper>
-                </>
-            )}
-
-            {!(type === LayerType.Point) ? null : (
-                <>
-                    <Input.Wrapper label="Radius" size="xs">
-                        <Slider
-                            size={"xs"}
-                            min={1}
-                            max={10}
-                            value={circleRange[1]}
-                            onChange={max => {
-                                dispatch(
-                                    actions.layer.setCircleRadius({
-                                        id: layerId,
-                                        min: 0,
-                                        max,
-                                    }),
-                                )
                             }}
                         />
                     </Input.Wrapper>
