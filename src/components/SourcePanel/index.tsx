@@ -1,11 +1,13 @@
+import { selectionGetIds } from "@/lib/selection-ipc"
 import { actions, selectors } from "@/store"
+import type { RootState } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { type SourceMetadata, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
-import { useSelector } from "react-redux"
+import { useSelector, useStore } from "react-redux"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
@@ -41,6 +43,7 @@ export const selector = createSelector([selectors.source.selectSelectedId, selec
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
+    const store = useStore<RootState>()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
 
@@ -77,7 +80,7 @@ export const SourcePanel: React.FC = () => {
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
             <ActionBar
                 tooltipPosition={"top"}
-                onClick={name => {
+                onClick={async name => {
                     switch (name) {
                         case "trash": {
                             dispatch(actions.source.removeSource(source.id))
@@ -100,10 +103,12 @@ export const SourcePanel: React.FC = () => {
                             if (drawing) {
                                 dispatch(actions.tools.reset())
                             } else {
+                                const selectionCount = store.getState().selection.count
+                                const selectedIds = selectionCount > 0 ? await selectionGetIds() : []
                                 dispatch(
                                     actions.draw.start({
                                         sourceId: source.id,
-                                        selectedIds: [],
+                                        selectedIds,
                                     }),
                                 )
                                 dispatch(actions.tools.setTool("draw"))
