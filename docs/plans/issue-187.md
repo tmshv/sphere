@@ -806,7 +806,7 @@ git commit -m "save-draw listener: switch from source_replace to source_patch"
 **Files:**
 - Modify: `src/components/SourcePanel/index.tsx`
 
-- [ ] **Step 1: Update the edit case**
+- [x] **Step 1: Update the edit case**
 
 In `src/components/SourcePanel/index.tsx`, add the import at the top:
 
@@ -839,7 +839,7 @@ case "edit": {
 
 Note: the `onAction` callback needs to be `async`. Check whether it already is. If not, make it async.
 
-- [ ] **Step 2: Ensure `store` is accessible**
+- [x] **Step 2: Ensure `store` is accessible**
 
 The component needs access to `store.getState()` for the selection count. Check if it uses `useStore()` already. If not, add:
 
@@ -853,16 +853,16 @@ And inside the component:
 const store = useStore()
 ```
 
-- [ ] **Step 3: Run lint**
+- [x] **Step 3: Run lint**
 
 Run: `npm run lint`
 Expected: no errors
 
-- [ ] **Step 4: Run format**
+- [x] **Step 4: Run format**
 
 Run: `npm run format`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/SourcePanel/index.tsx
