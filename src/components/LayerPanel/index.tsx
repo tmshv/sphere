@@ -129,6 +129,50 @@ export const layerSelector = createSelector(
     },
 )
 
+type LayerData = NonNullable<ReturnType<typeof layerSelector>>
+
+function renderLayerControls(layer: LayerData) {
+    const { id: layerId, type, color, circleRange, clusterRadius, heatmapRadius, heatmapIntensity } = layer
+
+    switch (type) {
+        case LayerType.Point:
+            return <PointControls layerId={layerId} color={color} circleRange={circleRange} />
+        case LayerType.Line:
+            return <LineControls layerId={layerId} color={color} />
+        case LayerType.Polygon:
+            return <PolygonControls layerId={layerId} color={color} />
+        case LayerType.Heatmap:
+            return (
+                <HeatmapControls layerId={layerId} heatmapRadius={heatmapRadius} heatmapIntensity={heatmapIntensity} />
+            )
+        case LayerType.Photo:
+            return (
+                <PhotoControls
+                    layerId={layerId}
+                    clusterRadius={clusterRadius}
+                    srcField={layer.srcField}
+                    valueField={layer.valueField}
+                    icon={layer.icon}
+                    fields={layer.fields}
+                />
+            )
+        case LayerType.Extrusion:
+            return (
+                <ExtrusionControls
+                    layerId={layerId}
+                    color={color}
+                    extrusionHeight={layer.extrusionHeight}
+                    extrusionHeightField={layer.extrusionHeightField}
+                    extrusionBase={layer.extrusionBase}
+                    extrusionBaseField={layer.extrusionBaseField}
+                    fields={layer.fields}
+                />
+            )
+        default:
+            return null
+    }
+}
+
 export const LayerPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const sources = useSelector(sourcesSelector)
@@ -136,21 +180,7 @@ export const LayerPanel: React.FC = () => {
     if (!layer) {
         return null
     }
-    const {
-        id: layerId,
-        sourceId,
-        sourceLayer,
-        sourceLayers,
-        name,
-        type,
-        color,
-        circleRange,
-        clusterRadius,
-        heatmapRadius,
-        heatmapIntensity,
-        filterError,
-        isFilterable,
-    } = layer
+    const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, filterError, isFilterable } = layer
 
     return (
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
@@ -276,34 +306,7 @@ export const LayerPanel: React.FC = () => {
                 }}
             />
 
-            {type === LayerType.Point ? (
-                <PointControls layerId={layerId} color={color} circleRange={circleRange} />
-            ) : type === LayerType.Line ? (
-                <LineControls layerId={layerId} color={color} />
-            ) : type === LayerType.Polygon ? (
-                <PolygonControls layerId={layerId} color={color} />
-            ) : type === LayerType.Heatmap ? (
-                <HeatmapControls layerId={layerId} heatmapRadius={heatmapRadius} heatmapIntensity={heatmapIntensity} />
-            ) : type === LayerType.Photo ? (
-                <PhotoControls
-                    layerId={layerId}
-                    clusterRadius={clusterRadius}
-                    srcField={layer.srcField}
-                    valueField={layer.valueField}
-                    icon={layer.icon}
-                    fields={layer.fields}
-                />
-            ) : type === LayerType.Extrusion ? (
-                <ExtrusionControls
-                    layerId={layerId}
-                    color={color}
-                    extrusionHeight={layer.extrusionHeight}
-                    extrusionHeightField={layer.extrusionHeightField}
-                    extrusionBase={layer.extrusionBase}
-                    extrusionBaseField={layer.extrusionBaseField}
-                    fields={layer.fields}
-                />
-            ) : null}
+            {renderLayerControls(layer)}
         </Flex>
     )
 }
