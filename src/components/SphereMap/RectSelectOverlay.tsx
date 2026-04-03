@@ -21,6 +21,73 @@ function distance(a: Point, b: Point): number {
     return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
 
+const STROKE_WIDTH = 1.5
+const DASH_LENGTH = 6
+const MARKER_HALF = 8
+
+type RectShapeProps = {
+    width: number
+    height: number
+    stroke: string
+    markerFill: string
+}
+
+function DashedRect({ width, height, stroke, markerFill }: RectShapeProps) {
+    return (
+        <>
+            <rect
+                x={0}
+                y={0}
+                width={width}
+                height={height}
+                fill="none"
+                stroke={markerFill}
+                strokeWidth={STROKE_WIDTH}
+            />
+            <rect
+                x={0}
+                y={0}
+                width={width}
+                height={height}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={STROKE_WIDTH}
+                strokeDasharray={`${DASH_LENGTH} ${DASH_LENGTH}`}
+            />
+        </>
+    )
+}
+
+function SolidRect({ width, height, stroke, markerFill }: RectShapeProps) {
+    const h = MARKER_HALF
+    const sw = STROKE_WIDTH
+    return (
+        <>
+            <rect x={0} y={0} width={width} height={height} fill="none" stroke={stroke} strokeWidth={sw} />
+            {/* corner markers — L-shaped */}
+            <polyline points={`${h},0 0,0 0,${h}`} fill="none" stroke={markerFill} strokeWidth={sw} />
+            <polyline
+                points={`${width - h},0 ${width},0 ${width},${h}`}
+                fill="none"
+                stroke={markerFill}
+                strokeWidth={sw}
+            />
+            <polyline
+                points={`0,${height - h} 0,${height} ${h},${height}`}
+                fill="none"
+                stroke={markerFill}
+                strokeWidth={sw}
+            />
+            <polyline
+                points={`${width},${height - h} ${width},${height} ${width - h},${height}`}
+                fill="none"
+                stroke={markerFill}
+                strokeWidth={sw}
+            />
+        </>
+    )
+}
+
 export type RectSelectOverlayProps = {
     mapRef: MapRef | undefined
 }
@@ -125,32 +192,17 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         return null
     }
 
-    const rectColor = isDark ? "#ffffff" : "#000000"
-    const outlineColor = isDark ? "#000000" : "#ffffff"
+    const showRect = dragStart !== null && dragCurrent !== null
+    const isInclude = showRect && dragCurrent.x >= dragStart.x
 
-    const rectStyle: React.CSSProperties = (() => {
-        if (!dragStart || !dragCurrent) {
-            return { display: "none" }
-        }
-        const isInclude = dragCurrent.x >= dragStart.x
-        const borderStyle = isInclude ? "solid" : "dashed"
-        const left = Math.min(dragStart.x, dragCurrent.x)
-        const top = Math.min(dragStart.y, dragCurrent.y)
-        const width = Math.abs(dragCurrent.x - dragStart.x)
-        const height = Math.abs(dragCurrent.y - dragStart.y)
-        return {
-            position: "fixed",
-            left,
-            top,
-            width,
-            height,
-            border: `1.5px ${borderStyle} ${rectColor}`,
-            outline: `1.5px ${borderStyle} ${outlineColor}`,
-            outlineOffset: "0px",
-            background: `color-mix(in srgb, ${rectColor} ${RECT_FILL_OPACITY * 100}%, transparent)`,
-            pointerEvents: "none",
-        }
-    })()
+    const left = showRect ? Math.min(dragStart.x, dragCurrent.x) : 0
+    const top = showRect ? Math.min(dragStart.y, dragCurrent.y) : 0
+    const width = showRect ? Math.abs(dragCurrent.x - dragStart.x) : 0
+    const height = showRect ? Math.abs(dragCurrent.y - dragStart.y) : 0
+
+    const stroke = isDark ? "#ffffff" : "#000000"
+    const markerFill = isDark ? "#000000" : "#ffffff"
+    const fill = isDark ? `rgba(255,255,255,${RECT_FILL_OPACITY})` : `rgba(0,0,0,${RECT_FILL_OPACITY})`
 
     return (
         <>
@@ -167,7 +219,26 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
                 onWheel={forwardToCanvas}
                 onContextMenu={forwardToCanvas}
             />
-            <div style={rectStyle} />
+            {showRect && (
+                <svg
+                    style={{
+                        position: "fixed",
+                        left,
+                        top,
+                        width,
+                        height,
+                        pointerEvents: "none",
+                        overflow: "visible",
+                    }}
+                >
+                    <rect x={0} y={0} width={width} height={height} fill={fill} stroke="none" />
+                    {isInclude ? (
+                        <SolidRect width={width} height={height} stroke="#000000" markerFill="#ffffff" />
+                    ) : (
+                        <DashedRect width={width} height={height} stroke={stroke} markerFill={markerFill} />
+                    )}
+                </svg>
+            )}
         </>
     )
 }
