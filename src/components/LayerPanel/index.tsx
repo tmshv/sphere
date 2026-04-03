@@ -9,7 +9,6 @@ import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
 import { LayerFilter } from "./LayerFilter"
-import { PointControls } from "./PointControls"
 
 type Option = {
     value: string

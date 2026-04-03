@@ -268,7 +268,7 @@ Run: `npm run format && npm run lint && npm test`
 - Create: `src/components/LayerPanel/PolygonControls.tsx`
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Create LineControls component**
+- [x] **Step 1: Create LineControls component**
 
 Create `src/components/LayerPanel/LineControls.tsx`:
 
@@ -322,7 +322,7 @@ export const LineControls: FC<LineControlsProps> = ({ layerId, color }) => {
 }
 ```
 
-- [ ] **Step 2: Create PolygonControls component**
+- [x] **Step 2: Create PolygonControls component**
 
 Create `src/components/LayerPanel/PolygonControls.tsx` — identical structure to `LineControls.tsx`:
 
@@ -376,18 +376,18 @@ export const PolygonControls: FC<PolygonControlsProps> = ({ layerId, color }) =>
 }
 ```
 
-- [ ] **Step 3: Add imports in index.tsx**
+- [x] **Step 3: Add imports in index.tsx**
 
 ```tsx
 import { LineControls } from "./LineControls"
 import { PolygonControls } from "./PolygonControls"
 ```
 
-- [ ] **Step 4: Format and verify**
+- [x] **Step 4: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 
-- [ ] **Step 5: Commit Tasks 2–3**
+- [x] **Step 5: Commit Tasks 2–3**
 
 ```bash
 git add src/components/LayerPanel/PointControls.tsx src/components/LayerPanel/LineControls.tsx src/components/LayerPanel/PolygonControls.tsx src/components/LayerPanel/index.tsx
