@@ -588,7 +588,7 @@ git commit -m "draw component: load filtered features, track changes, build patc
 - Modify: `src/store/listeners/save-draw.ts`
 - Modify: `src/store/listeners/save-draw.test.ts`
 
-- [ ] **Step 1: Update test expectations**
+- [x] **Step 1: Update test expectations**
 
 Replace the content of `src/store/listeners/save-draw.test.ts`:
 
@@ -744,12 +744,12 @@ describe("save-draw listener", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npm test -- --run src/store/listeners/save-draw.test.ts`
 Expected: FAIL — listener still calls `source_replace`
 
-- [ ] **Step 3: Update the listener**
+- [x] **Step 3: Update the listener**
 
 Replace the content of `src/store/listeners/save-draw.ts`:
 
@@ -783,16 +783,16 @@ listener.startListening({
 export default listener
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npm test -- --run src/store/listeners/save-draw.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Run format**
+- [x] **Step 5: Run format**
 
 Run: `npm run format`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/store/listeners/save-draw.ts src/store/listeners/save-draw.test.ts

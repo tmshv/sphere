@@ -41,17 +41,6 @@ vi.mock("../actions", () => {
 
 import listener from "./save-draw"
 
-const featureCollection: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [
-        {
-            type: "Feature",
-            geometry: { type: "Point", coordinates: [10, 20] },
-            properties: { name: "test" },
-        },
-    ],
-}
-
 type DispatchedAction = { type: string; payload?: unknown }
 
 function makeStore() {
@@ -71,6 +60,25 @@ function makeStore() {
     return { store, dispatchedActions }
 }
 
+const patch = {
+    added: [
+        {
+            type: "Feature" as const,
+            geometry: { type: "Point" as const, coordinates: [10, 20] },
+            properties: { name: "new" },
+        },
+    ],
+    updated: [
+        {
+            type: "Feature" as const,
+            id: 1,
+            geometry: { type: "Point" as const, coordinates: [30, 40] },
+            properties: { name: "changed" },
+        },
+    ],
+    deleted_ids: [2, 3],
+}
+
 describe("save-draw listener", () => {
     beforeEach(() => {
         vi.useFakeTimers()
@@ -82,28 +90,28 @@ describe("save-draw listener", () => {
         vi.clearAllMocks()
     })
 
-    test("calls source_replace and dispatches bumpVersion, done, and reset on success", async () => {
+    test("calls source_patch and dispatches bumpVersion, done, and reset on success", async () => {
         const sourceId = "draw-source"
         const { store, dispatchedActions } = makeStore()
 
-        store.dispatch({ type: "draw/commit", payload: { sourceId, data: featureCollection } })
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch } })
         await vi.runAllTimersAsync()
 
         expect(mockInvoke).toHaveBeenCalledOnce()
-        expect(mockInvoke).toHaveBeenCalledWith("source_replace", { id: sourceId, data: featureCollection })
+        expect(mockInvoke).toHaveBeenCalledWith("source_patch", { id: sourceId, patch })
 
         expect(dispatchedActions.find(a => a.type === "source/bumpVersion")).toBeDefined()
         expect(dispatchedActions.find(a => a.type === "draw/done")).toBeDefined()
         expect(dispatchedActions.find(a => a.type === "tools/reset")).toBeDefined()
     })
 
-    test("does not dispatch done or reset when source_replace fails", async () => {
+    test("does not dispatch done or reset when source_patch fails", async () => {
         mockInvoke.mockRejectedValue(new Error("IPC error"))
 
         const sourceId = "draw-source"
         const { store, dispatchedActions } = makeStore()
 
-        store.dispatch({ type: "draw/commit", payload: { sourceId, data: featureCollection } })
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch } })
         await vi.runAllTimersAsync()
 
         expect(mockInvoke).toHaveBeenCalledOnce()
@@ -116,7 +124,7 @@ describe("save-draw listener", () => {
         const sourceId = "my-source"
         const { store, dispatchedActions } = makeStore()
 
-        store.dispatch({ type: "draw/commit", payload: { sourceId, data: featureCollection } })
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch } })
         await vi.runAllTimersAsync()
 
         const bumpAction = dispatchedActions.find(a => a.type === "source/bumpVersion")
@@ -124,5 +132,18 @@ describe("save-draw listener", () => {
 
         const doneAction = dispatchedActions.find(a => a.type === "draw/done")
         expect((doneAction?.payload as { sourceId: string }).sourceId).toBe(sourceId)
+    })
+
+    test("skips IPC when patch is empty", async () => {
+        const sourceId = "draw-source"
+        const emptyPatch = { added: [], updated: [], deleted_ids: [] }
+        const { store, dispatchedActions } = makeStore()
+
+        store.dispatch({ type: "draw/commit", payload: { sourceId, patch: emptyPatch } })
+        await vi.runAllTimersAsync()
+
+        expect(mockInvoke).not.toHaveBeenCalled()
+        expect(dispatchedActions.find(a => a.type === "draw/done")).toBeDefined()
+        expect(dispatchedActions.find(a => a.type === "tools/reset")).toBeDefined()
     })
 })
