@@ -221,7 +221,7 @@ git commit -m "add source_get_slice IPC command"
 **Files:**
 - Modify: `src/lib/selection-ipc.ts`
 
-- [ ] **Step 1: Add the function**
+- [x] **Step 1: Add the function**
 
 In `src/lib/selection-ipc.ts`, add after the `selectionCount` function:
 
@@ -231,7 +231,7 @@ export function selectionGetIds(): Promise<number[]> {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/lib/selection-ipc.ts
