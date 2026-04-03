@@ -55,6 +55,7 @@ async fn main() {
             commands::selection::selection_apply,
             commands::selection::selection_clear,
             commands::selection::selection_count,
+            commands::selection::selection_get_ids,
             commands::selection::selection_query_page,
         ])
         // .setup(|app| {

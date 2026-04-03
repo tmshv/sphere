@@ -65,6 +65,14 @@ pub async fn selection_count(
 }
 
 #[tauri::command]
+pub async fn selection_get_ids(
+    storage: State<'_, SelectionStorage>,
+) -> Result<Vec<i64>, String> {
+    let state = storage.state.lock().unwrap();
+    Ok(state.get_ids())
+}
+
+#[tauri::command]
 pub async fn selection_query_page(
     source_id: String,
     offset: u64,

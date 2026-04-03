@@ -18,7 +18,7 @@
 - Modify: `src-tauri/src/commands/selection.rs`
 - Modify: `src-tauri/src/main.rs`
 
-- [ ] **Step 1: Add the command**
+- [x] **Step 1: Add the command**
 
 In `src-tauri/src/commands/selection.rs`, add after the `selection_count` function:
 
@@ -32,16 +32,16 @@ pub async fn selection_get_ids(
 }
 ```
 
-- [ ] **Step 2: Register the command**
+- [x] **Step 2: Register the command**
 
 In `src-tauri/src/main.rs`, add `commands::selection::selection_get_ids` to the `invoke_handler` array, after `selection_query_page`.
 
-- [ ] **Step 3: Verify it compiles**
+- [x] **Step 3: Verify it compiles**
 
 Run: `cd src-tauri && cargo check`
 Expected: no errors
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src-tauri/src/commands/selection.rs src-tauri/src/main.rs
