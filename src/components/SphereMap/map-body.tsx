@@ -18,7 +18,6 @@ import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
 import { FilteredLayerSource } from "./FilteredLayerSource"
-import MapToolbar from "./MapToolbar"
 import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
@@ -85,7 +84,6 @@ export default function MapBody({ mapId }: MapBodyProps) {
                 </React.Fragment>
             ))}
             {!drawing ? null : <Draw mapId={mapId} />}
-            <MapToolbar />
             <RectSelectOverlay mapRef={map} />
         </>
     )

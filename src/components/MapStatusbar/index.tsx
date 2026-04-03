@@ -4,7 +4,7 @@ import { usePitch } from "@/hooks/usePitch"
 import { useZoom } from "@/hooks/useZoom"
 import { actions } from "@/store"
 import { selectors } from "@/store"
-import { selectShowLeftSidebar, selectVersion } from "@/store/app"
+import { selectActiveSidebarTab, selectMapTool, selectShowLeftSidebar, selectVersion } from "@/store/app"
 import { selectErrorMessage } from "@/store/error"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
@@ -13,11 +13,13 @@ import { Statusbar } from "@/ui/Statusbar"
 import { ActionIcon, Badge, MantineProvider, type MantineTheme, createStyles } from "@mantine/core"
 import type { ActionIconProps } from "@mantine/core"
 import {
+    IconHandStop,
     IconLayoutSidebar,
     IconLiveView,
     IconMountain,
     IconMountainOff,
     IconNorthStar,
+    IconPointer,
     IconSatellite,
     IconWorld,
     IconWorldOff,
@@ -107,6 +109,9 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const changeProjection = useAppSelector(selectors.projection.changeProjectionAvailable)
     const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
+    const mapTool = useAppSelector(selectMapTool)
+    const activeTab = useAppSelector(selectActiveSidebarTab)
+    const showTools = activeTab === "sources"
     const isGlobe = projection === "globe"
 
     const toggleSidebar = useCallback(() => {
@@ -194,6 +199,25 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 )}
 
                 <div className={s.s} />
+
+                {showTools && (
+                    <>
+                        <ActionIcon
+                            color={mapTool === "pan" ? "yellow" : undefined}
+                            onClick={() => dispatch(actions.app.setMapTool("pan"))}
+                            title="Pan"
+                        >
+                            <IconHandStop size={16} />
+                        </ActionIcon>
+                        <ActionIcon
+                            color={mapTool === "select" ? "yellow" : undefined}
+                            onClick={() => dispatch(actions.app.setMapTool("select"))}
+                            title="Rect Select"
+                        >
+                            <IconPointer size={16} />
+                        </ActionIcon>
+                    </>
+                )}
 
                 <ActionIcon onClick={printViewport}>
                     <IconLiveView size={16} />

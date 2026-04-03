@@ -165,6 +165,16 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         [dragStart, sourceId, dispatch],
     )
 
+    const forwardToCanvas = useCallback(
+        (e: React.SyntheticEvent) => {
+            const canvas = mapRef?.getMap()?.getCanvas()
+            if (canvas) {
+                canvas.dispatchEvent(new (e.nativeEvent.constructor as typeof Event)(e.type, e.nativeEvent))
+            }
+        },
+        [mapRef],
+    )
+
     useEffect(() => {
         if (!dragStart) return
         const onWindowMouseUp = () => {
@@ -177,16 +187,6 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             window.removeEventListener("mouseup", onWindowMouseUp)
         }
     }, [dragStart])
-
-    const forwardToCanvas = useCallback(
-        (e: React.SyntheticEvent) => {
-            const canvas = mapRef?.getMap()?.getCanvas()
-            if (canvas) {
-                canvas.dispatchEvent(new (e.nativeEvent.constructor as typeof Event)(e.type, e.nativeEvent))
-            }
-        },
-        [mapRef],
-    )
 
     if (mapTool !== "select") {
         return null
