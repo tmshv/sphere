@@ -781,7 +781,7 @@ git commit -m "extract ExtrusionControls from LayerPanel"
 **Files:**
 - Modify: `src/components/LayerPanel/index.tsx`
 
-- [ ] **Step 1: Replace all remaining type-specific JSX with a switch helper**
+- [x] **Step 1: Replace all remaining type-specific JSX with a switch helper**
 
 Remove the color picker block (`{!(type === LayerType.Point || ...) ? null : (...)}`) and all individual type blocks. Replace with a single section that renders the correct controls component:
 
@@ -820,7 +820,7 @@ Remove the color picker block (`{!(type === LayerType.Point || ...) ? null : (..
 ) : null}
 ```
 
-- [ ] **Step 2: Clean up unused imports in index.tsx**
+- [x] **Step 2: Clean up unused imports in index.tsx**
 
 Remove any imports that are no longer used after extraction:
 - `ColorPicker`, `Slider`, `Badge`, `Input` (if not used by remaining code — `Input` may still be used, check)
@@ -830,11 +830,11 @@ Remove any imports that are no longer used after extraction:
 
 Keep: `ActionIcon`, `Flex`, `Select`, `TextInput`, and all other imports still used by the common controls.
 
-- [ ] **Step 3: Format and verify**
+- [x] **Step 3: Format and verify**
 
 Run: `npm run format && npm run lint && npm test`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/LayerPanel/index.tsx

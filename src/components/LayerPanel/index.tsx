@@ -3,14 +3,17 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { LayerType, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
-import { Badge, ColorPicker, Flex, Input, Select, TextInput } from "@mantine/core"
+import { Flex, Select, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
 import { ExtrusionControls } from "./ExtrusionControls"
 import { HeatmapControls } from "./HeatmapControls"
 import { LayerFilter } from "./LayerFilter"
+import { LineControls } from "./LineControls"
 import { PhotoControls } from "./PhotoControls"
+import { PointControls } from "./PointControls"
+import { PolygonControls } from "./PolygonControls"
 
 type Option = {
     value: string
@@ -141,6 +144,7 @@ export const LayerPanel: React.FC = () => {
         name,
         type,
         color,
+        circleRange,
         clusterRadius,
         heatmapRadius,
         heatmapIntensity,
@@ -272,52 +276,15 @@ export const LayerPanel: React.FC = () => {
                 }}
             />
 
-            {!(
-                type === LayerType.Point ||
-                type === LayerType.Line ||
-                type === LayerType.Polygon ||
-                type === LayerType.Extrusion
-            ) ? null : (
-                <>
-                    <Input.Wrapper
-                        label={
-                            <>
-                                Color
-                                <Badge ml={"xs"} size="xs" radius={"sm"}>
-                                    {color}
-                                </Badge>
-                            </>
-                        }
-                        size="xs"
-                    >
-                        <ColorPicker
-                            format="hex"
-                            size="xs"
-                            value={color}
-                            styles={theme => ({
-                                wrapper: {
-                                    width: "100%",
-                                },
-                                saturation: {
-                                    height: 130,
-                                },
-                                slider: {
-                                    marginTop: theme.spacing.sm,
-                                },
-                            })}
-                            onChange={color => {
-                                dispatch(actions.layer.setColor({ id: layerId, color }))
-                            }}
-                        />
-                    </Input.Wrapper>
-                </>
-            )}
-
-            {!(type === LayerType.Heatmap) ? null : (
+            {type === LayerType.Point ? (
+                <PointControls layerId={layerId} color={color} circleRange={circleRange} />
+            ) : type === LayerType.Line ? (
+                <LineControls layerId={layerId} color={color} />
+            ) : type === LayerType.Polygon ? (
+                <PolygonControls layerId={layerId} color={color} />
+            ) : type === LayerType.Heatmap ? (
                 <HeatmapControls layerId={layerId} heatmapRadius={heatmapRadius} heatmapIntensity={heatmapIntensity} />
-            )}
-
-            {!(type === LayerType.Photo) ? null : (
+            ) : type === LayerType.Photo ? (
                 <PhotoControls
                     layerId={layerId}
                     clusterRadius={clusterRadius}
@@ -326,9 +293,7 @@ export const LayerPanel: React.FC = () => {
                     icon={layer.icon}
                     fields={layer.fields}
                 />
-            )}
-
-            {!(type === LayerType.Extrusion) ? null : (
+            ) : type === LayerType.Extrusion ? (
                 <ExtrusionControls
                     layerId={layerId}
                     color={color}
@@ -338,7 +303,7 @@ export const LayerPanel: React.FC = () => {
                     extrusionBaseField={layer.extrusionBaseField}
                     fields={layer.fields}
                 />
-            )}
+            ) : null}
         </Flex>
     )
 }
