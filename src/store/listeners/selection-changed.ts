@@ -34,7 +34,7 @@ listener.startListening({
 
         try {
             const result = await selectionQueryPage(sourceId, 0, PROPERTIES_PAGE_LIMIT)
-            const values = result.features.map(({ id: _, ...props }) => props)
+            const values = result.features.map(f => f.properties ?? {})
             listenerApi.dispatch(actions.properties.set({ values }))
         } catch {
             listenerApi.dispatch(actions.properties.reset())
