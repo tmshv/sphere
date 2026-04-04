@@ -396,10 +396,17 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                         }
                                         case "date": {
                                             render = info => {
-                                                const value = String(info.getValue() ?? "")
+                                                const raw = info.getValue()
+                                                if (raw == null) return null
+                                                const label = String(raw)
                                                 return (
-                                                    <Tooltip label={value} openDelay={500}>
-                                                        <span>{format(new Date(value), "yyyy-MM-dd hh:mm:ss")}</span>
+                                                    <Tooltip label={label} openDelay={500}>
+                                                        <span>
+                                                            {format(
+                                                                new Date(typeof raw === "number" ? raw : label),
+                                                                "yyyy-MM-dd hh:mm:ss",
+                                                            )}
+                                                        </span>
                                                     </Tooltip>
                                                 )
                                             }
