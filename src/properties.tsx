@@ -90,6 +90,7 @@ const View: React.FC = () => {
     const [pageIndex, setPageIndex] = useState(0)
     const [attributeFilter, setAttributeFilter] = useState<"all" | "selected">("all")
     const [selectionData, setSelectionData] = useState<{ sourceId: string; count: number } | null>(null)
+    const [selectionVersion, setSelectionVersion] = useState(0)
 
     // Listen for source info from the main window
     useEffect(() => {
@@ -113,6 +114,7 @@ const View: React.FC = () => {
         let stop: UnlistenFn | undefined
         listen<{ sourceId: string; count: number }>("properties-selection-changed", event => {
             setSelectionData(event.payload)
+            setSelectionVersion(v => v + 1)
         }).then(fn => {
             stop = fn
         })
@@ -145,19 +147,11 @@ const View: React.FC = () => {
     const isSelectionActive =
         attributeFilter === "selected" && selectionData !== null && selectionData.sourceId === sourceId
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: selectionData must trigger refetch when selected features change while isSelectionActive stays true
+    // Fetch page when not viewing selection
     useEffect(() => {
-        if (!sourceId) return
+        if (!sourceId || isSelectionActive) return
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
-        if (isSelectionActive) {
-            selectionQueryPage(sourceId, pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc)
-                .then(result => {
-                    setPage(result)
-                })
-                .catch(() => {})
-            return
-        }
         const reader = new SourceReader(sourceId)
         const filterJson = filterExpression ? JSON.stringify(filterExpression) : undefined
         reader
@@ -166,7 +160,19 @@ const View: React.FC = () => {
                 if (result) setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive, selectionData])
+    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive])
+
+    // Fetch selection page; selectionVersion drives refetch when selected features change
+    useEffect(() => {
+        if (!sourceId || !isSelectionActive || selectionVersion === 0) return
+        const sortCol = sorting[0]?.id
+        const sortAsc = sorting[0] ? !sorting[0].desc : undefined
+        selectionQueryPage(sourceId, pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc)
+            .then(result => {
+                setPage(result)
+            })
+            .catch(() => {})
+    }, [sourceId, pageIndex, sorting, isSelectionActive, selectionVersion])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {

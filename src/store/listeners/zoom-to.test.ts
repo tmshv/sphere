@@ -5,8 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 const mockGetBounds = vi.fn().mockResolvedValue(null)
 
 vi.mock("@/lib/source-reader", () => ({
-    // biome-ignore lint/complexity/useArrowFunction: constructor mock requires function() for `new` to work
-    SourceReader: vi.fn().mockImplementation(function () {
+    SourceReader: vi.fn().mockImplementation(function mock() {
         return { getBounds: mockGetBounds }
     }),
 }))

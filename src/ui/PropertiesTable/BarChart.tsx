@@ -53,10 +53,7 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
                     const barHeight = yMax - yScale(d)
                     const barX = xScale(i)
                     const barY = yMax - barHeight
-                    return (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: histogram bars are positional with no stable ID
-                        <Bar key={i} x={barX} y={barY} width={barWidth} height={barHeight} fill={color} />
-                    )
+                    return <Bar key={barX} x={barX} y={barY} width={barWidth} height={barHeight} fill={color} />
                 })}
             </Group>
         </svg>

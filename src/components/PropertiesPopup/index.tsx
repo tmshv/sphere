@@ -33,10 +33,11 @@ export default function PropertiesPopup() {
                     <Paper p={"sm"} style={PAPER_STYLE}>
                         <Title order={3}>Properties</Title>
                         <div style={BODY_STYLE}>
-                            {props.map((x, i) => (
-                                // biome-ignore lint/suspicious/noArrayIndexKey: feature properties have no stable unique key
-                                <PropertiesViewer key={i} properties={x} />
-                            ))}
+                            {props.map(x => {
+                                const first = x[0]
+                                const key = first ? `${first.key}:${first.value}` : ""
+                                return <PropertiesViewer key={key} properties={x} />
+                            })}
                         </div>
                     </Paper>
                 </Container>
