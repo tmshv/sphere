@@ -49,7 +49,7 @@ export const showProperties = createAsyncThunk(
         const freshState = thunkAPI.getState() as RootState
         const selectionSourceId = freshState.selection.sourceId ?? freshState.source.selectedId ?? undefined
         const count = freshState.selection.count
-        if (count > 0 && selectionSourceId) {
+        if (count > 0 && selectionSourceId === id) {
             await emit("properties-selection-changed", {
                 sourceId: selectionSourceId,
                 count,

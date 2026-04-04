@@ -146,11 +146,7 @@ const View: React.FC = () => {
             .catch(() => {})
     }, [sourceId, schema])
 
-    const isSelectionActive =
-        attributeFilter === "selected" &&
-        selectionData !== null &&
-        selectionData.count > 0 &&
-        selectionData.sourceId === sourceId
+    const isSelectionActive = attributeFilter === "selected" && selectionData !== null && selectionData.count > 0
 
     // Fetch page when not viewing selection
     useEffect(() => {
