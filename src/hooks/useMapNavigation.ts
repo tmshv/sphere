@@ -16,7 +16,7 @@ export default function useMapNavigation(ref?: MapRef): void {
         }
 
         const effectiveDragPan = navigationEnabled && dragPan
-        const effectiveScrollZoom = navigationEnabled && scrollZoom
+        const effectiveScrollZoom = scrollZoom
         const effectiveDragRotate = navigationEnabled && dragRotate
 
         if (effectiveDragPan) {
