@@ -515,7 +515,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                         <IconChevronLeft size={14} />
                     </ActionIcon>
                     <Badge className={s.widget} radius="sm" size="sm" variant="light">
-                        {pageIndex + 1} / {pageCount}
+                        {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
                     </Badge>
                     <ActionIcon disabled={pageIndex >= pageCount - 1} onClick={() => onPageChange(pageIndex + 1)}>
                         <IconChevronRight size={14} />

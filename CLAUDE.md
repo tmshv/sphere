@@ -154,7 +154,7 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
 - Inter-window events for the properties table window:
   - `properties-set` — main → properties window: sets source, schema, filter expression
   - `properties-init` — properties window → main: signals window is ready
-  - `properties-selection-changed` — main → properties window: `{ sourceId, selectedIds }` emitted on every `selectOne`/`selectMany` to drive the All/Selected filter toggle
+  - `properties-selection-changed` — main → properties window: `{ sourceId, count }` emitted on every `selectOne`/`selectMany` to drive the All/Selected filter toggle
 
 **Plugins Used**: fs, dialog, http, clipboard
 
