@@ -1,4 +1,5 @@
 import { renderHook } from "@testing-library/react"
+import type { MapRef } from "react-map-gl/maplibre"
 import { describe, expect, it, vi } from "vitest"
 
 vi.mock("@/store/hooks", () => ({
@@ -29,13 +30,13 @@ function makeMockMap() {
 }
 
 function makeRef(map: ReturnType<typeof makeMockMap>) {
-    return { getMap: () => map } as any
+    return { getMap: () => map } as unknown as MapRef
 }
 
 const ALL_ENABLED = { dragPan: true, scrollZoom: true, dragRotate: true }
 
 function mockState(settings: typeof ALL_ENABLED, navigationEnabled: boolean) {
-    vi.mocked(useAppSelector).mockImplementation((selector: any) => {
+    vi.mocked(useAppSelector).mockImplementation((selector: (state: unknown) => unknown) => {
         if (selector === selectors.mapInteraction.selectDragPan) return settings.dragPan
         if (selector === selectors.mapInteraction.selectScrollZoom) return settings.scrollZoom
         if (selector === selectors.mapInteraction.selectDragRotate) return settings.dragRotate

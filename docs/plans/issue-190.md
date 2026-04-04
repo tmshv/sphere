@@ -642,7 +642,7 @@ Strategy:
 - `map as any` — create a typed mock interface or use `as unknown as MapRef` (or the specific expected type)
 - `MockIcon as any` — use `as unknown as React.FC`
 
-- [ ] **Step 1: Fix selector mock patterns**
+- [x] **Step 1: Fix selector mock patterns**
 
 For files using `vi.mocked(useAppSelector).mockImplementation((selector: any) =>`:
 ```ts
@@ -653,7 +653,7 @@ vi.mocked(useAppSelector).mockImplementation((selector: any) =>
 vi.mocked(useAppSelector).mockImplementation((selector: (state: unknown) => unknown) =>
 ```
 
-- [ ] **Step 2: Fix map-as-any patterns**
+- [x] **Step 2: Fix map-as-any patterns**
 
 For `hooks.test.ts` files using `map as any`:
 ```ts
@@ -680,7 +680,7 @@ return { getMap: () => map } as any
 return { getMap: () => map } as unknown as MapRef
 ```
 
-- [ ] **Step 3: Fix ActionBar test**
+- [x] **Step 3: Fix ActionBar test**
 
 ```ts
 // Before:
@@ -689,7 +689,7 @@ icon: MockIcon as any,
 icon: MockIcon as unknown as ActionBarItem["icon"],
 ```
 
-- [ ] **Step 4: Fix useFeatureProperties.test.ts remaining any**
+- [x] **Step 4: Fix useFeatureProperties.test.ts remaining any**
 
 Line 17: `makeMockMap(queryResult: any[] = [])` → `makeMockMap(queryResult: unknown[] = [])`
 Lines 26: `(_point: any, _opts: any)` → `(_point: unknown, _opts: unknown)`
@@ -698,12 +698,12 @@ Line 45: `(selector: any)` → same pattern as step 1
 Lines 59,70: check context and apply appropriate type
 Lines 156,171: `as any` on feature arrays → `as unknown as ReturnType<typeof useFeatureClick>`
 
-- [ ] **Step 5: Run tests and lint**
+- [x] **Step 5: Run tests and lint**
 
 Run: `npm test -- --run && npx biome lint src/ --max-diagnostics=200 2>&1 | rg noExplicitAny -c`
 Expected: tests pass, count near zero
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A

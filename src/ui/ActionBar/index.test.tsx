@@ -11,7 +11,7 @@ function makeItem(name: string, disabled?: boolean): ActionBarItem {
     return {
         name,
         label: `Label for ${name}`,
-        icon: MockIcon as any,
+        icon: MockIcon as unknown as ActionBarItem["icon"],
         disabled,
     }
 }

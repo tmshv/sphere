@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
 import { act, renderHook } from "@testing-library/react"
+import type { MapGeoJSONFeature } from "maplibre-gl"
+import type { MapRef } from "react-map-gl/maplibre"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@/store/hooks", () => ({
@@ -14,7 +16,7 @@ import { useAppDispatch } from "@/store/hooks"
 import useFeatureClick from "./useFeatureClick"
 import useFeatureProperties from "./useFeatureProperties"
 
-function makeMockMap(queryResult: any[] = []) {
+function makeMockMap(queryResult: unknown[] = []) {
     const handlers: Map<string, { fn: (payload: object) => void; unsubscribe: ReturnType<typeof vi.fn> }[]> = new Map()
     return {
         on: vi.fn((event: string, fn: (payload: object) => void) => {
@@ -24,7 +26,7 @@ function makeMockMap(queryResult: any[] = []) {
             if (list) list.push({ fn, unsubscribe: unsub })
             return { unsubscribe: unsub }
         }),
-        queryRenderedFeatures: vi.fn((_point: any, _opts: any) => queryResult),
+        queryRenderedFeatures: vi.fn((_point: unknown, _opts: unknown) => queryResult),
         fire(event: string, payload: object = {}) {
             for (const h of handlers.get(event) ?? []) h.fn(payload)
         },
@@ -35,7 +37,7 @@ function makeMockMap(queryResult: any[] = []) {
 }
 
 function makeRef(map: ReturnType<typeof makeMockMap>) {
-    return { getMap: () => map } as any
+    return { getMap: () => map } as unknown as MapRef
 }
 
 describe("useFeatureProperties", () => {
@@ -43,7 +45,7 @@ describe("useFeatureProperties", () => {
 
     beforeEach(() => {
         dispatch = vi.fn()
-        vi.mocked(useAppDispatch).mockReturnValue(dispatch as any)
+        vi.mocked(useAppDispatch).mockReturnValue(dispatch as unknown as ReturnType<typeof useAppDispatch>)
         vi.mocked(useFeatureClick).mockReturnValue(undefined)
     })
 
@@ -57,7 +59,7 @@ describe("useFeatureProperties", () => {
         const features = [
             { id: 1, properties: { name: "A" } },
             { id: 2, properties: { name: "B" } },
-        ] as any
+        ] as unknown as MapGeoJSONFeature[]
         vi.mocked(useFeatureClick).mockReturnValue(features)
         renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
         expect(dispatch).toHaveBeenCalledWith(
@@ -68,7 +70,7 @@ describe("useFeatureProperties", () => {
     })
 
     it("uses empty object for features with null properties", () => {
-        const features = [{ id: 1, properties: null }] as any
+        const features = [{ id: 1, properties: null }] as unknown as MapGeoJSONFeature[]
         vi.mocked(useFeatureClick).mockReturnValue(features)
         renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
         expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{}] } }))
@@ -154,7 +156,7 @@ describe("useFeatureProperties", () => {
     })
 
     it("skips mousemove dispatch when click features are active", () => {
-        const features = [{ id: 1, properties: { clicked: true } }] as any
+        const features = [{ id: 1, properties: { clicked: true } }] as unknown as MapGeoJSONFeature[]
         vi.mocked(useFeatureClick).mockReturnValue(features)
         const map = makeMockMap([{ id: 2, properties: { hovered: true } }])
         const ref = makeRef(map)
@@ -169,7 +171,7 @@ describe("useFeatureProperties", () => {
     })
 
     it("skips mouseout dispatch when click features are active", () => {
-        const features = [{ id: 1, properties: { clicked: true } }] as any
+        const features = [{ id: 1, properties: { clicked: true } }] as unknown as MapGeoJSONFeature[]
         vi.mocked(useFeatureClick).mockReturnValue(features)
         const map = makeMockMap()
         const ref = makeRef(map)

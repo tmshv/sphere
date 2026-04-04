@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react"
 import { act } from "react"
+import type { MapRef } from "react-map-gl/maplibre"
 import { describe, expect, it, vi } from "vitest"
 import { useCursor } from "./useCursor"
 
@@ -21,14 +22,14 @@ describe("useCursor", () => {
 
     it("calls getMap().on('mousemove', ...) when a ref is provided", () => {
         const mock = makeMockRef()
-        const ref = { getMap: mock.getMap } as any
+        const ref = { getMap: mock.getMap } as unknown as MapRef
         renderHook(() => useCursor(ref))
         expect(mock.on).toHaveBeenCalledWith("mousemove", expect.any(Function))
     })
 
     it("calls getMap().off('mousemove', ...) on cleanup", () => {
         const mock = makeMockRef()
-        const ref = { getMap: mock.getMap } as any
+        const ref = { getMap: mock.getMap } as unknown as MapRef
         const { unmount } = renderHook(() => useCursor(ref))
         unmount()
         expect(mock.off).toHaveBeenCalledWith("mousemove", expect.any(Function))
@@ -37,7 +38,7 @@ describe("useCursor", () => {
     it("updates returned coords when the mousemove callback is invoked", () => {
         const on = vi.fn()
         const off = vi.fn()
-        const ref = { getMap: () => ({ on, off }) } as any
+        const ref = { getMap: () => ({ on, off }) } as unknown as MapRef
         const { result } = renderHook(() => useCursor(ref))
 
         const callback = on.mock.calls[0][1]
