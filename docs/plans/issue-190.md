@@ -17,7 +17,7 @@ These rules currently have zero warnings in the codebase.
 **Files:**
 - Modify: `biome.json`
 
-- [ ] **Step 1: Change four rules from warn to error**
+- [x] **Step 1: Change four rules from warn to error**
 
 In `biome.json`, change these rules:
 ```json
@@ -27,12 +27,12 @@ In `biome.json`, change these rules:
 "useButtonType": "warn" → "useButtonType": "error" (in a11y)
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg 'noConsole|noShadowRestrictedNames|noAccumulatingSpread|useButtonType'`
 Expected: no output (zero violations)
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add biome.json

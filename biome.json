@@ -27,19 +27,19 @@
             "suspicious": {
                 "noExplicitAny": "warn",
                 "noDebugger": "error",
-                "noConsole": "warn",
+                "noConsole": "error",
                 "noArrayIndexKey": "warn",
-                "noShadowRestrictedNames": "warn"
+                "noShadowRestrictedNames": "error"
             },
             "style": {
                 "noVar": "error",
                 "noNonNullAssertion": "warn"
             },
             "performance": {
-                "noAccumulatingSpread": "warn"
+                "noAccumulatingSpread": "error"
             },
             "a11y": {
-                "useButtonType": "warn",
+                "useButtonType": "error",
                 "noSvgWithoutTitle": "warn"
             },
             "complexity": {
