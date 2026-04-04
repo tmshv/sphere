@@ -21,7 +21,7 @@
             "recommended": true,
             "correctness": {
                 "noUnusedVariables": "error",
-                "noUnusedImports": "warn",
+                "noUnusedImports": "error",
                 "useExhaustiveDependencies": "warn"
             },
             "suspicious": {

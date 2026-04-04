@@ -225,19 +225,19 @@ git commit -m "lint: promote noSvgWithoutTitle to error, add aria-hidden to Rect
 - Modify: `biome.json`
 - Modify: `src/main.tsx:7,15`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noUnusedImports": "warn" → "noUnusedImports": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the errors**
+- [x] **Step 2: Run lint to see the errors**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noUnusedImports`
 Expected: 2 errors in `src/main.tsx` — unused `actions` (line 7) and unused `SourceType` (line 15)
 
-- [ ] **Step 3: Fix the violations**
+- [x] **Step 3: Fix the violations**
 
 In `src/main.tsx`:
 
@@ -255,12 +255,12 @@ Line 15 — remove the entire import:
 import { SourceType } from "./types"
 ```
 
-- [ ] **Step 4: Run tests and lint**
+- [x] **Step 4: Run tests and lint**
 
 Run: `npm run lint`
 Expected: no lint errors for this rule
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add biome.json src/main.tsx
