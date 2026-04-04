@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const { mockInvoke } = vi.hoisted(() => ({
@@ -54,8 +54,7 @@ function makeStore() {
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware()
                 .prepend(listener.middleware)
-                // biome-ignore lint/suspicious/noExplicitAny: Redux Toolkit middleware type system requires escape hatch
-                .concat(captureMiddleware as any),
+                .concat(captureMiddleware as unknown as Middleware),
     })
     return { store, dispatchedActions }
 }

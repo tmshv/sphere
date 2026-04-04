@@ -4,7 +4,7 @@ import App from "@/components/App"
 import logger from "@/logger"
 import { SphereThemeProvider } from "@/components/SphereThemeProvider"
 import { setupMaplibre } from "@/maplibre"
-import { actions, store } from "@/store"
+import { store } from "@/store"
 import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
 import { setupKeyboard } from "@/store/keyboard"
 import { RootErrorFallback } from "@/ui/ErrorFallback/RootErrorFallback"
@@ -12,7 +12,6 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { ErrorBoundary } from "react-error-boundary"
 import { Provider } from "react-redux"
-import { SourceType } from "./types"
 
 async function main() {
     setupMaplibre()

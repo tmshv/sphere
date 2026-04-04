@@ -2,8 +2,6 @@ import type { AddProtocolAction } from "maplibre-gl"
 import { MbtilesReader } from "./mbtiles"
 import { SourceReader } from "./source-reader"
 
-type RequestType = "json" | "arrayBuffer" | "string" | "image" | undefined
-
 export class SphereProtocol {
     public get name() {
         return "sphere"

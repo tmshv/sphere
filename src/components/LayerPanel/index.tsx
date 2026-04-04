@@ -263,7 +263,12 @@ export const LayerPanel: React.FC = () => {
             />
 
             {!isFilterable ? null : (
-                <LayerFilter layerId={layerId} filterExpression={layer.filterExpression} filterError={filterError} />
+                <LayerFilter
+                    key={layerId}
+                    layerId={layerId}
+                    filterExpression={layer.filterExpression}
+                    filterError={filterError}
+                />
             )}
 
             {!sourceLayers?.length ? null : (

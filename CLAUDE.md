@@ -61,6 +61,7 @@ The following code smells are strictly forbidden:
 - **Nested ternaries** — more than one level of `? :` nesting is forbidden. Use `if/else` or a lookup table instead.
 - **`console.log` left in code** — debug logging must be removed before committing.
 - **Ignoring returned errors** — never discard a `Promise` without `.catch()` or `await` in an async context. Never silently swallow errors in `catch (e) {}`.
+- **Lint suppression comments** — never use `biome-ignore`, `eslint-disable`, or similar suppression comments. Restructure the code so it satisfies the rule naturally (e.g. use `key` prop to reset component state instead of suppressing `useExhaustiveDependencies`, construct a new object instead of `delete`, derive a stable key instead of using array index).
 
 ## Architecture
 

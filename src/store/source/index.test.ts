@@ -15,7 +15,9 @@ const {
 // Note: addGeojsonSource no longer accepts a `dataset` parameter (M2: dataset removed from GeojsonSource)
 const { items, allIds, selectSelectedId } = sourceSlice.selectors
 
-const makeRootState = (source: object) => ({ source }) as any
+import type { RootState } from "../index"
+
+const makeRootState = (source: object) => ({ source }) as unknown as RootState
 
 describe("sourceSlice reducer", () => {
     test("initial state", () => {
@@ -145,7 +147,7 @@ describe("sourceSlice reducer", () => {
             },
             allIds: ["s4"],
         }
-        const next = reducer(state as any, bumpVersion("s4"))
+        const next = reducer(state as unknown as ReturnType<typeof reducer>, bumpVersion("s4"))
         expect(next.items.s4).toEqual(state.items.s4)
     })
 

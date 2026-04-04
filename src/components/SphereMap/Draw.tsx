@@ -146,9 +146,11 @@ export default function Draw({ mapId }: DrawProps) {
                 delete feature.properties[DRAW_ORIG_ID_KEY]
             }
             if (t.created.has(drawId)) {
-                // biome-ignore lint/performance/noDelete: need to omit id from serialized GeoJSON
-                delete feature.id
-                added.push(feature)
+                added.push({
+                    type: feature.type,
+                    geometry: feature.geometry,
+                    properties: feature.properties,
+                })
             } else if (t.updated.has(drawId)) {
                 if (origId !== undefined) {
                     feature.id = origId

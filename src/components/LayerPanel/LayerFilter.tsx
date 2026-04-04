@@ -4,7 +4,7 @@ import { useAppDispatch } from "@/store/hooks"
 import { ActionIcon, TextInput } from "@mantine/core"
 import { IconX } from "@tabler/icons"
 import type { FilterSpecification } from "maplibre-gl"
-import { type FC, useEffect, useState } from "react"
+import { type FC, useState } from "react"
 
 type LayerFilterProps = {
     layerId: string
@@ -14,13 +14,8 @@ type LayerFilterProps = {
 
 export const LayerFilter: FC<LayerFilterProps> = ({ layerId, filterExpression, filterError }) => {
     const dispatch = useAppDispatch()
-    const [filterText, setFilterText] = useState("")
+    const [filterText, setFilterText] = useState(filterExpression ? JSON.stringify(filterExpression) : "")
     const [filterLocalError, setFilterLocalError] = useState<string | null>(null)
-
-    useEffect(() => {
-        setFilterText(filterExpression ? JSON.stringify(filterExpression) : "")
-        setFilterLocalError(null)
-    }, [layerId, filterExpression])
 
     function handleFilterChange(text: string) {
         setFilterText(text)

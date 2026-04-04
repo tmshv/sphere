@@ -1,9 +1,10 @@
 import { STYLE_OSM } from "@/const"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
+import type { RootState } from "./index"
 import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
 
-const makeRootState = (overrides: Record<string, any> = {}) =>
+const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
         draw: { sourceId: undefined },
         projection: { value: "globe" },
@@ -13,7 +14,7 @@ const makeRootState = (overrides: Record<string, any> = {}) =>
         selection: { count: 0, version: 0 },
         source: { items: {} },
         ...overrides,
-    }) as any
+    }) as unknown as RootState
 
 describe("selectProjection", () => {
     test("returns state projection when not drawing", () => {

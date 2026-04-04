@@ -7,9 +7,11 @@ const { addLayer, removeLayer, select, setVisible, setColor, setName, setType, s
     layerSlice.actions
 const { items, allIds, selectSelectedId } = layerSlice.selectors
 
-const makeRootState = (layer: object) => ({ layer }) as any
+import type { RootState } from "../index"
 
-const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
+const makeRootState = (layer: object) => ({ layer }) as unknown as RootState
+
+const makeLayer = (id: string, overrides: Record<string, unknown> = {}) => ({
     id,
     name: `Layer ${id}`,
     visible: true,

@@ -1,5 +1,6 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { toPropertiesEntries } from "@/lib/properties"
 import { deduplicate } from "@/lib/array"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
@@ -11,7 +12,11 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
 
     useEffect(() => {
         if (features) {
-            dispatch(actions.properties.set({ values: features.map(f => f.properties ?? {}) }))
+            dispatch(
+                actions.properties.set({
+                    entries: toPropertiesEntries(features),
+                }),
+            )
         } else {
             dispatch(actions.properties.reset())
         }
@@ -38,7 +43,11 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
             // so key by source + sourceLayer + id. GeoJSON features are guaranteed
             // to have numeric IDs assigned by the Rust backend.
             const deduped = deduplicate(hovered, f => `${f.source ?? ""}:${f.sourceLayer ?? ""}:${f.id}`)
-            dispatch(actions.properties.set({ values: deduped.map(f => f.properties ?? {}) }))
+            dispatch(
+                actions.properties.set({
+                    entries: toPropertiesEntries(deduped),
+                }),
+            )
         })
 
         const handleOut = map.on("mouseout", () => {

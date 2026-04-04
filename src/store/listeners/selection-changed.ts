@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
+import { toPropertiesEntries } from "@/lib/properties"
 import { selectionQueryPage } from "@/lib/selection-ipc"
 import { emit } from "@tauri-apps/api/event"
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
@@ -39,8 +40,7 @@ listener.startListening({
 
         try {
             const result = await selectionQueryPage(sourceId, 0, PROPERTIES_PAGE_LIMIT)
-            const values = result.features.map(f => f.properties ?? {})
-            listenerApi.dispatch(actions.properties.set({ values }))
+            listenerApi.dispatch(actions.properties.set({ entries: toPropertiesEntries(result.features) }))
         } catch {
             listenerApi.dispatch(actions.properties.reset())
         }

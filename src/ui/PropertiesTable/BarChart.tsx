@@ -53,7 +53,7 @@ export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, c
                     const barHeight = yMax - yScale(d)
                     const barX = xScale(i)
                     const barY = yMax - barHeight
-                    return <Bar key={i} x={barX} y={barY} width={barWidth} height={barHeight} fill={color} />
+                    return <Bar key={barX} x={barX} y={barY} width={barWidth} height={barHeight} fill={color} />
                 })}
             </Group>
         </svg>

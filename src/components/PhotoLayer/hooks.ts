@@ -31,23 +31,10 @@ function useTileFeatures({ map, sourceId, layerId, filter }: UseFeaturesOptions)
             return
         }
 
-        // switch (source.type) {
-        //     case SourceType.FeatureCollection: {
-        //         return
-        //         //     if (source.pending) {
-        //         //         return []
-        //         //     }
-        //         //     return source.dataset.features
-        //         //         .filter(f => {
-        //         //             const { src, iconSrc } = getImage(f.properties!)
-        //         //             return !!src && !!iconSrc
-        //         //         })
-        //     }
-        // }
-
         const upd = () => {
             const features = map.queryRenderedFeatures({
                 layers: [layerId],
+                filter,
             })
             for (const f of features) {
                 if (!f.id) {

@@ -4,7 +4,9 @@ import reducer, { mapInteractionSlice } from "./map-interaction"
 const { setDragPan, setScrollZoom, setDragRotate } = mapInteractionSlice.actions
 const { selectDragPan, selectScrollZoom, selectDragRotate } = mapInteractionSlice.selectors
 
-const makeRootState = (mapInteraction: object) => ({ mapInteraction }) as any
+import type { RootState } from "./index"
+
+const makeRootState = (mapInteraction: object) => ({ mapInteraction }) as unknown as RootState
 
 describe("mapInteractionSlice reducer", () => {
     test("initial state has all handlers enabled", () => {
