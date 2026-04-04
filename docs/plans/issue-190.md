@@ -827,21 +827,21 @@ git commit -m "lint: promote noExplicitAny to error"
 
 ### Task 15: Final cleanup
 
-- [ ] **Step 1: Verify zero warnings remain**
+- [x] **Step 1: Verify zero warnings remain**
 
 Run: `npm run lint`
 Expected: `Found 0 warnings.` or no diagnostic output at all
 
-- [ ] **Step 2: Run full test suite**
+- [x] **Step 2: Run full test suite**
 
 Run: `npm test -- --run`
 Expected: all tests pass
 
-- [ ] **Step 3: Format**
+- [x] **Step 3: Format**
 
 Run: `npm run format`
 
-- [ ] **Step 4: Final commit if format changed anything**
+- [x] **Step 4: Final commit if format changed anything**
 
 ```bash
 git add -A
