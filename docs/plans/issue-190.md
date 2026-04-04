@@ -799,24 +799,24 @@ git commit -m "lint: replace as-any with typed assertions in listener tests"
 
 ### Task 14: Promote noExplicitAny to error
 
-- [ ] **Step 1: Verify zero violations remain**
+- [x] **Step 1: Verify zero violations remain**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noExplicitAny`
 Expected: no output
 
-- [ ] **Step 2: Promote rule to error**
+- [x] **Step 2: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noExplicitAny": "warn" → "noExplicitAny": "error"
 ```
 
-- [ ] **Step 3: Final verification**
+- [x] **Step 3: Final verification**
 
 Run: `npm run lint && npm test -- --run`
 Expected: zero warnings, zero errors, all tests pass
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add biome.json

@@ -13,7 +13,7 @@ type UseFeaturesOptions = {
     filter?: FilterSpecification
 }
 
-function useTileFeatures({ map, sourceId, layerId, filter }: UseFeaturesOptions): GeoJSON.Feature[] | null {
+function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSON.Feature[] | null {
     const [features, setFeatures] = useState<GeoJSON.Feature[]>([])
     const ok = useAppSelector(state => {
         const source = state.source.items[sourceId]
