@@ -1,4 +1,4 @@
-import { Select, Statusbar } from "@/ui/Statusbar"
+import { Select, type SelectOption, Statusbar } from "@/ui/Statusbar"
 import {
     ActionIcon,
     Badge,
@@ -7,7 +7,6 @@ import {
     Image,
     MantineProvider,
     type MantineTheme,
-    SegmentedControl,
     Tooltip,
     createStyles,
 } from "@mantine/core"
@@ -124,6 +123,11 @@ const useStyle = createStyles(theme => ({
     },
 }))
 
+const ATTRIBUTE_FILTER_OPTIONS: SelectOption[] = [
+    { value: "all", label: "All" },
+    { value: "selection", label: "Selection" },
+]
+
 type PropertyTableProps = {
     data: PropertyItem[]
     columns: ColumnDef<PropertyItem>[]
@@ -131,12 +135,12 @@ type PropertyTableProps = {
     pageIndex: number
     pageCount: number
     pageSize: number
-    pageSizeOptions: number[]
-    attributeFilter: "all" | "selected"
+    pageSizeOptions: SelectOption[]
+    attributeFilter: "all" | "selection"
     sorting: SortingState
     onPageChange: (index: number) => void
     onPageSizeChange: (size: number) => void
-    onAttributeFilterChange: (value: "all" | "selected") => void
+    onAttributeFilterChange: (value: "all" | "selection") => void
     onSortingChange: OnChangeFn<SortingState>
 }
 
@@ -524,25 +528,22 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
 
                 <Select
                     className={cx(s.widget, s.widgetSelect)}
-                    value={pageSize}
+                    value={String(pageSize)}
                     options={pageSizeOptions}
-                    onChange={onPageSizeChange}
+                    onChange={v => onPageSizeChange(Number(v))}
                 />
 
                 <Box style={{ flex: 1 }} />
 
-                <SegmentedControl
-                    size="xs"
+                <Select
+                    className={cx(s.widget, s.widgetSelect)}
                     value={attributeFilter}
+                    options={ATTRIBUTE_FILTER_OPTIONS}
                     onChange={v => {
-                        if (v === "all" || v === "selected") {
+                        if (v === "all" || v === "selection") {
                             onAttributeFilterChange(v)
                         }
                     }}
-                    data={[
-                        { label: "All", value: "all" },
-                        { label: "Selected", value: "selected" },
-                    ]}
                 />
             </Statusbar>
         </Flex>

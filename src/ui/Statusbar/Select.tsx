@@ -1,15 +1,20 @@
+export type SelectOption = {
+    value: string
+    label: string
+}
+
 export type SelectProps = {
-    value: number
-    options: number[]
+    value: string
+    options: SelectOption[]
     className?: string
-    onChange: (value: number) => void
+    onChange: (value: string) => void
 }
 
 export function Select({ value, options, className, onChange }: SelectProps) {
     return (
         <select
             value={value}
-            onChange={e => onChange(Number(e.target.value))}
+            onChange={e => onChange(e.target.value)}
             className={className}
             style={{
                 appearance: "none",
@@ -23,9 +28,9 @@ export function Select({ value, options, className, onChange }: SelectProps) {
                 padding: "0 4px",
             }}
         >
-            {options.map(x => (
-                <option key={x} value={x}>
-                    {x}
+            {options.map(option => (
+                <option key={option.value} value={option.value}>
+                    {option.label}
                 </option>
             ))}
         </select>

@@ -78,7 +78,10 @@ function buildColumns(columnNames: string[]): ColumnDef<PropertyItem>[] {
     ]
 }
 
-const PAGE_SIZE_OPTIONS = [50, 100, 500, 1000]
+const PAGE_SIZE_OPTIONS = [50, 100, 500, 1000].map(n => ({
+    value: String(n),
+    label: `${n} per page`,
+}))
 const DEFAULT_PAGE_SIZE = 50
 
 const View: React.FC = () => {
@@ -90,7 +93,7 @@ const View: React.FC = () => {
     const [sorting, setSorting] = useState<SortingState>([])
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
     const [pageIndex, setPageIndex] = useState(0)
-    const [attributeFilter, setAttributeFilter] = useState<"all" | "selected">("all")
+    const [attributeFilter, setAttributeFilter] = useState<"all" | "selection">("all")
     const [selectionData, setSelectionData] = useState<{ sourceId: string; count: number } | null>(null)
     const [selectionVersion, setSelectionVersion] = useState(0)
 
@@ -146,12 +149,12 @@ const View: React.FC = () => {
             .catch(() => {})
     }, [sourceId, schema])
 
-    const isSelectionActive = attributeFilter === "selected" && selectionData !== null && selectionData.count > 0
+    const isSelectionActive = attributeFilter === "selection" && selectionData !== null && selectionData.count > 0
 
     // Fetch page when not viewing selection
     useEffect(() => {
         if (!sourceId || isSelectionActive) return
-        if (attributeFilter === "selected") {
+        if (attributeFilter === "selection") {
             setPage({ features: [], total_matching: 0, offset: 0, limit: pageSize })
             return
         }
@@ -184,7 +187,7 @@ const View: React.FC = () => {
         setPageIndex(0)
     }, [])
 
-    const handleAttributeFilterChange = useCallback((value: "all" | "selected") => {
+    const handleAttributeFilterChange = useCallback((value: "all" | "selection") => {
         setAttributeFilter(value)
         setPageIndex(0)
     }, [])
