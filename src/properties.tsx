@@ -3,7 +3,7 @@ import "./style.css"
 import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
 import { selectionQueryPage } from "@/lib/selection-ipc"
 import type { SourceMetadata } from "@/types"
-import { Box, SegmentedControl, createStyles } from "@mantine/core"
+import { Box, createStyles } from "@mantine/core"
 import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
 import { type UnlistenFn, emit, listen } from "@tauri-apps/api/event"
 import React, { useEffect, useState, useCallback } from "react"
@@ -181,6 +181,11 @@ const View: React.FC = () => {
         setPageIndex(0)
     }, [])
 
+    const handleAttributeFilterChange = useCallback((value: "all" | "selected") => {
+        setAttributeFilter(value)
+        setPageIndex(0)
+    }, [])
+
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {
             const next = typeof updater === "function" ? updater(prev) : updater
@@ -201,34 +206,21 @@ const View: React.FC = () => {
     const totalPages = Math.ceil(page.total_matching / pageSize)
 
     return (
-        <>
-            <SegmentedControl
-                size="xs"
-                value={attributeFilter}
-                onChange={v => {
-                    if (v === "all" || v === "selected") {
-                        setAttributeFilter(v)
-                    }
-                }}
-                data={[
-                    { label: "All", value: "all" },
-                    { label: "Selected", value: "selected" },
-                ]}
-            />
-            <PropertesTable
-                columns={columns}
-                meta={meta}
-                data={rows}
-                pageIndex={pageIndex}
-                pageCount={totalPages}
-                pageSize={pageSize}
-                pageSizeOptions={PAGE_SIZE_OPTIONS}
-                sorting={sorting}
-                onPageChange={setPageIndex}
-                onPageSizeChange={handlePageSizeChange}
-                onSortingChange={handleSortingChange}
-            />
-        </>
+        <PropertesTable
+            columns={columns}
+            meta={meta}
+            data={rows}
+            pageIndex={pageIndex}
+            pageCount={totalPages}
+            pageSize={pageSize}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            attributeFilter={attributeFilter}
+            sorting={sorting}
+            onPageChange={setPageIndex}
+            onPageSizeChange={handlePageSizeChange}
+            onAttributeFilterChange={handleAttributeFilterChange}
+            onSortingChange={handleSortingChange}
+        />
     )
 }
 

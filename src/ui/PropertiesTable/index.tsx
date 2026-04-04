@@ -7,6 +7,7 @@ import {
     Image,
     MantineProvider,
     type MantineTheme,
+    SegmentedControl,
     Tooltip,
     createStyles,
 } from "@mantine/core"
@@ -131,9 +132,11 @@ type PropertyTableProps = {
     pageCount: number
     pageSize: number
     pageSizeOptions: number[]
+    attributeFilter: "all" | "selected"
     sorting: SortingState
     onPageChange: (index: number) => void
     onPageSizeChange: (size: number) => void
+    onAttributeFilterChange: (value: "all" | "selected") => void
     onSortingChange: OnChangeFn<SortingState>
 }
 
@@ -145,9 +148,11 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
     pageCount,
     pageSize,
     pageSizeOptions,
+    attributeFilter,
     sorting,
     onPageChange,
     onPageSizeChange,
+    onAttributeFilterChange,
     onSortingChange,
 }) => {
     const { classes: s, cx } = useStyle()
@@ -525,6 +530,20 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                 />
 
                 <Box style={{ flex: 1 }} />
+
+                <SegmentedControl
+                    size="xs"
+                    value={attributeFilter}
+                    onChange={v => {
+                        if (v === "all" || v === "selected") {
+                            onAttributeFilterChange(v)
+                        }
+                    }}
+                    data={[
+                        { label: "All", value: "all" },
+                        { label: "Selected", value: "selected" },
+                    ]}
+                />
             </Statusbar>
         </Flex>
     )

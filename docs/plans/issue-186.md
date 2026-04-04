@@ -136,7 +136,7 @@ git commit -m "Restore page size selector in properties statusbar"
 - Modify: `src/properties.tsx:91,196-221`
 - Modify: `src/ui/PropertiesTable/index.tsx:126-135,482-515`
 
-- [ ] **Step 1: Remove SegmentedControl from properties.tsx, pass filter as props**
+- [x] **Step 1: Remove SegmentedControl from properties.tsx, pass filter as props**
 
 In `src/properties.tsx`, remove the `SegmentedControl` import from `@mantine/core` (keep `Box` and `createStyles`).
 
@@ -162,7 +162,7 @@ Pass `attributeFilter` and its setter to `PropertesTable`:
 />
 ```
 
-- [ ] **Step 2: Accept filter props in PropertiesTable and render in statusbar**
+- [x] **Step 2: Accept filter props in PropertiesTable and render in statusbar**
 
 In `src/ui/PropertiesTable/index.tsx`, add to `PropertyTableProps`:
 
@@ -197,13 +197,13 @@ In the `<Statusbar>`, render the toggle on the right side (after the `<Box style
 />
 ```
 
-- [ ] **Step 3: Run tests and format**
+- [x] **Step 3: Run tests and format**
 
 Run: `npm test -- --run`
 Run: `npm run format`
 Expected: all tests pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/properties.tsx src/ui/PropertiesTable/index.tsx
