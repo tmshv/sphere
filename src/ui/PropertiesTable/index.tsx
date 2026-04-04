@@ -399,14 +399,11 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                                 const raw = info.getValue()
                                                 if (raw == null) return null
                                                 const label = String(raw)
+                                                const d = new Date(typeof raw === "number" ? raw : label)
+                                                if (Number.isNaN(d.getTime())) return <span>{label}</span>
                                                 return (
                                                     <Tooltip label={label} openDelay={500}>
-                                                        <span>
-                                                            {format(
-                                                                new Date(typeof raw === "number" ? raw : label),
-                                                                "yyyy-MM-dd hh:mm:ss",
-                                                            )}
-                                                        </span>
+                                                        <span>{format(d, "yyyy-MM-dd hh:mm:ss")}</span>
                                                     </Tooltip>
                                                 )
                                             }
