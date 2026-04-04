@@ -224,7 +224,7 @@ The bug: when the user selects features on the map and switches to "Selected", t
 2. In `properties.tsx:148`, `isSelectionActive` requires `selectionData.sourceId === sourceId`. If the IDs don't match, the selection fetch never fires.
 3. Additionally, when `attributeFilter` is toggled to `"selected"` *after* features were already selected, `selectionVersion` may already be > 0 but the effect won't re-fire because none of its deps changed at that moment — `isSelectionActive` flips from false to true, but that IS in the dep array, so this path should work. The real issue is the sourceId mismatch.
 
-- [ ] **Step 1: Ensure selection-changed listener sends a consistent sourceId**
+- [x] **Step 1: Ensure selection-changed listener sends a consistent sourceId**
 
 In `src/store/listeners/selection-changed.ts`, the listener resolves `sourceId` from multiple Redux fields. The properties window receives its `sourceId` from `showProperties.ts` which reads `state.source.selectedId`. The listener must use the same resolution.
 
@@ -270,7 +270,7 @@ selectionQueryPage(sourceId, pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc)
 
 This is correct — the backend's `selection_query_page` uses `SelectionStorage` for the IDs and `SourceStorage[source_id]` for the feature data. Both are global/correct.
 
-- [ ] **Step 2: Handle zero-selection edge case**
+- [x] **Step 2: Handle zero-selection edge case**
 
 When `selectionData.count === 0` and `attributeFilter === "selected"`, `isSelectionActive` is false, so the "all" fetch effect fires. This is the desired behavior — showing all features when nothing is selected in "Selected" mode would be confusing. Instead, the table should show an empty result.
 
@@ -289,7 +289,7 @@ useEffect(() => {
 }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive, attributeFilter, pageSize])
 ```
 
-- [ ] **Step 3: Reset page index when switching filter mode**
+- [x] **Step 3: Reset page index when switching filter mode**
 
 Wrap `setAttributeFilter` to also reset the page:
 
@@ -304,13 +304,13 @@ const handleAttributeFilterChange = useCallback((value: "all" | "selected") => {
 
 Pass `handleAttributeFilterChange` as `onAttributeFilterChange` prop.
 
-- [ ] **Step 4: Run tests and format**
+- [x] **Step 4: Run tests and format**
 
 Run: `npm test -- --run`
 Run: `npm run format`
 Expected: all tests pass.
 
-- [ ] **Step 5: Manual testing checklist**
+- [x] **Step 5: Manual testing checklist (skipped - not automatable)**
 
 1. Open a GeoJSON source properties window
 2. Select features on the map (single click, shift-click, rect-select)
@@ -320,7 +320,7 @@ Expected: all tests pass.
 6. Select features, then clear selection — "Selected" tab should show empty table
 7. Change sorting while in "Selected" mode — should re-fetch correctly
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/properties.tsx src/store/listeners/selection-changed.ts

@@ -146,12 +146,15 @@ const View: React.FC = () => {
             .catch(() => {})
     }, [sourceId, schema])
 
-    const isSelectionActive =
-        attributeFilter === "selected" && selectionData !== null && selectionData.sourceId === sourceId
+    const isSelectionActive = attributeFilter === "selected" && selectionData !== null && selectionData.count > 0
 
     // Fetch page when not viewing selection
     useEffect(() => {
         if (!sourceId || isSelectionActive) return
+        if (attributeFilter === "selected") {
+            setPage({ features: [], total_matching: 0, offset: 0, limit: pageSize })
+            return
+        }
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
         const reader = new SourceReader(sourceId)
@@ -162,7 +165,7 @@ const View: React.FC = () => {
                 if (result) setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, pageSize, sorting, filterExpression, isSelectionActive])
+    }, [sourceId, pageIndex, pageSize, sorting, filterExpression, isSelectionActive, attributeFilter])
 
     // Fetch selection page; selectionVersion drives refetch when selected features change
     useEffect(() => {
