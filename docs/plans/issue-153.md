@@ -15,8 +15,10 @@ in-memory index (one per source) built at load time.
 
 **File:** `src-tauri/Cargo.toml`
 
+Pin to a patch version — tantivy has had breaking changes between minor releases:
+
 ```toml
-tantivy = "0.22"
+tantivy = "=0.22.0"
 ```
 
 ---
@@ -26,7 +28,9 @@ tantivy = "0.22"
 **File:** `crates/libsphere/src/store.rs`
 
 Make `compute_feature_bbox` callable from `src-tauri` by adding a thin public wrapper,
-and add a lookup method on `FeatureStore`:
+and add a lookup method on `FeatureStore`.
+
+Note: `Bbox` is `pub type Bbox = (f64, f64, f64, f64)` from `crate::index`.
 
 ```rust
 /// Public re-export of the private bbox computation.
@@ -44,6 +48,15 @@ impl FeatureStore {
 }
 ```
 
+**Tests** (`crates/libsphere/src/store.rs` — `#[cfg(test)]` module):
+- `feature_bbox` returns `Some` for a Point feature and correct bounds
+- `feature_bbox` returns `None` for a feature with no geometry
+- `get_feature_by_id` returns the feature for a matching numeric ID
+- `get_feature_by_id` returns `None` for unknown ID and for string-ID features
+
+Per project policy, bump `libsphere` minor version in `crates/libsphere/Cargo.toml` and
+run `cargo update -p libsphere`.
+
 **File:** `crates/libsphere/src/lib.rs` — re-export:
 
 ```rust
@@ -57,19 +70,14 @@ pub use store::{feature_bbox, FeatureStore, PageResult};
 New file. Owns all tantivy logic. Features with no numeric `id` are skipped (MBTiles
 sources never reach here anyway).
 
+`SearchResult` is defined **only** in the commands layer (Task 5), not here, to avoid
+duplication. This module exposes raw `(feature_id, score)` pairs; enrichment with
+`label` and `bbox` happens in the command.
+
 ```rust
 use geojson::Feature;
-use serde::Serialize;
 use serde_json::Value;
 use tantivy::{doc, query::QueryParser, schema::{Schema, FAST, STORED, TEXT}, Index, TantivyDocument};
-
-#[derive(Debug, Serialize, Clone)]
-pub struct SearchResult {
-    pub feature_id: u64,
-    pub score: f32,
-    pub label: String,
-    pub bbox: Option<[f64; 4]>,
-}
 
 pub struct SearchIndex {
     index: Index,
@@ -135,6 +143,14 @@ fn props_to_text(feature: &Feature) -> String {
 }
 ```
 
+**Tests** (`src-tauri/src/search.rs` — `#[cfg(test)]` module):
+- `props_to_text` concatenates string/number/bool values and skips arrays/objects/null
+- `numeric_id` returns `Some` for numeric ID, `None` for string ID / missing ID
+- `SearchIndex::build` + `search` round-trip: index a few features, query a token that
+  appears in one of them, assert the correct feature ID is returned with a positive score
+- `search` returns empty vec for a query token that matches no feature
+- Features without a numeric ID are excluded from the index
+
 ---
 
 ### Task 4: Add `search_index` to `SourceEntry`
@@ -154,20 +170,36 @@ pub struct SourceEntry {
 
 ---
 
-### Task 5: Build index in `source_add` and add `source_search` command
+### Task 5: Build index wherever `SourceEntry` is constructed, and add `source_search` command
 
 **File:** `src-tauri/src/commands/source.rs`
 
-In `source_add`, after the `store` is built:
+Add a small helper so the index-building rule lives in one place:
 
 ```rust
-let search_index = match &store {
-    Some(fs) => match SearchIndex::build(fs.features()) {
+fn build_search_index(store: &Option<Arc<FeatureStore>>) -> Option<Arc<SearchIndex>> {
+    let fs = store.as_ref()?;
+    match SearchIndex::build(fs.features()) {
         Ok(idx) => Some(Arc::new(idx)),
-        Err(e) => { eprintln!("search index failed: {}", e); None }
-    },
-    None => None,
-};
+        Err(e) => {
+            eprintln!("search index failed: {}", e);
+            None
+        }
+    }
+}
+```
+
+Apply it at **every** `SourceEntry` construction site:
+- `source_add` — after `store` is built
+- `source_add_data` — after building the in-memory store
+- `source_replace` — rebuild the index when features are replaced
+- `source_patch` — rebuild the index after applying the incremental patch (staleness
+  after draw edits is unacceptable; the rebuild cost is bounded by feature count)
+
+For each site:
+
+```rust
+let search_index = build_search_index(&store);
 let entry = SourceEntry { source, store, search_index };
 ```
 
@@ -263,13 +295,54 @@ public async search(query: string, limit: number): Promise<SearchResult[]> {
 
 ---
 
+### Task 7b: Add `selectActiveSourceId` selector
+
+**File:** `src/store/selectors.ts`
+
+The selection slice exposes `sourceId` only after `selectMany`. For `selectOne`, the
+source must be derived from the selected layer. Add a memoized selector:
+
+```typescript
+export const selectActiveSourceId = createSelector(
+    [
+        (state: RootState) => state.selection.sourceId,
+        (state: RootState) => state.layer.selectedId,
+        (state: RootState) => state.layer.items,
+    ],
+    (selectionSourceId, selectedLayerId, layerItems) => {
+        if (selectionSourceId) {
+            return selectionSourceId
+        }
+        if (selectedLayerId) {
+            return layerItems[selectedLayerId]?.sourceId
+        }
+        return undefined
+    },
+)
+```
+
+**Tests** (`src/store/selectors.test.ts`):
+- Returns `selection.sourceId` when set (selectMany path)
+- Returns the layer's sourceId when only `layer.selectedId` is set (selectOne path)
+- `selection.sourceId` wins when both are set
+- Returns `undefined` when neither is set
+
+---
+
 ### Task 8: Create `SourceSearch` component
 
 **File:** `src/components/LeftSidebar/SourceSearch.tsx`
 
 - Mantine `Combobox` + `TextInput` (size `xs`)
 - Debounce: 300 ms via `useRef<ReturnType<typeof setTimeout>>`
-- Only renders when a source is selected (`state.selection.sourceId`)
+- Resolve the active source ID from **either** `selectMany` or `selectOne` paths:
+  `state.selection.sourceId` (set by `selectMany`) OR derive from the currently
+  selected layer (`state.layer.items[state.layer.selectedId]?.sourceId`). Add a
+  memoized selector `selectActiveSourceId` in `src/store/selectors.ts` rather than
+  computing this inline.
+- Hidden when no active source
+- Clean up the debounce timer on unmount (avoid `setResults` after unmount)
+- Catch IPC errors and show an inline error (`setError(...)`); never silently swallow
 - On result click: dispatch `actions.map.fitBounds({ mapId: MAP_ID, bounds: result.bbox })`
 
 ```tsx
@@ -277,37 +350,63 @@ import { MAP_ID } from "@/const"
 import { SourceReader, type SearchResult } from "@/lib/source-reader"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { selectActiveSourceId } from "@/store/selectors"
 import { Combobox, TextInput, useCombobox } from "@mantine/core"
 import type { LngLatBoundsLike } from "maplibre-gl"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const LIMIT = 10
 const DEBOUNCE = 300
 
 export function SourceSearch() {
     const dispatch = useAppDispatch()
-    const sourceId = useAppSelector(state => state.selection.sourceId)
+    const sourceId = useAppSelector(selectActiveSourceId)
     const combobox = useCombobox()
     const [query, setQuery] = useState("")
     const [results, setResults] = useState<SearchResult[]>([])
+    const [error, setError] = useState<string | null>(null)
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    useEffect(() => {
+        return () => {
+            if (timer.current) {
+                clearTimeout(timer.current)
+            }
+        }
+    }, [])
 
     const handleChange = (value: string) => {
         setQuery(value)
-        if (timer.current) clearTimeout(timer.current)
+        setError(null)
+        if (timer.current) {
+            clearTimeout(timer.current)
+        }
         if (!value.trim() || !sourceId) {
             setResults([])
             combobox.closeDropdown()
             return
         }
-        timer.current = setTimeout(async () => {
-            const hits = await new SourceReader(sourceId).search(value.trim(), LIMIT)
-            setResults(hits)
-            hits.length > 0 ? combobox.openDropdown() : combobox.closeDropdown()
+        timer.current = setTimeout(() => {
+            new SourceReader(sourceId).search(value.trim(), LIMIT)
+                .then(hits => {
+                    setResults(hits)
+                    if (hits.length > 0) {
+                        combobox.openDropdown()
+                    } else {
+                        combobox.closeDropdown()
+                    }
+                })
+                .catch(err => {
+                    setError(String(err))
+                    setResults([])
+                    combobox.closeDropdown()
+                })
         }, DEBOUNCE)
     }
 
-    if (!sourceId) return null
+    if (!sourceId) {
+        return null
+    }
 
     return (
         <Combobox
@@ -329,6 +428,7 @@ export function SourceSearch() {
                     placeholder="Search features…"
                     value={query}
                     onChange={e => handleChange(e.currentTarget.value)}
+                    error={error}
                 />
             </Combobox.Target>
             <Combobox.Dropdown>
@@ -371,9 +471,10 @@ import { SourceSearch } from "./SourceSearch"
 | `crates/libsphere/src/lib.rs`                       | Re-export `feature_bbox`                             |
 | `src-tauri/src/search.rs`                           | New — `SearchIndex`, `SearchResult`, tantivy logic   |
 | `src-tauri/src/state.rs`                            | Add `search_index` field to `SourceEntry`            |
-| `src-tauri/src/commands/source.rs`                  | Update `source_add`, add `source_search` command     |
+| `src-tauri/src/commands/source.rs`                  | `build_search_index` helper; apply in `source_add`, `source_add_data`, `source_replace`, `source_patch`; add `source_search` command |
 | `src-tauri/src/main.rs`                             | Add `mod search`, register command                   |
 | `src/lib/source-reader.ts`                          | Add `SearchResult` type, `search()` method           |
+| `src/store/selectors.ts`                            | Add `selectActiveSourceId` memoized selector         |
 | `src/components/LeftSidebar/SourceSearch.tsx`       | New — search input + dropdown component              |
 | `src/components/LeftSidebar/SourcesTab.tsx`         | Insert `<SourceSearch />`                            |
 
@@ -381,8 +482,16 @@ import { SourceSearch } from "./SourceSearch"
 
 ## Verification
 
-1. `cargo test -p libsphere` — existing tests still pass after `feature_bbox` / `get_feature_by_id` additions
-2. `cargo build` from `src-tauri/` — no compile errors
-3. `npm run tauri dev` — load a GeoJSON file, type in the search box, verify dropdown appears with feature labels
-4. Click a result — map flies to that feature's bounds
-5. `npm test` — TypeScript unit tests pass
+1. `cargo test -p libsphere` — new tests for `feature_bbox` and `get_feature_by_id` pass; existing tests still pass
+2. `cargo test` from `src-tauri/` — new `search.rs` unit tests pass (build/search round-trip, `props_to_text`, `numeric_id`, empty-result case)
+3. `cargo build` from `src-tauri/` — no compile errors
+4. `npm test` — new `selectActiveSourceId` selector tests pass; existing tests still pass
+5. `npm run tauri dev`:
+   - Load a GeoJSON file, select it → verify search box appears
+   - Type a query → dropdown shows labeled results after ~300 ms
+   - Click a result → map flies to feature's bounds
+   - Click a single feature via `selectOne` (no `selectMany`) → search box still visible
+   - Paste GeoJSON via `source_add_data` → search works on the new source
+   - Enter draw mode, add a feature, commit → search finds the new feature (index rebuilt on patch)
+   - Clear search box → dropdown closes, no stale results
+6. Per project policy: run `npm run format` and `npm run lint` before committing
