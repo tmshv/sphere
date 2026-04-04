@@ -9,6 +9,7 @@ import {
     selectionApply,
     selectionCount,
 } from "@/lib/selection-ipc"
+import { resolveSourceId } from "@/lib/layer-source"
 import { actions, selectors } from "@/store"
 import type { RootState } from "@/store"
 import { selectMapTool } from "@/store/app"
@@ -18,20 +19,10 @@ import { useEffect, useRef } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 import { useStore } from "react-redux"
 
-const LAYER_SOURCE_PREFIX = "layer-"
-
 const selectClickableLayerIds = createSelector(
     [selectors.layer.visibleIds, selectors.preview.layerIds],
     (layerIds, previewLayerIds) => (previewLayerIds.length > 0 ? [...layerIds, ...previewLayerIds] : layerIds),
 )
-
-function resolveSourceId(mapSourceId: string, state: RootState): string {
-    if (mapSourceId.startsWith(LAYER_SOURCE_PREFIX)) {
-        const layerId = mapSourceId.slice(LAYER_SOURCE_PREFIX.length)
-        return state.layer.items[layerId]?.sourceId ?? mapSourceId
-    }
-    return mapSourceId
-}
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
@@ -60,7 +51,7 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
                     }
 
                     const nativeEvent = event.originalEvent
-                    const sourceId = resolveSourceId(f.source, store.getState())
+                    const sourceId = resolveSourceId(f.source, store.getState().layer.items)
                     const currentSourceId = store.getState().selection.sourceId
                     const sameSource = !currentSourceId || currentSourceId === sourceId
 

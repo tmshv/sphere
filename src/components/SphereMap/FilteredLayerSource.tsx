@@ -1,4 +1,5 @@
 import { EMPTY_GEOJSON } from "@/const"
+import { filteredSourceId } from "@/lib/layer-source"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { SourceReader } from "@/lib/source-reader"
 import { actions } from "@/store"
@@ -57,7 +58,7 @@ export const FilteredLayerSource: React.FC<FilteredLayerSourceProps> = memo(({ l
         return null
     }
 
-    return <Source id={`layer-${layerId}`} type="geojson" data={data} />
+    return <Source id={filteredSourceId(layerId)} type="geojson" data={data} />
 })
 
 FilteredLayerSource.displayName = "FilteredLayerSource"
