@@ -20,7 +20,7 @@ export const LayerFilter: FC<LayerFilterProps> = ({ layerId, filterExpression, f
     useEffect(() => {
         setFilterText(filterExpression ? JSON.stringify(filterExpression) : "")
         setFilterLocalError(null)
-    }, [layerId, filterExpression])
+    }, [filterExpression])
 
     function handleFilterChange(text: string) {
         setFilterText(text)

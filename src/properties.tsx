@@ -166,7 +166,7 @@ const View: React.FC = () => {
                 if (result) setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive, selectionData])
+    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {

@@ -70,7 +70,7 @@ function useTileFeatures({ map, sourceId, layerId, filter }: UseFeaturesOptions)
             map.off("idle", onIdle)
             map.off("moveend", upd)
         }
-    }, [ok, layerId, map, filter])
+    }, [ok, layerId, map])
 
     return features.length > 0 ? features : null
 }

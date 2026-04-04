@@ -22,7 +22,7 @@
             "correctness": {
                 "noUnusedVariables": "error",
                 "noUnusedImports": "error",
-                "useExhaustiveDependencies": "warn"
+                "useExhaustiveDependencies": "error"
             },
             "suspicious": {
                 "noExplicitAny": "warn",
