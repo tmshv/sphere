@@ -45,12 +45,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
             const deduped = deduplicate(hovered, f => `${f.source ?? ""}:${f.sourceLayer ?? ""}:${f.id}`)
             dispatch(
                 actions.properties.set({
-                    entries: deduped.reduce<PropertiesEntry[]>((acc, f) => {
-                        if (f.id != null) {
-                            acc.push({ id: f.id, values: f.properties ?? {} })
-                        }
-                        return acc
-                    }, []),
+                    entries: toPropertiesEntries(deduped),
                 }),
             )
         })
