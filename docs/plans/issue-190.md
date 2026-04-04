@@ -724,7 +724,7 @@ These files share two patterns:
 2. `(a: any) => a.type === "..."` in `dispatchedActions.find()`
 3. `(setSourceAction as any).payload`
 
-- [ ] **Step 1: Fix makeStore reducer pattern**
+- [x] **Step 1: Fix makeStore reducer pattern**
 
 ```ts
 // Before:
@@ -734,7 +734,7 @@ reducer: (s: any = state) => s,
 reducer: (s: unknown = state) => s,
 ```
 
-- [ ] **Step 2: Fix captureMiddleware as-any**
+- [x] **Step 2: Fix captureMiddleware as-any**
 
 ```ts
 // Before:
@@ -746,7 +746,7 @@ reducer: (s: unknown = state) => s,
 
 Import `Middleware` from `@reduxjs/toolkit`.
 
-- [ ] **Step 3: Fix dispatchedActions.find patterns**
+- [x] **Step 3: Fix dispatchedActions.find patterns**
 
 All three files use `(a: any) => a.type === "..."`. Since `dispatchedActions` is `unknown[]`, use a type guard:
 
@@ -763,7 +763,7 @@ const addLayerAction = dispatchedActions.find((a: any) => a.type === "layer/addL
 const addLayerAction = dispatchedActions.find(a => hasType(a, "layer/addLayer"))
 ```
 
-- [ ] **Step 4: Fix payload access patterns**
+- [x] **Step 4: Fix payload access patterns**
 
 ```ts
 // Before:
@@ -779,16 +779,16 @@ const setTabAction = dispatchedActions.find(a => hasType(a, "app/setActiveSideba
 expect(setTabAction?.payload).toBe("layers")
 ```
 
-- [ ] **Step 5: Apply same patterns across all three files**
+- [x] **Step 5: Apply same patterns across all three files**
 
 Repeat steps 1-4 for `add-source.test.ts` and `zoom-to.test.ts`.
 
-- [ ] **Step 6: Run tests and lint**
+- [x] **Step 6: Run tests and lint**
 
 Run: `npm test -- --run src/store/listeners/ && npx biome lint src/ --max-diagnostics=200 2>&1 | rg noExplicitAny -c`
 Expected: tests pass, zero remaining
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A

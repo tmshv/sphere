@@ -1,5 +1,5 @@
 import { SourceType } from "@/types"
-import { configureStore } from "@reduxjs/toolkit"
+import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const mockGetBounds = vi.fn().mockResolvedValue(null)
@@ -49,6 +49,12 @@ vi.mock("../actions", () => {
 
 import listener from "./zoom-to"
 
+function hasType(action: unknown, type: string): action is { type: string; payload: unknown } {
+    return (
+        typeof action === "object" && action !== null && "type" in action && (action as { type: string }).type === type
+    )
+}
+
 const fcSourceState = (sourceId: string) => ({
     source: {
         items: {
@@ -74,11 +80,11 @@ function makeStore(state: Record<string, unknown> = {}) {
         return next(action)
     }
     const store = configureStore({
-        reducer: (s: any = state) => s,
+        reducer: (s = state) => s,
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware()
                 .prepend(listener.middleware)
-                .concat(captureMiddleware as any),
+                .concat(captureMiddleware as unknown as Middleware),
     })
     return { store, dispatchedActions }
 }
@@ -104,9 +110,9 @@ describe("zoom-to listener: FeatureCollection source", () => {
         store.dispatch({ type: "source/zoomTo", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        const fitBoundsAction = dispatchedActions.find((a: any) => a.type === "map/fitBounds")
+        const fitBoundsAction = dispatchedActions.find(a => hasType(a, "map/fitBounds"))
         expect(fitBoundsAction).toBeDefined()
-        expect((fitBoundsAction as any).payload.bounds).toEqual(bounds)
+        expect((fitBoundsAction as { payload: unknown }).payload).toEqual(expect.objectContaining({ bounds }))
     })
 
     test("does not dispatch fitBounds when SourceReader returns null", async () => {
@@ -118,7 +124,7 @@ describe("zoom-to listener: FeatureCollection source", () => {
         store.dispatch({ type: "source/zoomTo", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        expect(dispatchedActions.find((a: any) => a.type === "map/fitBounds")).toBeUndefined()
+        expect(dispatchedActions.find(a => hasType(a, "map/fitBounds"))).toBeUndefined()
     })
 
     test("does nothing when source does not exist", async () => {
@@ -127,7 +133,7 @@ describe("zoom-to listener: FeatureCollection source", () => {
         store.dispatch({ type: "source/zoomTo", payload: "nonexistent" })
         await vi.runAllTimersAsync()
 
-        expect(dispatchedActions.find((a: any) => a.type === "map/fitBounds")).toBeUndefined()
+        expect(dispatchedActions.find(a => hasType(a, "map/fitBounds"))).toBeUndefined()
         expect(mockGetBounds).not.toHaveBeenCalled()
     })
 })

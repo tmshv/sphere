@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 vi.mock("@/logger", () => ({
@@ -32,6 +32,12 @@ import listener from "./add-source"
 const URL_FULFILLED_TYPE = "source/addFromUrl/fulfilled"
 const CLIPBOARD_FULFILLED_TYPE = "source/addFromClipboard/fulfilled"
 const FULFILLED_TYPE = URL_FULFILLED_TYPE
+
+function hasType(action: unknown, type: string): action is { type: string; payload: unknown } {
+    return (
+        typeof action === "object" && action !== null && "type" in action && (action as { type: string }).type === type
+    )
+}
 
 describe("add-source listener middleware", () => {
     beforeEach(() => {
@@ -79,12 +85,13 @@ describe("add-source listener middleware", () => {
             return next(action)
         }
 
+        const initialState = { source: { lastAdded: sourceId, items: { [sourceId]: {} } } }
         const store = configureStore({
-            reducer: (state: any = { source: { lastAdded: sourceId, items: { [sourceId]: {} } } }) => state,
+            reducer: (state = initialState) => state,
             middleware: getDefaultMiddleware =>
                 getDefaultMiddleware()
                     .prepend(listener.middleware)
-                    .concat(captureMiddleware as any),
+                    .concat(captureMiddleware as unknown as Middleware),
         })
 
         store.dispatch({
@@ -95,9 +102,9 @@ describe("add-source listener middleware", () => {
 
         await vi.runAllTimersAsync()
 
-        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "source/select")
+        const selectSourceAction = dispatchedActions.find(a => hasType(a, "source/select"))
         expect(selectSourceAction).toBeDefined()
-        expect((selectSourceAction as any).payload).toBe(sourceId)
+        expect(selectSourceAction?.payload).toBe(sourceId)
     })
 
     test("does not dispatch selectSource when lastAdded is undefined", async () => {
@@ -109,12 +116,13 @@ describe("add-source listener middleware", () => {
             return next(action)
         }
 
+        const initialState = { source: { lastAdded: undefined, items: {} } }
         const store = configureStore({
-            reducer: (state: any = { source: { lastAdded: undefined, items: {} } }) => state,
+            reducer: (state = initialState) => state,
             middleware: getDefaultMiddleware =>
                 getDefaultMiddleware()
                     .prepend(listener.middleware)
-                    .concat(captureMiddleware as any),
+                    .concat(captureMiddleware as unknown as Middleware),
         })
 
         store.dispatch({
@@ -125,7 +133,7 @@ describe("add-source listener middleware", () => {
 
         await vi.runAllTimersAsync()
 
-        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "source/select")
+        const selectSourceAction = dispatchedActions.find(a => hasType(a, "source/select"))
         expect(selectSourceAction).toBeUndefined()
     })
 
@@ -139,12 +147,13 @@ describe("add-source listener middleware", () => {
             return next(action)
         }
 
+        const initialState = { source: { lastAdded: sourceId, items: { [sourceId]: {} } } }
         const store = configureStore({
-            reducer: (state: any = { source: { lastAdded: sourceId, items: { [sourceId]: {} } } }) => state,
+            reducer: (state = initialState) => state,
             middleware: getDefaultMiddleware =>
                 getDefaultMiddleware()
                     .prepend(listener.middleware)
-                    .concat(captureMiddleware as any),
+                    .concat(captureMiddleware as unknown as Middleware),
         })
 
         store.dispatch({
@@ -155,8 +164,8 @@ describe("add-source listener middleware", () => {
 
         await vi.runAllTimersAsync()
 
-        const selectSourceAction = dispatchedActions.find((a: any) => a.type === "source/select")
+        const selectSourceAction = dispatchedActions.find(a => hasType(a, "source/select"))
         expect(selectSourceAction).toBeDefined()
-        expect((selectSourceAction as any).payload).toBe(sourceId)
+        expect(selectSourceAction?.payload).toBe(sourceId)
     })
 })
