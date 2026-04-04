@@ -40,6 +40,7 @@ async fn main() {
             commands::source::source_add,
             commands::source::source_get,
             commands::source::source_get_slice,
+            commands::source::source_get_selected,
             commands::source::source_bounds,
             commands::source::source_get_schema,
             commands::source::source_query_page,

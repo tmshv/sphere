@@ -59,6 +59,18 @@ export class SourceReader {
         }
     }
 
+    public async getSelected(): Promise<GeoJSON.FeatureCollection | null> {
+        try {
+            const res = await invoke<string>("source_get_selected", {
+                id: this.id,
+            })
+            return this.parse(res)
+        } catch (error) {
+            logger.error("Failed to read selected geojson %s", error)
+            return null
+        }
+    }
+
     public async getBounds(): Promise<LngLatBoundsLike | null> {
         try {
             const bounds = await invoke<Bbox>("source_bounds", {

@@ -4,12 +4,9 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 type DrawState = {
     sourceId?: Id
-    selectedIds: number[]
 }
 
-const initialState: DrawState = {
-    selectedIds: [],
-}
+const initialState: DrawState = {}
 
 export const drawSlice = createSlice({
     name: "draw",
@@ -17,10 +14,6 @@ export const drawSlice = createSlice({
     reducers: {
         start: (state, action: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = action.payload.sourceId
-            state.selectedIds = []
-        },
-        setSelectedIds: (state, action: PayloadAction<number[]>) => {
-            state.selectedIds = action.payload
         },
         commit: (
             state,
@@ -37,11 +30,9 @@ export const drawSlice = createSlice({
         },
         done: (state, _: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = undefined
-            state.selectedIds = []
         },
         reset: state => {
             state.sourceId = undefined
-            state.selectedIds = []
         },
     },
     selectors: {

@@ -42,7 +42,6 @@ function trackDelete(t: ChangeTracker, feature: GeoJSON.Feature, key: string) {
 export default function Draw({ mapId }: DrawProps) {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(state => state.draw.sourceId)
-    const selectedIds = useAppSelector(state => state.draw.selectedIds)
     const [loading, setLoading] = useState(true)
 
     const tracker = useRef<ChangeTracker>(newTracker())
@@ -114,7 +113,7 @@ export default function Draw({ mapId }: DrawProps) {
         if (!sourceId) return
         setLoading(true)
         loadingRef.current = true
-        loadDrawFeatures(sourceId, selectedIds)
+        loadDrawFeatures(sourceId)
             .then(fc => {
                 if (!fc) return
                 tracker.current = newTracker()
@@ -127,7 +126,7 @@ export default function Draw({ mapId }: DrawProps) {
                 loadingRef.current = false
                 setLoading(false)
             })
-    }, [sourceId, selectedIds, draw])
+    }, [sourceId, draw])
 
     const onCancel = useCallback(() => {
         dispatch(actions.tools.reset())

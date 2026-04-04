@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import reducer, { drawSlice } from "./draw"
 
-const { start, setSelectedIds, done, reset } = drawSlice.actions
+const { start, done, reset } = drawSlice.actions
 const { isDrawing } = drawSlice.selectors
 
 const makeRootState = (draw: object) => ({ draw }) as any
@@ -22,45 +22,16 @@ describe("drawSlice reducer", () => {
         expect(state.sourceId).toBe("source-42")
     })
 
-    test("start initializes selectedIds to empty", () => {
-        const state = reducer(undefined, start({ sourceId: "s1" }))
-        expect(state.selectedIds).toEqual([])
-    })
-
-    test("setSelectedIds sets selectedIds", () => {
-        const prev = reducer(undefined, start({ sourceId: "s1" }))
-        const state = reducer(prev, setSelectedIds([1, 2, 3]))
-        expect(state.selectedIds).toEqual([1, 2, 3])
-    })
-
-    test("setSelectedIds with empty array", () => {
-        const prev = { sourceId: "s1", selectedIds: [1, 2] }
-        const state = reducer(prev, setSelectedIds([]))
-        expect(state.selectedIds).toEqual([])
-    })
-
     test("done clears sourceId", () => {
-        const prev = { sourceId: "my-source", selectedIds: [1, 2] }
+        const prev = { sourceId: "my-source" }
         const state = reducer(prev, done({ sourceId: "my-source" }))
         expect(state.sourceId).toBeUndefined()
     })
 
-    test("done clears selectedIds", () => {
-        const prev = { sourceId: "s1", selectedIds: [1, 2] }
-        const state = reducer(prev, done({ sourceId: "s1" }))
-        expect(state.selectedIds).toEqual([])
-    })
-
     test("reset clears sourceId", () => {
-        const prev = { sourceId: "my-source", selectedIds: [] }
+        const prev = { sourceId: "my-source" }
         const state = reducer(prev, reset())
         expect(state.sourceId).toBeUndefined()
-    })
-
-    test("reset clears selectedIds", () => {
-        const prev = { sourceId: "s1", selectedIds: [1, 2] }
-        const state = reducer(prev, reset())
-        expect(state.selectedIds).toEqual([])
     })
 })
 
