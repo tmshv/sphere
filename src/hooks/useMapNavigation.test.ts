@@ -36,7 +36,7 @@ function makeRef(map: ReturnType<typeof makeMockMap>) {
 const ALL_ENABLED = { dragPan: true, scrollZoom: true, dragRotate: true }
 
 function mockState(settings: typeof ALL_ENABLED, navigationEnabled: boolean) {
-    vi.mocked(useAppSelector).mockImplementation((selector: (state: unknown) => unknown) => {
+    vi.mocked(useAppSelector).mockImplementation(selector => {
         if (selector === selectors.mapInteraction.selectDragPan) return settings.dragPan
         if (selector === selectors.mapInteraction.selectScrollZoom) return settings.scrollZoom
         if (selector === selectors.mapInteraction.selectDragRotate) return settings.dragRotate

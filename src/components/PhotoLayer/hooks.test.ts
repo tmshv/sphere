@@ -1,3 +1,4 @@
+import type { RootState } from "@/store"
 import { SourceType } from "@/types"
 import { act, renderHook } from "@testing-library/react"
 import type maplibregl from "maplibre-gl"
@@ -42,14 +43,14 @@ function makeMockMap() {
 
 describe("useTileFeatures event listener behavior", () => {
     beforeEach(() => {
-        vi.mocked(useAppSelector).mockImplementation((selector: (state: unknown) => unknown) =>
+        vi.mocked(useAppSelector).mockImplementation(selector =>
             selector({
                 source: {
                     items: {
                         [SOURCE_ID]: { type: SourceType.MVT },
                     },
                 },
-            }),
+            } as unknown as RootState),
         )
     })
 
