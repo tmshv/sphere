@@ -13,7 +13,7 @@ type UseFeaturesOptions = {
     filter?: FilterSpecification
 }
 
-function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSON.Feature[] | null {
+function useTileFeatures({ map, sourceId, layerId, filter }: UseFeaturesOptions): GeoJSON.Feature[] | null {
     const [features, setFeatures] = useState<GeoJSON.Feature[]>([])
     const ok = useAppSelector(state => {
         const source = state.source.items[sourceId]
@@ -26,6 +26,7 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
             }
         }
     })
+    // biome-ignore lint/correctness/useExhaustiveDependencies: filter triggers re-query when InvisibleCircleLayer applies it to MapLibre, changing which features are rendered
     useEffect(() => {
         if (!ok || !map) {
             return
@@ -70,7 +71,7 @@ function useTileFeatures({ map, sourceId, layerId }: UseFeaturesOptions): GeoJSO
             map.off("idle", onIdle)
             map.off("moveend", upd)
         }
-    }, [ok, layerId, map])
+    }, [ok, layerId, map, filter])
 
     return features.length > 0 ? features : null
 }
