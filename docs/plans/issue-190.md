@@ -91,31 +91,31 @@ git commit -m "lint: promote noNonNullAssertion to error, fix violation in useFe
 - Modify: `biome.json`
 - Modify: `src/lib/sphere-protocol.ts:5`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noUnusedVariables": "warn" → "noUnusedVariables": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the error**
+- [x] **Step 2: Run lint to see the error**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noUnusedVariables`
 Expected: 1 error at `src/lib/sphere-protocol.ts:5` — unused type `RequestType`
 
-- [ ] **Step 3: Fix the violation**
+- [x] **Step 3: Fix the violation**
 
 In `src/lib/sphere-protocol.ts`, delete line 5:
 ```ts
 type RequestType = "json" | "arrayBuffer" | "string" | "image" | undefined
 ```
 
-- [ ] **Step 4: Run tests and lint**
+- [x] **Step 4: Run tests and lint**
 
 Run: `npm test -- --run && npm run lint`
 Expected: all pass, no lint errors for this rule
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add biome.json src/lib/sphere-protocol.ts
