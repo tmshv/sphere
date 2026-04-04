@@ -32,3 +32,4 @@ export const EMPTY_GEOJSON = {
 export const FEATURE_HIGHLIGHT_COLOR = "red"
 export const PREVIEW_COLOR = "black" // tableu10[0]
 export const PREVIEW_RADIUS = 3
+export const DRAW_ORIG_ID_KEY = "__sphere_draw_origid"

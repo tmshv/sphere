@@ -46,6 +46,19 @@ export class SourceReader {
         }
     }
 
+    public async getByIds(ids: number[]): Promise<GeoJSON.FeatureCollection | null> {
+        try {
+            const res = await invoke<string>("source_get_slice", {
+                id: this.id,
+                ids,
+            })
+            return this.parse(res)
+        } catch (error) {
+            logger.error("Failed to read geojson slice %s", error)
+            return null
+        }
+    }
+
     public async getBounds(): Promise<LngLatBoundsLike | null> {
         try {
             const bounds = await invoke<Bbox>("source_bounds", {

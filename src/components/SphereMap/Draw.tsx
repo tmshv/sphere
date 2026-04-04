@@ -1,12 +1,13 @@
+import { DRAW_ORIG_ID_KEY } from "@/const"
 import { useDrawControl } from "@/hooks/useDrawControl"
 import type { DrawEvent } from "@/hooks/useDrawControl"
+import { loadDrawFeatures } from "@/lib/draw-source"
 import logger from "@/logger"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { Overlay } from "@/ui/Overlay"
 import { Button, Flex } from "@mantine/core"
-import { invoke } from "@tauri-apps/api/core"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
 export type DrawProps = {
@@ -42,60 +43,56 @@ export default function Draw({ mapId }: DrawProps) {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(state => state.draw.sourceId)
     const selectedIds = useAppSelector(state => state.draw.selectedIds)
-    const origIdKey = useMemo(() => `__sphere_draw_${crypto.randomUUID().replace(/-/g, "")}_origid`, [])
     const [loading, setLoading] = useState(true)
 
     const tracker = useRef<ChangeTracker>(newTracker())
     const loadingRef = useRef(true)
 
-    const onChange = useCallback(
-        (event: DrawEvent) => {
-            if (loadingRef.current) return
-            const t = tracker.current
-            switch (event.type) {
-                case "draw.create": {
-                    for (const feature of event.features ?? []) {
-                        t.created.add(String(feature.id))
-                    }
-                    break
+    const onChange = useCallback((event: DrawEvent) => {
+        if (loadingRef.current) return
+        const t = tracker.current
+        switch (event.type) {
+            case "draw.create": {
+                for (const feature of event.features ?? []) {
+                    t.created.add(String(feature.id))
                 }
-                case "draw.update": {
-                    for (const feature of event.features ?? []) {
-                        const drawId = String(feature.id)
-                        if (!t.created.has(drawId)) {
-                            t.updated.add(drawId)
-                        }
-                    }
-                    break
-                }
-                case "draw.delete": {
-                    for (const feature of event.features ?? []) {
-                        trackDelete(t, feature, origIdKey)
-                    }
-                    break
-                }
-                case "draw.combine": {
-                    for (const feature of event.deletedFeatures ?? []) {
-                        trackDelete(t, feature, origIdKey)
-                    }
-                    for (const feature of event.createdFeatures ?? []) {
-                        t.created.add(String(feature.id))
-                    }
-                    break
-                }
-                case "draw.uncombine": {
-                    for (const feature of event.deletedFeatures ?? []) {
-                        trackDelete(t, feature, origIdKey)
-                    }
-                    for (const feature of event.createdFeatures ?? []) {
-                        t.created.add(String(feature.id))
-                    }
-                    break
-                }
+                break
             }
-        },
-        [origIdKey],
-    )
+            case "draw.update": {
+                for (const feature of event.features ?? []) {
+                    const drawId = String(feature.id)
+                    if (!t.created.has(drawId)) {
+                        t.updated.add(drawId)
+                    }
+                }
+                break
+            }
+            case "draw.delete": {
+                for (const feature of event.features ?? []) {
+                    trackDelete(t, feature, DRAW_ORIG_ID_KEY)
+                }
+                break
+            }
+            case "draw.combine": {
+                for (const feature of event.deletedFeatures ?? []) {
+                    trackDelete(t, feature, DRAW_ORIG_ID_KEY)
+                }
+                for (const feature of event.createdFeatures ?? []) {
+                    t.created.add(String(feature.id))
+                }
+                break
+            }
+            case "draw.uncombine": {
+                for (const feature of event.deletedFeatures ?? []) {
+                    trackDelete(t, feature, DRAW_ORIG_ID_KEY)
+                }
+                for (const feature of event.createdFeatures ?? []) {
+                    t.created.add(String(feature.id))
+                }
+                break
+            }
+        }
+    }, [])
 
     const { [mapId]: ref } = useMap()
     const draw = useDrawControl({
@@ -117,32 +114,20 @@ export default function Draw({ mapId }: DrawProps) {
         if (!sourceId) return
         setLoading(true)
         loadingRef.current = true
-        const fetchData =
-            selectedIds.length > 0
-                ? invoke<string>("source_get_slice", { id: sourceId, ids: selectedIds })
-                : invoke<string>("source_get", { id: sourceId })
-        fetchData
-            .then(json => {
-                const fc: GeoJSON.FeatureCollection = JSON.parse(json)
-                for (const feature of fc.features) {
-                    if (feature.id !== undefined && feature.id !== null) {
-                        if (!feature.properties) {
-                            feature.properties = {}
-                        }
-                        feature.properties[origIdKey] = feature.id
-                    }
-                }
+        loadDrawFeatures(sourceId, selectedIds)
+            .then(fc => {
+                if (!fc) return
                 tracker.current = newTracker()
                 draw.set(fc)
-                loadingRef.current = false
-                setLoading(false)
             })
             .catch(err => {
                 logger.error("Failed to load draw source %s: %s", sourceId, err)
+            })
+            .finally(() => {
                 loadingRef.current = false
                 setLoading(false)
             })
-    }, [sourceId, selectedIds, draw, origIdKey])
+    }, [sourceId, selectedIds, draw])
 
     const onCancel = useCallback(() => {
         dispatch(actions.tools.reset())
@@ -157,9 +142,9 @@ export default function Draw({ mapId }: DrawProps) {
         const updated: GeoJSON.Feature[] = []
         for (const feature of all.features) {
             const drawId = String(feature.id)
-            const origId = feature.properties?.[origIdKey]
+            const origId = feature.properties?.[DRAW_ORIG_ID_KEY]
             if (feature.properties) {
-                delete feature.properties[origIdKey]
+                delete feature.properties[DRAW_ORIG_ID_KEY]
             }
             if (t.created.has(drawId)) {
                 // biome-ignore lint/performance/noDelete: need to omit id from serialized GeoJSON
@@ -186,7 +171,7 @@ export default function Draw({ mapId }: DrawProps) {
                 patch: { added, updated, deleted_ids },
             }),
         )
-    }, [dispatch, sourceId, loading, draw, origIdKey])
+    }, [dispatch, sourceId, loading, draw])
 
     return (
         <>

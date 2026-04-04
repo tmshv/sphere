@@ -1,13 +1,11 @@
-import { selectionGetIds } from "@/lib/selection-ipc"
 import { actions, selectors } from "@/store"
-import type { RootState } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { type SourceMetadata, SourceType } from "@/types"
 import { ActionBar } from "@/ui/ActionBar"
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
-import { useSelector, useStore } from "react-redux"
+import { useSelector } from "react-redux"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
@@ -43,7 +41,6 @@ export const selector = createSelector([selectors.source.selectSelectedId, selec
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
-    const store = useStore<RootState>()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
 
@@ -103,27 +100,7 @@ export const SourcePanel: React.FC = () => {
                             if (drawing) {
                                 dispatch(actions.tools.reset())
                             } else {
-                                const sel = store.getState().selection
-                                let selectedIds: number[] = []
-                                if (sel.count > 0 && sel.sourceId === source.id) {
-                                    const versionBefore = sel.version
-                                    try {
-                                        selectedIds = await selectionGetIds()
-                                    } catch {
-                                        selectedIds = []
-                                    }
-                                    const selAfter = store.getState().selection
-                                    if (selAfter.sourceId !== source.id || selAfter.version !== versionBefore) {
-                                        selectedIds = []
-                                    }
-                                }
-                                dispatch(
-                                    actions.draw.start({
-                                        sourceId: source.id,
-                                        selectedIds,
-                                    }),
-                                )
-                                dispatch(actions.tools.setTool("draw"))
+                                dispatch(actions.draw.start({ sourceId: source.id }))
                             }
                             break
                         }

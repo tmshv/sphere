@@ -15,9 +15,12 @@ export const drawSlice = createSlice({
     name: "draw",
     initialState,
     reducers: {
-        start: (state, action: PayloadAction<{ sourceId: Id; selectedIds: number[] }>) => {
+        start: (state, action: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = action.payload.sourceId
-            state.selectedIds = action.payload.selectedIds
+            state.selectedIds = []
+        },
+        setSelectedIds: (state, action: PayloadAction<number[]>) => {
+            state.selectedIds = action.payload
         },
         commit: (
             state,

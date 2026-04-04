@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import reducer, { drawSlice } from "./draw"
 
-const { start, done, reset } = drawSlice.actions
+const { start, setSelectedIds, done, reset } = drawSlice.actions
 const { isDrawing } = drawSlice.selectors
 
 const makeRootState = (draw: object) => ({ draw }) as any
@@ -13,27 +13,29 @@ describe("drawSlice reducer", () => {
     })
 
     test("start sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: "my-source", selectedIds: [] }))
+        const state = reducer(undefined, start({ sourceId: "my-source" }))
         expect(state.sourceId).toBe("my-source")
     })
 
     test("start with another id sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: "source-42", selectedIds: [] }))
+        const state = reducer(undefined, start({ sourceId: "source-42" }))
         expect(state.sourceId).toBe("source-42")
     })
 
-    test("initial state has empty selectedIds", () => {
-        const state = reducer(undefined, { type: "@@INIT" })
+    test("start initializes selectedIds to empty", () => {
+        const state = reducer(undefined, start({ sourceId: "s1" }))
         expect(state.selectedIds).toEqual([])
     })
 
-    test("start sets selectedIds", () => {
-        const state = reducer(undefined, start({ sourceId: "s1", selectedIds: [1, 2, 3] }))
+    test("setSelectedIds sets selectedIds", () => {
+        const prev = reducer(undefined, start({ sourceId: "s1" }))
+        const state = reducer(prev, setSelectedIds([1, 2, 3]))
         expect(state.selectedIds).toEqual([1, 2, 3])
     })
 
-    test("start with empty selectedIds", () => {
-        const state = reducer(undefined, start({ sourceId: "s1", selectedIds: [] }))
+    test("setSelectedIds with empty array", () => {
+        const prev = { sourceId: "s1", selectedIds: [1, 2] }
+        const state = reducer(prev, setSelectedIds([]))
         expect(state.selectedIds).toEqual([])
     })
 
