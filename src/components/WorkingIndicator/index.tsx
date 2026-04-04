@@ -1,9 +1,7 @@
 import { useAppSelector } from "@/store/hooks"
 import { Loader } from "@mantine/core"
 
-export type WorkingIndicatorProps = {}
-
-export const WorkingIndicator: React.FC<WorkingIndicatorProps> = () => {
+export function WorkingIndicator() {
     const working = useAppSelector(state => {
         let sourceWorking = false
         for (const sourceId of state.source.allIds) {

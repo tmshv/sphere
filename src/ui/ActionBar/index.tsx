@@ -22,7 +22,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
     <Flex direction={"row"} gap={"xs"} {...props}>
         {items.map((item, i) => {
             if (!item) {
-                return <Space key={`space-${i}`} style={{ flex: 1 }} />
+                return <Space key={`separator-before-${items[i + 1]?.name ?? "end"}`} style={{ flex: 1 }} />
             }
             const { name, label, icon: Icon, color, disabled = false } = item
 
@@ -44,6 +44,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
                                 opacity: 0.5,
                                 backgroundColor: "#00000000",
                                 border: "none",
+                                cursor: "not-allowed",
+                                pointerEvents: "none",
                             },
                         }}
                         onClick={() => {

@@ -1,4 +1,5 @@
-import type { Map as MaplibreMap, Point, PointLike } from "maplibre-gl"
+import { featureFilter } from "@maplibre/maplibre-gl-style-spec"
+import type { FilterSpecification, Map as MaplibreMap, Point, PointLike } from "maplibre-gl"
 
 const QUERY_SIZE = 8
 
@@ -20,6 +21,76 @@ export function queryFeaturesInPoint(map: MaplibreMap, point: Point, layers: str
 
 export function visibility(value: boolean): "visible" | "none" {
     return value ? "visible" : "none"
+}
+
+// Combines filter expressions into a single ["all", ...] filter.
+// Filters whose top-level operator is "all" are flattened into the result.
+export function combineFilters(...filters: FilterSpecification[]): FilterSpecification | undefined {
+    const parts: FilterSpecification[] = []
+    for (const f of filters) {
+        if (typeof f === "boolean") {
+            continue
+        }
+        if (f[0] === "all") {
+            parts.push(...(f.slice(1) as FilterSpecification[]))
+        } else {
+            parts.push(f)
+        }
+    }
+    if (parts.length === 0) {
+        return undefined
+    }
+    if (parts.length === 1) {
+        return parts[0]
+    }
+    return ["all", ...parts] as FilterSpecification
+}
+
+// Returns true if the expression uses modern MapLibre expression syntax, false if it is legacy.
+// Logic mirrors isExpressionFilter from @maplibre/maplibre-gl-style-spec (not exported from dist).
+// TODO: use convertFilter here to migrate legacy syntax to new syntax instead of rejecting it.
+export function isExpressionFilter(expression: FilterSpecification): boolean {
+    if (!Array.isArray(expression) || expression.length === 0) {
+        return typeof expression === "boolean"
+    }
+    switch (expression[0]) {
+        case "has":
+            return expression.length >= 2 && expression[1] !== "$id" && expression[1] !== "$type"
+        case "in":
+            return expression.length >= 3 && (typeof expression[1] !== "string" || Array.isArray(expression[2]))
+        case "!in":
+        case "!has":
+        case "none":
+            return false
+        case "==":
+        case "!=":
+        case ">":
+        case ">=":
+        case "<":
+        case "<=":
+            return expression.length !== 3 || Array.isArray(expression[1]) || Array.isArray(expression[2])
+        case "any":
+        case "all":
+            return expression
+                .slice(1)
+                .every(f => typeof f === "boolean" || isExpressionFilter(f as FilterSpecification))
+        default:
+            return true
+    }
+}
+
+// Validates a parsed filter expression against the MapLibre filter spec.
+// Returns true if valid modern expression, false if legacy syntax or featureFilter rejects it.
+export function isValidFilterExpression(expression: unknown[]): boolean {
+    if (!isExpressionFilter(expression as FilterSpecification)) {
+        return false
+    }
+    try {
+        featureFilter(expression as FilterSpecification)
+        return true
+    } catch {
+        return false
+    }
 }
 
 export function sourceLayerProp(value?: string | null): object {

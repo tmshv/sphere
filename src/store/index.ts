@@ -5,6 +5,7 @@ import error from "./error"
 import layer from "./layer"
 import * as listeners from "./listeners"
 import { listener as mapListener } from "./map"
+import mapInteraction from "./map-interaction"
 import mapStyle from "./mapStyle"
 import projection from "./projection"
 import properties from "./properties"
@@ -13,12 +14,14 @@ import sky from "./sky"
 import source from "./source"
 import terrain from "./terrain"
 import tileBoundaries from "./tile-boundaries"
+import tools from "./tools"
 export { actions } from "./actions"
 export { selectors } from "./selectors"
 
 export const store = configureStore({
     reducer: {
         app,
+        mapInteraction,
         draw,
         error,
         projection,
@@ -30,20 +33,29 @@ export const store = configureStore({
         layer,
         selection,
         properties,
+        tools,
     },
     middleware: getDefaultMiddleWare => {
-        return getDefaultMiddleWare()
-            .prepend(mapListener.middleware)
-            .prepend(listeners.addBlankLayer.middleware)
-            .prepend(listeners.forceResizeMap.middleware)
-            .prepend(listeners.clearSelection.middleware)
-            .prepend(listeners.selectFeatures.middleware)
-            .prepend(listeners.zoomTo.middleware)
-            .prepend(listeners.addSource.middleware)
-            .prepend(listeners.duplicateLayer.middleware)
-            .prepend(listeners.fail.middleware)
-            .prepend(listeners.clearError.middleware)
-            .prepend(listeners.mapInteractive.middleware)
+        return getDefaultMiddleWare().prepend(
+            mapListener.middleware,
+            listeners.addBlankLayer.middleware,
+            listeners.forceResizeMap.middleware,
+            listeners.clearSelection.middleware,
+            listeners.selectionChanged.middleware,
+            listeners.zoomTo.middleware,
+            listeners.addSource.middleware,
+            listeners.duplicateLayer.middleware,
+            listeners.fail.middleware,
+            listeners.clearError.middleware,
+            listeners.mapInteractive.middleware,
+            listeners.resetTool.middleware,
+            listeners.autoSelectOnDelete.middleware,
+            listeners.exitDrawOnSourceDelete.middleware,
+            listeners.saveDraw.middleware,
+            listeners.mapToolChanged.middleware,
+            listeners.rectSelect.middleware,
+            listeners.startDraw.middleware,
+        )
     },
 })
 

@@ -1,13 +1,12 @@
 import { type Id, type SourceMetadata, SourceType } from "@/types"
-import type { FeatureCollecionSource, Source } from "@/types/source"
+import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
-import { drawSlice } from "../draw"
 import addFromClipboard from "./addFromClipboard"
 import addFromUrl from "./addFromUrl"
-import empty from "./empty"
+import newSource from "./new"
 import reload from "./reload"
 import { showProperties } from "./showProperties"
 
@@ -34,6 +33,7 @@ type SourceState = {
     items: Record<string, Source>
     allIds: Id[]
     lastAdded?: Id
+    selectedId?: Id
     // pendingItems: PendingSource[]
 }
 
@@ -53,38 +53,36 @@ export const sourceSlice = createSlice({
             state.items = {}
             state.allIds = []
             state.lastAdded = undefined
+            state.selectedId = undefined
         },
-        addFeatureCollection: (
+        addInMemorySource: (
             state,
             action: PayloadAction<{
                 id: Id
                 name: string
-                dataset: GeoJSON.FeatureCollection
+                location: string
+                meta: SourceMetadata
             }>,
         ) => {
-            const { id: sourceId, name, dataset } = action.payload
-            state.items[sourceId] = {
-                id: sourceId,
+            const { id, name, location, meta } = action.payload
+            state.items[id] = {
+                id,
                 type: SourceType.FeatureCollection,
                 name,
-                dataset,
+                location,
+                version: 0,
                 fractionIndex: NEW_SOURCE_INDEX,
                 pending: false,
                 editable: true,
-                meta: computeGeometryMeta(dataset),
+                meta,
             }
-            state.allIds.push(sourceId)
-            state.lastAdded = sourceId
+            state.allIds.push(id)
+            state.lastAdded = id
         },
-        setData: (
-            state,
-            action: PayloadAction<{ id: Id; dataset: GeoJSON.FeatureCollection; meta: SourceMetadata }>,
-        ) => {
-            const { id, dataset, meta } = action.payload
-            const source = state.items[id] as FeatureCollecionSource
-            source.dataset = dataset
-            source.meta = meta
-            source.pending = false
+        bumpVersion: (state, action: PayloadAction<Id>) => {
+            const source = state.items[action.payload]
+            if (!source || source.type !== SourceType.FeatureCollection || source.pending) return
+            source.version++
         },
         addGeojsonSource: (
             state,
@@ -103,7 +101,7 @@ export const sourceSlice = createSlice({
                 type: SourceType.Geojson,
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
-                editable: true,
+                editable: false,
                 meta,
             }
             state.allIds.push(id)
@@ -116,10 +114,11 @@ export const sourceSlice = createSlice({
                 name: string
                 location: string
                 tilejson: TileJSON
+                format: "pbf" | "png" | "jpg" | "webp"
                 sourceLayers?: { name: string; id: string }[]
             }>,
         ) => {
-            const { id, name, location, tilejson, sourceLayers } = action.payload
+            const { id, name, location, tilejson, format, sourceLayers } = action.payload
             state.items[id] = {
                 id,
                 name,
@@ -129,6 +128,7 @@ export const sourceSlice = createSlice({
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: false,
                 tilejson,
+                format,
                 sourceLayers: sourceLayers ?? [],
             }
             state.allIds.push(id)
@@ -156,6 +156,9 @@ export const sourceSlice = createSlice({
             state.allIds.push(sourceId)
             state.lastAdded = sourceId
         },
+        select: (state, action: PayloadAction<Id | undefined>) => {
+            state.selectedId = action.payload
+        },
         removeSource: (state, action: PayloadAction<string>) => {
             const sourceId = action.payload
             delete state.items[sourceId]
@@ -163,10 +166,15 @@ export const sourceSlice = createSlice({
             if (state.lastAdded === sourceId) {
                 state.lastAdded = undefined
             }
+            if (state.selectedId === sourceId) {
+                state.selectedId = undefined
+            }
         },
         setName: (state, action: PayloadAction<{ id: Id; value: string }>) => {
             const { id: sourceId, value } = action.payload
-            state.items[sourceId].name = value
+            const source = state.items[sourceId]
+            if (!source) return
+            source.name = value
         },
         setGeojsonMeta: (state, action: PayloadAction<{ id: Id; meta: SourceMetadata }>) => {
             const { id, meta } = action.payload
@@ -176,19 +184,10 @@ export const sourceSlice = createSlice({
             }
         },
     },
-    extraReducers: builder => {
-        builder.addCase(drawSlice.actions.done, (state, action) => {
-            const { sourceId: id, featureCollection } = action.payload
-            const source = state.items[id]
-            if (source.type === SourceType.FeatureCollection && !source.pending) {
-                source.dataset = featureCollection
-                source.meta = computeGeometryMeta(featureCollection)
-            }
-        })
-    },
     selectors: {
         allIds: state => state.allIds,
         items: state => state.items,
+        selectSelectedId: state => state.selectedId,
     },
 })
 
@@ -201,7 +200,7 @@ export const actions = {
     addFromClipboard,
     showProperties,
     reload,
-    empty,
+    new: newSource,
 }
 
 // Other code such as selectors can use the imported `RootState` type

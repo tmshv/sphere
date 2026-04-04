@@ -1,7 +1,9 @@
+import useMapNavigation from "@/hooks/useMapNavigation"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
 import useFeatureSelect from "@/sphere-hooks/useFeatureSelect"
+import useFeatureState from "@/sphere-hooks/useFeatureState"
 import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
 import useProjection from "@/sphere-hooks/useProjection"
@@ -16,15 +18,16 @@ import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
 import { FilteredLayerSource } from "./FilteredLayerSource"
+import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
 
 const selectLayers = createSelector(
-    [selectors.draw.isDrawing, selectors.layer.items, selectors.layer.allIds],
-    (drawing, items, allIds) => {
-        // Do not show layers in draw mode
-        if (drawing) {
+    [selectors.draw.isDrawing, selectors.preview.sourceId, selectors.layer.items, selectors.layer.allIds],
+    (drawing, previewSourceId, items, allIds) => {
+        // Do not show layers in draw mode or when a source is actively previewed
+        if (drawing || previewSourceId) {
             return []
         }
         return allIds
@@ -46,6 +49,7 @@ export type MapBodyProps = {
 export default function MapBody({ mapId }: MapBodyProps) {
     useMapStore(mapId)
     const { [mapId]: map } = useMap()
+    useMapNavigation(map)
 
     const terrain = useAppSelector(selectTerrainSpecification)
     useTerrain(map, terrain)
@@ -56,6 +60,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useProjection(map, "mercator")
     usePointerHover(mapId)
     useFeatureSelect(map)
+    useFeatureState(map)
     useFeatureProperties(map, 50)
     useTileBoundaries(map)
 
@@ -79,6 +84,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
                 </React.Fragment>
             ))}
             {!drawing ? null : <Draw mapId={mapId} />}
+            <RectSelectOverlay mapRef={map} />
         </>
     )
 }

@@ -7,9 +7,25 @@ export function makeGeojsonSource<T extends object>(id: string, overrides: T = {
         type: SourceType.Geojson,
         location: `/path/to/${id}.geojson`,
         fractionIndex: 0,
-        editable: true,
+        editable: false,
         pending: false,
         meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+        ...overrides,
+    }
+}
+
+export function makeMvtSource<T extends object>(id: string, overrides: T = {} as T) {
+    return {
+        id,
+        name: `Source ${id}`,
+        type: SourceType.MVT,
+        location: `/path/to/${id}.mbtiles`,
+        fractionIndex: 0,
+        editable: false as const,
+        pending: false as const,
+        format: "pbf" as const,
+        tilejson: { vector_layers: [] },
+        sourceLayers: [],
         ...overrides,
     }
 }

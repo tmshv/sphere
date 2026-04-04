@@ -6,8 +6,6 @@ import logger from "@/logger"
 import { getMap } from "@/map"
 import { SourceType } from "@/types"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
-import * as turf from "@turf/turf"
-import type { LngLatBoundsLike } from "maplibre-gl"
 import type { RootState } from ".."
 import { actions } from "../actions"
 
@@ -33,14 +31,10 @@ listener.startListening({
         const { type } = source
         switch (type) {
             case SourceType.FeatureCollection: {
-                if (source.dataset) {
-                    const bbox = turf.bbox(source.dataset)
-                    listenerApi.dispatch(
-                        actions.map.fitBounds({
-                            mapId,
-                            bounds: bbox as LngLatBoundsLike,
-                        }),
-                    )
+                const reader = new SourceReader(sourceId)
+                const bounds = await reader.getBounds()
+                if (bounds) {
+                    listenerApi.dispatch(actions.map.fitBounds({ mapId, bounds }))
                 }
                 break
             }

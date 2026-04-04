@@ -1,8 +1,9 @@
 import "./style.css"
 
 import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
+import { selectionQueryPage } from "@/lib/selection-ipc"
 import type { SourceMetadata } from "@/types"
-import { Box, createStyles } from "@mantine/core"
+import { Box, SegmentedControl, createStyles } from "@mantine/core"
 import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
 import { type UnlistenFn, emit, listen } from "@tauri-apps/api/event"
 import React, { useEffect, useState, useCallback } from "react"
@@ -87,6 +88,9 @@ const View: React.FC = () => {
     const [columnStats, setColumnStats] = useState<Record<string, ColumnStats>>({})
     const [sorting, setSorting] = useState<SortingState>([])
     const [pageIndex, setPageIndex] = useState(0)
+    const [attributeFilter, setAttributeFilter] = useState<"all" | "selected">("all")
+    const [selectionData, setSelectionData] = useState<{ sourceId: string; count: number } | null>(null)
+    const [selectionVersion, setSelectionVersion] = useState(0)
 
     // Listen for source info from the main window
     useEffect(() => {
@@ -105,6 +109,20 @@ const View: React.FC = () => {
         }
     }, [])
 
+    // Listen for selection changes from the main window
+    useEffect(() => {
+        let stop: UnlistenFn | undefined
+        listen<{ sourceId: string; count: number }>("properties-selection-changed", event => {
+            setSelectionData(event.payload)
+            setSelectionVersion(v => v + 1)
+        }).then(fn => {
+            stop = fn
+        })
+        return () => {
+            stop?.()
+        }
+    }, [])
+
     // Fetch column stats once per source
     useEffect(() => {
         if (!sourceId || !schema) return
@@ -115,26 +133,46 @@ const View: React.FC = () => {
                 const stats = await reader.getColumnStats(col)
                 return [col, stats] as const
             }),
-        ).then(entries => {
-            const record: Record<string, ColumnStats> = {}
-            for (const [col, stats] of entries) {
-                if (stats) record[col] = stats
-            }
-            setColumnStats(record)
-        })
+        )
+            .then(entries => {
+                const record: Record<string, ColumnStats> = {}
+                for (const [col, stats] of entries) {
+                    if (stats) record[col] = stats
+                }
+                setColumnStats(record)
+            })
+            .catch(() => {})
     }, [sourceId, schema])
 
-    // Fetch page when sourceId, page index, sorting, or filter changes
+    const isSelectionActive =
+        attributeFilter === "selected" && selectionData !== null && selectionData.sourceId === sourceId
+
+    // Fetch page when not viewing selection
     useEffect(() => {
-        if (!sourceId) return
-        const reader = new SourceReader(sourceId)
+        if (!sourceId || isSelectionActive) return
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
+        const reader = new SourceReader(sourceId)
         const filterJson = filterExpression ? JSON.stringify(filterExpression) : undefined
-        reader.queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson).then(result => {
-            if (result) setPage(result)
-        })
-    }, [sourceId, pageIndex, sorting, filterExpression])
+        reader
+            .queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson)
+            .then(result => {
+                if (result) setPage(result)
+            })
+            .catch(() => {})
+    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive])
+
+    // Fetch selection page; selectionVersion drives refetch when selected features change
+    useEffect(() => {
+        if (!sourceId || !isSelectionActive || selectionVersion === 0) return
+        const sortCol = sorting[0]?.id
+        const sortAsc = sorting[0] ? !sorting[0].desc : undefined
+        selectionQueryPage(sourceId, pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc)
+            .then(result => {
+                setPage(result)
+            })
+            .catch(() => {})
+    }, [sourceId, pageIndex, sorting, isSelectionActive, selectionVersion])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {
@@ -156,16 +194,31 @@ const View: React.FC = () => {
     const totalPages = Math.ceil(page.total_matching / PAGE_SIZE)
 
     return (
-        <PropertesTable
-            columns={columns}
-            meta={meta}
-            data={rows}
-            pageIndex={pageIndex}
-            pageCount={totalPages}
-            sorting={sorting}
-            onPageChange={setPageIndex}
-            onSortingChange={handleSortingChange}
-        />
+        <>
+            <SegmentedControl
+                size="xs"
+                value={attributeFilter}
+                onChange={v => {
+                    if (v === "all" || v === "selected") {
+                        setAttributeFilter(v)
+                    }
+                }}
+                data={[
+                    { label: "All", value: "all" },
+                    { label: "Selected", value: "selected" },
+                ]}
+            />
+            <PropertesTable
+                columns={columns}
+                meta={meta}
+                data={rows}
+                pageIndex={pageIndex}
+                pageCount={totalPages}
+                sorting={sorting}
+                onPageChange={setPageIndex}
+                onSortingChange={handleSortingChange}
+            />
+        </>
     )
 }
 

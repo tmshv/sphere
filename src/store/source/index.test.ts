@@ -2,17 +2,22 @@ import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import reducer, { sourceSlice } from "./index"
 
-const { addGeojsonSource, addMVTSource, addRasterSource, removeSource, setName, setData, addFeatureCollection } =
-    sourceSlice.actions
+const {
+    addGeojsonSource,
+    addMVTSource,
+    addRasterSource,
+    removeSource,
+    select,
+    setName,
+    addInMemorySource,
+    bumpVersion,
+} = sourceSlice.actions
 // Note: addGeojsonSource no longer accepts a `dataset` parameter (M2: dataset removed from GeojsonSource)
-const { items, allIds } = sourceSlice.selectors
+const { items, allIds, selectSelectedId } = sourceSlice.selectors
 
-const makeRootState = (source: object) => ({ source }) as any
+import type { RootState } from "../index"
 
-const emptyFeatureCollection: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [],
-}
+const makeRootState = (source: object) => ({ source }) as unknown as RootState
 
 describe("sourceSlice reducer", () => {
     test("initial state", () => {
@@ -36,6 +41,7 @@ describe("sourceSlice reducer", () => {
         expect(state.items.s1).toBeDefined()
         expect(state.items.s1.name).toBe("My Source")
         expect(state.items.s1.type).toBe(SourceType.Geojson)
+        expect(state.items.s1.editable).toBe(false)
         expect(state.lastAdded).toBe("s1")
     })
 
@@ -46,6 +52,7 @@ describe("sourceSlice reducer", () => {
                 id: "s2",
                 name: "MVT Source",
                 location: "tiles.mbtiles",
+                format: "pbf",
                 tilejson: {
                     tilejson: "3.0.0",
                     tiles: [],
@@ -60,6 +67,10 @@ describe("sourceSlice reducer", () => {
         )
         expect(state.allIds).toContain("s2")
         expect(state.items.s2.type).toBe(SourceType.MVT)
+        const s2 = state.items.s2
+        if (s2.type === SourceType.MVT) {
+            expect(s2.format).toBe("pbf")
+        }
         expect(state.lastAdded).toBe("s2")
     })
 
@@ -77,18 +88,81 @@ describe("sourceSlice reducer", () => {
         expect(state.lastAdded).toBe("s3")
     })
 
-    test("addFeatureCollection adds to items and allIds, sets lastAdded", () => {
+    test("addInMemorySource adds to items and allIds, sets version 0 and pending false", () => {
+        const meta = { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 }
         const state = reducer(
             undefined,
-            addFeatureCollection({
+            addInMemorySource({
                 id: "s4",
                 name: "FC Source",
-                dataset: emptyFeatureCollection,
+                location: "sphere://s4",
+                meta,
             }),
         )
         expect(state.allIds).toContain("s4")
         expect(state.items.s4.type).toBe(SourceType.FeatureCollection)
+        expect(state.items.s4.editable).toBe(true)
+        expect(state.items.s4.pending).toBe(false)
         expect(state.lastAdded).toBe("s4")
+        const s4 = state.items.s4
+        if (s4.type !== SourceType.FeatureCollection || s4.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
+        }
+        expect(s4.version).toBe(0)
+        expect(s4.location).toBe("sphere://s4")
+        expect(s4.meta).toEqual(meta)
+    })
+
+    test("bumpVersion increments version for FeatureCollection source", () => {
+        const meta = { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 }
+        let state = reducer(
+            undefined,
+            addInMemorySource({ id: "s4", name: "FC Source", location: "sphere://s4", meta }),
+        )
+        state = reducer(state, bumpVersion("s4"))
+        const s4 = state.items.s4
+        if (s4.type !== SourceType.FeatureCollection || s4.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
+        }
+        expect(s4.version).toBe(1)
+        state = reducer(state, bumpVersion("s4"))
+        const s4b = state.items.s4
+        if (s4b.type !== SourceType.FeatureCollection || s4b.pending) {
+            throw new Error("Expected non-pending FeatureCollectionSource")
+        }
+        expect(s4b.version).toBe(2)
+    })
+
+    test("bumpVersion does nothing for pending FeatureCollection source", () => {
+        const state = {
+            items: {
+                s4: {
+                    id: "s4",
+                    name: "FC Source",
+                    fractionIndex: 0,
+                    type: SourceType.FeatureCollection,
+                    editable: true as const,
+                    pending: true as const,
+                },
+            },
+            allIds: ["s4"],
+        }
+        const next = reducer(state as unknown as ReturnType<typeof reducer>, bumpVersion("s4"))
+        expect(next.items.s4).toEqual(state.items.s4)
+    })
+
+    test("bumpVersion does nothing for non-FeatureCollection source", () => {
+        let state = reducer(
+            undefined,
+            addGeojsonSource({
+                id: "s1",
+                name: "My Source",
+                location: "file.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(state, bumpVersion("s1"))
+        expect(state.items.s1.type).toBe(SourceType.Geojson)
     })
 
     test("removeSource removes from items and allIds", () => {
@@ -157,29 +231,57 @@ describe("sourceSlice reducer", () => {
         expect(state.items.s1.name).toBe("New Name")
     })
 
-    test("setData updates dataset and meta", () => {
+    test("select sets selectedId", () => {
         const prev = reducer(
             undefined,
-            addFeatureCollection({
+            addGeojsonSource({
                 id: "s1",
                 name: "My Source",
-                dataset: emptyFeatureCollection,
+                location: "file.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
             }),
         )
-        const newDataset: GeoJSON.FeatureCollection = {
-            type: "FeatureCollection",
-            features: [{ type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: {} }],
-        }
-        const state = reducer(
-            prev,
-            setData({
+        const state = reducer(prev, select("s1"))
+        expect(state.selectedId).toBe("s1")
+    })
+
+    test("removeSource clears selectedId when it matches", () => {
+        let state = reducer(
+            undefined,
+            addGeojsonSource({
                 id: "s1",
-                dataset: newDataset,
-                meta: { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 },
+                name: "My Source",
+                location: "file.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
             }),
         )
-        expect((state.items.s1 as any).dataset).toEqual(newDataset)
-        expect(state.items.s1.pending).toBe(false)
+        state = reducer(state, select("s1"))
+        state = reducer(state, removeSource("s1"))
+        expect(state.selectedId).toBeUndefined()
+    })
+
+    test("removeSource does not clear selectedId when it does not match", () => {
+        let state = reducer(
+            undefined,
+            addGeojsonSource({
+                id: "s1",
+                name: "Source 1",
+                location: "file1.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(
+            state,
+            addGeojsonSource({
+                id: "s2",
+                name: "Source 2",
+                location: "file2.geojson",
+                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+            }),
+        )
+        state = reducer(state, select("s1"))
+        state = reducer(state, removeSource("s2"))
+        expect(state.selectedId).toBe("s1")
     })
 })
 
@@ -192,5 +294,15 @@ describe("sourceSlice selectors", () => {
     test("allIds returns id array", () => {
         const sourceState = { items: {}, allIds: ["s1", "s2"] }
         expect(allIds(makeRootState(sourceState))).toEqual(["s1", "s2"])
+    })
+
+    test("selectSelectedId returns undefined initially", () => {
+        const sourceState = { items: {}, allIds: [], selectedId: undefined }
+        expect(selectSelectedId(makeRootState(sourceState))).toBeUndefined()
+    })
+
+    test("selectSelectedId returns the selected id", () => {
+        const sourceState = { items: {}, allIds: [], selectedId: "s1" }
+        expect(selectSelectedId(makeRootState(sourceState))).toBe("s1")
     })
 })

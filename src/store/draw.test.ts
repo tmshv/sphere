@@ -4,12 +4,9 @@ import reducer, { drawSlice } from "./draw"
 const { start, done, reset } = drawSlice.actions
 const { isDrawing } = drawSlice.selectors
 
-const makeRootState = (draw: object) => ({ draw }) as any
+import type { RootState } from "./index"
 
-const emptyFeatureCollection: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [],
-}
+const makeRootState = (draw: object) => ({ draw }) as unknown as RootState
 
 describe("drawSlice reducer", () => {
     test("initial state has no sourceId", () => {
@@ -22,9 +19,14 @@ describe("drawSlice reducer", () => {
         expect(state.sourceId).toBe("my-source")
     })
 
+    test("start with another id sets sourceId", () => {
+        const state = reducer(undefined, start({ sourceId: "source-42" }))
+        expect(state.sourceId).toBe("source-42")
+    })
+
     test("done clears sourceId", () => {
         const prev = { sourceId: "my-source" }
-        const state = reducer(prev, done({ sourceId: "my-source", featureCollection: emptyFeatureCollection }))
+        const state = reducer(prev, done({ sourceId: "my-source" }))
         expect(state.sourceId).toBeUndefined()
     })
 
@@ -32,11 +34,6 @@ describe("drawSlice reducer", () => {
         const prev = { sourceId: "my-source" }
         const state = reducer(prev, reset())
         expect(state.sourceId).toBeUndefined()
-    })
-
-    test("start with numeric id sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: 42 }))
-        expect(state.sourceId).toBe(42)
     })
 })
 
@@ -49,7 +46,7 @@ describe("drawSlice selectors", () => {
         expect(isDrawing(makeRootState({ sourceId: "my-source" }))).toBe(true)
     })
 
-    test("isDrawing returns true when sourceId is a number", () => {
-        expect(isDrawing(makeRootState({ sourceId: 1 }))).toBe(true)
+    test("isDrawing returns true when sourceId is a non-empty string", () => {
+        expect(isDrawing(makeRootState({ sourceId: "src-1" }))).toBe(true)
     })
 })

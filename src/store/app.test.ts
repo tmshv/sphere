@@ -18,10 +18,13 @@ const {
     showRightSidebar,
     hideRightSidebar,
     setActiveSidebarTab,
+    setMapTool,
 } = appSlice.actions
 const { isZen, isDark } = appSlice.selectors
 
-const makeRootState = (app: object) => ({ app }) as any
+import type { RootState } from "./index"
+
+const makeRootState = (app: object) => ({ app }) as unknown as RootState
 
 describe("appSlice reducer", () => {
     test("initial state", () => {
@@ -44,15 +47,7 @@ describe("appSlice reducer", () => {
     })
 
     test("toggleZenMode toggles from true to false", () => {
-        const prev = {
-            version: "",
-            zenMode: true,
-            darkTheme: false,
-            showAttribution: false,
-            showLeftSidebar: true,
-            showRightSidebar: true,
-            activeSidebarTab: "sources" as const,
-        }
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), zenMode: true }
         const state = reducer(prev, toggleZenMode())
         expect(state.zenMode).toBe(false)
     })
@@ -63,15 +58,7 @@ describe("appSlice reducer", () => {
     })
 
     test("toggleDarkTheme toggles from true to false", () => {
-        const prev = {
-            version: "",
-            zenMode: false,
-            darkTheme: true,
-            showAttribution: false,
-            showLeftSidebar: true,
-            showRightSidebar: true,
-            activeSidebarTab: "sources" as const,
-        }
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), darkTheme: true }
         const state = reducer(prev, toggleDarkTheme())
         expect(state.darkTheme).toBe(false)
     })
@@ -82,29 +69,13 @@ describe("appSlice reducer", () => {
     })
 
     test("setDarkTheme sets darkTheme to false", () => {
-        const prev = {
-            version: "",
-            zenMode: false,
-            darkTheme: true,
-            showAttribution: false,
-            showLeftSidebar: true,
-            showRightSidebar: true,
-            activeSidebarTab: "sources" as const,
-        }
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), darkTheme: true }
         const state = reducer(prev, setDarkTheme(false))
         expect(state.darkTheme).toBe(false)
     })
 
     test("showLeftSidebar sets showLeftSidebar to true", () => {
-        const prev = {
-            version: "",
-            zenMode: false,
-            darkTheme: false,
-            showAttribution: false,
-            showLeftSidebar: false,
-            showRightSidebar: true,
-            activeSidebarTab: "sources" as const,
-        }
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), showLeftSidebar: false }
         const state = reducer(prev, showLeftSidebar())
         expect(state.showLeftSidebar).toBe(true)
     })
@@ -115,15 +86,7 @@ describe("appSlice reducer", () => {
     })
 
     test("showRightSidebar sets showRightSidebar to true", () => {
-        const prev = {
-            version: "",
-            zenMode: false,
-            darkTheme: false,
-            showAttribution: false,
-            showLeftSidebar: true,
-            showRightSidebar: false,
-            activeSidebarTab: "sources" as const,
-        }
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), showRightSidebar: false }
         const state = reducer(prev, showRightSidebar())
         expect(state.showRightSidebar).toBe(true)
     })
@@ -198,5 +161,23 @@ describe("app RootState selectors", () => {
     test("selectActiveSidebarTab returns activeSidebarTab", () => {
         expect(selectActiveSidebarTab(makeRootState({ activeSidebarTab: "layers" }))).toBe("layers")
         expect(selectActiveSidebarTab(makeRootState({ activeSidebarTab: "sources" }))).toBe("sources")
+    })
+})
+
+describe("app slice mapTool", () => {
+    test("default mapTool is pan", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(state.mapTool).toBe("pan")
+    })
+
+    test("setMapTool changes to select", () => {
+        const state = reducer(undefined, setMapTool("select"))
+        expect(state.mapTool).toBe("select")
+    })
+
+    test("setMapTool changes back to pan", () => {
+        const prev = { ...reducer(undefined, { type: "@@INIT" }), mapTool: "select" as const }
+        const state = reducer(prev, setMapTool("pan"))
+        expect(state.mapTool).toBe("pan")
     })
 })

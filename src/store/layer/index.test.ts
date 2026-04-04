@@ -3,13 +3,15 @@ import { describe, expect, test } from "vitest"
 import { sourceSlice } from "../source"
 import reducer, { layerSlice } from "./index"
 
-const { addLayer, removeLayer, setVisible, setColor, setName, setType, setPositionBefore, setPositionAfter } =
+const { addLayer, removeLayer, select, setVisible, setColor, setName, setType, setPositionBefore, setPositionAfter } =
     layerSlice.actions
-const { items, allIds } = layerSlice.selectors
+const { items, allIds, selectSelectedId } = layerSlice.selectors
 
-const makeRootState = (layer: object) => ({ layer }) as any
+import type { RootState } from "../index"
 
-const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
+const makeRootState = (layer: object) => ({ layer }) as unknown as RootState
+
+const makeLayer = (id: string, overrides: Record<string, unknown> = {}) => ({
     id,
     name: `Layer ${id}`,
     visible: true,
@@ -138,6 +140,31 @@ describe("layerSlice reducer", () => {
         const state = reducer(prev, sourceSlice.actions.removeSource("s1"))
         expect(state.items.l1.sourceId).toBe("s2")
     })
+
+    test("select sets selectedId", () => {
+        const layer = makeLayer("l1")
+        const prev = reducer(undefined, addLayer(layer))
+        const state = reducer(prev, select("l1"))
+        expect(state.selectedId).toBe("l1")
+    })
+
+    test("removeLayer clears selectedId when it matches the removed layer", () => {
+        const layer = makeLayer("l1")
+        let state = reducer(undefined, addLayer(layer))
+        state = reducer(state, select("l1"))
+        state = reducer(state, removeLayer("l1"))
+        expect(state.selectedId).toBeUndefined()
+    })
+
+    test("removeLayer does not clear selectedId when it does not match", () => {
+        const l1 = makeLayer("l1")
+        const l2 = makeLayer("l2")
+        let state = reducer(undefined, addLayer(l1))
+        state = reducer(state, addLayer(l2))
+        state = reducer(state, select("l1"))
+        state = reducer(state, removeLayer("l2"))
+        expect(state.selectedId).toBe("l1")
+    })
 })
 
 describe("layerSlice selectors", () => {
@@ -149,5 +176,15 @@ describe("layerSlice selectors", () => {
     test("allIds returns id array", () => {
         const layerState = { items: {}, allIds: ["l1", "l2"] }
         expect(allIds(makeRootState(layerState))).toEqual(["l1", "l2"])
+    })
+
+    test("selectSelectedId returns undefined initially", () => {
+        const layerState = { items: {}, allIds: [], selectedId: undefined }
+        expect(selectSelectedId(makeRootState(layerState))).toBeUndefined()
+    })
+
+    test("selectSelectedId returns the selected id", () => {
+        const layerState = { items: {}, allIds: [], selectedId: "l1" }
+        expect(selectSelectedId(makeRootState(layerState))).toBe("l1")
     })
 })

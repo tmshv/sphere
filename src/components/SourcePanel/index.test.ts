@@ -1,20 +1,20 @@
 import { makeGeojsonSource } from "@/testutils"
+import type { RootState } from "@/store"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { selectCurrentSourceItem, selector } from "./index"
 
-const makeRootState = (overrides: Record<string, any> = {}) =>
+const makeRootState = (overrides: object = {}) =>
     ({
-        selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
+        selection: { count: 0, version: 0 },
         layer: { items: {}, allIds: [] },
         source: { items: {}, allIds: [] },
         ...overrides,
-    }) as any
+    }) as unknown as RootState
 
 describe("selectCurrentSourceItem", () => {
     test("returns null when no source is selected", () => {
         const state = makeRootState({
-            selection: { sourceId: undefined, selectedIds: [] },
             source: { items: { s1: makeGeojsonSource("s1") }, allIds: ["s1"] },
         })
         expect(selectCurrentSourceItem(state)).toBeNull()
@@ -23,16 +23,14 @@ describe("selectCurrentSourceItem", () => {
     test("returns the selected source", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1: source }, allIds: ["s1"] },
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         expect(selectCurrentSourceItem(state)).toEqual(source)
     })
 
     test("returns null when selected id does not exist in items", () => {
         const state = makeRootState({
-            selection: { sourceId: "missing", selectedIds: [] },
-            source: { items: {}, allIds: [] },
+            source: { items: {}, allIds: [], selectedId: "missing" },
         })
         expect(selectCurrentSourceItem(state)).toBeNull()
     })
@@ -41,15 +39,13 @@ describe("selectCurrentSourceItem", () => {
         const s1 = makeGeojsonSource("s1")
         const s2 = makeGeojsonSource("s2")
         const state1 = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1, s2 }, allIds: ["s1", "s2"] },
+            source: { items: { s1, s2 }, allIds: ["s1", "s2"], selectedId: "s1" },
         })
         const result1 = selectCurrentSourceItem(state1)
 
         const s2updated = { ...s2, name: "Updated Source s2" }
         const state2 = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"] },
+            source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"], selectedId: "s1" },
         })
         const result2 = selectCurrentSourceItem(state2)
 
@@ -60,7 +56,6 @@ describe("selectCurrentSourceItem", () => {
 describe("selector (SourcePanel)", () => {
     test("returns null when no source is selected", () => {
         const state = makeRootState({
-            selection: { sourceId: undefined, selectedIds: [] },
             source: { items: {}, allIds: [] },
         })
         expect(selector(state)).toBeNull()
@@ -68,8 +63,7 @@ describe("selector (SourcePanel)", () => {
 
     test("returns null when selected source does not exist", () => {
         const state = makeRootState({
-            selection: { sourceId: "missing", selectedIds: [] },
-            source: { items: {}, allIds: [] },
+            source: { items: {}, allIds: [], selectedId: "missing" },
         })
         expect(selector(state)).toBeNull()
     })
@@ -77,8 +71,7 @@ describe("selector (SourcePanel)", () => {
     test("returns panel data for selected Geojson source", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1: source }, allIds: ["s1"] },
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         const result = selector(state)
         expect(result).not.toBeNull()
@@ -86,7 +79,7 @@ describe("selector (SourcePanel)", () => {
         expect(result?.name).toBe("Source s1")
         expect(result?.type).toBe(SourceType.Geojson)
         expect(result?.location).toBe("/path/to/s1.geojson")
-        expect(result?.editable).toBe(true)
+        expect(result?.editable).toBe(false)
         expect(result?.reloadDisabled).toBe(false)
     })
 
@@ -99,8 +92,7 @@ describe("selector (SourcePanel)", () => {
             tilejson: { vector_layers: [] },
         }
         const state = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1: source }, allIds: ["s1"] },
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         const result = selector(state)
         expect(result?.reloadDisabled).toBe(true)
@@ -109,8 +101,7 @@ describe("selector (SourcePanel)", () => {
     test("meta is populated for Geojson sources", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1: source }, allIds: ["s1"] },
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         const result = selector(state)
         expect(result?.meta).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
@@ -121,16 +112,15 @@ describe("selector (SourcePanel)", () => {
             id: "s1",
             name: "Source s1",
             type: SourceType.FeatureCollection,
-            location: undefined,
+            location: "sphere://s1",
+            version: 0,
             fractionIndex: 0,
             editable: true,
             pending: false,
-            dataset: { type: "FeatureCollection", features: [] },
             meta: { columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 },
         }
         const state = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1: source }, allIds: ["s1"] },
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         const result = selector(state)
         expect(result?.meta).toEqual({ columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 })
@@ -140,15 +130,13 @@ describe("selector (SourcePanel)", () => {
         const s1 = makeGeojsonSource("s1")
         const s2 = makeGeojsonSource("s2")
         const state1 = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1, s2 }, allIds: ["s1", "s2"] },
+            source: { items: { s1, s2 }, allIds: ["s1", "s2"], selectedId: "s1" },
         })
         const result1 = selector(state1)
 
         const s2updated = { ...s2, name: "Updated Source s2" }
         const state2 = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"] },
+            source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"], selectedId: "s1" },
         })
         const result2 = selector(state2)
 
@@ -158,15 +146,13 @@ describe("selector (SourcePanel)", () => {
     test("recomputes when the selected source itself changes", () => {
         const s1 = makeGeojsonSource("s1", { name: "Original" })
         const state1 = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1 }, allIds: ["s1"] },
+            source: { items: { s1 }, allIds: ["s1"], selectedId: "s1" },
         })
         const result1 = selector(state1)
 
         const s1updated = { ...s1, name: "Updated" }
         const state2 = makeRootState({
-            selection: { sourceId: "s1", selectedIds: [] },
-            source: { items: { s1: s1updated }, allIds: ["s1"] },
+            source: { items: { s1: s1updated }, allIds: ["s1"], selectedId: "s1" },
         })
         const result2 = selector(state2)
 

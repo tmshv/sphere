@@ -2,7 +2,7 @@ import useFeatureProperties from "@/hooks/useFeatureProperties"
 import { assertUnreachable } from "@/lib"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { useMap } from "react-map-gl/maplibre"
+import { Layer, useMap } from "react-map-gl/maplibre"
 import { PointLayer } from "./PointLayer"
 import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
@@ -58,6 +58,8 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                                 visible={true}
                             />
                         )
+                    case "Raster":
+                        return <Layer key={spec.layerId} id={spec.layerId} source={spec.sourceId} type="raster" />
                     default:
                         return assertUnreachable(spec)
                 }

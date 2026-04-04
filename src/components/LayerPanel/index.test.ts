@@ -1,9 +1,9 @@
-import { makeGeojsonSource } from "@/testutils"
-import { LayerType } from "@/types"
+import { makeGeojsonSource, makeMvtSource } from "@/testutils"
+import { LayerType, SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { layerSelector, selectCurrentLayerItem, selectCurrentLayerSourceItem } from "./index"
 
-const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
+const makeLayer = (id: string, overrides: Record<string, unknown> = {}) => ({
     id,
     name: `Layer ${id}`,
     visible: true,
@@ -14,18 +14,19 @@ const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
     ...overrides,
 })
 
-const makeRootState = (overrides: Record<string, any> = {}) =>
+import type { RootState } from "@/store"
+
+const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
-        selection: { layerId: undefined, sourceId: undefined, selectedIds: [] },
+        selection: { count: 0, version: 0 },
         layer: { items: {}, allIds: [] },
         source: { items: {}, allIds: [] },
         ...overrides,
-    }) as any
+    }) as unknown as RootState
 
 describe("selectCurrentLayerItem", () => {
     test("returns null when no layer is selected", () => {
         const state = makeRootState({
-            selection: { layerId: undefined, selectedIds: [] },
             layer: { items: { l1: makeLayer("l1") }, allIds: ["l1"] },
         })
         expect(selectCurrentLayerItem(state)).toBeNull()
@@ -34,16 +35,14 @@ describe("selectCurrentLayerItem", () => {
     test("returns the selected layer", () => {
         const layer = makeLayer("l1")
         const state = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
         })
         expect(selectCurrentLayerItem(state)).toEqual(layer)
     })
 
     test("returns null when selected id does not exist in items", () => {
         const state = makeRootState({
-            selection: { layerId: "missing", selectedIds: [] },
-            layer: { items: {}, allIds: [] },
+            layer: { items: {}, allIds: [], selectedId: "missing" },
         })
         expect(selectCurrentLayerItem(state)).toBeNull()
     })
@@ -52,15 +51,13 @@ describe("selectCurrentLayerItem", () => {
         const l1 = makeLayer("l1")
         const l2 = makeLayer("l2", { color: "#0000ff" })
         const state1 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1, l2 }, allIds: ["l1", "l2"] },
+            layer: { items: { l1, l2 }, allIds: ["l1", "l2"], selectedId: "l1" },
         })
         const result1 = selectCurrentLayerItem(state1)
 
         const l2updated = { ...l2, color: "#00ff00" }
         const state2 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1, l2: l2updated }, allIds: ["l1", "l2"] },
+            layer: { items: { l1, l2: l2updated }, allIds: ["l1", "l2"], selectedId: "l1" },
         })
         const result2 = selectCurrentLayerItem(state2)
 
@@ -71,7 +68,6 @@ describe("selectCurrentLayerItem", () => {
 describe("selectCurrentLayerSourceItem", () => {
     test("returns null when no layer is selected", () => {
         const state = makeRootState({
-            selection: { layerId: undefined, selectedIds: [] },
             layer: { items: {}, allIds: [] },
             source: { items: {}, allIds: [] },
         })
@@ -81,8 +77,7 @@ describe("selectCurrentLayerSourceItem", () => {
     test("returns null when layer has no sourceId", () => {
         const layer = makeLayer("l1", { sourceId: undefined })
         const state = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: {}, allIds: [] },
         })
         expect(selectCurrentLayerSourceItem(state)).toBeNull()
@@ -92,8 +87,7 @@ describe("selectCurrentLayerSourceItem", () => {
         const source = makeGeojsonSource("s1")
         const layer = makeLayer("l1", { sourceId: "s1" })
         const state = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         expect(selectCurrentLayerSourceItem(state)).toEqual(source)
@@ -104,16 +98,14 @@ describe("selectCurrentLayerSourceItem", () => {
         const s2 = makeGeojsonSource("s2")
         const layer = makeLayer("l1", { sourceId: "s1" })
         const state1 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1, s2 }, allIds: ["s1", "s2"] },
         })
         const result1 = selectCurrentLayerSourceItem(state1)
 
         const s2updated = { ...s2, name: "Updated Source s2" }
         const state2 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"] },
         })
         const result2 = selectCurrentLayerSourceItem(state2)
@@ -125,7 +117,6 @@ describe("selectCurrentLayerSourceItem", () => {
 describe("layerSelector", () => {
     test("returns null when no layer is selected", () => {
         const state = makeRootState({
-            selection: { layerId: undefined, selectedIds: [] },
             layer: { items: {}, allIds: [] },
             source: { items: {}, allIds: [] },
         })
@@ -136,8 +127,7 @@ describe("layerSelector", () => {
         const source = makeGeojsonSource("s1")
         const layer = makeLayer("l1", { sourceId: "s1", type: LayerType.Point })
         const state = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = layerSelector(state)
@@ -161,8 +151,7 @@ describe("layerSelector", () => {
         })
         const layer = makeLayer("l1", { sourceId: "s1" })
         const state = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1: source }, allIds: ["s1"] },
         })
         const result = layerSelector(state)
@@ -174,8 +163,7 @@ describe("layerSelector", () => {
     test("returns empty fields when layer has no source", () => {
         const layer = makeLayer("l1", { sourceId: undefined })
         const state = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: layer }, allIds: ["l1"] },
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
             source: { items: {}, allIds: [] },
         })
         const result = layerSelector(state)
@@ -187,16 +175,14 @@ describe("layerSelector", () => {
         const l1 = makeLayer("l1", { sourceId: "s1" })
         const l2 = makeLayer("l2", { sourceId: "s1", color: "#0000ff" })
         const state1 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1, l2 }, allIds: ["l1", "l2"] },
+            layer: { items: { l1, l2 }, allIds: ["l1", "l2"], selectedId: "l1" },
             source: { items: { s1 }, allIds: ["s1"] },
         })
         const result1 = layerSelector(state1)
 
         const l2updated = { ...l2, color: "#00ff00" }
         const state2 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1, l2: l2updated }, allIds: ["l1", "l2"] },
+            layer: { items: { l1, l2: l2updated }, allIds: ["l1", "l2"], selectedId: "l1" },
             source: { items: { s1 }, allIds: ["s1"] },
         })
         const result2 = layerSelector(state2)
@@ -209,16 +195,14 @@ describe("layerSelector", () => {
         const s2 = makeGeojsonSource("s2")
         const l1 = makeLayer("l1", { sourceId: "s1" })
         const state1 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1 }, allIds: ["l1"] },
+            layer: { items: { l1 }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1, s2 }, allIds: ["s1", "s2"] },
         })
         const result1 = layerSelector(state1)
 
         const s2updated = { ...s2, name: "Updated" }
         const state2 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1 }, allIds: ["l1"] },
+            layer: { items: { l1 }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"] },
         })
         const result2 = layerSelector(state2)
@@ -230,21 +214,73 @@ describe("layerSelector", () => {
         const s1 = makeGeojsonSource("s1")
         const l1 = makeLayer("l1", { sourceId: "s1", color: "#ff0000" })
         const state1 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1 }, allIds: ["l1"] },
+            layer: { items: { l1 }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1 }, allIds: ["s1"] },
         })
         const result1 = layerSelector(state1)
 
         const l1updated = { ...l1, color: "#00ff00" }
         const state2 = makeRootState({
-            selection: { layerId: "l1", selectedIds: [] },
-            layer: { items: { l1: l1updated }, allIds: ["l1"] },
+            layer: { items: { l1: l1updated }, allIds: ["l1"], selectedId: "l1" },
             source: { items: { s1 }, allIds: ["s1"] },
         })
         const result2 = layerSelector(state2)
 
         expect(result1).not.toBe(result2)
         expect(result2?.color).toBe("#00ff00")
+    })
+})
+
+describe("layerSelector isFilterable", () => {
+    test("is true for GeoJSON source", () => {
+        const source = makeGeojsonSource("s1")
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(true)
+    })
+
+    test("is true for MVT PBF source", () => {
+        const source = makeMvtSource("s1", { format: "pbf" })
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(true)
+    })
+
+    test("is false for MVT raster (png) source", () => {
+        const source = makeMvtSource("s1", { format: "png" })
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(false)
+    })
+
+    test("is false for Raster source", () => {
+        const source = {
+            id: "s1",
+            name: "Source s1",
+            type: SourceType.Raster,
+            location: "/path/to/s1.tif",
+            fractionIndex: 0,
+            editable: false,
+            pending: false,
+        }
+        const layer = makeLayer("l1", { sourceId: "s1" })
+        const state = makeRootState({
+            layer: { items: { l1: layer }, allIds: ["l1"], selectedId: "l1" },
+            source: { items: { s1: source }, allIds: ["s1"] },
+        })
+        const result = layerSelector(state)
+        expect(result?.isFilterable).toBe(false)
     })
 })

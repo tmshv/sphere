@@ -6,6 +6,7 @@ import { SphereThemeProvider } from "@/components/SphereThemeProvider"
 import { setupMaplibre } from "@/maplibre"
 import { store } from "@/store"
 import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
+import { setupKeyboard } from "@/store/keyboard"
 import { RootErrorFallback } from "@/ui/ErrorFallback/RootErrorFallback"
 import React from "react"
 import ReactDOM from "react-dom/client"
@@ -18,6 +19,7 @@ async function main() {
     await handleTheme()
     await handleVersion()
     await handleHotkey()
+    setupKeyboard(store)
 
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <React.StrictMode>

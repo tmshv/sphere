@@ -9,7 +9,7 @@ import { useCallback } from "react"
 import { Icon } from "./Icon"
 
 const selectLayers = createSelector(
-    [selectors.selection.currentLayerId, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
+    [selectors.layer.selectSelectedId, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
     (selectedLayerId, dark, items, allIds) => {
         return allIds
             .map(id => {
@@ -67,11 +67,7 @@ export const LayersOutline: React.FC = () => {
                     label={name}
                     active={active}
                     onClick={() => {
-                        dispatch(
-                            actions.selection.selectLayer({
-                                layerId: id,
-                            }),
-                        )
+                        dispatch(actions.layer.select(id))
                     }}
                     icon={<Icon type={type} color={color} />}
                     extra={

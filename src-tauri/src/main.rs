@@ -1,10 +1,13 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
 mod commands;
+mod id;
+mod selection;
 mod state;
 
 // use tokio::sync::mpsc;
 
+use crate::selection::SelectionStorage;
 use crate::state::SourceStorage;
 
 #[tokio::main]
@@ -29,17 +32,33 @@ async fn main() {
         .manage(SourceStorage {
             store: Default::default(),
         })
+        .manage(SelectionStorage::default())
         .invoke_handler(tauri::generate_handler![
             commands::system::greet,
             commands::source::mbtiles_get_tile,
             commands::source::mbtiles_get_metadata,
             commands::source::source_add,
             commands::source::source_get,
+            commands::source::source_get_slice,
+            commands::source::source_get_selected,
             commands::source::source_bounds,
             commands::source::source_get_schema,
             commands::source::source_query_page,
             commands::source::source_get_column_stats,
             commands::source::source_get_filtered,
+            commands::source::source_query_rect,
+            commands::source::source_add_data,
+            commands::source::source_replace,
+            commands::source::source_patch,
+            commands::selection::selection_set,
+            commands::selection::selection_preview,
+            commands::selection::selection_add,
+            commands::selection::selection_remove,
+            commands::selection::selection_apply,
+            commands::selection::selection_clear,
+            commands::selection::selection_count,
+            commands::selection::selection_get_ids,
+            commands::selection::selection_query_page,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();

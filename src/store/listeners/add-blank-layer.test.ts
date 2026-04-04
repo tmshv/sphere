@@ -1,5 +1,5 @@
 import { LayerType, SourceType } from "@/types"
-import { configureStore } from "@reduxjs/toolkit"
+import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 vi.mock("@/lib/nextId", () => ({
@@ -28,9 +28,7 @@ vi.mock("../actions", () => {
                 addLayer: (payload: unknown) => ({ type: "layer/addLayer", payload }),
                 setSource: (payload: unknown) => ({ type: "layer/setSource", payload }),
                 setType: (payload: unknown) => ({ type: "layer/setType", payload }),
-            },
-            selection: {
-                selectLayer: (payload: unknown) => ({ type: "selection/selectLayer", payload }),
+                select: (payload: unknown) => ({ type: "layer/select", payload }),
             },
             app: {
                 setActiveSidebarTab: (payload: unknown) => ({ type: "app/setActiveSidebarTab", payload }),
@@ -42,6 +40,12 @@ vi.mock("../actions", () => {
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
 import listener from "./add-blank-layer"
 
+function hasType(action: unknown, type: string): action is { type: string; payload: unknown } {
+    return (
+        typeof action === "object" && action !== null && "type" in action && (action as { type: string }).type === type
+    )
+}
+
 function makeStore(state: Record<string, unknown> = {}) {
     const dispatchedActions: unknown[] = []
     const captureMiddleware = () => (next: (a: unknown) => unknown) => (action: unknown) => {
@@ -49,11 +53,11 @@ function makeStore(state: Record<string, unknown> = {}) {
         return next(action)
     }
     const store = configureStore({
-        reducer: (s: any = state) => s,
+        reducer: (s = state) => s,
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware()
                 .prepend(listener.middleware)
-                .concat(captureMiddleware as any),
+                .concat(captureMiddleware as unknown as Middleware),
     })
     return { store, dispatchedActions }
 }
@@ -79,12 +83,12 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: undefined })
         await vi.runAllTimersAsync()
 
-        const addLayerAction = dispatchedActions.find((a: any) => a.type === "layer/addLayer")
+        const addLayerAction = dispatchedActions.find(a => hasType(a, "layer/addLayer"))
         expect(addLayerAction).toBeDefined()
 
-        const setTabAction = dispatchedActions.find((a: any) => a.type === "app/setActiveSidebarTab")
+        const setTabAction = dispatchedActions.find(a => hasType(a, "app/setActiveSidebarTab"))
         expect(setTabAction).toBeDefined()
-        expect((setTabAction as any).payload).toBe("layers")
+        expect(setTabAction?.payload).toBe("layers")
     })
 
     test("does not dispatch setSource or setType when no sourceId", async () => {
@@ -93,8 +97,8 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: undefined })
         await vi.runAllTimersAsync()
 
-        expect(dispatchedActions.find((a: any) => a.type === "layer/setSource")).toBeUndefined()
-        expect(dispatchedActions.find((a: any) => a.type === "layer/setType")).toBeUndefined()
+        expect(dispatchedActions.find(a => hasType(a, "layer/setSource"))).toBeUndefined()
+        expect(dispatchedActions.find(a => hasType(a, "layer/setType"))).toBeUndefined()
     })
 
     test("dispatches setSource when sourceId is provided", async () => {
@@ -117,9 +121,9 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        const setSourceAction = dispatchedActions.find((a: any) => a.type === "layer/setSource")
+        const setSourceAction = dispatchedActions.find(a => hasType(a, "layer/setSource"))
         expect(setSourceAction).toBeDefined()
-        expect((setSourceAction as any).payload.sourceId).toBe(sourceId)
+        expect((setSourceAction as { payload: unknown }).payload).toEqual(expect.objectContaining({ sourceId }))
     })
 
     test("dispatches setType with predicted type for Geojson source", async () => {
@@ -142,9 +146,11 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        const setTypeAction = dispatchedActions.find(a => hasType(a, "layer/setType"))
         expect(setTypeAction).toBeDefined()
-        expect((setTypeAction as any).payload.type).toBe(LayerType.Line)
+        expect((setTypeAction as { payload: unknown }).payload).toEqual(
+            expect.objectContaining({ type: LayerType.Line }),
+        )
     })
 
     test("dispatches setType with predicted type for FeatureCollection source", async () => {
@@ -156,7 +162,10 @@ describe("add-blank-layer listener middleware", () => {
                         id: sourceId,
                         type: SourceType.FeatureCollection,
                         name: "test",
-                        dataset: { type: "FeatureCollection", features: [] },
+                        location: "sphere://fc-source",
+                        version: 0,
+                        editable: true,
+                        fractionIndex: 0,
                         meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 1 },
                         pending: false,
                     },
@@ -168,9 +177,11 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        const setTypeAction = dispatchedActions.find(a => hasType(a, "layer/setType"))
         expect(setTypeAction).toBeDefined()
-        expect((setTypeAction as any).payload.type).toBe(LayerType.Polygon)
+        expect((setTypeAction as { payload: unknown }).payload).toEqual(
+            expect.objectContaining({ type: LayerType.Polygon }),
+        )
     })
 
     test("falls back to LayerType.Point when predictLayerType returns undefined (all-zero counts)", async () => {
@@ -194,9 +205,11 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        const setTypeAction = dispatchedActions.find(a => hasType(a, "layer/setType"))
         expect(setTypeAction).toBeDefined()
-        expect((setTypeAction as any).payload.type).toBe(LayerType.Point)
+        expect((setTypeAction as { payload: unknown }).payload).toEqual(
+            expect.objectContaining({ type: LayerType.Point }),
+        )
     })
 
     test("falls back to LayerType.Line for a lines+polygons mixed source (no points)", async () => {
@@ -220,9 +233,11 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        const setTypeAction = dispatchedActions.find((a: any) => a.type === "layer/setType")
+        const setTypeAction = dispatchedActions.find(a => hasType(a, "layer/setType"))
         expect(setTypeAction).toBeDefined()
-        expect((setTypeAction as any).payload.type).toBe(LayerType.Line)
+        expect((setTypeAction as { payload: unknown }).payload).toEqual(
+            expect.objectContaining({ type: LayerType.Line }),
+        )
     })
 
     test("does not dispatch setType when FeatureCollection source is pending", async () => {
@@ -243,7 +258,7 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        expect(dispatchedActions.find((a: any) => a.type === "layer/setType")).toBeUndefined()
+        expect(dispatchedActions.find(a => hasType(a, "layer/setType"))).toBeUndefined()
     })
 
     test("does not dispatch setType for MVT source", async () => {
@@ -255,6 +270,7 @@ describe("add-blank-layer listener middleware", () => {
                         id: sourceId,
                         type: SourceType.MVT,
                         name: "test",
+                        format: "pbf",
                         sourceLayers: [],
                         pending: false,
                     },
@@ -265,6 +281,33 @@ describe("add-blank-layer listener middleware", () => {
         store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
         await vi.runAllTimersAsync()
 
-        expect(dispatchedActions.find((a: any) => a.type === "layer/setType")).toBeUndefined()
+        expect(dispatchedActions.find(a => hasType(a, "layer/setType"))).toBeUndefined()
+    })
+
+    test("dispatches setType Raster for raster MVT source", async () => {
+        const sourceId = "raster-mbtiles-source"
+        const { store, dispatchedActions } = makeStore({
+            source: {
+                items: {
+                    [sourceId]: {
+                        id: sourceId,
+                        type: SourceType.MVT,
+                        name: "test",
+                        format: "png",
+                        sourceLayers: [],
+                        pending: false,
+                    },
+                },
+            },
+        })
+
+        store.dispatch({ type: "layer/addBlankLayer", payload: sourceId })
+        await vi.runAllTimersAsync()
+
+        const setTypeAction = dispatchedActions.find(a => hasType(a, "layer/setType"))
+        expect(setTypeAction).toBeDefined()
+        expect((setTypeAction as { payload: unknown }).payload).toEqual(
+            expect.objectContaining({ type: LayerType.Raster }),
+        )
     })
 })

@@ -1,6 +1,8 @@
 import { type Id, LayerType } from "@/types"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAction, createSlice } from "@reduxjs/toolkit"
+import type { Draft } from "immer"
+import type { FilterSpecification } from "maplibre-gl"
 import { sourceSlice } from "../source"
 
 export type PhotoIconLayout = "circle" | "square"
@@ -16,7 +18,7 @@ type Layer = {
     name: string
     type?: LayerType
     filter?: {
-        expression: unknown[]
+        expression: FilterSpecification
         error: string | null
     }
 
@@ -53,6 +55,7 @@ type LayerState = {
     items: Record<string, Layer>
     allIds: Id[]
     lastAdded?: Id
+    selectedId?: Id
 }
 
 // Define the initial state using that type
@@ -68,7 +71,7 @@ export const layerSlice = createSlice({
     reducers: {
         addLayer: (state, action: PayloadAction<Layer>) => {
             const layerId = action.payload.id
-            state.items[layerId] = action.payload
+            state.items[layerId] = action.payload as Draft<Layer>
             state.allIds.push(layerId)
             state.lastAdded = layerId
         },
@@ -76,6 +79,12 @@ export const layerSlice = createSlice({
             const layerId = action.payload
             delete state.items[layerId]
             state.allIds = state.allIds.filter(id => id !== layerId)
+            if (state.selectedId === layerId) {
+                state.selectedId = undefined
+            }
+        },
+        select: (state, action: PayloadAction<Id | undefined>) => {
+            state.selectedId = action.payload
         },
         setPositionBefore: (state, action: PayloadAction<{ layerId: Id; otherLayerId: Id }>) => {
             const { layerId, otherLayerId } = action.payload
@@ -189,12 +198,13 @@ export const layerSlice = createSlice({
                 layer.photo.countField = count
             }
         },
-        setLayerFilter: (state, action: PayloadAction<{ id: Id; expression: unknown[] | null }>) => {
+        setLayerFilter: (state, action: PayloadAction<{ id: Id; expression: FilterSpecification | null }>) => {
             const { id, expression } = action.payload
             if (expression === null) {
                 state.items[id].filter = undefined
             } else {
-                state.items[id].filter = { expression, error: null }
+                // FilterSpecification's recursive union causes Draft<> infinite recursion
+                state.items[id].filter = { expression, error: null } as never
             }
         },
         setLayerFilterError: (state, action: PayloadAction<{ id: Id; error: string }>) => {
@@ -238,6 +248,7 @@ export const layerSlice = createSlice({
     selectors: {
         allIds: state => state.allIds,
         items: state => state.items,
+        selectSelectedId: state => state.selectedId,
     },
 })
 

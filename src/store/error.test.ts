@@ -3,7 +3,9 @@ import reducer, { errorSlice, selectErrorMessage } from "./error"
 
 const { setError, clear } = errorSlice.actions
 
-const makeRootState = (error: object) => ({ error }) as any
+import type { RootState } from "./index"
+
+const makeRootState = (error: object) => ({ error }) as unknown as RootState
 
 describe("errorSlice reducer", () => {
     test("initial state has no message", () => {

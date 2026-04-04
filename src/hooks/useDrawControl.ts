@@ -4,7 +4,14 @@ import { useEffect } from "react"
 import { useControl } from "react-map-gl/maplibre"
 import type { ControlPosition, MapRef } from "react-map-gl/maplibre"
 
-export type OnChangeDraw = (event: { features: GeoJSON.Feature[]; type: string }, draw: MapLibreDraw) => void
+export type DrawEvent = {
+    features?: GeoJSON.Feature[]
+    createdFeatures?: GeoJSON.Feature[]
+    deletedFeatures?: GeoJSON.Feature[]
+    type: string
+}
+
+export type OnChangeDraw = (event: DrawEvent, draw: MapLibreDraw) => void
 
 export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
     ref: MapRef | undefined

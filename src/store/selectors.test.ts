@@ -1,19 +1,20 @@
 import { STYLE_OSM } from "@/const"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
+import type { RootState } from "./index"
 import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
 
-const makeRootState = (overrides: Record<string, any> = {}) =>
+const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
         draw: { sourceId: undefined },
         projection: { value: "globe" },
         mapStyle: { value: "some-style" },
         layer: { items: {}, allIds: [] },
         app: { activeSidebarTab: "sources" },
-        selection: { sourceId: undefined },
+        selection: { count: 0, version: 0 },
         source: { items: {} },
         ...overrides,
-    }) as any
+    }) as unknown as RootState
 
 describe("selectProjection", () => {
     test("returns state projection when not drawing", () => {
@@ -64,15 +65,13 @@ describe("selectPreviewSourceId", () => {
     test("returns undefined when not on sources tab", () => {
         const state = makeRootState({
             app: { activeSidebarTab: "layers" },
-            selection: { sourceId: "s1" },
-            source: { items: { s1: geojsonSource } },
+            source: { items: { s1: geojsonSource }, selectedId: "s1" },
         })
         expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns undefined when no source is selected", () => {
         const state = makeRootState({
-            selection: { sourceId: undefined },
             source: { items: { s1: geojsonSource } },
         })
         expect(selectors.preview.sourceId(state)).toBeUndefined()
@@ -80,48 +79,42 @@ describe("selectPreviewSourceId", () => {
 
     test("returns undefined when selected source does not exist in items", () => {
         const state = makeRootState({
-            selection: { sourceId: "missing" },
-            source: { items: {} },
+            source: { items: {}, selectedId: "missing" },
         })
         expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns sourceId when source type is MVT", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: mvtSource } },
+            source: { items: { s1: mvtSource }, selectedId: "s1" },
         })
         expect(selectors.preview.sourceId(state)).toBe("s1")
     })
 
     test("returns undefined when source is pending", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: { ...geojsonSource, pending: true } } },
+            source: { items: { s1: { ...geojsonSource, pending: true } }, selectedId: "s1" },
         })
         expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns undefined when MVT source is pending", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: { ...mvtSource, pending: true } } },
+            source: { items: { s1: { ...mvtSource, pending: true } }, selectedId: "s1" },
         })
         expect(selectors.preview.sourceId(state)).toBeUndefined()
     })
 
     test("returns sourceId for Geojson source on sources tab", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: geojsonSource } },
+            source: { items: { s1: geojsonSource }, selectedId: "s1" },
         })
         expect(selectors.preview.sourceId(state)).toBe("s1")
     })
 
     test("returns sourceId for FeatureCollection source on sources tab", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: fcSource } },
+            source: { items: { s1: fcSource }, selectedId: "s1" },
         })
         expect(selectors.preview.sourceId(state)).toBe("s1")
     })
@@ -143,15 +136,13 @@ describe("selectPreviewLayerIds", () => {
     test("returns empty array when not on sources tab", () => {
         const state = makeRootState({
             app: { activeSidebarTab: "layers" },
-            selection: { sourceId: "s1" },
-            source: { items: { s1: geojsonSource } },
+            source: { items: { s1: geojsonSource }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when no source selected", () => {
         const state = makeRootState({
-            selection: { sourceId: undefined },
             source: { items: { s1: geojsonSource } },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
@@ -159,32 +150,28 @@ describe("selectPreviewLayerIds", () => {
 
     test("returns empty array when selected source does not exist in items", () => {
         const state = makeRootState({
-            selection: { sourceId: "missing" },
-            source: { items: {} },
+            source: { items: {}, selectedId: "missing" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns 3 IDs for GeoJSON source", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: geojsonSource } },
+            source: { items: { s1: geojsonSource }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual(["preview-s1-point", "preview-s1-line", "preview-s1-polygon"])
     })
 
     test("returns 3 IDs for FeatureCollection source", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: fcSource } },
+            source: { items: { s1: fcSource }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual(["preview-s1-point", "preview-s1-line", "preview-s1-polygon"])
     })
 
     test("returns 3 * sourceLayers.length IDs for MVT source", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: mvtSource } },
+            source: { items: { s1: mvtSource }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([
             "preview-s1-roads-point",
@@ -198,32 +185,28 @@ describe("selectPreviewLayerIds", () => {
 
     test("returns empty array for Raster source", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: rasterSource } },
+            source: { items: { s1: rasterSource }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when source is pending", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: { ...geojsonSource, pending: true } } },
+            source: { items: { s1: { ...geojsonSource, pending: true } }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array when MVT source is pending", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: { ...mvtSource, pending: true } } },
+            source: { items: { s1: { ...mvtSource, pending: true } }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
     })
 
     test("returns empty array for MVT source with no sourceLayers", () => {
         const state = makeRootState({
-            selection: { sourceId: "s1" },
-            source: { items: { s1: { ...mvtSource, sourceLayers: [] } } },
+            source: { items: { s1: { ...mvtSource, sourceLayers: [] } }, selectedId: "s1" },
         })
         expect(selectors.preview.layerIds(state)).toEqual([])
     })

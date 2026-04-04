@@ -15,7 +15,7 @@ export const showProperties = createAsyncThunk(
             throw new Error("Source is not found")
         }
 
-        if (source.type !== SourceType.Geojson) {
+        if ((source.type !== SourceType.Geojson && source.type !== SourceType.FeatureCollection) || source.pending) {
             logger.error(`Properties table is not available for source type "${source.type}"`)
             throw new Error(`Property table is not available for "${source.name}"`)
         }

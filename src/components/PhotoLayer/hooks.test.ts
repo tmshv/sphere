@@ -1,5 +1,7 @@
+import type { RootState } from "@/store"
 import { SourceType } from "@/types"
 import { act, renderHook } from "@testing-library/react"
+import type maplibregl from "maplibre-gl"
 import type { Listener, MapEventType, MapLayerEventType } from "maplibre-gl"
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -34,27 +36,27 @@ function makeMockMap() {
         }),
         queryRenderedFeatures: vi.fn().mockReturnValue([]),
         fire(event: MapEventKey) {
-            ;(handlers[event] ?? []).slice().forEach(fn => fn(undefined))
+            for (const fn of (handlers[event] ?? []).slice()) fn(undefined)
         },
     }
 }
 
 describe("useTileFeatures event listener behavior", () => {
     beforeEach(() => {
-        vi.mocked(useAppSelector).mockImplementation((selector: any) =>
+        vi.mocked(useAppSelector).mockImplementation(selector =>
             selector({
                 source: {
                     items: {
                         [SOURCE_ID]: { type: SourceType.MVT },
                     },
                 },
-            }),
+            } as unknown as RootState),
         )
     })
 
     it("registers idle and moveend listeners on mount", () => {
         const map = makeMockMap()
-        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }))
 
         expect(map.on).toHaveBeenCalledWith("idle", expect.any(Function))
         expect(map.on).toHaveBeenCalledWith("moveend", expect.any(Function))
@@ -62,7 +64,7 @@ describe("useTileFeatures event listener behavior", () => {
 
     it("calls queryRenderedFeatures when idle fires", () => {
         const map = makeMockMap()
-        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }))
 
         act(() => {
             map.fire("idle")
@@ -73,7 +75,7 @@ describe("useTileFeatures event listener behavior", () => {
 
     it("idle listener fires only once (self-removing)", () => {
         const map = makeMockMap()
-        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }))
 
         act(() => {
             map.fire("idle")
@@ -87,7 +89,7 @@ describe("useTileFeatures event listener behavior", () => {
 
     it("removes idle listener from map after it fires", () => {
         const map = makeMockMap()
-        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }))
 
         const idleHandler = map.on.mock.calls.find(([event]) => event === "idle")?.[1]
 
@@ -100,7 +102,7 @@ describe("useTileFeatures event listener behavior", () => {
 
     it("calls queryRenderedFeatures on moveend", () => {
         const map = makeMockMap()
-        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }))
 
         act(() => {
             map.fire("moveend")
@@ -111,7 +113,9 @@ describe("useTileFeatures event listener behavior", () => {
 
     it("removes idle and moveend listeners on unmount", () => {
         const map = makeMockMap()
-        const { unmount } = renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        const { unmount } = renderHook(() =>
+            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }),
+        )
 
         unmount()
 
@@ -129,7 +133,9 @@ describe("useTileFeatures event listener behavior", () => {
         const map = makeMockMap()
         map.queryRenderedFeatures.mockReturnValue([feature])
 
-        const { result } = renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as any }))
+        const { result } = renderHook(() =>
+            useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: map as unknown as maplibregl.Map }),
+        )
 
         expect(result.current).toEqual([])
 

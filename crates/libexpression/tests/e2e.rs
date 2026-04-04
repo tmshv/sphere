@@ -130,6 +130,25 @@ fn comparison_eq() {
     assert_eq!(run(r#"["==", 1, "1"]"#, "{}"), b(false));
 }
 
+fn parse_fails(expr: &str) {
+    let expr_json: serde_json::Value = serde_json::from_str(expr).expect("invalid json");
+    assert!(libexpression::parse(expr_json).is_err(), "expected parse error for: {expr}");
+}
+
+#[test]
+fn legacy_syntax_rejected() {
+    // Note: bare-string comparisons like ["==", "type", "airport"] are structurally valid
+    // in modern syntax too (string literal comparison), so the parser cannot reject them.
+    // Detection of that pattern is the client's responsibility via isExpressionFilter.
+
+    // Legacy in/!in with 3+ args (variadic inline values) — arity mismatch rejects these
+    parse_fails(r#"["in", "type", "airport", "heliport"]"#);
+    parse_fails(r#"["!in", "type", "airport", "heliport"]"#);
+
+    // Legacy !has — unknown operator in modern syntax
+    parse_fails(r#"["!has", "elevation"]"#);
+}
+
 #[test]
 fn comparison_ne() {
     assert_eq!(

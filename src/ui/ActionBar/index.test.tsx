@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import { ActionBar } from "."
 import type { ActionBarItem } from "."
 
-const MockIcon = ({ size, color }: { size?: number; color?: string }) => (
+const MockIcon = ({ size }: { size?: number; color?: string }) => (
     <svg data-testid="mock-icon" width={size} height={size} />
 )
 
@@ -11,7 +11,7 @@ function makeItem(name: string, disabled?: boolean): ActionBarItem {
     return {
         name,
         label: `Label for ${name}`,
-        icon: MockIcon as any,
+        icon: MockIcon as unknown as ActionBarItem["icon"],
         disabled,
     }
 }
