@@ -40,7 +40,7 @@
             },
             "a11y": {
                 "useButtonType": "error",
-                "noSvgWithoutTitle": "warn"
+                "noSvgWithoutTitle": "error"
             },
             "complexity": {
                 "noForEach": "error",

@@ -173,19 +173,19 @@ git commit -m "lint: promote noForEach to error, use for-of in PhotoLayer test"
 - Modify: `biome.json`
 - Modify: `src/components/SphereMap/RectSelectOverlay.tsx:223`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noSvgWithoutTitle": "warn" → "noSvgWithoutTitle": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the error**
+- [x] **Step 2: Run lint to see the error**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noSvgWithoutTitle`
 Expected: 1 error at `src/components/SphereMap/RectSelectOverlay.tsx:223`
 
-- [ ] **Step 3: Fix the violation**
+- [x] **Step 3: Fix the violation**
 
 This SVG is a decorative selection rectangle overlay — it should be hidden from assistive tech. Add `aria-hidden="true"` and `role="img"` to the `<svg>` element at line 223:
 
@@ -205,12 +205,12 @@ This SVG is a decorative selection rectangle overlay — it should be hidden fro
         ...
 ```
 
-- [ ] **Step 4: Run tests and lint**
+- [x] **Step 4: Run tests and lint**
 
 Run: `npm run lint`
 Expected: no lint errors for this rule
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add biome.json src/components/SphereMap/RectSelectOverlay.tsx
