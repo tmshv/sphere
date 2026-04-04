@@ -277,19 +277,19 @@ git commit -m "lint: promote noUnusedImports to error, remove unused imports in 
 - Modify: `src/components/PhotoLayer/hooks.ts:73`
 - Modify: `src/properties.tsx:169`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "useExhaustiveDependencies": "warn" → "useExhaustiveDependencies": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the errors**
+- [x] **Step 2: Run lint to see the errors**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg useExhaustiveDependencies`
 Expected: 3 errors
 
-- [ ] **Step 3: Fix LayerFilter.tsx**
+- [x] **Step 3: Fix LayerFilter.tsx**
 
 Line 23 — `layerId` is flagged as unnecessary (outer scope value that doesn't cause re-render). But `layerId` is a prop that changes when the user selects a different layer and should reset the filter text. `filterExpression` already captures the change since it comes from a selector keyed by `layerId`. Remove `layerId`:
 
@@ -301,7 +301,7 @@ Line 23 — `layerId` is flagged as unnecessary (outer scope value that doesn't 
 }, [filterExpression])
 ```
 
-- [ ] **Step 4: Fix PhotoLayer/hooks.ts**
+- [x] **Step 4: Fix PhotoLayer/hooks.ts**
 
 Line 73 — `filter` is flagged as unnecessary. The `filter` variable comes from `useAppSelector` and is used to gate the `ok` value on line 15-27 (a `useMemo` that checks source type). But `filter` itself is not used inside the effect body — only `ok`, `layerId`, and `map` are. Remove `filter`:
 
@@ -313,7 +313,7 @@ Line 73 — `filter` is flagged as unnecessary. The `filter` variable comes from
 }, [ok, layerId, map])
 ```
 
-- [ ] **Step 5: Fix properties.tsx**
+- [x] **Step 5: Fix properties.tsx**
 
 Line 169 — `selectionData` is flagged as unnecessary. The effect uses `isSelectionActive` (derived from `selectionData`) but does not use `selectionData` directly. Remove it:
 
@@ -325,12 +325,12 @@ Line 169 — `selectionData` is flagged as unnecessary. The effect uses `isSelec
 }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive])
 ```
 
-- [ ] **Step 6: Run tests and lint**
+- [x] **Step 6: Run tests and lint**
 
 Run: `npm test -- --run && npm run lint`
 Expected: all pass, no lint errors for this rule
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add biome.json src/components/LayerPanel/LayerFilter.tsx src/components/PhotoLayer/hooks.ts src/properties.tsx
