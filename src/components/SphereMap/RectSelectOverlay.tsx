@@ -222,7 +222,6 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             {showRect && (
                 <svg
                     aria-hidden="true"
-                    role="img"
                     style={{
                         position: "fixed",
                         left,

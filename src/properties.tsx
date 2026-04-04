@@ -145,7 +145,7 @@ const View: React.FC = () => {
     const isSelectionActive =
         attributeFilter === "selected" && selectionData !== null && selectionData.sourceId === sourceId
 
-    // Fetch page when sourceId, page index, sorting, filter, or selection changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: selectionData must trigger refetch when selected features change while isSelectionActive stays true
     useEffect(() => {
         if (!sourceId) return
         const sortCol = sorting[0]?.id
@@ -166,7 +166,7 @@ const View: React.FC = () => {
                 if (result) setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive])
+    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive, selectionData])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {

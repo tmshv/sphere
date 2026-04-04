@@ -22,8 +22,7 @@ function makeMockMap(queryResult: unknown[] = []) {
         on: vi.fn((event: string, fn: (payload: object) => void) => {
             const unsub = vi.fn()
             if (!handlers.has(event)) handlers.set(event, [])
-            const list = handlers.get(event)
-            if (list) list.push({ fn, unsubscribe: unsub })
+            handlers.get(event)?.push({ fn, unsubscribe: unsub })
             return { unsubscribe: unsub }
         }),
         queryRenderedFeatures: vi.fn((_point: unknown, _opts: unknown) => queryResult),

@@ -17,10 +17,11 @@ export const LayerFilter: FC<LayerFilterProps> = ({ layerId, filterExpression, f
     const [filterText, setFilterText] = useState("")
     const [filterLocalError, setFilterLocalError] = useState<string | null>(null)
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: layerId must reset filter text when switching layers even if filterExpression is unchanged
     useEffect(() => {
         setFilterText(filterExpression ? JSON.stringify(filterExpression) : "")
         setFilterLocalError(null)
-    }, [filterExpression])
+    }, [layerId, filterExpression])
 
     function handleFilterChange(text: string) {
         setFilterText(text)
