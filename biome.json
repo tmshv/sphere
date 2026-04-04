@@ -28,7 +28,7 @@
                 "noExplicitAny": "warn",
                 "noDebugger": "error",
                 "noConsole": "error",
-                "noArrayIndexKey": "warn",
+                "noArrayIndexKey": "error",
                 "noShadowRestrictedNames": "error"
             },
             "style": {

@@ -34,6 +34,7 @@ export default function PropertiesPopup() {
                         <Title order={3}>Properties</Title>
                         <div style={BODY_STYLE}>
                             {props.map((x, i) => (
+                                // biome-ignore lint/suspicious/noArrayIndexKey: feature properties have no stable unique key
                                 <PropertiesViewer key={i} properties={x} />
                             ))}
                         </div>

@@ -22,6 +22,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
     <Flex direction={"row"} gap={"xs"} {...props}>
         {items.map((item, i) => {
             if (!item) {
+                // biome-ignore lint/suspicious/noArrayIndexKey: separator items have no identity
                 return <Space key={`space-${i}`} style={{ flex: 1 }} />
             }
             const { name, label, icon: Icon, color, disabled = false } = item

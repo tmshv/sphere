@@ -347,19 +347,19 @@ git commit -m "lint: promote useExhaustiveDependencies to error, remove unnecess
 - Modify: `src/ui/ActionBar/index.tsx:25`
 - Modify: `src/ui/PropertiesTable/BarChart.tsx:56`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noArrayIndexKey": "warn" → "noArrayIndexKey": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the errors**
+- [x] **Step 2: Run lint to see the errors**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noArrayIndexKey`
 Expected: 3 errors
 
-- [ ] **Step 3: Fix PropertiesPopup**
+- [x] **Step 3: Fix PropertiesPopup**
 
 Line 37: The `props` array items are `GeoJSON.Feature["properties"]` objects with no unique ID. Use a stable stringified key:
 ```tsx
@@ -382,7 +382,7 @@ Note: If the lint rule still fires on any use of `i` in a key, suppress with a b
 ))}
 ```
 
-- [ ] **Step 4: Fix ActionBar**
+- [x] **Step 4: Fix ActionBar**
 
 Line 25: The `<Space>` separator uses `key={\`space-${i}\`}`. These are null-gap items in the `items` array with no identity. Suppress:
 ```tsx
@@ -390,7 +390,7 @@ Line 25: The `<Space>` separator uses `key={\`space-${i}\`}`. These are null-gap
 return <Space key={`space-${i}`} style={{ flex: 1 }} />
 ```
 
-- [ ] **Step 5: Fix BarChart**
+- [x] **Step 5: Fix BarChart**
 
 Line 56: Bar chart data items are numeric values with no unique ID. The chart data is static per render — index keys are fine here. Suppress:
 ```tsx
@@ -403,12 +403,12 @@ Line 56: Bar chart data items are numeric values with no unique ID. The chart da
 })}
 ```
 
-- [ ] **Step 6: Run tests and lint**
+- [x] **Step 6: Run tests and lint**
 
 Run: `npm run lint`
 Expected: no lint errors for this rule
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add biome.json src/components/PropertiesPopup/index.tsx src/ui/ActionBar/index.tsx src/ui/PropertiesTable/BarChart.tsx
