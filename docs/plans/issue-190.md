@@ -47,19 +47,19 @@ git commit -m "lint: promote noConsole, noShadowRestrictedNames, noAccumulatingS
 - Modify: `biome.json`
 - Modify: `src/hooks/useFeatureProperties.test.ts:23`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noNonNullAssertion": "warn" → "noNonNullAssertion": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the error**
+- [x] **Step 2: Run lint to see the error**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noNonNullAssertion`
 Expected: 1 error at `src/hooks/useFeatureProperties.test.ts:23`
 
-- [ ] **Step 3: Fix the violation**
+- [x] **Step 3: Fix the violation**
 
 In `src/hooks/useFeatureProperties.test.ts`, line 23:
 ```ts
@@ -71,12 +71,12 @@ const list = handlers.get(event)
 if (list) list.push({ fn, unsubscribe: unsub })
 ```
 
-- [ ] **Step 4: Run tests and lint**
+- [x] **Step 4: Run tests and lint**
 
 Run: `npm test -- --run src/hooks/useFeatureProperties.test.ts && npm run lint`
 Expected: tests pass, no lint errors for this rule
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add biome.json src/hooks/useFeatureProperties.test.ts
