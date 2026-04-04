@@ -53,7 +53,7 @@ export type PropertyItemMeta =
           type: "url" | "date" | "empty" | "mixed" | "unknown"
       }
 
-export type PropertyItem = Record<string, any>
+export type PropertyItem = Record<string, unknown>
 
 const useStyle = createStyles(theme => ({
     table: {
@@ -341,13 +341,14 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                         {table.getRowModel().rows.map(row => (
                             <tr key={row.id} className={s.tr}>
                                 {row.getVisibleCells().map(cell => {
-                                    let render = (info: CellContext<PropertyItem, any>) => info.getValue()
+                                    let render = (info: CellContext<PropertyItem, unknown>): React.ReactNode =>
+                                        String(info.getValue() ?? "")
 
                                     const type = meta[cell.column.id].type
                                     switch (type) {
                                         case "url": {
                                             render = info => {
-                                                const value = info.getValue()
+                                                const value = String(info.getValue() ?? "")
                                                 if (photos[info.column.id]) {
                                                     return <Image src={value} width={50} height={50} />
                                                 }
@@ -376,25 +377,26 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                                         <>
                                                             {value.map(x => (
                                                                 <Badge
-                                                                    key={x}
+                                                                    key={String(x)}
                                                                     className={s.mixedItem}
                                                                     size={"sm"}
                                                                     radius={"sm"}
                                                                     variant="outline"
                                                                     color={"dark"}
                                                                 >
-                                                                    {x}
+                                                                    {String(x)}
                                                                 </Badge>
                                                             ))}
                                                         </>
                                                     )
                                                 }
+                                                return null
                                             }
                                             break
                                         }
                                         case "date": {
                                             render = info => {
-                                                const value = info.getValue()
+                                                const value = String(info.getValue() ?? "")
                                                 return (
                                                     <Tooltip label={value} openDelay={500}>
                                                         <span>{format(new Date(value), "yyyy-MM-dd hh:mm:ss")}</span>
@@ -405,7 +407,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                         }
                                         case "int": {
                                             render = info => {
-                                                const value = info.getValue()
+                                                const value = String(info.getValue() ?? "")
                                                 return (
                                                     <span
                                                         style={{
@@ -422,7 +424,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                                         }
                                         case "float": {
                                             render = info => {
-                                                const value = info.getValue()
+                                                const value = String(info.getValue() ?? "")
                                                 return (
                                                     <span
                                                         style={{

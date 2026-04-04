@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 
-type Properties = Record<string, any>
+type Properties = Record<string, unknown>
 
 // Define a type for the slice state
 type PropertiesState = {

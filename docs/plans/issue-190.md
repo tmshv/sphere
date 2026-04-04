@@ -496,7 +496,7 @@ Fix `any` usages in non-test files first since they are fewer and more impactful
 - Modify: `src/types/index.ts:56`
 - Modify: `src/ui/PropertiesTable/index.tsx:56,344`
 
-- [ ] **Step 1: Fix simple-xml-to-json.d.ts**
+- [x] **Step 1: Fix simple-xml-to-json.d.ts**
 
 This is a third-party module declaration. Use `unknown`:
 ```ts
@@ -507,7 +507,7 @@ function convertXML<T = any>(raw: string): T
 function convertXML<T = unknown>(raw: string): T
 ```
 
-- [ ] **Step 2: Fix store/properties/index.ts**
+- [x] **Step 2: Fix store/properties/index.ts**
 
 ```ts
 // Before:
@@ -519,7 +519,7 @@ type Properties = Record<string, unknown>
 
 Check that downstream code consuming `Properties` still compiles. Run: `npx tsc --noEmit`
 
-- [ ] **Step 3: Fix types/index.ts**
+- [x] **Step 3: Fix types/index.ts**
 
 ```ts
 // Before:
@@ -531,7 +531,7 @@ data: Record<string, unknown>
 
 Check that downstream code consuming `DatasetRow` still compiles. Run: `npx tsc --noEmit`
 
-- [ ] **Step 4: Fix ui/PropertiesTable/index.tsx**
+- [x] **Step 4: Fix ui/PropertiesTable/index.tsx**
 
 Line 56:
 ```ts
@@ -551,12 +551,12 @@ let render = (info: CellContext<PropertyItem, any>) => info.getValue()
 let render = (info: CellContext<PropertyItem, unknown>) => info.getValue()
 ```
 
-- [ ] **Step 5: Run tests and lint**
+- [x] **Step 5: Run tests and lint**
 
 Run: `npx tsc --noEmit && npm test -- --run && npx biome lint src/ --max-diagnostics=200 2>&1 | rg 'noExplicitAny.*(?!\.test\.)' `
 Expected: tsc passes, tests pass, no noExplicitAny in non-test files
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/simple-xml-to-json.d.ts src/store/properties/index.ts src/types/index.ts src/ui/PropertiesTable/index.tsx
