@@ -1,4 +1,4 @@
-import { Statusbar } from "@/ui/Statusbar"
+import { Select, Statusbar } from "@/ui/Statusbar"
 import {
     ActionIcon,
     Badge,
@@ -129,8 +129,11 @@ type PropertyTableProps = {
     meta: Record<string, PropertyItemMeta>
     pageIndex: number
     pageCount: number
+    pageSize: number
+    pageSizeOptions: number[]
     sorting: SortingState
     onPageChange: (index: number) => void
+    onPageSizeChange: (size: number) => void
     onSortingChange: OnChangeFn<SortingState>
 }
 
@@ -140,8 +143,11 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
     meta,
     pageIndex,
     pageCount,
+    pageSize,
+    pageSizeOptions,
     sorting,
     onPageChange,
+    onPageSizeChange,
     onSortingChange,
 }) => {
     const { classes: s, cx } = useStyle()
@@ -156,7 +162,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
         pageCount,
         state: {
             sorting,
-            pagination: { pageIndex, pageSize: 50 },
+            pagination: { pageIndex, pageSize },
         },
         onSortingChange,
     })
@@ -510,6 +516,13 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                         <IconChevronRight size={14} />
                     </ActionIcon>
                 </MantineProvider>
+
+                <Select
+                    className={cx(s.widget, s.widgetSelect)}
+                    value={pageSize}
+                    options={pageSizeOptions}
+                    onChange={onPageSizeChange}
+                />
 
                 <Box style={{ flex: 1 }} />
             </Statusbar>

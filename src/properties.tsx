@@ -78,7 +78,8 @@ function buildColumns(columnNames: string[]): ColumnDef<PropertyItem>[] {
     ]
 }
 
-const PAGE_SIZE = 50
+const PAGE_SIZE_OPTIONS = [50, 100, 500, 1000]
+const DEFAULT_PAGE_SIZE = 50
 
 const View: React.FC = () => {
     const [sourceId, setSourceId] = useState<string | null>(null)
@@ -87,6 +88,7 @@ const View: React.FC = () => {
     const [page, setPage] = useState<PageResult | null>(null)
     const [columnStats, setColumnStats] = useState<Record<string, ColumnStats>>({})
     const [sorting, setSorting] = useState<SortingState>([])
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
     const [pageIndex, setPageIndex] = useState(0)
     const [attributeFilter, setAttributeFilter] = useState<"all" | "selected">("all")
     const [selectionData, setSelectionData] = useState<{ sourceId: string; count: number } | null>(null)
@@ -155,24 +157,29 @@ const View: React.FC = () => {
         const reader = new SourceReader(sourceId)
         const filterJson = filterExpression ? JSON.stringify(filterExpression) : undefined
         reader
-            .queryPage(pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc, filterJson)
+            .queryPage(pageIndex * pageSize, pageSize, sortCol, sortAsc, filterJson)
             .then(result => {
                 if (result) setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, sorting, filterExpression, isSelectionActive])
+    }, [sourceId, pageIndex, pageSize, sorting, filterExpression, isSelectionActive])
 
     // Fetch selection page; selectionVersion drives refetch when selected features change
     useEffect(() => {
         if (!sourceId || !isSelectionActive || selectionVersion === 0) return
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
-        selectionQueryPage(sourceId, pageIndex * PAGE_SIZE, PAGE_SIZE, sortCol, sortAsc)
+        selectionQueryPage(sourceId, pageIndex * pageSize, pageSize, sortCol, sortAsc)
             .then(result => {
                 setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, sorting, isSelectionActive, selectionVersion])
+    }, [sourceId, pageIndex, pageSize, sorting, isSelectionActive, selectionVersion])
+
+    const handlePageSizeChange = useCallback((size: number) => {
+        setPageSize(size)
+        setPageIndex(0)
+    }, [])
 
     const handleSortingChange = useCallback((updater: SortingState | ((prev: SortingState) => SortingState)) => {
         setSorting(prev => {
@@ -191,7 +198,7 @@ const View: React.FC = () => {
     const meta = schemaToMeta(schema.columns, columnStats)
 
     const rows: PropertyItem[] = page.features.map(f => ({ $id: f.id, ...f.properties }))
-    const totalPages = Math.ceil(page.total_matching / PAGE_SIZE)
+    const totalPages = Math.ceil(page.total_matching / pageSize)
 
     return (
         <>
@@ -214,8 +221,11 @@ const View: React.FC = () => {
                 data={rows}
                 pageIndex={pageIndex}
                 pageCount={totalPages}
+                pageSize={pageSize}
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
                 sorting={sorting}
                 onPageChange={setPageIndex}
+                onPageSizeChange={handlePageSizeChange}
                 onSortingChange={handleSortingChange}
             />
         </>

@@ -23,7 +23,7 @@
 - Modify: `src/properties.tsx:81,196-221`
 - Modify: `src/ui/PropertiesTable/index.tsx:126-135,482-515`
 
-- [ ] **Step 1: Add `pageSize` state and pass it to PropertiesTable**
+- [x] **Step 1: Add `pageSize` state and pass it to PropertiesTable**
 
 In `src/properties.tsx`, replace the hardcoded constant and thread it through:
 
@@ -70,7 +70,7 @@ Update `<PropertesTable>` props to include:
 />
 ```
 
-- [ ] **Step 2: Accept new props in PropertiesTable and render the Select**
+- [x] **Step 2: Accept new props in PropertiesTable and render the Select**
 
 In `src/ui/PropertiesTable/index.tsx`, update `PropertyTableProps`:
 
@@ -115,13 +115,13 @@ In the `<Statusbar>`, after the page navigation controls and before the spacer `
 />
 ```
 
-- [ ] **Step 3: Run tests and format**
+- [x] **Step 3: Run tests and format**
 
 Run: `npm test -- --run`
 Run: `npm run format`
 Expected: all tests pass, no format issues.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/properties.tsx src/ui/PropertiesTable/index.tsx
