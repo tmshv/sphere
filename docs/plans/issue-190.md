@@ -582,7 +582,7 @@ Many test files follow the same patterns: `makeRootState` returning `as any`, `m
 
 Strategy: Replace `as any` with `as unknown as RootState` (or import the partial state pattern). For `Record<string, any>` override params, use `Record<string, unknown>`.
 
-- [ ] **Step 1: Fix each makeRootState / makeLayer pattern**
+- [x] **Step 1: Fix each makeRootState / makeLayer pattern**
 
 For every file above, apply this transformation:
 
@@ -614,12 +614,12 @@ import type { RootState } from "@/store"
 const makeRootState = (app: object) => ({ app }) as unknown as RootState
 ```
 
-- [ ] **Step 2: Run tests and lint**
+- [x] **Step 2: Run tests and lint**
 
 Run: `npm test -- --run && npx biome lint src/ --max-diagnostics=200 2>&1 | rg noExplicitAny -c`
 Expected: tests pass, count drops significantly
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add -A

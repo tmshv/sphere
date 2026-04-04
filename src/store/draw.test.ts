@@ -4,7 +4,9 @@ import reducer, { drawSlice } from "./draw"
 const { start, done, reset } = drawSlice.actions
 const { isDrawing } = drawSlice.selectors
 
-const makeRootState = (draw: object) => ({ draw }) as any
+import type { RootState } from "./index"
+
+const makeRootState = (draw: object) => ({ draw }) as unknown as RootState
 
 describe("drawSlice reducer", () => {
     test("initial state has no sourceId", () => {

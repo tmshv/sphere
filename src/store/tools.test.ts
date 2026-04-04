@@ -4,7 +4,9 @@ import reducer, { toolsSlice } from "./tools"
 const { setTool } = toolsSlice.actions
 const { selectActiveTool, selectNavigationEnabled } = toolsSlice.selectors
 
-const makeRootState = (tools: object) => ({ tools }) as any
+import type { RootState } from "./index"
+
+const makeRootState = (tools: object) => ({ tools }) as unknown as RootState
 
 describe("toolsSlice reducer", () => {
     test("initial state has activeTool navigation", () => {

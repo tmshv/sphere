@@ -22,7 +22,9 @@ const {
 } = appSlice.actions
 const { isZen, isDark } = appSlice.selectors
 
-const makeRootState = (app: object) => ({ app }) as any
+import type { RootState } from "./index"
+
+const makeRootState = (app: object) => ({ app }) as unknown as RootState
 
 describe("appSlice reducer", () => {
     test("initial state", () => {

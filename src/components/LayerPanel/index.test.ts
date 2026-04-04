@@ -3,7 +3,7 @@ import { LayerType, SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { layerSelector, selectCurrentLayerItem, selectCurrentLayerSourceItem } from "./index"
 
-const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
+const makeLayer = (id: string, overrides: Record<string, unknown> = {}) => ({
     id,
     name: `Layer ${id}`,
     visible: true,
@@ -14,13 +14,15 @@ const makeLayer = (id: string, overrides: Record<string, any> = {}) => ({
     ...overrides,
 })
 
-const makeRootState = (overrides: Record<string, any> = {}) =>
+import type { RootState } from "@/store"
+
+const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
         selection: { count: 0, version: 0 },
         layer: { items: {}, allIds: [] },
         source: { items: {}, allIds: [] },
         ...overrides,
-    }) as any
+    }) as unknown as RootState
 
 describe("selectCurrentLayerItem", () => {
     test("returns null when no layer is selected", () => {
