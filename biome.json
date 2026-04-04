@@ -43,7 +43,7 @@
                 "noSvgWithoutTitle": "warn"
             },
             "complexity": {
-                "noForEach": "warn",
+                "noForEach": "error",
                 "noBannedTypes": "warn"
             }
         }

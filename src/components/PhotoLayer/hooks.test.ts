@@ -34,7 +34,7 @@ function makeMockMap() {
         }),
         queryRenderedFeatures: vi.fn().mockReturnValue([]),
         fire(event: MapEventKey) {
-            ;(handlers[event] ?? []).slice().forEach(fn => fn(undefined))
+            for (const fn of (handlers[event] ?? []).slice()) fn(undefined)
         },
     }
 }

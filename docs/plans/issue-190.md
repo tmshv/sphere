@@ -130,19 +130,19 @@ git commit -m "lint: promote noUnusedVariables to error, remove unused RequestTy
 - Modify: `biome.json`
 - Modify: `src/components/PhotoLayer/hooks.test.ts:37`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noForEach": "warn" → "noForEach": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the error**
+- [x] **Step 2: Run lint to see the error**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noForEach`
 Expected: 1 error at `src/components/PhotoLayer/hooks.test.ts:37`
 
-- [ ] **Step 3: Fix the violation**
+- [x] **Step 3: Fix the violation**
 
 In `src/components/PhotoLayer/hooks.test.ts`, line 37:
 ```ts
@@ -153,12 +153,12 @@ In `src/components/PhotoLayer/hooks.test.ts`, line 37:
 for (const fn of (handlers[event] ?? []).slice()) fn(undefined)
 ```
 
-- [ ] **Step 4: Run tests and lint**
+- [x] **Step 4: Run tests and lint**
 
 Run: `npm test -- --run src/components/PhotoLayer/hooks.test.ts && npm run lint`
 Expected: tests pass, no lint errors for this rule
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add biome.json src/components/PhotoLayer/hooks.test.ts
