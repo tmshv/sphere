@@ -40,10 +40,20 @@ export const showProperties = createAsyncThunk(
         const status = await waitEvent("properties-init")
         logger.info({ status }, "Got properties-init")
 
-        emit("properties-set", {
+        await emit("properties-set", {
             sourceId: id,
             schema: source.meta,
             filterExpression: filterExpression ?? null,
         })
+
+        const freshState = thunkAPI.getState() as RootState
+        const selectionSourceId = freshState.selection.sourceId ?? freshState.source.selectedId ?? undefined
+        const count = freshState.selection.count
+        if (count > 0 && selectionSourceId) {
+            await emit("properties-selection-changed", {
+                sourceId: selectionSourceId,
+                count,
+            })
+        }
     },
 )
