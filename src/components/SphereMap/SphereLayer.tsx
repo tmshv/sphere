@@ -1,6 +1,7 @@
 import { type FC, memo } from "react"
 import { PhotoLayer, type PhotoLayerProps } from "@/components/PhotoLayer"
 import { assertUnreachable } from "@/lib"
+import { filteredSourceId } from "@/lib/layer-source"
 import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import type { RootState } from "@/store"
@@ -53,7 +54,7 @@ const select = createSelector(
         } = layer
         const isMaplibreFiltered =
             layerFilter && source?.type === SourceType.MVT && !source.pending && !isRasterTileFormat(source.format)
-        const sourceId = layerFilter && !isMaplibreFiltered ? `layer-${layerId}` : rawSourceId
+        const sourceId = layerFilter && !isMaplibreFiltered ? filteredSourceId(layerId) : rawSourceId
         const filter = isMaplibreFiltered ? layerFilter.expression : undefined
         if (!sourceId || !type) {
             return ["unknown", null] as SelectTuple<object>

@@ -36,4 +36,17 @@ listener.startListening({
     },
 })
 
+// Reset to pan when entering draw mode so RectSelectOverlay unmounts
+listener.startListening({
+    actionCreator: actions.tools.setTool,
+    effect: (action, listenerApi) => {
+        if (action.payload === "draw") {
+            const state = listenerApi.getState() as RootState
+            if (state.app.mapTool !== "pan") {
+                listenerApi.dispatch(actions.app.setMapTool("pan"))
+            }
+        }
+    },
+})
+
 export default listener

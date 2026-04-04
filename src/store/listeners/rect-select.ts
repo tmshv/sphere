@@ -110,7 +110,7 @@ listener.startListening({
         emitSelectionDelta(applyDelta)
 
         const count = await selectionCount()
-        listenerApi.dispatch(actions.selection.sync({ count }))
+        listenerApi.dispatch(actions.selection.sync({ count, sourceId }))
         listenerApi.dispatch(actions.selection.apply())
     },
 })
@@ -158,7 +158,8 @@ listener.startListening({
         emitSelectionDelta(applyDelta)
 
         const count = await selectionCount()
-        listenerApi.dispatch(actions.selection.sync({ count }))
+        const sourceId = state.source.selectedId
+        listenerApi.dispatch(actions.selection.sync({ count, sourceId }))
         listenerApi.dispatch(actions.selection.apply())
     },
 })

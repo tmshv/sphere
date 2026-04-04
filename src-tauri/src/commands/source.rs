@@ -11,6 +11,7 @@ use std::sync::Arc;
 use tauri::State;
 use url::Url;
 
+use crate::selection::SelectionStorage;
 use crate::state::{SourceEntry, SourceStorage};
 
 #[derive(Serialize, Debug)]
@@ -107,6 +108,40 @@ pub async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result
     match store.get(&id) {
         Some(entry) => entry.source.to_geojson(),
         None => Err(format!("Not found {}", &id)),
+    }
+}
+
+#[tauri::command]
+pub async fn source_get_slice(
+    id: String,
+    ids: Vec<i64>,
+    storage: State<'_, SourceStorage>,
+) -> Result<String, String> {
+    let store = storage.store.lock().unwrap();
+    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+    let fc = entry.source.to_feature_collection()?;
+    let result = libsphere::source::slice_feature_collection(fc, &ids);
+    serde_json::to_string(&result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn source_get_selected(
+    id: String,
+    source_storage: State<'_, SourceStorage>,
+    selection_storage: State<'_, SelectionStorage>,
+) -> Result<String, String> {
+    let ids = {
+        let state = selection_storage.state.lock().unwrap();
+        state.get_ids()
+    };
+    let store = source_storage.store.lock().unwrap();
+    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+    if ids.is_empty() {
+        entry.source.to_geojson()
+    } else {
+        let fc = entry.source.to_feature_collection()?;
+        let result = libsphere::source::slice_feature_collection(fc, &ids);
+        serde_json::to_string(&result).map_err(|e| e.to_string())
     }
 }
 

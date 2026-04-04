@@ -9,12 +9,15 @@ import {
     selectionApply,
     selectionCount,
 } from "@/lib/selection-ipc"
+import { resolveSourceId } from "@/lib/layer-source"
 import { actions, selectors } from "@/store"
+import type { RootState } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { createSelector } from "@reduxjs/toolkit"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
+import { useStore } from "react-redux"
 
 const selectClickableLayerIds = createSelector(
     [selectors.layer.visibleIds, selectors.preview.layerIds],
@@ -23,8 +26,10 @@ const selectClickableLayerIds = createSelector(
 
 export default function useFeatureSelect(ref: MapRef | undefined) {
     const dispatch = useAppDispatch()
+    const store = useStore<RootState>()
     const layerIds = useAppSelector(selectClickableLayerIds)
     const mapTool = useAppSelector(selectMapTool)
+    const processingRef = useRef(false)
 
     useEffect(() => {
         const map = ref?.getMap()
@@ -33,48 +38,62 @@ export default function useFeatureSelect(ref: MapRef | undefined) {
         }
 
         const click = map.on("click", async event => {
-            const features = queryFeaturesInPoint(event.target, event.point, layerIds)
+            if (processingRef.current) return
+            processingRef.current = true
+            try {
+                const features = queryFeaturesInPoint(event.target, event.point, layerIds)
 
-            if (features.length > 0) {
-                const f = features[0]
-                const featureId = f.id
-                if (typeof featureId !== "number") {
+                if (features.length > 0) {
+                    const f = features[0]
+                    const featureId = f.id
+                    if (typeof featureId !== "number") {
+                        return
+                    }
+
+                    const nativeEvent = event.originalEvent
+                    const sourceId = resolveSourceId(f.source, store.getState().layer.items)
+                    const currentSourceId = store.getState().selection.sourceId
+                    const sameSource = !currentSourceId || currentSourceId === sourceId
+
+                    let delta: SelectionDelta
+                    if (nativeEvent.shiftKey && sameSource) {
+                        delta = await selectionAdd([featureId])
+                    } else if (nativeEvent.ctrlKey || nativeEvent.metaKey) {
+                        if (sameSource) {
+                            delta = await selectionRemove([featureId])
+                        } else {
+                            delta = await selectionSet([featureId])
+                        }
+                    } else {
+                        delta = await selectionSet([featureId])
+                    }
+
+                    emitSelectionDelta(delta)
+
+                    const applyDelta = await selectionApply()
+                    emitSelectionDelta(applyDelta)
+
+                    const count = await selectionCount()
+                    dispatch(actions.selection.sync({ count, sourceId }))
+                    dispatch(actions.selection.apply())
                     return
                 }
 
-                const nativeEvent = event.originalEvent
-                let delta: SelectionDelta
-                if (nativeEvent.shiftKey) {
-                    delta = await selectionAdd([featureId])
-                } else if (nativeEvent.ctrlKey || nativeEvent.metaKey) {
-                    delta = await selectionRemove([featureId])
-                } else {
-                    delta = await selectionSet([featureId])
-                }
-
+                // Click on empty space — clear selection
+                const delta = await selectionClear()
                 emitSelectionDelta(delta)
 
-                const applyDelta = await selectionApply()
-                emitSelectionDelta(applyDelta)
-
-                const count = await selectionCount()
-                dispatch(actions.selection.sync({ count }))
+                dispatch(actions.selection.reset())
                 dispatch(actions.selection.apply())
-                return
+            } finally {
+                processingRef.current = false
             }
-
-            // Click on empty space — clear selection
-            const delta = await selectionClear()
-            emitSelectionDelta(delta)
-
-            dispatch(actions.selection.reset())
-            dispatch(actions.selection.apply())
         })
 
         return () => {
             click.unsubscribe()
         }
-    }, [dispatch, ref, layerIds, mapTool])
+    }, [dispatch, store, ref, layerIds, mapTool])
 
     return null
 }

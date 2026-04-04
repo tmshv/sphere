@@ -22,8 +22,13 @@ listener.startListening({
         const state = listenerApi.getState() as RootState
         const count = state.selection.count
         const sourceId =
+            state.selection.sourceId ??
             state.source.selectedId ??
             (state.layer.selectedId ? state.layer.items[state.layer.selectedId]?.sourceId : undefined)
+
+        if (state.selection.sourceId !== sourceId) {
+            listenerApi.dispatch(actions.selection.setSourceId(sourceId))
+        }
 
         await notifyPropertiesWindow(sourceId, count)
 

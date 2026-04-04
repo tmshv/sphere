@@ -61,12 +61,12 @@ describe("useMapNavigation", () => {
         expect(map.on).not.toHaveBeenCalled()
     })
 
-    it("disables all handlers when navigation tool is inactive", () => {
+    it("disables dragPan and dragRotate but keeps scrollZoom when navigation tool is inactive", () => {
         mockState(ALL_ENABLED, false)
         const map = makeMockMap()
         renderHook(() => useMapNavigation(makeRef(map)))
         expect(map.dragPan.disable).toHaveBeenCalled()
-        expect(map.scrollZoom.disable).toHaveBeenCalled()
+        expect(map.scrollZoom.enable).toHaveBeenCalled()
         expect(map.dragRotate.disable).toHaveBeenCalled()
         expect(map.on).not.toHaveBeenCalled()
     })

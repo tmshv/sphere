@@ -17,6 +17,11 @@ describe("drawSlice reducer", () => {
         expect(state.sourceId).toBe("my-source")
     })
 
+    test("start with another id sets sourceId", () => {
+        const state = reducer(undefined, start({ sourceId: "source-42" }))
+        expect(state.sourceId).toBe("source-42")
+    })
+
     test("done clears sourceId", () => {
         const prev = { sourceId: "my-source" }
         const state = reducer(prev, done({ sourceId: "my-source" }))
@@ -27,11 +32,6 @@ describe("drawSlice reducer", () => {
         const prev = { sourceId: "my-source" }
         const state = reducer(prev, reset())
         expect(state.sourceId).toBeUndefined()
-    })
-
-    test("start with another id sets sourceId", () => {
-        const state = reducer(undefined, start({ sourceId: "source-42" }))
-        expect(state.sourceId).toBe("source-42")
     })
 })
 

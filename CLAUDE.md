@@ -71,14 +71,14 @@ The following code smells are strictly forbidden:
 - `layer` - Layer management and styling
 - `source` - Data source management; `FeatureCollecionSource` stores no GeoJSON in Redux — data lives in the Rust backend. A `version: number` field acts as a cache-bust signal: `bumpVersion(id)` increments it, which triggers `SphereSource` to re-fetch via `source_get` IPC.
 - `selection` - Selected map features. `selectOne` sets `layerId`, clears `sourceId`; `selectMany` sets `sourceId`, clears `layerId` — mutually exclusive, and `useFeatureState` depends on this invariant
-- `draw` - Drawing mode state
+- `draw` - Drawing mode state (`sourceId`, `selectedIds: number[]`); `start` enters draw mode with optional selected feature IDs; `commit` carries `{ sourceId, patch: { added, updated, deleted_ids } }` and is handled by the `save-draw` listener; `done`/`reset` clear state
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
 - `tools` - Active map tool state (`activeTool: Tool | null`); `"navigation"` = drag-pan/scroll-zoom/rotate enabled (default), `"draw"` = drawing mode active, `null` = map frozen; `reset` action returns to `"navigation"` and triggers the `resetTool` listener which clears draw state if needed
 - `mapInteraction` - Fine-grained MapLibre handler toggles (`dragPan`, `scrollZoom`, `dragRotate`); combined with `tools` by `useMapNavigation`
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
-  - `SphereSource` — Renders a MapLibre `<Source>` for each Redux source entry. For `FeatureCollection` sources, data is never stored in Redux; the component watches `version` from the source slice and fetches via `source_get` IPC whenever it increments. For `Geojson` sources, data is fetched once on mount via `source_get` IPC. The draw tool (`Draw.tsx`) loads existing features on mount via `source_get` IPC (not from Redux state). On "Done", it calls `source_replace` IPC to persist the edited FeatureCollection, dispatches `bumpVersion` to trigger `SphereSource` to re-fetch, then dispatches `draw.done` and `tools.reset`. If `source_replace` fails, draw mode stays active.
+  - `SphereSource` — Renders a MapLibre `<Source>` for each Redux source entry. For `FeatureCollection` sources, data is never stored in Redux; the component watches `version` from the source slice and fetches via `source_get` IPC whenever it increments. For `Geojson` sources, data is fetched once on mount via `source_get` IPC. The draw tool (`Draw.tsx`) loads features on mount via `source_get_slice` IPC when features are selected, or `source_get` IPC for all features (not from Redux state). It tracks MapLibre Draw create/update/delete/combine/uncombine events. On "Done", it dispatches `draw.commit` with a patch (`{ added, updated, deleted_ids }`); the `save-draw` listener calls `source_patch` IPC to persist incremental changes, dispatches `bumpVersion` to trigger `SphereSource` to re-fetch, then dispatches `draw.done` and `tools.reset`. If `source_patch` fails, draw mode stays active.
   - `SourcePreviewLayer` - Renders geometry-typed preview layers (point/line/polygon) for the selected source when the Sources tab is active. Points layer components directly at the already-mounted MapLibre source (no duplicate source created). For GeoJSON/FeatureCollection sources, renders one set of `PointLayer`/`SphereLineStringLayer`/`SpherePolygonLayer` using `preview-${sourceId}-{geometry}` layer IDs. For MVT sources, iterates `source.sourceLayers` and renders all three components per named vector layer using `preview-${sourceId}-${sl.id}-{geometry}` IDs. Passes `selectPreviewLayerIds` result to `useFeatureProperties` (empty array when no preview active, which deactivates feature property lookup to prevent properties slice conflicts). `selectPreviewLayerIds` (in `store/selectors.ts`) is the single authoritative source of which layers are clickable during preview — used by both `SourcePreviewLayer` and `useFeatureSelect`
   - `map-body.tsx` `selectLayers` - suppresses user layers during draw mode and when a source is actively previewed (`previewSourceId` defined); the v0.13.0 regression (hiding layers on source tab unconditionally) was fixed, but source-preview isolation (hiding layers when a specific source is selected for preview) is intentional
   - `MapToolbar` - Floating Pan/Rect-Select toggle, visible on Sources tab only. Resets to `"pan"` whenever the user leaves the Sources tab (to avoid leaving `dragPan` disabled). Escape key also resets to pan
@@ -165,6 +165,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 |---------|-------------|
 | `source_add`              | Load a source from URL/path |
 | `source_get`              | Get source as GeoJSON string |
+| `source_get_slice`        | Get a subset of features by ID list as GeoJSON string: `(id, ids: Vec<i64>) -> String` |
 | `source_bounds`           | Get geographic bounds [west, south, east, north] |
 | `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
 | `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
@@ -175,6 +176,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `source_patch`            | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |
 | `mbtiles_get_tile`        | Get single tile from MBTiles |
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
+| `selection_get_ids`       | Get IDs of currently selected features: `() -> Vec<i64>` |
 | `show_in_finder`          | Open file location in system explorer |
 
 ## State Management Principles

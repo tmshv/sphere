@@ -39,6 +39,8 @@ async fn main() {
             commands::source::mbtiles_get_metadata,
             commands::source::source_add,
             commands::source::source_get,
+            commands::source::source_get_slice,
+            commands::source::source_get_selected,
             commands::source::source_bounds,
             commands::source::source_get_schema,
             commands::source::source_query_page,
@@ -55,6 +57,7 @@ async fn main() {
             commands::selection::selection_apply,
             commands::selection::selection_clear,
             commands::selection::selection_count,
+            commands::selection::selection_get_ids,
             commands::selection::selection_query_page,
         ])
         // .setup(|app| {

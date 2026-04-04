@@ -77,7 +77,7 @@ export const SourcePanel: React.FC = () => {
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
             <ActionBar
                 tooltipPosition={"top"}
-                onClick={name => {
+                onClick={async name => {
                     switch (name) {
                         case "trash": {
                             dispatch(actions.source.removeSource(source.id))
@@ -100,12 +100,7 @@ export const SourcePanel: React.FC = () => {
                             if (drawing) {
                                 dispatch(actions.tools.reset())
                             } else {
-                                dispatch(
-                                    actions.draw.start({
-                                        sourceId: source.id,
-                                    }),
-                                )
-                                dispatch(actions.tools.setTool("draw"))
+                                dispatch(actions.draw.start({ sourceId: source.id }))
                             }
                             break
                         }
