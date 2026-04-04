@@ -424,19 +424,19 @@ git commit -m "lint: promote noArrayIndexKey to error, suppress justified index 
 - Modify: `src/components/WorkingIndicator/index.tsx:4`
 - Modify: `src/hooks/useFeatureProperties.test.ts:18,20`
 
-- [ ] **Step 1: Promote rule to error**
+- [x] **Step 1: Promote rule to error**
 
 In `biome.json`:
 ```json
 "noBannedTypes": "warn" → "noBannedTypes": "error"
 ```
 
-- [ ] **Step 2: Run lint to see the errors**
+- [x] **Step 2: Run lint to see the errors**
 
 Run: `npx biome lint src/ --max-diagnostics=200 2>&1 | rg noBannedTypes`
 Expected: 3 errors
 
-- [ ] **Step 3: Fix WorkingIndicator**
+- [x] **Step 3: Fix WorkingIndicator**
 
 `{}` as a type is banned. This component takes no props. Remove the type entirely:
 
@@ -454,7 +454,7 @@ Delete the `WorkingIndicatorProps` export entirely. Check if it's imported anywh
 Run: `rg WorkingIndicatorProps src/`
 If not imported elsewhere, just delete it.
 
-- [ ] **Step 4: Fix useFeatureProperties.test.ts**
+- [x] **Step 4: Fix useFeatureProperties.test.ts**
 
 Lines 18 and 20 use `Function` (banned type). Replace with explicit signatures:
 
@@ -472,12 +472,12 @@ on: vi.fn((event: string, fn: Function) => {
 on: vi.fn((event: string, fn: (payload: object) => void) => {
 ```
 
-- [ ] **Step 5: Run tests and lint**
+- [x] **Step 5: Run tests and lint**
 
 Run: `npm test -- --run src/hooks/useFeatureProperties.test.ts src/components/WorkingIndicator && npm run lint`
 Expected: tests pass, no lint errors for this rule
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add biome.json src/components/WorkingIndicator/index.tsx src/hooks/useFeatureProperties.test.ts

@@ -15,9 +15,9 @@ import useFeatureClick from "./useFeatureClick"
 import useFeatureProperties from "./useFeatureProperties"
 
 function makeMockMap(queryResult: any[] = []) {
-    const handlers: Map<string, { fn: Function; unsubscribe: ReturnType<typeof vi.fn> }[]> = new Map()
+    const handlers: Map<string, { fn: (payload: object) => void; unsubscribe: ReturnType<typeof vi.fn> }[]> = new Map()
     return {
-        on: vi.fn((event: string, fn: Function) => {
+        on: vi.fn((event: string, fn: (payload: object) => void) => {
             const unsub = vi.fn()
             if (!handlers.has(event)) handlers.set(event, [])
             const list = handlers.get(event)
