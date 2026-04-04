@@ -495,6 +495,26 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
             </div>
 
             <Statusbar>
+                <Select
+                    className={cx(s.widget, s.widgetSelect)}
+                    value={attributeFilter}
+                    options={ATTRIBUTE_FILTER_OPTIONS}
+                    onChange={v => {
+                        if (v === "all" || v === "selection") {
+                            onAttributeFilterChange(v)
+                        }
+                    }}
+                />
+
+                <Box style={{ flex: 1 }} />
+
+                <Select
+                    className={cx(s.widget, s.widgetSelect)}
+                    value={String(pageSize)}
+                    options={pageSizeOptions}
+                    onChange={v => onPageSizeChange(Number(v))}
+                />
+
                 <MantineProvider
                     theme={{
                         components: {
@@ -525,26 +545,6 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                         <IconChevronRight size={14} />
                     </ActionIcon>
                 </MantineProvider>
-
-                <Select
-                    className={cx(s.widget, s.widgetSelect)}
-                    value={String(pageSize)}
-                    options={pageSizeOptions}
-                    onChange={v => onPageSizeChange(Number(v))}
-                />
-
-                <Box style={{ flex: 1 }} />
-
-                <Select
-                    className={cx(s.widget, s.widgetSelect)}
-                    value={attributeFilter}
-                    options={ATTRIBUTE_FILTER_OPTIONS}
-                    onChange={v => {
-                        if (v === "all" || v === "selection") {
-                            onAttributeFilterChange(v)
-                        }
-                    }}
-                />
             </Statusbar>
         </Flex>
     )
