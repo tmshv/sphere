@@ -1,6 +1,6 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import type { PropertiesEntry } from "@/store/properties"
+import { toPropertiesEntries } from "@/lib/properties"
 import { deduplicate } from "@/lib/array"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
@@ -14,12 +14,7 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
         if (features) {
             dispatch(
                 actions.properties.set({
-                    entries: features.reduce<PropertiesEntry[]>((acc, f) => {
-                        if (f.id != null) {
-                            acc.push({ id: f.id, values: f.properties ?? {} })
-                        }
-                        return acc
-                    }, []),
+                    entries: toPropertiesEntries(features),
                 }),
             )
         } else {
