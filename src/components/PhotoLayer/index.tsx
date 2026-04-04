@@ -82,9 +82,10 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({
                             size={iconSizeCluster ?? iconSize}
                             layout={iconLayout}
                             onHover={() => {
+                                if (feature.id == null) return
                                 dispatch(
                                     actions.properties.set({
-                                        values: feature.properties ?? {},
+                                        entries: { id: feature.id, values: feature.properties ?? {} },
                                     }),
                                 )
                             }}
@@ -120,9 +121,10 @@ export const PhotoLayer: React.FC<PhotoLayerProps> = ({
                             size={iconSize}
                             layout={iconLayout}
                             onHover={() => {
+                                if (feature.id == null) return
                                 dispatch(
                                     actions.properties.set({
-                                        values: feature.properties ?? {},
+                                        entries: { id: feature.id, values: feature.properties ?? {} },
                                     }),
                                 )
                             }}

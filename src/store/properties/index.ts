@@ -4,12 +4,15 @@ import type { RootState } from ".."
 
 type Properties = Record<string, unknown>
 
-// Define a type for the slice state
-type PropertiesState = {
-    values?: Properties[]
+export type PropertiesEntry = {
+    id: string | number
+    values: Properties
 }
 
-// Define the initial state using that type
+type PropertiesState = {
+    entries?: PropertiesEntry[]
+}
+
 const initialState: PropertiesState = {}
 
 export const propertiesSlice = createSlice({
@@ -17,27 +20,28 @@ export const propertiesSlice = createSlice({
     initialState,
     reducers: {
         reset: state => {
-            state.values = undefined
+            state.entries = undefined
         },
-        set: (state, action: PayloadAction<{ values: Properties | Properties[] }>) => {
-            state.values = Array.isArray(action.payload.values) ? action.payload.values : [action.payload.values]
+        set: (state, action: PayloadAction<{ entries: PropertiesEntry | PropertiesEntry[] }>) => {
+            state.entries = Array.isArray(action.payload.entries) ? action.payload.entries : [action.payload.entries]
         },
     },
 })
 
 const blacklist = new Set<string>()
 export const selectProperties = (state: RootState) => {
-    if (!state.properties.values) {
+    if (!state.properties.entries) {
         return null
     }
-    return state.properties.values.map(values => {
-        return Object.keys(values)
+    return state.properties.entries.map(entry => {
+        const items = Object.keys(entry.values)
             .filter(key => !blacklist.has(key))
             .map(key => {
-                const raw = values?.[key]
+                const raw = entry.values[key]
                 const value = typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw ?? "")
                 return { key, value }
             })
+        return { id: entry.id, items }
     })
 }
 

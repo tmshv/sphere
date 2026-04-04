@@ -63,7 +63,12 @@ describe("useFeatureProperties", () => {
         renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
         expect(dispatch).toHaveBeenCalledWith(
             expect.objectContaining({
-                payload: { values: [{ name: "A" }, { name: "B" }] },
+                payload: {
+                    entries: [
+                        { id: 1, values: { name: "A" } },
+                        { id: 2, values: { name: "B" } },
+                    ],
+                },
             }),
         )
     })
@@ -72,7 +77,9 @@ describe("useFeatureProperties", () => {
         const features = [{ id: 1, properties: null }] as unknown as MapGeoJSONFeature[]
         vi.mocked(useFeatureClick).mockReturnValue(features)
         renderHook(() => useFeatureProperties(undefined, ["layer-1"], 0))
-        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{}] } }))
+        expect(dispatch).toHaveBeenCalledWith(
+            expect.objectContaining({ payload: { entries: [{ id: 1, values: {} }] } }),
+        )
     })
 
     it("only dispatches reset (not set) when ref is undefined", () => {
@@ -108,7 +115,9 @@ describe("useFeatureProperties", () => {
         })
 
         expect(map.queryRenderedFeatures).toHaveBeenCalledWith({ x: 0, y: 0 }, { layers: ["layer-1"] })
-        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }] } }))
+        expect(dispatch).toHaveBeenCalledWith(
+            expect.objectContaining({ payload: { entries: [{ id: 1, values: { x: 1 } }] } }),
+        )
     })
 
     it("dispatches reset on mousemove when queryRenderedFeatures returns empty", () => {
@@ -151,7 +160,16 @@ describe("useFeatureProperties", () => {
             map.fire("mousemove", { point: { x: 0, y: 0 } })
         })
 
-        expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { values: [{ x: 1 }, { x: 2 }] } }))
+        expect(dispatch).toHaveBeenCalledWith(
+            expect.objectContaining({
+                payload: {
+                    entries: [
+                        { id: 1, values: { x: 1 } },
+                        { id: 2, values: { x: 2 } },
+                    ],
+                },
+            }),
+        )
     })
 
     it("skips mousemove dispatch when click features are active", () => {
