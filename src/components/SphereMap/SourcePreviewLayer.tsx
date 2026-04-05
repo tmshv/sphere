@@ -1,7 +1,8 @@
 import useFeatureProperties from "@/hooks/useFeatureProperties"
 import { assertUnreachable } from "@/lib"
 import { selectors } from "@/store"
-import { selectShowFeatureProperties } from "@/store/app"
+import { isHoverPopupEnabled } from "@/lib/map-tools"
+import { selectMapTool } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
 import { Layer, useMap } from "react-map-gl/maplibre"
 import { PointLayer } from "./PointLayer"
@@ -20,8 +21,8 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
     const specs = useAppSelector(selectors.preview.layerSpecs)
     const layerIds = useAppSelector(selectors.preview.layerIds)
 
-    const showFeatureProperties = useAppSelector(selectShowFeatureProperties)
-    const effectiveLayerIds = showFeatureProperties ? layerIds : EMPTY
+    const mapTool = useAppSelector(selectMapTool)
+    const effectiveLayerIds = isHoverPopupEnabled(mapTool) ? layerIds : EMPTY
 
     useFeatureProperties(map, effectiveLayerIds, delay)
 

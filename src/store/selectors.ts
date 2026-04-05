@@ -8,6 +8,7 @@ import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId }
 import { selectionSlice as selection } from "./selection"
 import { sourceSlice as source } from "./source"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
+import { selectPopupEntries } from "./properties"
 import { selectIsShowTerrain } from "./terrain"
 import { toolsSlice as tools } from "./tools"
 export type { PreviewLayerSpec } from "./preview"
@@ -68,4 +69,7 @@ export const selectors = {
     },
     mapInteraction: mapInteraction.selectors,
     tools: tools.selectors,
+    propertiesPopup: {
+        entries: selectPopupEntries,
+    },
 }

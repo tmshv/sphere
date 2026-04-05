@@ -2,6 +2,7 @@ import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { appSlice } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { isRectSelectEnabled } from "@/lib/map-tools"
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 import type { RectSelectModifier } from "@/store/rect-select"
@@ -188,7 +189,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         }
     }, [dragStart])
 
-    if (mapTool !== "select") {
+    if (!isRectSelectEnabled(mapTool)) {
         return null
     }
 

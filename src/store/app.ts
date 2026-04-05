@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
+import { DEFAULT_MAP_TOOL, type MapTool } from "@/lib/map-tools"
 import type { RootState } from "."
 
-// Define a type for the slice state
 type AppState = {
     version: string
     zenMode: boolean
@@ -11,11 +11,9 @@ type AppState = {
     showLeftSidebar: boolean
     showRightSidebar: boolean
     activeSidebarTab: "sources" | "layers"
-    mapTool: "pan" | "select"
-    showFeatureProperties: boolean
+    mapTool: MapTool
 }
 
-// Define the initial state using that type
 const initialState: AppState = {
     version: "",
     zenMode: false,
@@ -24,8 +22,7 @@ const initialState: AppState = {
     showLeftSidebar: true,
     showRightSidebar: true,
     activeSidebarTab: "sources",
-    mapTool: "pan",
-    showFeatureProperties: true,
+    mapTool: DEFAULT_MAP_TOOL,
 }
 
 export const appSlice = createSlice({
@@ -60,11 +57,8 @@ export const appSlice = createSlice({
         setActiveSidebarTab: (state, action: PayloadAction<"sources" | "layers">) => {
             state.activeSidebarTab = action.payload
         },
-        setMapTool: (state, action: PayloadAction<"pan" | "select">) => {
+        setMapTool: (state, action: PayloadAction<MapTool>) => {
             state.mapTool = action.payload
-        },
-        toggleFeatureProperties: state => {
-            state.showFeatureProperties = !state.showFeatureProperties
         },
     },
     selectors: {
@@ -77,12 +71,10 @@ export const actions = {
     ...appSlice.actions,
 }
 
-// Other code such as selectors can use the imported `RootState` type
 export const selectActiveSidebarTab = (state: RootState) => state.app.activeSidebarTab
 export const selectMapTool = (state: RootState) => state.app.mapTool
 export const selectShowAttribution = (state: RootState) => state.app.showAttribution
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode
-export const selectShowFeatureProperties = (state: RootState) => state.app.showFeatureProperties
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar
 export const selectVersion = (state: RootState) => state.app.version
 

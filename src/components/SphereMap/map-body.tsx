@@ -2,7 +2,6 @@ import useMapNavigation from "@/hooks/useMapNavigation"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
-import useFeatureSelect from "@/sphere-hooks/useFeatureSelect"
 import useFeatureState from "@/sphere-hooks/useFeatureState"
 import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
@@ -59,7 +58,6 @@ export default function MapBody({ mapId }: MapBodyProps) {
 
     useProjection(map, "mercator")
     usePointerHover(mapId)
-    useFeatureSelect(map)
     useFeatureState(map)
     useFeatureProperties(map, 50)
     useTileBoundaries(map)
