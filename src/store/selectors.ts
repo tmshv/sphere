@@ -77,8 +77,9 @@ export const selectPopupVisible = createSelector([selectMapTool], tool => isPopu
 export const selectPopupEntries = createSelector(
     [selectMapTool, selectHoverProperties, selectProperties],
     (tool, hover, selection) => {
-        if (!isPopupVisible(tool)) return []
+        if (!isPopupVisible(tool)) return null
         if (hover && hover.length > 0) return hover
-        return selection ?? []
+        if (selection && selection.length > 0) return selection
+        return null
     },
 )

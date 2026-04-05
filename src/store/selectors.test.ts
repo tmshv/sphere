@@ -292,13 +292,13 @@ describe("selectPopupEntries", () => {
     const selectionEntries = [{ id: 1, values: { k: "s" } }]
     const hoverEntries = [{ id: 2, values: { k: "h" } }]
 
-    test("empty when popup not visible", () => {
+    test("null when popup not visible", () => {
         expect(
             selectPopupEntries(makePopupState({ mapTool: "navigation", entries: selectionEntries, hoverEntries })),
-        ).toEqual([])
+        ).toBeNull()
         expect(
             selectPopupEntries(makePopupState({ mapTool: "select", entries: selectionEntries, hoverEntries })),
-        ).toEqual([])
+        ).toBeNull()
     })
 
     test("hover wins when info and hover is non-empty", () => {
@@ -313,7 +313,7 @@ describe("selectPopupEntries", () => {
         expect(result[0].id).toBe(1)
     })
 
-    test("empty when both sources empty", () => {
-        expect(selectPopupEntries(makePopupState({ mapTool: "info" }))).toEqual([])
+    test("null when both sources empty", () => {
+        expect(selectPopupEntries(makePopupState({ mapTool: "info" }))).toBeNull()
     })
 })
