@@ -635,29 +635,54 @@ mod tests {
         assert!(store.query_rect([0.0, 0.0, 2.0, 2.0], "include").is_empty());
     }
 
-    fn make_polygon_feature(id: i64, rings: Vec<Vec<Vec<f64>>>) -> Feature {
+    type Point2 = (f64, f64);
+
+    fn ring_from(points: &[Point2]) -> Vec<Vec<f64>> {
+        points.iter().map(|&(x, y)| vec![x, y]).collect()
+    }
+
+    fn polygon_feature(id: i64, ring: &[Point2]) -> Feature {
         Feature {
             bbox: None,
-            geometry: Some(Geometry::new(GeoValue::Polygon(rings))),
+            geometry: Some(Geometry::new(GeoValue::Polygon(vec![ring_from(ring)]))),
             id: Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
             properties: None,
             foreign_members: None,
         }
     }
 
-    fn square_ring(x0: f64, y0: f64, x1: f64, y1: f64) -> Vec<Vec<f64>> {
-        vec![
-            vec![x0, y0],
-            vec![x1, y0],
-            vec![x1, y1],
-            vec![x0, y1],
-            vec![x0, y0],
-        ]
+    fn multi_polygon_feature(id: i64, polygons: &[&[Point2]]) -> Feature {
+        let parts = polygons.iter().map(|p| vec![ring_from(p)]).collect();
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::MultiPolygon(parts))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
+            properties: None,
+            foreign_members: None,
+        }
+    }
+
+    fn square(x0: f64, y0: f64, x1: f64, y1: f64) -> [Point2; 5] {
+        [(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)]
+    }
+
+    fn square_feature(id: i64, x0: f64, y0: f64, x1: f64, y1: f64) -> Feature {
+        polygon_feature(id, &square(x0, y0, x1, y1))
+    }
+
+    fn point_feature(id: i64, x: f64, y: f64) -> Feature {
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::Point(vec![x, y]))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
+            properties: None,
+            foreign_members: None,
+        }
     }
 
     #[test]
     fn test_query_rect_include_polygon_fully_inside() {
-        let features = vec![make_polygon_feature(1, vec![square_ring(1.0, 1.0, 2.0, 2.0)])];
+        let features = vec![square_feature(1, 1.0, 1.0, 2.0, 2.0)];
         let store = FeatureStore::from_features(features);
         assert_eq!(store.query_rect([0.0, 0.0, 3.0, 3.0], "include"), vec![1i64]);
     }
@@ -665,7 +690,7 @@ mod tests {
     #[test]
     fn test_query_rect_include_polygon_straddling_edge_excluded() {
         // Polygon straddles east edge of rect — bbox extends past rect, not included.
-        let features = vec![make_polygon_feature(1, vec![square_ring(1.0, 1.0, 4.0, 2.0)])];
+        let features = vec![square_feature(1, 1.0, 1.0, 4.0, 2.0)];
         let store = FeatureStore::from_features(features);
         assert!(store.query_rect([0.0, 0.0, 3.0, 3.0], "include").is_empty());
     }
@@ -673,7 +698,7 @@ mod tests {
     #[test]
     fn test_query_rect_intersect_polygon_straddling_edge_included() {
         // Same polygon crossing east edge — geometry overlaps rect → intersect matches.
-        let features = vec![make_polygon_feature(1, vec![square_ring(1.0, 1.0, 4.0, 2.0)])];
+        let features = vec![square_feature(1, 1.0, 1.0, 4.0, 2.0)];
         let store = FeatureStore::from_features(features);
         assert_eq!(
             store.query_rect([0.0, 0.0, 3.0, 3.0], "intersect"),
@@ -683,7 +708,7 @@ mod tests {
 
     #[test]
     fn test_query_rect_intersect_polygon_fully_outside() {
-        let features = vec![make_polygon_feature(1, vec![square_ring(10.0, 10.0, 11.0, 11.0)])];
+        let features = vec![square_feature(1, 10.0, 10.0, 11.0, 11.0)];
         let store = FeatureStore::from_features(features);
         assert!(store
             .query_rect([0.0, 0.0, 3.0, 3.0], "intersect")
@@ -696,13 +721,10 @@ mod tests {
         // Query rect: (1.5, 1.5, 3.0, 3.0). Bbox of triangle intersects query rect
         // (corner region 1.5..2, 1.5..2), but the triangle's geometry at x=1.5 only
         // reaches y=0.5, so the actual polygon does not enter the query rect.
-        let triangle = vec![vec![
-            vec![0.0, 0.0],
-            vec![2.0, 0.0],
-            vec![0.0, 2.0],
-            vec![0.0, 0.0],
-        ]];
-        let features = vec![make_polygon_feature(1, triangle)];
+        let features = vec![polygon_feature(
+            1,
+            &[(0.0, 0.0), (2.0, 0.0), (0.0, 2.0), (0.0, 0.0)],
+        )];
         let store = FeatureStore::from_features(features);
         // bbox-based candidate filter passes (R-tree bbox overlap), but geometric
         // intersect correctly returns empty.
@@ -714,17 +736,11 @@ mod tests {
     #[test]
     fn test_query_rect_intersect_multipolygon() {
         // MultiPolygon with two parts: one inside rect, one outside.
-        let feature = Feature {
-            bbox: None,
-            geometry: Some(Geometry::new(GeoValue::MultiPolygon(vec![
-                vec![square_ring(0.5, 0.5, 1.5, 1.5)],
-                vec![square_ring(10.0, 10.0, 11.0, 11.0)],
-            ]))),
-            id: Some(geojson::feature::Id::Number(serde_json::Number::from(7))),
-            properties: None,
-            foreign_members: None,
-        };
-        let store = FeatureStore::from_features(vec![feature]);
+        let features = vec![multi_polygon_feature(
+            7,
+            &[&square(0.5, 0.5, 1.5, 1.5), &square(10.0, 10.0, 11.0, 11.0)],
+        )];
+        let store = FeatureStore::from_features(features);
         assert_eq!(
             store.query_rect([0.0, 0.0, 2.0, 2.0], "intersect"),
             vec![7i64]
@@ -736,16 +752,12 @@ mod tests {
         // Bowtie polygon: self-intersecting ring. geo's relate algorithm may panic
         // on such invalid geometries — the panic guard must swallow it and return
         // without crashing, leaving the feature out of the result.
-        let bowtie = vec![vec![
-            vec![0.0, 0.0],
-            vec![2.0, 2.0],
-            vec![2.0, 0.0],
-            vec![0.0, 2.0],
-            vec![0.0, 0.0],
-        ]];
         let features = vec![
-            make_polygon_feature(1, bowtie),
-            make_polygon_feature(2, vec![square_ring(0.5, 0.5, 1.5, 1.5)]),
+            polygon_feature(
+                1,
+                &[(0.0, 0.0), (2.0, 2.0), (2.0, 0.0), (0.0, 2.0), (0.0, 0.0)],
+            ),
+            square_feature(2, 0.5, 0.5, 1.5, 1.5),
         ];
         let store = FeatureStore::from_features(features);
         // Must not panic. Valid feature (2) still returned.
@@ -756,10 +768,10 @@ mod tests {
     #[test]
     fn test_query_rect_result_is_sorted() {
         let features = vec![
-            make_polygon_feature(5, vec![square_ring(0.1, 0.1, 0.2, 0.2)]),
-            make_polygon_feature(2, vec![square_ring(0.3, 0.3, 0.4, 0.4)]),
-            make_polygon_feature(8, vec![square_ring(0.5, 0.5, 0.6, 0.6)]),
-            make_polygon_feature(1, vec![square_ring(0.7, 0.7, 0.8, 0.8)]),
+            square_feature(5, 0.1, 0.1, 0.2, 0.2),
+            square_feature(2, 0.3, 0.3, 0.4, 0.4),
+            square_feature(8, 0.5, 0.5, 0.6, 0.6),
+            square_feature(1, 0.7, 0.7, 0.8, 0.8),
         ];
         let store = FeatureStore::from_features(features);
         let result = store.query_rect([0.0, 0.0, 1.0, 1.0], "include");
@@ -769,16 +781,10 @@ mod tests {
     #[test]
     fn test_query_rect_mixed_features_include() {
         let features = vec![
-            make_polygon_feature(1, vec![square_ring(0.1, 0.1, 0.5, 0.5)]), // inside
-            make_polygon_feature(2, vec![square_ring(0.8, 0.8, 5.0, 5.0)]), // straddles east edge
-            make_polygon_feature(3, vec![square_ring(10.0, 10.0, 11.0, 11.0)]), // outside
-            Feature {
-                bbox: None,
-                geometry: Some(Geometry::new(GeoValue::Point(vec![0.5, 0.5]))), // inside
-                id: Some(geojson::feature::Id::Number(serde_json::Number::from(4))),
-                properties: None,
-                foreign_members: None,
-            },
+            square_feature(1, 0.1, 0.1, 0.5, 0.5),      // inside
+            square_feature(2, 0.8, 0.8, 5.0, 5.0),      // straddles east edge
+            square_feature(3, 10.0, 10.0, 11.0, 11.0),  // outside
+            point_feature(4, 0.5, 0.5),                 // inside
         ];
         let store = FeatureStore::from_features(features);
         let result = store.query_rect([0.0, 0.0, 1.0, 1.0], "include");
@@ -787,7 +793,7 @@ mod tests {
 
     #[test]
     fn test_query_rect_unknown_mode_returns_empty() {
-        let features = vec![make_polygon_feature(1, vec![square_ring(0.1, 0.1, 0.5, 0.5)])];
+        let features = vec![square_feature(1, 0.1, 0.1, 0.5, 0.5)];
         let store = FeatureStore::from_features(features);
         assert!(store
             .query_rect([0.0, 0.0, 1.0, 1.0], "bogus")
