@@ -120,7 +120,7 @@ git commit -m "Register selection_rect in Tauri invoke handler"
 **Files:**
 - Modify: `src/lib/selection-ipc.ts`
 
-- [ ] **Step 1: Add the op type and helper**
+- [x] **Step 1: Add the op type and helper**
 
 Append to `src/lib/selection-ipc.ts` (after `selectionQueryPage`, before the file ends):
 
@@ -142,12 +142,12 @@ export function selectionRect(
 }
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 Run: `npm run build`
 Expected: no TypeScript errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/selection-ipc.ts
