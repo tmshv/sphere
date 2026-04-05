@@ -70,10 +70,10 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 6: Map context menu entries
 
-- [ ] In `src/components/MapContextMenu/index.tsx`, conditionally render two items above "Copy location" when `selection.count > 0` and `selection.sourceId` is set:
+- [x] In `src/components/MapContextMenu/index.tsx`, conditionally render two items above "Copy location" when `selection.count > 0` and `selection.sourceId` is set:
   - "Copy selection as GeoJSON"
   - "Copy selection as WKT"
-- [ ] Update existing tests and add coverage for conditional rendering based on selection.
+- [x] Update existing tests and add coverage for conditional rendering based on selection.
 
 ### Task 7: cmd+c keyboard handler
 
