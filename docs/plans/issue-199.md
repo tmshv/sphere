@@ -918,7 +918,7 @@ git commit -m "Simplify useFeatureProperties to hover-only, write to hoverEntrie
 **Files:**
 - Modify: `src/sphere-hooks/useFeatureProperties.ts`
 
-- [ ] **Step 1: Rewrite file**
+- [x] **Step 1: Rewrite file**
 
 ```ts
 import useFP from "@/hooks/useFeatureProperties"
@@ -940,12 +940,12 @@ export default function useFeatureProperties(ref: MapRef | undefined, delay: num
 }
 ```
 
-- [ ] **Step 2: Verify compile**
+- [x] **Step 2: Verify compile**
 
 Run: `npx tsc --noEmit`
 Expected: This file compiles. Remaining errors unrelated.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/sphere-hooks/useFeatureProperties.ts
