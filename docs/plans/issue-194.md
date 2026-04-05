@@ -542,7 +542,7 @@ git commit -m "Use single selection_rect IPC call in rect-select listener"
 **Files:**
 - Modify: `CLAUDE.md:86` (RectSelectOverlay description) and the IPC Commands table around line 174
 
-- [ ] **Step 1: Update the `RectSelectOverlay` bullet**
+- [x] **Step 1: Update the `RectSelectOverlay` bullet**
 
 In `CLAUDE.md`, find the `RectSelectOverlay` bullet under `components/SphereMap/` (line 86). Replace the phrase "Calls `source_query_rect` and dispatches `selectMany`" with "Calls `selection_rect` (single IPC call that spatially queries and mutates selection server-side, returning a delta) and emits the delta on the selection bus".
 
@@ -552,7 +552,7 @@ The updated bullet:
   - `RectSelectOverlay` - Transparent overlay that captures mouse drag when `mapTool === "select"`. Drag left-to-right = `"include"` mode (solid border); right-to-left = `"intersect"` mode (dashed border). Calls `selection_rect` (single IPC call that spatially queries and mutates selection server-side, returning a delta) and emits the delta on the selection bus. Requires `selectors.selection.currentSourceId` to be set (set by `selectMany`; absent when `selectOne` used)
 ```
 
-- [ ] **Step 2: Add `selection_rect` to the IPC Commands table**
+- [x] **Step 2: Add `selection_rect` to the IPC Commands table**
 
 In `CLAUDE.md`, in the IPC Commands table, add a new row immediately after `selection_get_ids` and before `show_in_finder`. Column widths are aligned with the longest entry in the table:
 
@@ -560,7 +560,7 @@ In `CLAUDE.md`, in the IPC Commands table, add a new row immediately after `sele
 | `selection_rect`          | Spatially query a source by bbox and apply to selection state in one call: `(source_id, bbox: [west,south,east,north], mode: "include"\|"intersect", op: "set"\|"preview"\|"add") -> SelectionDelta` |
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add CLAUDE.md
@@ -571,9 +571,9 @@ git commit -m "Document selection_rect IPC command"
 
 ## Verification
 
-- [ ] **Full test suite**: `npm test` (all green)
-- [ ] **Lint**: `npm run lint` (clean)
-- [ ] **Rust build**: `cd src-tauri && cargo check` (clean)
+- [x] **Full test suite**: `npm test` (all green)
+- [x] **Lint**: `npm run lint` (clean)
+- [x] **Rust build**: `cd src-tauri && cargo check` (clean)
 - [ ] **Manual smoke test**: `npm run tauri dev`, load a dataset with 10k+ features, enter the Sources tab, switch to the select tool, drag a rectangle across the map. Expect: smooth highlighting during drag, no freeze, selection count matches visually.
 
 ---
