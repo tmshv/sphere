@@ -1,37 +1,49 @@
 import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
 import { queryFeaturesInPoint } from "@/lib/maplibre"
-import { emitSelectionDelta } from "@/lib/selection-bus"
+import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
-    selectionSet,
-    selectionPreview,
+    type SelectionRectOp,
     selectionAdd,
-    selectionRemove,
     selectionApply,
     selectionClear,
     selectionCount,
+    selectionGetIds,
+    selectionRect,
+    selectionRemove,
+    selectionSet,
 } from "@/lib/selection-ipc"
-import { invoke } from "@tauri-apps/api/core"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
 import { selectPreviewLayerIds } from "../preview"
-import { rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
-
-const THROTTLE_MS = 50
+import { type RectSelectModifier, rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
 
 const listener = createListenerMiddleware()
 
-let lastThrottle = 0
+type DragPayload = {
+    start: { x: number; y: number }
+    current: { x: number; y: number }
+    modifier: RectSelectModifier
+}
+
+type Bbox = [number, number, number, number]
+
 let queryGeneration = 0
+let dragSession = 0
+let dragInFlight = false
+let pendingDrag: DragPayload | null = null
+let lastDragBbox: Bbox | null = null
+let lastDragMode: "include" | "intersect" | null = null
+let lastDragOp: SelectionRectOp | null = null
 
 function screenToGeoBbox(
     map: maplibregl.Map,
     start: { x: number; y: number },
     current: { x: number; y: number },
-): [number, number, number, number] {
+): Bbox {
     const containerRect = map.getContainer().getBoundingClientRect()
     const sw = map.unproject([
         Math.min(start.x, current.x) - containerRect.left,
@@ -44,44 +56,69 @@ function screenToGeoBbox(
     return [sw.lng, sw.lat, ne.lng, ne.lat]
 }
 
+function bboxEqual(a: Bbox, b: Bbox): boolean {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3]
+}
+
+function resetDragDedup(): void {
+    lastDragBbox = null
+    lastDragMode = null
+    lastDragOp = null
+}
+
 listener.startListening({
     actionCreator: rectSelectDrag,
     effect: async (action, listenerApi) => {
-        const now = Date.now()
-        if (now - lastThrottle < THROTTLE_MS) {
-            return
+        pendingDrag = action.payload
+        if (dragInFlight) return
+        dragInFlight = true
+        const session = dragSession
+        try {
+            while (pendingDrag) {
+                const payload = pendingDrag
+                pendingDrag = null
+
+                if (session !== dragSession) break
+
+                const state = listenerApi.getState() as RootState
+                const sourceId = state.source.selectedId
+                if (!sourceId) continue
+
+                const map = getMap(MAP_ID)
+                if (!map) continue
+
+                const { start, current, modifier } = payload
+                const mode = current.x >= start.x ? "include" : "intersect"
+                const bbox = screenToGeoBbox(map, start, current)
+                const op: SelectionRectOp = modifier === "shift" ? "preview" : "set"
+
+                if (lastDragBbox && lastDragMode === mode && lastDragOp === op && bboxEqual(lastDragBbox, bbox)) {
+                    continue
+                }
+                lastDragBbox = bbox
+                lastDragMode = mode
+                lastDragOp = op
+
+                const generation = ++queryGeneration
+                const delta = await selectionRect(sourceId, bbox, mode, op, generation)
+
+                if (session !== dragSession) break
+
+                emitSelectionDelta(delta)
+            }
+        } finally {
+            dragInFlight = false
         }
-        lastThrottle = now
-
-        const generation = ++queryGeneration
-        const state = listenerApi.getState() as RootState
-        const sourceId = state.source.selectedId
-        if (!sourceId) return
-
-        const map = getMap(MAP_ID)
-        if (!map) return
-
-        const { start, current, modifier } = action.payload
-        const mode = current.x >= start.x ? "include" : "intersect"
-        const bbox = screenToGeoBbox(map, start, current)
-
-        const featureIds = await invoke<number[]>("source_query_rect", {
-            id: sourceId,
-            bbox,
-            mode,
-        })
-
-        if (generation !== queryGeneration) return
-
-        const delta = modifier === "shift" ? await selectionPreview(featureIds) : await selectionSet(featureIds)
-
-        emitSelectionDelta(delta)
     },
 })
 
 listener.startListening({
     actionCreator: rectSelectCommit,
     effect: async (action, listenerApi) => {
+        dragSession++
+        pendingDrag = null
+        resetDragDedup()
+
         const generation = ++queryGeneration
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
@@ -93,21 +130,19 @@ listener.startListening({
         const { start, current, modifier } = action.payload
         const mode = current.x >= start.x ? "include" : "intersect"
         const bbox = screenToGeoBbox(map, start, current)
+        const op = modifier === "shift" ? "add" : "set"
 
-        const featureIds = await invoke<number[]>("source_query_rect", {
-            id: sourceId,
-            bbox,
-            mode,
-        })
-
-        if (generation !== queryGeneration) return
-
-        const delta = modifier === "shift" ? await selectionAdd(featureIds) : await selectionSet(featureIds)
+        const delta = await selectionRect(sourceId, bbox, mode, op, generation)
 
         emitSelectionDelta(delta)
 
         const applyDelta = await selectionApply()
         emitSelectionDelta(applyDelta)
+
+        // Reconcile frontend highlights with authoritative backend state
+        // to correct any drift from dropped stale drag deltas
+        const ids = await selectionGetIds()
+        emitSelectionReconcile(ids, sourceId)
 
         const count = await selectionCount()
         listenerApi.dispatch(actions.selection.sync({ count, sourceId }))
@@ -119,6 +154,10 @@ listener.startListening({
 listener.startListening({
     actionCreator: rectSelectClick,
     effect: async (action, listenerApi) => {
+        dragSession++
+        pendingDrag = null
+        resetDragDedup()
+
         const state = listenerApi.getState() as RootState
         const map = getMap(MAP_ID)
         if (!map) return

@@ -2433,7 +2433,7 @@ dependencies = [
 
 [[package]]
 name = "libsphere"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "csv",
  "geo",
@@ -4392,7 +4392,7 @@ dependencies = [
 
 [[package]]
 name = "sphere"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "csv",
  "flate2",

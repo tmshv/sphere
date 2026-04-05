@@ -3,5 +3,6 @@ use std::sync::Mutex;
 
 #[derive(Default)]
 pub struct SelectionStorage {
-    pub state: Mutex<SelectionState>,
+    pub inner: Mutex<SelectionState>,
+    pub generation: Mutex<u64>,
 }

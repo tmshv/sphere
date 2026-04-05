@@ -1,12 +1,14 @@
-use geo::{Contains, Intersects};
+use geo::Intersects;
 use geojson::Feature;
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
 
 use libexpression::{EvalContext, Expr, Value as ExprValue};
 
-use crate::index::{Bbox, RstarIndex, SpatialIndex};
+use crate::bbox::{Bbox, BboxOps};
+use crate::index::{RstarIndex, SpatialIndex};
 use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug, Serialize)]
@@ -19,6 +21,8 @@ pub struct PageResult {
 
 pub struct FeatureStore {
     features: Vec<Feature>,
+    feature_ids: Vec<Option<i64>>,
+    feature_bboxes: Vec<Option<Bbox>>,
     index: Box<dyn SpatialIndex>,
     schema: SourceSchema,
     bounds: Option<Bbox>,
@@ -29,10 +33,15 @@ impl FeatureStore {
         let schema = infer_source_schema(features.iter());
 
         let mut entries = Vec::with_capacity(features.len());
+        let mut feature_bboxes: Vec<Option<Bbox>> = Vec::with_capacity(features.len());
+        let mut feature_ids: Vec<Option<i64>> = Vec::with_capacity(features.len());
         let mut overall_bbox: Option<Bbox> = None;
 
         for (idx, feature) in features.iter().enumerate() {
-            if let Some(bbox) = compute_feature_bbox(feature) {
+            let fb = compute_feature_bbox(feature);
+            feature_bboxes.push(fb);
+            feature_ids.push(feature_id_i64(feature));
+            if let Some(bbox) = fb {
                 entries.push((idx, bbox));
                 overall_bbox = Some(match overall_bbox {
                     None => bbox,
@@ -50,6 +59,8 @@ impl FeatureStore {
 
         Self {
             features,
+            feature_ids,
+            feature_bboxes,
             index,
             schema,
             bounds: overall_bbox,
@@ -150,35 +161,44 @@ impl FeatureStore {
     }
 
     /// Returns IDs of features that match the given rect and mode.
-    /// mode: "include" = feature fully inside rect, "intersect" = feature touches rect.
+    /// mode: "include" = feature bbox fully inside rect (exact for polygon selection).
+    /// mode: "intersect" = feature geometry intersects rect (geometric test, invalid
+    /// geometries that would panic in geo's relate algorithm are skipped).
     pub fn query_rect(&self, bbox: [f64; 4], mode: &str) -> Vec<i64> {
         let [west, south, east, north] = bbox;
+        let candidates = self.index.query_bbox((west, south, east, north));
+        let mut result = Vec::with_capacity(candidates.len());
         let rect = geo::Rect::new(
             geo::coord! { x: west, y: south },
             geo::coord! { x: east, y: north },
         );
-        let candidates = self.index.query_bbox((west, south, east, north));
-        let mut result = Vec::new();
         for idx in candidates {
-            let feature = &self.features[idx];
-            let id = match &feature.id {
-                Some(geojson::feature::Id::Number(n)) => match n.as_i64() {
-                    Some(v) => v,
-                    None => continue,
-                },
-                _ => continue,
-            };
-            let geometry = match &feature.geometry {
-                Some(g) => g,
+            let id = match self.feature_ids[idx] {
+                Some(v) => v,
                 None => continue,
             };
-            let geo_geom: geo::Geometry<f64> = match geo::Geometry::try_from(geometry) {
-                Ok(g) => g,
-                Err(_) => continue,
-            };
             let matches = match mode {
-                "include" => rect.contains(&geo_geom),
-                "intersect" => rect.intersects(&geo_geom),
+                "include" => {
+                    let fb = match self.feature_bboxes[idx] {
+                        Some(b) => b,
+                        None => continue,
+                    };
+                    fb.0 >= west && fb.1 >= south && fb.2 <= east && fb.3 <= north
+                }
+                "intersect" => {
+                    let geometry = match &self.features[idx].geometry {
+                        Some(g) => g,
+                        None => continue,
+                    };
+                    let geo_geom: geo::Geometry<f64> = match geo::Geometry::try_from(geometry) {
+                        Ok(g) => g,
+                        Err(_) => continue,
+                    };
+                    match catch_unwind(AssertUnwindSafe(|| rect.intersects(&geo_geom))) {
+                        Ok(v) => v,
+                        Err(_) => continue,
+                    }
+                }
                 _ => false,
             };
             if matches {
@@ -187,6 +207,13 @@ impl FeatureStore {
         }
         result.sort();
         result
+    }
+}
+
+fn feature_id_i64(feature: &Feature) -> Option<i64> {
+    match &feature.id {
+        Some(geojson::feature::Id::Number(n)) => n.as_i64(),
+        _ => None,
     }
 }
 
@@ -224,29 +251,24 @@ fn compute_feature_bbox(feature: &Feature) -> Option<Bbox> {
 }
 
 fn bbox_from_geometry_value(value: &geojson::Value) -> Option<Bbox> {
-    let mut west = f64::INFINITY;
-    let mut south = f64::INFINITY;
-    let mut east = f64::NEG_INFINITY;
-    let mut north = f64::NEG_INFINITY;
-
-    if collect_coords(value, &mut west, &mut south, &mut east, &mut north) {
-        Some((west, south, east, north))
+    let mut bbox: Bbox = (
+        f64::INFINITY,
+        f64::INFINITY,
+        f64::NEG_INFINITY,
+        f64::NEG_INFINITY,
+    );
+    if collect_coords(value, &mut bbox) {
+        Some(bbox)
     } else {
         None
     }
 }
 
-fn collect_coords(
-    value: &geojson::Value,
-    west: &mut f64,
-    south: &mut f64,
-    east: &mut f64,
-    north: &mut f64,
-) -> bool {
+fn collect_coords(value: &geojson::Value, bbox: &mut Bbox) -> bool {
     match value {
         geojson::Value::Point(pt) => {
             if pt.len() >= 2 {
-                update_bounds(pt[0], pt[1], west, south, east, north);
+                bbox.update_bounds((pt[0], pt[1]));
                 true
             } else {
                 false
@@ -256,7 +278,7 @@ fn collect_coords(
             let mut any = false;
             for pt in pts {
                 if pt.len() >= 2 {
-                    update_bounds(pt[0], pt[1], west, south, east, north);
+                    bbox.update_bounds((pt[0], pt[1]));
                     any = true;
                 }
             }
@@ -266,7 +288,7 @@ fn collect_coords(
             let mut any = false;
             for pt in pts {
                 if pt.len() >= 2 {
-                    update_bounds(pt[0], pt[1], west, south, east, north);
+                    bbox.update_bounds((pt[0], pt[1]));
                     any = true;
                 }
             }
@@ -277,7 +299,7 @@ fn collect_coords(
             for line in lines {
                 for pt in line {
                     if pt.len() >= 2 {
-                        update_bounds(pt[0], pt[1], west, south, east, north);
+                        bbox.update_bounds((pt[0], pt[1]));
                         any = true;
                     }
                 }
@@ -289,7 +311,7 @@ fn collect_coords(
             for ring in rings {
                 for pt in ring {
                     if pt.len() >= 2 {
-                        update_bounds(pt[0], pt[1], west, south, east, north);
+                        bbox.update_bounds((pt[0], pt[1]));
                         any = true;
                     }
                 }
@@ -302,7 +324,7 @@ fn collect_coords(
                 for ring in poly {
                     for pt in ring {
                         if pt.len() >= 2 {
-                            update_bounds(pt[0], pt[1], west, south, east, north);
+                            bbox.update_bounds((pt[0], pt[1]));
                             any = true;
                         }
                     }
@@ -313,7 +335,7 @@ fn collect_coords(
         geojson::Value::GeometryCollection(geoms) => {
             let mut any = false;
             for geom in geoms {
-                if collect_coords(&geom.value, west, south, east, north) {
+                if collect_coords(&geom.value, bbox) {
                     any = true;
                 }
             }
@@ -322,12 +344,6 @@ fn collect_coords(
     }
 }
 
-fn update_bounds(lon: f64, lat: f64, west: &mut f64, south: &mut f64, east: &mut f64, north: &mut f64) {
-    if lon < *west { *west = lon; }
-    if lat < *south { *south = lat; }
-    if lon > *east { *east = lon; }
-    if lat > *north { *north = lat; }
-}
 
 fn get_property_value<'a>(feature: &'a Feature, col: &str) -> Option<&'a Value> {
     feature.properties.as_ref().and_then(|p| p.get(col))
@@ -354,6 +370,7 @@ fn compare_values(a: Option<&Value>, b: Option<&Value>) -> std::cmp::Ordering {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::bbox::Point2;
     use geojson::{Feature, Geometry, Value as GeoValue};
     use serde_json::json;
 
@@ -607,5 +624,191 @@ mod tests {
         let store = FeatureStore::from_features(features);
         // Feature has no id — cannot be selected
         assert!(store.query_rect([0.0, 0.0, 2.0, 2.0], "include").is_empty());
+    }
+
+    fn ring_from(points: &[Point2]) -> Vec<Vec<f64>> {
+        points.iter().map(|&(x, y)| vec![x, y]).collect()
+    }
+
+    fn polygon_feature(id: i64, ring: &[Point2]) -> Feature {
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::Polygon(vec![ring_from(ring)]))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
+            properties: None,
+            foreign_members: None,
+        }
+    }
+
+    fn multi_polygon_feature(id: i64, polygons: &[&[Point2]]) -> Feature {
+        let parts = polygons.iter().map(|p| vec![ring_from(p)]).collect();
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::MultiPolygon(parts))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
+            properties: None,
+            foreign_members: None,
+        }
+    }
+
+    fn square(x0: f64, y0: f64, x1: f64, y1: f64) -> [Point2; 5] {
+        [(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)]
+    }
+
+    fn square_feature(id: i64, x0: f64, y0: f64, x1: f64, y1: f64) -> Feature {
+        polygon_feature(id, &square(x0, y0, x1, y1))
+    }
+
+    fn point_feature(id: i64, x: f64, y: f64) -> Feature {
+        Feature {
+            bbox: None,
+            geometry: Some(Geometry::new(GeoValue::Point(vec![x, y]))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
+            properties: None,
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn test_query_rect_include_polygon_fully_inside() {
+        let features = vec![square_feature(1, 1.0, 1.0, 2.0, 2.0)];
+        let store = FeatureStore::from_features(features);
+        assert_eq!(store.query_rect([0.0, 0.0, 3.0, 3.0], "include"), vec![1i64]);
+    }
+
+    #[test]
+    fn test_query_rect_include_polygon_straddling_edge_excluded() {
+        // Polygon straddles east edge of rect — bbox extends past rect, not included.
+        let features = vec![square_feature(1, 1.0, 1.0, 4.0, 2.0)];
+        let store = FeatureStore::from_features(features);
+        assert!(store.query_rect([0.0, 0.0, 3.0, 3.0], "include").is_empty());
+    }
+
+    #[test]
+    fn test_query_rect_intersect_polygon_straddling_edge_included() {
+        // Same polygon crossing east edge — geometry overlaps rect → intersect matches.
+        let features = vec![square_feature(1, 1.0, 1.0, 4.0, 2.0)];
+        let store = FeatureStore::from_features(features);
+        assert_eq!(
+            store.query_rect([0.0, 0.0, 3.0, 3.0], "intersect"),
+            vec![1i64]
+        );
+    }
+
+    #[test]
+    fn test_query_rect_intersect_polygon_fully_outside() {
+        let features = vec![square_feature(1, 10.0, 10.0, 11.0, 11.0)];
+        let store = FeatureStore::from_features(features);
+        assert!(store
+            .query_rect([0.0, 0.0, 3.0, 3.0], "intersect")
+            .is_empty());
+    }
+
+    #[test]
+    fn test_query_rect_intersect_bbox_overlaps_but_geometry_does_not() {
+        // Right triangle with vertices (0,0), (2,0), (0,2). Polygon bbox: (0,0,2,2).
+        // Query rect: (1.5, 1.5, 3.0, 3.0). Bbox of triangle intersects query rect
+        // (corner region 1.5..2, 1.5..2), but the triangle's geometry at x=1.5 only
+        // reaches y=0.5, so the actual polygon does not enter the query rect.
+        let features = vec![polygon_feature(
+            1,
+            &[(0.0, 0.0), (2.0, 0.0), (0.0, 2.0), (0.0, 0.0)],
+        )];
+        let store = FeatureStore::from_features(features);
+        // bbox-based candidate filter passes (R-tree bbox overlap), but geometric
+        // intersect correctly returns empty.
+        assert!(store
+            .query_rect([1.5, 1.5, 3.0, 3.0], "intersect")
+            .is_empty());
+    }
+
+    #[test]
+    fn test_query_rect_intersect_multipolygon() {
+        // MultiPolygon with two parts: one inside rect, one outside.
+        let features = vec![multi_polygon_feature(
+            7,
+            &[&square(0.5, 0.5, 1.5, 1.5), &square(10.0, 10.0, 11.0, 11.0)],
+        )];
+        let store = FeatureStore::from_features(features);
+        assert_eq!(
+            store.query_rect([0.0, 0.0, 2.0, 2.0], "intersect"),
+            vec![7i64]
+        );
+    }
+
+    #[test]
+    fn test_query_rect_self_intersecting_polygon_is_skipped_not_panicking() {
+        // Bowtie polygon: self-intersecting ring. geo's relate algorithm may panic
+        // on such invalid geometries — the panic guard must swallow it and return
+        // without crashing, leaving the feature out of the result.
+        let features = vec![
+            polygon_feature(
+                1,
+                &[(0.0, 0.0), (2.0, 2.0), (2.0, 0.0), (0.0, 2.0), (0.0, 0.0)],
+            ),
+            square_feature(2, 0.5, 0.5, 1.5, 1.5),
+        ];
+        let store = FeatureStore::from_features(features);
+        // Must not panic. Valid feature (2) still returned.
+        let result = store.query_rect([0.0, 0.0, 3.0, 3.0], "intersect");
+        assert!(result.contains(&2));
+    }
+
+    #[test]
+    fn test_query_rect_result_is_sorted() {
+        let features = vec![
+            square_feature(5, 0.1, 0.1, 0.2, 0.2),
+            square_feature(2, 0.3, 0.3, 0.4, 0.4),
+            square_feature(8, 0.5, 0.5, 0.6, 0.6),
+            square_feature(1, 0.7, 0.7, 0.8, 0.8),
+        ];
+        let store = FeatureStore::from_features(features);
+        let result = store.query_rect([0.0, 0.0, 1.0, 1.0], "include");
+        assert_eq!(result, vec![1i64, 2, 5, 8]);
+    }
+
+    #[test]
+    fn test_query_rect_mixed_features_include() {
+        let features = vec![
+            square_feature(1, 0.1, 0.1, 0.5, 0.5),      // inside
+            square_feature(2, 0.8, 0.8, 5.0, 5.0),      // straddles east edge
+            square_feature(3, 10.0, 10.0, 11.0, 11.0),  // outside
+            point_feature(4, 0.5, 0.5),                 // inside
+        ];
+        let store = FeatureStore::from_features(features);
+        let result = store.query_rect([0.0, 0.0, 1.0, 1.0], "include");
+        assert_eq!(result, vec![1i64, 4]);
+    }
+
+    #[test]
+    fn test_query_rect_unknown_mode_returns_empty() {
+        let features = vec![square_feature(1, 0.1, 0.1, 0.5, 0.5)];
+        let store = FeatureStore::from_features(features);
+        assert!(store
+            .query_rect([0.0, 0.0, 1.0, 1.0], "bogus")
+            .is_empty());
+    }
+
+    #[test]
+    fn test_query_rect_include_uses_explicit_feature_bbox() {
+        // Explicit feature.bbox wider than the geometry would suggest: inclusion
+        // must reflect the declared bbox, not the raw geometry.
+        let feature = Feature {
+            bbox: Some(vec![0.5, 0.5, 10.0, 10.0]),
+            geometry: Some(Geometry::new(GeoValue::Point(vec![1.0, 1.0]))),
+            id: Some(geojson::feature::Id::Number(serde_json::Number::from(1))),
+            properties: None,
+            foreign_members: None,
+        };
+        let store = FeatureStore::from_features(vec![feature]);
+        // Query rect doesn't contain the declared bbox → excluded.
+        assert!(store
+            .query_rect([0.0, 0.0, 5.0, 5.0], "include")
+            .is_empty());
+        // Query rect contains the declared bbox → included.
+        assert_eq!(
+            store.query_rect([0.0, 0.0, 20.0, 20.0], "include"),
+            vec![1i64]
+        );
     }
 }
