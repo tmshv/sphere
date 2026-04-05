@@ -77,11 +77,11 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 7: cmd+c keyboard handler
 
-- [ ] Extend `src/store/keyboard.ts` to handle `(meta|ctrl)+c`:
+- [x] Extend `src/store/keyboard.ts` to handle `(meta|ctrl)+c`:
   - Skip when `document.activeElement` is `input`, `textarea`, or `isContentEditable`.
   - Skip when selection count is 0 or source ID is undefined.
   - Invoke GeoJSON copy using current `copyWrapAsFeatureCollection` setting.
-- [ ] Unit test focus-guard branches and invocation path (mock helper).
+- [x] Unit test focus-guard branches and invocation path (mock helper).
 
 ### Task 8: Documentation and housekeeping
 
