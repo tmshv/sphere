@@ -1,5 +1,5 @@
+import { selectors } from "@/store/selectors"
 import { useAppSelector } from "@/store/hooks"
-import { selectPopupEntries } from "@/store/selectors"
 import { Overlay } from "@/ui/Overlay"
 import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Container, Paper, Title } from "@mantine/core"
@@ -21,7 +21,7 @@ const BODY_STYLE: React.CSSProperties = {
 }
 
 export default function PropertiesPopup() {
-    const entries = useAppSelector(selectPopupEntries)
+    const entries = useAppSelector(selectors.propertiesPopup.entries)
     if (!entries) {
         return null
     }

@@ -1,6 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSelector, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
+import { selectMapTool } from "../app"
+import { isPopupVisible } from "@/lib/map-tools"
 
 type Properties = Record<string, unknown>
 
@@ -63,5 +65,17 @@ export const selectHoverProperties = (state: RootState) => {
     }
     return projectEntries(state.properties.hoverEntries)
 }
+
+export const selectPopupVisible = createSelector([selectMapTool], tool => isPopupVisible(tool))
+
+export const selectPopupEntries = createSelector(
+    [selectMapTool, selectHoverProperties, selectProperties],
+    (tool, hover, selection) => {
+        if (!isPopupVisible(tool)) return null
+        if (hover && hover.length > 0) return hover
+        if (selection && selection.length > 0) return selection
+        return null
+    },
+)
 
 export default propertiesSlice.reducer

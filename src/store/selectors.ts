@@ -1,15 +1,14 @@
 import { STYLE_OSM } from "@/const"
-import { isPopupVisible } from "@/lib/map-tools"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
-import { appSlice as app, selectMapTool } from "./app"
+import { appSlice as app } from "./app"
 import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
 import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"
 import { selectionSlice as selection } from "./selection"
 import { sourceSlice as source } from "./source"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
-import { selectHoverProperties, selectProperties } from "./properties"
+import { selectPopupEntries } from "./properties"
 import { selectIsShowTerrain } from "./terrain"
 import { toolsSlice as tools } from "./tools"
 export type { PreviewLayerSpec } from "./preview"
@@ -70,16 +69,7 @@ export const selectors = {
     },
     mapInteraction: mapInteraction.selectors,
     tools: tools.selectors,
-}
-
-export const selectPopupVisible = createSelector([selectMapTool], tool => isPopupVisible(tool))
-
-export const selectPopupEntries = createSelector(
-    [selectMapTool, selectHoverProperties, selectProperties],
-    (tool, hover, selection) => {
-        if (!isPopupVisible(tool)) return null
-        if (hover && hover.length > 0) return hover
-        if (selection && selection.length > 0) return selection
-        return null
+    propertiesPopup: {
+        entries: selectPopupEntries,
     },
-)
+}

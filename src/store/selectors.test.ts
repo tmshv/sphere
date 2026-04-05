@@ -2,13 +2,8 @@ import { STYLE_OSM } from "@/const"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import type { RootState } from "./index"
-import {
-    selectChangeProjectionAvailable,
-    selectMapStyle,
-    selectPopupEntries,
-    selectPopupVisible,
-    selectors,
-} from "./selectors"
+import { selectPopupEntries, selectPopupVisible } from "./properties"
+import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
 
 const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
