@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
+import { DEFAULT_MAP_TOOL } from "@/lib/map-tools"
 
 const listener = createListenerMiddleware()
 
@@ -8,13 +9,14 @@ listener.startListening({
     actionCreator: actions.app.setMapTool,
     effect: (action, listenerApi) => {
         switch (action.payload) {
-            case "pan": {
+            case "navigation": {
                 listenerApi.dispatch(actions.mapInteraction.setDragPan(true))
                 listenerApi.dispatch(actions.mapInteraction.setScrollZoom(true))
                 listenerApi.dispatch(actions.mapInteraction.setDragRotate(true))
                 break
             }
-            case "select": {
+            case "select":
+            case "info": {
                 listenerApi.dispatch(actions.mapInteraction.setDragPan(false))
                 listenerApi.dispatch(actions.mapInteraction.setDragRotate(false))
                 break
@@ -23,27 +25,14 @@ listener.startListening({
     },
 })
 
-// Reset to pan when leaving Sources tab
-listener.startListening({
-    actionCreator: actions.app.setActiveSidebarTab,
-    effect: (action, listenerApi) => {
-        if (action.payload !== "sources") {
-            const state = listenerApi.getState() as RootState
-            if (state.app.mapTool !== "pan") {
-                listenerApi.dispatch(actions.app.setMapTool("pan"))
-            }
-        }
-    },
-})
-
-// Reset to pan when entering draw mode so RectSelectOverlay unmounts
+// Reset to navigation when entering draw mode so RectSelectOverlay unmounts
 listener.startListening({
     actionCreator: actions.tools.setTool,
     effect: (action, listenerApi) => {
         if (action.payload === "draw") {
             const state = listenerApi.getState() as RootState
-            if (state.app.mapTool !== "pan") {
-                listenerApi.dispatch(actions.app.setMapTool("pan"))
+            if (state.app.mapTool !== DEFAULT_MAP_TOOL) {
+                listenerApi.dispatch(actions.app.setMapTool(DEFAULT_MAP_TOOL))
             }
         }
     },

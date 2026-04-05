@@ -338,7 +338,7 @@ git commit -m "Escape resets map tool to navigation"
 - Modify: `src/store/listeners/map-tool-changed.ts`
 - Modify: `src/store/listeners/map-tool-changed.test.ts`
 
-- [ ] **Step 1: Rewrite test**
+- [x] **Step 1: Rewrite test**
 
 Replace `src/store/listeners/map-tool-changed.test.ts` with:
 
@@ -395,12 +395,12 @@ describe("map-tool-changed listener", () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify fail**
+- [x] **Step 2: Run test to verify fail**
 
 Run: `npx vitest run src/store/listeners/map-tool-changed.test.ts`
 Expected: FAIL.
 
-- [ ] **Step 3: Rewrite `src/store/listeners/map-tool-changed.ts`**
+- [x] **Step 3: Rewrite `src/store/listeners/map-tool-changed.ts`**
 
 ```ts
 import { createListenerMiddleware } from "@reduxjs/toolkit"
@@ -448,12 +448,12 @@ export default listener
 
 Note: the Sources-tab reset is removed — tools are now global.
 
-- [ ] **Step 4: Run test to verify pass**
+- [x] **Step 4: Run test to verify pass**
 
 Run: `npx vitest run src/store/listeners/map-tool-changed.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/store/listeners/map-tool-changed.ts src/store/listeners/map-tool-changed.test.ts
