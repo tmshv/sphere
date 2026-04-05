@@ -40,17 +40,17 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 3: Backend copy commands
 
-- [ ] Add `selection_copy_geojson(source_id: String, wrap_fc: bool, source_storage, selection_storage) -> Result<String, String>` in `src-tauri/src/commands/selection.rs`:
+- [x] Add `selection_copy_geojson(source_id: String, wrap_fc: bool, source_storage, selection_storage) -> Result<String, String>` in `src-tauri/src/commands/selection.rs`:
   - Reads IDs from `SelectionStorage`.
   - If empty → return `""`.
   - Loads source's `FeatureCollection`, slices by IDs (reuse `libsphere::source::slice_feature_collection`).
   - If `wrap_fc` → serialize the sliced `FeatureCollection`.
   - Else → serialize as a JSON array of Features (or a single Feature when `ids.len() == 1`).
-- [ ] Add `selection_copy_wkt(source_id: String, separator: String, source_storage, selection_storage) -> Result<String, String>`:
+- [x] Add `selection_copy_wkt(source_id: String, separator: String, source_storage, selection_storage) -> Result<String, String>`:
   - Same ID/source loading; returns `""` on empty selection.
   - Calls `features_to_wkt`.
-- [ ] Register both in `src-tauri/src/main.rs`.
-- [ ] Rust tests for both commands (or for the underlying helpers they call): empty selection, wrap toggle, WKT separator joining.
+- [x] Register both in `src-tauri/src/main.rs`.
+- [x] Rust tests for both commands (or for the underlying helpers they call): empty selection, wrap toggle, WKT separator joining.
 
 ### Task 4: Frontend copy helper
 
