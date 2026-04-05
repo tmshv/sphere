@@ -76,6 +76,7 @@ The following code smells are strictly forbidden:
 - `map` / `mapStyle` / `projection` - Map viewport and rendering
 - `tools` - Active map tool state (`activeTool: Tool | null`); `"navigation"` = drag-pan/scroll-zoom/rotate enabled (default), `"draw"` = drawing mode active, `null` = map frozen; `reset` action returns to `"navigation"` and triggers the `resetTool` listener which clears draw state if needed
 - `mapInteraction` - Fine-grained MapLibre handler toggles (`dragPan`, `scrollZoom`, `dragRotate`); combined with `tools` by `useMapNavigation`
+- `settings` - User preferences (no UI yet). `copyWrapAsFeatureCollection: boolean` (default `true`) controls whether GeoJSON copy wraps features in a FeatureCollection; `copyWktSeparator: string` (default `"\n"`) is the separator between WKT geometries
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
@@ -179,6 +180,8 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
 | `selection_get_ids`       | Get IDs of currently selected features: `() -> Vec<i64>` |
 | `selection_rect`          | Spatially query a source by bbox and apply to selection state in one call: `(source_id, bbox: [west,south,east,north], mode: "include"\|"intersect", op: "set"\|"preview"\|"add") -> SelectionDelta` |
+| `selection_copy_geojson`  | Copy selected features as GeoJSON string: `(source_id, wrap_fc: bool) -> String` |
+| `selection_copy_wkt`      | Copy selected features as WKT string: `(source_id, separator: String) -> String` |
 | `show_in_finder`          | Open file location in system explorer |
 
 ## State Management Principles

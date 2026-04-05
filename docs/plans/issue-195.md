@@ -85,9 +85,9 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 8: Documentation and housekeeping
 
-- [ ] Add `selection_copy_geojson` and `selection_copy_wkt` to the IPC commands table in `CLAUDE.md`.
-- [ ] Add a short description of the settings slice under the State Management section in `CLAUDE.md`.
-- [ ] Run `npm run format`, `npm run lint`, `npm test`, `cargo test` (from `src-tauri/`).
+- [x] Add `selection_copy_geojson` and `selection_copy_wkt` to the IPC commands table in `CLAUDE.md`.
+- [x] Add a short description of the settings slice under the State Management section in `CLAUDE.md`.
+- [x] Run `npm run format`, `npm run lint`, `npm test`, `cargo test` (from `src-tauri/`).
 
 ## Open questions
 
