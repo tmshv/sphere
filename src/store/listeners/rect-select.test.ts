@@ -48,10 +48,16 @@ vi.mock("../actions", () => {
 import { rectSelectDrag, rectSelectCommit } from "../rect-select"
 import listener from "./rect-select"
 
+function isAction(value: unknown): value is UnknownAction {
+    return typeof value === "object" && value !== null && "type" in value && typeof value.type === "string"
+}
+
 function makeStore(state: Record<string, unknown>) {
     const dispatched: UnknownAction[] = []
     const capture: Middleware = () => next => action => {
-        dispatched.push(action)
+        if (isAction(action)) {
+            dispatched.push(action)
+        }
         return next(action)
     }
     const store = configureStore({
