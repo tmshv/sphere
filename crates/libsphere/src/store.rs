@@ -7,8 +7,8 @@ use std::collections::HashMap;
 
 use libexpression::{EvalContext, Expr, Value as ExprValue};
 
-use crate::bbox::BboxOps;
-use crate::index::{Bbox, RstarIndex, SpatialIndex};
+use crate::bbox::{Bbox, BboxOps};
+use crate::index::{RstarIndex, SpatialIndex};
 use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug, Serialize)]
@@ -370,7 +370,7 @@ fn compare_values(a: Option<&Value>, b: Option<&Value>) -> std::cmp::Ordering {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::index::Point2;
+    use crate::bbox::Point2;
     use geojson::{Feature, Geometry, Value as GeoValue};
     use serde_json::json;
 

@@ -1,4 +1,8 @@
-use crate::index::{Bbox, Point2};
+/// Bounding box as (west, south, east, north).
+pub type Bbox = (f64, f64, f64, f64);
+
+/// 2D point as (x, y) / (lon, lat).
+pub type Point2 = (f64, f64);
 
 /// Extends `Bbox` with geometric operations.
 pub trait BboxOps {
