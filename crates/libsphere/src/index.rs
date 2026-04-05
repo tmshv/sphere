@@ -3,6 +3,9 @@ use rstar::{RTree, RTreeObject, AABB};
 /// Bounding box as (west, south, east, north).
 pub type Bbox = (f64, f64, f64, f64);
 
+/// 2D point as (x, y) / (lon, lat).
+pub type Point2 = (f64, f64);
+
 /// Trait for spatial index implementations.
 /// Designed so a future SQLite R*Tree impl can be added without changing call sites.
 pub trait SpatialIndex: Send + Sync {

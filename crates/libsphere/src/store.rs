@@ -380,6 +380,7 @@ fn compare_values(a: Option<&Value>, b: Option<&Value>) -> std::cmp::Ordering {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::index::Point2;
     use geojson::{Feature, Geometry, Value as GeoValue};
     use serde_json::json;
 
@@ -634,8 +635,6 @@ mod tests {
         // Feature has no id — cannot be selected
         assert!(store.query_rect([0.0, 0.0, 2.0, 2.0], "include").is_empty());
     }
-
-    type Point2 = (f64, f64);
 
     fn ring_from(points: &[Point2]) -> Vec<Vec<f64>> {
         points.iter().map(|&(x, y)| vec![x, y]).collect()
