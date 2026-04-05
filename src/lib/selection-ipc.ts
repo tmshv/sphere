@@ -53,3 +53,19 @@ export function selectionQueryPage(
         sortAsc,
     })
 }
+
+export type SelectionRectOp = "set" | "preview" | "add"
+
+export function selectionRect(
+    sourceId: string,
+    bbox: [number, number, number, number],
+    mode: "include" | "intersect",
+    op: SelectionRectOp,
+): Promise<SelectionDelta> {
+    return invoke<SelectionDelta>("selection_rect", {
+        sourceId,
+        bbox,
+        mode,
+        op,
+    })
+}
