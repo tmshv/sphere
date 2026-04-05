@@ -54,11 +54,11 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 4: Frontend copy helper
 
-- [ ] Create `src/lib/copy-selection.ts` with:
+- [x] Create `src/lib/copy-selection.ts` with:
   - `copySelectionAsGeojson(sourceId: string, wrapFc: boolean): Promise<void>`
   - `copySelectionAsWkt(sourceId: string, separator: string): Promise<void>`
-- [ ] Each invokes the corresponding Tauri command, skips clipboard write when returned string is empty, otherwise `writeText`.
-- [ ] Unit tests mocking `invoke` and `writeText`.
+- [x] Each invokes the corresponding Tauri command, skips clipboard write when returned string is empty, otherwise `writeText`.
+- [x] Unit tests mocking `invoke` and `writeText`.
 
 ### Task 5: Spotlight entries
 
