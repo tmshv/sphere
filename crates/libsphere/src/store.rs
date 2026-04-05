@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 use libexpression::{EvalContext, Expr, Value as ExprValue};
 
-use crate::index::{Bbox, RstarIndex, SpatialIndex};
+use crate::index::{Bbox, BboxOps, RstarIndex, SpatialIndex};
 use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug, Serialize)]
@@ -250,29 +250,24 @@ fn compute_feature_bbox(feature: &Feature) -> Option<Bbox> {
 }
 
 fn bbox_from_geometry_value(value: &geojson::Value) -> Option<Bbox> {
-    let mut west = f64::INFINITY;
-    let mut south = f64::INFINITY;
-    let mut east = f64::NEG_INFINITY;
-    let mut north = f64::NEG_INFINITY;
-
-    if collect_coords(value, &mut west, &mut south, &mut east, &mut north) {
-        Some((west, south, east, north))
+    let mut bbox: Bbox = (
+        f64::INFINITY,
+        f64::INFINITY,
+        f64::NEG_INFINITY,
+        f64::NEG_INFINITY,
+    );
+    if collect_coords(value, &mut bbox) {
+        Some(bbox)
     } else {
         None
     }
 }
 
-fn collect_coords(
-    value: &geojson::Value,
-    west: &mut f64,
-    south: &mut f64,
-    east: &mut f64,
-    north: &mut f64,
-) -> bool {
+fn collect_coords(value: &geojson::Value, bbox: &mut Bbox) -> bool {
     match value {
         geojson::Value::Point(pt) => {
             if pt.len() >= 2 {
-                update_bounds(pt[0], pt[1], west, south, east, north);
+                bbox.update_bounds((pt[0], pt[1]));
                 true
             } else {
                 false
@@ -282,7 +277,7 @@ fn collect_coords(
             let mut any = false;
             for pt in pts {
                 if pt.len() >= 2 {
-                    update_bounds(pt[0], pt[1], west, south, east, north);
+                    bbox.update_bounds((pt[0], pt[1]));
                     any = true;
                 }
             }
@@ -292,7 +287,7 @@ fn collect_coords(
             let mut any = false;
             for pt in pts {
                 if pt.len() >= 2 {
-                    update_bounds(pt[0], pt[1], west, south, east, north);
+                    bbox.update_bounds((pt[0], pt[1]));
                     any = true;
                 }
             }
@@ -303,7 +298,7 @@ fn collect_coords(
             for line in lines {
                 for pt in line {
                     if pt.len() >= 2 {
-                        update_bounds(pt[0], pt[1], west, south, east, north);
+                        bbox.update_bounds((pt[0], pt[1]));
                         any = true;
                     }
                 }
@@ -315,7 +310,7 @@ fn collect_coords(
             for ring in rings {
                 for pt in ring {
                     if pt.len() >= 2 {
-                        update_bounds(pt[0], pt[1], west, south, east, north);
+                        bbox.update_bounds((pt[0], pt[1]));
                         any = true;
                     }
                 }
@@ -328,7 +323,7 @@ fn collect_coords(
                 for ring in poly {
                     for pt in ring {
                         if pt.len() >= 2 {
-                            update_bounds(pt[0], pt[1], west, south, east, north);
+                            bbox.update_bounds((pt[0], pt[1]));
                             any = true;
                         }
                     }
@@ -339,7 +334,7 @@ fn collect_coords(
         geojson::Value::GeometryCollection(geoms) => {
             let mut any = false;
             for geom in geoms {
-                if collect_coords(&geom.value, west, south, east, north) {
+                if collect_coords(&geom.value, bbox) {
                     any = true;
                 }
             }
@@ -348,12 +343,6 @@ fn collect_coords(
     }
 }
 
-fn update_bounds(lon: f64, lat: f64, west: &mut f64, south: &mut f64, east: &mut f64, north: &mut f64) {
-    if lon < *west { *west = lon; }
-    if lat < *south { *south = lat; }
-    if lon > *east { *east = lon; }
-    if lat > *north { *north = lat; }
-}
 
 fn get_property_value<'a>(feature: &'a Feature, col: &str) -> Option<&'a Value> {
     feature.properties.as_ref().and_then(|p| p.get(col))
