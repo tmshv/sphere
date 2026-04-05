@@ -167,7 +167,7 @@ The test covers both `rectSelectDrag` and `rectSelectCommit` handlers. It mocks:
 - `@/lib/selection-bus` `emitSelectionDelta` — no-op spy
 - `../preview` `selectPreviewLayerIds` — no-op (only used by click path)
 
-- [ ] **Step 1: Write the test file**
+- [x] **Step 1: Write the test file**
 
 Create `src/store/listeners/rect-select.test.ts`:
 
@@ -385,12 +385,12 @@ describe("rect-select listener", () => {
 })
 ```
 
-- [ ] **Step 2: Run the test — it must fail**
+- [x] **Step 2: Run the test — it must fail**
 
 Run: `npm test -- src/store/listeners/rect-select.test.ts`
 Expected: **FAIL**. The listener still calls `source_query_rect` and `selection_set`/`selection_preview`/`selection_add` separately, so `selection_rect` is never invoked. Tests asserting `rectCalls` length 1 fail.
 
-- [ ] **Step 3: Commit the failing test**
+- [x] **Step 3: Commit the failing test**
 
 ```bash
 git add src/store/listeners/rect-select.test.ts
