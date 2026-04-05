@@ -1,7 +1,7 @@
 import { Flex, type MantineColor, createStyles } from "@mantine/core"
 
 export { Select } from "./Select"
-export type { SelectProps } from "./Select"
+export type { SelectOption, SelectProps } from "./Select"
 
 const useStyle = createStyles(theme => ({
     container: {

@@ -4,7 +4,13 @@ import { usePitch } from "@/hooks/usePitch"
 import { useZoom } from "@/hooks/useZoom"
 import { actions } from "@/store"
 import { selectors } from "@/store"
-import { selectActiveSidebarTab, selectMapTool, selectShowLeftSidebar, selectVersion } from "@/store/app"
+import {
+    selectActiveSidebarTab,
+    selectMapTool,
+    selectShowFeatureProperties,
+    selectShowLeftSidebar,
+    selectVersion,
+} from "@/store/app"
 import { selectErrorMessage } from "@/store/error"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
@@ -14,6 +20,7 @@ import { ActionIcon, Badge, MantineProvider, type MantineTheme, createStyles } f
 import type { ActionIconProps } from "@mantine/core"
 import {
     IconHandStop,
+    IconInfoCircle,
     IconLayoutSidebar,
     IconLiveView,
     IconMountain,
@@ -110,6 +117,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
     const mapTool = useAppSelector(selectMapTool)
+    const showFeatureProperties = useAppSelector(selectShowFeatureProperties)
     const activeTab = useAppSelector(selectActiveSidebarTab)
     const showTools = activeTab === "sources"
     const isGlobe = projection === "globe"
@@ -121,6 +129,10 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
             dispatch(actions.app.showLeftSidebar())
         }
     }, [dispatch, sidebar])
+
+    const toggleFeatureProperties = useCallback(() => {
+        dispatch(actions.app.toggleFeatureProperties())
+    }, [dispatch])
 
     const printViewport = useCallback(() => {
         dispatch(actions.map.printViewport({ mapId: MAP_ID }))
@@ -218,6 +230,14 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                         </ActionIcon>
                     </>
                 )}
+
+                <ActionIcon
+                    color={showFeatureProperties ? "yellow" : undefined}
+                    onClick={toggleFeatureProperties}
+                    title="Feature properties popup"
+                >
+                    <IconInfoCircle size={16} />
+                </ActionIcon>
 
                 <ActionIcon onClick={printViewport}>
                     <IconLiveView size={16} />

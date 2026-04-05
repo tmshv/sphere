@@ -1,4 +1,4 @@
-import { Statusbar } from "@/ui/Statusbar"
+import { Select, type SelectOption, Statusbar } from "@/ui/Statusbar"
 import {
     ActionIcon,
     Badge,
@@ -123,14 +123,24 @@ const useStyle = createStyles(theme => ({
     },
 }))
 
+const ATTRIBUTE_FILTER_OPTIONS: SelectOption[] = [
+    { value: "all", label: "All" },
+    { value: "selection", label: "Selection" },
+]
+
 type PropertyTableProps = {
     data: PropertyItem[]
     columns: ColumnDef<PropertyItem>[]
     meta: Record<string, PropertyItemMeta>
     pageIndex: number
     pageCount: number
+    pageSize: number
+    pageSizeOptions: SelectOption[]
+    attributeFilter: "all" | "selection"
     sorting: SortingState
     onPageChange: (index: number) => void
+    onPageSizeChange: (size: number) => void
+    onAttributeFilterChange: (value: "all" | "selection") => void
     onSortingChange: OnChangeFn<SortingState>
 }
 
@@ -140,8 +150,13 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
     meta,
     pageIndex,
     pageCount,
+    pageSize,
+    pageSizeOptions,
+    attributeFilter,
     sorting,
     onPageChange,
+    onPageSizeChange,
+    onAttributeFilterChange,
     onSortingChange,
 }) => {
     const { classes: s, cx } = useStyle()
@@ -156,7 +171,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
         pageCount,
         state: {
             sorting,
-            pagination: { pageIndex, pageSize: 50 },
+            pagination: { pageIndex, pageSize },
         },
         onSortingChange,
     })
@@ -480,6 +495,26 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
             </div>
 
             <Statusbar>
+                <Select
+                    className={cx(s.widget, s.widgetSelect)}
+                    value={attributeFilter}
+                    options={ATTRIBUTE_FILTER_OPTIONS}
+                    onChange={v => {
+                        if (v === "all" || v === "selection") {
+                            onAttributeFilterChange(v)
+                        }
+                    }}
+                />
+
+                <Box style={{ flex: 1 }} />
+
+                <Select
+                    className={cx(s.widget, s.widgetSelect)}
+                    value={String(pageSize)}
+                    options={pageSizeOptions}
+                    onChange={v => onPageSizeChange(Number(v))}
+                />
+
                 <MantineProvider
                     theme={{
                         components: {
@@ -504,14 +539,12 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
                         <IconChevronLeft size={14} />
                     </ActionIcon>
                     <Badge className={s.widget} radius="sm" size="sm" variant="light">
-                        {pageIndex + 1} / {pageCount}
+                        {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
                     </Badge>
                     <ActionIcon disabled={pageIndex >= pageCount - 1} onClick={() => onPageChange(pageIndex + 1)}>
                         <IconChevronRight size={14} />
                     </ActionIcon>
                 </MantineProvider>
-
-                <Box style={{ flex: 1 }} />
             </Statusbar>
         </Flex>
     )

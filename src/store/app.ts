@@ -12,6 +12,7 @@ type AppState = {
     showRightSidebar: boolean
     activeSidebarTab: "sources" | "layers"
     mapTool: "pan" | "select"
+    showFeatureProperties: boolean
 }
 
 // Define the initial state using that type
@@ -24,6 +25,7 @@ const initialState: AppState = {
     showRightSidebar: true,
     activeSidebarTab: "sources",
     mapTool: "pan",
+    showFeatureProperties: true,
 }
 
 export const appSlice = createSlice({
@@ -61,6 +63,9 @@ export const appSlice = createSlice({
         setMapTool: (state, action: PayloadAction<"pan" | "select">) => {
             state.mapTool = action.payload
         },
+        toggleFeatureProperties: state => {
+            state.showFeatureProperties = !state.showFeatureProperties
+        },
     },
     selectors: {
         isZen: state => state.zenMode,
@@ -77,6 +82,7 @@ export const selectActiveSidebarTab = (state: RootState) => state.app.activeSide
 export const selectMapTool = (state: RootState) => state.app.mapTool
 export const selectShowAttribution = (state: RootState) => state.app.showAttribution
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode
+export const selectShowFeatureProperties = (state: RootState) => state.app.showFeatureProperties
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar
 export const selectVersion = (state: RootState) => state.app.version
 
