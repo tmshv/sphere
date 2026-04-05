@@ -299,13 +299,13 @@ describe("selectPopupEntries", () => {
     test("hover wins when info and hover is non-empty", () => {
         const result = selectPopupEntries(makePopupState({ mapTool: "info", entries: selectionEntries, hoverEntries }))
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe(2)
+        expect(result?.[0].id).toBe(2)
     })
 
     test("selection is returned when hover is empty", () => {
         const result = selectPopupEntries(makePopupState({ mapTool: "info", entries: selectionEntries }))
         expect(result).toHaveLength(1)
-        expect(result[0].id).toBe(1)
+        expect(result?.[0].id).toBe(1)
     })
 
     test("null when both sources empty", () => {
