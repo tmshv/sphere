@@ -66,8 +66,13 @@ function makeStore(state: Record<string, unknown>) {
 }
 
 describe("rect-select listener", () => {
+    let testTimeBase = 1000
+
     beforeEach(() => {
         vi.useFakeTimers()
+        // Each test gets a unique time base far from any previous throttle timestamp
+        testTimeBase += 10000
+        vi.setSystemTime(testTimeBase)
         invokeMock.mockReset()
         invokeMock.mockResolvedValue({ added: [1, 2], removed: [] })
     })

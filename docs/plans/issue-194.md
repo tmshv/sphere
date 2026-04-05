@@ -404,7 +404,7 @@ git commit -m "Add failing test for rect-select single-IPC contract"
 **Files:**
 - Modify: `src/store/listeners/rect-select.ts:1-116`
 
-- [ ] **Step 1: Update imports in `rect-select.ts`**
+- [x] **Step 1: Update imports in `rect-select.ts`**
 
 Replace the import block at the top of `src/store/listeners/rect-select.ts` (lines 1-21). Remove the unused `invoke` import and the selection helpers that only the rect branches used (`selectionSet`, `selectionPreview`, `selectionAdd`), but keep `selectionAdd`, `selectionRemove`, `selectionSet`, `selectionClear` for the click path, and add `selectionRect`:
 
@@ -433,7 +433,7 @@ import { rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-selec
 
 (Note: `invoke` is no longer needed since both drag and commit now call `selectionRect`, and the click path uses the existing `selection*` helpers. `selectionPreview` is no longer referenced.)
 
-- [ ] **Step 2: Rewrite the `rectSelectDrag` handler (replaces lines 47-80)**
+- [x] **Step 2: Rewrite the `rectSelectDrag` handler (replaces lines 47-80)**
 
 Replace the entire `listener.startListening({ actionCreator: rectSelectDrag, ... })` block with:
 
@@ -469,7 +469,7 @@ listener.startListening({
 })
 ```
 
-- [ ] **Step 3: Rewrite the `rectSelectCommit` handler (replaces lines 82-116)**
+- [x] **Step 3: Rewrite the `rectSelectCommit` handler (replaces lines 82-116)**
 
 Replace the `rectSelectCommit` block with:
 
@@ -508,27 +508,27 @@ listener.startListening({
 
 Leave the `rectSelectClick` handler (lines 118-165) and the unused `SelectionDelta` type import unchanged — the click path still uses `selectionSet`/`selectionAdd`/`selectionRemove`/`selectionClear`.
 
-- [ ] **Step 4: Run the new test — it must pass**
+- [x] **Step 4: Run the new test — it must pass**
 
 Run: `npm test -- src/store/listeners/rect-select.test.ts`
 Expected: **PASS** (all six tests green). Each drag dispatches exactly one `selection_rect` invoke; `source_query_rect` and `selection_set`/`selection_preview`/`selection_add` are no longer called from the rect branches.
 
-- [ ] **Step 5: Run the full frontend test suite to check for regressions**
+- [x] **Step 5: Run the full frontend test suite to check for regressions**
 
 Run: `npm test`
 Expected: all tests pass.
 
-- [ ] **Step 6: Run the formatter**
+- [x] **Step 6: Run the formatter**
 
 Run: `npm run format`
 Expected: no unexpected diffs (or only whitespace).
 
-- [ ] **Step 7: Run the linter**
+- [x] **Step 7: Run the linter**
 
 Run: `npm run lint`
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/store/listeners/rect-select.ts src/store/listeners/rect-select.test.ts

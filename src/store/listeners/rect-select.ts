@@ -4,15 +4,14 @@ import { queryFeaturesInPoint } from "@/lib/maplibre"
 import { emitSelectionDelta } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
-    selectionSet,
-    selectionPreview,
     selectionAdd,
-    selectionRemove,
     selectionApply,
     selectionClear,
     selectionCount,
+    selectionRect,
+    selectionRemove,
+    selectionSet,
 } from "@/lib/selection-ipc"
-import { invoke } from "@tauri-apps/api/core"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
@@ -64,16 +63,11 @@ listener.startListening({
         const { start, current, modifier } = action.payload
         const mode = current.x >= start.x ? "include" : "intersect"
         const bbox = screenToGeoBbox(map, start, current)
+        const op = modifier === "shift" ? "preview" : "set"
 
-        const featureIds = await invoke<number[]>("source_query_rect", {
-            id: sourceId,
-            bbox,
-            mode,
-        })
+        const delta = await selectionRect(sourceId, bbox, mode, op)
 
         if (generation !== queryGeneration) return
-
-        const delta = modifier === "shift" ? await selectionPreview(featureIds) : await selectionSet(featureIds)
 
         emitSelectionDelta(delta)
     },
@@ -93,16 +87,11 @@ listener.startListening({
         const { start, current, modifier } = action.payload
         const mode = current.x >= start.x ? "include" : "intersect"
         const bbox = screenToGeoBbox(map, start, current)
+        const op = modifier === "shift" ? "add" : "set"
 
-        const featureIds = await invoke<number[]>("source_query_rect", {
-            id: sourceId,
-            bbox,
-            mode,
-        })
+        const delta = await selectionRect(sourceId, bbox, mode, op)
 
         if (generation !== queryGeneration) return
-
-        const delta = modifier === "shift" ? await selectionAdd(featureIds) : await selectionSet(featureIds)
 
         emitSelectionDelta(delta)
 
