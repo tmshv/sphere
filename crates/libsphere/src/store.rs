@@ -1,4 +1,6 @@
+use geo::Intersects;
 use geojson::Feature;
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -158,25 +160,43 @@ impl FeatureStore {
     }
 
     /// Returns IDs of features that match the given rect and mode.
-    /// mode: "include" = feature bbox fully inside rect, "intersect" = feature bbox touches rect.
-    /// Uses cached feature bboxes only — no geometry parsing, no panics.
+    /// mode: "include" = feature bbox fully inside rect (exact for polygon selection).
+    /// mode: "intersect" = feature geometry intersects rect (geometric test, invalid
+    /// geometries that would panic in geo's relate algorithm are skipped).
     pub fn query_rect(&self, bbox: [f64; 4], mode: &str) -> Vec<i64> {
         let [west, south, east, north] = bbox;
         let candidates = self.index.query_bbox((west, south, east, north));
         let mut result = Vec::with_capacity(candidates.len());
+        let rect = geo::Rect::new(
+            geo::coord! { x: west, y: south },
+            geo::coord! { x: east, y: north },
+        );
         for idx in candidates {
             let id = match self.feature_ids[idx] {
                 Some(v) => v,
                 None => continue,
             };
             let matches = match mode {
-                "intersect" => true,
                 "include" => {
                     let fb = match self.feature_bboxes[idx] {
                         Some(b) => b,
                         None => continue,
                     };
                     fb.0 >= west && fb.1 >= south && fb.2 <= east && fb.3 <= north
+                }
+                "intersect" => {
+                    let geometry = match &self.features[idx].geometry {
+                        Some(g) => g,
+                        None => continue,
+                    };
+                    let geo_geom: geo::Geometry<f64> = match geo::Geometry::try_from(geometry) {
+                        Ok(g) => g,
+                        Err(_) => continue,
+                    };
+                    match catch_unwind(AssertUnwindSafe(|| rect.intersects(&geo_geom))) {
+                        Ok(v) => v,
+                        Err(_) => continue,
+                    }
                 }
                 _ => false,
             };
