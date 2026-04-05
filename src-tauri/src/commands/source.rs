@@ -131,7 +131,7 @@ pub async fn source_get_selected(
     selection_storage: State<'_, SelectionStorage>,
 ) -> Result<String, String> {
     let ids = {
-        let state = selection_storage.state.lock().unwrap();
+        let state = selection_storage.inner.lock().unwrap();
         state.get_ids()
     };
     let store = source_storage.store.lock().unwrap();

@@ -59,6 +59,7 @@ async fn main() {
             commands::selection::selection_count,
             commands::selection::selection_get_ids,
             commands::selection::selection_query_page,
+            commands::selection::selection_rect,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();

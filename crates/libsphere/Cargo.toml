@@ -1,6 +1,6 @@
 [package]
 name = "libsphere"
-version = "0.5.0"
+version = "0.6.0"
 description = "Sphere Lib"
 license = "MIT"
 edition = "2021"

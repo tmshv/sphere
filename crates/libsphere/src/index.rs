@@ -1,7 +1,6 @@
 use rstar::{RTree, RTreeObject, AABB};
 
-/// Bounding box as (west, south, east, north).
-pub type Bbox = (f64, f64, f64, f64);
+use crate::bbox::Bbox;
 
 /// Trait for spatial index implementations.
 /// Designed so a future SQLite R*Tree impl can be added without changing call sites.

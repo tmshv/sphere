@@ -1,6 +1,6 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { onSelectionDelta } from "@/lib/selection-bus"
+import { onSelectionDelta, onSelectionReconcile } from "@/lib/selection-bus"
 import { useEffect, useRef } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
@@ -43,6 +43,31 @@ export default function useFeatureState(ref: MapRef | undefined) {
             for (const id of delta.added) {
                 try {
                     map.setFeatureState({ source: sourceId, id }, { selected: true })
+                } catch {
+                    // source may not exist on map yet
+                }
+            }
+        })
+
+        return unsubscribe
+    }, [ref])
+
+    // Subscribe to reconcile bus — resets all feature states to the authoritative set
+    useEffect(() => {
+        const unsubscribe = onSelectionReconcile(({ ids, sourceId }) => {
+            const map = ref?.getMap()
+            const currentSourceId = sourceIdRef.current
+            if (!map || !currentSourceId) return
+            if (currentSourceId !== sourceId) return
+
+            try {
+                map.removeFeatureState({ source: currentSourceId })
+            } catch {
+                // source may not exist on map yet
+            }
+            for (const id of ids) {
+                try {
+                    map.setFeatureState({ source: currentSourceId, id }, { selected: true })
                 } catch {
                     // source may not exist on map yet
                 }
