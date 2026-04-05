@@ -6,6 +6,8 @@ import { emit } from "@tauri-apps/api/event"
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
 import type { RootState } from ".."
 
+const PROPERTIES_INIT_TIMEOUT_MS = 10000
+
 export const showProperties = createAsyncThunk(
     "source/showProperties",
     async ({ id, filterExpression }: { id: Id; filterExpression?: unknown[] }, thunkAPI) => {
@@ -37,7 +39,7 @@ export const showProperties = createAsyncThunk(
             })
         }
 
-        const status = await waitEvent("properties-init")
+        const status = await waitEvent("properties-init", PROPERTIES_INIT_TIMEOUT_MS)
         logger.info({ status }, "Got properties-init")
 
         await emit("properties-set", {

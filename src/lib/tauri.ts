@@ -1,19 +1,9 @@
-import { sleep } from "@/lib/time"
+import { once } from "@/lib/once"
 import { listen } from "@tauri-apps/api/event"
 
-export async function waitEvent<T>(event: string): Promise<T> {
-    let wait = true
-    let payload: T | undefined = undefined
-    const unlisten = await listen<T>(event, e => {
-        wait = false
-        payload = e.payload
+export function waitEvent<T>(event: string, timeout?: number): Promise<T> {
+    return once<T>(handler => listen<T>(event, e => handler(e.payload)), {
+        timeout,
+        label: `event: ${event}`,
     })
-
-    while (wait) {
-        await sleep(0)
-    }
-
-    unlisten()
-
-    return payload as T
 }
