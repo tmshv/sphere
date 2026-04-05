@@ -10,6 +10,7 @@ import mapStyle from "./mapStyle"
 import projection from "./projection"
 import properties from "./properties"
 import selection from "./selection"
+import settings from "./settings"
 import sky from "./sky"
 import source from "./source"
 import terrain from "./terrain"
@@ -32,6 +33,7 @@ export const store = configureStore({
         source,
         layer,
         selection,
+        settings,
         properties,
         tools,
     },
