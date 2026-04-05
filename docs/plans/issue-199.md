@@ -606,11 +606,11 @@ git commit -m "Add hoverEntries to properties slice"
 - Modify: `src/store/selectors.ts`
 - Modify: `src/store/selectors.test.ts`
 
-- [ ] **Step 1: Locate existing selectors file**
+- [x] **Step 1: Locate existing selectors file**
 
 Run: `npx tsc --noEmit` to check; open `src/store/selectors.ts` to see where to append. Add new selectors at the bottom.
 
-- [ ] **Step 2: Add failing tests**
+- [x] **Step 2: Add failing tests**
 
 Append to `src/store/selectors.test.ts`:
 
@@ -671,12 +671,12 @@ describe("selectPopupEntries", () => {
 })
 ```
 
-- [ ] **Step 3: Run tests to verify fail**
+- [x] **Step 3: Run tests to verify fail**
 
 Run: `npx vitest run src/store/selectors.test.ts`
 Expected: FAIL.
 
-- [ ] **Step 4: Add selectors in `src/store/selectors.ts`**
+- [x] **Step 4: Add selectors in `src/store/selectors.ts`**
 
 Append at the bottom:
 
@@ -700,12 +700,12 @@ export const selectPopupEntries = createSelector(
 
 If `selectors.ts` already has imports from `"./app"` or similar, consolidate; do not duplicate imports.
 
-- [ ] **Step 5: Run tests to verify pass**
+- [x] **Step 5: Run tests to verify pass**
 
 Run: `npx vitest run src/store/selectors.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/store/selectors.ts src/store/selectors.test.ts
