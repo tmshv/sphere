@@ -1,4 +1,4 @@
-import { type Middleware, configureStore } from "@reduxjs/toolkit"
+import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const invokeMock = vi.fn()
@@ -47,12 +47,10 @@ vi.mock("../actions", () => {
 import { rectSelectDrag, rectSelectCommit } from "../rect-select"
 import listener from "./rect-select"
 
-type Action = { type: string; payload?: unknown }
-
 function makeStore(state: Record<string, unknown>) {
-    const dispatched: Action[] = []
+    const dispatched: UnknownAction[] = []
     const capture: Middleware = () => next => action => {
-        dispatched.push(action as Action)
+        dispatched.push(action)
         return next(action)
     }
     const store = configureStore({
