@@ -302,7 +302,7 @@ git commit -m "Migrate app.mapTool to navigation|select|info and drop showFeatur
 **Files:**
 - Modify: `src/store/keyboard.ts`
 
-- [ ] **Step 1: Update `src/store/keyboard.ts`**
+- [x] **Step 1: Update `src/store/keyboard.ts`**
 
 Replace contents with:
 
@@ -323,7 +323,7 @@ export function setupKeyboard(s: typeof store) {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/store/keyboard.ts
