@@ -1,4 +1,3 @@
-use geo::{Contains, Intersects};
 use geojson::Feature;
 use serde::Serialize;
 use serde_json::Value;
@@ -19,6 +18,8 @@ pub struct PageResult {
 
 pub struct FeatureStore {
     features: Vec<Feature>,
+    feature_ids: Vec<Option<i64>>,
+    feature_bboxes: Vec<Option<Bbox>>,
     index: Box<dyn SpatialIndex>,
     schema: SourceSchema,
     bounds: Option<Bbox>,
@@ -29,10 +30,15 @@ impl FeatureStore {
         let schema = infer_source_schema(features.iter());
 
         let mut entries = Vec::with_capacity(features.len());
+        let mut feature_bboxes: Vec<Option<Bbox>> = Vec::with_capacity(features.len());
+        let mut feature_ids: Vec<Option<i64>> = Vec::with_capacity(features.len());
         let mut overall_bbox: Option<Bbox> = None;
 
         for (idx, feature) in features.iter().enumerate() {
-            if let Some(bbox) = compute_feature_bbox(feature) {
+            let fb = compute_feature_bbox(feature);
+            feature_bboxes.push(fb);
+            feature_ids.push(feature_id_i64(feature));
+            if let Some(bbox) = fb {
                 entries.push((idx, bbox));
                 overall_bbox = Some(match overall_bbox {
                     None => bbox,
@@ -50,6 +56,8 @@ impl FeatureStore {
 
         Self {
             features,
+            feature_ids,
+            feature_bboxes,
             index,
             schema,
             bounds: overall_bbox,
@@ -150,35 +158,26 @@ impl FeatureStore {
     }
 
     /// Returns IDs of features that match the given rect and mode.
-    /// mode: "include" = feature fully inside rect, "intersect" = feature touches rect.
+    /// mode: "include" = feature bbox fully inside rect, "intersect" = feature bbox touches rect.
+    /// Uses cached feature bboxes only — no geometry parsing, no panics.
     pub fn query_rect(&self, bbox: [f64; 4], mode: &str) -> Vec<i64> {
         let [west, south, east, north] = bbox;
-        let rect = geo::Rect::new(
-            geo::coord! { x: west, y: south },
-            geo::coord! { x: east, y: north },
-        );
         let candidates = self.index.query_bbox((west, south, east, north));
-        let mut result = Vec::new();
+        let mut result = Vec::with_capacity(candidates.len());
         for idx in candidates {
-            let feature = &self.features[idx];
-            let id = match &feature.id {
-                Some(geojson::feature::Id::Number(n)) => match n.as_i64() {
-                    Some(v) => v,
-                    None => continue,
-                },
-                _ => continue,
-            };
-            let geometry = match &feature.geometry {
-                Some(g) => g,
+            let id = match self.feature_ids[idx] {
+                Some(v) => v,
                 None => continue,
             };
-            let geo_geom: geo::Geometry<f64> = match geo::Geometry::try_from(geometry) {
-                Ok(g) => g,
-                Err(_) => continue,
-            };
             let matches = match mode {
-                "include" => rect.contains(&geo_geom),
-                "intersect" => rect.intersects(&geo_geom),
+                "intersect" => true,
+                "include" => {
+                    let fb = match self.feature_bboxes[idx] {
+                        Some(b) => b,
+                        None => continue,
+                    };
+                    fb.0 >= west && fb.1 >= south && fb.2 <= east && fb.3 <= north
+                }
                 _ => false,
             };
             if matches {
@@ -187,6 +186,13 @@ impl FeatureStore {
         }
         result.sort();
         result
+    }
+}
+
+fn feature_id_i64(feature: &Feature) -> Option<i64> {
+    match &feature.id {
+        Some(geojson::feature::Id::Number(n)) => n.as_i64(),
+        _ => None,
     }
 }
 
