@@ -62,11 +62,11 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 5: Spotlight entries
 
-- [ ] Add two actions in `src/components/Spotlight/index.tsx`:
+- [x] Add two actions in `src/components/Spotlight/index.tsx`:
   - "Copy selection as GeoJSON"
   - "Copy selection as WKT"
-- [ ] Each reads `selectors.selection.sourceId` and `selectors.selection.count` via `useAppSelector`. Returns early when no selection.
-- [ ] GeoJSON entry reads `copyWrapAsFeatureCollection` from settings; WKT entry reads `copyWktSeparator`.
+- [x] Each reads `selectors.selection.sourceId` and `selectors.selection.count` via `useAppSelector`. Returns early when no selection.
+- [x] GeoJSON entry reads `copyWrapAsFeatureCollection` from settings; WKT entry reads `copyWktSeparator`.
 
 ### Task 6: Map context menu entries
 
