@@ -1243,29 +1243,29 @@ git commit -m "PropertiesPopup: use selectPopupVisible + selectPopupEntries"
 
 **Files:** whole project
 
-- [ ] **Step 1: Typecheck**
+- [x] **Step 1: Typecheck**
 
 Run: `npx tsc --noEmit`
 Expected: PASS. If failures remain, fix them in-place (these are trailing references to removed `"pan"` / `showFeatureProperties` in code or tests you didn't touch). Typical sites:
 - `src/store/selectors.ts` (pre-existing selectors file) — search for `mapTool === "pan"` etc.
 - Any test files mocking `selectShowFeatureProperties`.
 
-- [ ] **Step 2: Full test run**
+- [x] **Step 2: Full test run**
 
 Run: `npm test -- --run`
 Expected: All tests pass.
 
-- [ ] **Step 3: Lint**
+- [x] **Step 3: Lint**
 
 Run: `npm run lint`
 Expected: PASS. Fix any violations.
 
-- [ ] **Step 4: Format**
+- [x] **Step 4: Format**
 
 Run: `npm run format`
 Expected: No diff, or formatted diff applied.
 
-- [ ] **Step 5: Commit any formatting/cleanup**
+- [x] **Step 5: Commit any formatting/cleanup**
 
 ```bash
 git add -A
