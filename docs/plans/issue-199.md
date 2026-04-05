@@ -769,7 +769,7 @@ git commit -m "Activate RectSelectOverlay in Select and Info tools"
 
 Click-pin is now served by the selection pipeline (overlay → rectSelectClick → selection-changed listener → `properties.entries`). This hook only dispatches hover updates.
 
-- [ ] **Step 1: Rewrite `src/hooks/useFeatureProperties.test.ts`**
+- [x] **Step 1: Rewrite `src/hooks/useFeatureProperties.test.ts`**
 
 Replace with:
 
@@ -855,7 +855,7 @@ describe("useFeatureProperties (hover)", () => {
 Run: `npx vitest run src/hooks/useFeatureProperties.test.ts`
 Expected: FAIL.
 
-- [ ] **Step 3: Rewrite `src/hooks/useFeatureProperties.ts`**
+- [x] **Step 3: Rewrite `src/hooks/useFeatureProperties.ts`**
 
 ```ts
 import { actions } from "@/store"
@@ -899,12 +899,12 @@ export default function useFeatureProperties(ref: MapRef | undefined, layerIds: 
 
 Note: `_delay` kept in signature for call-site compatibility; unused for now.
 
-- [ ] **Step 4: Run tests to verify pass**
+- [x] **Step 4: Run tests to verify pass**
 
 Run: `npx vitest run src/hooks/useFeatureProperties.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/hooks/useFeatureProperties.ts src/hooks/useFeatureProperties.test.ts
