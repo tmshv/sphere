@@ -1174,7 +1174,7 @@ git commit -m "MapStatusbar: 3-tool picker, selected=N badge, rewire IconInfoCir
 **Files:**
 - Modify: `src/components/PropertiesPopup/index.tsx`
 
-- [ ] **Step 1: Replace file contents**
+- [x] **Step 1: Replace file contents**
 
 ```tsx
 import { useAppSelector } from "@/store/hooks"
@@ -1225,12 +1225,12 @@ export default function PropertiesPopup() {
 }
 ```
 
-- [ ] **Step 2: Verify compile**
+- [x] **Step 2: Verify compile**
 
 Run: `npx tsc --noEmit`
 Expected: This file compiles.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/PropertiesPopup/index.tsx

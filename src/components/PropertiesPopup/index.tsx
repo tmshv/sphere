@@ -1,6 +1,5 @@
-import { selectShowFeatureProperties } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
-import { selectProperties } from "@/store/properties"
+import { selectPopupEntries, selectPopupVisible } from "@/store/selectors"
 import { Overlay } from "@/ui/Overlay"
 import { PropertiesViewer } from "@/ui/PropertiesViewer"
 import { Container, Paper, Title } from "@mantine/core"
@@ -22,9 +21,9 @@ const BODY_STYLE: React.CSSProperties = {
 }
 
 export default function PropertiesPopup() {
-    const enabled = useAppSelector(selectShowFeatureProperties)
-    const props = useAppSelector(selectProperties)
-    if (!enabled || !props) {
+    const visible = useAppSelector(selectPopupVisible)
+    const entries = useAppSelector(selectPopupEntries)
+    if (!visible || entries.length === 0) {
         return null
     }
 
@@ -35,7 +34,7 @@ export default function PropertiesPopup() {
                     <Paper p={"sm"} style={PAPER_STYLE}>
                         <Title order={3}>Properties</Title>
                         <div style={BODY_STYLE}>
-                            {props.map(x => (
+                            {entries.map(x => (
                                 <PropertiesViewer key={x.id} properties={x.items} />
                             ))}
                         </div>
