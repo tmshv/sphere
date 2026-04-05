@@ -2,7 +2,13 @@ import { STYLE_OSM } from "@/const"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import type { RootState } from "./index"
-import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
+import {
+    selectChangeProjectionAvailable,
+    selectMapStyle,
+    selectPopupEntries,
+    selectPopupVisible,
+    selectors,
+} from "./selectors"
 
 const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
@@ -257,5 +263,57 @@ describe("visibleIds", () => {
             layer: { items: {}, allIds: [] },
         })
         expect(selectors.layer.visibleIds(state)).toEqual([])
+    })
+})
+
+function makePopupState(partial: {
+    mapTool: "navigation" | "select" | "info"
+    entries?: { id: number | string; values: Record<string, unknown> }[]
+    hoverEntries?: { id: number | string; values: Record<string, unknown> }[]
+}): RootState {
+    return {
+        app: { mapTool: partial.mapTool },
+        properties: {
+            entries: partial.entries,
+            hoverEntries: partial.hoverEntries,
+        },
+    } as unknown as RootState
+}
+
+describe("selectPopupVisible", () => {
+    test("true only for info", () => {
+        expect(selectPopupVisible(makePopupState({ mapTool: "info" }))).toBe(true)
+        expect(selectPopupVisible(makePopupState({ mapTool: "select" }))).toBe(false)
+        expect(selectPopupVisible(makePopupState({ mapTool: "navigation" }))).toBe(false)
+    })
+})
+
+describe("selectPopupEntries", () => {
+    const selectionEntries = [{ id: 1, values: { k: "s" } }]
+    const hoverEntries = [{ id: 2, values: { k: "h" } }]
+
+    test("empty when popup not visible", () => {
+        expect(
+            selectPopupEntries(makePopupState({ mapTool: "navigation", entries: selectionEntries, hoverEntries })),
+        ).toEqual([])
+        expect(
+            selectPopupEntries(makePopupState({ mapTool: "select", entries: selectionEntries, hoverEntries })),
+        ).toEqual([])
+    })
+
+    test("hover wins when info and hover is non-empty", () => {
+        const result = selectPopupEntries(makePopupState({ mapTool: "info", entries: selectionEntries, hoverEntries }))
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(2)
+    })
+
+    test("selection is returned when hover is empty", () => {
+        const result = selectPopupEntries(makePopupState({ mapTool: "info", entries: selectionEntries }))
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(1)
+    })
+
+    test("empty when both sources empty", () => {
+        expect(selectPopupEntries(makePopupState({ mapTool: "info" }))).toEqual([])
     })
 })
