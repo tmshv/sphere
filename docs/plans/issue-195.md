@@ -33,10 +33,10 @@ Copy the currently selected features to the clipboard as GeoJSON or WKT, via `cm
 
 ### Task 2: Backend WKT helper in libsphere
 
-- [ ] Add `features_to_wkt(fc: &FeatureCollection, ids: &[i64], separator: &str) -> String` in `crates/libsphere/src/source.rs` (or neighbour module).
-- [ ] Converts each feature's geometry to WKT and joins with `separator`; skips features whose geometry is missing.
-- [ ] Unit tests: single point, multi-feature, missing geometry, empty ids.
-- [ ] Bump `crates/libsphere/Cargo.toml` minor version; run `cargo update -p libsphere` from `src-tauri/`.
+- [x] Add `features_to_wkt(fc: &FeatureCollection, ids: &[i64], separator: &str) -> String` in `crates/libsphere/src/source.rs` (or neighbour module).
+- [x] Converts each feature's geometry to WKT and joins with `separator`; skips features whose geometry is missing.
+- [x] Unit tests: single point, multi-feature, missing geometry, empty ids.
+- [x] Bump `crates/libsphere/Cargo.toml` minor version; run `cargo update -p libsphere` from `src-tauri/`.
 
 ### Task 3: Backend copy commands
 
