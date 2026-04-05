@@ -178,11 +178,9 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                     sources={sources}
                 </Badge>
 
-                {selectedCount > 0 && (
-                    <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
-                        selected={selectedCount}
-                    </Badge>
-                )}
+                <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
+                    selected={selectedCount}
+                </Badge>
 
                 <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
                     pitch={format(round(pitch, 1000), 3)}
