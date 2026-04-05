@@ -179,7 +179,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                 </Badge>
 
                 <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
-                    selected={selectedCount}
+                    selected={`${selectedCount}`.padEnd(5, "\u00a0")}
                 </Badge>
 
                 <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
