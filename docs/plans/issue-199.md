@@ -963,13 +963,13 @@ Click-select in Select+Info is handled entirely by `RectSelectOverlay` → `rect
 - Delete: `src/sphere-hooks/useFeatureSelect.test.tsx`
 - Modify: `src/components/SphereMap/map-body.tsx`
 
-- [ ] **Step 1: Delete files**
+- [x] **Step 1: Delete files**
 
 ```bash
 rm src/sphere-hooks/useFeatureSelect.ts src/sphere-hooks/useFeatureSelect.test.tsx
 ```
 
-- [ ] **Step 2: Remove call in `src/components/SphereMap/map-body.tsx`**
+- [x] **Step 2: Remove call in `src/components/SphereMap/map-body.tsx`**
 
 Delete the import line:
 
@@ -983,12 +983,12 @@ Delete the call inside `MapBody`:
     useFeatureSelect(map)
 ```
 
-- [ ] **Step 3: Run full test suite to confirm no regressions**
+- [x] **Step 3: Run full test suite to confirm no regressions**
 
 Run: `npm test -- --run`
 Expected: All remaining tests pass. Note: any other test files that still reference removed symbols will fail; update those before continuing.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add -A src/sphere-hooks/ src/components/SphereMap/map-body.tsx
