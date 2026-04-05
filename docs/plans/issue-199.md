@@ -1092,7 +1092,7 @@ git commit -m "MapToolbar: 3 global tool buttons (navigation/select/info)"
 **Files:**
 - Modify: `src/components/MapStatusbar/index.tsx`
 
-- [ ] **Step 1: Edit imports and state**
+- [x] **Step 1: Edit imports and state**
 
 At the top of `src/components/MapStatusbar/index.tsx`:
 
@@ -1109,7 +1109,7 @@ Replace the `mapTool`/`showFeatureProperties`/`showTools` block:
 
 Delete `const showFeatureProperties = useAppSelector(selectShowFeatureProperties)`, `const activeTab = useAppSelector(selectActiveSidebarTab)`, `const showTools = activeTab === "sources"`, and the `toggleFeatureProperties` callback.
 
-- [ ] **Step 2: Replace tool buttons block**
+- [x] **Step 2: Replace tool buttons block**
 
 Replace the block that renders pan/select + info-popup buttons with:
 
@@ -1139,7 +1139,7 @@ Replace the block that renders pan/select + info-popup buttons with:
 
 Remove the `{showTools && ...}` wrapping — tools are now global.
 
-- [ ] **Step 3: Add `selected=N` badge**
+- [x] **Step 3: Add `selected=N` badge**
 
 After the `sources={sources}` badge, before the `pitch` badge, add:
 
@@ -1151,16 +1151,16 @@ After the `sources={sources}` badge, before the `pitch` badge, add:
                 )}
 ```
 
-- [ ] **Step 4: Remove unused import**
+- [x] **Step 4: Remove unused import**
 
 If `selectActiveSidebarTab` is no longer referenced, remove its import. Same for `selectShowFeatureProperties`.
 
-- [ ] **Step 5: Verify compile**
+- [x] **Step 5: Verify compile**
 
 Run: `npx tsc --noEmit`
 Expected: This file compiles.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/MapStatusbar/index.tsx

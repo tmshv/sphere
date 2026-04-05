@@ -4,13 +4,7 @@ import { usePitch } from "@/hooks/usePitch"
 import { useZoom } from "@/hooks/useZoom"
 import { actions } from "@/store"
 import { selectors } from "@/store"
-import {
-    selectActiveSidebarTab,
-    selectMapTool,
-    selectShowFeatureProperties,
-    selectShowLeftSidebar,
-    selectVersion,
-} from "@/store/app"
+import { selectMapTool, selectShowLeftSidebar, selectVersion } from "@/store/app"
 import { selectErrorMessage } from "@/store/error"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
@@ -117,9 +111,7 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
     const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
     const mapTool = useAppSelector(selectMapTool)
-    const showFeatureProperties = useAppSelector(selectShowFeatureProperties)
-    const activeTab = useAppSelector(selectActiveSidebarTab)
-    const showTools = activeTab === "sources"
+    const selectedCount = useAppSelector(selectors.selection.count)
     const isGlobe = projection === "globe"
 
     const toggleSidebar = useCallback(() => {
@@ -129,10 +121,6 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
             dispatch(actions.app.showLeftSidebar())
         }
     }, [dispatch, sidebar])
-
-    const toggleFeatureProperties = useCallback(() => {
-        dispatch(actions.app.toggleFeatureProperties())
-    }, [dispatch])
 
     const printViewport = useCallback(() => {
         dispatch(actions.map.printViewport({ mapId: MAP_ID }))
@@ -190,6 +178,12 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
                     sources={sources}
                 </Badge>
 
+                {selectedCount > 0 && (
+                    <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
+                        selected={selectedCount}
+                    </Badge>
+                )}
+
                 <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
                     pitch={format(round(pitch, 1000), 3)}
                 </Badge>
@@ -212,29 +206,24 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
 
                 <div className={s.s} />
 
-                {showTools && (
-                    <>
-                        <ActionIcon
-                            color={mapTool === "pan" ? "yellow" : undefined}
-                            onClick={() => dispatch(actions.app.setMapTool("pan"))}
-                            title="Pan"
-                        >
-                            <IconHandStop size={16} />
-                        </ActionIcon>
-                        <ActionIcon
-                            color={mapTool === "select" ? "yellow" : undefined}
-                            onClick={() => dispatch(actions.app.setMapTool("select"))}
-                            title="Rect Select"
-                        >
-                            <IconPointer size={16} />
-                        </ActionIcon>
-                    </>
-                )}
-
                 <ActionIcon
-                    color={showFeatureProperties ? "yellow" : undefined}
-                    onClick={toggleFeatureProperties}
-                    title="Feature properties popup"
+                    color={mapTool === "navigation" ? "yellow" : undefined}
+                    onClick={() => dispatch(actions.app.setMapTool("navigation"))}
+                    title="Navigation"
+                >
+                    <IconHandStop size={16} />
+                </ActionIcon>
+                <ActionIcon
+                    color={mapTool === "select" ? "yellow" : undefined}
+                    onClick={() => dispatch(actions.app.setMapTool("select"))}
+                    title="Select"
+                >
+                    <IconPointer size={16} />
+                </ActionIcon>
+                <ActionIcon
+                    color={mapTool === "info" ? "yellow" : undefined}
+                    onClick={() => dispatch(actions.app.setMapTool("info"))}
+                    title="Info"
                 >
                     <IconInfoCircle size={16} />
                 </ActionIcon>
