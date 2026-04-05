@@ -95,7 +95,6 @@ const View: React.FC = () => {
     const [pageIndex, setPageIndex] = useState(0)
     const [attributeFilter, setAttributeFilter] = useState<"all" | "selection">("all")
     const [selectionData, setSelectionData] = useState<{ sourceId: string; count: number } | null>(null)
-    const [selectionVersion, setSelectionVersion] = useState(0)
 
     // Listen for source info from the main window
     useEffect(() => {
@@ -119,7 +118,6 @@ const View: React.FC = () => {
         let stop: UnlistenFn | undefined
         listen<{ sourceId: string; count: number }>("properties-selection-changed", event => {
             setSelectionData(event.payload)
-            setSelectionVersion(v => v + 1)
         }).then(fn => {
             stop = fn
         })
@@ -131,15 +129,16 @@ const View: React.FC = () => {
     const isSelectionActive = attributeFilter === "selection" && selectionData !== null && selectionData.count > 0
 
     // Fetch column stats — for all features when filter=All, or only selected features when
-    // filter=Selection. Refetches whenever the selection changes (selectionVersion bump).
+    // filter=Selection. Refetches whenever the selection changes (new selectionData ref).
     useEffect(() => {
         if (!sourceId || !schema) return
         let cancelled = false
         const cols = Object.keys(schema.columns)
         const reader = new SourceReader(sourceId)
 
+        const useSelection = attributeFilter === "selection" && selectionData !== null && selectionData.count > 0
         const run = async () => {
-            const ids = isSelectionActive ? await selectionGetIds() : undefined
+            const ids = useSelection ? await selectionGetIds() : undefined
             const entries = await Promise.all(
                 cols.map(async col => {
                     const stats = await reader.getColumnStats(col, ids)
@@ -158,7 +157,7 @@ const View: React.FC = () => {
         return () => {
             cancelled = true
         }
-    }, [sourceId, schema, isSelectionActive, selectionVersion])
+    }, [sourceId, schema, attributeFilter, selectionData])
 
     // Fetch page when not viewing selection
     useEffect(() => {
@@ -179,9 +178,9 @@ const View: React.FC = () => {
             .catch(() => {})
     }, [sourceId, pageIndex, pageSize, sorting, filterExpression, isSelectionActive, attributeFilter])
 
-    // Fetch selection page; selectionVersion drives refetch when selected features change
+    // Fetch selection page; selectionData ref drives refetch when selected features change
     useEffect(() => {
-        if (!sourceId || !isSelectionActive || selectionVersion === 0) return
+        if (!sourceId || !isSelectionActive || selectionData === null) return
         const sortCol = sorting[0]?.id
         const sortAsc = sorting[0] ? !sorting[0].desc : undefined
         selectionQueryPage(sourceId, pageIndex * pageSize, pageSize, sortCol, sortAsc)
@@ -189,7 +188,7 @@ const View: React.FC = () => {
                 setPage(result)
             })
             .catch(() => {})
-    }, [sourceId, pageIndex, pageSize, sorting, isSelectionActive, selectionVersion])
+    }, [sourceId, pageIndex, pageSize, sorting, isSelectionActive, selectionData])
 
     const handlePageSizeChange = useCallback((size: number) => {
         setPageSize(size)
