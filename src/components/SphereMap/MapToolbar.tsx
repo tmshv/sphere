@@ -1,27 +1,28 @@
 import { actions, selectors } from "@/store"
-import { selectActiveSidebarTab, selectMapTool } from "@/store/app"
+import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { DEFAULT_MAP_TOOL, type MapTool } from "@/lib/map-tools"
 import { ActionIcon, Group } from "@mantine/core"
-import { IconHandStop, IconPointer } from "@tabler/icons"
+import { IconHandStop, IconInfoCircle, IconPointer } from "@tabler/icons"
 import { useEffect } from "react"
+
+type ToolSpec = { tool: MapTool; title: string; Icon: typeof IconHandStop }
+
+const TOOLS: ToolSpec[] = [
+    { tool: "navigation", title: "Navigation", Icon: IconHandStop },
+    { tool: "select", title: "Select", Icon: IconPointer },
+    { tool: "info", title: "Info", Icon: IconInfoCircle },
+]
 
 export default function MapToolbar() {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
-    const activeTab = useAppSelector(selectActiveSidebarTab)
 
-    // Reset to pan when leaving Sources tab to prevent dragPan staying disabled
-    useEffect(() => {
-        if (activeTab !== "sources") {
-            dispatch(actions.app.setMapTool("pan"))
-        }
-    }, [activeTab, dispatch])
-
-    // Escape key returns to pan
+    // Escape key returns to default
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
-                dispatch(actions.app.setMapTool("pan"))
+                dispatch(actions.app.setMapTool(DEFAULT_MAP_TOOL))
             }
         }
         window.addEventListener("keydown", handler)
@@ -31,8 +32,7 @@ export default function MapToolbar() {
     }, [dispatch])
 
     const zen = useAppSelector(selectors.app.isZen)
-
-    if (zen || activeTab !== "sources") {
+    if (zen) {
         return null
     }
 
@@ -50,22 +50,17 @@ export default function MapToolbar() {
                 padding: "4px",
             }}
         >
-            <ActionIcon
-                size="md"
-                variant={mapTool === "pan" ? "filled" : "subtle"}
-                title="Pan"
-                onClick={() => dispatch(actions.app.setMapTool("pan"))}
-            >
-                <IconHandStop size={16} />
-            </ActionIcon>
-            <ActionIcon
-                size="md"
-                variant={mapTool === "select" ? "filled" : "subtle"}
-                title="Rect Select"
-                onClick={() => dispatch(actions.app.setMapTool("select"))}
-            >
-                <IconPointer size={16} />
-            </ActionIcon>
+            {TOOLS.map(({ tool, title, Icon }) => (
+                <ActionIcon
+                    key={tool}
+                    size="md"
+                    variant={mapTool === tool ? "filled" : "subtle"}
+                    title={title}
+                    onClick={() => dispatch(actions.app.setMapTool(tool))}
+                >
+                    <Icon size={16} />
+                </ActionIcon>
+            ))}
         </Group>
     )
 }

@@ -1002,7 +1002,7 @@ git commit -m "Remove useFeatureSelect (redundant with RectSelectOverlay)"
 **Files:**
 - Modify: `src/components/SphereMap/MapToolbar.tsx`
 
-- [ ] **Step 1: Replace file contents**
+- [x] **Step 1: Replace file contents**
 
 ```tsx
 import { actions, selectors } from "@/store"
@@ -1073,12 +1073,12 @@ export default function MapToolbar() {
 }
 ```
 
-- [ ] **Step 2: Verify compile**
+- [x] **Step 2: Verify compile**
 
 Run: `npx tsc --noEmit`
 Expected: This file compiles.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/SphereMap/MapToolbar.tsx
