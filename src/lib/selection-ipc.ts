@@ -10,10 +10,6 @@ export function selectionSet(ids: number[]): Promise<SelectionDelta> {
     return invoke<SelectionDelta>("selection_set", { ids })
 }
 
-export function selectionPreview(ids: number[]): Promise<SelectionDelta> {
-    return invoke<SelectionDelta>("selection_preview", { ids })
-}
-
 export function selectionAdd(ids: number[]): Promise<SelectionDelta> {
     return invoke<SelectionDelta>("selection_add", { ids })
 }

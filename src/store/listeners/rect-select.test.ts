@@ -51,16 +51,13 @@ type Action = { type: string; payload?: unknown }
 
 function makeStore(state: Record<string, unknown>) {
     const dispatched: Action[] = []
-    const capture = () => (next: (a: unknown) => unknown) => (action: unknown) => {
+    const capture: Middleware = () => next => action => {
         dispatched.push(action as Action)
         return next(action)
     }
     const store = configureStore({
         reducer: (s = state) => s,
-        middleware: getDefaultMiddleware =>
-            getDefaultMiddleware()
-                .prepend(listener.middleware)
-                .concat(capture as unknown as Middleware),
+        middleware: getDefaultMiddleware => getDefaultMiddleware().prepend(listener.middleware).concat(capture),
     })
     return { store, dispatched }
 }
