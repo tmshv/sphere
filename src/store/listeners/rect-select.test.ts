@@ -18,6 +18,7 @@ vi.mock("@/map", () => ({
 
 vi.mock("@/lib/selection-bus", () => ({
     emitSelectionDelta: vi.fn(),
+    emitSelectionReconcile: vi.fn(),
 }))
 
 vi.mock("../preview", () => ({
@@ -152,10 +153,11 @@ describe("rect-select listener", () => {
         expect(invokeMock).not.toHaveBeenCalled()
     })
 
-    test("rectSelectCommit uses op=set (no modifier), then apply + count", async () => {
+    test("rectSelectCommit uses op=set (no modifier), then apply + reconcile + count", async () => {
         invokeMock.mockImplementation((cmd: string) => {
             if (cmd === "selection_rect") return Promise.resolve({ added: [1], removed: [] })
             if (cmd === "selection_apply") return Promise.resolve({ added: [], removed: [] })
+            if (cmd === "selection_get_ids") return Promise.resolve([1])
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
@@ -175,6 +177,7 @@ describe("rect-select listener", () => {
         expect(rectCalls).toHaveLength(1)
         expect(rectCalls[0][1]).toMatchObject({ op: "set" })
         expect(invokeMock.mock.calls.some((c: unknown[]) => c[0] === "selection_apply")).toBe(true)
+        expect(invokeMock.mock.calls.some((c: unknown[]) => c[0] === "selection_get_ids")).toBe(true)
         expect(invokeMock.mock.calls.some((c: unknown[]) => c[0] === "selection_count")).toBe(true)
         expect(dispatched.some(a => a.type === "selection/sync")).toBe(true)
         expect(dispatched.some(a => a.type === "selection/apply")).toBe(true)
@@ -184,6 +187,7 @@ describe("rect-select listener", () => {
         invokeMock.mockImplementation((cmd: string) => {
             if (cmd === "selection_rect") return Promise.resolve({ added: [1], removed: [] })
             if (cmd === "selection_apply") return Promise.resolve({ added: [], removed: [] })
+            if (cmd === "selection_get_ids") return Promise.resolve([1])
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })

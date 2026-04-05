@@ -1,13 +1,14 @@
 import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
 import { queryFeaturesInPoint } from "@/lib/maplibre"
-import { emitSelectionDelta } from "@/lib/selection-bus"
+import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
     selectionAdd,
     selectionApply,
     selectionClear,
     selectionCount,
+    selectionGetIds,
     selectionRect,
     selectionRemove,
     selectionSet,
@@ -65,7 +66,7 @@ listener.startListening({
         const bbox = screenToGeoBbox(map, start, current)
         const op = modifier === "shift" ? "preview" : "set"
 
-        const delta = await selectionRect(sourceId, bbox, mode, op)
+        const delta = await selectionRect(sourceId, bbox, mode, op, generation)
 
         if (generation !== queryGeneration) return
 
@@ -89,7 +90,7 @@ listener.startListening({
         const bbox = screenToGeoBbox(map, start, current)
         const op = modifier === "shift" ? "add" : "set"
 
-        const delta = await selectionRect(sourceId, bbox, mode, op)
+        const delta = await selectionRect(sourceId, bbox, mode, op, generation)
 
         if (generation !== queryGeneration) return
 
@@ -97,6 +98,11 @@ listener.startListening({
 
         const applyDelta = await selectionApply()
         emitSelectionDelta(applyDelta)
+
+        // Reconcile frontend highlights with authoritative backend state
+        // to correct any drift from dropped stale drag deltas
+        const ids = await selectionGetIds()
+        emitSelectionReconcile(ids, sourceId)
 
         const count = await selectionCount()
         listenerApi.dispatch(actions.selection.sync({ count, sourceId }))

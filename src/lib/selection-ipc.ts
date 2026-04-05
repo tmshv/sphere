@@ -57,11 +57,13 @@ export function selectionRect(
     bbox: [number, number, number, number],
     mode: "include" | "intersect",
     op: SelectionRectOp,
+    generation: number,
 ): Promise<SelectionDelta> {
     return invoke<SelectionDelta>("selection_rect", {
         sourceId,
         bbox,
         mode,
         op,
+        generation,
     })
 }

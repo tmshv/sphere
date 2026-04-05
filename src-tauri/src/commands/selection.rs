@@ -9,7 +9,7 @@ pub async fn selection_set(
     ids: Vec<i64>,
     storage: State<'_, SelectionStorage>,
 ) -> Result<SelectionDelta, String> {
-    let mut state = storage.state.lock().unwrap();
+    let mut state = storage.inner.lock().unwrap();
     Ok(state.set(&ids))
 }
 
@@ -18,7 +18,7 @@ pub async fn selection_preview(
     ids: Vec<i64>,
     storage: State<'_, SelectionStorage>,
 ) -> Result<SelectionDelta, String> {
-    let mut state = storage.state.lock().unwrap();
+    let mut state = storage.inner.lock().unwrap();
     Ok(state.preview(&ids))
 }
 
@@ -27,7 +27,7 @@ pub async fn selection_add(
     ids: Vec<i64>,
     storage: State<'_, SelectionStorage>,
 ) -> Result<SelectionDelta, String> {
-    let mut state = storage.state.lock().unwrap();
+    let mut state = storage.inner.lock().unwrap();
     Ok(state.add(&ids))
 }
 
@@ -36,7 +36,7 @@ pub async fn selection_remove(
     ids: Vec<i64>,
     storage: State<'_, SelectionStorage>,
 ) -> Result<SelectionDelta, String> {
-    let mut state = storage.state.lock().unwrap();
+    let mut state = storage.inner.lock().unwrap();
     Ok(state.remove(&ids))
 }
 
@@ -44,7 +44,7 @@ pub async fn selection_remove(
 pub async fn selection_apply(
     storage: State<'_, SelectionStorage>,
 ) -> Result<SelectionDelta, String> {
-    let mut state = storage.state.lock().unwrap();
+    let mut state = storage.inner.lock().unwrap();
     Ok(state.apply())
 }
 
@@ -52,7 +52,9 @@ pub async fn selection_apply(
 pub async fn selection_clear(
     storage: State<'_, SelectionStorage>,
 ) -> Result<SelectionDelta, String> {
-    let mut state = storage.state.lock().unwrap();
+    let mut last_gen = storage.generation.lock().unwrap();
+    *last_gen = 0;
+    let mut state = storage.inner.lock().unwrap();
     Ok(state.clear())
 }
 
@@ -60,7 +62,7 @@ pub async fn selection_clear(
 pub async fn selection_count(
     storage: State<'_, SelectionStorage>,
 ) -> Result<usize, String> {
-    let state = storage.state.lock().unwrap();
+    let state = storage.inner.lock().unwrap();
     Ok(state.count())
 }
 
@@ -68,7 +70,7 @@ pub async fn selection_count(
 pub async fn selection_get_ids(
     storage: State<'_, SelectionStorage>,
 ) -> Result<Vec<i64>, String> {
-    let state = storage.state.lock().unwrap();
+    let state = storage.inner.lock().unwrap();
     Ok(state.get_ids())
 }
 
@@ -83,7 +85,7 @@ pub async fn selection_query_page(
     source_storage: State<'_, SourceStorage>,
 ) -> Result<PageResult, String> {
     let ids = {
-        let state = selection_storage.state.lock().unwrap();
+        let state = selection_storage.inner.lock().unwrap();
         state.get_ids()
     };
 
@@ -122,6 +124,7 @@ pub async fn selection_rect(
     bbox: [f64; 4],
     mode: String,
     op: String,
+    generation: u64,
     selection_storage: State<'_, SelectionStorage>,
     source_storage: State<'_, SourceStorage>,
 ) -> Result<SelectionDelta, String> {
@@ -137,7 +140,15 @@ pub async fn selection_rect(
             .clone()
     };
     let ids = fs.query_rect(bbox, &mode);
-    let mut state = selection_storage.state.lock().unwrap();
+    let mut last_gen = selection_storage.generation.lock().unwrap();
+    if generation < *last_gen {
+        return Ok(SelectionDelta {
+            added: vec![],
+            removed: vec![],
+        });
+    }
+    *last_gen = generation;
+    let mut state = selection_storage.inner.lock().unwrap();
     let delta = match op.as_str() {
         "set" => state.set(&ids),
         "preview" => state.preview(&ids),
