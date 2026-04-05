@@ -91,7 +91,7 @@ git commit -m "Add selection_rect command combining spatial query and selection 
 **Files:**
 - Modify: `src-tauri/src/main.rs:36-62`
 
-- [ ] **Step 1: Add the handler entry**
+- [x] **Step 1: Add the handler entry**
 
 In `src-tauri/src/main.rs`, inside `tauri::generate_handler![...]`, add `commands::selection::selection_rect,` immediately after `commands::selection::selection_query_page,` (line 61). The edit:
 
@@ -101,12 +101,12 @@ In `src-tauri/src/main.rs`, inside `tauri::generate_handler![...]`, add `command
         ])
 ```
 
-- [ ] **Step 2: Build to verify registration compiles**
+- [x] **Step 2: Build to verify registration compiles**
 
 Run: `cd src-tauri && cargo check`
 Expected: clean build.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src-tauri/src/main.rs
