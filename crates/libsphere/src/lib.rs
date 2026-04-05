@@ -1,3 +1,4 @@
+pub mod bbox;
 pub mod csv;
 pub mod error;
 pub mod geojson;

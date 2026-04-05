@@ -7,7 +7,8 @@ use std::collections::HashMap;
 
 use libexpression::{EvalContext, Expr, Value as ExprValue};
 
-use crate::index::{Bbox, BboxOps, RstarIndex, SpatialIndex};
+use crate::bbox::BboxOps;
+use crate::index::{Bbox, RstarIndex, SpatialIndex};
 use crate::schema::{infer_source_schema, SourceSchema};
 
 #[derive(Debug, Serialize)]
