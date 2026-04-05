@@ -468,7 +468,7 @@ git commit -m "Update map-tool-changed listener for new tool enum"
 - Modify: `src/store/properties/index.ts`
 - Modify: `src/store/properties/index.test.ts`
 
-- [ ] **Step 1: Add failing tests**
+- [x] **Step 1: Add failing tests**
 
 Append to `src/store/properties/index.test.ts` (or create if missing — use existing style):
 
@@ -509,12 +509,12 @@ describe("properties slice — hoverEntries", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify fail**
+- [x] **Step 2: Run tests to verify fail**
 
 Run: `npx vitest run src/store/properties/index.test.ts`
 Expected: FAIL.
 
-- [ ] **Step 3: Update `src/store/properties/index.ts`**
+- [x] **Step 3: Update `src/store/properties/index.ts`**
 
 ```ts
 import { createSlice } from "@reduxjs/toolkit"
@@ -586,12 +586,12 @@ export const selectHoverProperties = (state: RootState) => {
 export default propertiesSlice.reducer
 ```
 
-- [ ] **Step 4: Run tests to verify pass**
+- [x] **Step 4: Run tests to verify pass**
 
 Run: `npx vitest run src/store/properties/index.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/store/properties/index.ts src/store/properties/index.test.ts
@@ -850,7 +850,7 @@ describe("useFeatureProperties (hover)", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify fail**
+- [x] **Step 2: Run tests to verify fail**
 
 Run: `npx vitest run src/hooks/useFeatureProperties.test.ts`
 Expected: FAIL.
