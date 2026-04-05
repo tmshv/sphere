@@ -115,3 +115,34 @@ pub async fn selection_query_page(
 
     Ok(result)
 }
+
+#[tauri::command]
+pub async fn selection_rect(
+    source_id: String,
+    bbox: [f64; 4],
+    mode: String,
+    op: String,
+    selection_storage: State<'_, SelectionStorage>,
+    source_storage: State<'_, SourceStorage>,
+) -> Result<SelectionDelta, String> {
+    let fs = {
+        let store = source_storage.store.lock().unwrap();
+        let entry = store
+            .get(&source_id)
+            .ok_or_else(|| format!("Not found {}", &source_id))?;
+        entry
+            .store
+            .as_ref()
+            .ok_or_else(|| "No feature store for this source".to_string())?
+            .clone()
+    };
+    let ids = fs.query_rect(bbox, &mode);
+    let mut state = selection_storage.state.lock().unwrap();
+    let delta = match op.as_str() {
+        "set" => state.set(&ids),
+        "preview" => state.preview(&ids),
+        "add" => state.add(&ids),
+        other => return Err(format!("Unknown selection_rect op: {}", other)),
+    };
+    Ok(delta)
+}
