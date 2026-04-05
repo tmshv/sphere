@@ -719,7 +719,7 @@ git commit -m "Add selectPopupVisible and selectPopupEntries selectors"
 **Files:**
 - Modify: `src/components/SphereMap/RectSelectOverlay.tsx`
 
-- [ ] **Step 1: Edit the activation guard**
+- [x] **Step 1: Edit the activation guard**
 
 In `src/components/SphereMap/RectSelectOverlay.tsx`, replace the import and the guard:
 
@@ -747,12 +747,12 @@ to:
 
 Leave the rest of the file untouched. All existing drag/click dispatches to `rectSelect` actions continue to work for both Select and Info because they're tool-agnostic.
 
-- [ ] **Step 2: Verify TypeScript compiles**
+- [x] **Step 2: Verify TypeScript compiles**
 
 Run: `npx tsc --noEmit`
 Expected: This file compiles. Other sites may still error — ignore for now.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/SphereMap/RectSelectOverlay.tsx
