@@ -1,3 +1,4 @@
+import { selectShowFeatureProperties } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
 import { selectProperties } from "@/store/properties"
 import { Overlay } from "@/ui/Overlay"
@@ -21,8 +22,9 @@ const BODY_STYLE: React.CSSProperties = {
 }
 
 export default function PropertiesPopup() {
+    const enabled = useAppSelector(selectShowFeatureProperties)
     const props = useAppSelector(selectProperties)
-    if (!props) {
+    if (!enabled || !props) {
         return null
     }
 

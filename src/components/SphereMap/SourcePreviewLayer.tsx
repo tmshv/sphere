@@ -1,11 +1,14 @@
 import useFeatureProperties from "@/hooks/useFeatureProperties"
 import { assertUnreachable } from "@/lib"
 import { selectors } from "@/store"
+import { selectShowFeatureProperties } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
 import { Layer, useMap } from "react-map-gl/maplibre"
 import { PointLayer } from "./PointLayer"
 import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
+
+const EMPTY: string[] = []
 
 export type SourcePreviewLayerProps = {
     mapId: string
@@ -17,7 +20,10 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
     const specs = useAppSelector(selectors.preview.layerSpecs)
     const layerIds = useAppSelector(selectors.preview.layerIds)
 
-    useFeatureProperties(map, layerIds, delay)
+    const showFeatureProperties = useAppSelector(selectShowFeatureProperties)
+    const effectiveLayerIds = showFeatureProperties ? layerIds : EMPTY
+
+    useFeatureProperties(map, effectiveLayerIds, delay)
 
     return (
         <>

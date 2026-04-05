@@ -1,7 +1,7 @@
 import "./style.css"
 
 import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
-import { selectionQueryPage } from "@/lib/selection-ipc"
+import { selectionGetIds, selectionQueryPage } from "@/lib/selection-ipc"
 import type { SourceMetadata } from "@/types"
 import { Box, createStyles } from "@mantine/core"
 import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
@@ -128,28 +128,37 @@ const View: React.FC = () => {
         }
     }, [])
 
-    // Fetch column stats once per source
+    const isSelectionActive = attributeFilter === "selection" && selectionData !== null && selectionData.count > 0
+
+    // Fetch column stats — for all features when filter=All, or only selected features when
+    // filter=Selection. Refetches whenever the selection changes (selectionVersion bump).
     useEffect(() => {
         if (!sourceId || !schema) return
-        const reader = new SourceReader(sourceId)
+        let cancelled = false
         const cols = Object.keys(schema.columns)
-        Promise.all(
-            cols.map(async col => {
-                const stats = await reader.getColumnStats(col)
-                return [col, stats] as const
-            }),
-        )
-            .then(entries => {
-                const record: Record<string, ColumnStats> = {}
-                for (const [col, stats] of entries) {
-                    if (stats) record[col] = stats
-                }
-                setColumnStats(record)
-            })
-            .catch(() => {})
-    }, [sourceId, schema])
+        const reader = new SourceReader(sourceId)
 
-    const isSelectionActive = attributeFilter === "selection" && selectionData !== null && selectionData.count > 0
+        const run = async () => {
+            const ids = isSelectionActive ? await selectionGetIds() : undefined
+            const entries = await Promise.all(
+                cols.map(async col => {
+                    const stats = await reader.getColumnStats(col, ids)
+                    return [col, stats] as const
+                }),
+            )
+            if (cancelled) return
+            const record: Record<string, ColumnStats> = {}
+            for (const [col, stats] of entries) {
+                if (stats) record[col] = stats
+            }
+            setColumnStats(record)
+        }
+
+        run().catch(() => {})
+        return () => {
+            cancelled = true
+        }
+    }, [sourceId, schema, isSelectionActive, selectionVersion])
 
     // Fetch page when not viewing selection
     useEffect(() => {

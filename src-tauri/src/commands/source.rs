@@ -289,6 +289,7 @@ pub async fn source_query_page(
 pub async fn source_get_column_stats(
     id: String,
     column: String,
+    ids: Option<Vec<i64>>,
     storage: State<'_, SourceStorage>,
 ) -> Result<ColumnStats, String> {
     let fs = {
@@ -300,14 +301,27 @@ pub async fn source_get_column_stats(
     let col_type = fs.schema().columns.get(&column)
         .cloned()
         .ok_or_else(|| format!("Column '{}' not found in source '{}'", column, id))?;
-    let features = fs.features();
+
+    let id_filter: Option<std::collections::HashSet<i64>> =
+        ids.map(|v| v.into_iter().collect());
+
+    let all_features = fs.features();
+    let features_iter: Box<dyn Iterator<Item = &geojson::Feature>> = match &id_filter {
+        Some(set) => Box::new(all_features.iter().filter(move |f| match &f.id {
+            Some(geojson::feature::Id::Number(n)) => {
+                n.as_i64().map(|v| set.contains(&v)).unwrap_or(false)
+            }
+            _ => false,
+        })),
+        None => Box::new(all_features.iter()),
+    };
 
     let mut count = 0u64;
     let mut null_count = 0u64;
     let mut numeric_values: Vec<f64> = Vec::new();
     let mut string_counts: HashMap<String, u64> = HashMap::new();
 
-    for feature in features {
+    for feature in features_iter {
         match feature.properties.as_ref().and_then(|p| p.get(&column)) {
             None | Some(Value::Null) => null_count += 1,
             Some(v) => {

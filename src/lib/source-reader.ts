@@ -129,11 +129,12 @@ export class SourceReader {
         }
     }
 
-    public async getColumnStats(column: string): Promise<ColumnStats | null> {
+    public async getColumnStats(column: string, ids?: number[]): Promise<ColumnStats | null> {
         try {
             return await invoke<ColumnStats>("source_get_column_stats", {
                 id: this.id,
                 column,
+                ids,
             })
         } catch (error) {
             logger.error("Failed to get column stats %s", error)
