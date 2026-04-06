@@ -34,17 +34,11 @@ type RectShapeProps = {
 }
 
 function DashedRect({ width, height, stroke, markerFill }: RectShapeProps) {
+    const h = MARKER_HALF
+    const sw = STROKE_WIDTH
     return (
         <>
-            <rect
-                x={0}
-                y={0}
-                width={width}
-                height={height}
-                fill="none"
-                stroke={markerFill}
-                strokeWidth={STROKE_WIDTH}
-            />
+            <rect x={0} y={0} width={width} height={height} fill="none" stroke={markerFill} strokeWidth={sw} />
             <rect
                 x={0}
                 y={0}
@@ -52,8 +46,27 @@ function DashedRect({ width, height, stroke, markerFill }: RectShapeProps) {
                 height={height}
                 fill="none"
                 stroke={stroke}
-                strokeWidth={STROKE_WIDTH}
+                strokeWidth={sw}
                 strokeDasharray={`${DASH_LENGTH} ${DASH_LENGTH}`}
+            />
+            <polyline points={`${h},0 0,0 0,${h}`} fill="none" stroke="#ffffff" strokeWidth={sw} />
+            <polyline
+                points={`${width - h},0 ${width},0 ${width},${h}`}
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={sw}
+            />
+            <polyline
+                points={`0,${height - h} 0,${height} ${h},${height}`}
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={sw}
+            />
+            <polyline
+                points={`${width},${height - h} ${width},${height} ${width - h},${height}`}
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={sw}
             />
         </>
     )
