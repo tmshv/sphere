@@ -1,3 +1,5 @@
+import { MAP_ID } from "@/const"
+import { getMap } from "@/map"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
@@ -8,17 +10,26 @@ const listener = createListenerMiddleware()
 listener.startListening({
     actionCreator: actions.app.setMapTool,
     effect: (action, listenerApi) => {
+        const map = getMap(MAP_ID)
+        const canvas = map?.getCanvasContainer()
+
         switch (action.payload) {
             case "navigation": {
                 listenerApi.dispatch(actions.mapInteraction.setDragPan(true))
                 listenerApi.dispatch(actions.mapInteraction.setScrollZoom(true))
                 listenerApi.dispatch(actions.mapInteraction.setDragRotate(true))
+                if (canvas) {
+                    canvas.style.cursor = ""
+                }
                 break
             }
             case "select":
             case "info": {
                 listenerApi.dispatch(actions.mapInteraction.setDragPan(false))
                 listenerApi.dispatch(actions.mapInteraction.setDragRotate(false))
+                if (canvas) {
+                    canvas.style.cursor = "default"
+                }
                 break
             }
         }
