@@ -115,7 +115,6 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
 
         const onMouseDown = (e: MouseEvent) => {
             if (e.button !== 0) return
-            if (!sourceIdRef.current) return
             isDragging.current = false
             setDragStart({ x: e.clientX, y: e.clientY })
             setDragCurrent(null)
@@ -131,7 +130,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
         if (!dragStart) return
 
         const onMouseMove = (e: MouseEvent) => {
-            if (!dragStartRef.current || !sourceIdRef.current) return
+            if (!dragStartRef.current) return
             const start = dragStartRef.current
             const current = { x: e.clientX, y: e.clientY }
 
@@ -143,35 +142,39 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             }
 
             setDragCurrent(current)
-            dispatch(
-                actions.rectSelect.drag({
-                    start,
-                    current,
-                    modifier: getModifier(e),
-                }),
-            )
-        }
-
-        const onMouseUp = (e: MouseEvent) => {
-            const start = dragStartRef.current
-            if (!start || !sourceIdRef.current) return
-
-            if (!isDragging.current) {
+            if (sourceIdRef.current) {
                 dispatch(
-                    actions.rectSelect.click({
-                        point: start,
-                        modifier: getModifier(e),
-                    }),
-                )
-            } else {
-                const current = { x: e.clientX, y: e.clientY }
-                dispatch(
-                    actions.rectSelect.commit({
+                    actions.rectSelect.drag({
                         start,
                         current,
                         modifier: getModifier(e),
                     }),
                 )
+            }
+        }
+
+        const onMouseUp = (e: MouseEvent) => {
+            const start = dragStartRef.current
+            if (!start) return
+
+            if (sourceIdRef.current) {
+                if (!isDragging.current) {
+                    dispatch(
+                        actions.rectSelect.click({
+                            point: start,
+                            modifier: getModifier(e),
+                        }),
+                    )
+                } else {
+                    const current = { x: e.clientX, y: e.clientY }
+                    dispatch(
+                        actions.rectSelect.commit({
+                            start,
+                            current,
+                            modifier: getModifier(e),
+                        }),
+                    )
+                }
             }
 
             isDragging.current = false
