@@ -3,7 +3,7 @@ import { selectMapTool } from "@/store/app"
 import { appSlice } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { isRectSelectEnabled } from "@/lib/map-tools"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 import type { RectSelectModifier } from "@/store/rect-select"
 
@@ -12,7 +12,7 @@ type Point = { x: number; y: number }
 const RECT_FILL_OPACITY = 0.1
 const DRAG_THRESHOLD = 3
 
-function getModifier(e: React.MouseEvent | MouseEvent): RectSelectModifier {
+function getModifier(e: MouseEvent): RectSelectModifier {
     if (e.shiftKey) return "shift"
     if (e.ctrlKey || e.metaKey) return "ctrl"
     return "none"
@@ -98,28 +98,45 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const mapTool = useAppSelector(selectMapTool)
     const sourceId = useAppSelector(selectors.source.selectSelectedId)
     const isDark = useAppSelector(appSlice.selectors.isDark)
+    const enabled = isRectSelectEnabled(mapTool)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
     const [dragCurrent, setDragCurrent] = useState<Point | null>(null)
     const isDragging = useRef(false)
+    const sourceIdRef = useRef(sourceId)
+    sourceIdRef.current = sourceId
 
-    const handleMouseDown = useCallback(
-        (e: React.MouseEvent) => {
-            if (!sourceId) return
+    const dragStartRef = useRef(dragStart)
+    dragStartRef.current = dragStart
+
+    useEffect(() => {
+        const container = mapRef?.getMap()?.getCanvasContainer()
+        if (!container || !enabled) return
+
+        const onMouseDown = (e: MouseEvent) => {
+            if (e.button !== 0) return
+            if (!sourceIdRef.current) return
             isDragging.current = false
             setDragStart({ x: e.clientX, y: e.clientY })
             setDragCurrent(null)
-        },
-        [sourceId],
-    )
+        }
 
-    const handleMouseMove = useCallback(
-        (e: React.MouseEvent) => {
-            if (!dragStart || !sourceId) return
+        container.addEventListener("mousedown", onMouseDown)
+        return () => {
+            container.removeEventListener("mousedown", onMouseDown)
+        }
+    }, [mapRef, enabled])
+
+    useEffect(() => {
+        if (!dragStart) return
+
+        const onMouseMove = (e: MouseEvent) => {
+            if (!dragStartRef.current || !sourceIdRef.current) return
+            const start = dragStartRef.current
             const current = { x: e.clientX, y: e.clientY }
 
             if (!isDragging.current) {
-                if (distance(dragStart, current) < DRAG_THRESHOLD) {
+                if (distance(start, current) < DRAG_THRESHOLD) {
                     return
                 }
                 isDragging.current = true
@@ -128,23 +145,21 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             setDragCurrent(current)
             dispatch(
                 actions.rectSelect.drag({
-                    start: dragStart,
+                    start,
                     current,
                     modifier: getModifier(e),
                 }),
             )
-        },
-        [dragStart, sourceId, dispatch],
-    )
+        }
 
-    const handleMouseUp = useCallback(
-        (e: React.MouseEvent) => {
-            if (!dragStart || !sourceId) return
+        const onMouseUp = (e: MouseEvent) => {
+            const start = dragStartRef.current
+            if (!start || !sourceIdRef.current) return
 
             if (!isDragging.current) {
                 dispatch(
                     actions.rectSelect.click({
-                        point: dragStart,
+                        point: start,
                         modifier: getModifier(e),
                     }),
                 )
@@ -152,7 +167,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
                 const current = { x: e.clientX, y: e.clientY }
                 dispatch(
                     actions.rectSelect.commit({
-                        start: dragStart,
+                        start,
                         current,
                         modifier: getModifier(e),
                     }),
@@ -162,34 +177,17 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             isDragging.current = false
             setDragStart(null)
             setDragCurrent(null)
-        },
-        [dragStart, sourceId, dispatch],
-    )
-
-    const forwardToCanvas = useCallback(
-        (e: React.SyntheticEvent) => {
-            const canvas = mapRef?.getMap()?.getCanvas()
-            if (canvas) {
-                canvas.dispatchEvent(new (e.nativeEvent.constructor as typeof Event)(e.type, e.nativeEvent))
-            }
-        },
-        [mapRef],
-    )
-
-    useEffect(() => {
-        if (!dragStart) return
-        const onWindowMouseUp = () => {
-            isDragging.current = false
-            setDragStart(null)
-            setDragCurrent(null)
         }
-        window.addEventListener("mouseup", onWindowMouseUp)
+
+        window.addEventListener("mousemove", onMouseMove)
+        window.addEventListener("mouseup", onMouseUp)
         return () => {
-            window.removeEventListener("mouseup", onWindowMouseUp)
+            window.removeEventListener("mousemove", onMouseMove)
+            window.removeEventListener("mouseup", onMouseUp)
         }
-    }, [dragStart])
+    }, [dragStart, dispatch])
 
-    if (!isRectSelectEnabled(mapTool)) {
+    if (!enabled) {
         return null
     }
 
@@ -205,42 +203,26 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const markerFill = isDark ? "#000000" : "#ffffff"
     const fill = isDark ? `rgba(255,255,255,${RECT_FILL_OPACITY})` : `rgba(0,0,0,${RECT_FILL_OPACITY})`
 
-    return (
-        <>
-            <div
-                style={{
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 5,
-                    cursor: "default",
-                }}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onWheel={forwardToCanvas}
-                onContextMenu={forwardToCanvas}
-            />
-            {showRect && (
-                <svg
-                    aria-hidden="true"
-                    style={{
-                        position: "fixed",
-                        left,
-                        top,
-                        width,
-                        height,
-                        pointerEvents: "none",
-                        overflow: "visible",
-                    }}
-                >
-                    <rect x={0} y={0} width={width} height={height} fill={fill} stroke="none" />
-                    {isInclude ? (
-                        <SolidRect width={width} height={height} stroke="#000000" markerFill="#ffffff" />
-                    ) : (
-                        <DashedRect width={width} height={height} stroke={stroke} markerFill={markerFill} />
-                    )}
-                </svg>
+    return showRect ? (
+        <svg
+            aria-hidden="true"
+            style={{
+                position: "fixed",
+                left,
+                top,
+                width,
+                height,
+                pointerEvents: "none",
+                overflow: "visible",
+                zIndex: 5,
+            }}
+        >
+            <rect x={0} y={0} width={width} height={height} fill={fill} stroke="none" />
+            {isInclude ? (
+                <SolidRect width={width} height={height} stroke="#000000" markerFill="#ffffff" />
+            ) : (
+                <DashedRect width={width} height={height} stroke={stroke} markerFill={markerFill} />
             )}
-        </>
-    )
+        </svg>
+    ) : null
 }
