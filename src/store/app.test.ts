@@ -165,9 +165,9 @@ describe("app RootState selectors", () => {
 })
 
 describe("app slice mapTool", () => {
-    test("default mapTool is pan", () => {
+    test("default mapTool is navigation", () => {
         const state = reducer(undefined, { type: "@@INIT" })
-        expect(state.mapTool).toBe("pan")
+        expect(state.mapTool).toBe("navigation")
     })
 
     test("setMapTool changes to select", () => {
@@ -175,9 +175,14 @@ describe("app slice mapTool", () => {
         expect(state.mapTool).toBe("select")
     })
 
-    test("setMapTool changes back to pan", () => {
+    test("setMapTool changes to info", () => {
+        const state = reducer(undefined, setMapTool("info"))
+        expect(state.mapTool).toBe("info")
+    })
+
+    test("setMapTool returns to navigation", () => {
         const prev = { ...reducer(undefined, { type: "@@INIT" }), mapTool: "select" as const }
-        const state = reducer(prev, setMapTool("pan"))
-        expect(state.mapTool).toBe("pan")
+        const state = reducer(prev, setMapTool("navigation"))
+        expect(state.mapTool).toBe("navigation")
     })
 })
