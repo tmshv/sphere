@@ -1,6 +1,7 @@
 use crate::selection::SelectionStorage;
 use crate::state::SourceStorage;
 use libsphere::selection::SelectionDelta;
+use libsphere::source::{features_to_wkt, slice_feature_collection};
 use libsphere::PageResult;
 use tauri::State;
 
@@ -156,4 +157,141 @@ pub async fn selection_rect(
         other => return Err(format!("Unknown selection_rect op: {}", other)),
     };
     Ok(delta)
+}
+
+#[tauri::command]
+pub async fn selection_copy_geojson(
+    source_id: String,
+    wrap_fc: bool,
+    source_storage: State<'_, SourceStorage>,
+    selection_storage: State<'_, SelectionStorage>,
+) -> Result<String, String> {
+    let ids = {
+        let state = selection_storage.inner.lock().unwrap();
+        state.get_ids()
+    };
+
+    if ids.is_empty() {
+        return Ok(String::new());
+    }
+
+    let fc = {
+        let store = source_storage.store.lock().unwrap();
+        let entry = store
+            .get(&source_id)
+            .ok_or_else(|| format!("Not found {}", &source_id))?;
+        entry.source.to_feature_collection()?
+    };
+
+    let sliced = slice_feature_collection(fc, &ids);
+    serialize_geojson_copy(&sliced, wrap_fc)
+}
+
+fn serialize_geojson_copy(
+    fc: &geojson::FeatureCollection,
+    wrap_fc: bool,
+) -> Result<String, String> {
+    if wrap_fc {
+        serde_json::to_string(fc).map_err(|e| e.to_string())
+    } else if fc.features.len() == 1 {
+        serde_json::to_string(&fc.features[0]).map_err(|e| e.to_string())
+    } else {
+        serde_json::to_string(&fc.features).map_err(|e| e.to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn selection_copy_wkt(
+    source_id: String,
+    separator: String,
+    source_storage: State<'_, SourceStorage>,
+    selection_storage: State<'_, SelectionStorage>,
+) -> Result<String, String> {
+    let ids = {
+        let state = selection_storage.inner.lock().unwrap();
+        state.get_ids()
+    };
+
+    if ids.is_empty() {
+        return Ok(String::new());
+    }
+
+    let fc = {
+        let store = source_storage.store.lock().unwrap();
+        let entry = store
+            .get(&source_id)
+            .ok_or_else(|| format!("Not found {}", &source_id))?;
+        entry.source.to_feature_collection()?
+    };
+
+    Ok(features_to_wkt(&fc, &ids, &separator))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geojson::{feature::Id, Feature, FeatureCollection};
+
+    fn point_feature(id: i64, x: f64, y: f64) -> Feature {
+        Feature {
+            id: Some(Id::Number(id.into())),
+            geometry: Some(geojson::Geometry::new(geojson::Value::Point(vec![x, y]))),
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        }
+    }
+
+    fn make_fc(features: Vec<Feature>) -> FeatureCollection {
+        FeatureCollection {
+            features,
+            bbox: None,
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn geojson_wrap_fc_returns_feature_collection() {
+        let fc = make_fc(vec![point_feature(1, 0.0, 0.0)]);
+        let result = serialize_geojson_copy(&fc, true).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
+        assert_eq!(parsed["type"], "FeatureCollection");
+        assert_eq!(parsed["features"].as_array().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn geojson_no_wrap_single_feature_returns_feature() {
+        let fc = make_fc(vec![point_feature(1, 5.0, 10.0)]);
+        let result = serialize_geojson_copy(&fc, false).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
+        assert_eq!(parsed["type"], "Feature");
+        assert_eq!(parsed["geometry"]["coordinates"][0], 5.0);
+    }
+
+    #[test]
+    fn geojson_no_wrap_multiple_features_returns_array() {
+        let fc = make_fc(vec![point_feature(1, 0.0, 0.0), point_feature(2, 1.0, 1.0)]);
+        let result = serialize_geojson_copy(&fc, false).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
+        let arr = parsed.as_array().unwrap();
+        assert_eq!(arr.len(), 2);
+        assert_eq!(arr[0]["type"], "Feature");
+    }
+
+    #[test]
+    fn geojson_wrap_empty_fc() {
+        let fc = make_fc(vec![]);
+        let result = serialize_geojson_copy(&fc, true).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
+        assert_eq!(parsed["type"], "FeatureCollection");
+        assert_eq!(parsed["features"].as_array().unwrap().len(), 0);
+    }
+
+    #[test]
+    fn geojson_no_wrap_empty_returns_empty_array() {
+        let fc = make_fc(vec![]);
+        let result = serialize_geojson_copy(&fc, false).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
+        assert_eq!(parsed.as_array().unwrap().len(), 0);
+    }
 }

@@ -6,6 +6,7 @@ import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
 import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"
 import { selectionSlice as selection } from "./selection"
+import { settingsSlice as settings } from "./settings"
 import { sourceSlice as source } from "./source"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
@@ -59,6 +60,7 @@ export const selectors = {
         visibleIds,
     },
     selection: selection.selectors,
+    settings: settings.selectors,
     tileBoundaries: {
         show: showTileBoundaries,
     },

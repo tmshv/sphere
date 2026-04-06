@@ -5,6 +5,7 @@ use std::path::Path;
 // use std::result;
 use url::Url;
 use urlencoding;
+use wkt::ToWkt;
 
 use super::csv::{Csv, CsvGeometry, CsvParams};
 use super::geojson::Geojson;
@@ -277,6 +278,28 @@ pub fn slice_feature_collection(
     }
 }
 
+pub fn features_to_wkt(
+    fc: &geojson::FeatureCollection,
+    ids: &[i64],
+    separator: &str,
+) -> String {
+    fc.features
+        .iter()
+        .filter(|f| {
+            f.id.as_ref().map_or(false, |fid| match fid {
+                geojson::feature::Id::Number(n) => n.as_i64().map_or(false, |n| ids.contains(&n)),
+                _ => false,
+            })
+        })
+        .filter_map(|f| {
+            let geom = f.geometry.as_ref()?;
+            let geo_geom: geo::Geometry<f64> = geo::Geometry::try_from(geom).ok()?;
+            Some(geo_geom.wkt_string())
+        })
+        .collect::<Vec<_>>()
+        .join(separator)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -362,5 +385,51 @@ mod tests {
         assert_eq!(result.features.len(), 2);
         assert_eq!(result.features[0].id, Some(Id::Number(1.into())));
         assert_eq!(result.features[1].id, Some(Id::Number(4.into())));
+    }
+
+    #[test]
+    fn wkt_single_point() {
+        let fc = make_fc(&[1]);
+        let result = features_to_wkt(&fc, &[1], "\n");
+        assert_eq!(result, "POINT(0 0)");
+    }
+
+    #[test]
+    fn wkt_multi_feature_joined() {
+        let mut fc = make_fc(&[1, 2]);
+        fc.features[1].geometry = Some(geojson::Geometry::new(geojson::Value::Point(vec![
+            10.0, 20.0,
+        ])));
+        let result = features_to_wkt(&fc, &[1, 2], "\n");
+        assert_eq!(result, "POINT(0 0)\nPOINT(10 20)");
+    }
+
+    #[test]
+    fn wkt_custom_separator() {
+        let fc = make_fc(&[1, 2]);
+        let result = features_to_wkt(&fc, &[1, 2], ";");
+        assert_eq!(result, "POINT(0 0);POINT(0 0)");
+    }
+
+    #[test]
+    fn wkt_skips_missing_geometry() {
+        let mut fc = make_fc(&[1, 2]);
+        fc.features[0].geometry = None;
+        let result = features_to_wkt(&fc, &[1, 2], "\n");
+        assert_eq!(result, "POINT(0 0)");
+    }
+
+    #[test]
+    fn wkt_empty_ids_returns_empty() {
+        let fc = make_fc(&[1, 2]);
+        let result = features_to_wkt(&fc, &[], "\n");
+        assert_eq!(result, "");
+    }
+
+    #[test]
+    fn wkt_no_matching_ids_returns_empty() {
+        let fc = make_fc(&[1, 2]);
+        let result = features_to_wkt(&fc, &[99], "\n");
+        assert_eq!(result, "");
     }
 }

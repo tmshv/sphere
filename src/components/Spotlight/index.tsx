@@ -2,8 +2,10 @@ import { SpotlightProvider } from "@mantine/spotlight"
 import { IconClipboard, IconCopy, IconSearch, IconZoomReset } from "@tabler/icons"
 import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { useMap } from "react-map-gl/maplibre"
+import { copySelectionAsGeojson, copySelectionAsWkt } from "../../lib/copy-selection"
 import { actions } from "../../store"
-import { useAppDispatch } from "../../store/hooks"
+import { selectors } from "../../store/selectors"
+import { useAppDispatch, useAppSelector } from "../../store/hooks"
 import addFromClipboard from "../../store/source/addFromClipboard"
 
 export type SpotlightProps = {
@@ -14,6 +16,10 @@ export type SpotlightProps = {
 export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
     const { [mapId]: ref } = useMap()
     const dispatch = useAppDispatch()
+    const selectionSourceId = useAppSelector(selectors.selection.sourceId)
+    const selectionCount = useAppSelector(selectors.selection.count)
+    const copyWrapFc = useAppSelector(selectors.settings.selectCopyWrapAsFeatureCollection)
+    const copyWktSeparator = useAppSelector(selectors.settings.selectCopyWktSeparator)
 
     return (
         <SpotlightProvider
@@ -155,6 +161,28 @@ export const Spotlight: React.FC<SpotlightProps> = ({ children, mapId }) => {
                     icon: <IconClipboard size={18} />,
                     onTrigger: () => {
                         dispatch(addFromClipboard())
+                    },
+                },
+                {
+                    title: "Copy selection as GeoJSON",
+                    description: "Copy selected features as GeoJSON to clipboard",
+                    icon: <IconCopy size={18} />,
+                    onTrigger: async () => {
+                        if (selectionCount === 0 || selectionSourceId === undefined) {
+                            return
+                        }
+                        await copySelectionAsGeojson(selectionSourceId, copyWrapFc)
+                    },
+                },
+                {
+                    title: "Copy selection as WKT",
+                    description: "Copy selected features as WKT to clipboard",
+                    icon: <IconCopy size={18} />,
+                    onTrigger: async () => {
+                        if (selectionCount === 0 || selectionSourceId === undefined) {
+                            return
+                        }
+                        await copySelectionAsWkt(selectionSourceId, copyWktSeparator)
                     },
                 },
             ]}
