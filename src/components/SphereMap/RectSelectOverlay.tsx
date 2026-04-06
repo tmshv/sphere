@@ -38,7 +38,12 @@ function Corners({ width, height, stroke }: { width: number; height: number; str
     const o = 1
     return (
         <>
-            <polyline points={`${h},-${o} -${o},-${o} -${o},${h}`} fill="none" stroke={stroke} strokeWidth={STROKE_WIDTH} />
+            <polyline
+                points={`${h},-${o} -${o},-${o} -${o},${h}`}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={STROKE_WIDTH}
+            />
             <polyline
                 points={`${width - h},-${o} ${width + o},-${o} ${width + o},${h}`}
                 fill="none"
@@ -219,7 +224,12 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
             {isInclude ? (
                 <SolidRect width={width} height={height} stroke={STROKE_COLOR} strokeOpposite={STROKE_OPPOSITE_COLOR} />
             ) : (
-                <DashedRect width={width} height={height} stroke={STROKE_COLOR} strokeOpposite={STROKE_OPPOSITE_COLOR} />
+                <DashedRect
+                    width={width}
+                    height={height}
+                    stroke={STROKE_COLOR}
+                    strokeOpposite={STROKE_OPPOSITE_COLOR}
+                />
             )}
         </svg>
     ) : null
