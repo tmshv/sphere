@@ -1,6 +1,5 @@
 import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
-import { appSlice } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { isRectSelectEnabled } from "@/lib/map-tools"
 import { useEffect, useRef, useState } from "react"
@@ -9,7 +8,6 @@ import type { RectSelectModifier } from "@/store/rect-select"
 
 type Point = { x: number; y: number }
 
-const RECT_FILL_OPACITY = 0.1
 const DRAG_THRESHOLD = 3
 
 function getModifier(e: MouseEvent): RectSelectModifier {
@@ -22,7 +20,9 @@ function distance(a: Point, b: Point): number {
     return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
 
-const STROKE_WIDTH = 1.5
+const STROKE_WIDTH = 1
+const STROKE_COLOR = "#000000"
+const STROKE_OPPOSITE_COLOR = "#ffffff"
 const DASH_LENGTH = 6
 const MARKER_HALF = 8
 
@@ -30,15 +30,42 @@ type RectShapeProps = {
     width: number
     height: number
     stroke: string
-    markerFill: string
+    strokeOpposite: string
 }
 
-function DashedRect({ width, height, stroke, markerFill }: RectShapeProps) {
+function Corners({ width, height, stroke }: { width: number; height: number; stroke: string }) {
     const h = MARKER_HALF
+    const o = 1
+    return (
+        <>
+            <polyline points={`${h},-${o} -${o},-${o} -${o},${h}`} fill="none" stroke={stroke} strokeWidth={STROKE_WIDTH} />
+            <polyline
+                points={`${width - h},-${o} ${width + o},-${o} ${width + o},${h}`}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={STROKE_WIDTH}
+            />
+            <polyline
+                points={`-${o},${height - h} -${o},${height + o} ${h},${height + o}`}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={STROKE_WIDTH}
+            />
+            <polyline
+                points={`${width + o},${height - h} ${width + o},${height + o} ${width - h},${height + o}`}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={STROKE_WIDTH}
+            />
+        </>
+    )
+}
+
+function DashedRect({ width, height, stroke, strokeOpposite }: RectShapeProps) {
     const sw = STROKE_WIDTH
     return (
         <>
-            <rect x={0} y={0} width={width} height={height} fill="none" stroke={markerFill} strokeWidth={sw} />
+            <rect x={0} y={0} width={width} height={height} fill="none" stroke={strokeOpposite} strokeWidth={sw} />
             <rect
                 x={0}
                 y={0}
@@ -49,55 +76,16 @@ function DashedRect({ width, height, stroke, markerFill }: RectShapeProps) {
                 strokeWidth={sw}
                 strokeDasharray={`${DASH_LENGTH} ${DASH_LENGTH}`}
             />
-            <polyline points={`${h},0 0,0 0,${h}`} fill="none" stroke="#ffffff" strokeWidth={sw} />
-            <polyline
-                points={`${width - h},0 ${width},0 ${width},${h}`}
-                fill="none"
-                stroke="#ffffff"
-                strokeWidth={sw}
-            />
-            <polyline
-                points={`0,${height - h} 0,${height} ${h},${height}`}
-                fill="none"
-                stroke="#ffffff"
-                strokeWidth={sw}
-            />
-            <polyline
-                points={`${width},${height - h} ${width},${height} ${width - h},${height}`}
-                fill="none"
-                stroke="#ffffff"
-                strokeWidth={sw}
-            />
+            <Corners width={width} height={height} stroke={strokeOpposite} />
         </>
     )
 }
 
-function SolidRect({ width, height, stroke, markerFill }: RectShapeProps) {
-    const h = MARKER_HALF
-    const sw = STROKE_WIDTH
+function SolidRect({ width, height, stroke, strokeOpposite }: RectShapeProps) {
     return (
         <>
-            <rect x={0} y={0} width={width} height={height} fill="none" stroke={stroke} strokeWidth={sw} />
-            {/* corner markers — L-shaped */}
-            <polyline points={`${h},0 0,0 0,${h}`} fill="none" stroke={markerFill} strokeWidth={sw} />
-            <polyline
-                points={`${width - h},0 ${width},0 ${width},${h}`}
-                fill="none"
-                stroke={markerFill}
-                strokeWidth={sw}
-            />
-            <polyline
-                points={`0,${height - h} 0,${height} ${h},${height}`}
-                fill="none"
-                stroke={markerFill}
-                strokeWidth={sw}
-            />
-            <polyline
-                points={`${width},${height - h} ${width},${height} ${width - h},${height}`}
-                fill="none"
-                stroke={markerFill}
-                strokeWidth={sw}
-            />
+            <rect x={0} y={0} width={width} height={height} fill="none" stroke={stroke} strokeWidth={STROKE_WIDTH} />
+            <Corners width={width} height={height} stroke={strokeOpposite} />
         </>
     )
 }
@@ -110,7 +98,6 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
     const sourceId = useAppSelector(selectors.source.selectSelectedId)
-    const isDark = useAppSelector(appSlice.selectors.isDark)
     const enabled = isRectSelectEnabled(mapTool)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
@@ -215,10 +202,6 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const width = showRect ? Math.abs(dragCurrent.x - dragStart.x) : 0
     const height = showRect ? Math.abs(dragCurrent.y - dragStart.y) : 0
 
-    const stroke = isDark ? "#ffffff" : "#000000"
-    const markerFill = isDark ? "#000000" : "#ffffff"
-    const fill = isDark ? `rgba(255,255,255,${RECT_FILL_OPACITY})` : `rgba(0,0,0,${RECT_FILL_OPACITY})`
-
     return showRect ? (
         <svg
             aria-hidden="true"
@@ -233,11 +216,10 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
                 zIndex: 5,
             }}
         >
-            <rect x={0} y={0} width={width} height={height} fill={fill} stroke="none" />
             {isInclude ? (
-                <SolidRect width={width} height={height} stroke="#000000" markerFill="#ffffff" />
+                <SolidRect width={width} height={height} stroke={STROKE_COLOR} strokeOpposite={STROKE_OPPOSITE_COLOR} />
             ) : (
-                <DashedRect width={width} height={height} stroke={stroke} markerFill={markerFill} />
+                <DashedRect width={width} height={height} stroke={STROKE_COLOR} strokeOpposite={STROKE_OPPOSITE_COLOR} />
             )}
         </svg>
     ) : null
