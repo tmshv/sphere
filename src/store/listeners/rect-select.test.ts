@@ -27,6 +27,17 @@ vi.mock("../preview", () => ({
 
 vi.mock("@/lib/maplibre", () => ({
     queryFeaturesInPoint: vi.fn().mockReturnValue([]),
+    queryFeaturesInRect: vi.fn().mockReturnValue([]),
+    assignFeatureIds: vi.fn().mockReturnValue({ ids: [], json: "[]", fc: { type: "FeatureCollection", features: [] } }),
+}))
+
+vi.mock("@/lib/mvt-selection-store", () => ({
+    setMvtSelection: vi.fn(),
+    clearMvtSelection: vi.fn(),
+}))
+
+vi.mock("@/lib/tilejson", () => ({
+    isRasterTileFormat: (f: string) => f !== "pbf",
 }))
 
 vi.mock("../actions", () => {
@@ -40,6 +51,7 @@ vi.mock("../actions", () => {
             selection: {
                 sync: makeAction("selection/sync"),
                 apply: makeAction("selection/apply"),
+                reset: makeAction("selection/reset"),
             },
         },
     }

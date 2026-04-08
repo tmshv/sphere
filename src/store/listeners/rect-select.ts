@@ -287,4 +287,11 @@ listener.startListening({
     },
 })
 
+listener.startListening({
+    actionCreator: actions.selection.reset,
+    effect: () => {
+        clearMvtSelection()
+    },
+})
+
 export default listener
