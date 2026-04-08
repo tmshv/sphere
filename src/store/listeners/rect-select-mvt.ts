@@ -2,27 +2,29 @@ import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
 import { bboxEqual, screenToGeoBbox } from "@/lib/bbox"
 import type { Bbox } from "@/types/bbox"
-import { queryFeaturesInPoint } from "@/lib/maplibre"
+import { queryFeaturesInPoint, queryFeaturesInRect, serializeFeaturesForIpc } from "@/lib/maplibre"
 import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
     type SelectionRectOp,
     selectionAdd,
     selectionApply,
+    selectionCacheFeatures,
     selectionClear,
     selectionCount,
     selectionGetIds,
-    selectionRect,
+    selectionRectFeatures,
     selectionRemove,
     selectionSet,
 } from "@/lib/selection-ipc"
 import { SourceType } from "@/types"
+import type { MapGeoJSONFeature } from "maplibre-gl"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
 import { selectPreviewLayerIds } from "../preview"
-import { type RectSelectModifier, rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
+import { type RectSelectModifier, rectSelectClick, rectSelectCommit, rectSelectDrag } from "../rect-select"
 
 const listener = createListenerMiddleware()
 
@@ -54,6 +56,11 @@ function isMvtSource(state: RootState, sourceId: string): boolean {
 listener.startListening({
     actionCreator: rectSelectDrag,
     effect: async (action, listenerApi) => {
+        const state = listenerApi.getState() as RootState
+        const sourceId = state.source.selectedId
+        if (!sourceId) return
+        if (!isMvtSource(state, sourceId)) return
+
         pendingDrag = action.payload
         if (dragInFlight) return
         dragInFlight = true
@@ -64,11 +71,6 @@ listener.startListening({
                 pendingDrag = null
 
                 if (session !== dragSession) break
-
-                const state = listenerApi.getState() as RootState
-                const sourceId = state.source.selectedId
-                if (!sourceId) continue
-                if (isMvtSource(state, sourceId)) continue
 
                 const map = getMap(MAP_ID)
                 if (!map) continue
@@ -85,8 +87,21 @@ listener.startListening({
                 lastDragMode = mode
                 lastDragOp = op
 
+                const layerIds = selectPreviewLayerIds(state)
+                const containerRect = map.getContainer().getBoundingClientRect()
+                const screenStart = {
+                    x: start.x - containerRect.left,
+                    y: start.y - containerRect.top,
+                }
+                const screenCurrent = {
+                    x: current.x - containerRect.left,
+                    y: current.y - containerRect.top,
+                }
+                const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
+                const featuresJson = serializeFeaturesForIpc(features)
+
                 const generation = ++queryGeneration
-                const delta = await selectionRect(sourceId, bbox, mode, op, generation)
+                const delta = await selectionRectFeatures(featuresJson, bbox, mode, op, generation)
 
                 if (session !== dragSession) break
 
@@ -101,15 +116,14 @@ listener.startListening({
 listener.startListening({
     actionCreator: rectSelectCommit,
     effect: async (action, listenerApi) => {
-        dragSession++
-        pendingDrag = null
-        resetDragDedup()
-
-        const generation = ++queryGeneration
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
         if (!sourceId) return
-        if (isMvtSource(state, sourceId)) return
+        if (!isMvtSource(state, sourceId)) return
+
+        dragSession++
+        pendingDrag = null
+        resetDragDedup()
 
         const map = getMap(MAP_ID)
         if (!map) return
@@ -119,8 +133,21 @@ listener.startListening({
         const bbox = screenToGeoBbox(map, start, current)
         const op = modifier === "shift" ? "add" : "set"
 
-        const delta = await selectionRect(sourceId, bbox, mode, op, generation)
+        const layerIds = selectPreviewLayerIds(state)
+        const containerRect = map.getContainer().getBoundingClientRect()
+        const screenStart = {
+            x: start.x - containerRect.left,
+            y: start.y - containerRect.top,
+        }
+        const screenCurrent = {
+            x: current.x - containerRect.left,
+            y: current.y - containerRect.top,
+        }
+        const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
+        const featuresJson = serializeFeaturesForIpc(features)
 
+        const generation = ++queryGeneration
+        const delta = await selectionRectFeatures(featuresJson, bbox, mode, op, generation)
         emitSelectionDelta(delta)
 
         const applyDelta = await selectionApply()
@@ -141,13 +168,14 @@ listener.startListening({
 listener.startListening({
     actionCreator: rectSelectClick,
     effect: async (action, listenerApi) => {
+        const state = listenerApi.getState() as RootState
+        const sourceId = state.source.selectedId
+        if (!sourceId) return
+        if (!isMvtSource(state, sourceId)) return
+
         dragSession++
         pendingDrag = null
         resetDragDedup()
-
-        const state = listenerApi.getState() as RootState
-        const sourceId = state.source.selectedId
-        if (sourceId && isMvtSource(state, sourceId)) return
 
         const map = getMap(MAP_ID)
         if (!map) return
@@ -178,6 +206,9 @@ listener.startListening({
                 }
             }
             emitSelectionDelta(delta)
+
+            const featuresJson = serializeFeaturesForIpc(features as unknown as MapGeoJSONFeature[])
+            await selectionCacheFeatures(featuresJson)
         } else {
             const delta = await selectionClear()
             emitSelectionDelta(delta)
