@@ -13,6 +13,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
 
     const sourceIdRef = useRef<string | undefined>()
     const sourceLayersRef = useRef<string[]>([])
+    const isMvtRef = useRef(false)
 
     // Keep sourceId and sourceLayers refs in sync
     useEffect(() => {
@@ -24,6 +25,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
                 const mapLayer = ref?.getMap()?.getLayer(selectedLayerId)
                 sourceIdRef.current = (mapLayer as { source?: string } | undefined)?.source
             }
+            isMvtRef.current = false
         } else {
             sourceIdRef.current = selectedSourceId
         }
@@ -34,10 +36,12 @@ export default function useFeatureState(ref: MapRef | undefined) {
             const src = sourceItems[sid]
             if (src?.type === SourceType.MVT && "sourceLayers" in src) {
                 sourceLayersRef.current = src.sourceLayers.map(sl => sl.id)
+                isMvtRef.current = true
                 return
             }
         }
         sourceLayersRef.current = []
+        isMvtRef.current = false
     }, [selectedLayerId, layerItems, selectedSourceId, sourceItems, ref])
 
     // Subscribe to delta bus and apply incremental feature-state changes
@@ -46,6 +50,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
             const map = ref?.getMap()
             const sourceId = sourceIdRef.current
             if (!map || !sourceId) return
+            if (isMvtRef.current) return
 
             const sourceLayers = sourceLayersRef.current
             const isVector = sourceLayers.length > 0
@@ -88,6 +93,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
             const currentSourceId = sourceIdRef.current
             if (!map || !currentSourceId) return
             if (currentSourceId !== sourceId) return
+            if (isMvtRef.current) return
 
             const sourceLayers = sourceLayersRef.current
             const isVector = sourceLayers.length > 0
