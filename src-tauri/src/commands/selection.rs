@@ -57,6 +57,8 @@ pub async fn selection_clear(
 ) -> Result<SelectionDelta, String> {
     let mut last_gen = storage.generation.lock().unwrap();
     *last_gen = 0;
+    let mut cache = storage.feature_cache.lock().unwrap();
+    cache.clear();
     let mut state = storage.inner.lock().unwrap();
     Ok(state.clear())
 }
@@ -255,6 +257,22 @@ pub async fn selection_rect_features(
     Ok(rect_features_core(
         &features, bbox, &mode, &op, &mut state, &mut cache,
     ))
+}
+
+#[tauri::command]
+pub async fn selection_cache_features(
+    features_json: String,
+    selection_storage: State<'_, SelectionStorage>,
+) -> Result<(), String> {
+    let features: Vec<Feature> =
+        serde_json::from_str(&features_json).map_err(|e| e.to_string())?;
+    let mut cache = selection_storage.feature_cache.lock().unwrap();
+    for f in &features {
+        if let Some(id) = feature_id_i64(f) {
+            cache.insert(id, f.clone());
+        }
+    }
+    Ok(())
 }
 
 fn feature_id_i64(feature: &Feature) -> Option<i64> {

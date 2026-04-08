@@ -237,7 +237,7 @@ git commit -m "Add selection_rect_features command for client-provided feature s
 
 Used by the click handler: when a single MVT feature is click-selected, the frontend sends it to be cached so copy/properties work.
 
-- [ ] **Step 1: Add the command**
+- [x] **Step 1: Add the command**
 
 ```rust
 #[tauri::command]
@@ -257,11 +257,11 @@ pub async fn selection_cache_features(
 }
 ```
 
-- [ ] **Step 2: Register in main.rs**
+- [x] **Step 2: Register in main.rs**
 
 Add `commands::selection::selection_cache_features` to the `generate_handler!` list.
 
-- [ ] **Step 3: Clear cache on `selection_clear`**
+- [x] **Step 3: Clear cache on `selection_clear`**
 
 Modify `selection_clear` in `src-tauri/src/commands/selection.rs`:
 
@@ -279,12 +279,12 @@ pub async fn selection_clear(
 }
 ```
 
-- [ ] **Step 4: Verify compilation and tests**
+- [x] **Step 4: Verify compilation and tests**
 
 Run: `cd src-tauri && cargo check && cargo test --lib`
 Expected: compiles, all existing tests pass
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src-tauri/src/commands/selection.rs src-tauri/src/main.rs
