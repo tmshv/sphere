@@ -675,7 +675,7 @@ git commit -m "Add queryFeaturesInRect and serializeFeaturesForIpc helpers"
 
 This is the main integration task. The listener branches on source type: MVT sources use `queryRenderedFeatures` + `selectionRectFeatures`, all others use the existing `selectionRect` path.
 
-- [ ] **Step 1: Add imports**
+- [x] **Step 1: Add imports**
 
 Add to the imports in `rect-select.ts`:
 
@@ -687,7 +687,7 @@ import { selectionRectFeatures, selectionCacheFeatures } from "@/lib/selection-i
 
 (Also add `selectionRectFeatures` and `selectionCacheFeatures` to the existing import block from `@/lib/selection-ipc`.)
 
-- [ ] **Step 2: Add helper to check if source is MVT**
+- [x] **Step 2: Add helper to check if source is MVT**
 
 Add a helper near the top of the file:
 
@@ -698,7 +698,7 @@ function isMvtSource(state: RootState, sourceId: string): boolean {
 }
 ```
 
-- [ ] **Step 3: Update drag handler to branch on source type**
+- [x] **Step 3: Update drag handler to branch on source type**
 
 Replace the inner loop body of the `rectSelectDrag` listener (inside the `while (pendingDrag)` loop, after the dedup check):
 
@@ -729,7 +729,7 @@ if (session !== dragSession) break
 emitSelectionDelta(delta)
 ```
 
-- [ ] **Step 4: Update commit handler to branch on source type**
+- [x] **Step 4: Update commit handler to branch on source type**
 
 Replace the `selectionRect` call in the `rectSelectCommit` listener:
 
@@ -757,7 +757,7 @@ if (isMvtSource(state, sourceId)) {
 
 The rest of the commit handler (apply, reconcile, sync) stays unchanged.
 
-- [ ] **Step 5: Update click handler to cache features for MVT**
+- [x] **Step 5: Update click handler to cache features for MVT**
 
 In the `rectSelectClick` listener, after the feature is found and the selection IPC call succeeds, add cache logic for MVT. Replace the feature-found branch:
 
@@ -793,11 +793,11 @@ if (features.length > 0) {
 
 Add `MapGeoJSONFeature` to the `maplibre-gl` import.
 
-- [ ] **Step 6: Run lint and format**
+- [x] **Step 6: Run lint and format**
 
 Run: `npm run lint:fix && npm run format`
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/store/listeners/rect-select.ts

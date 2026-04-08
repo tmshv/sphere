@@ -1,19 +1,23 @@
 import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
-import { queryFeaturesInPoint } from "@/lib/maplibre"
+import { queryFeaturesInPoint, queryFeaturesInRect, serializeFeaturesForIpc } from "@/lib/maplibre"
 import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
     type SelectionRectOp,
     selectionAdd,
     selectionApply,
+    selectionCacheFeatures,
     selectionClear,
     selectionCount,
     selectionGetIds,
     selectionRect,
+    selectionRectFeatures,
     selectionRemove,
     selectionSet,
 } from "@/lib/selection-ipc"
+import { SourceType } from "@/types"
+import type { MapGeoJSONFeature } from "maplibre-gl"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
@@ -66,6 +70,11 @@ function resetDragDedup(): void {
     lastDragOp = null
 }
 
+function isMvtSource(state: RootState, sourceId: string): boolean {
+    const source = state.source.items[sourceId]
+    return source?.type === SourceType.MVT
+}
+
 listener.startListening({
     actionCreator: rectSelectDrag,
     effect: async (action, listenerApi) => {
@@ -100,7 +109,25 @@ listener.startListening({
                 lastDragOp = op
 
                 const generation = ++queryGeneration
-                const delta = await selectionRect(sourceId, bbox, mode, op, generation)
+                let delta: SelectionDelta
+
+                if (isMvtSource(state, sourceId)) {
+                    const layerIds = selectPreviewLayerIds(state)
+                    const containerRect = map.getContainer().getBoundingClientRect()
+                    const screenStart = {
+                        x: start.x - containerRect.left,
+                        y: start.y - containerRect.top,
+                    }
+                    const screenCurrent = {
+                        x: current.x - containerRect.left,
+                        y: current.y - containerRect.top,
+                    }
+                    const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
+                    const featuresJson = serializeFeaturesForIpc(features)
+                    delta = await selectionRectFeatures(featuresJson, bbox, mode, op, generation)
+                } else {
+                    delta = await selectionRect(sourceId, bbox, mode, op, generation)
+                }
 
                 if (session !== dragSession) break
 
@@ -132,7 +159,25 @@ listener.startListening({
         const bbox = screenToGeoBbox(map, start, current)
         const op = modifier === "shift" ? "add" : "set"
 
-        const delta = await selectionRect(sourceId, bbox, mode, op, generation)
+        let delta: SelectionDelta
+
+        if (isMvtSource(state, sourceId)) {
+            const layerIds = selectPreviewLayerIds(state)
+            const containerRect = map.getContainer().getBoundingClientRect()
+            const screenStart = {
+                x: start.x - containerRect.left,
+                y: start.y - containerRect.top,
+            }
+            const screenCurrent = {
+                x: current.x - containerRect.left,
+                y: current.y - containerRect.top,
+            }
+            const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
+            const featuresJson = serializeFeaturesForIpc(features)
+            delta = await selectionRectFeatures(featuresJson, bbox, mode, op, generation)
+        } else {
+            delta = await selectionRect(sourceId, bbox, mode, op, generation)
+        }
 
         emitSelectionDelta(delta)
 
@@ -188,6 +233,12 @@ listener.startListening({
                 }
             }
             emitSelectionDelta(delta)
+
+            const sourceId = state.source.selectedId
+            if (sourceId && isMvtSource(state, sourceId)) {
+                const featuresJson = serializeFeaturesForIpc(features as unknown as MapGeoJSONFeature[])
+                await selectionCacheFeatures(featuresJson)
+            }
         } else {
             const delta = await selectionClear()
             emitSelectionDelta(delta)
