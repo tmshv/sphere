@@ -968,22 +968,22 @@ git commit -m "Update useFeatureState to pass sourceLayer for MVT sources"
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run frontend build**
+- [x] **Step 1: Run frontend build**
 
 Run: `npm run build`
 Expected: builds successfully
 
-- [ ] **Step 2: Run Rust build**
+- [x] **Step 2: Run Rust build**
 
 Run: `cd src-tauri && cargo build`
 Expected: builds successfully
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 Run: `npm test -- --run && cd src-tauri && cargo test --lib`
 Expected: all tests pass
 
-- [ ] **Step 4: Run format check**
+- [x] **Step 4: Run format check**
 
 Run: `npm run format && npm run lint`
 Expected: no issues
