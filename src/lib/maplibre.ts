@@ -99,9 +99,14 @@ export function queryFeaturesInRect(
     current: { x: number; y: number },
     layers: string[],
 ): MapGeoJSONFeature[] {
+    const containerRect = map.getContainer().getBoundingClientRect()
+    const sx0 = Math.min(start.x, current.x) - containerRect.left
+    const sy0 = Math.min(start.y, current.y) - containerRect.top
+    const sx1 = Math.max(start.x, current.x) - containerRect.left
+    const sy1 = Math.max(start.y, current.y) - containerRect.top
     const bbox: [PointLike, PointLike] = [
-        [Math.min(start.x, current.x), Math.min(start.y, current.y)],
-        [Math.max(start.x, current.x), Math.max(start.y, current.y)],
+        [sx0, sy0],
+        [sx1, sy1],
     ]
     return map.queryRenderedFeatures(bbox, { layers })
 }

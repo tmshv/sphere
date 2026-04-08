@@ -88,16 +88,7 @@ listener.startListening({
                 lastDragOp = op
 
                 const layerIds = selectPreviewLayerIds(state)
-                const containerRect = map.getContainer().getBoundingClientRect()
-                const screenStart = {
-                    x: start.x - containerRect.left,
-                    y: start.y - containerRect.top,
-                }
-                const screenCurrent = {
-                    x: current.x - containerRect.left,
-                    y: current.y - containerRect.top,
-                }
-                const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
+                const features = queryFeaturesInRect(map, start, current, layerIds)
                 const featuresJson = serializeFeaturesForIpc(features)
 
                 const generation = ++queryGeneration
@@ -134,16 +125,7 @@ listener.startListening({
         const op = modifier === "shift" ? "add" : "set"
 
         const layerIds = selectPreviewLayerIds(state)
-        const containerRect = map.getContainer().getBoundingClientRect()
-        const screenStart = {
-            x: start.x - containerRect.left,
-            y: start.y - containerRect.top,
-        }
-        const screenCurrent = {
-            x: current.x - containerRect.left,
-            y: current.y - containerRect.top,
-        }
-        const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
+        const features = queryFeaturesInRect(map, start, current, layerIds)
         const featuresJson = serializeFeaturesForIpc(features)
 
         const generation = ++queryGeneration
