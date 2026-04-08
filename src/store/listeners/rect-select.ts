@@ -1,6 +1,7 @@
 import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
-import { queryFeaturesInPoint, queryFeaturesInRect, serializeFeaturesForIpc } from "@/lib/maplibre"
+import { assignFeatureIds, queryFeaturesInPoint, queryFeaturesInRect } from "@/lib/maplibre"
+import { setMvtSelection, clearMvtSelection } from "@/lib/mvt-selection-store"
 import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
@@ -12,12 +13,11 @@ import {
     selectionCount,
     selectionGetIds,
     selectionRect,
-    selectionRectFeatures,
     selectionRemove,
     selectionSet,
 } from "@/lib/selection-ipc"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { SourceType } from "@/types"
-import type { MapGeoJSONFeature } from "maplibre-gl"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
@@ -70,9 +70,11 @@ function resetDragDedup(): void {
     lastDragOp = null
 }
 
-function isMvtSource(state: RootState, sourceId: string): boolean {
+function isVectorMvtSource(state: RootState, sourceId: string): boolean {
     const source = state.source.items[sourceId]
-    return source?.type === SourceType.MVT
+    if (source?.type !== SourceType.MVT) return false
+    if (!("format" in source)) return false
+    return !isRasterTileFormat(source.format)
 }
 
 listener.startListening({
@@ -111,7 +113,7 @@ listener.startListening({
                 const generation = ++queryGeneration
                 let delta: SelectionDelta
 
-                if (isMvtSource(state, sourceId)) {
+                if (isVectorMvtSource(state, sourceId)) {
                     const layerIds = selectPreviewLayerIds(state)
                     const containerRect = map.getContainer().getBoundingClientRect()
                     const screenStart = {
@@ -123,8 +125,14 @@ listener.startListening({
                         y: current.y - containerRect.top,
                     }
                     const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
-                    const featuresJson = serializeFeaturesForIpc(features)
-                    delta = await selectionRectFeatures(featuresJson, bbox, mode, op, generation)
+                    const assigned = assignFeatureIds(features)
+                    await selectionCacheFeatures(assigned.json)
+                    if (modifier === "shift") {
+                        delta = await selectionAdd(assigned.ids)
+                    } else {
+                        delta = await selectionSet(assigned.ids)
+                    }
+                    setMvtSelection(assigned.fc)
                 } else {
                     delta = await selectionRect(sourceId, bbox, mode, op, generation)
                 }
@@ -161,7 +169,7 @@ listener.startListening({
 
         let delta: SelectionDelta
 
-        if (isMvtSource(state, sourceId)) {
+        if (isVectorMvtSource(state, sourceId)) {
             const layerIds = selectPreviewLayerIds(state)
             const containerRect = map.getContainer().getBoundingClientRect()
             const screenStart = {
@@ -173,8 +181,14 @@ listener.startListening({
                 y: current.y - containerRect.top,
             }
             const features = queryFeaturesInRect(map, screenStart, screenCurrent, layerIds)
-            const featuresJson = serializeFeaturesForIpc(features)
-            delta = await selectionRectFeatures(featuresJson, bbox, mode, op, generation)
+            const assigned = assignFeatureIds(features)
+            await selectionCacheFeatures(assigned.json)
+            if (modifier === "shift") {
+                delta = await selectionAdd(assigned.ids)
+            } else {
+                delta = await selectionSet(assigned.ids)
+            }
+            setMvtSelection(assigned.fc)
         } else {
             delta = await selectionRect(sourceId, bbox, mode, op, generation)
         }
@@ -203,52 +217,71 @@ listener.startListening({
         pendingDrag = null
         resetDragDedup()
 
-        const state = listenerApi.getState() as RootState
         const map = getMap(MAP_ID)
         if (!map) return
 
         const { point, modifier } = action.payload
+        const state = listenerApi.getState() as RootState
+        const sourceId = state.source.selectedId
+        if (!sourceId) return
+
         const layerIds = selectPreviewLayerIds(state)
         const containerRect = map.getContainer().getBoundingClientRect()
         const mapPoint = new maplibregl.Point(point.x - containerRect.left, point.y - containerRect.top)
         const features = queryFeaturesInPoint(map, mapPoint, layerIds)
 
         if (features.length > 0) {
-            const featureId = features[0].id
-            if (typeof featureId !== "number") return
+            if (isVectorMvtSource(state, sourceId)) {
+                const assigned = assignFeatureIds(features)
+                await selectionCacheFeatures(assigned.json)
+                let delta: SelectionDelta
+                switch (modifier) {
+                    case "shift": {
+                        delta = await selectionAdd(assigned.ids)
+                        break
+                    }
+                    case "ctrl": {
+                        delta = await selectionRemove(assigned.ids)
+                        break
+                    }
+                    default: {
+                        delta = await selectionSet(assigned.ids)
+                        break
+                    }
+                }
+                emitSelectionDelta(delta)
+                setMvtSelection(assigned.fc)
+            } else {
+                const featureId = features[0].id
+                if (typeof featureId !== "number") return
 
-            let delta: SelectionDelta
-            switch (modifier) {
-                case "shift": {
-                    delta = await selectionAdd([featureId])
-                    break
+                let delta: SelectionDelta
+                switch (modifier) {
+                    case "shift": {
+                        delta = await selectionAdd([featureId])
+                        break
+                    }
+                    case "ctrl": {
+                        delta = await selectionRemove([featureId])
+                        break
+                    }
+                    default: {
+                        delta = await selectionSet([featureId])
+                        break
+                    }
                 }
-                case "ctrl": {
-                    delta = await selectionRemove([featureId])
-                    break
-                }
-                default: {
-                    delta = await selectionSet([featureId])
-                    break
-                }
-            }
-            emitSelectionDelta(delta)
-
-            const sourceId = state.source.selectedId
-            if (sourceId && isMvtSource(state, sourceId)) {
-                const featuresJson = serializeFeaturesForIpc(features as unknown as MapGeoJSONFeature[])
-                await selectionCacheFeatures(featuresJson)
+                emitSelectionDelta(delta)
             }
         } else {
             const delta = await selectionClear()
             emitSelectionDelta(delta)
+            clearMvtSelection()
         }
 
         const applyDelta = await selectionApply()
         emitSelectionDelta(applyDelta)
 
         const count = await selectionCount()
-        const sourceId = state.source.selectedId
         listenerApi.dispatch(actions.selection.sync({ count, sourceId }))
         listenerApi.dispatch(actions.selection.apply())
     },
