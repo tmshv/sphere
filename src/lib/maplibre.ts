@@ -1,5 +1,5 @@
 import { featureFilter } from "@maplibre/maplibre-gl-style-spec"
-import type { FilterSpecification, Map as MaplibreMap, Point, PointLike } from "maplibre-gl"
+import type { FilterSpecification, Map as MaplibreMap, MapGeoJSONFeature, Point, PointLike } from "maplibre-gl"
 
 const QUERY_SIZE = 8
 
@@ -91,6 +91,41 @@ export function isValidFilterExpression(expression: unknown[]): boolean {
     } catch {
         return false
     }
+}
+
+export function queryFeaturesInScreenRect(
+    map: MaplibreMap,
+    start: { x: number; y: number },
+    end: { x: number; y: number },
+    layers: string[],
+): MapGeoJSONFeature[] {
+    const containerRect = map.getContainer().getBoundingClientRect()
+    const sx0 = Math.min(start.x, end.x) - containerRect.left
+    const sy0 = Math.min(start.y, end.y) - containerRect.top
+    const sx1 = Math.max(start.x, end.x) - containerRect.left
+    const sy1 = Math.max(start.y, end.y) - containerRect.top
+    const bbox: [PointLike, PointLike] = [
+        [sx0, sy0],
+        [sx1, sy1],
+    ]
+    return map.queryRenderedFeatures(bbox, { layers })
+}
+
+export function serializeFeaturesForIpc(features: MapGeoJSONFeature[]): string {
+    const seen = new Set<number>()
+    const cleaned: object[] = []
+    for (const f of features) {
+        if (typeof f.id !== "number") continue
+        if (seen.has(f.id)) continue
+        seen.add(f.id)
+        cleaned.push({
+            type: "Feature",
+            id: f.id,
+            geometry: f.geometry,
+            properties: f.properties,
+        })
+    }
+    return JSON.stringify(cleaned)
 }
 
 export function sourceLayerProp(value?: string | null): object {

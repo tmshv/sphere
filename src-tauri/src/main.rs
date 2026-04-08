@@ -60,6 +60,8 @@ async fn main() {
             commands::selection::selection_get_ids,
             commands::selection::selection_query_page,
             commands::selection::selection_rect,
+            commands::selection::selection_rect_features,
+            commands::selection::selection_cache_features,
             commands::selection::selection_copy_geojson,
             commands::selection::selection_copy_wkt,
         ])

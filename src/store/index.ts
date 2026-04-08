@@ -56,6 +56,7 @@ export const store = configureStore({
             listeners.saveDraw.middleware,
             listeners.mapToolChanged.middleware,
             listeners.rectSelect.middleware,
+            listeners.rectSelectMvt.middleware,
             listeners.startDraw.middleware,
         )
     },

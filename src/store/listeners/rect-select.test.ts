@@ -85,7 +85,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag issues a single selection_rect IPC call with op=set (no modifier)", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1" } })
+        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
 
         store.dispatch(
             rectSelectDrag({
@@ -109,7 +109,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag with shift modifier uses op=preview", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1" } })
+        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
 
         store.dispatch(
             rectSelectDrag({
@@ -127,7 +127,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag right-to-left produces mode=intersect", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1" } })
+        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
 
         store.dispatch(
             rectSelectDrag({
@@ -167,7 +167,7 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store, dispatched } = makeStore({ source: { selectedId: "src-1" } })
+        const { store, dispatched } = makeStore({ source: { selectedId: "src-1", items: {} } })
 
         store.dispatch(
             rectSelectCommit({
@@ -197,7 +197,7 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store } = makeStore({ source: { selectedId: "src-1" } })
+        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
 
         store.dispatch(
             rectSelectCommit({

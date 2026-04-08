@@ -67,3 +67,23 @@ export function selectionRect(
         generation,
     })
 }
+
+export function selectionRectFeatures(
+    featuresJson: string,
+    bbox: [number, number, number, number],
+    mode: string,
+    op: SelectionRectOp,
+    generation: number,
+): Promise<SelectionDelta> {
+    return invoke<SelectionDelta>("selection_rect_features", {
+        featuresJson,
+        bbox,
+        mode,
+        op,
+        generation,
+    })
+}
+
+export function selectionCacheFeatures(featuresJson: string): Promise<void> {
+    return invoke("selection_cache_features", { featuresJson })
+}
