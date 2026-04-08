@@ -509,7 +509,7 @@ git commit -m "Add feature cache fallback for copy and properties commands"
 **Files:**
 - Modify: `src/lib/selection-ipc.ts`
 
-- [ ] **Step 1: Add `selectionRectFeatures` wrapper**
+- [x] **Step 1: Add `selectionRectFeatures` wrapper**
 
 ```typescript
 export function selectionRectFeatures(
@@ -529,7 +529,7 @@ export function selectionRectFeatures(
 }
 ```
 
-- [ ] **Step 2: Add `selectionCacheFeatures` wrapper**
+- [x] **Step 2: Add `selectionCacheFeatures` wrapper**
 
 ```typescript
 export function selectionCacheFeatures(featuresJson: string): Promise<void> {
@@ -537,7 +537,7 @@ export function selectionCacheFeatures(featuresJson: string): Promise<void> {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/selection-ipc.ts
