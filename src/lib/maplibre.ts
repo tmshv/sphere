@@ -123,50 +123,6 @@ export function serializeFeaturesForIpc(features: MapGeoJSONFeature[]): string {
     return JSON.stringify(cleaned)
 }
 
-export type AssignedFeatures = {
-    ids: number[]
-    json: string
-    fc: GeoJSON.FeatureCollection
-}
-
-export function assignFeatureIds(features: MapGeoJSONFeature[]): AssignedFeatures {
-    const seen = new Set<number>()
-    let maxId = 0
-
-    for (const f of features) {
-        if (typeof f.id === "number" && f.id > maxId) {
-            maxId = f.id
-        }
-    }
-
-    let nextId = maxId + 1
-    const cleaned: GeoJSON.Feature[] = []
-
-    for (const f of features) {
-        const id = typeof f.id === "number" ? f.id : nextId++
-        if (seen.has(id)) continue
-        seen.add(id)
-        cleaned.push({
-            type: "Feature",
-            id,
-            geometry: f.geometry,
-            properties: f.properties,
-        })
-    }
-
-    const ids = cleaned.map(f => f.id as number)
-    const fc: GeoJSON.FeatureCollection = {
-        type: "FeatureCollection",
-        features: cleaned,
-    }
-
-    return {
-        ids,
-        json: JSON.stringify(cleaned),
-        fc,
-    }
-}
-
 export function sourceLayerProp(value?: string | null): object {
     if (!value) {
         return {}

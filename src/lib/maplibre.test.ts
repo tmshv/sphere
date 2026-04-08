@@ -1,6 +1,5 @@
 import type { FilterSpecification } from "maplibre-gl"
 import {
-    assignFeatureIds,
     combineFilters,
     isExpressionFilter,
     isValidFilterExpression,
@@ -147,78 +146,6 @@ describe("serializeFeaturesForIpc", () => {
         expect(result[0].sourceLayer).toBeUndefined()
         expect(result[0].state).toBeUndefined()
         expect(result[0].properties.name).toBe("test")
-    })
-})
-
-describe("assignFeatureIds", () => {
-    it("keeps existing numeric ids and deduplicates", () => {
-        const features = [
-            { type: "Feature", id: 3, geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
-            { type: "Feature", id: 3, geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
-            { type: "Feature", id: 7, geometry: { type: "Point", coordinates: [1, 1] }, properties: {} },
-        ]
-        const result = assignFeatureIds(features as never[])
-        expect(result.ids).toEqual([3, 7])
-        expect(result.fc.features).toHaveLength(2)
-    })
-
-    it("assigns sequential ids to features without numeric id (starting from 1)", () => {
-        const features = [
-            { type: "Feature", geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
-            { type: "Feature", geometry: { type: "Point", coordinates: [1, 1] }, properties: {} },
-        ]
-        const result = assignFeatureIds(features as never[])
-        expect(result.ids).toEqual([1, 2])
-    })
-
-    it("assigns ids starting after max existing id", () => {
-        const features = [
-            { type: "Feature", id: 10, geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
-            { type: "Feature", geometry: { type: "Point", coordinates: [1, 1] }, properties: {} },
-        ]
-        const result = assignFeatureIds(features as never[])
-        expect(result.ids).toEqual([10, 11])
-    })
-
-    it("returns empty for empty input", () => {
-        const result = assignFeatureIds([])
-        expect(result.ids).toEqual([])
-        expect(result.json).toBe("[]")
-        expect(result.fc.features).toHaveLength(0)
-    })
-
-    it("strips non-GeoJSON properties (layer, source, sourceLayer, state)", () => {
-        const features = [
-            {
-                type: "Feature",
-                id: 1,
-                geometry: { type: "Point", coordinates: [0, 0] },
-                properties: { name: "test" },
-                layer: { id: "layer1" },
-                source: "my-source",
-                sourceLayer: "sl",
-                state: { selected: true },
-            },
-        ]
-        const result = assignFeatureIds(features as never[])
-        const feat = result.fc.features[0]
-        expect((feat as Record<string, unknown>).layer).toBeUndefined()
-        expect((feat as Record<string, unknown>).source).toBeUndefined()
-        expect((feat as Record<string, unknown>).sourceLayer).toBeUndefined()
-        expect((feat as Record<string, unknown>).state).toBeUndefined()
-        expect(feat.properties?.name).toBe("test")
-    })
-
-    it("builds a valid FeatureCollection via fc property", () => {
-        const features = [
-            { type: "Feature", id: 1, geometry: { type: "Point", coordinates: [0, 0] }, properties: { a: 1 } },
-        ]
-        const result = assignFeatureIds(features as never[])
-        expect(result.fc.type).toBe("FeatureCollection")
-        expect(result.fc.features[0].type).toBe("Feature")
-        expect(result.fc.features[0].id).toBe(1)
-        expect(result.fc.features[0].properties?.a).toBe(1)
-        expect(result.json).toBe(JSON.stringify(result.fc.features))
     })
 })
 
