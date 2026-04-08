@@ -2,7 +2,7 @@ import { MAP_ID } from "@/const"
 import { getMap } from "@/map"
 import { bboxEqual, screenToGeoBbox } from "@/lib/bbox"
 import type { Bbox } from "@/types/bbox"
-import { queryFeaturesInPoint, queryFeaturesInRect, serializeFeaturesForIpc } from "@/lib/maplibre"
+import { queryFeaturesInPoint, queryFeaturesInScreenRect, serializeFeaturesForIpc } from "@/lib/maplibre"
 import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import {
     type SelectionDelta,
@@ -17,7 +17,7 @@ import {
     selectionRemove,
     selectionSet,
 } from "@/lib/selection-ipc"
-import { SourceType } from "@/types"
+import { isMvtSource } from "@/lib/source"
 import type { MapGeoJSONFeature } from "maplibre-gl"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
@@ -48,18 +48,13 @@ function resetDragDedup(): void {
     lastDragOp = null
 }
 
-function isMvtSource(state: RootState, sourceId: string): boolean {
-    const source = state.source.items[sourceId]
-    return source?.type === SourceType.MVT
-}
-
 listener.startListening({
     actionCreator: rectSelectDrag,
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
         if (!sourceId) return
-        if (!isMvtSource(state, sourceId)) return
+        if (!isMvtSource(state.source.items[sourceId])) return
 
         pendingDrag = action.payload
         if (dragInFlight) return
@@ -88,7 +83,7 @@ listener.startListening({
                 lastDragOp = op
 
                 const layerIds = selectPreviewLayerIds(state)
-                const features = queryFeaturesInRect(map, start, current, layerIds)
+                const features = queryFeaturesInScreenRect(map, start, current, layerIds)
                 const featuresJson = serializeFeaturesForIpc(features)
 
                 const generation = ++queryGeneration
@@ -110,7 +105,7 @@ listener.startListening({
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
         if (!sourceId) return
-        if (!isMvtSource(state, sourceId)) return
+        if (!isMvtSource(state.source.items[sourceId])) return
 
         dragSession++
         pendingDrag = null
@@ -125,7 +120,7 @@ listener.startListening({
         const op = modifier === "shift" ? "add" : "set"
 
         const layerIds = selectPreviewLayerIds(state)
-        const features = queryFeaturesInRect(map, start, current, layerIds)
+        const features = queryFeaturesInScreenRect(map, start, current, layerIds)
         const featuresJson = serializeFeaturesForIpc(features)
 
         const generation = ++queryGeneration
@@ -153,7 +148,7 @@ listener.startListening({
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
         if (!sourceId) return
-        if (!isMvtSource(state, sourceId)) return
+        if (!isMvtSource(state.source.items[sourceId])) return
 
         dragSession++
         pendingDrag = null

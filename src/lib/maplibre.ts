@@ -93,17 +93,17 @@ export function isValidFilterExpression(expression: unknown[]): boolean {
     }
 }
 
-export function queryFeaturesInRect(
+export function queryFeaturesInScreenRect(
     map: MaplibreMap,
     start: { x: number; y: number },
-    current: { x: number; y: number },
+    end: { x: number; y: number },
     layers: string[],
 ): MapGeoJSONFeature[] {
     const containerRect = map.getContainer().getBoundingClientRect()
-    const sx0 = Math.min(start.x, current.x) - containerRect.left
-    const sy0 = Math.min(start.y, current.y) - containerRect.top
-    const sx1 = Math.max(start.x, current.x) - containerRect.left
-    const sy1 = Math.max(start.y, current.y) - containerRect.top
+    const sx0 = Math.min(start.x, end.x) - containerRect.left
+    const sy0 = Math.min(start.y, end.y) - containerRect.top
+    const sx1 = Math.max(start.x, end.x) - containerRect.left
+    const sy1 = Math.max(start.y, end.y) - containerRect.top
     const bbox: [PointLike, PointLike] = [
         [sx0, sy0],
         [sx1, sy1],

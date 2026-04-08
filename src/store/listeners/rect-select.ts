@@ -16,7 +16,7 @@ import {
     selectionRemove,
     selectionSet,
 } from "@/lib/selection-ipc"
-import { SourceType } from "@/types"
+import { isMvtSource } from "@/lib/source"
 import maplibregl from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
@@ -46,11 +46,6 @@ function resetDragDedup(): void {
     lastDragOp = null
 }
 
-function isMvtSource(state: RootState, sourceId: string): boolean {
-    const source = state.source.items[sourceId]
-    return source?.type === SourceType.MVT
-}
-
 listener.startListening({
     actionCreator: rectSelectDrag,
     effect: async (action, listenerApi) => {
@@ -68,7 +63,7 @@ listener.startListening({
                 const state = listenerApi.getState() as RootState
                 const sourceId = state.source.selectedId
                 if (!sourceId) continue
-                if (isMvtSource(state, sourceId)) continue
+                if (isMvtSource(state.source.items[sourceId])) continue
 
                 const map = getMap(MAP_ID)
                 if (!map) continue
@@ -109,7 +104,7 @@ listener.startListening({
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
         if (!sourceId) return
-        if (isMvtSource(state, sourceId)) return
+        if (isMvtSource(state.source.items[sourceId])) return
 
         const map = getMap(MAP_ID)
         if (!map) return
@@ -147,7 +142,7 @@ listener.startListening({
 
         const state = listenerApi.getState() as RootState
         const sourceId = state.source.selectedId
-        if (sourceId && isMvtSource(state, sourceId)) return
+        if (sourceId && isMvtSource(state.source.items[sourceId])) return
 
         const map = getMap(MAP_ID)
         if (!map) return
