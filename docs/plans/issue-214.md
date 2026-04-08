@@ -813,7 +813,7 @@ git commit -m "Branch rect-select listener for MVT sources using queryRenderedFe
 
 For vector tile sources, `map.setFeatureState` and `map.removeFeatureState` require a `sourceLayer` parameter. This task updates the hook to iterate source-layers when the source is MVT.
 
-- [ ] **Step 1: Add source-layer tracking**
+- [x] **Step 1: Add source-layer tracking**
 
 Update the hook to read source-layers from Redux and keep them in a ref alongside the sourceId ref:
 
@@ -855,7 +855,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
     }, [selectedLayerId, layerItems, selectedSourceId, sourceItems, ref])
 ```
 
-- [ ] **Step 2: Update delta bus handler for sourceLayer**
+- [x] **Step 2: Update delta bus handler for sourceLayer**
 
 Replace the delta bus `useEffect`:
 
@@ -901,7 +901,7 @@ useEffect(() => {
 }, [ref])
 ```
 
-- [ ] **Step 3: Update reconcile bus handler for sourceLayer**
+- [x] **Step 3: Update reconcile bus handler for sourceLayer**
 
 Replace the reconcile bus `useEffect`:
 
@@ -946,16 +946,16 @@ useEffect(() => {
 }, [ref])
 ```
 
-- [ ] **Step 4: Run lint and format**
+- [x] **Step 4: Run lint and format**
 
 Run: `npm run lint:fix && npm run format`
 
-- [ ] **Step 5: Run existing tests**
+- [x] **Step 5: Run existing tests**
 
 Run: `npm test -- --run`
 Expected: all existing tests pass
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/sphere-hooks/useFeatureState.ts
