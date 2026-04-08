@@ -300,7 +300,7 @@ git commit -m "Add selection_cache_features command and clear cache on selection
 
 When a source has no `FeatureStore` (MBTiles), these commands should build a temporary `FeatureCollection` from the feature cache instead.
 
-- [ ] **Step 1: Write tests for cache fallback logic**
+- [x] **Step 1: Write tests for cache fallback logic**
 
 Add to the test module:
 
@@ -327,12 +327,12 @@ fn build_fc_from_cache_empty_ids_returns_empty() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd src-tauri && cargo test --lib -- fc_from_cache`
 Expected: FAIL — `fc_from_cache` not defined
 
-- [ ] **Step 3: Implement `fc_from_cache` helper**
+- [x] **Step 3: Implement `fc_from_cache` helper**
 
 Add above the test module:
 
@@ -350,12 +350,12 @@ fn fc_from_cache(
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cd src-tauri && cargo test --lib -- fc_from_cache`
 Expected: PASS
 
-- [ ] **Step 5: Update `selection_copy_geojson` to fall back to cache**
+- [x] **Step 5: Update `selection_copy_geojson` to fall back to cache**
 
 Replace the body of `selection_copy_geojson`:
 
@@ -394,7 +394,7 @@ pub async fn selection_copy_geojson(
 }
 ```
 
-- [ ] **Step 6: Update `selection_copy_wkt` to fall back to cache**
+- [x] **Step 6: Update `selection_copy_wkt` to fall back to cache**
 
 Replace the body of `selection_copy_wkt`:
 
@@ -433,7 +433,7 @@ pub async fn selection_copy_wkt(
 }
 ```
 
-- [ ] **Step 7: Update `selection_query_page` to fall back to cache**
+- [x] **Step 7: Update `selection_query_page` to fall back to cache**
 
 Replace the `FeatureStore` lookup in `selection_query_page`:
 
@@ -490,12 +490,12 @@ pub async fn selection_query_page(
 }
 ```
 
-- [ ] **Step 8: Verify compilation and tests**
+- [x] **Step 8: Verify compilation and tests**
 
 Run: `cd src-tauri && cargo check && cargo test --lib`
 Expected: compiles, all tests pass
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src-tauri/src/commands/selection.rs

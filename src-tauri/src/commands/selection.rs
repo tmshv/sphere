@@ -105,8 +105,17 @@ pub async fn selection_query_page(
 
     let fs = {
         let store = source_storage.store.lock().unwrap();
-        let entry = store.get(&source_id).ok_or_else(|| format!("Not found {}", &source_id))?;
-        entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
+        let entry = store
+            .get(&source_id)
+            .ok_or_else(|| format!("Not found {}", &source_id))?;
+        match &entry.store {
+            Some(s) => s.clone(),
+            None => {
+                let cache = selection_storage.feature_cache.lock().unwrap();
+                let fc = fc_from_cache(&cache, &ids);
+                std::sync::Arc::new(libsphere::FeatureStore::from_features(fc.features))
+            }
+        }
     };
 
     let filter_value = serde_json::json!(["in", ["id"], ["literal", ids]]);
@@ -184,11 +193,16 @@ pub async fn selection_copy_geojson(
         let entry = store
             .get(&source_id)
             .ok_or_else(|| format!("Not found {}", &source_id))?;
-        entry.source.to_feature_collection()?
+        match entry.source.to_feature_collection() {
+            Ok(fc) => slice_feature_collection(fc, &ids),
+            Err(_) => {
+                let cache = selection_storage.feature_cache.lock().unwrap();
+                fc_from_cache(&cache, &ids)
+            }
+        }
     };
 
-    let sliced = slice_feature_collection(fc, &ids);
-    serialize_geojson_copy(&sliced, wrap_fc)
+    serialize_geojson_copy(&fc, wrap_fc)
 }
 
 fn serialize_geojson_copy(
@@ -225,7 +239,13 @@ pub async fn selection_copy_wkt(
         let entry = store
             .get(&source_id)
             .ok_or_else(|| format!("Not found {}", &source_id))?;
-        entry.source.to_feature_collection()?
+        match entry.source.to_feature_collection() {
+            Ok(fc) => fc,
+            Err(_) => {
+                let cache = selection_storage.feature_cache.lock().unwrap();
+                fc_from_cache(&cache, &ids)
+            }
+        }
     };
 
     Ok(features_to_wkt(&fc, &ids, &separator))
@@ -312,6 +332,15 @@ fn rect_features_core(
     }
 }
 
+fn fc_from_cache(cache: &HashMap<i64, Feature>, ids: &[i64]) -> geojson::FeatureCollection {
+    let features: Vec<Feature> = ids.iter().filter_map(|id| cache.get(id).cloned()).collect();
+    geojson::FeatureCollection {
+        features,
+        bbox: None,
+        foreign_members: None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -378,6 +407,27 @@ mod tests {
         let result = serialize_geojson_copy(&fc, false).unwrap();
         let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
         assert_eq!(parsed.as_array().unwrap().len(), 0);
+    }
+
+    #[test]
+    fn build_fc_from_cache_filters_by_ids() {
+        let mut cache = HashMap::new();
+        cache.insert(1, point_feature(1, 0.0, 0.0));
+        cache.insert(2, point_feature(2, 1.0, 1.0));
+        cache.insert(3, point_feature(3, 2.0, 2.0));
+
+        let ids = vec![1, 3];
+        let fc = fc_from_cache(&cache, &ids);
+        assert_eq!(fc.features.len(), 2);
+    }
+
+    #[test]
+    fn build_fc_from_cache_empty_ids_returns_empty() {
+        let mut cache = HashMap::new();
+        cache.insert(1, point_feature(1, 0.0, 0.0));
+
+        let fc = fc_from_cache(&cache, &[]);
+        assert_eq!(fc.features.len(), 0);
     }
 
     #[test]
