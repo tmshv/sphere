@@ -1,5 +1,12 @@
 import type { FilterSpecification } from "maplibre-gl"
-import { combineFilters, isExpressionFilter, isValidFilterExpression, sourceLayerProp, visibility } from "./maplibre"
+import {
+    combineFilters,
+    isExpressionFilter,
+    isValidFilterExpression,
+    serializeFeaturesForIpc,
+    sourceLayerProp,
+    visibility,
+} from "./maplibre"
 
 describe("visibility", () => {
     it("should return 'visible' when the input is true", () => {
@@ -95,6 +102,50 @@ describe("isValidFilterExpression", () => {
 
     it("should return false for an unknown operator", () => {
         expect(isValidFilterExpression(["notanoperator", "field", "value"])).toBe(false)
+    })
+})
+
+describe("serializeFeaturesForIpc", () => {
+    it("deduplicates features by id", () => {
+        const features = [
+            { type: "Feature", id: 1, geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
+            { type: "Feature", id: 1, geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
+            { type: "Feature", id: 2, geometry: { type: "Point", coordinates: [1, 1] }, properties: {} },
+        ]
+        const result = JSON.parse(serializeFeaturesForIpc(features as never[]))
+        expect(result).toHaveLength(2)
+    })
+
+    it("drops features without numeric id", () => {
+        const features = [
+            { type: "Feature", id: 1, geometry: { type: "Point", coordinates: [0, 0] }, properties: {} },
+            { type: "Feature", geometry: { type: "Point", coordinates: [1, 1] }, properties: {} },
+            { type: "Feature", id: "abc", geometry: { type: "Point", coordinates: [2, 2] }, properties: {} },
+        ]
+        const result = JSON.parse(serializeFeaturesForIpc(features as never[]))
+        expect(result).toHaveLength(1)
+        expect(result[0].id).toBe(1)
+    })
+
+    it("strips non-GeoJSON properties (layer, source, sourceLayer, state)", () => {
+        const features = [
+            {
+                type: "Feature",
+                id: 1,
+                geometry: { type: "Point", coordinates: [0, 0] },
+                properties: { name: "test" },
+                layer: { id: "layer1" },
+                source: "my-source",
+                sourceLayer: "sl",
+                state: { selected: true },
+            },
+        ]
+        const result = JSON.parse(serializeFeaturesForIpc(features as never[]))
+        expect(result[0].layer).toBeUndefined()
+        expect(result[0].source).toBeUndefined()
+        expect(result[0].sourceLayer).toBeUndefined()
+        expect(result[0].state).toBeUndefined()
+        expect(result[0].properties.name).toBe("test")
     })
 })
 

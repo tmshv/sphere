@@ -552,7 +552,7 @@ git commit -m "Add IPC wrappers for selection_rect_features and selection_cache_
 - Modify: `src/lib/maplibre.ts`
 - Create: `src/lib/maplibre.test.ts`
 
-- [ ] **Step 1: Write test for feature serialization helper**
+- [x] **Step 1: Write test for feature serialization helper**
 
 Create `src/lib/maplibre.test.ts`:
 
@@ -605,12 +605,12 @@ describe("serializeFeaturesForIpc", () => {
 })
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npm test -- --run src/lib/maplibre.test.ts`
 Expected: FAIL — `serializeFeaturesForIpc` not exported
 
-- [ ] **Step 3: Implement `serializeFeaturesForIpc` and `queryFeaturesInRect`**
+- [x] **Step 3: Implement `serializeFeaturesForIpc` and `queryFeaturesInRect`**
 
 Add to `src/lib/maplibre.ts`:
 
@@ -650,16 +650,16 @@ export function serializeFeaturesForIpc(features: MapGeoJSONFeature[]): string {
 
 Add `MapGeoJSONFeature` to the existing `maplibre-gl` import at the top of the file.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npm test -- --run src/lib/maplibre.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Run lint and format**
+- [x] **Step 5: Run lint and format**
 
 Run: `npm run lint:fix && npm run format`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/maplibre.ts src/lib/maplibre.test.ts
