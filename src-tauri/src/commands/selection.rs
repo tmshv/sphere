@@ -1,8 +1,10 @@
 use crate::selection::SelectionStorage;
 use crate::state::SourceStorage;
+use geojson::Feature;
 use libsphere::selection::SelectionDelta;
 use libsphere::source::{features_to_wkt, slice_feature_collection};
 use libsphere::PageResult;
+use std::collections::HashMap;
 use tauri::State;
 
 #[tauri::command]
@@ -227,6 +229,71 @@ pub async fn selection_copy_wkt(
     Ok(features_to_wkt(&fc, &ids, &separator))
 }
 
+#[tauri::command]
+pub async fn selection_rect_features(
+    features_json: String,
+    bbox: [f64; 4],
+    mode: String,
+    op: String,
+    generation: u64,
+    selection_storage: State<'_, SelectionStorage>,
+) -> Result<SelectionDelta, String> {
+    let features: Vec<Feature> =
+        serde_json::from_str(&features_json).map_err(|e| e.to_string())?;
+
+    let mut last_gen = selection_storage.generation.lock().unwrap();
+    if generation < *last_gen {
+        return Ok(SelectionDelta {
+            added: vec![],
+            removed: vec![],
+        });
+    }
+    *last_gen = generation;
+
+    let mut state = selection_storage.inner.lock().unwrap();
+    let mut cache = selection_storage.feature_cache.lock().unwrap();
+    Ok(rect_features_core(
+        &features, bbox, &mode, &op, &mut state, &mut cache,
+    ))
+}
+
+fn feature_id_i64(feature: &Feature) -> Option<i64> {
+    match &feature.id {
+        Some(geojson::feature::Id::Number(n)) => n.as_i64(),
+        _ => None,
+    }
+}
+
+fn rect_features_core(
+    features: &[Feature],
+    bbox: [f64; 4],
+    mode: &str,
+    op: &str,
+    state: &mut libsphere::SelectionState,
+    cache: &mut HashMap<i64, Feature>,
+) -> SelectionDelta {
+    // Merge all features into cache
+    for f in features {
+        if let Some(id) = feature_id_i64(f) {
+            cache.insert(id, f.clone());
+        }
+    }
+
+    // Build temporary spatial index and query
+    let store = libsphere::FeatureStore::from_features(features.to_vec());
+    let ids = store.query_rect(bbox, mode);
+
+    match op {
+        "set" => state.set(&ids),
+        "preview" => state.preview(&ids),
+        "add" => state.add(&ids),
+        _ => SelectionDelta {
+            added: vec![],
+            removed: vec![],
+        },
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -293,5 +360,47 @@ mod tests {
         let result = serialize_geojson_copy(&fc, false).unwrap();
         let parsed: serde_json::Value = serde_json::from_str(&result).unwrap();
         assert_eq!(parsed.as_array().unwrap().len(), 0);
+    }
+
+    #[test]
+    fn rect_features_selects_by_include_mode() {
+        use libsphere::SelectionState;
+
+        // Three points: (0,0), (5,5), (20,20)
+        let features = vec![
+            point_feature(1, 0.0, 0.0),
+            point_feature(2, 5.0, 5.0),
+            point_feature(3, 20.0, 20.0),
+        ];
+        let bbox = [-1.0, -1.0, 10.0, 10.0]; // includes points 1,2 but not 3
+        let mut state = SelectionState::default();
+        let mut cache = std::collections::HashMap::new();
+
+        let delta = rect_features_core(&features, bbox, "include", "set", &mut state, &mut cache);
+
+        let mut selected: Vec<i64> = delta.added.clone();
+        selected.sort();
+        assert_eq!(selected, vec![1, 2]);
+        assert!(delta.removed.is_empty());
+        // Cache should contain all 3 features (superset)
+        assert_eq!(cache.len(), 3);
+    }
+
+    #[test]
+    fn rect_features_merges_cache_across_calls() {
+        use libsphere::SelectionState;
+
+        let features1 = vec![point_feature(1, 0.0, 0.0)];
+        let features2 = vec![point_feature(2, 5.0, 5.0)];
+        let bbox = [-1.0, -1.0, 10.0, 10.0];
+        let mut state = SelectionState::default();
+        let mut cache = std::collections::HashMap::new();
+
+        rect_features_core(&features1, bbox, "include", "set", &mut state, &mut cache);
+        rect_features_core(&features2, bbox, "include", "add", &mut state, &mut cache);
+
+        assert_eq!(cache.len(), 2);
+        assert!(cache.contains_key(&1));
+        assert!(cache.contains_key(&2));
     }
 }

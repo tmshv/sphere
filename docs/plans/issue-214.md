@@ -76,7 +76,7 @@ git commit -m "Add feature_cache to SelectionStorage for MBTiles selection suppo
 
 This command receives GeoJSON features (pre-filtered by `queryRenderedFeatures` on the frontend), builds a temporary `FeatureStore`, runs the same include/intersect spatial query, updates `SelectionState`, and merges features into the cache.
 
-- [ ] **Step 1: Write test for the new command's core logic**
+- [x] **Step 1: Write test for the new command's core logic**
 
 Add a helper function `rect_features_core` that encapsulates the logic (parse features, build store, query, update selection, update cache) so it can be unit tested without Tauri `State`.
 
@@ -126,12 +126,12 @@ fn rect_features_merges_cache_across_calls() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd src-tauri && cargo test --lib -- rect_features`
 Expected: FAIL — `rect_features_core` not defined
 
-- [ ] **Step 3: Implement `rect_features_core`**
+- [x] **Step 3: Implement `rect_features_core`**
 
 Add above the test module in `src-tauri/src/commands/selection.rs`:
 
@@ -174,12 +174,12 @@ fn rect_features_core(
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cd src-tauri && cargo test --lib -- rect_features`
 Expected: PASS
 
-- [ ] **Step 5: Add the Tauri command**
+- [x] **Step 5: Add the Tauri command**
 
 Add in `src-tauri/src/commands/selection.rs`:
 
@@ -211,16 +211,16 @@ pub async fn selection_rect_features(
 }
 ```
 
-- [ ] **Step 6: Register the command in main.rs**
+- [x] **Step 6: Register the command in main.rs**
 
 Add `commands::selection::selection_rect_features` to the `generate_handler!` list after `selection_rect`.
 
-- [ ] **Step 7: Verify compilation**
+- [x] **Step 7: Verify compilation**
 
 Run: `cd src-tauri && cargo check`
 Expected: compiles successfully
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src-tauri/src/commands/selection.rs src-tauri/src/main.rs
