@@ -2,8 +2,6 @@ import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { isRectSelectEnabled } from "@/lib/map-tools"
-import { isRasterTileFormat } from "@/lib/tilejson"
-import { SourceType } from "@/types"
 import { useEffect, useRef, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 import type { RectSelectModifier } from "@/store/rect-select"
@@ -105,13 +103,6 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
     const sourceId = useAppSelector(selectors.source.selectSelectedId)
-    const isMvt = useAppSelector(state => {
-        if (!sourceId) return false
-        const src = state.source.items[sourceId]
-        if (src?.type !== SourceType.MVT) return false
-        if (!("format" in src)) return false
-        return !isRasterTileFormat(src.format)
-    })
     const enabled = isRectSelectEnabled(mapTool)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
@@ -209,7 +200,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     }
 
     const showRect = dragStart !== null && dragCurrent !== null
-    const isInclude = showRect && (isMvt || dragCurrent.x >= dragStart.x)
+    const isInclude = showRect && dragCurrent.x >= dragStart.x
 
     const left = showRect ? Math.min(dragStart.x, dragCurrent.x) : 0
     const top = showRect ? Math.min(dragStart.y, dragCurrent.y) : 0
