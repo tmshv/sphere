@@ -201,11 +201,12 @@ describe("assignFeatureIds", () => {
             },
         ]
         const result = assignFeatureIds(features as never[])
+        const parsed = JSON.parse(result.json)[0]
+        expect(parsed.layer).toBeUndefined()
+        expect(parsed.source).toBeUndefined()
+        expect(parsed.sourceLayer).toBeUndefined()
+        expect(parsed.state).toBeUndefined()
         const feat = result.fc.features[0]
-        expect((feat as Record<string, unknown>).layer).toBeUndefined()
-        expect((feat as Record<string, unknown>).source).toBeUndefined()
-        expect((feat as Record<string, unknown>).sourceLayer).toBeUndefined()
-        expect((feat as Record<string, unknown>).state).toBeUndefined()
         expect(feat.properties?.name).toBe("test")
     })
 
