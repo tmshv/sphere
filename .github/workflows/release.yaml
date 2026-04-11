@@ -36,9 +36,15 @@ jobs:
 
             - name: bump version
               id: bump
+              env:
+                  BUMP: ${{ inputs.bump }}
               run: |
-                  npm version ${{ inputs.bump }}
-                  echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+                  npm version "$BUMP" -w @sphere/app --no-git-tag-version
+                  VERSION=$(node -p "require('./apps/sphere/package.json').version")
+                  git add apps/sphere/package.json package-lock.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock
+                  git commit -m "$VERSION"
+                  git tag "v$VERSION"
+                  echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
             - name: push version commit and tag
               run: |
