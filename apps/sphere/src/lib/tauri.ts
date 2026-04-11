@@ -1,4 +1,4 @@
-import { once } from "@/lib/once"
+import { once } from "@sphere/utils/once"
 import { listen } from "@tauri-apps/api/event"
 
 export function waitEvent<T>(event: string, timeout?: number): Promise<T> {

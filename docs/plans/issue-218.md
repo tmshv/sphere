@@ -645,7 +645,7 @@ git commit -m "Relocate frontend into apps/sphere workspace"
 
 ### Steps
 
-- [ ] **Step 3.1: Create `packages/utils/package.json`**
+- [x] **Step 3.1: Create `packages/utils/package.json`**
 
 ```json
 {
@@ -670,7 +670,7 @@ git commit -m "Relocate frontend into apps/sphere workspace"
 }
 ```
 
-- [ ] **Step 3.2: Create `packages/utils/tsconfig.json`**
+- [x] **Step 3.2: Create `packages/utils/tsconfig.json`**
 
 ```json
 {
@@ -683,7 +683,7 @@ git commit -m "Relocate frontend into apps/sphere workspace"
 }
 ```
 
-- [ ] **Step 3.3: Create `packages/utils/vitest.config.ts`**
+- [x] **Step 3.3: Create `packages/utils/vitest.config.ts`**
 
 ```ts
 /// <reference types="vitest" />
@@ -698,7 +698,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 3.4: Create `packages/utils/biome.json`**
+- [x] **Step 3.4: Create `packages/utils/biome.json`**
 
 ```json
 {
@@ -734,7 +734,7 @@ export default defineConfig({
 
 Biome 1.9 expresses `noRestrictedImports` as shown above. If Biome's schema version differs at the time of execution, adjust the rule name per the schema at `https://biomejs.dev/schemas/1.9.0/schema.json` but keep the same set of forbidden specifiers.
 
-- [ ] **Step 3.5: Move the 15 files with `git mv`**
+- [x] **Step 3.5: Move the 15 files with `git mv`**
 
 ```bash
 cd /Users/tmshv/Workspace/__github_tmshv/sphere
@@ -754,7 +754,7 @@ Expected 15 files:
 array.test.ts array.ts color-scheme.ts math.test.ts math.ts once.test.ts once.ts path.test.ts path.ts predict-data-type.test.ts predict-data-type.ts stat.test.ts stat.ts time.test.ts time.ts
 ```
 
-- [ ] **Step 3.6: Reinstall to symlink the new package**
+- [x] **Step 3.6: Reinstall to symlink the new package**
 
 ```bash
 npm install
@@ -763,7 +763,7 @@ ls -la node_modules/@sphere/
 
 Expected: two symlinks — `app -> ../../apps/sphere` and `utils -> ../../packages/utils`.
 
-- [ ] **Step 3.7: Rewrite imports in the four consumers**
+- [x] **Step 3.7: Rewrite imports in the four consumers**
 
 Edit each file, changing only the single import line shown. Do not touch other lines.
 
@@ -789,7 +789,7 @@ import { isUrl } from "@sphere/utils/predict-data-type"
 
 (This file is still under `apps/sphere/src/ui/` at this point — it moves to the UI package in Task 4. The import stays correct across the move.)
 
-- [ ] **Step 3.8: Look for any stragglers**
+- [x] **Step 3.8: Look for any stragglers**
 
 ```bash
 cd /Users/tmshv/Workspace/__github_tmshv/sphere
@@ -798,7 +798,7 @@ rg --type ts --type tsx '@/lib/(array|math|once|path|stat|time|predict-data-type
 
 Expected: `no stragglers` (the `||` clause). If any match, rewrite them the same way.
 
-- [ ] **Step 3.9: Typecheck the whole workspace**
+- [x] **Step 3.9: Typecheck the whole workspace**
 
 ```bash
 npm run typecheck
@@ -808,7 +808,7 @@ Expected: exit 0. Common failure modes:
 - Unresolved `@sphere/utils/*` in the app → double-check `apps/sphere/tsconfig.json` has the `@sphere/utils/*` path mapping.
 - `@sphere/utils` package fails to resolve — verify the package exists in `node_modules/@sphere/utils` as a symlink.
 
-- [ ] **Step 3.10: Test**
+- [x] **Step 3.10: Test**
 
 ```bash
 npm run test
@@ -816,7 +816,7 @@ npm run test
 
 Expected: all tests pass across both workspaces. `packages/utils` should report 7 test files (one per `*.test.ts`; no test for `color-scheme`).
 
-- [ ] **Step 3.11: Lint**
+- [x] **Step 3.11: Lint**
 
 ```bash
 npm run lint
@@ -824,7 +824,7 @@ npm run lint
 
 Expected: exit 0. The deliberate-violation verification in Task 5 confirms the package-level rules are wired up — no action needed here.
 
-- [ ] **Step 3.12: HMR verification**
+- [x] **Step 3.12: HMR verification** (skipped - requires manual GUI interaction)
 
 ```bash
 npm run tauri dev
@@ -841,7 +841,7 @@ watch: {
 
 Revert the trailing blank line in `math.ts`. Close the app with `Cmd+Q`.
 
-- [ ] **Step 3.13: Commit**
+- [x] **Step 3.13: Commit**
 
 ```bash
 git add -A

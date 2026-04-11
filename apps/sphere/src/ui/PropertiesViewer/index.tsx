@@ -1,4 +1,4 @@
-import { isUrl } from "@/lib/predict-data-type"
+import { isUrl } from "@sphere/utils/predict-data-type"
 import { Image, createStyles } from "@mantine/core"
 import { CopyButton } from "./CopyButton"
 

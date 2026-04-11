@@ -1,4 +1,4 @@
-import { nextColor } from "@/lib/color-scheme"
+import { nextColor } from "@sphere/utils/color-scheme"
 import { nextId } from "@/lib/nextId"
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
 import { LayerType, SourceType } from "@/types"
