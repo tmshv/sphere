@@ -1,0 +1,29 @@
+{
+    "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+    "extends": ["../../biome.json"],
+    "linter": {
+        "rules": {
+            "nursery": {
+                "noRestrictedImports": {
+                    "level": "error",
+                    "options": {
+                        "paths": {
+                            "@/*": "Packages must not import from the app alias (@/...).",
+                            "@sphere/ui": "@sphere/utils must not depend on @sphere/ui.",
+                            "react": "@sphere/utils is React-free by design.",
+                            "react-dom": "@sphere/utils is React-free by design.",
+                            "maplibre-gl": "@sphere/utils must not depend on maplibre-gl.",
+                            "@maplibre/maplibre-gl-style-spec": "@sphere/utils must not depend on maplibre.",
+                            "@tauri-apps/api": "@sphere/utils must not depend on Tauri.",
+                            "@reduxjs/toolkit": "@sphere/utils must not depend on Redux.",
+                            "react-redux": "@sphere/utils must not depend on Redux."
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "files": {
+        "include": ["src/**/*.ts"]
+    }
+}
