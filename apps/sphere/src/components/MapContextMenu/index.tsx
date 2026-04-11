@@ -18,6 +18,7 @@ export type MapContextMenuProps = {
 
 export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocationValue }) => {
     const { [id]: ref } = useMap()
+    const map = ref?.getMap() ?? null
     const coord = useCursor(ref)
     const [opened, setOpened] = useState(false)
     const [position, setPosition] = useState<[number, number]>([0, 0])
@@ -30,7 +31,6 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
     const hasSelection = selectionCount > 0 && selectionSourceId !== undefined
 
     useEffect(() => {
-        const map = ref?.getMap()
         if (!map) return
 
         const handler = (e: MapLayerMouseEvent) => {
@@ -44,7 +44,7 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
         return () => {
             map.off("contextmenu", handler)
         }
-    }, [ref])
+    }, [map])
 
     const handleClose = useCallback(() => {
         setOpened(false)

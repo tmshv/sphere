@@ -4,9 +4,9 @@ import { useMap } from "react-map-gl/maplibre"
 
 export default function useMapStore(mapId: string) {
     const { [mapId]: ref } = useMap()
+    const map = ref?.getMap() ?? null
 
     useEffect(() => {
-        const map = ref?.getMap()
         if (!map) {
             return
         }
@@ -26,5 +26,5 @@ export default function useMapStore(mapId: string) {
             load.unsubscribe()
             removeMap(mapId)
         }
-    }, [ref, mapId])
+    }, [map, mapId])
 }

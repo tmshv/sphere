@@ -32,7 +32,7 @@ export default function App() {
 
     const onResize = useCallback(() => {
         dispatch(actions.map.resize(id))
-    }, [dispatch, id])
+    }, [dispatch])
 
     const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
 

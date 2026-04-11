@@ -9,12 +9,7 @@ import { setupKeyboard } from "./keyboard"
 
 const mockCopy = copySelectionAsGeojson as unknown as MockInstance
 
-function makeStore(overrides: {
-    sourceId?: string
-    count?: number
-    wrapFc?: boolean
-    mapTool?: string
-}) {
+function makeStore(overrides: { sourceId?: string; count?: number; wrapFc?: boolean; mapTool?: string }) {
     return {
         getState: () => ({
             app: { mapTool: overrides.mapTool ?? "pan" },

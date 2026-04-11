@@ -28,7 +28,7 @@ listener.startListening({
         )
 
         if (sourceId && source) {
-            let sourceLayer: string | undefined = undefined
+            let sourceLayer: string | undefined
             // Automatically set sourceLayer for MVT sources with only one layer in it
             if (source.type === SourceType.MVT && source.sourceLayers.length === 1) {
                 sourceLayer = source.sourceLayers.at(0)?.id
