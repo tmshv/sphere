@@ -1,7 +1,6 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Outline, type OutlineOnMove, type OutlineRenderItem } from "@sphere/ui/Outline"
-import { OutlineItem } from "@sphere/ui/Outline/OutlineItem"
+import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem } from "@sphere/ui"
 import { ActionIcon } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconBulb, IconBulbOff } from "@tabler/icons"

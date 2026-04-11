@@ -3,16 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "type": "module",
-    "exports": {
-        "./array":             "./src/array.ts",
-        "./color-scheme":      "./src/color-scheme.ts",
-        "./math":              "./src/math.ts",
-        "./once":              "./src/once.ts",
-        "./path":              "./src/path.ts",
-        "./predict-data-type": "./src/predict-data-type.ts",
-        "./stat":              "./src/stat.ts",
-        "./time":              "./src/time.ts"
-    },
+    "main": "./src/index.ts",
     "scripts": {
         "typecheck": "tsc --noEmit",
         "test": "vitest run",

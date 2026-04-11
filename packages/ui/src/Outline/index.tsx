@@ -8,18 +8,18 @@ import { Card } from "./Card"
 export type OutlineOnMove<T> = (drag: T, hover: T) => void
 export type OutlineRenderItem<T> = (item: T) => React.ReactNode
 
-export type OutlineItem = {
+export type OutlineItemBase = {
     id: number | string
 }
 
-export type OutlineProps<T extends OutlineItem> = {
+export type OutlineProps<T extends OutlineItemBase> = {
     items: T[]
     onMove: OutlineOnMove<T>
     renderItem: OutlineRenderItem<T>
     draggable?: boolean
 }
 
-export function Outline<T extends OutlineItem>({ items, onMove, renderItem, draggable = false }: OutlineProps<T>) {
+export function Outline<T extends OutlineItemBase>({ items, onMove, renderItem, draggable = false }: OutlineProps<T>) {
     if (!draggable) {
         return (
             <Flex direction={"column"} gap="xs">

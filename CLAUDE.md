@@ -131,8 +131,8 @@ The frontend is an npm workspaces monorepo. Packages depend only downward:
 apps/sphere  ->  @sphere/ui  ->  @sphere/utils
 ```
 
-- `@sphere/utils` (`packages/utils/`) — pure TS helpers. No React, no maplibre, no Tauri, no Redux, no domain types. Imported per subpath: `import { lerp } from "@sphere/utils/math"`.
-- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. No Tauri, no Redux, no maplibre. React and Mantine are peer deps.
+- `@sphere/utils` (`packages/utils/`) — pure TS helpers. No React, no maplibre, no Tauri, no Redux, no domain types. Each package exposes a single barrel: `import { lerp, deduplicate } from "@sphere/utils"`. Public surface is declared in `packages/utils/src/index.ts`.
+- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. No Tauri, no Redux, no maplibre. React and Mantine are peer deps. Imported via the same barrel pattern: `import { ActionBar, Sidebar } from "@sphere/ui"`. Public surface is declared in `packages/ui/src/index.ts`.
 - `apps/sphere/` — the Tauri app. May import from both packages and from `@/*` (app-local paths).
 
 Boundaries are enforced by:

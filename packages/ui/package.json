@@ -3,24 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "type": "module",
-    "exports": {
-        "./ActionBar":                       "./src/ActionBar/index.tsx",
-        "./AppLayout":                       "./src/AppLayout/index.tsx",
-        "./ContextMenu":                     "./src/ContextMenu/index.tsx",
-        "./ErrorFallback":                   "./src/ErrorFallback/index.tsx",
-        "./ErrorFallback/RootErrorFallback": "./src/ErrorFallback/RootErrorFallback.tsx",
-        "./ImageMarker":                     "./src/ImageMarker/index.tsx",
-        "./Outline":                         "./src/Outline/index.tsx",
-        "./Outline/OutlineItem":             "./src/Outline/OutlineItem.tsx",
-        "./Overlay":                         "./src/Overlay/index.tsx",
-        "./PropertiesTable":                 "./src/PropertiesTable/index.tsx",
-        "./PropertiesViewer":                "./src/PropertiesViewer/index.tsx",
-        "./Sidebar":                         "./src/Sidebar/index.tsx",
-        "./Statusbar":                       "./src/Statusbar/index.tsx",
-        "./ThemeProvider":                   "./src/ThemeProvider/index.tsx",
-        "./Toolbar":                         "./src/Toolbar/index.tsx",
-        "./test-utils":                      "./src/test-utils.tsx"
-    },
+    "main": "./src/index.ts",
     "dependencies": {
         "@sphere/utils": "*"
     },

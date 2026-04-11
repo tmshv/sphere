@@ -18,9 +18,8 @@
         "types": ["vitest/globals"],
         "baseUrl": ".",
         "paths": {
-            "@sphere/utils/*": ["./packages/utils/src/*"],
-            "@sphere/ui":      ["./packages/ui/src"],
-            "@sphere/ui/*":    ["./packages/ui/src/*"]
+            "@sphere/utils": ["./packages/utils/src"],
+            "@sphere/ui":    ["./packages/ui/src"]
         }
     }
 }

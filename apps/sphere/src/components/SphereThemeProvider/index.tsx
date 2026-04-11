@@ -1,6 +1,6 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { ThemeProvider } from "@sphere/ui/ThemeProvider"
+import { ThemeProvider } from "@sphere/ui"
 
 export type SphereThemeProviderProps = {
     children: React.ReactNode

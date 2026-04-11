@@ -1,7 +1,7 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { toPropertiesEntries } from "@/lib/properties"
-import { deduplicate } from "@sphere/utils/array"
+import { deduplicate } from "@sphere/utils"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 

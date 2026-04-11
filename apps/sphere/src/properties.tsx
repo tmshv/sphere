@@ -8,8 +8,7 @@ import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack
 import { type UnlistenFn, emit, listen } from "@tauri-apps/api/event"
 import React, { useEffect, useState, useCallback } from "react"
 import ReactDOM from "react-dom/client"
-import { PropertesTable, type PropertyItem, type PropertyItemMeta } from "@sphere/ui/PropertiesTable"
-import { ThemeProvider } from "@sphere/ui/ThemeProvider"
+import { PropertesTable, type PropertyItem, type PropertyItemMeta, ThemeProvider } from "@sphere/ui"
 
 type PropertiesSetPayload = {
     sourceId: string

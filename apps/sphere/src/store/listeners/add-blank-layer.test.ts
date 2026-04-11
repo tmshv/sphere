@@ -6,7 +6,7 @@ vi.mock("@/lib/nextId", () => ({
     nextId: vi.fn(() => "layer-test-id"),
 }))
 
-vi.mock("@sphere/utils/color-scheme", () => ({
+vi.mock("@sphere/utils", () => ({
     nextColor: vi.fn(() => "#aabbcc"),
 }))
 

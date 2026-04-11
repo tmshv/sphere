@@ -4,7 +4,7 @@
         "baseUrl": ".",
 
         "paths": {
-            "@sphere/utils/*": ["../utils/src/*"],
+            "@sphere/utils": ["../utils/src"],
             "@tabler/icons": ["../../node_modules/@tabler/icons/icons-react"]
         }
     },

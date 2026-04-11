@@ -1,6 +1,5 @@
 import { actions, selectors } from "@/store"
-import { Outline, type OutlineOnMove, type OutlineRenderItem } from "@sphere/ui/Outline"
-import { OutlineItem } from "@sphere/ui/Outline/OutlineItem"
+import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem } from "@sphere/ui"
 import { useMantineTheme } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconBraces } from "@tabler/icons"
