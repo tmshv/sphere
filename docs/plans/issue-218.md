@@ -94,7 +94,7 @@ git checkout -b issue-218
 
 ### Steps
 
-- [ ] **Step 1.1: Create the skeleton directories and placeholders**
+- [x] **Step 1.1: Create the skeleton directories and placeholders**
 
 ```bash
 cd /Users/tmshv/Workspace/__github_tmshv/sphere
@@ -102,7 +102,7 @@ mkdir -p apps packages/ui packages/utils
 touch apps/.gitkeep packages/ui/.gitkeep packages/utils/.gitkeep
 ```
 
-- [ ] **Step 1.2: Create `tsconfig.base.json` at repo root**
+- [x] **Step 1.2: Create `tsconfig.base.json` at repo root**
 
 Write the following file exactly as shown:
 
@@ -137,7 +137,7 @@ Write the following file exactly as shown:
 
 Note: `baseUrl: "."` makes `paths` resolve relative to the file that *defines* them, which is the repo root here. Packages/app that `extend` this file will still work because TS resolves extended `paths` against the defining file unless a child config overrides the `paths` field.
 
-- [ ] **Step 1.3: Add `workspaces` to root `package.json`**
+- [x] **Step 1.3: Add `workspaces` to root `package.json`**
 
 Open `package.json` and add the `workspaces` field immediately after `"type": "module"`:
 
@@ -153,7 +153,7 @@ Open `package.json` and add the `workspaces` field immediately after `"type": "m
 
 Do NOT change anything else in `package.json` during Task 1. All deps stay at the root for now.
 
-- [ ] **Step 1.4: Reinstall with workspaces enabled**
+- [x] **Step 1.4: Reinstall with workspaces enabled**
 
 ```bash
 rm -rf node_modules package-lock.json
@@ -162,7 +162,7 @@ npm install
 
 Expected: exit 0, `node_modules/` repopulated, a new `package-lock.json` is generated with the workspace layout but no workspace packages yet (the glob matches nothing).
 
-- [ ] **Step 1.5: Verify the app still runs**
+- [x] **Step 1.5: Verify the app still runs**
 
 ```bash
 npm run typecheck
@@ -178,7 +178,7 @@ npm run tauri dev
 
 Expected: app window opens, map renders, no red errors in the terminal or dev console. Close the window with Cmd+Q.
 
-- [ ] **Step 1.6: Commit**
+- [x] **Step 1.6: Commit**
 
 ```bash
 git add tsconfig.base.json apps packages package.json package-lock.json
