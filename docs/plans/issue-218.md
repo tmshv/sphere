@@ -1205,7 +1205,7 @@ git commit -m "Extract presentational components into @sphere/ui workspace packa
 
 ### Steps
 
-- [ ] **Step 5.1: Verify the utils boundary rule fires**
+- [x] **Step 5.1: Verify the utils boundary rule fires**
 
 Temporarily add a forbidden import to a utils file:
 
@@ -1233,7 +1233,7 @@ Revert the change:
 git checkout packages/utils/src/math.ts
 ```
 
-- [ ] **Step 5.2: Verify the UI boundary rule fires**
+- [x] **Step 5.2: Verify the UI boundary rule fires**
 
 Open `packages/ui/src/Statusbar/index.tsx` and add as line 1:
 
@@ -1255,7 +1255,7 @@ Revert:
 git checkout packages/ui/src/Statusbar/index.tsx
 ```
 
-- [ ] **Step 5.3: Verify the `@/*` rule catches path aliases**
+- [x] **Step 5.3: Verify the `@/*` rule catches path aliases**
 
 Open `packages/ui/src/Sidebar/index.tsx` and add as line 1:
 
@@ -1274,7 +1274,7 @@ git checkout packages/ui/src/Sidebar/index.tsx
 
 This confirms the two-layer enforcement (type system + linter) catches violations even if one mechanism is misconfigured.
 
-- [ ] **Step 5.4: Add "Frontend layering" section to `CLAUDE.md`**
+- [x] **Step 5.4: Add "Frontend layering" section to `CLAUDE.md`**
 
 Edit `CLAUDE.md` (at repo root). Insert the following new section immediately after the "## Architecture" section (before "## Key Dependencies"):
 
@@ -1302,7 +1302,7 @@ Violations fail `npm run typecheck` and `npm run lint`. To add code to a package
 To bump the app's version, run `npm version patch -w @sphere/app` from the repo root. That updates `apps/sphere/package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, and `src-tauri/Cargo.lock` atomically via `scripts/version.js`.
 ````
 
-- [ ] **Step 5.5: Final verification run**
+- [x] **Step 5.5: Final verification run**
 
 ```bash
 npm run typecheck
@@ -1313,7 +1313,7 @@ npm run tauri dev           # quick smoke — open window, close with Cmd+Q
 
 Expected: all green, app runs.
 
-- [ ] **Step 5.6: Commit**
+- [x] **Step 5.6: Commit**
 
 ```bash
 git add CLAUDE.md

@@ -38,6 +38,8 @@
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
-        "test": "vitest run"
+        "test": "vitest run",
+        "lint": "biome lint src/",
+        "lint:fix": "biome lint --write src/"
     }
 }

@@ -14,12 +14,12 @@ Sphere is a geospatial data visualization and editing desktop application built 
 ## Build & Development Commands
 
 ```bash
-# Frontend development
+# Frontend development (delegated to workspaces)
 npm run dev              # Start Vite dev server (port 1420)
 npm run build            # Build frontend (tsc && vite build)
-npm run lint             # Run ESLint
-npm run lint:fix         # Fix ESLint issues
-npm test                 # Run Vitest tests
+npm run lint             # Run Biome lint across all workspaces
+npm run lint:fix         # Fix Biome lint issues
+npm test                 # Run Vitest tests across all workspaces
 npm run coverage         # Test coverage report
 
 # Tauri (full app)
@@ -27,7 +27,7 @@ npm run tauri dev        # Run app in development mode
 npm run tauri build      # Build production app
 
 # Versioning
-npm version patch         # Bump version in package.json, tauri.conf.json, Cargo.toml, and Cargo.lock
+npm version patch -w @sphere/app  # Bump version in package.json, tauri.conf.json, Cargo.toml, and Cargo.lock
 ```
 
 When modifying any file inside a `crates/<name>/` directory, bump the minor version of that crate in its `Cargo.toml` (e.g. `0.1.0` → `0.2.0`) and run `cargo update -p <name>` from the workspace root (`src-tauri/`) to update the lock file. Bump only once per PR, not per commit.
@@ -122,6 +122,28 @@ State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with
 1. Files loaded via Tauri dialog → processed in Rust (`add-file.ts` effect)
 2. Sources stored in `SourceStorage`, sent to frontend as GeoJSON
 3. Redux state drives React rendering → MapLibre renders layers
+
+## Frontend Layering
+
+The frontend is an npm workspaces monorepo. Packages depend only downward:
+
+```
+apps/sphere  ->  @sphere/ui  ->  @sphere/utils
+```
+
+- `@sphere/utils` (`packages/utils/`) — pure TS helpers. No React, no maplibre, no Tauri, no Redux, no domain types. Imported per subpath: `import { lerp } from "@sphere/utils/math"`.
+- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. No Tauri, no Redux, no maplibre. React and Mantine are peer deps.
+- `apps/sphere/` — the Tauri app. May import from both packages and from `@/*` (app-local paths).
+
+Boundaries are enforced by:
+
+1. `packages/*/package.json` declaring only allowed deps.
+2. `packages/*/biome.json` using `noRestrictedImports` to forbid back-references.
+3. `packages/*/tsconfig.json` not defining `@/*`, so the app alias cannot leak in.
+
+Violations fail `npm run typecheck` and `npm run lint`. To add code to a package, audit the new file's imports — if it imports anything restricted, it stays in the app. Never silence the lint rule — restructure instead.
+
+To bump the app's version, run `npm version patch -w @sphere/app` from the repo root. That updates `apps/sphere/package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, and `src-tauri/Cargo.lock` atomically via `scripts/version.js`.
 
 ## Key Dependencies
 
