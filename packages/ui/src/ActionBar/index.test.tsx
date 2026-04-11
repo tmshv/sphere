@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { ActionBar } from "."
 import type { ActionBarItem } from "."

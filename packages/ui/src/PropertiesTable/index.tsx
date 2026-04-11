@@ -1,4 +1,4 @@
-import { Select, type SelectOption, Statusbar } from "@/ui/Statusbar"
+import { Select, type SelectOption, Statusbar } from "../Statusbar"
 import {
     ActionIcon,
     Badge,

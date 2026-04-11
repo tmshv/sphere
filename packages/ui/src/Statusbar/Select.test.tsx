@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { Select } from "./Select"

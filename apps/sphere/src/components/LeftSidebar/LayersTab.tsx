@@ -1,6 +1,6 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { ActionBar, type ActionBarOnClick } from "@/ui/ActionBar"
+import { ActionBar, type ActionBarOnClick } from "@sphere/ui/ActionBar"
 import { Accordion } from "@mantine/core"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
 import { useCallback, useState } from "react"

@@ -869,7 +869,7 @@ git commit -m "Extract pure utilities into @sphere/utils workspace package"
 
 ### Steps
 
-- [ ] **Step 4.1: Create `packages/ui/package.json`**
+- [x] **Step 4.1: Create `packages/ui/package.json`**
 
 ```json
 {
@@ -913,7 +913,7 @@ git commit -m "Extract pure utilities into @sphere/utils workspace package"
 }
 ```
 
-- [ ] **Step 4.2: Create `packages/ui/tsconfig.json`**
+- [x] **Step 4.2: Create `packages/ui/tsconfig.json`**
 
 ```json
 {
@@ -931,7 +931,7 @@ git commit -m "Extract pure utilities into @sphere/utils workspace package"
 
 Reason for re-declaring `@sphere/utils/*` here: child `tsconfig.json` files that set `paths` fully replace the parent's `paths`. Since `@sphere/ui` depends on `@sphere/utils`, we must re-add that mapping with a relative prefix from `packages/ui/`.
 
-- [ ] **Step 4.3: Create `packages/ui/src/setupTests.ts`**
+- [x] **Step 4.3: Create `packages/ui/src/setupTests.ts`**
 
 Duplicate the one-liner into the package so `@sphere/ui` tests don't depend on files inside the app (wrong-direction dependency). Write:
 
@@ -939,7 +939,7 @@ Duplicate the one-liner into the package so `@sphere/ui` tests don't depend on f
 import "@testing-library/jest-dom"
 ```
 
-- [ ] **Step 4.4: Create `packages/ui/vitest.config.ts`**
+- [x] **Step 4.4: Create `packages/ui/vitest.config.ts`**
 
 ```ts
 /// <reference types="vitest" />
@@ -957,7 +957,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 4.5: Create `packages/ui/biome.json`**
+- [x] **Step 4.5: Create `packages/ui/biome.json`**
 
 ```json
 {
@@ -989,7 +989,7 @@ export default defineConfig({
 }
 ```
 
-- [ ] **Step 4.6: Move the UI tree and `test-utils.tsx`**
+- [x] **Step 4.6: Move the UI tree and `test-utils.tsx`**
 
 ```bash
 cd /Users/tmshv/Workspace/__github_tmshv/sphere
@@ -1008,7 +1008,7 @@ Expected directories (plus `test-utils.tsx`):
 ActionBar AppLayout ContextMenu ErrorFallback ImageMarker Outline Overlay PropertiesTable PropertiesViewer Sidebar Statusbar ThemeProvider Toolbar test-utils.tsx
 ```
 
-- [ ] **Step 4.7: Fix the intra-UI self-import**
+- [x] **Step 4.7: Fix the intra-UI self-import**
 
 `packages/ui/src/PropertiesTable/index.tsx` currently has:
 ```ts
@@ -1020,7 +1020,7 @@ Change to a relative import (within the UI package, `@/ui/…` is now meaningles
 import { Select, type SelectOption, Statusbar } from "../Statusbar"
 ```
 
-- [ ] **Step 4.8: Fix `test-utils` imports inside the UI package**
+- [x] **Step 4.8: Fix `test-utils` imports inside the UI package**
 
 The following moved test files still reference `@/test-utils`:
 - `packages/ui/src/PropertiesViewer/CopyButton.test.tsx`
@@ -1043,7 +1043,7 @@ import { fireEvent, render, screen } from "../test-utils"
 
 Note: `CopyButton.test.tsx` lives at `packages/ui/src/PropertiesViewer/CopyButton.test.tsx`, so `../test-utils` resolves to `packages/ui/src/test-utils.tsx` — correct.
 
-- [ ] **Step 4.9: Reinstall to symlink the new package**
+- [x] **Step 4.9: Reinstall to symlink the new package**
 
 ```bash
 npm install
@@ -1052,7 +1052,7 @@ ls -la node_modules/@sphere/
 
 Expected: three symlinks — `app`, `ui`, `utils`. A warning about peer dependency versions may appear; that's fine because the app resolves them.
 
-- [ ] **Step 4.10: Rewrite app imports**
+- [x] **Step 4.10: Rewrite app imports**
 
 Each app file below changes an `@/ui/*` import to `@sphere/ui/*`. Do not change anything else in these files.
 
@@ -1137,7 +1137,7 @@ import { ContextMenu } from "@sphere/ui/ContextMenu"
 import { render, screen } from "@sphere/ui/test-utils"
 ```
 
-- [ ] **Step 4.11: Look for any stragglers**
+- [x] **Step 4.11: Look for any stragglers**
 
 ```bash
 rg --type ts --type tsx '@/ui/|@/test-utils' apps/sphere packages || echo "no stragglers"
@@ -1145,7 +1145,7 @@ rg --type ts --type tsx '@/ui/|@/test-utils' apps/sphere packages || echo "no st
 
 Expected: `no stragglers`. If any match, rewrite them the same way.
 
-- [ ] **Step 4.12: Typecheck**
+- [x] **Step 4.12: Typecheck**
 
 ```bash
 npm run typecheck
@@ -1155,7 +1155,7 @@ Expected: exit 0. Common failure modes:
 - `Cannot find module '@sphere/ui/Foo' or its corresponding type declarations.` → check `packages/ui/package.json` `exports` and confirm the subpath exists.
 - `Module '@sphere/utils/math' has no exported member` inside `@sphere/ui` → double-check `packages/ui/tsconfig.json` has the `@sphere/utils/*` path mapping.
 
-- [ ] **Step 4.13: Test**
+- [x] **Step 4.13: Test**
 
 ```bash
 npm run test
@@ -1163,7 +1163,7 @@ npm run test
 
 Expected: same total test count as before the migration. The UI package should report ~7 test files; the app should report the rest.
 
-- [ ] **Step 4.14: Verify single React instance**
+- [x] **Step 4.14: Verify single React instance**
 
 ```bash
 find node_modules -maxdepth 3 -name react -type d
@@ -1171,7 +1171,7 @@ find node_modules -maxdepth 3 -name react -type d
 
 Expected: exactly one `node_modules/react` directory. If there's a second one under `node_modules/@sphere/ui/node_modules/react`, the peer dep wasn't respected — verify `packages/ui/package.json` lists React under `peerDependencies`, not `dependencies`.
 
-- [ ] **Step 4.15: Full Tauri dev smoke test**
+- [x] **Step 4.15: Full Tauri dev smoke test**
 
 ```bash
 npm run tauri dev
@@ -1186,7 +1186,7 @@ Exercise:
 6. Right-click on the map — `@sphere/ui/ContextMenu` opens.
 7. Close with `Cmd+Q`.
 
-- [ ] **Step 4.16: Commit**
+- [x] **Step 4.16: Commit**
 
 ```bash
 git add -A

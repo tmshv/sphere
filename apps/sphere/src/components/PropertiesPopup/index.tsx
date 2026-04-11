@@ -1,7 +1,7 @@
 import { selectors } from "@/store/selectors"
 import { useAppSelector } from "@/store/hooks"
-import { Overlay } from "@/ui/Overlay"
-import { PropertiesViewer } from "@/ui/PropertiesViewer"
+import { Overlay } from "@sphere/ui/Overlay"
+import { PropertiesViewer } from "@sphere/ui/PropertiesViewer"
 import { Container, Paper, Title } from "@mantine/core"
 
 const CONTAINER_STYLE: React.CSSProperties = {

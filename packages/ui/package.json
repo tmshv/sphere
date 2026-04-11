@@ -1,0 +1,43 @@
+{
+    "name": "@sphere/ui",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./ActionBar":                       "./src/ActionBar/index.tsx",
+        "./AppLayout":                       "./src/AppLayout/index.tsx",
+        "./ContextMenu":                     "./src/ContextMenu/index.tsx",
+        "./ErrorFallback":                   "./src/ErrorFallback/index.tsx",
+        "./ErrorFallback/RootErrorFallback": "./src/ErrorFallback/RootErrorFallback.tsx",
+        "./ImageMarker":                     "./src/ImageMarker/index.tsx",
+        "./Outline":                         "./src/Outline/index.tsx",
+        "./Outline/OutlineItem":             "./src/Outline/OutlineItem.tsx",
+        "./Overlay":                         "./src/Overlay/index.tsx",
+        "./PropertiesTable":                 "./src/PropertiesTable/index.tsx",
+        "./PropertiesViewer":                "./src/PropertiesViewer/index.tsx",
+        "./Sidebar":                         "./src/Sidebar/index.tsx",
+        "./Statusbar":                       "./src/Statusbar/index.tsx",
+        "./ThemeProvider":                   "./src/ThemeProvider/index.tsx",
+        "./Toolbar":                         "./src/Toolbar/index.tsx",
+        "./test-utils":                      "./src/test-utils.tsx"
+    },
+    "dependencies": {
+        "@sphere/utils": "*"
+    },
+    "peerDependencies": {
+        "react": "^18.3.0",
+        "react-dom": "^18.3.0",
+        "@mantine/core": "^5.10.5",
+        "@mantine/hooks": "^5.10.5",
+        "@emotion/react": "^11.14.0",
+        "@tabler/icons": "^1.119.0",
+        "@visx/group": "^3.12.0",
+        "@visx/scale": "^3.12.0",
+        "@visx/shape": "^3.12.0",
+        "@tanstack/react-table": "^8.21.0"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
+    }
+}

@@ -1,4 +1,4 @@
-import { render, screen } from "@/test-utils"
+import { render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import type React from "react"
 import { describe, expect, it, vi } from "vitest"

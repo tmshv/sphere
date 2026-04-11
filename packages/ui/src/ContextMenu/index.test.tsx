@@ -1,4 +1,4 @@
-import { render, screen } from "@/test-utils"
+import { render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { ContextMenu } from "."
 

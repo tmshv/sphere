@@ -1,4 +1,4 @@
-import { render, screen } from "@/test-utils"
+import { render, screen } from "@sphere/ui/test-utils"
 import { act } from "react"
 import { describe, expect, it, vi } from "vitest"
 import { MapContextMenu } from "."

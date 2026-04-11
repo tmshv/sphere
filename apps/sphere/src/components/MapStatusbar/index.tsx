@@ -9,7 +9,7 @@ import { selectErrorMessage } from "@/store/error"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
 import { selectIsShowTerrain } from "@/store/terrain"
-import { Statusbar } from "@/ui/Statusbar"
+import { Statusbar } from "@sphere/ui/Statusbar"
 import { ActionIcon, Badge, MantineProvider, type MantineTheme, createStyles } from "@mantine/core"
 import type { ActionIconProps } from "@mantine/core"
 import {

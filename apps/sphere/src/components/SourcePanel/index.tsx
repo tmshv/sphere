@@ -1,7 +1,7 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { type SourceMetadata, SourceType } from "@/types"
-import { ActionBar } from "@/ui/ActionBar"
+import { ActionBar } from "@sphere/ui/ActionBar"
 import { Badge, Flex, Group, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"

@@ -1,5 +1,5 @@
 import { actions } from "@/store"
-import { ImageMarker, type ImageMarkerLayout } from "@/ui/ImageMarker"
+import { ImageMarker, type ImageMarkerLayout } from "@sphere/ui/ImageMarker"
 import { useCallback, useEffect, useState } from "react"
 import { Marker, useMap } from "react-map-gl/maplibre"
 import { useDispatch } from "react-redux"

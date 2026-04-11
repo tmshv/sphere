@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@/test-utils"
+import { act, fireEvent, render, screen } from "../test-utils"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { CopyButton } from "./CopyButton"
 
