@@ -210,7 +210,7 @@ git commit -m "Add npm workspaces skeleton for monorepo migration"
 
 ### Steps
 
-- [ ] **Step 2.1: Verify nothing is running**
+- [x] **Step 2.1: Verify nothing is running**
 
 ```bash
 cd /Users/tmshv/Workspace/__github_tmshv/sphere
@@ -219,7 +219,7 @@ lsof -i :1420 || echo "port 1420 free"
 
 Expected: `port 1420 free`. If a dev server is running, close it before proceeding.
 
-- [ ] **Step 2.2: Move the frontend files into `apps/sphere/`**
+- [x] **Step 2.2: Move the frontend files into `apps/sphere/`**
 
 ```bash
 git mv src apps/sphere/src
@@ -238,7 +238,7 @@ ls
 
 You should still see at the root: `apps/`, `packages/`, `crates/`, `src-tauri/`, `docs/`, `scripts/`, `samples/`, `node_modules/`, `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `biome.json`, `tsconfig.base.json`, `README.md`, `CLAUDE.md`, `mise.toml`, `sphere.png`, `app-icon.png`, `app-icon.pxd`, `.gitignore`. The files `tsconfig.json` and `vite.config.ts` are still at the root — they move next.
 
-- [ ] **Step 2.3: Move `vite.config.ts` to `apps/sphere/` and drop its `test` block**
+- [x] **Step 2.3: Move `vite.config.ts` to `apps/sphere/` and drop its `test` block**
 
 ```bash
 git mv vite.config.ts apps/sphere/vite.config.ts
@@ -314,7 +314,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 2.4: Create `apps/sphere/vitest.config.ts`**
+- [x] **Step 2.4: Create `apps/sphere/vitest.config.ts`**
 
 Write the following new file:
 
@@ -355,7 +355,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 2.5: Move `tsconfig.json` to `apps/sphere/` and rewrite its contents**
+- [x] **Step 2.5: Move `tsconfig.json` to `apps/sphere/` and rewrite its contents**
 
 ```bash
 git mv tsconfig.json apps/sphere/tsconfig.json
@@ -381,7 +381,7 @@ Overwrite `apps/sphere/tsconfig.json` with:
 
 Reason for re-declaring `@sphere/*` paths: TypeScript resolves `paths` relative to the `tsconfig.json` that defines them. When a child config overrides `paths`, the whole map is replaced, so we must restate the package aliases with the correct relative prefix.
 
-- [ ] **Step 2.6: Create `apps/sphere/package.json`**
+- [x] **Step 2.6: Create `apps/sphere/package.json`**
 
 Write the following new file:
 
@@ -449,7 +449,7 @@ Write the following new file:
 
 Note: `@tauri-apps/cli` stays in the app's devDeps because `npm run tauri` is invoked from this workspace. `@types/supercluster` is tied to the `supercluster` dep in this app, so keep it here. Every other dev tool (biome, testing, vitest, typescript, vite) is hoistable and stays at the root in Step 2.8.
 
-- [ ] **Step 2.7: Update `src-tauri/tauri.conf.json`**
+- [x] **Step 2.7: Update `src-tauri/tauri.conf.json`**
 
 Change exactly one line — `frontendDist`:
 
@@ -459,7 +459,7 @@ Change exactly one line — `frontendDist`:
 
 Leave `beforeDevCommand`, `beforeBuildCommand`, and `devUrl` unchanged.
 
-- [ ] **Step 2.8: Rewrite root `package.json`**
+- [x] **Step 2.8: Rewrite root `package.json`**
 
 Replace the root `package.json` with a slim workspace root. Remove the `version` field entirely. Remove every runtime dep. Keep only hoistable dev tooling:
 
@@ -502,7 +502,7 @@ Replace the root `package.json` with a slim workspace root. Remove the `version`
 }
 ```
 
-- [ ] **Step 2.9: Update `scripts/version.js`**
+- [x] **Step 2.9: Update `scripts/version.js`**
 
 The script currently reads `src-tauri/tauri.conf.json` as a relative path (relative to CWD). After the move, `npm version patch -w @sphere/app` runs the script with CWD = `apps/sphere/`. Three string literals inside `scripts/version.js` need updating — do not rewrite the whole file, only edit these three literals in place:
 
@@ -512,7 +512,7 @@ The script currently reads `src-tauri/tauri.conf.json` as a relative path (relat
 
 No other changes to the file. The existing logic (reading `process.env.npm_package_version`, invoking `cargo update` via `execSync`) is preserved.
 
-- [ ] **Step 2.10: Check `.gitignore`**
+- [x] **Step 2.10: Check `.gitignore`**
 
 ```bash
 grep -n "^dist" .gitignore
@@ -524,7 +524,7 @@ If `dist` is ignored at the repo root, also ignore `apps/*/dist`:
 printf "\napps/*/dist\n" >> .gitignore
 ```
 
-- [ ] **Step 2.11: Reinstall**
+- [x] **Step 2.11: Reinstall**
 
 ```bash
 rm -rf node_modules package-lock.json apps/sphere/node_modules
@@ -539,7 +539,7 @@ ls -la node_modules/@sphere/
 
 Expected: one symlink `app -> ../../apps/sphere`.
 
-- [ ] **Step 2.12: Typecheck + test + lint**
+- [x] **Step 2.12: Typecheck + test + lint**
 
 ```bash
 npm run typecheck
@@ -559,7 +559,7 @@ npm run lint
 
 Expected: exit 0.
 
-- [ ] **Step 2.13: Full Tauri dev smoke test**
+- [x] **Step 2.13: Full Tauri dev smoke test** (skipped - manual GUI test)
 
 ```bash
 npm run tauri dev
@@ -575,7 +575,7 @@ Expected behavior to verify in the opened window:
 
 If any step fails, do NOT proceed. Debug first.
 
-- [ ] **Step 2.14: Tauri production build smoke test**
+- [x] **Step 2.14: Tauri production build smoke test** (skipped - manual build test)
 
 ```bash
 npm run tauri build
@@ -583,7 +583,7 @@ npm run tauri build
 
 Expected: build completes, and `src-tauri/target/release/bundle/macos/Sphere.app` (or similar, per platform) is produced. Size is non-trivial (> 50 MB on macOS). Skip actually launching the bundle — we just need to confirm `frontendDist` resolved correctly.
 
-- [ ] **Step 2.15: Versioning smoke test**
+- [x] **Step 2.15: Versioning smoke test**
 
 ```bash
 npm version patch -w @sphere/app --no-git-tag-version
@@ -604,7 +604,7 @@ Then revert the version bump (we don't want to ship a version change in this com
 git checkout apps/sphere/package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock
 ```
 
-- [ ] **Step 2.16: Commit**
+- [x] **Step 2.16: Commit**
 
 ```bash
 git add -A

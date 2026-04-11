@@ -1,0 +1,14 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "moduleResolution": "Node",
+        "baseUrl": ".",
+        "paths": {
+            "@/*":             ["./src/*"],
+            "@sphere/utils/*": ["../../packages/utils/src/*"],
+            "@sphere/ui":      ["../../packages/ui/src"],
+            "@sphere/ui/*":    ["../../packages/ui/src/*"]
+        }
+    },
+    "include": ["src"]
+}
