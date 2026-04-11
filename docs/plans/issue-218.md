@@ -1326,11 +1326,11 @@ git commit -m "Document frontend monorepo layering in CLAUDE.md"
 
 After Task 5 is committed, verify end-to-end:
 
-- [ ] `git log --oneline -6` shows exactly five new commits on top of the starting HEAD, one per task.
-- [ ] `npm run typecheck && npm run test && npm run lint && npm run build` all exit 0.
-- [ ] `npm run tauri build` produces a working bundle.
-- [ ] `ls packages/utils/src | wc -l` returns 15. `ls packages/ui/src | wc -l` returns 14.
-- [ ] `find node_modules -maxdepth 3 -name react -type d` returns exactly one hit.
-- [ ] Issue #218 is referenced in the PR description when opening the PR.
+- [x] `git log --oneline -6` shows exactly five new commits on top of the starting HEAD, one per task.
+- [x] `npm run typecheck && npm run test && npm run lint && npm run build` all exit 0.
+- [ ] `npm run tauri build` produces a working bundle. (manual - requires full Rust build)
+- [x] `ls packages/utils/src | wc -l` returns 15. `ls packages/ui/src | wc -l` returns 14.
+- [x] `find node_modules -maxdepth 3 -name react -type d` returns exactly one hit.
+- [ ] Issue #218 is referenced in the PR description when opening the PR. (applies at PR creation time)
 
 If anything fails, stop and debug before declaring done.

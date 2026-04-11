@@ -145,6 +145,8 @@ Violations fail `npm run typecheck` and `npm run lint`. To add code to a package
 
 To bump the app's version, run `npm version patch -w @sphere/app` from the repo root. That updates `apps/sphere/package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, and `src-tauri/Cargo.lock` atomically via `scripts/version.js`.
 
+`@sphere/ui` and `@sphere/utils` are private workspace packages consumed via workspace links — they are never published and their versions are never read at runtime. They stay pinned at `0.0.0` on purpose. Do not bump them, and do not extend `scripts/version.js` to touch them.
+
 ## Key Dependencies
 
 - **Frontend**: React 18, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Mantine 5, Turf.js
