@@ -4,7 +4,8 @@ import { useEffect } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
 export default function usePointerHover(mapId: string) {
-    const { [mapId]: map } = useMap()
+    const { [mapId]: ref } = useMap()
+    const map = ref?.getMap() ?? null
     const dispatch = useAppDispatch()
     const layerIds = useAppSelector(selectors.layer.visibleIds)
 

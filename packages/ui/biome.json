@@ -1,9 +1,10 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+    "root": false,
+    "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
     "extends": ["../../biome.json"],
     "linter": {
         "rules": {
-            "nursery": {
+            "style": {
                 "noRestrictedImports": {
                     "level": "error",
                     "options": {
@@ -22,6 +23,6 @@
         }
     },
     "files": {
-        "include": ["src/**/*.ts", "src/**/*.tsx"]
+        "includes": ["**/src/**/*.ts", "**/src/**/*.tsx"]
     }
 }

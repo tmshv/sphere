@@ -14,7 +14,7 @@ const selectLayers = createSelector(
             .map(id => {
                 const item = items[id]
 
-                let bulbIconColor: string | undefined = undefined
+                let bulbIconColor: string | undefined
                 if (dark && !!item.sourceId) {
                     bulbIconColor = "yellow"
                 }

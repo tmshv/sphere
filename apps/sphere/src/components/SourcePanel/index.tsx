@@ -19,7 +19,7 @@ export const selector = createSelector([selectors.source.selectSelectedId, selec
         return null
     }
 
-    let meta: SourceMetadata | undefined = undefined
+    let meta: SourceMetadata | undefined
     if (source.type === SourceType.Geojson) {
         meta = source.meta
     } else if (source.type === SourceType.FeatureCollection && !source.pending) {
