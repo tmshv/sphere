@@ -19,6 +19,10 @@ export default function useMapNavigation(ref?: MapRef): void {
         const effectiveScrollZoom = scrollZoom
         const effectiveDragRotate = navigationEnabled && dragRotate
 
+        // Shift+drag is reserved for rect-select; MapLibre's built-in box zoom
+        // would otherwise draw its own rectangle and zoom on release.
+        map.boxZoom.disable()
+
         if (effectiveDragPan) {
             map.dragPan.enable()
         } else {
