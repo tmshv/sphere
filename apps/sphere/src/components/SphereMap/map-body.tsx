@@ -57,7 +57,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useSky(map, sky)
 
     const projection = useAppSelector(selectors.projection.projection)
-    useProjection(map, projection, "mercator")
+    useProjection(map, projection)
     usePointerHover(mapId)
     useFeatureState(map)
     useFeatureProperties(map, 50)
