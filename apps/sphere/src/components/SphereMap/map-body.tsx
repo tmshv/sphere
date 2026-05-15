@@ -1,11 +1,11 @@
 import useMapNavigation from "@/hooks/useMapNavigation"
+import useProjection from "@/hooks/useProjection"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
 import useFeatureProperties from "@/sphere-hooks/useFeatureProperties"
 import useFeatureState from "@/sphere-hooks/useFeatureState"
 import useMapStore from "@/sphere-hooks/useMapStore"
 import usePointerHover from "@/sphere-hooks/usePointerHover"
-import useProjection from "@/sphere-hooks/useProjection"
 import useTileBoundaries from "@/sphere-hooks/useTileBoundaries"
 import { selectors } from "@/store"
 import { selectShowAttribution } from "@/store/app"
@@ -56,7 +56,8 @@ export default function MapBody({ mapId }: MapBodyProps) {
     const sky = useAppSelector(selectSkySpecification)
     useSky(map, sky)
 
-    useProjection(map, "mercator")
+    const projection = useAppSelector(selectors.projection.projection)
+    useProjection(map, projection)
     usePointerHover(mapId)
     useFeatureState(map)
     useFeatureProperties(map, 50)
