@@ -24,6 +24,10 @@ function makeMockMap() {
             enable: vi.fn(),
             disable: vi.fn(),
         },
+        boxZoom: {
+            enable: vi.fn(),
+            disable: vi.fn(),
+        },
         on: vi.fn(),
         off: vi.fn(),
     }
@@ -99,5 +103,13 @@ describe("useMapNavigation", () => {
         expect(map.scrollZoom.enable).toHaveBeenCalled()
         expect(map.dragRotate.disable).toHaveBeenCalled()
         expect(map.on).not.toHaveBeenCalled()
+    })
+
+    it("always disables boxZoom so shift+drag is free for rect-select", () => {
+        mockState(ALL_ENABLED, true)
+        const map = makeMockMap()
+        renderHook(() => useMapNavigation(makeRef(map)))
+        expect(map.boxZoom.disable).toHaveBeenCalled()
+        expect(map.boxZoom.enable).not.toHaveBeenCalled()
     })
 })
