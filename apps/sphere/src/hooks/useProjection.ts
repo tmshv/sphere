@@ -1,16 +1,10 @@
-import { selectors } from "@/store"
-import { useAppSelector } from "@/store/hooks"
-import type { Projection } from "@/types"
+import type { ProjectionSpecification } from "maplibre-gl"
 import { useEffect } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
 
-export type ProjectionProps = {
-    fallback: Projection
-}
+type ProjectionType = ProjectionSpecification["type"]
 
-export default function useProjection(ref: MapRef | undefined, fallback: Projection) {
-    const projection = useAppSelector(selectors.projection.projection)
-
+export default function useProjection(ref: MapRef | undefined, projection: ProjectionType, fallback: ProjectionType) {
     useEffect(() => {
         const map = ref?.getMap()
         if (!map) {
@@ -39,6 +33,4 @@ export default function useProjection(ref: MapRef | undefined, fallback: Project
             }
         }
     }, [ref, projection, fallback])
-
-    return null
 }
