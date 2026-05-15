@@ -17,14 +17,26 @@ export default function useProjection(ref: MapRef | undefined, fallback: Project
             return
         }
 
-        map.setProjection({
-            type: projection,
-        })
+        const apply = () => {
+            map.setProjection({ type: projection })
+        }
+
+        if (map.isStyleLoaded()) {
+            apply()
+            return () => {
+                if (map.isStyleLoaded()) {
+                    map.setProjection({ type: fallback })
+                }
+            }
+        }
+
+        const load = map.on("load", apply)
 
         return () => {
-            map.setProjection({
-                type: fallback,
-            })
+            load.unsubscribe()
+            if (map.isStyleLoaded()) {
+                map.setProjection({ type: fallback })
+            }
         }
     }, [ref, projection, fallback])
 
