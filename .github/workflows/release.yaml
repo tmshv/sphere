@@ -102,4 +102,3 @@ jobs:
                   releaseDraft: true
                   prerelease: false
                   includeDebug: false
-                  args: ${{ matrix.platform == 'ubuntu-22.04' && '--bundles appimage' || '' }}

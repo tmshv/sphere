@@ -1,21 +1,21 @@
-# Linux AppImage release
+# Linux release artifacts
 
 Closes #212.
 
 ## Goal
 
-Publish a Linux AppImage artifact alongside the existing macOS and Windows artifacts on every release run of `.github/workflows/release.yaml`. AppImage is the only Linux bundle format produced.
+Publish Linux release artifacts alongside the existing macOS and Windows artifacts on every release run of `.github/workflows/release.yaml`. The Linux job produces every bundle format Tauri's default Linux pipeline emits — AppImage, `.deb`, and `.rpm` — so users on the major desktop distros can install via their preferred packaging.
 
 ## Scope
 
 - Add a Linux runner to the release matrix.
 - Install the Tauri 2 build prerequisites on that runner.
-- Restrict the Linux build to the AppImage bundle target only.
+- Let `tauri-action` invoke `tauri build` with default arguments so the bundle target inherited from `tauri.conf.json`'s `targets: "all"` produces AppImage, `.deb`, and `.rpm`.
 - Align `test.yaml` on the same appindicator package name so both workflows install the package Tauri 2 expects.
 
 Out of scope:
 
-- `tauri.conf.json` changes (its `targets: "all"` remains correct; the AppImage restriction is applied per-platform via the CLI).
+- `tauri.conf.json` changes (`targets: "all"` already does the right thing on every platform).
 - README install instructions for Linux.
 - AppImage signing or auto-updater configuration.
 - A CI job that runs `tauri build` on PRs (the existing `test-tauri` job runs `cargo test` only; bundling is release-only).
@@ -49,7 +49,7 @@ Out of scope:
 
    Packages from the user-supplied list that are intentionally omitted because they ship preinstalled on the `ubuntu-22.04` GitHub runner image: `build-essential`, `curl`, `wget`, `file`.
 
-3. Pass `args: --bundles appimage` to `tauri-apps/tauri-action@v0` when `matrix.platform == 'ubuntu-22.04'`; pass an empty `args` otherwise. This keeps the existing macOS dmg and Windows msi bundles untouched while limiting Linux to a single AppImage artifact.
+No `args:` override is passed to `tauri-apps/tauri-action@v0`. Local validation on Debian 13 confirmed the default invocation produces `.AppImage`, `.deb`, and `.rpm` together, which is the desired set of Linux artifacts.
 
 ### `.github/workflows/test.yaml`
 
@@ -57,12 +57,11 @@ One-line change on the `test-tauri` job: replace `libappindicator3-dev` with `li
 
 ## Acceptance criteria
 
-- Running the `release` workflow with any bump produces a draft release containing the existing macOS `.dmg` and Windows `.msi` artifacts plus a new `Sphere_<version>_amd64.AppImage` artifact.
-- The Linux job uses `ubuntu-22.04`, so the resulting AppImage runs on distros shipping glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+, Fedora 36+).
-- The Linux job does not emit `.deb` or `.rpm` artifacts.
+- Running the `release` workflow with any bump produces a draft release containing the existing macOS `.dmg` and Windows `.msi` artifacts plus three new Linux artifacts: `Sphere_<version>_amd64.AppImage`, `Sphere_<version>_amd64.deb`, and `Sphere-<version>-1.x86_64.rpm`.
+- The Linux job uses `ubuntu-22.04`, so the resulting binaries run on distros shipping glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+, Fedora 36+).
 - The `test-tauri` job in `test.yaml` continues to pass with the renamed appindicator package.
 
 ## Risks
 
-- AppImage builds can be sensitive to system library mismatches; the first release may surface missing `apt` packages not yet listed. Mitigation: monitor the first release run and add packages iteratively.
+- Linux bundling can be sensitive to system library mismatches; the first release may surface missing `apt` packages not yet listed. Mitigation: monitor the first release run and add packages iteratively.
 - The `ubuntu-22.04` GitHub-hosted runner image is scheduled for eventual deprecation. When that happens, the matrix entry will need to move forward and the glibc compatibility floor will rise accordingly.
