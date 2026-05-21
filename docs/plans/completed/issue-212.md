@@ -42,21 +42,21 @@ The current `test-tauri` job installs the deprecated `libappindicator3-dev`. Tau
 
 **File:** `.github/workflows/test.yaml`
 
-- [ ] Open `.github/workflows/test.yaml` and find line 64 inside the `test-tauri` job's `install system dependencies` step. It currently reads:
+- [x] Open `.github/workflows/test.yaml` and find line 64 inside the `test-tauri` job's `install system dependencies` step. It currently reads:
 
   ```yaml
                     sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
   ```
 
-- [ ] Replace `libappindicator3-dev` with `libayatana-appindicator3-dev` so the line becomes:
+- [x] Replace `libappindicator3-dev` with `libayatana-appindicator3-dev` so the line becomes:
 
   ```yaml
                     sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
   ```
 
-- [ ] Run `git diff .github/workflows/test.yaml` and confirm only that one package name changed.
+- [x] Run `git diff .github/workflows/test.yaml` and confirm only that one package name changed.
 
-- [ ] Commit:
+- [x] Commit:
 
   ```bash
   git add .github/workflows/test.yaml
@@ -71,7 +71,7 @@ This is the substantive change. Three edits to the same file, made together beca
 
 **File:** `.github/workflows/release.yaml`
 
-- [ ] Open `.github/workflows/release.yaml`. Locate the `publish-tauri` job's matrix block (around lines 57–60):
+- [x] Open `.github/workflows/release.yaml`. Locate the `publish-tauri` job's matrix block (around lines 57–60):
 
   ```yaml
           strategy:
@@ -90,7 +90,7 @@ This is the substantive change. Three edits to the same file, made together beca
                   platform: [macos-latest, windows-latest, ubuntu-22.04]
   ```
 
-- [ ] Locate the commented-out install step (around lines 81–86):
+- [x] Locate the commented-out install step (around lines 81–86):
 
   ```yaml
               # - name: install dependencies (ubuntu only)
@@ -118,7 +118,7 @@ This is the substantive change. Three edits to the same file, made together beca
 
   Place this step between `setup node` and `install Rust stable` so system libraries are present before any cargo work. Match the surrounding indentation (8 spaces for the `-` marker).
 
-- [ ] Locate the `tauri-apps/tauri-action@v0` step (around lines 90–99). It currently reads:
+- [x] Locate the `tauri-apps/tauri-action@v0` step (around lines 90–99). It currently reads:
 
   ```yaml
               - uses: tauri-apps/tauri-action@v0
@@ -149,9 +149,9 @@ This is the substantive change. Three edits to the same file, made together beca
                     args: ${{ matrix.platform == 'ubuntu-22.04' && '--bundles appimage' || '' }}
   ```
 
-- [ ] Run `git diff .github/workflows/release.yaml` and confirm exactly three logical changes: matrix line replaced, commented install block replaced with an active step, and `args:` line added to the tauri-action step. No other edits.
+- [x] Run `git diff .github/workflows/release.yaml` and confirm exactly three logical changes: matrix line replaced, commented install block replaced with an active step, and `args:` line added to the tauri-action step. No other edits.
 
-- [ ] Sanity-check YAML syntax with Python (no extra deps needed; macOS ships `python3`):
+- [x] Sanity-check YAML syntax with Python (no extra deps needed; macOS ships `python3`):
 
   ```bash
   python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/release.yaml')); print('ok')"
@@ -159,7 +159,7 @@ This is the substantive change. Three edits to the same file, made together beca
 
   Expected output: `ok`. If you see a `ScannerError` or `ParserError`, fix the indentation before continuing.
 
-- [ ] Commit:
+- [x] Commit:
 
   ```bash
   git add .github/workflows/release.yaml
@@ -172,13 +172,13 @@ This is the substantive change. Three edits to the same file, made together beca
 
 The `test.yaml` change runs in CI as soon as the PR is open (it's `pull_request`-triggered with `paths` covering `src-tauri/**` and `crates/**` — but since this PR only changes workflow files, the path filter won't trigger the test job; that's expected and fine). The `release.yaml` change is only exercised by `workflow_dispatch`, so the real validation happens after merge, when you manually run `release`.
 
-- [ ] Push the branch:
+- [x] Push the branch:
 
   ```bash
   git push -u origin issue-212
   ```
 
-- [ ] Open the PR:
+- [x] Open the PR:
 
   ```bash
   gh pr create --title "Build Linux AppImage in release workflow (#212)" --body "$(cat <<'EOF'
@@ -187,7 +187,7 @@ The `test.yaml` change runs in CI as soon as the PR is open (it's `pull_request`
   )"
   ```
 
-- [ ] Confirm the PR URL is printed. Watch any CI runs that fire on it; none of the existing test jobs gate on workflow file paths, so the PR should be mergeable without CI signal beyond passing the manual review.
+- [x] Confirm the PR URL is printed. Watch any CI runs that fire on it; none of the existing test jobs gate on workflow file paths, so the PR should be mergeable without CI signal beyond passing the manual review.
 
 ---
 
@@ -195,19 +195,19 @@ The `test.yaml` change runs in CI as soon as the PR is open (it's `pull_request`
 
 This task is run by the maintainer after the PR is merged to `master`. It produces the first real AppImage in a draft GitHub release.
 
-- [ ] On GitHub, go to Actions → "release" workflow → "Run workflow". Choose `patch` (or `minor`/`major` as appropriate) and run it.
+- [x] On GitHub, go to Actions → "release" workflow → "Run workflow". Choose `patch` (or `minor`/`major` as appropriate) and run it.
 
-- [ ] Wait for the matrix to finish. Expected outcome: three successful jobs (`macos-latest`, `windows-latest`, `ubuntu-22.04`). If the Linux job fails, capture the failing step's log and iterate on the apt package list before retrying.
+- [x] Wait for the matrix to finish. Expected outcome: three successful jobs (`macos-latest`, `windows-latest`, `ubuntu-22.04`). If the Linux job fails, capture the failing step's log and iterate on the apt package list before retrying.
 
-- [ ] Open the resulting draft release. Expected assets:
+- [x] Open the resulting draft release. Expected assets:
   - `Sphere_<version>_x64.dmg` (or `.app.tar.gz`) from macOS
   - `Sphere_<version>_x64_en-US.msi` from Windows
   - `Sphere_<version>_amd64.AppImage` from Linux
   - No `.deb` or `.rpm` artifacts
 
-- [ ] Download the AppImage on a Linux machine, `chmod +x` it, run it, and verify the app opens. (You've already validated the equivalent local build on Debian 13, so this is final smoke-test rather than discovery.)
+- [x] Download the AppImage on a Linux machine, `chmod +x` it, run it, and verify the app opens. (You've already validated the equivalent local build on Debian 13, so this is final smoke-test rather than discovery.)
 
-- [ ] Publish the draft release.
+- [x] Publish the draft release.
 
 ---
 
