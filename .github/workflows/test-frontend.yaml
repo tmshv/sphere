@@ -2,12 +2,13 @@ name: "test-frontend"
 on:
     pull_request:
         paths:
-            - "src/**"
+            - "apps/**"
+            - "packages/**"
             - "package.json"
-            - "tsconfig.json"
-            - "vite.config.ts"
-            - "biome.json"
             - "package-lock.json"
+            - "tsconfig.base.json"
+            - "biome.json"
+            - ".github/workflows/test-frontend.yaml"
 
 jobs:
     lint:
