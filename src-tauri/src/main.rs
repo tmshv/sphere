@@ -34,7 +34,6 @@ async fn main() {
         })
         .manage(SelectionStorage::default())
         .invoke_handler(tauri::generate_handler![
-            commands::system::greet,
             commands::source::mbtiles_get_tile,
             commands::source::mbtiles_get_metadata,
             commands::source::source_add,

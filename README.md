@@ -4,7 +4,12 @@
 ![](assets/sphere-screenshot-02.png)
 ![](assets/sphere-screenshot-03.png)
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend), using MapLibre GL for map rendering. It loads **GeoJSON, Shapefile, CSV, GPX, and MBTiles** sources.
+
+## Prerequisites
+
+- Node 24 (managed via [Mise](https://mise.jdx.dev/))
+- Rust 1.92
 
 ## Recommended IDE Setup
 
@@ -15,27 +20,28 @@ This template should help get you started developing with Tauri, React and Types
 
 ### Version locations
 
-The app version is stored in three files that must stay in sync:
+The app version is stored in files that must stay in sync:
 
-| File                       | Field     |
-|----------------------------|-----------|
-| `package.json`             | `version` |
-| `src-tauri/tauri.conf.json`| `version` |
-| `src-tauri/Cargo.toml`     | `version` |
+| File                        | Field     | Updated by                |
+|-----------------------------|-----------|---------------------------|
+| `apps/sphere/package.json`  | `version` | `npm version`             |
+| `src-tauri/tauri.conf.json` | `version` | `scripts/version.js`      |
+| `src-tauri/Cargo.toml`      | `version` | `scripts/version.js`      |
+| `src-tauri/Cargo.lock`      | `version` | `cargo update` (via hook) |
 
-The script `scripts/version.js` copies the version from `package.json` into the other two files. It runs automatically as an npm `version` hook.
+The script `scripts/version.js` copies the version from `apps/sphere/package.json` into `tauri.conf.json` and `Cargo.toml`, then runs `cargo update` to sync `Cargo.lock`. It runs automatically as the npm `version` hook on `@sphere/app`.
 
 ### How to release
 
 1. Bump the version — pick one of `patch`, `minor`, or `major`:
 
    ```bash
-   npm version patch   # e.g. 0.9.4 → 0.9.5
+   npm version patch -w @sphere/app   # e.g. 0.9.4 → 0.9.5
    ```
 
    This command:
-   - Updates `version` in `package.json`
-   - Runs `scripts/version.js` to sync `tauri.conf.json` and `Cargo.toml`
+   - Updates `version` in `apps/sphere/package.json`
+   - Runs `scripts/version.js` to sync `tauri.conf.json`, `Cargo.toml`, and `Cargo.lock`
    - Stages the changed files and creates a commit
    - Tags the commit as `v<version>`
 
