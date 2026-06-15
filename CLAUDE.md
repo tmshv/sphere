@@ -73,10 +73,17 @@ The following code smells are strictly forbidden:
 - `source` - Data source management; `FeatureCollecionSource` stores no GeoJSON in Redux — data lives in the Rust backend. A `version: number` field acts as a cache-bust signal: `bumpVersion(id)` increments it, which triggers `SphereSource` to re-fetch via `source_get` IPC.
 - `selection` - Selected map features. `selectOne` sets `layerId`, clears `sourceId`; `selectMany` sets `sourceId`, clears `layerId` — mutually exclusive, and `useFeatureState` depends on this invariant
 - `draw` - Drawing mode state (`sourceId`, `selectedIds: number[]`); `start` enters draw mode with optional selected feature IDs; `commit` carries `{ sourceId, patch: { added, updated, deleted_ids } }` and is handled by the `save-draw` listener; `done`/`reset` clear state
-- `map` / `mapStyle` / `projection` - Map viewport and rendering
+- `mapStyle` / `projection` - Map style and projection rendering state
 - `tools` - Active map tool state (`activeTool: Tool | null`); `"navigation"` = drag-pan/scroll-zoom/rotate enabled (default), `"draw"` = drawing mode active, `null` = map frozen; `reset` action returns to `"navigation"` and triggers the `resetTool` listener which clears draw state if needed
 - `mapInteraction` - Fine-grained MapLibre handler toggles (`dragPan`, `scrollZoom`, `dragRotate`); combined with `tools` by `useMapNavigation`
 - `settings` - User preferences (no UI yet). `copyWrapAsFeatureCollection: boolean` (default `true`) controls whether GeoJSON copy wraps features in a FeatureCollection; `copyWktSeparator: string` (default `"\n"`) is the separator between WKT geometries
+- `error` - Transient error state surfaced in the UI; populated by the `fail` listener, cleared by `clearError`
+- `properties` - Feature property display state (hover/inspect entries shown in the properties panel)
+- `sky` - Map sky layer toggle/config
+- `terrain` - 3D terrain toggle/config
+- `tileBoundaries` - Tile-grid debug overlay toggle
+
+> Note: `map` is **not** a Redux slice — it is a `createAction`/`createListenerMiddleware` module (`store/map.ts`) wired into the store's middleware, not the reducer. Map viewport changes flow through that listener, not a slice reducer.
 
 **Component Structure**:
 - `components/SphereMap/` - Map rendering with react-map-gl/MapLibre
@@ -105,8 +112,8 @@ The following code smells are strictly forbidden:
 ### Backend (`src-tauri/`)
 
 Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
-- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics, rect spatial queries
-- `system.rs` - System utilities (show in finder)
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics, rect spatial queries, in-memory source create/replace/patch
+- `selection.rs` - Server-side selection state: set/preview/add/remove/apply/clear, rect queries, paginated query over the selection, copy as GeoJSON/WKT
 
 State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source` and an optional `FeatureStore` (built at load time; absent for MBTiles sources).
 
@@ -187,26 +194,37 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
 
 Available Tauri commands (invoked from frontend via `invoke()`):
 
-| Command | Description |
-|---------|-------------|
-| `source_add`              | Load a source from URL/path |
-| `source_get`              | Get source as GeoJSON string |
-| `source_get_slice`        | Get a subset of features by ID list as GeoJSON string: `(id, ids: Vec<i64>) -> String` |
-| `source_bounds`           | Get geographic bounds [west, south, east, north] |
-| `source_get_schema`       | Get property schema: `{ columns: Record<string,string>, points_count, lines_count, polygons_count }` |
-| `source_query_page`       | Paginated attribute query with optional MapLibre expression filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
-| `source_get_column_stats` | Histogram + min/max/mean/unique counts for one column: `(id, column) -> ColumnStats` |
-| `source_query_rect`       | Rect spatial query: `(id, bbox: [west,south,east,north], mode: "include"\|"intersect") -> Vec<i64>` |
-| `source_add_data`         | Create an in-memory source from a GeoJSON FeatureCollection string: `(name, data) -> { id, name, location, source_type }` |
-| `source_replace`          | Replace all features of an in-memory source: `(id, data: GeoJSON string) -> ()` |
-| `source_patch`            | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |
-| `mbtiles_get_tile`        | Get single tile from MBTiles |
-| `mbtiles_get_metadata`    | Get MBTiles metadata/TileJSON |
-| `selection_get_ids`       | Get IDs of currently selected features: `() -> Vec<i64>` |
-| `selection_rect`          | Spatially query a source by bbox and apply to selection state in one call: `(source_id, bbox: [west,south,east,north], mode: "include"\|"intersect", op: "set"\|"preview"\|"add") -> SelectionDelta` |
-| `selection_copy_geojson`  | Copy selected features as GeoJSON string: `(source_id, wrap_fc: bool) -> String` |
-| `selection_copy_wkt`      | Copy selected features as WKT string: `(source_id, separator: String) -> String` |
-| `show_in_finder`          | Open file location in system explorer |
+| Command                    | Signature / description |
+|----------------------------|-------------------------|
+| `source_add`               | Load a source from a URL/path: `(source_url) -> SourceAddResult` |
+| `source_get`               | Get source as GeoJSON string: `(id) -> String` |
+| `source_get_slice`         | Get a subset of features by ID list as GeoJSON: `(id, ids: Vec<i64>) -> String` |
+| `source_get_selected`      | Get currently-selected features as GeoJSON (reads selection state): `(id) -> String` |
+| `source_get_schema`        | Get property schema: `(id) -> { columns, points_count, lines_count, polygons_count }` |
+| `source_bounds`            | Get geographic bounds [west, south, east, north]: `(id) -> (f64,f64,f64,f64)` |
+| `source_get_filtered`      | Get GeoJSON filtered by a MapLibre expression: `(id, filter_json?) -> String` |
+| `source_query_page`        | Paginated attribute query with optional filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
+| `source_get_column_stats`  | Histogram + min/max/mean/unique for one column: `(id, column, ids?: Vec<i64>) -> ColumnStats` |
+| `source_query_rect`        | Rect spatial query: `(id, bbox: [f64;4], mode: "include"\|"intersect") -> Vec<i64>` |
+| `source_add_data`          | Create an in-memory source from a FeatureCollection: `(name, data) -> SourceAddResult` |
+| `source_replace`           | Replace all features of an in-memory source: `(id, data) -> ()` |
+| `source_patch`             | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |
+| `mbtiles_get_tile`         | Get a single tile from MBTiles: `(id, z, x, y) -> Vec<u8>` |
+| `mbtiles_get_metadata`     | Get MBTiles metadata/TileJSON: `(id) -> String` |
+| `selection_set`            | Replace selection with the given IDs: `(ids: Vec<i64>) -> SelectionDelta` |
+| `selection_preview`        | Preview selection (transient overlay): `(ids: Vec<i64>) -> SelectionDelta` |
+| `selection_add`            | Add IDs to the selection: `(ids: Vec<i64>) -> SelectionDelta` |
+| `selection_remove`         | Remove IDs from the selection: `(ids: Vec<i64>) -> SelectionDelta` |
+| `selection_apply`          | Commit the previewed selection: `() -> SelectionDelta` |
+| `selection_clear`          | Clear selection, generation, and feature cache: `() -> SelectionDelta` |
+| `selection_count`          | Count selected features: `() -> usize` |
+| `selection_get_ids`        | Get IDs of currently selected features: `() -> Vec<i64>` |
+| `selection_query_page`     | Paginated attribute query over the selection: `(source_id, offset, limit, sort_column?, sort_asc?) -> PageResult` |
+| `selection_rect`           | Rect-query a source and apply to selection in one call: `(source_id, bbox: [f64;4], mode: "include"\|"intersect", op: "set"\|"preview"\|"add", generation: u64) -> SelectionDelta` |
+| `selection_rect_features`  | Rect-query supplied features and apply to selection: `(features_json, bbox: [f64;4], mode, op, generation: u64) -> SelectionDelta` |
+| `selection_cache_features` | Cache features server-side for later rect queries: `(features_json) -> ()` |
+| `selection_copy_geojson`   | Copy selected features as GeoJSON: `(source_id, wrap_fc: bool) -> String` |
+| `selection_copy_wkt`       | Copy selected features as WKT: `(source_id, separator: String) -> String` |
 
 ## State Management Principles
 
@@ -222,10 +240,8 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 ## Known Issues / Technical Debt
 
 1. **Error handling** - `libsphere` errors now carry path context via `SphereError`; `src-tauri` commands still convert errors to strings at the IPC boundary, discarding structure
-2. **Unsafe unwraps** - URL parsing and UTF-8 conversion use `.unwrap()` which can panic
-3. **Fake async** - Some commands marked `async` but perform blocking I/O
-4. **Memory leaks** - Event listeners in `src/tauri.ts` don't store unlisten functions for cleanup
-5. **Missing plugin** - `tauri_plugin_shell` in Cargo.toml but not registered in main.rs
-6. **CSP disabled** - `tauri.conf.json` has `"csp": null` (security concern for production)
-7. **No type sharing** - TypeScript and Rust types are duplicated and can drift out of sync
-8. **Busy-wait polling** - `waitEvent()` in `src/lib/tauri.ts` uses inefficient polling loop
+2. **Unsafe unwraps** - `src-tauri` URL parsing is now fallible, but `crates/libsphere` still has panicking `.unwrap()`s (`shape.rs`, `gpx.rs` bounds; `store.rs`, `schema.rs`) reachable from source loading
+3. **Fake async** - Some commands marked `async` but perform blocking I/O (no `spawn_blocking`)
+4. **Missing plugin** - `tauri-plugin-shell` in Cargo.toml but not registered in main.rs
+5. **CSP disabled** - `tauri.conf.json` has `"security": null` (no CSP — security concern for production)
+6. **No type sharing** - TypeScript and Rust types are duplicated and can drift out of sync
