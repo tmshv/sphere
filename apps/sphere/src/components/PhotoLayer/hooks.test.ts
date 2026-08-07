@@ -10,17 +10,32 @@ vi.mock("@/store/hooks", () => ({
     useAppSelector: vi.fn(),
 }))
 
-vi.mock("@/lib/source-reader", () => ({
-    SourceReader: vi.fn().mockImplementation(() => ({
-        getGeojson: vi.fn().mockResolvedValue(null),
-    })),
+const { sourceReaderMock, getGeojsonMock, getFilteredMock } = vi.hoisted(() => ({
+    sourceReaderMock: vi.fn(),
+    getGeojsonMock: vi.fn(),
+    getFilteredMock: vi.fn(),
 }))
 
+vi.mock("@/lib/source-reader", () => ({
+    SourceReader: sourceReaderMock,
+}))
+
+import { filteredSourceId } from "@/lib/layer-source"
 import { useAppSelector } from "@/store/hooks"
 import { useFeatures } from "./hooks"
 
 const SOURCE_ID = "test-source"
 const LAYER_ID = "test-layer"
+
+beforeEach(() => {
+    getGeojsonMock.mockReset().mockResolvedValue(null)
+    getFilteredMock.mockReset().mockResolvedValue(null)
+    // `new SourceReader(...)` needs a constructible implementation, so this
+    // cannot be an arrow function.
+    sourceReaderMock.mockReset().mockImplementation(function SourceReaderStub() {
+        return { getGeojson: getGeojsonMock, getFiltered: getFilteredMock }
+    })
+})
 
 type MapEventKey = keyof MapEventType | keyof MapLayerEventType
 
@@ -149,5 +164,82 @@ describe("useTileFeatures event listener behavior", () => {
     it("does not register listeners when map is undefined", () => {
         const { result } = renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: undefined }))
         expect(result.current).toEqual([])
+    })
+})
+
+describe("useFeatures source resolution", () => {
+    const FILTER_EXPRESSION = [">", ["get", "score"], 0.9]
+
+    function mockState(state: unknown) {
+        vi.mocked(useAppSelector).mockImplementation(selector => selector(state as RootState))
+    }
+
+    function geojsonState(layerFilter?: unknown) {
+        return {
+            source: {
+                items: {
+                    [SOURCE_ID]: { id: SOURCE_ID, type: SourceType.Geojson },
+                },
+            },
+            layer: {
+                items: {
+                    [LAYER_ID]: {
+                        id: LAYER_ID,
+                        sourceId: SOURCE_ID,
+                        ...(layerFilter ? { filter: { expression: layerFilter, error: null } } : {}),
+                    },
+                },
+            },
+        }
+    }
+
+    it("reads unfiltered geojson when the layer has no filter", async () => {
+        mockState(geojsonState())
+
+        await act(async () => {
+            renderHook(() => useFeatures({ sourceId: SOURCE_ID, layerId: LAYER_ID, map: undefined }))
+        })
+
+        expect(sourceReaderMock).toHaveBeenCalledWith(SOURCE_ID)
+        expect(getGeojsonMock).toHaveBeenCalled()
+        expect(getFilteredMock).not.toHaveBeenCalled()
+    })
+
+    it("does not throw when given a filtered side-source id absent from the source slice", async () => {
+        mockState(geojsonState(FILTER_EXPRESSION))
+
+        await act(async () => {
+            expect(() =>
+                renderHook(() =>
+                    useFeatures({ sourceId: filteredSourceId(LAYER_ID), layerId: LAYER_ID, map: undefined }),
+                ),
+            ).not.toThrow()
+        })
+    })
+
+    it("reads filtered geojson from the underlying source for a filtered side-source id", async () => {
+        mockState(geojsonState(FILTER_EXPRESSION))
+
+        await act(async () => {
+            renderHook(() => useFeatures({ sourceId: filteredSourceId(LAYER_ID), layerId: LAYER_ID, map: undefined }))
+        })
+
+        expect(sourceReaderMock).toHaveBeenCalledWith(SOURCE_ID)
+        expect(getFilteredMock).toHaveBeenCalledWith(JSON.stringify(FILTER_EXPRESSION))
+        expect(getGeojsonMock).not.toHaveBeenCalled()
+    })
+
+    it("returns no features when the side-source cannot be resolved to a layer", async () => {
+        mockState({ source: { items: {} }, layer: { items: {} } })
+
+        let result: { current: GeoJSON.Feature[] } | undefined
+        await act(async () => {
+            result = renderHook(() =>
+                useFeatures({ sourceId: filteredSourceId("missing-layer"), layerId: LAYER_ID, map: undefined }),
+            ).result
+        })
+
+        expect(result?.current).toEqual([])
+        expect(sourceReaderMock).not.toHaveBeenCalled()
     })
 })
