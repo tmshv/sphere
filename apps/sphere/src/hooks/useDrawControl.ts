@@ -1,5 +1,4 @@
 import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
-import type { Listener } from "maplibre-gl"
 import { useEffect } from "react"
 import { useControl } from "react-map-gl/maplibre"
 import type { ControlPosition, MapRef } from "react-map-gl/maplibre"
@@ -30,7 +29,7 @@ export function useDrawControl({ ref, onChange, ...props }: DrawControlProps): M
         }
         const map = ref.getMap()
 
-        const listener: Listener = event => {
+        const listener = (event: DrawEvent) => {
             if (typeof onChange === "function") {
                 onChange(event, draw)
             }
