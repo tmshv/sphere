@@ -1,7 +1,7 @@
 import type { RootState } from "@/store"
 import { SourceType } from "@/types"
 import { act, renderHook } from "@testing-library/react"
-import type maplibregl from "maplibre-gl"
+import type * as maplibregl from "maplibre-gl"
 import type { Listener, MapEventType, MapLayerEventType } from "maplibre-gl"
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest"

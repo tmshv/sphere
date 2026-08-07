@@ -1,5 +1,6 @@
 import logger from "@/logger"
 import type { BBox, Feature, Point } from "geojson"
+import type { MapEventType } from "maplibre-gl"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
 import Supercluster from "supercluster"
@@ -10,7 +11,7 @@ export type ClustersOptions<P extends Supercluster.AnyProps, C> = Supercluster.O
 export function useClusters<
     P extends Supercluster.AnyProps = DefaultFeatureProperties,
     C extends Supercluster.AnyProps = DefaultFeatureProperties,
->(mapId: string, data: Feature<Point, P>[], eventName: string, options: ClustersOptions<P, C>) {
+>(mapId: string, data: Feature<Point, P>[], eventName: keyof MapEventType, options: ClustersOptions<P, C>) {
     type Clusters = Array<Supercluster.PointFeature<P> | Supercluster.ClusterFeature<C>>
 
     const { [mapId]: ref } = useMap()

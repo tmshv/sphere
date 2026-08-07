@@ -19,7 +19,7 @@ import {
 } from "@/lib/selection-ipc"
 import { isMvtSource } from "@/lib/source"
 import type { MapGeoJSONFeature } from "maplibre-gl"
-import maplibregl from "maplibre-gl"
+import { Point } from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
@@ -160,7 +160,7 @@ listener.startListening({
         const { point, modifier } = action.payload
         const layerIds = selectPreviewLayerIds(state)
         const containerRect = map.getContainer().getBoundingClientRect()
-        const mapPoint = new maplibregl.Point(point.x - containerRect.left, point.y - containerRect.top)
+        const mapPoint = new Point(point.x - containerRect.left, point.y - containerRect.top)
         const features = queryFeaturesInPoint(map, mapPoint, layerIds)
 
         if (features.length > 0) {

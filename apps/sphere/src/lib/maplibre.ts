@@ -3,6 +3,9 @@ import type { FilterSpecification, Map as MaplibreMap, MapGeoJSONFeature, Point,
 
 const QUERY_SIZE = 8
 
+// Style path reported by maplibre-gl-style-spec when a filter fails to compile.
+const FILTER_ROOT_KEY = "filter"
+
 export function queryFeaturesInPoint(map: MaplibreMap, point: Point, layers: string[]) {
     const bbox: [PointLike, PointLike] = [
         [point.x - QUERY_SIZE / 2, point.y - QUERY_SIZE / 2],
@@ -86,7 +89,7 @@ export function isValidFilterExpression(expression: unknown[]): boolean {
         return false
     }
     try {
-        featureFilter(expression as FilterSpecification)
+        featureFilter(expression as FilterSpecification, FILTER_ROOT_KEY)
         return true
     } catch {
         return false
