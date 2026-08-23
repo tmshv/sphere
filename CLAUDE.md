@@ -187,6 +187,10 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
   - `properties-set` — main → properties window: sets source, schema, filter expression
   - `properties-init` — properties window → main: signals window is ready
   - `properties-selection-changed` — main → properties window: `{ sourceId, count }` emitted on every `selectOne`/`selectMany` to drive the All/Selected filter toggle
+- Native menu clicks:
+  - `menu` — backend → main window only: `{ id }` where `id` is a namespaced menu item id (`file.open`, `view.toggle-zen-mode`, …). Predefined items (copy, quit, minimize, …) are handled by the OS and never emit this event
+
+**Native Menu** (`src-tauri/src/menu/`): `spec.rs` holds the whole menu tree as pure data (`menu_spec()`) and is unit-tested for id uniqueness, namespacing, and accelerator collisions; `mod.rs` builds the Tauri menu from that spec and forwards clicks as the `menu` event. `build` has no unit test because `muda` refuses to create menu items off the main thread. Toggle items are plain text items, not check items — the backend cannot know Redux state, and a stale checkmark would fake it. To add a menu item, add it to the spec and map its id to an action in the frontend; nothing else needs to change.
 
 **Plugins Used**: fs, dialog, http, clipboard
 

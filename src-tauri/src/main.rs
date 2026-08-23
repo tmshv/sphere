@@ -2,6 +2,7 @@
 
 mod commands;
 mod id;
+mod menu;
 mod selection;
 mod state;
 
@@ -78,6 +79,12 @@ async fn main() {
         //
         //     Ok(())
         // })
+        .setup(|app| {
+            app.set_menu(menu::build(app.handle())?)?;
+            app.on_menu_event(|app, event| menu::on_event(app, event));
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("Error while running Application");
 }
