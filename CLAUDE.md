@@ -190,7 +190,11 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
 - Native menu clicks:
   - `menu` — backend → main window only: `{ id }` where `id` is a namespaced menu item id (`file.open`, `view.toggle-zen-mode`, …). Predefined items (copy, quit, minimize, …) are handled by the OS and never emit this event
 
-**Native Menu** (`src-tauri/src/menu/`): `spec.rs` holds the whole menu tree as pure data (`menu_spec()`) and is unit-tested for id uniqueness, namespacing, and accelerator collisions; `mod.rs` builds the Tauri menu from that spec and forwards clicks as the `menu` event. `build` has no unit test because `muda` refuses to create menu items off the main thread. Toggle items are plain text items, not check items — the backend cannot know Redux state, and a stale checkmark would fake it. To add a menu item, add it to the spec and map its id to an action in the frontend; nothing else needs to change.
+**Native Menu** (`src-tauri/src/menu/`): `spec.rs` holds the whole menu tree as pure data (`menu_spec()`) and is unit-tested for id uniqueness, namespacing, and accelerator collisions; `mod.rs` builds the Tauri menu from that spec and forwards clicks as the `menu` event. `build` has no unit test because `muda` refuses to create menu items off the main thread. Toggle items are plain text items, not check items — the backend cannot know Redux state, and a stale checkmark would fake it.
+
+Each custom item declares a `Requires` (`Always` / `Source` / `Layer` / `Selection`). Items with an unmet requirement are built disabled and re-enabled by `menu_set_context`, so the menu never offers an action that would do nothing. The frontend sends only state facts (`hasSource`, `hasLayer`, `hasSelection`); the spec stays the single place that knows which items each fact governs.
+
+Frontend wiring: `store/menu.ts` (the `menu/trigger` action and `selectMenuContext`), `store/listeners/menu.ts` (id → real actions), `store/listeners/menu-context.ts` (watches the derived context via a `predicate` and invokes `menu_set_context`), and `handleMenu()` in `tauri.ts`. To add a menu item: add it to the Rust spec, then add its id to the switch in `listeners/menu.ts`.
 
 **Plugins Used**: fs, dialog, http, clipboard
 
@@ -229,6 +233,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `selection_cache_features` | Cache features server-side for later rect queries: `(features_json) -> ()` |
 | `selection_copy_geojson`   | Copy selected features as GeoJSON: `(source_id, wrap_fc: bool) -> String` |
 | `selection_copy_wkt`       | Copy selected features as WKT: `(source_id, separator: String) -> String` |
+| `menu_set_context`         | Enable/disable context-dependent native menu items: `(context: { hasSource, hasLayer, hasSelection }) -> ()` |
 
 ## State Management Principles
 

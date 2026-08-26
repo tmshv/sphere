@@ -19,6 +19,8 @@ const {
     hideRightSidebar,
     setActiveSidebarTab,
     setMapTool,
+    toggleLeftSidebar,
+    toggleRightSidebar,
 } = appSlice.actions
 const { isZen, isDark } = appSlice.selectors
 
@@ -184,5 +186,29 @@ describe("app slice mapTool", () => {
         const prev = { ...reducer(undefined, { type: "@@INIT" }), mapTool: "select" as const }
         const state = reducer(prev, setMapTool("navigation"))
         expect(state.mapTool).toBe("navigation")
+    })
+})
+
+describe("app slice sidebar toggles", () => {
+    test("toggleLeftSidebar hides a visible left sidebar", () => {
+        const state = reducer(undefined, toggleLeftSidebar())
+        expect(state.showLeftSidebar).toBe(false)
+    })
+
+    test("toggleLeftSidebar shows a hidden left sidebar", () => {
+        const prev = reducer(undefined, hideLeftSidebar())
+        const state = reducer(prev, toggleLeftSidebar())
+        expect(state.showLeftSidebar).toBe(true)
+    })
+
+    test("toggleRightSidebar hides a visible right sidebar", () => {
+        const state = reducer(undefined, toggleRightSidebar())
+        expect(state.showRightSidebar).toBe(false)
+    })
+
+    test("toggleRightSidebar shows a hidden right sidebar", () => {
+        const prev = reducer(undefined, hideRightSidebar())
+        const state = reducer(prev, toggleRightSidebar())
+        expect(state.showRightSidebar).toBe(true)
     })
 })

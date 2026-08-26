@@ -10,7 +10,8 @@ import { actions as mapActions } from "./map"
 import { mapStyleSlice } from "./mapStyle"
 import { projectionSlice } from "./projection"
 import { propertiesSlice } from "./properties"
-import { selectionSlice } from "./selection"
+import { actions as selectionActions } from "./selection"
+import { menuTrigger } from "./menu"
 import { settingsSlice } from "./settings"
 import { skySlice } from "./sky"
 import { actions as sourceActions } from "./source"
@@ -31,7 +32,8 @@ export const actions = {
     source: sourceActions,
     layer: layerActions,
     map: mapActions,
-    selection: selectionSlice.actions,
+    selection: selectionActions,
+    menu: { trigger: menuTrigger },
     settings: settingsSlice.actions,
     properties: propertiesSlice.actions,
     mapInteraction: mapInteractionSlice.actions,

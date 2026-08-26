@@ -1,13 +1,7 @@
-import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
-vi.mock("@/lib/copy-selection", () => ({
-    copySelectionAsGeojson: vi.fn(),
-}))
-
-import { copySelectionAsGeojson } from "@/lib/copy-selection"
+import { copySelection } from "./selection"
 import { setupKeyboard } from "./keyboard"
-
-const mockCopy = copySelectionAsGeojson as unknown as MockInstance
 
 function makeStore(overrides: { sourceId?: string; count?: number; wrapFc?: boolean; mapTool?: string }) {
     return {
@@ -63,47 +57,39 @@ function setup(overrides: Parameters<typeof makeStore>[0]) {
 
 describe("cmd+c keyboard handler", () => {
     test("copies selection as GeoJSON when cmd+c pressed with active selection", () => {
-        setup({ sourceId: "s1", count: 3, wrapFc: true })
+        const store = setup({ sourceId: "s1", count: 3, wrapFc: true })
 
         fireKeydown("c", { metaKey: true })
 
-        expect(mockCopy).toHaveBeenCalledWith("s1", true)
-    })
-
-    test("respects wrapFc=false setting", () => {
-        setup({ sourceId: "s1", count: 1, wrapFc: false })
-
-        fireKeydown("c", { metaKey: true })
-
-        expect(mockCopy).toHaveBeenCalledWith("s1", false)
+        expect(store.dispatch).toHaveBeenCalledWith(copySelection("geojson"))
     })
 
     test("works with ctrl+c", () => {
-        setup({ sourceId: "s1", count: 2 })
+        const store = setup({ sourceId: "s1", count: 2 })
 
         fireKeydown("c", { ctrlKey: true })
 
-        expect(mockCopy).toHaveBeenCalledWith("s1", true)
+        expect(store.dispatch).toHaveBeenCalledWith(copySelection("geojson"))
     })
 
     test("skips when selection count is 0", () => {
-        setup({ sourceId: "s1", count: 0 })
+        const store = setup({ sourceId: "s1", count: 0 })
 
         fireKeydown("c", { metaKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
     })
 
     test("skips when sourceId is undefined", () => {
-        setup({ sourceId: undefined, count: 5 })
+        const store = setup({ sourceId: undefined, count: 5 })
 
         fireKeydown("c", { metaKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
     })
 
     test("skips when active element is an input", () => {
-        setup({ sourceId: "s1", count: 1 })
+        const store = setup({ sourceId: "s1", count: 1 })
 
         const input = document.createElement("input")
         document.body.appendChild(input)
@@ -111,12 +97,12 @@ describe("cmd+c keyboard handler", () => {
 
         fireKeydown("c", { metaKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
         document.body.removeChild(input)
     })
 
     test("skips when active element is a textarea", () => {
-        setup({ sourceId: "s1", count: 1 })
+        const store = setup({ sourceId: "s1", count: 1 })
 
         const textarea = document.createElement("textarea")
         document.body.appendChild(textarea)
@@ -124,12 +110,12 @@ describe("cmd+c keyboard handler", () => {
 
         fireKeydown("c", { metaKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
         document.body.removeChild(textarea)
     })
 
     test("skips when active element is contentEditable", () => {
-        setup({ sourceId: "s1", count: 1 })
+        const store = setup({ sourceId: "s1", count: 1 })
 
         const div = document.createElement("div")
         div.contentEditable = "true"
@@ -138,23 +124,23 @@ describe("cmd+c keyboard handler", () => {
 
         fireKeydown("c", { metaKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
         document.body.removeChild(div)
     })
 
     test("skips when shift is held", () => {
-        setup({ sourceId: "s1", count: 1 })
+        const store = setup({ sourceId: "s1", count: 1 })
 
         fireKeydown("c", { metaKey: true, shiftKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
     })
 
     test("skips when alt is held", () => {
-        setup({ sourceId: "s1", count: 1 })
+        const store = setup({ sourceId: "s1", count: 1 })
 
         fireKeydown("c", { metaKey: true, altKey: true })
 
-        expect(mockCopy).not.toHaveBeenCalled()
+        expect(store.dispatch).not.toHaveBeenCalled()
     })
 })

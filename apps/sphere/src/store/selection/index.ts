@@ -1,5 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
+
+/** Clipboard formats the selection can be copied as. */
+export type CopyFormat = "geojson" | "wkt"
 
 type SelectionState = {
     count: number
@@ -39,5 +42,13 @@ export const selectionSlice = createSlice({
         sourceId: state => state.sourceId,
     },
 })
+
+/** Copy the current selection to the clipboard. Handled by the copy-selection listener. */
+export const copySelection = createAction<CopyFormat>("selection/copy")
+
+export const actions = {
+    ...selectionSlice.actions,
+    copySelection,
+}
 
 export default selectionSlice.reducer

@@ -23,6 +23,22 @@ pub enum Predefined {
     Undo,
 }
 
+/// What must exist in the frontend store for a menu item to do anything.
+///
+/// Items whose requirement is unmet are disabled rather than silently doing
+/// nothing when clicked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Requires {
+    /// Always available.
+    Always,
+    /// A source is selected.
+    Source,
+    /// A layer is selected.
+    Layer,
+    /// At least one feature is selected.
+    Selection,
+}
+
 /// A menu item owned by the application. Clicking it emits a menu event
 /// carrying `id` to the webview.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -30,6 +46,7 @@ pub struct Custom {
     pub id: &'static str,
     pub label: &'static str,
     pub accelerator: Option<&'static str>,
+    pub requires: Requires,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -57,6 +74,7 @@ const fn custom(id: &'static str, label: &'static str) -> Item {
         id,
         label,
         accelerator: None,
+        requires: Requires::Always,
     })
 }
 
@@ -65,7 +83,27 @@ const fn custom_with_accelerator(id: &'static str, label: &'static str, accelera
         id,
         label,
         accelerator: Some(accelerator),
+        requires: Requires::Always,
     })
+}
+
+const fn requiring(item: Item, requires: Requires) -> Item {
+    match item {
+        Item::Custom(custom) => Item::Custom(Custom { requires, ..custom }),
+        Item::Predefined(predefined) => Item::Predefined(predefined),
+    }
+}
+
+/// Ids of every custom item gated on `requires`.
+pub fn items_requiring(requires: Requires) -> Vec<&'static str> {
+    menu_spec()
+        .iter()
+        .flat_map(|submenu| submenu.items.iter())
+        .filter_map(|item| match item {
+            Item::Custom(custom) if custom.requires == requires => Some(custom.id),
+            _ => None,
+        })
+        .collect()
 }
 
 /// Toggles are plain items rather than check items: the menu lives in the
@@ -109,15 +147,21 @@ const EDIT: Submenu = Submenu {
         predefined(Predefined::Paste),
         predefined(Predefined::SelectAll),
         SEPARATOR,
-        custom_with_accelerator(
-            "edit.copy-selection-geojson",
-            "Copy Selection as GeoJSON",
-            "CmdOrCtrl+Shift+C",
+        requiring(
+            custom_with_accelerator(
+                "edit.copy-selection-geojson",
+                "Copy Selection as GeoJSON",
+                "CmdOrCtrl+Shift+C",
+            ),
+            Requires::Selection,
         ),
-        custom_with_accelerator(
-            "edit.copy-selection-wkt",
-            "Copy Selection as WKT",
-            "CmdOrCtrl+Alt+Shift+C",
+        requiring(
+            custom_with_accelerator(
+                "edit.copy-selection-wkt",
+                "Copy Selection as WKT",
+                "CmdOrCtrl+Alt+Shift+C",
+            ),
+            Requires::Selection,
         ),
     ],
 };
@@ -144,10 +188,13 @@ const SOURCE: Submenu = Submenu {
     title: "Source",
     prefix: "source",
     items: &[
-        custom("source.show-properties", "Show Properties Table"),
-        custom("source.zoom-to", "Zoom to Source"),
+        requiring(
+            custom("source.show-properties", "Show Properties Table"),
+            Requires::Source,
+        ),
+        requiring(custom("source.zoom-to", "Zoom to Source"), Requires::Source),
         SEPARATOR,
-        custom("source.remove", "Remove Source"),
+        requiring(custom("source.remove", "Remove Source"), Requires::Source),
     ],
 };
 
@@ -155,10 +202,10 @@ const LAYER: Submenu = Submenu {
     title: "Layer",
     prefix: "layer",
     items: &[
-        custom("layer.add-blank", "Add Blank Layer"),
-        custom("layer.duplicate", "Duplicate Layer"),
+        requiring(custom("layer.add-blank", "Add Blank Layer"), Requires::Source),
+        requiring(custom("layer.duplicate", "Duplicate Layer"), Requires::Layer),
         SEPARATOR,
-        custom("layer.delete", "Delete Layer"),
+        requiring(custom("layer.delete", "Delete Layer"), Requires::Layer),
     ],
 };
 
@@ -246,6 +293,40 @@ mod tests {
         let ids: Vec<&str> = custom_items().iter().map(|(_, custom)| custom.id).collect();
 
         assert!(ids.contains(&"file.open"));
+    }
+
+    #[test]
+    fn source_items_require_a_selected_source() {
+        assert_eq!(
+            items_requiring(Requires::Source),
+            vec![
+                "source.show-properties",
+                "source.zoom-to",
+                "source.remove",
+                "layer.add-blank"
+            ]
+        );
+    }
+
+    #[test]
+    fn layer_items_require_a_selected_layer() {
+        assert_eq!(
+            items_requiring(Requires::Layer),
+            vec!["layer.duplicate", "layer.delete"]
+        );
+    }
+
+    #[test]
+    fn copy_items_require_a_selection() {
+        assert_eq!(
+            items_requiring(Requires::Selection),
+            vec!["edit.copy-selection-geojson", "edit.copy-selection-wkt"]
+        );
+    }
+
+    #[test]
+    fn opening_files_is_always_available() {
+        assert!(items_requiring(Requires::Always).contains(&"file.open"));
     }
 
     #[test]

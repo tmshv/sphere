@@ -64,6 +64,7 @@ async fn main() {
             commands::selection::selection_cache_features,
             commands::selection::selection_copy_geojson,
             commands::selection::selection_copy_wkt,
+            commands::menu::menu_set_context,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();

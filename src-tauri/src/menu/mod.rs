@@ -1,7 +1,7 @@
 pub mod spec;
 
-use serde::Serialize;
-use tauri::menu::{Menu, MenuBuilder, MenuEvent, MenuItemBuilder, Submenu, SubmenuBuilder};
+use serde::{Deserialize, Serialize};
+use tauri::menu::{Menu, MenuBuilder, MenuEvent, MenuItem, MenuItemBuilder, Submenu, SubmenuBuilder};
 use tauri::{AppHandle, Emitter, Runtime};
 
 /// Label of the window the menu talks to. The properties window has its own
@@ -14,6 +14,60 @@ const MENU_EVENT: &str = "menu";
 #[derive(Clone, Serialize)]
 struct MenuEventPayload {
     id: String,
+}
+
+/// What the frontend store currently holds. The spec decides which items each
+/// flag governs, so this stays a description of state rather than a list of ids.
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Context {
+    pub has_source: bool,
+    pub has_layer: bool,
+    pub has_selection: bool,
+}
+
+/// Enables or disables the context-dependent items to match the frontend store.
+pub fn set_context<R: Runtime>(app: &AppHandle<R>, context: Context) -> tauri::Result<()> {
+    let handle = app.clone();
+
+    // Menu items may only be touched on the main thread.
+    app.run_on_main_thread(move || {
+        if let Err(err) = apply_context(&handle, context) {
+            eprintln!("Failed to update menu state: {err}");
+        }
+    })
+}
+
+fn apply_context<R: Runtime>(app: &AppHandle<R>, context: Context) -> tauri::Result<()> {
+    let Some(menu) = app.menu() else {
+        return Ok(());
+    };
+
+    let requirements = [
+        (spec::Requires::Source, context.has_source),
+        (spec::Requires::Layer, context.has_layer),
+        (spec::Requires::Selection, context.has_selection),
+    ];
+
+    for (requires, enabled) in requirements {
+        for id in spec::items_requiring(requires) {
+            let Some(item) = find_item(&menu, id) else {
+                continue;
+            };
+            item.set_enabled(enabled)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn find_item<R: Runtime>(menu: &Menu<R>, id: &str) -> Option<MenuItem<R>> {
+    let items = menu.items().ok()?;
+
+    items.into_iter().find_map(|kind| {
+        let submenu = kind.as_submenu()?;
+        submenu.get(id)?.as_menuitem().cloned()
+    })
 }
 
 /// Builds the native application menu described by [`spec::menu_spec`].
@@ -45,7 +99,10 @@ fn build_submenu<R: Runtime>(app: &AppHandle<R>, submenu: &spec::Submenu) -> tau
         builder = match item {
             spec::Item::Predefined(predefined) => add_predefined(builder, *predefined),
             spec::Item::Custom(custom) => {
-                let mut item = MenuItemBuilder::with_id(custom.id, custom.label);
+                // Items gated on frontend state start disabled: nothing is
+                // selected until the webview says otherwise.
+                let mut item = MenuItemBuilder::with_id(custom.id, custom.label)
+                    .enabled(custom.requires == spec::Requires::Always);
                 if let Some(accelerator) = custom.accelerator {
                     item = item.accelerator(accelerator);
                 }
@@ -88,6 +145,17 @@ mod tests {
 
     // `build` itself has no unit test: `muda` refuses to create menu items off
     // the main thread, and `cargo test` runs every test on a spawned one.
+
+    #[test]
+    fn accepts_the_context_payload_sent_by_the_webview() {
+        let json = r#"{"hasSource":true,"hasLayer":false,"hasSelection":true}"#;
+
+        let context: Context = serde_json::from_str(json).expect("payload should deserialize");
+
+        assert!(context.has_source);
+        assert!(!context.has_layer);
+        assert!(context.has_selection);
+    }
 
     #[test]
     fn serializes_the_clicked_item_id() {
