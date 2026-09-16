@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre"
+import type { MapRef } from "react-map-gl/maplibre"
 
 export function useZoom(ref?: MapRef): number {
     const [zoom, setZoom] = useState<number>(0)
@@ -10,8 +10,8 @@ export function useZoom(ref?: MapRef): number {
 
         const map = ref.getMap()
 
-        const z = (event: ViewStateChangeEvent) => {
-            setZoom(event.viewState.zoom)
+        const z = () => {
+            setZoom(map.getZoom())
         }
 
         map.on("zoom", z)

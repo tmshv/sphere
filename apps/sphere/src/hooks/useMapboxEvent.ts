@@ -1,16 +1,15 @@
-import type { Map as MaplibreMap, MapEventType, MapLibreEvent as MapboxEvent } from "maplibre-gl"
+import type { Map as MaplibreMap, MapEventType } from "maplibre-gl"
 import { useCallback, useEffect } from "react"
 import { useMap } from "react-map-gl/maplibre"
-// import { useMapbox } from './useMapbox'
 
-export type MapboxEventCallback = (map: MaplibreMap, event: MapboxEvent) => void
-type OnEvent = (event: MapboxEvent) => void
+export type MapboxEventCallback<T extends keyof MapEventType> = (map: MaplibreMap, event: MapEventType[T]) => void
+type OnEvent<T extends keyof MapEventType> = (event: MapEventType[T]) => void
 
-export function useMapboxEvent(eventName: keyof MapEventType, callback: MapboxEventCallback) {
+export function useMapboxEvent<T extends keyof MapEventType>(eventName: T, callback: MapboxEventCallback<T>) {
     const { current } = useMap()
     const map = current?.getMap()
 
-    const onEvent = useCallback<OnEvent>(
+    const onEvent = useCallback<OnEvent<T>>(
         event => {
             if (!map) {
                 return
