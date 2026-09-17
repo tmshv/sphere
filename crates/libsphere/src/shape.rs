@@ -5,6 +5,7 @@ use geozero::ToGeo;
 use geozero_shp;
 use shapefile::dbase::FieldValue;
 use std::collections::HashMap;
+use std::path::Path;
 
 use super::Bounds;
 use crate::error::{Result, SphereError};
@@ -13,6 +14,15 @@ use crate::schema::{ColumnType, SourceSchema};
 #[derive(Debug)]
 pub struct Shapefile {
     pub path: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct ShapefileInfo {
+    pub has_dbf: bool,
+    pub has_shx: bool,
+    pub has_prj: bool,
+    pub has_cpg: bool,
+    pub crs: Option<String>,
 }
 
 impl Bounds for Shapefile {
@@ -34,6 +44,26 @@ impl Bounds for Shapefile {
 }
 
 impl Shapefile {
+    fn sidecar_path(&self, extension: &str) -> std::path::PathBuf {
+        Path::new(&self.path).with_extension(extension)
+    }
+
+    pub fn info(&self) -> ShapefileInfo {
+        let prj_path = self.sidecar_path("prj");
+        let crs = std::fs::read_to_string(&prj_path)
+            .ok()
+            .map(|text| text.trim().to_string())
+            .filter(|text| !text.is_empty());
+
+        ShapefileInfo {
+            has_dbf: self.sidecar_path("dbf").is_file(),
+            has_shx: self.sidecar_path("shx").is_file(),
+            has_prj: prj_path.is_file(),
+            has_cpg: self.sidecar_path("cpg").is_file(),
+            crs,
+        }
+    }
+
     pub fn get_schema(&self) -> Result<SourceSchema> {
         let mut reader = shapefile::Reader::from_path(&self.path).map_err(|e| SphereError::Shape {
             path: self.path.clone(),
@@ -41,8 +71,13 @@ impl Shapefile {
         })?;
         let mut columns: HashMap<String, ColumnType> = HashMap::new();
         let mut points_count: u32 = 0;
+        let mut multi_points_count: u32 = 0;
         let mut lines_count: u32 = 0;
+        let multi_lines_count: u32 = 0;
         let mut polygons_count: u32 = 0;
+        let multi_polygons_count: u32 = 0;
+        let mut null_geometry_count: u32 = 0;
+        let mut features_count: u32 = 0;
 
         for result in reader.iter_shapes_and_records() {
             let (shape, record) = result.map_err(|e| SphereError::Shape {
@@ -50,19 +85,25 @@ impl Shapefile {
                 detail: e.to_string(),
             })?;
 
+            features_count += 1;
+
             match shape {
                 shapefile::Shape::Point(_)
                 | shapefile::Shape::PointM(_)
-                | shapefile::Shape::PointZ(_)
-                | shapefile::Shape::Multipoint(_)
+                | shapefile::Shape::PointZ(_) => points_count += 1,
+                shapefile::Shape::Multipoint(_)
                 | shapefile::Shape::MultipointM(_)
-                | shapefile::Shape::MultipointZ(_) => points_count += 1,
+                | shapefile::Shape::MultipointZ(_) => {
+                    points_count += 1;
+                    multi_points_count += 1;
+                }
                 shapefile::Shape::Polyline(_)
                 | shapefile::Shape::PolylineM(_)
                 | shapefile::Shape::PolylineZ(_) => lines_count += 1,
                 shapefile::Shape::Polygon(_)
                 | shapefile::Shape::PolygonM(_)
                 | shapefile::Shape::PolygonZ(_) => polygons_count += 1,
+                shapefile::Shape::NullShape => null_geometry_count += 1,
                 _ => {}
             }
 
@@ -93,9 +134,14 @@ impl Shapefile {
         Ok(SourceSchema {
             columns,
             points_count,
+            multi_points_count,
             lines_count,
+            multi_lines_count,
             polygons_count,
-            ..Default::default()
+            multi_polygons_count,
+            collections_count: 0,
+            null_geometry_count,
+            features_count,
         })
     }
 
@@ -158,5 +204,42 @@ mod tests {
         };
         let err = shapefile.to_geojson().unwrap_err();
         assert!(err.to_string().contains("nonexistent.shp"));
+    }
+
+    #[test]
+    fn info_detects_present_sidecars() {
+        let source = Shapefile {
+            path: "./assets/shape-files/ne_10m_populated_places.shp".to_string(),
+        };
+        let info = source.info();
+
+        assert!(info.has_dbf);
+        assert!(info.has_shx);
+    }
+
+    #[test]
+    fn info_reports_missing_sidecars_as_false() {
+        let source = Shapefile {
+            path: "./assets/shape-files/does_not_exist.shp".to_string(),
+        };
+        let info = source.info();
+
+        assert!(!info.has_dbf);
+        assert!(!info.has_shx);
+        assert!(!info.has_prj);
+        assert!(!info.has_cpg);
+        assert_eq!(info.crs, None);
+    }
+
+    #[test]
+    fn schema_reports_features_count_and_multi_counts() {
+        let source = Shapefile {
+            path: "./assets/shape-files/ne_10m_populated_places.shp".to_string(),
+        };
+        let schema = source.get_schema().unwrap();
+
+        assert_eq!(schema.features_count, 7342);
+        assert_eq!(schema.points_count, 7342);
+        assert_eq!(schema.multi_points_count, 0);
     }
 }
