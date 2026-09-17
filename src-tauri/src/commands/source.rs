@@ -14,6 +14,9 @@ use url::Url;
 use crate::selection::SelectionStorage;
 use crate::state::{SourceEntry, SourceStorage};
 
+const HISTOGRAM_BINS: usize = 10;
+const DEFAULT_TOP_VALUES: usize = 10;
+
 #[derive(Serialize, Debug)]
 pub struct SourceAddResult {
     id: String,
@@ -290,18 +293,40 @@ pub async fn source_get_column_stats(
     id: String,
     column: String,
     ids: Option<Vec<i64>>,
+    top_n: Option<usize>,
     storage: State<'_, SourceStorage>,
 ) -> Result<ColumnStats, String> {
     let fs = {
         let store = storage.store.lock().unwrap();
         let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
-        entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
+        entry
+            .store
+            .as_ref()
+            .ok_or_else(|| "No feature store for this source".to_string())?
+            .clone()
     };
 
-    let col_type = fs.schema().columns.get(&column)
+    let col_type = fs
+        .schema()
+        .columns
+        .get(&column)
         .cloned()
         .ok_or_else(|| format!("Column '{}' not found in source '{}'", column, id))?;
 
+    let top_n = top_n.unwrap_or(DEFAULT_TOP_VALUES);
+
+    tokio::task::spawn_blocking(move || compute_column_stats(fs, column, col_type, ids, top_n))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn compute_column_stats(
+    fs: Arc<FeatureStore>,
+    column: String,
+    col_type: String,
+    ids: Option<Vec<i64>>,
+    top_n: usize,
+) -> Result<ColumnStats, String> {
     let id_filter: Option<std::collections::HashSet<i64>> =
         ids.map(|v| v.into_iter().collect());
 
@@ -345,7 +370,7 @@ pub async fn source_get_column_stats(
         let min_val = numeric_values.iter().cloned().fold(f64::INFINITY, f64::min);
         let max_val = numeric_values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         let mean_val = numeric_values.iter().sum::<f64>() / numeric_values.len() as f64;
-        let hist = build_histogram(&numeric_values, min_val, max_val, 10);
+        let hist = build_histogram(&numeric_values, min_val, max_val, HISTOGRAM_BINS);
         (Some(min_val), Some(max_val), Some(mean_val), Some(hist))
     } else {
         (None, None, None, None)
@@ -355,7 +380,7 @@ pub async fn source_get_column_stats(
         let unique = string_counts.len() as u64;
         let mut top: Vec<(String, u64)> = string_counts.into_iter().collect();
         top.sort_by(|a, b| b.1.cmp(&a.1));
-        top.truncate(10);
+        top.truncate(top_n);
         (Some(unique), Some(top))
     } else {
         (None, None)
@@ -526,5 +551,11 @@ mod tests {
 
         assert_eq!(bins[0].count, 1);
         assert_eq!(bins[9].count, 1);
+    }
+
+    #[test]
+    fn default_top_values_and_histogram_bins_are_named_constants() {
+        assert_eq!(HISTOGRAM_BINS, 10);
+        assert_eq!(DEFAULT_TOP_VALUES, 10);
     }
 }
