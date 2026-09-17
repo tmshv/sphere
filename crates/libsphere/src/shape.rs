@@ -73,8 +73,12 @@ impl Shapefile {
         let mut points_count: u32 = 0;
         let mut multi_points_count: u32 = 0;
         let mut lines_count: u32 = 0;
+        // Unlike Point/Multipoint, the shapefile format has no distinct single-vs-multi
+        // Shape variant for the Polyline family, so this stays 0.
         let multi_lines_count: u32 = 0;
         let mut polygons_count: u32 = 0;
+        // Unlike Point/Multipoint, the shapefile format has no distinct single-vs-multi
+        // Shape variant for the Polygon family, so this stays 0.
         let multi_polygons_count: u32 = 0;
         let mut null_geometry_count: u32 = 0;
         let mut features_count: u32 = 0;
@@ -215,6 +219,10 @@ mod tests {
 
         assert!(info.has_dbf);
         assert!(info.has_shx);
+        assert!(info.has_prj);
+        assert!(info.has_cpg);
+        let crs = info.crs.expect("crs should be read from the .prj file");
+        assert!(crs.contains("GEOGCS"));
     }
 
     #[test]
