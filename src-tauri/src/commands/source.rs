@@ -498,3 +498,44 @@ pub async fn source_patch(
     entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geojson::{feature::Id, Feature};
+
+    pub fn point_feature(id: i64, x: f64, y: f64) -> Feature {
+        Feature {
+            id: Some(Id::Number(id.into())),
+            geometry: Some(geojson::Geometry::new(geojson::Value::Point(vec![x, y]))),
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn histogram_with_equal_min_and_max_is_a_single_bin() {
+        let bins = build_histogram(&[5.0, 5.0, 5.0], 5.0, 5.0, 10);
+
+        assert_eq!(bins.len(), 1);
+        assert_eq!(bins[0].count, 3);
+    }
+
+    #[test]
+    fn histogram_splits_the_range_into_the_requested_bins() {
+        let values = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let bins = build_histogram(&values, 0.0, 9.0, 10);
+
+        assert_eq!(bins.len(), 10);
+        assert_eq!(bins.iter().map(|b| b.count).sum::<u64>(), 10);
+    }
+
+    #[test]
+    fn histogram_puts_the_maximum_value_in_the_last_bin() {
+        let bins = build_histogram(&[0.0, 10.0], 0.0, 10.0, 10);
+
+        assert_eq!(bins[0].count, 1);
+        assert_eq!(bins[9].count, 1);
+    }
+}
