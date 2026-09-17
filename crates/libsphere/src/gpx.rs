@@ -46,13 +46,17 @@ pub struct GpxInfo {
 }
 
 impl Gpx {
-    pub fn info(&self) -> Result<GpxInfo> {
+    fn parse(&self) -> Result<gpx::Gpx> {
         let file = File::open(self.path.as_str()).with_path(&self.path)?;
         let reader = BufReader::new(file);
-        let data: gpx::Gpx = read(reader).map_err(|e| SphereError::Shape {
+        read(reader).map_err(|e| SphereError::Shape {
             path: self.path.clone(),
             detail: e.to_string(),
-        })?;
+        })
+    }
+
+    pub fn info(&self) -> Result<GpxInfo> {
+        let data = self.parse()?;
 
         let track_points = data
             .tracks
@@ -87,14 +91,8 @@ impl Gpx {
     pub fn to_geojson(&self) -> Result<String> {
         println!("reading GPX {}", self.path);
 
-        let file = File::open(self.path.as_str()).with_path(&self.path)?;
-        let reader = BufReader::new(file);
-
         // read takes any io::Read and gives a Result<Gpx, Error>.
-        let gpx: gpx::Gpx = read(reader).map_err(|e| SphereError::Shape {
-            path: self.path.clone(),
-            detail: e.to_string(),
-        })?;
+        let gpx = self.parse()?;
 
         let mut features = Vec::<Feature>::new();
         for track in gpx.tracks {
@@ -127,7 +125,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_valid_jsonfile() {
+    fn to_geojson_produces_one_linestring_per_track_segment() {
+        let source = Gpx {
+            path: "./assets/gpx/sample.gpx".to_string(),
+        };
+        let geojson_str = source.to_geojson().unwrap();
+        let geojson: GeoJson2 = geojson_str.parse().unwrap();
+        if let GeoJson2::FeatureCollection(fc) = geojson {
+            assert_eq!(fc.features.len(), 2);
+        } else {
+            panic!("expected FeatureCollection");
+        }
     }
 
     #[test]
