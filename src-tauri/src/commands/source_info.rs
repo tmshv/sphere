@@ -293,6 +293,8 @@ mod tests {
 
     #[test]
     fn unknown_mode_is_rejected() {
-        assert!(csv_geometry_from_params("h3", None, None, None).is_err());
+        let err = csv_geometry_from_params("h3", None, None, None).unwrap_err();
+
+        assert!(err.contains("h3"));
     }
 }
