@@ -502,17 +502,6 @@ pub async fn source_patch(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geojson::{feature::Id, Feature};
-
-    pub fn point_feature(id: i64, x: f64, y: f64) -> Feature {
-        Feature {
-            id: Some(Id::Number(id.into())),
-            geometry: Some(geojson::Geometry::new(geojson::Value::Point(vec![x, y]))),
-            properties: None,
-            bbox: None,
-            foreign_members: None,
-        }
-    }
 
     #[test]
     fn histogram_with_equal_min_and_max_is_a_single_bin() {
