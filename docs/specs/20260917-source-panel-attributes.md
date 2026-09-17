@@ -318,12 +318,16 @@ dispatch. Everything below the Name belongs to the format panel.
 | CSV          | File · Geometry source · Parsing · Geometry · Attributes                  |
 | Shapefile    | File · Sidecars & CRS · Geometry · Attributes                             |
 | GPX          | File · GPX contents · Geometry · Attributes                               |
-| Vector tiles | File · Tiles · Layers (per `vector_layer`: id, zoom range, fields + types) |
-| Raster tiles | File · Tiles (format, zoom range, bounds, center, attribution)             |
+| Vector tiles | Tiles · Layers (per `vector_layer`: id, zoom range, fields + types)        |
+| Raster tiles | Tiles (format, zoom range, bounds, center, attribution)                    |
 
 `File` replaces today's hardcoded `SIZE:0` badge with the real size on disk and last-modified
 time. `Geometry` renders the counts table from the schema. `Attributes` renders one `FieldRow`
 per column.
+
+The two tile panels have no `File` section: they never call `source_get_info`, which is where
+file facts come from, because an MBTiles source has no feature store for that command to report
+on. Their location is already shown in the panel chrome above.
 
 A field row at sidebar width, before and after its stats arrive:
 
