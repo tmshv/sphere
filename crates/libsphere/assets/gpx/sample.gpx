@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="sphere-test" xmlns="http://www.topografix.com/GPX/1/1">
+  <wpt lat="20.0" lon="10.0"><name>wp1</name></wpt>
+  <rte><name>rte1</name>
+    <rtept lat="20.0" lon="10.0"/>
+    <rtept lat="21.0" lon="11.0"/>
+  </rte>
+  <trk><name>trk1</name>
+    <trkseg><trkpt lat="20.0" lon="10.0"/><trkpt lat="21.0" lon="11.0"/></trkseg>
+    <trkseg><trkpt lat="22.0" lon="12.0"/><trkpt lat="23.0" lon="13.0"/></trkseg>
+  </trk>
+</gpx>

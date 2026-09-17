@@ -37,7 +37,38 @@ impl Bounds for Gpx {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct GpxInfo {
+    pub waypoints: u64,
+    pub tracks: u64,
+    pub routes: u64,
+    pub track_points: u64,
+}
+
 impl Gpx {
+    pub fn info(&self) -> Result<GpxInfo> {
+        let file = File::open(self.path.as_str()).with_path(&self.path)?;
+        let reader = BufReader::new(file);
+        let data: gpx::Gpx = read(reader).map_err(|e| SphereError::Shape {
+            path: self.path.clone(),
+            detail: e.to_string(),
+        })?;
+
+        let track_points = data
+            .tracks
+            .iter()
+            .flat_map(|track| track.segments.iter())
+            .map(|segment| segment.points.len() as u64)
+            .sum();
+
+        Ok(GpxInfo {
+            waypoints: data.waypoints.len() as u64,
+            tracks: data.tracks.len() as u64,
+            routes: data.routes.len() as u64,
+            track_points,
+        })
+    }
+
     pub fn get_schema(&self) -> Result<SourceSchema> {
         let geojson_str = self.to_geojson()?;
         let geojson = geojson_str.parse::<GeoJson2>().map_err(|source| SphereError::GeoJson {
@@ -93,11 +124,26 @@ impl Gpx {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn test_valid_jsonfile() {
     }
 
     #[test]
     fn test_valid_bounds() {
+    }
+
+    #[test]
+    fn info_counts_waypoints_routes_tracks_and_track_points() {
+        let source = Gpx {
+            path: "./assets/gpx/sample.gpx".to_string(),
+        };
+        let info = source.info().unwrap();
+
+        assert_eq!(info.waypoints, 1);
+        assert_eq!(info.routes, 1);
+        assert_eq!(info.tracks, 1);
+        assert_eq!(info.track_points, 4);
     }
 }
