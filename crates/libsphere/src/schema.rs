@@ -41,19 +41,31 @@ pub fn merge_type(existing: ColumnType, val: &Value) -> ColumnType {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct SourceSchema {
     pub columns: HashMap<String, String>,
     pub points_count: u32,
+    pub multi_points_count: u32,
     pub lines_count: u32,
+    pub multi_lines_count: u32,
     pub polygons_count: u32,
+    pub multi_polygons_count: u32,
+    pub collections_count: u32,
+    pub null_geometry_count: u32,
+    pub features_count: u32,
 }
 
 pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> SourceSchema {
     let mut col_map: HashMap<String, ColumnType> = HashMap::new();
     let mut points_count: u32 = 0;
+    let mut multi_points_count: u32 = 0;
     let mut lines_count: u32 = 0;
+    let mut multi_lines_count: u32 = 0;
     let mut polygons_count: u32 = 0;
+    let mut multi_polygons_count: u32 = 0;
+    let mut collections_count: u32 = 0;
+    let mut null_geometry_count: u32 = 0;
+    let mut features_count: u32 = 0;
     for feature in features {
         if matches!(&feature.id, Some(Id::String(_))) {
             col_map.entry("$id".to_string()).or_insert(ColumnType::Str);
@@ -71,17 +83,27 @@ pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> S
                     .or_insert_with(|| value_type(val));
             }
         }
-        if let Some(geometry) = &feature.geometry {
-            match &geometry.value {
-                geojson::Value::Point(_) | geojson::Value::MultiPoint(_) => points_count += 1,
-                geojson::Value::LineString(_) | geojson::Value::MultiLineString(_) => {
-                    lines_count += 1
+        features_count += 1;
+        match &feature.geometry {
+            None => null_geometry_count += 1,
+            Some(geometry) => match &geometry.value {
+                geojson::Value::Point(_) => points_count += 1,
+                geojson::Value::MultiPoint(_) => {
+                    points_count += 1;
+                    multi_points_count += 1;
                 }
-                geojson::Value::Polygon(_) | geojson::Value::MultiPolygon(_) => {
-                    polygons_count += 1
+                geojson::Value::LineString(_) => lines_count += 1,
+                geojson::Value::MultiLineString(_) => {
+                    lines_count += 1;
+                    multi_lines_count += 1;
                 }
-                _ => {}
-            }
+                geojson::Value::Polygon(_) => polygons_count += 1,
+                geojson::Value::MultiPolygon(_) => {
+                    polygons_count += 1;
+                    multi_polygons_count += 1;
+                }
+                geojson::Value::GeometryCollection(_) => collections_count += 1,
+            },
         }
     }
     let columns = col_map
@@ -91,8 +113,14 @@ pub fn infer_source_schema<'a>(features: impl Iterator<Item = &'a Feature>) -> S
     SourceSchema {
         columns,
         points_count,
+        multi_points_count,
         lines_count,
+        multi_lines_count,
         polygons_count,
+        multi_polygons_count,
+        collections_count,
+        null_geometry_count,
+        features_count,
     }
 }
 
@@ -326,5 +354,74 @@ mod tests {
         assert_eq!(f.id, Some(Id::Number(42u64.into())));
         let props = f.properties.as_ref().unwrap();
         assert!(!props.contains_key("$id"));
+    }
+
+    fn feature_with_geometry(value: geojson::Value) -> Feature {
+        Feature {
+            id: None,
+            geometry: Some(geojson::Geometry::new(value)),
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        }
+    }
+
+    #[test]
+    fn multi_counts_are_a_subset_of_the_totals() {
+        let features = vec![
+            feature_with_geometry(geojson::Value::Point(vec![0.0, 0.0])),
+            feature_with_geometry(geojson::Value::MultiPoint(vec![vec![0.0, 0.0]])),
+            feature_with_geometry(geojson::Value::LineString(vec![
+                vec![0.0, 0.0],
+                vec![1.0, 1.0],
+            ])),
+            feature_with_geometry(geojson::Value::MultiLineString(vec![vec![
+                vec![0.0, 0.0],
+                vec![1.0, 1.0],
+            ]])),
+        ];
+        let schema = infer_source_schema(features.iter());
+
+        assert_eq!(schema.points_count, 2);
+        assert_eq!(schema.multi_points_count, 1);
+        assert_eq!(schema.lines_count, 2);
+        assert_eq!(schema.multi_lines_count, 1);
+        assert_eq!(schema.polygons_count, 0);
+        assert_eq!(schema.multi_polygons_count, 0);
+    }
+
+    #[test]
+    fn null_geometry_and_collections_are_counted() {
+        let no_geometry = Feature {
+            id: None,
+            geometry: None,
+            properties: None,
+            bbox: None,
+            foreign_members: None,
+        };
+        let collection = feature_with_geometry(geojson::Value::GeometryCollection(vec![]));
+        let features = vec![no_geometry, collection];
+        let schema = infer_source_schema(features.iter());
+
+        assert_eq!(schema.null_geometry_count, 1);
+        assert_eq!(schema.collections_count, 1);
+        assert_eq!(schema.features_count, 2);
+    }
+
+    #[test]
+    fn features_count_includes_every_feature() {
+        let features = vec![
+            feature_with_geometry(geojson::Value::Point(vec![0.0, 0.0])),
+            feature_with_geometry(geojson::Value::Polygon(vec![vec![
+                vec![0.0, 0.0],
+                vec![1.0, 0.0],
+                vec![1.0, 1.0],
+                vec![0.0, 0.0],
+            ]])),
+        ];
+        let schema = infer_source_schema(features.iter());
+
+        assert_eq!(schema.features_count, 2);
+        assert_eq!(schema.polygons_count, 1);
     }
 }

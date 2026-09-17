@@ -95,6 +95,7 @@ impl Shapefile {
             points_count,
             lines_count,
             polygons_count,
+            ..Default::default()
         })
     }
 

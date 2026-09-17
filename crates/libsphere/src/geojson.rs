@@ -53,9 +53,7 @@ impl Geojson {
         }
         Ok(SourceSchema {
             columns: HashMap::new(),
-            points_count: 0,
-            lines_count: 0,
-            polygons_count: 0,
+            ..Default::default()
         })
     }
 }
