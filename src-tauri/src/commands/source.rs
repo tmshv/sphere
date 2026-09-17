@@ -46,7 +46,7 @@ pub struct ColumnStats {
     pub top_values: Option<Vec<(String, u64)>>,
 }
 
-fn build_feature_store(source: &Source) -> Result<FeatureStore, String> {
+pub(crate) fn build_feature_store(source: &Source) -> Result<FeatureStore, String> {
     let fc = source.to_feature_collection().map_err(|e| e.to_string())?;
     Ok(FeatureStore::from_features(fc.features))
 }

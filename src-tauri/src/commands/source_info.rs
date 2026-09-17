@@ -1,3 +1,4 @@
+use libsphere::csv::CsvGeometry;
 use libsphere::source::SourceData;
 use serde::Serialize;
 use tauri::State;
@@ -143,6 +144,63 @@ pub async fn source_get_info(
     })
 }
 
+fn csv_geometry_from_params(
+    mode: &str,
+    wkt_column: Option<String>,
+    x_column: Option<String>,
+    y_column: Option<String>,
+) -> Result<CsvGeometry, String> {
+    match mode {
+        "wkt" => {
+            if x_column.is_some() || y_column.is_some() {
+                return Err("cannot specify both wkt and x/y geometry params".to_string());
+            }
+            let field = wkt_column.ok_or_else(|| "wkt mode requires a wkt column".to_string())?;
+            Ok(CsvGeometry::WKT(field))
+        }
+        "xy" => {
+            if wkt_column.is_some() {
+                return Err("cannot specify both wkt and x/y geometry params".to_string());
+            }
+            match (x_column, y_column) {
+                (Some(x), Some(y)) => Ok(CsvGeometry::XY((x, y))),
+                _ => Err("xy mode requires both an x column and a y column".to_string()),
+            }
+        }
+        other => Err(format!("unknown csv geometry mode '{}'", other)),
+    }
+}
+
+#[tauri::command]
+pub async fn source_set_csv_geometry(
+    id: String,
+    mode: String,
+    wkt_column: Option<String>,
+    x_column: Option<String>,
+    y_column: Option<String>,
+    storage: State<'_, SourceStorage>,
+) -> Result<SourceSchema, String> {
+    let geometry = csv_geometry_from_params(&mode, wkt_column, x_column, y_column)?;
+
+    let mut store = storage.store.lock().unwrap();
+    let entry = store
+        .get_mut(&id)
+        .ok_or_else(|| format!("Not found {}", &id))?;
+
+    match &mut entry.source.data {
+        SourceData::Csv(csv) => {
+            csv.geometry = geometry;
+        }
+        _ => return Err(format!("Source '{}' is not a CSV source", id)),
+    }
+
+    let feature_store = crate::commands::source::build_feature_store(&entry.source)?;
+    let schema = feature_store.schema().clone();
+    entry.store = Some(std::sync::Arc::new(feature_store));
+
+    Ok(schema)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -187,5 +245,47 @@ mod tests {
         assert_eq!(json["format"], "shapefile");
         assert_eq!(json["has_dbf"], true);
         assert_eq!(json["crs"], serde_json::Value::Null);
+    }
+
+    #[test]
+    fn xy_mode_requires_both_columns() {
+        let err = csv_geometry_from_params("xy", None, Some("lng".to_string()), None).unwrap_err();
+
+        assert!(err.contains("x"));
+        assert!(err.contains("y"));
+    }
+
+    #[test]
+    fn wkt_mode_requires_a_column() {
+        let err = csv_geometry_from_params("wkt", None, None, None).unwrap_err();
+
+        assert!(err.contains("wkt"));
+    }
+
+    #[test]
+    fn wkt_mode_rejects_xy_columns() {
+        let err = csv_geometry_from_params(
+            "wkt",
+            Some("geom".to_string()),
+            Some("lng".to_string()),
+            Some("lat".to_string()),
+        )
+        .unwrap_err();
+
+        assert!(err.contains("wkt"));
+    }
+
+    #[test]
+    fn xy_mode_builds_an_xy_geometry() {
+        let geometry =
+            csv_geometry_from_params("xy", None, Some("lng".to_string()), Some("lat".to_string()))
+                .unwrap();
+
+        assert!(matches!(geometry, CsvGeometry::XY((x, y)) if x == "lng" && y == "lat"));
+    }
+
+    #[test]
+    fn unknown_mode_is_rejected() {
+        assert!(csv_geometry_from_params("h3", None, None, None).is_err());
     }
 }
