@@ -58,6 +58,9 @@ export const store = configureStore({
             listeners.rectSelect.middleware,
             listeners.rectSelectMvt.middleware,
             listeners.startDraw.middleware,
+            listeners.menu.middleware,
+            listeners.menuContext.middleware,
+            listeners.copySelection.middleware,
         )
     },
 })

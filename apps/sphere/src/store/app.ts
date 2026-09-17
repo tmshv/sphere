@@ -54,6 +54,12 @@ export const appSlice = createSlice({
         hideRightSidebar: state => {
             state.showRightSidebar = false
         },
+        toggleLeftSidebar: state => {
+            state.showLeftSidebar = !state.showLeftSidebar
+        },
+        toggleRightSidebar: state => {
+            state.showRightSidebar = !state.showRightSidebar
+        },
         setActiveSidebarTab: (state, action: PayloadAction<"sources" | "layers">) => {
             state.activeSidebarTab = action.payload
         },

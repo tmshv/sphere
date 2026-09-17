@@ -40,6 +40,16 @@ export async function handleVersion() {
     store.dispatch(actions.app.setVersion(version))
 }
 
+export async function handleMenu(): Promise<UnlistenFn> {
+    type MenuPayload = {
+        id: string
+    }
+
+    return listen<MenuPayload>("menu", event => {
+        store.dispatch(actions.menu.trigger(event.payload.id))
+    })
+}
+
 export async function handleDragDrop(): Promise<UnlistenFn> {
     const e = "tauri://drag-drop"
     // const e = "tauri://file-drop-hover"

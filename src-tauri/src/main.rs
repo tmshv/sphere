@@ -2,6 +2,7 @@
 
 mod commands;
 mod id;
+mod menu;
 mod selection;
 mod state;
 
@@ -63,6 +64,7 @@ async fn main() {
             commands::selection::selection_cache_features,
             commands::selection::selection_copy_geojson,
             commands::selection::selection_copy_wkt,
+            commands::menu::menu_set_context,
         ])
         // .setup(|app| {
         //     let app_handle = app.handle();
@@ -78,6 +80,12 @@ async fn main() {
         //
         //     Ok(())
         // })
+        .setup(|app| {
+            app.set_menu(menu::build(app.handle())?)?;
+            app.on_menu_event(|app, event| menu::on_event(app, event));
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("Error while running Application");
 }

@@ -5,7 +5,7 @@ import logger from "@/logger"
 import { SphereThemeProvider } from "@/components/SphereThemeProvider"
 import { setupMaplibre } from "@/maplibre"
 import { store } from "@/store"
-import { handleDragDrop, handleHotkey, handleTheme, handleVersion } from "@/tauri"
+import { handleDragDrop, handleHotkey, handleMenu, handleTheme, handleVersion } from "@/tauri"
 import { setupKeyboard } from "@/store/keyboard"
 import { RootErrorFallback } from "@sphere/ui"
 import React from "react"
@@ -16,6 +16,7 @@ import { Provider } from "react-redux"
 async function main() {
     setupMaplibre()
     await handleDragDrop()
+    await handleMenu()
     await handleTheme()
     await handleVersion()
     await handleHotkey()

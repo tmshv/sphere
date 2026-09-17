@@ -1,6 +1,5 @@
 import { DEFAULT_MAP_TOOL } from "@/lib/map-tools"
 import type { store } from "."
-import { copySelectionAsGeojson } from "@/lib/copy-selection"
 import { actions } from "./actions"
 import { selectors } from "./selectors"
 
@@ -29,9 +28,8 @@ export function setupKeyboard(s: typeof store) {
             const count = selectors.selection.count(state)
             if (!sourceId || count === 0) return
 
-            const wrapFc = selectors.settings.selectCopyWrapAsFeatureCollection(state)
             e.preventDefault()
-            copySelectionAsGeojson(sourceId, wrapFc)
+            s.dispatch(actions.selection.copySelection("geojson"))
         }
     })
 }
