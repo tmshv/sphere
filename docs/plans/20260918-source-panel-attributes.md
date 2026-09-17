@@ -1240,20 +1240,29 @@ pub async fn source_set_csv_geometry(
         .get_mut(&id)
         .ok_or_else(|| format!("Not found {}", &id))?;
 
-    match &mut entry.source.data {
-        SourceData::Csv(csv) => {
-            csv.geometry = geometry;
-        }
+    // Swap the new geometry in, keeping the old one so a failed rebuild can roll back.
+    let previous = match &mut entry.source.data {
+        SourceData::Csv(csv) => std::mem::replace(&mut csv.geometry, geometry),
         _ => return Err(format!("Source '{}' is not a CSV source", id)),
+    };
+
+    match crate::commands::source::build_feature_store(&entry.source) {
+        Ok(feature_store) => {
+            let schema = feature_store.schema().clone();
+            entry.store = Some(std::sync::Arc::new(feature_store));
+            Ok(schema)
+        }
+        Err(err) => {
+            if let SourceData::Csv(csv) = &mut entry.source.data {
+                csv.geometry = previous;
+            }
+            Err(err)
+        }
     }
-
-    let feature_store = crate::commands::source::build_feature_store(&entry.source)?;
-    let schema = feature_store.schema().clone();
-    entry.store = Some(std::sync::Arc::new(feature_store));
-
-    Ok(schema)
 }
 ```
+
+The rollback is not decoration. Without it, a rebuild that fails — the CSV deleted or made unreadable mid-session — leaves the entry holding the *new* geometry alongside the *old* feature store. `source_get_info` would then report the newly-chosen mode and columns next to counts derived from the previous parse, and the panel would show a combination that never existed. Mutating and rebuilding must be one step or neither.
 
 - [ ] **Step 6: Register the command**
 
