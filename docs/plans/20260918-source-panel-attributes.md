@@ -712,7 +712,7 @@ git commit -m "Report GPX waypoint, track and route counts"
 
 **Interfaces:**
 - Consumes: `SourceSchema` from Task 1.
-- Produces: test helpers `make_storage(entries)` and `point_feature(id, x, y)` reused by Tasks 6, 7 and 8.
+- Produces: a `mod tests` block in `commands/source.rs` that later tasks add to. No shared helpers — Tasks 6, 7 and 8 test pure functions that need no feature fixtures.
 
 `src-tauri/src/commands/source.rs` has no test module. CLAUDE.md requires tests to exist before a file is modified, and Tasks 6–8 modify it. `src-tauri/src/commands/selection.rs:345` has a `mod tests` to copy the structure from. This task adds no behavior.
 
@@ -724,17 +724,6 @@ Add at the bottom of `src-tauri/src/commands/source.rs`:
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geojson::{feature::Id, Feature};
-
-    pub fn point_feature(id: i64, x: f64, y: f64) -> Feature {
-        Feature {
-            id: Some(Id::Number(id.into())),
-            geometry: Some(geojson::Geometry::new(geojson::Value::Point(vec![x, y]))),
-            properties: None,
-            bbox: None,
-            foreign_members: None,
-        }
-    }
 
     #[test]
     fn histogram_with_equal_min_and_max_is_a_single_bin() {
