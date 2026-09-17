@@ -2451,9 +2451,71 @@ export default listener
 
 Sequential, not parallel: each call is a full scan of the feature store, so concurrency would not improve time-to-first-result and would saturate the blocking pool.
 
-- [ ] **Step 4: Add invalidation triggers**
+- [ ] **Step 4: Add invalidation and reload triggers**
 
-In the same file, add two more `startListening` registrations that dispatch `actions.sourceInfo.invalidate(id)`: one on `actions.source.removeSource`, one on `actions.source.bumpVersion` (drawing and CSV re-parse both change the data).
+Extract the effect above into a named `async function loadSourceInfo(id, listenerApi)` so it can be reached from more than one trigger, then register three listeners in the same file:
+
+```ts
+listener.startListening({
+    actionCreator: actions.source.select,
+    effect: async (action, listenerApi) => {
+        listenerApi.cancelActiveListeners()
+        if (!action.payload) return
+        await loadSourceInfo(action.payload, listenerApi)
+    },
+})
+
+listener.startListening({
+    actionCreator: actions.source.removeSource,
+    effect: async (action, listenerApi) => {
+        listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
+    },
+})
+
+listener.startListening({
+    actionCreator: actions.source.bumpVersion,
+    effect: async (action, listenerApi) => {
+        const id = action.payload
+        listenerApi.dispatch(actions.sourceInfo.invalidate(id))
+
+        const state = listenerApi.getState() as RootState
+        if (state.source.selectedId !== id) return
+
+        listenerApi.cancelActiveListeners()
+        await loadSourceInfo(id, listenerApi)
+    },
+})
+```
+
+**This is a correction to the spec, not a transcription of it.** The spec's CSV-apply step 5 says invalidating the cache "re-triggers the stats listener", but `invalidate` only deletes cache entries — nothing re-fetches. Without the third registration above, stats and info stay empty after a CSV re-parse or a draw commit. The reload is guarded to the currently-selected source so invalidating a background source costs nothing.
+
+Add a sixth test covering it:
+
+```ts
+    test("reloads info when the selected source's version is bumped", async () => {
+        const { store } = makeStore({
+            source: { selectedId: "s1" },
+            sourceInfo: { info: {}, stats: {} },
+        })
+
+        store.dispatch(actions.source.bumpVersion("s1"))
+        await flush()
+
+        expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(true)
+    })
+
+    test("does not reload when a background source's version is bumped", async () => {
+        const { store } = makeStore({
+            source: { selectedId: "s1" },
+            sourceInfo: { info: {}, stats: {} },
+        })
+
+        store.dispatch(actions.source.bumpVersion("s2"))
+        await flush()
+
+        expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(false)
+    })
+```
 
 - [ ] **Step 5: Register the listener**
 
@@ -2834,6 +2896,25 @@ describe("selectCurrentSourceFields", () => {
         })
     })
 
+    test("selectCurrentSourceMeta returns null for a source without meta", () => {
+        const state = makeState({
+            source: {
+                items: { s1: { id: "s1", type: SourceType.Raster } },
+                allIds: ["s1"],
+                selectedId: "s1",
+            },
+        })
+        expect(selectCurrentSourceMeta(state)).toBeNull()
+    })
+
+    test("selectCurrentSourceMeta returns the metadata when present", () => {
+        const meta = { columns: {}, pointsCount: 3, featuresCount: 3 }
+        const state = makeState({
+            source: { items: { s1: { id: "s1", meta } }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectCurrentSourceMeta(state)).toEqual(meta)
+    })
+
     test("sorts fields by name", () => {
         const state = makeState({
             source: {
@@ -2909,6 +2990,13 @@ export const selectCurrentSourceInfo = createSelector(
     [selectInfo, selectSelectedId],
     (info, id) => (id ? (info[id] ?? null) : null),
 )
+
+export const selectCurrentSourceMeta = createSelector([selectCurrentSourceItem], source => {
+    if (!source || !("meta" in source) || !source.meta) {
+        return null
+    }
+    return source.meta
+})
 
 export const selectCurrentSourceFields = createSelector(
     [selectCurrentSourceItem, selectStats, selectSelectedId],
@@ -3408,7 +3496,7 @@ export function GeojsonSourcePanel() {
 }
 ```
 
-`selectCurrentSourceMeta` is a one-line addition to `store/sourceInfo/selectors.ts`, returning `source.meta` for a source that has one and `null` otherwise. Add it with a test alongside the Task 17 selectors. The component computes nothing.
+`selectCurrentSourceMeta` comes from Task 17. The component computes nothing.
 
 - [ ] **Step 6: Run the tests to verify they pass**
 
