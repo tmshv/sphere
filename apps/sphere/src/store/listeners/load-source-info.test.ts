@@ -6,6 +6,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
 vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
 
 import { makeCaptureStore } from "@/testutils"
+import { SourceType } from "@/types"
 import { actions } from "../actions"
 import listener from "./load-source-info"
 
@@ -26,8 +27,27 @@ const flush = async () => {
     await new Promise(resolve => setTimeout(resolve, 0))
 }
 
-function makeStore(preloadedState: object = { sourceInfo: { info: {}, stats: {} } }) {
-    return makeCaptureStore({ preloadedState, middleware: listener.middleware })
+type StoreOptions = {
+    selectedId?: string
+    items?: Record<string, { type: SourceType }>
+    stats?: Record<string, Record<string, { status: string; data?: unknown }>>
+}
+
+function makeStore(options: StoreOptions = {}) {
+    const items = options.items ?? {}
+    return makeCaptureStore({
+        preloadedState: {
+            source: { items, allIds: Object.keys(items), selectedId: options.selectedId },
+            sourceInfo: { info: {}, stats: options.stats ?? {} },
+        },
+        middleware: listener.middleware,
+    })
+}
+
+function callAt(calls: StatsCall[], index: number): StatsCall {
+    const call = calls.at(index)
+    if (!call) throw new Error(`expected a pending stats call at index ${index}`)
+    return call
 }
 
 type StatsCall = {
@@ -107,12 +127,7 @@ describe("load-source-info listener", () => {
     })
 
     test("skips columns already cached for that source", async () => {
-        const { store } = makeStore({
-            sourceInfo: {
-                info: {},
-                stats: { s1: { alpha: { status: "ready", data: statsFor("alpha") } } },
-            },
-        })
+        const { store } = makeStore({ stats: { s1: { alpha: { status: "ready", data: statsFor("alpha") } } } })
 
         store.dispatch(actions.source.select("s1"))
         await flush()
@@ -170,10 +185,7 @@ describe("load-source-info listener", () => {
     })
 
     test("reloads info when the selected source's version is bumped", async () => {
-        const { store } = makeStore({
-            source: { selectedId: "s1" },
-            sourceInfo: { info: {}, stats: {} },
-        })
+        const { store } = makeStore({ selectedId: "s1" })
 
         store.dispatch(actions.source.bumpVersion("s1"))
         await flush()
@@ -182,12 +194,96 @@ describe("load-source-info listener", () => {
     })
 
     test("does not reload when a background source's version is bumped", async () => {
-        const { store } = makeStore({
-            source: { selectedId: "s1" },
-            sourceInfo: { info: {}, stats: {} },
-        })
+        const { store } = makeStore({ selectedId: "s1" })
 
         store.dispatch(actions.source.bumpVersion("s2"))
+        await flush()
+
+        expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(false)
+    })
+
+    // The CSV re-parse flow drives `select` and `bumpVersion` against the same
+    // id: the run started by `select` is still awaiting stats computed against
+    // the pre-rebuild store when the rebuild finishes. While the two triggers
+    // lived in separate registrations, `cancelActiveListeners()` could not reach
+    // across them, and the stale answer landed on top of the fresh one.
+    test("a run superseded by a bumpVersion for the same id cannot write its stats", async () => {
+        const calls = deferColumnStats()
+        const { store, dispatched } = makeStore({ selectedId: "s1" })
+
+        store.dispatch(actions.source.select("s1"))
+        await flush()
+        expect(calls).toHaveLength(1) // the pre-rebuild request, still pending
+
+        store.dispatch(actions.source.bumpVersion("s1"))
+        await flush()
+        expect(calls).toHaveLength(2) // the rebuild's own request
+
+        callAt(calls, 1).resolve({ ...statsFor("alpha"), count: 2 })
+        await flush()
+
+        // The pre-rebuild request finally answers, with the old numbers.
+        callAt(calls, 0).resolve({ ...statsFor("alpha"), count: 1 })
+        await flush()
+
+        const received = dispatched.filter(a => a.type === "sourceInfo/statsReceived")
+        expect(received).toHaveLength(1)
+        expect(received.at(0)?.payload).toMatchObject({ column: "alpha", stats: { count: 2 } })
+    })
+
+    test("stops the scan when the source being scanned is removed", async () => {
+        const calls = deferColumnStats(infoWithThreeColumns)
+        const { store, dispatched } = makeStore({ selectedId: "s1" })
+
+        store.dispatch(actions.source.select("s1"))
+        await flush()
+        expect(calls).toHaveLength(1)
+
+        store.dispatch(actions.source.removeSource("s1"))
+        await flush()
+
+        const invalidateAt = dispatched.findIndex(a => a.type === "sourceInfo/invalidate")
+        expect(invalidateAt).toBeGreaterThanOrEqual(0)
+
+        // The in-flight request answers after the source is gone.
+        callAt(calls, 0).resolve(statsFor("alpha"))
+        await flush()
+
+        expect(calls).toHaveLength(1) // no further column was requested
+        const afterInvalidate = dispatched.slice(invalidateAt)
+        expect(afterInvalidate.some(a => a.type.startsWith("sourceInfo/stats"))).toBe(false)
+    })
+
+    test("keeps scanning when a different source is removed", async () => {
+        const calls = deferColumnStats(infoWithThreeColumns)
+        const { store } = makeStore({ selectedId: "s1" })
+
+        store.dispatch(actions.source.select("s1"))
+        await flush()
+
+        store.dispatch(actions.source.removeSource("s2"))
+        await flush()
+
+        callAt(calls, 0).resolve(statsFor("alpha"))
+        await flush()
+
+        expect(calls).toHaveLength(2)
+    })
+
+    test("loads no info for a vector tile source", async () => {
+        const { store, dispatched } = makeStore({ items: { t1: { type: SourceType.MVT } } })
+
+        store.dispatch(actions.source.select("t1"))
+        await flush()
+
+        expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(false)
+        expect(dispatched.some(a => a.type === "sourceInfo/infoFailed")).toBe(false)
+    })
+
+    test("loads no info for a raster tile source", async () => {
+        const { store } = makeStore({ items: { t1: { type: SourceType.Raster } } })
+
+        store.dispatch(actions.source.select("t1"))
         await flush()
 
         expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(false)
