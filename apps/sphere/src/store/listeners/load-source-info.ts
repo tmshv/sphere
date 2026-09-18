@@ -18,6 +18,7 @@ async function loadSourceInfo(id: Id, listenerApi: Api): Promise<void> {
     listenerApi.dispatch(actions.sourceInfo.infoRequested(id))
     const reader = new SourceReader(id)
     const info = await reader.getInfo()
+    if (listenerApi.signal.aborted) return
     if (!info) {
         listenerApi.dispatch(actions.sourceInfo.infoFailed(id))
         return
