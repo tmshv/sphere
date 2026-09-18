@@ -25,7 +25,15 @@ export type TileJSON = {
     // Note: When describinng a set of raster tiles or other tile format that does not have a "layers" concept (i.e. "format": "jpeg"),
     // the vector_layers key is not required.
     // Note: Will be added on merge step.
-    vector_layers?: { id: string; fields: object; description?: string; minzoom?: number; maxzoom?: number }[]
+    // `fields` is required by the spec, but an MBTiles metadata blob can still
+    // carry a JSON null there, and the backend passes it through verbatim.
+    vector_layers?: {
+        id: string
+        fields: object | null
+        description?: string
+        minzoom?: number
+        maxzoom?: number
+    }[]
 
     // Contains an attribution to be displayed when the map is shown to a user.
     // Implementations MAY decide to treat this as HTML or literal text.

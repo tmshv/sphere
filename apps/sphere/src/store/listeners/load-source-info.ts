@@ -23,6 +23,8 @@ function isTileSource(state: RootState, id: Id): boolean {
 }
 
 async function loadSourceInfo(id: Id, listenerApi: Api): Promise<void> {
+    if (isTileSource(listenerApi.getState(), id)) return
+
     listenerApi.dispatch(actions.sourceInfo.infoRequested(id))
     const reader = new SourceReader(id)
     const info = await reader.getInfo()
@@ -61,27 +63,30 @@ listener.startListening({
     matcher: isAnyOf(actions.source.select, actions.source.bumpVersion, actions.source.removeSource),
     effect: async (action, listenerApi) => {
         if (actions.source.removeSource.match(action)) {
-            const removedId = action.payload
-            // The reducer has already cleared `selectedId`, so the pre-action
-            // state is what tells us whether the running scan was for this id.
-            if (listenerApi.getOriginalState().source.selectedId === removedId) {
+            // The reducer already cleared `selectedId`, so the pre-action state
+            // is what tells us whether the running scan was for this id.
+            if (listenerApi.getOriginalState().source.selectedId === action.payload) {
                 listenerApi.cancelActiveListeners()
             }
-            listenerApi.dispatch(actions.sourceInfo.invalidate(removedId))
+            listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
             return
         }
 
-        listenerApi.cancelActiveListeners()
-
         if (actions.source.bumpVersion.match(action)) {
-            listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
-            if (listenerApi.getState().source.selectedId !== action.payload) return
+            const id = action.payload
+            listenerApi.cancelActiveListeners()
+            listenerApi.dispatch(actions.sourceInfo.invalidate(id))
+            if (listenerApi.getState().source.selectedId !== id) return
+            await loadSourceInfo(id, listenerApi)
+            return
         }
 
-        const id = action.payload
-        if (!id) return
-        if (isTileSource(listenerApi.getState(), id)) return
-        await loadSourceInfo(id, listenerApi)
+        if (actions.source.select.match(action)) {
+            const id = action.payload
+            listenerApi.cancelActiveListeners()
+            if (!id) return
+            await loadSourceInfo(id, listenerApi)
+        }
     },
 })
 

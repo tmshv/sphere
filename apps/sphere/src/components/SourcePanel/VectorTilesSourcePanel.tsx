@@ -35,7 +35,7 @@ export const VectorTilesSourcePanel: FC = () => {
                                         {layer.description}
                                     </Text>
                                 ) : null}
-                                {Object.entries(layer.fields).map(([name, fieldType]) => (
+                                {Object.entries(layer.fields ?? {}).map(([name, fieldType]) => (
                                     <InfoRow key={name} label={name} value={String(fieldType)} />
                                 ))}
                             </Stack>
