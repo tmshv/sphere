@@ -2594,7 +2594,9 @@ git commit -m "Load source info and column stats progressively on select"
 - Modify: `apps/sphere/src/store/listeners/index.ts`, `apps/sphere/src/store/index.ts`, `apps/sphere/src/store/actions.ts`
 
 **Interfaces:**
-- Consumes: `SourceReader.setCsvGeometry` (Task 13), `sourceMetadataFromSchema` (Task 10), `actions.source.setGeojsonMeta`, `actions.source.bumpVersion`, `actions.selection.*`, `actions.error.fail`.
+- Consumes: `SourceReader.setCsvGeometry` (Task 13), `sourceMetadataFromSchema` (Task 10), `actions.source.setGeojsonMeta`, `actions.source.bumpVersion`, `actions.selection.reset`, `actions.error.setError`.
+
+**Verified action names** — there is no `actions.error.fail`. `store/error.ts:21` exports `setError`; `fail` is the name of a *listener* (`store/listeners/fail.ts`) that dispatches it. The selection-clearing action is `actions.selection.reset` (`store/selection/index.ts:30`, slice name `"selection"`, so the action type is `selection/reset`).
 - Produces: `applyCsvGeometry = createAction<{ id: Id } & CsvGeometryParams>("sourceInfo/applyCsvGeometry")`.
 
 - [ ] **Step 1: Write the failing tests**
@@ -2627,18 +2629,7 @@ const schema = {
 }
 
 function makeStore() {
-    const dispatched: { type: string; payload?: unknown }[] = []
-    const store = configureStore({
-        reducer: (s: object = {}) => s,
-        middleware: getDefault =>
-            getDefault()
-                .prepend(listener.middleware)
-                .concat(() => next => action => {
-                    dispatched.push(action as { type: string })
-                    return next(action)
-                }),
-    })
-    return { store, dispatched }
+    return makeCaptureStore({ middleware: listener.middleware })
 }
 
 const flush = async () => {
@@ -2792,7 +2783,7 @@ export default listener
 
 Two names verified against the codebase rather than assumed: the error action is `actions.error.setError` (`store/error.ts:21`) — there is no `fail` action; `fail` is the name of a *listener* (`store/listeners/fail.ts`) that dispatches `setError`. The selection-clearing action is `actions.selection.reset` (`store/selection/index.ts:30`).
 
-`invalidate` is dispatched before `bumpVersion` so the stats reload has a single trigger.
+**On the apparent redundancy of `invalidate`.** Task 15's `bumpVersion` registration also dispatches `invalidate`, so dispatching it here too means it fires twice. Keep it anyway. `invalidate` deletes cache entries, so a second one is a no-op on already-absent keys — and keeping it makes this listener's contract self-contained: "applying a CSV geometry change clears that source's cached stats" is true of this listener alone, provable by a test that registers only this listener, and it does not silently break if Task 15's registrations are later rearranged. Dispatch it before `bumpVersion`.
 
 - [ ] **Step 5: Register the listener**
 
