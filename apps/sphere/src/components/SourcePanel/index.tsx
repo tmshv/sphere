@@ -7,6 +7,7 @@ import { Flex, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
@@ -66,6 +67,8 @@ function renderPanel(kind: PanelKind | null) {
     switch (kind) {
         case "geojson":
             return <GeojsonSourcePanel />
+        case "csv":
+            return <CsvSourcePanel />
         default:
             return null
     }
