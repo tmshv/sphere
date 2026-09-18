@@ -1,13 +1,38 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { type SourceMetadata, SourceType } from "@/types"
 import { ActionBar } from "@sphere/ui"
-import { Badge, Flex, Group, TextInput } from "@mantine/core"
+import { Flex, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
+
+export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "vector-tiles" | "raster-tiles"
+
+export const selectPanelKind = createSelector(
+    [selectors.source.selectCurrentSourceItem],
+    (source): PanelKind | null => {
+        if (!source) {
+            return null
+        }
+        switch (source.type) {
+            case SourceType.Geojson:
+                return source.format
+            case SourceType.FeatureCollection:
+                return "geojson"
+            case SourceType.MVT:
+                return isRasterTileFormat(source.format) ? "raster-tiles" : "vector-tiles"
+            case SourceType.Raster:
+                return "raster-tiles"
+            default:
+                return null
+        }
+    },
+)
 
 export const selector = createSelector(
     [selectors.source.selectSelectedId, selectors.source.selectCurrentSourceItem],
@@ -37,40 +62,25 @@ export const selector = createSelector(
     },
 )
 
+function renderPanel(kind: PanelKind | null) {
+    switch (kind) {
+        case "geojson":
+            return <GeojsonSourcePanel />
+        default:
+            return null
+    }
+}
+
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
+    const panelKind = useSelector(selectPanelKind)
 
     if (!source) {
         return null
     }
 
-    const { meta } = source
-
-    // let icon: React.ReactNode = (
-    //     <IconBraces size={16} color={getColor('blue')} />
-    // )
-    // if (source.type === SourceType.Geojson) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
-    // if (source.type === SourceType.FeatureCollection) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
-    // if (source.type === SourceType.Raster) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
-    // if (source.type === SourceType.Raster) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
     return (
         <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
             <ActionBar
@@ -163,28 +173,7 @@ export const SourcePanel: React.FC = () => {
                 }}
             />
 
-            <Group>
-                <Badge radius={"sm"}>{source.type}</Badge>
-                <Badge radius={"sm"}>SIZE:{source.size}</Badge>
-            </Group>
-
-            <Badge radius={"sm"} size={"xs"}>
-                {source.location}
-            </Badge>
-
-            {!meta ? null : (
-                <>
-                    <Badge radius={"sm"} size={"xs"}>
-                        Points={meta.pointsCount}
-                    </Badge>
-                    <Badge radius={"sm"} size={"xs"}>
-                        Lines={meta.linesCount}
-                    </Badge>
-                    <Badge radius={"sm"} size={"xs"}>
-                        Polygons={meta.polygonsCount}
-                    </Badge>
-                </>
-            )}
+            {renderPanel(panelKind)}
         </Flex>
     )
 }
