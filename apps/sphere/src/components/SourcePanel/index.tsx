@@ -9,35 +9,33 @@ import { useSelector } from "react-redux"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export const selectCurrentSourceItem = createSelector(
-    [selectors.source.selectSelectedId, selectors.source.items],
-    (id, items) => (id ? (items[id] ?? null) : null),
+export const selector = createSelector(
+    [selectors.source.selectSelectedId, selectors.source.selectCurrentSourceItem],
+    (id, source) => {
+        if (!id || !source) {
+            return null
+        }
+
+        let meta: SourceMetadata | undefined
+        if (source.type === SourceType.Geojson) {
+            meta = source.meta
+        } else if (source.type === SourceType.FeatureCollection && !source.pending) {
+            meta = source.meta
+        }
+
+        return {
+            id,
+            name: source.name,
+            type: source.type,
+            size: 0,
+            // size: source.data.length,
+            location: source.location,
+            editable: source.editable,
+            meta,
+            reloadDisabled: !reloadAvailable.has(source.type),
+        }
+    },
 )
-
-export const selector = createSelector([selectors.source.selectSelectedId, selectCurrentSourceItem], (id, source) => {
-    if (!id || !source) {
-        return null
-    }
-
-    let meta: SourceMetadata | undefined
-    if (source.type === SourceType.Geojson) {
-        meta = source.meta
-    } else if (source.type === SourceType.FeatureCollection && !source.pending) {
-        meta = source.meta
-    }
-
-    return {
-        id,
-        name: source.name,
-        type: source.type,
-        size: 0,
-        // size: source.data.length,
-        location: source.location,
-        editable: source.editable,
-        meta,
-        reloadDisabled: !reloadAvailable.has(source.type),
-    }
-})
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()

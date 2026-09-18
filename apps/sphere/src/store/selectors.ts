@@ -7,7 +7,8 @@ import { layerSlice as layer } from "./layer"
 import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"
 import { selectionSlice as selection } from "./selection"
 import { settingsSlice as settings } from "./settings"
-import { sourceSlice as source } from "./source"
+import { selectCurrentSourceItem, sourceSlice as source } from "./source"
+import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./sourceInfo/selectors"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
 import { selectIsShowTerrain } from "./terrain"
@@ -54,13 +55,21 @@ export const selectors = {
     terrain: {
         show: selectIsShowTerrain,
     },
-    source: source.selectors,
+    source: {
+        ...source.selectors,
+        selectCurrentSourceItem,
+    },
     layer: {
         ...layer.selectors,
         visibleIds,
     },
     selection: selection.selectors,
     settings: settings.selectors,
+    sourceInfo: {
+        selectCurrentSourceInfo,
+        selectCurrentSourceMeta,
+        selectCurrentSourceFields,
+    },
     tileBoundaries: {
         show: showTileBoundaries,
     },

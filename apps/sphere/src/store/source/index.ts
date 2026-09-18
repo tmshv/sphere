@@ -1,7 +1,7 @@
 import { type Id, type SourceFormat, type SourceMetadata, SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
-import { createAction, createSlice } from "@reduxjs/toolkit"
+import { createAction, createSelector, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import addFromClipboard from "./addFromClipboard"
@@ -199,6 +199,11 @@ export const actions = {
 // Other code such as selectors can use the imported `RootState` type
 export const selectSourcesAmount = (state: RootState) => state.source.allIds.length
 export const selectSourceIds = (state: RootState) => state.source.allIds
+
+export const selectCurrentSourceItem = createSelector(
+    [sourceSlice.selectors.selectSelectedId, sourceSlice.selectors.items],
+    (id, items) => (id ? (items[id] ?? null) : null),
+)
 // export const selectHasPending = (state: RootState) => state.source.pendingItems.length > 0
 
 export default sourceSlice.reducer
