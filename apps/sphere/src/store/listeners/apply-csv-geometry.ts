@@ -1,5 +1,6 @@
 import { sourceMetadataFromSchema } from "@/lib/source-metadata"
 import { SourceReader } from "@/lib/source-reader"
+import type { SourceSchema } from "@/types"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
@@ -13,16 +14,19 @@ listener.startListening({
         const { id, mode, wktColumn, xColumn, yColumn } = action.payload
         const reader = new SourceReader(id)
 
+        let schema: SourceSchema
         try {
-            const schema = await reader.setCsvGeometry({ mode, wktColumn, xColumn, yColumn })
-            listenerApi.dispatch(actions.source.setGeojsonMeta({ id, meta: sourceMetadataFromSchema(schema) }))
-            listenerApi.dispatch(actions.sourceInfo.invalidate(id))
-            listenerApi.dispatch(actions.selection.reset())
-            listenerApi.dispatch(actions.source.bumpVersion(id))
+            schema = await reader.setCsvGeometry({ mode, wktColumn, xColumn, yColumn })
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error)
             listenerApi.dispatch(actions.error.setError(message))
+            return
         }
+
+        listenerApi.dispatch(actions.source.setGeojsonMeta({ id, meta: sourceMetadataFromSchema(schema) }))
+        listenerApi.dispatch(actions.sourceInfo.invalidate(id))
+        listenerApi.dispatch(actions.selection.reset())
+        listenerApi.dispatch(actions.source.bumpVersion(id))
     },
 })
 
