@@ -24,14 +24,6 @@ vi.mock(".", () => ({
             payload,
         })),
     },
-    computeGeometryMeta: vi.fn().mockImplementation((fc: GeoJSON.FeatureCollection) => ({
-        columns: {},
-        pointsCount: fc.features.filter(f => f.geometry?.type === "Point" || f.geometry?.type === "MultiPoint").length,
-        linesCount: fc.features.filter(f => f.geometry?.type === "LineString" || f.geometry?.type === "MultiLineString")
-            .length,
-        polygonsCount: fc.features.filter(f => f.geometry?.type === "Polygon" || f.geometry?.type === "MultiPolygon")
-            .length,
-    })),
 }))
 
 import { invoke } from "@tauri-apps/api/core"

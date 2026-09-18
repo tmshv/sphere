@@ -6,12 +6,28 @@ export function makeGeojsonSource<T extends object>(id: string, overrides: T = {
         name: `Source ${id}`,
         type: SourceType.Geojson,
         location: `/path/to/${id}.geojson`,
+        format: "geojson",
         fractionIndex: 0,
         editable: false,
         pending: false,
-        meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+        meta: {
+            columns: {},
+            pointsCount: 0,
+            multiPointsCount: 0,
+            linesCount: 0,
+            multiLinesCount: 0,
+            polygonsCount: 0,
+            multiPolygonsCount: 0,
+            collectionsCount: 0,
+            nullGeometryCount: 0,
+            featuresCount: 0,
+        },
         ...overrides,
     }
+}
+
+export function makeCsvSource<T extends object>(id: string, overrides: T = {} as T) {
+    return makeGeojsonSource(id, { format: "csv", location: `/path/to/${id}.csv`, ...overrides })
 }
 
 export function makeMvtSource<T extends object>(id: string, overrides: T = {} as T) {

@@ -104,10 +104,33 @@ describe("selector (SourcePanel)", () => {
             source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         const result = selector(state)
-        expect(result?.meta).toEqual({ columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 })
+        expect(result?.meta).toEqual({
+            columns: {},
+            pointsCount: 0,
+            multiPointsCount: 0,
+            linesCount: 0,
+            multiLinesCount: 0,
+            polygonsCount: 0,
+            multiPolygonsCount: 0,
+            collectionsCount: 0,
+            nullGeometryCount: 0,
+            featuresCount: 0,
+        })
     })
 
     test("meta is populated for FeatureCollection sources", () => {
+        const meta = {
+            columns: {},
+            pointsCount: 3,
+            multiPointsCount: 0,
+            linesCount: 1,
+            multiLinesCount: 0,
+            polygonsCount: 2,
+            multiPolygonsCount: 0,
+            collectionsCount: 0,
+            nullGeometryCount: 0,
+            featuresCount: 6,
+        }
         const source = {
             id: "s1",
             name: "Source s1",
@@ -117,13 +140,13 @@ describe("selector (SourcePanel)", () => {
             fractionIndex: 0,
             editable: true,
             pending: false,
-            meta: { columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 },
+            meta,
         }
         const state = makeRootState({
             source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
         })
         const result = selector(state)
-        expect(result?.meta).toEqual({ columns: {}, pointsCount: 3, linesCount: 1, polygonsCount: 2 })
+        expect(result?.meta).toEqual(meta)
     })
 
     test("is memoized: returns same reference when unrelated source changes", () => {

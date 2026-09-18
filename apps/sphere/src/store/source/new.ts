@@ -19,8 +19,14 @@ const action = createAsyncThunk("source/new", async (_: undefined, thunkAPI) => 
                 meta: {
                     columns: {},
                     pointsCount: 0,
+                    multiPointsCount: 0,
                     linesCount: 0,
+                    multiLinesCount: 0,
                     polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
                 },
             }),
         )
