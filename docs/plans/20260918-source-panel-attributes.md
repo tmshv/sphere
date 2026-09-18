@@ -1799,75 +1799,128 @@ Read `apps/sphere/src/components/SphereMap/SphereSource.tsx:15-60` to see exactl
 
 Create `apps/sphere/src/components/SphereMap/SphereSource.test.ts` exercising the selector and effect dependency list — extract the "which version does this source expose" logic into an exported pure helper so it is testable without mounting MapLibre:
 
+The fixtures are explicitly typed as `Source` and built by hand. No `as` cast: an annotated literal is checked by the compiler, which is the point — if a later task changes the union, these fail to compile instead of silently lying.
+
 ```ts
-import { makeGeojsonSource } from "@/testutils"
-import type { Source } from "@/types/source"
+import { EMPTY_SOURCE_METADATA } from "@/lib/source-metadata"
 import { SourceType } from "@/types"
+import type { Source } from "@/types/source"
 import { describe, expect, test } from "vitest"
 import { selectSourceVersion } from "./SphereSource"
 
-const asSource = (value: ReturnType<typeof makeGeojsonSource>): Source =>
-    value as unknown as Source
+const geojsonSource: Source = {
+    id: "s1",
+    name: "Source s1",
+    type: SourceType.Geojson,
+    format: "geojson",
+    location: "/path/to/s1.geojson",
+    version: 3,
+    fractionIndex: 0,
+    editable: false,
+    pending: false,
+    meta: EMPTY_SOURCE_METADATA,
+}
+
+const featureCollectionSource: Source = {
+    id: "s2",
+    name: "Source s2",
+    type: SourceType.FeatureCollection,
+    location: "sphere://s2",
+    version: 7,
+    fractionIndex: 0,
+    editable: true,
+    pending: false,
+    meta: EMPTY_SOURCE_METADATA,
+}
+
+const pendingSource: Source = {
+    id: "s3",
+    name: "Source s3",
+    type: SourceType.FeatureCollection,
+    fractionIndex: 0,
+    editable: true,
+    pending: true,
+}
+
+const rasterSource: Source = {
+    id: "s4",
+    name: "Source s4",
+    type: SourceType.Raster,
+    location: "https://tiles.example/{z}/{x}/{y}.png",
+    fractionIndex: 0,
+    editable: false,
+    pending: false,
+}
 
 describe("selectSourceVersion", () => {
     test("returns the version for a Geojson source", () => {
-        const source = asSource(makeGeojsonSource("s1", { version: 3 }))
-        expect(selectSourceVersion(source)).toBe(3)
+        expect(selectSourceVersion(geojsonSource)).toBe(3)
     })
 
     test("returns the version for a FeatureCollection source", () => {
-        const source = asSource(
-            makeGeojsonSource("s1", {
-                type: SourceType.FeatureCollection,
-                editable: true,
-                version: 7,
-            }),
-        )
-        expect(selectSourceVersion(source)).toBe(7)
+        expect(selectSourceVersion(featureCollectionSource)).toBe(7)
     })
 
-    test("returns 0 for a pending FeatureCollection source", () => {
-        const source = asSource(
-            makeGeojsonSource("s1", {
-                type: SourceType.FeatureCollection,
-                editable: true,
-                pending: true,
-            }),
-        )
-        expect(selectSourceVersion(source)).toBe(0)
+    test("returns null for a pending FeatureCollection source", () => {
+        expect(selectSourceVersion(pendingSource)).toBeNull()
     })
 
-    test("returns 0 for a source with no version concept", () => {
-        const source = asSource(makeGeojsonSource("s1", { type: SourceType.Raster }))
-        expect(selectSourceVersion(source)).toBe(0)
+    test("returns null for a source with no version concept", () => {
+        expect(selectSourceVersion(rasterSource)).toBeNull()
+    })
+
+    test("returns null when the source is absent", () => {
+        expect(selectSourceVersion(undefined)).toBeNull()
     })
 })
 ```
 
-The `asSource` helper is confined to this test file, where building a complete discriminated-union member by hand for each case would bury the assertion. Production code never casts: `selectSourceVersion` takes the `Source` union and narrows with `switch` and property guards.
-
 Implementation:
 
 ```ts
-export function selectSourceVersion(source: Source): number {
+export function selectSourceVersion(source: Source | undefined): number | null {
+    if (!source) {
+        return null
+    }
     if (source.type === SourceType.Geojson) {
         return source.version
     }
     if (source.type === SourceType.FeatureCollection && !source.pending) {
         return source.version
     }
-    return 0
+    return null
 }
 ```
+
+**`null` rather than `0` is load-bearing.** `null` means "this source type has no version concept"; `0` is a legitimate version a freshly-added source holds. A helper returning `0` for both could not distinguish "don't fetch, this is a tile source" from "fetch, this is a new GeoJSON source", and the effect below keys on exactly that distinction.
 
 - [ ] **Step 3: Run the test to verify it fails**
 
 Run: `npm test -w @sphere/app -- SphereSource`
 Expected: FAIL — `selectSourceVersion` is not exported.
 
-- [ ] **Step 4: Implement and wire the helper**
+- [ ] **Step 4: Collapse the two fetch effects into one**
 
-Export `selectSourceVersion` from `SphereSource.tsx` and add its result to the fetch effect's dependency array, so an incremented `version` re-runs `source_get` for `Geojson` sources exactly as it already does for `FeatureCollection` ones.
+`SphereSource.tsx` currently has two `useEffect`s that both call `source_get`: one at lines 29-40 keyed on `[id, sourceType]` that fetches once on mount for `Geojson` sources, and one at lines 42-49 keyed on `[id, version]` that re-fetches `FeatureCollection` sources when their version changes.
+
+Once `Geojson` sources carry a version, keeping both would fetch **twice on mount** for every GeoJSON source — the mount effect fires, and the version effect fires because version is no longer `null`. Delete the first effect and let the second serve both types:
+
+```ts
+    const version = useAppSelector(state => selectSourceVersion(state.source.items[id]))
+
+    useEffect(() => {
+        if (version === null) return
+        invoke<string>("source_get", { id })
+            .then(json => setGeojsonData(JSON.parse(json)))
+            .catch(err => {
+                logger.error("Failed to fetch source %s version %s: %s", id, version, err)
+            })
+    }, [id, version])
+```
+
+On mount a `Geojson` source has `version === 0`, which is not `null`, so the effect fetches — reproducing the deleted effect's behavior. On `bumpVersion` it fetches again. Tile and pending sources yield `null` and never fetch, which is correct: they render from a URL or have no data yet.
+
+The `sourceType` variable at line 21 becomes unused once the first effect is gone; remove it.
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
