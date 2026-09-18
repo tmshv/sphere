@@ -72,6 +72,7 @@ export const store = configureStore({
             listeners.menuContext.middleware,
             listeners.copySelection.middleware,
             listeners.loadSourceInfo.middleware,
+            listeners.applyCsvGeometry.middleware,
         )
     },
 })
