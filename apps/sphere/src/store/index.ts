@@ -13,6 +13,7 @@ import selection from "./selection"
 import settings from "./settings"
 import sky from "./sky"
 import source from "./source"
+import sourceInfo from "./sourceInfo"
 import terrain from "./terrain"
 import tileBoundaries from "./tile-boundaries"
 import tools from "./tools"
@@ -31,6 +32,7 @@ export const store = configureStore({
         sky,
         terrain,
         source,
+        sourceInfo,
         layer,
         selection,
         settings,
