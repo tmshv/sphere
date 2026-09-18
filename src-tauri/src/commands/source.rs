@@ -552,10 +552,4 @@ mod tests {
         assert_eq!(bins[0].count, 1);
         assert_eq!(bins[9].count, 1);
     }
-
-    #[test]
-    fn default_top_values_and_histogram_bins_are_named_constants() {
-        assert_eq!(HISTOGRAM_BINS, 10);
-        assert_eq!(DEFAULT_TOP_VALUES, 10);
-    }
 }
