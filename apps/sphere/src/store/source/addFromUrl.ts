@@ -81,8 +81,14 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                 const meta = {
                     columns: schema?.columns ?? {},
                     pointsCount: schema?.points_count ?? 0,
+                    multiPointsCount: schema?.multi_points_count ?? 0,
                     linesCount: schema?.lines_count ?? 0,
+                    multiLinesCount: schema?.multi_lines_count ?? 0,
                     polygonsCount: schema?.polygons_count ?? 0,
+                    multiPolygonsCount: schema?.multi_polygons_count ?? 0,
+                    collectionsCount: schema?.collections_count ?? 0,
+                    nullGeometryCount: schema?.null_geometry_count ?? 0,
+                    featuresCount: schema?.features_count ?? 0,
                 }
                 thunkAPI.dispatch(
                     actions.addGeojsonSource({

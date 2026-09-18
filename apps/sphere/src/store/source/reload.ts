@@ -23,8 +23,14 @@ const action = createAsyncThunk("source/reload", async (id: Id, thunkAPI) => {
                             meta: {
                                 columns: schema.columns,
                                 pointsCount: schema.points_count,
+                                multiPointsCount: schema.multi_points_count,
                                 linesCount: schema.lines_count,
+                                multiLinesCount: schema.multi_lines_count,
                                 polygonsCount: schema.polygons_count,
+                                multiPolygonsCount: schema.multi_polygons_count,
+                                collectionsCount: schema.collections_count,
+                                nullGeometryCount: schema.null_geometry_count,
+                                featuresCount: schema.features_count,
                             },
                         }),
                     )
