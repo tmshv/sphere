@@ -59,6 +59,57 @@ describe("apply-csv-geometry listener", () => {
         })
     })
 
+    // The component's staged value accumulates: it starts from the applied
+    // geometry (a CSV loaded through the x/y fallback always has x/y set) and a
+    // mode switch only overwrites `mode`. Sending that whole object made the
+    // backend reject every mode switch, so the payload must be narrowed to the
+    // active mode before it leaves the listener.
+    test("sends only the wkt column when the accumulated staged value switched to wkt", async () => {
+        const { store } = makeStore()
+
+        store.dispatch(
+            actions.sourceInfo.applyCsvGeometry({
+                id: "s1",
+                mode: "wkt",
+                wktColumn: "geom",
+                xColumn: "lng",
+                yColumn: "lat",
+            }),
+        )
+        await flush()
+
+        expect(mockInvoke).toHaveBeenCalledWith("source_set_csv_geometry", {
+            id: "s1",
+            mode: "wkt",
+            wktColumn: "geom",
+            xColumn: null,
+            yColumn: null,
+        })
+    })
+
+    test("sends only the x/y pair when the accumulated staged value switched to xy", async () => {
+        const { store } = makeStore()
+
+        store.dispatch(
+            actions.sourceInfo.applyCsvGeometry({
+                id: "s1",
+                mode: "xy",
+                wktColumn: "geom",
+                xColumn: "lng",
+                yColumn: "lat",
+            }),
+        )
+        await flush()
+
+        expect(mockInvoke).toHaveBeenCalledWith("source_set_csv_geometry", {
+            id: "s1",
+            mode: "xy",
+            wktColumn: null,
+            xColumn: "lng",
+            yColumn: "lat",
+        })
+    })
+
     test("dispatches setGeojsonMeta with the returned schema", async () => {
         const { store, dispatched } = makeStore()
 

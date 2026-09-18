@@ -1,4 +1,4 @@
-import type { CsvMode } from "@/lib/source-reader"
+import type { CsvGeometryParams, CsvMode } from "@/lib/source-reader"
 
 export type StagedCsvGeometry = {
     mode: CsvMode
@@ -28,9 +28,27 @@ export function canApplyCsvGeometry(staged: StagedCsvGeometry, applied: StagedCs
     return isStagedGeometryComplete(staged) && isStagedGeometryChanged(staged, applied)
 }
 
-export function buildColumnOptions(headerColumns: string[], applied: StagedCsvGeometry): string[] {
-    const missing = missingAppliedColumns(headerColumns, applied)
-    return [...headerColumns, ...missing]
+// The staged value accumulates both modes' columns as the user switches back and
+// forth, but the backend rejects a payload that carries the inactive mode's
+// columns. Narrow it down to the mode actually being applied.
+export function toCsvGeometryParams(staged: StagedCsvGeometry): CsvGeometryParams {
+    if (staged.mode === "wkt") {
+        return { mode: "wkt", wktColumn: staged.wktColumn }
+    }
+    return { mode: "xy", xColumn: staged.xColumn, yColumn: staged.yColumn }
+}
+
+function appliedColumnsForMode(applied: StagedCsvGeometry, mode: CsvMode): string[] {
+    const columns = mode === "wkt" ? [applied.wktColumn] : [applied.xColumn, applied.yColumn]
+    return columns.filter((column): column is string => Boolean(column))
+}
+
+// Options for one picker: the file's own header columns, plus any applied column
+// that the file no longer has — but only the ones owned by that picker's mode, so
+// a stale WKT column never shows up in the X/Y pickers.
+export function buildColumnOptions(headerColumns: string[], applied: StagedCsvGeometry, mode: CsvMode): string[] {
+    const missing = appliedColumnsForMode(applied, mode).filter(column => !headerColumns.includes(column))
+    return [...headerColumns, ...missing.filter((column, index) => missing.indexOf(column) === index)]
 }
 
 export function missingAppliedColumns(headerColumns: string[], applied: StagedCsvGeometry): string[] {
