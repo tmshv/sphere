@@ -1,4 +1,3 @@
-import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { describe, expect, test, vi, beforeEach } from "vitest"
 
 const { mockInvoke } = vi.hoisted(() => ({ mockInvoke: vi.fn() }))
@@ -8,6 +7,7 @@ vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.
 
 import reload from "./reload"
 import { SourceType } from "@/types"
+import { makeCaptureStore } from "@/testutils"
 
 const schema = {
     columns: { name: "String" },
@@ -22,50 +22,35 @@ const schema = {
     features_count: 3,
 }
 
-type DispatchedAction = { type: string; payload?: unknown }
-
-function makeStore() {
-    const dispatched: DispatchedAction[] = []
-    const preloadedState = {
-        source: {
-            items: {
-                s1: {
-                    id: "s1",
-                    name: "points",
-                    type: SourceType.Geojson,
-                    format: "geojson",
-                    location: "file:///data/points.geojson",
-                    version: 0,
-                    fractionIndex: 0,
-                    editable: false,
-                    pending: false,
-                    meta: {
-                        columns: {},
-                        pointsCount: 0,
-                        multiPointsCount: 0,
-                        linesCount: 0,
-                        multiLinesCount: 0,
-                        polygonsCount: 0,
-                        multiPolygonsCount: 0,
-                        collectionsCount: 0,
-                        nullGeometryCount: 0,
-                        featuresCount: 0,
-                    },
+const preloadedState = {
+    source: {
+        items: {
+            s1: {
+                id: "s1",
+                name: "points",
+                type: SourceType.Geojson,
+                format: "geojson",
+                location: "file:///data/points.geojson",
+                version: 0,
+                fractionIndex: 0,
+                editable: false,
+                pending: false,
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
                 },
             },
-            allIds: ["s1"],
         },
-    }
-    const captureMiddleware = () => (next: (a: unknown) => unknown) => (action: unknown) => {
-        dispatched.push(action as DispatchedAction)
-        return next(action)
-    }
-    const store = configureStore({
-        reducer: (s: typeof preloadedState = preloadedState) => s,
-        preloadedState,
-        middleware: getDefault => getDefault().concat(captureMiddleware as unknown as Middleware),
-    })
-    return { store, dispatched }
+        allIds: ["s1"],
+    },
 }
 
 describe("reload", () => {
@@ -75,7 +60,7 @@ describe("reload", () => {
 
     test("dispatches setGeojsonMeta with mapped schema counts for a Geojson source", async () => {
         mockInvoke.mockResolvedValue(schema)
-        const { store, dispatched } = makeStore()
+        const { store, dispatched } = makeCaptureStore({ preloadedState })
 
         await store.dispatch(reload("s1"))
 

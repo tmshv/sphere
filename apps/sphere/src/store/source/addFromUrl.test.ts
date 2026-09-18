@@ -1,4 +1,3 @@
-import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { describe, expect, test, vi, beforeEach } from "vitest"
 
 const { mockInvoke } = vi.hoisted(() => ({ mockInvoke: vi.fn() }))
@@ -8,6 +7,7 @@ vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.
 
 import addFromUrl from "./addFromUrl"
 import { SourceType } from "@/types"
+import { makeCaptureStore } from "@/testutils"
 
 const schema = {
     columns: { name: "String" },
@@ -20,21 +20,6 @@ const schema = {
     collections_count: 0,
     null_geometry_count: 0,
     features_count: 2,
-}
-
-type DispatchedAction = { type: string; payload?: unknown }
-
-function makeStore() {
-    const dispatched: DispatchedAction[] = []
-    const captureMiddleware = () => (next: (a: unknown) => unknown) => (action: unknown) => {
-        dispatched.push(action as DispatchedAction)
-        return next(action)
-    }
-    const store = configureStore({
-        reducer: (s: Record<string, unknown> = {}) => s,
-        middleware: getDefault => getDefault().concat(captureMiddleware as unknown as Middleware),
-    })
-    return { store, dispatched }
 }
 
 describe("addFromUrl", () => {
@@ -54,7 +39,7 @@ describe("addFromUrl", () => {
             }
             return Promise.resolve(schema)
         })
-        const { store, dispatched } = makeStore()
+        const { store, dispatched } = makeCaptureStore()
 
         await store.dispatch(addFromUrl({ url: "file:///data/points.csv", type: SourceType.Geojson }))
 
@@ -74,7 +59,7 @@ describe("addFromUrl", () => {
             }
             return Promise.resolve(schema)
         })
-        const { store, dispatched } = makeStore()
+        const { store, dispatched } = makeCaptureStore()
 
         await store.dispatch(addFromUrl({ url: "file:///x.unknown", type: SourceType.Geojson }))
 
@@ -94,7 +79,7 @@ describe("addFromUrl", () => {
             }
             return Promise.resolve(schema)
         })
-        const { store, dispatched } = makeStore()
+        const { store, dispatched } = makeCaptureStore()
 
         await store.dispatch(addFromUrl({ url: "file:///x.geojson", type: SourceType.Geojson }))
 
