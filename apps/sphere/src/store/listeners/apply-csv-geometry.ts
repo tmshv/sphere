@@ -1,3 +1,4 @@
+import { toCsvGeometryParams } from "@/lib/csv-geometry"
 import { sourceMetadataFromSchema } from "@/lib/source-metadata"
 import { SourceReader } from "@/lib/source-reader"
 import type { SourceSchema } from "@/types"
@@ -11,12 +12,12 @@ const listener = createListenerMiddleware<RootState>()
 listener.startListening({
     actionCreator: applyCsvGeometry,
     effect: async (action, listenerApi) => {
-        const { id, mode, wktColumn, xColumn, yColumn } = action.payload
+        const { id, ...staged } = action.payload
         const reader = new SourceReader(id)
 
         let schema: SourceSchema
         try {
-            schema = await reader.setCsvGeometry({ mode, wktColumn, xColumn, yColumn })
+            schema = await reader.setCsvGeometry(toCsvGeometryParams(staged))
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error)
             listenerApi.dispatch(actions.error.setError(message))

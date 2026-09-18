@@ -5,6 +5,7 @@ import {
     isStagedGeometryComplete,
     missingAppliedColumns,
     type StagedCsvGeometry,
+    toCsvGeometryParams,
 } from "./csv-geometry"
 
 describe("isStagedGeometryComplete", () => {
@@ -80,23 +81,63 @@ describe("canApplyCsvGeometry", () => {
     })
 })
 
+describe("toCsvGeometryParams", () => {
+    it("emits only the wkt column when the staged mode is wkt", () => {
+        // The staged value the component actually produces after a mode switch:
+        // the x/y columns the source was loaded with are still there.
+        const staged: StagedCsvGeometry = { mode: "wkt", wktColumn: "geom", xColumn: "lng", yColumn: "lat" }
+
+        expect(toCsvGeometryParams(staged)).toEqual({ mode: "wkt", wktColumn: "geom" })
+    })
+
+    it("emits only the x/y pair when the staged mode is xy", () => {
+        const staged: StagedCsvGeometry = { mode: "xy", wktColumn: "geom", xColumn: "lng", yColumn: "lat" }
+
+        expect(toCsvGeometryParams(staged)).toEqual({ mode: "xy", xColumn: "lng", yColumn: "lat" })
+    })
+
+    it("keeps an incomplete staged value incomplete instead of inventing columns", () => {
+        const staged: StagedCsvGeometry = { mode: "xy", xColumn: "lng" }
+
+        expect(toCsvGeometryParams(staged)).toEqual({ mode: "xy", xColumn: "lng", yColumn: undefined })
+    })
+})
+
 describe("buildColumnOptions", () => {
     it("returns the header columns when the applied columns are all present", () => {
         const applied: StagedCsvGeometry = { mode: "xy", xColumn: "lon", yColumn: "lat" }
-        const options = buildColumnOptions(["lon", "lat", "name"], applied)
+        const options = buildColumnOptions(["lon", "lat", "name"], applied, "xy")
         expect(options).toEqual(["lon", "lat", "name"])
     })
 
     it("appends an applied column absent from the header", () => {
         const applied: StagedCsvGeometry = { mode: "xy", xColumn: "lng", yColumn: "lat" }
-        const options = buildColumnOptions(["name"], applied)
+        const options = buildColumnOptions(["name"], applied, "xy")
         expect(options).toEqual(["name", "lng", "lat"])
     })
 
     it("does not duplicate an applied wkt column already in the header", () => {
         const applied: StagedCsvGeometry = { mode: "wkt", wktColumn: "geom" }
-        const options = buildColumnOptions(["geom", "name"], applied)
+        const options = buildColumnOptions(["geom", "name"], applied, "wkt")
         expect(options).toEqual(["geom", "name"])
+    })
+
+    it("does not offer a missing applied wkt column to the x/y pickers", () => {
+        const applied: StagedCsvGeometry = { mode: "wkt", wktColumn: "geom" }
+        const options = buildColumnOptions(["name"], applied, "xy")
+        expect(options).toEqual(["name"])
+    })
+
+    it("does not offer missing applied x/y columns to the wkt picker", () => {
+        const applied: StagedCsvGeometry = { mode: "xy", xColumn: "lng", yColumn: "lat" }
+        const options = buildColumnOptions(["name"], applied, "wkt")
+        expect(options).toEqual(["name"])
+    })
+
+    it("appends a missing applied column only once when x and y name the same column", () => {
+        const applied: StagedCsvGeometry = { mode: "xy", xColumn: "coord", yColumn: "coord" }
+        const options = buildColumnOptions(["name"], applied, "xy")
+        expect(options).toEqual(["name", "coord"])
     })
 })
 

@@ -6,6 +6,7 @@ import {
     canApplyCsvGeometry,
     missingAppliedColumns,
     type StagedCsvGeometry,
+    toCsvGeometryParams,
 } from "@/lib/csv-geometry"
 import type { CsvMode, FormatDetails } from "@/lib/source-reader"
 import { actions } from "@/store"
@@ -36,7 +37,7 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
     }
     const [staged, setStaged] = useState<StagedCsvGeometry>(applied)
 
-    const options = buildColumnOptions(details.header_columns, applied)
+    const options = buildColumnOptions(details.header_columns, applied, staged.mode)
     const missing = missingAppliedColumns(details.header_columns, applied)
 
     return (
@@ -86,7 +87,7 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                 size={"xs"}
                 disabled={!canApplyCsvGeometry(staged, applied)}
                 onClick={() => {
-                    dispatch(actions.sourceInfo.applyCsvGeometry({ id: sourceId, ...staged }))
+                    dispatch(actions.sourceInfo.applyCsvGeometry({ id: sourceId, ...toCsvGeometryParams(staged) }))
                 }}
             >
                 Apply
