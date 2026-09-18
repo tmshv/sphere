@@ -1,9 +1,9 @@
-import { makeGeojsonSource } from "@/testutils"
+import { makeCsvSource, makeGeojsonSource, makeMvtSource } from "@/testutils"
 import type { RootState } from "@/store"
 import { selectCurrentSourceItem } from "@/store/source"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
-import { selector } from "./index"
+import { selector, selectPanelKind } from "./index"
 
 const makeRootState = (overrides: object = {}) =>
     ({
@@ -182,5 +182,69 @@ describe("selector (SourcePanel)", () => {
 
         expect(result1).not.toBe(result2)
         expect(result2?.name).toBe("Updated")
+    })
+})
+
+describe("selectPanelKind", () => {
+    test("returns null when nothing is selected", () => {
+        const state = makeRootState({ source: { items: {}, allIds: [] } })
+        expect(selectPanelKind(state)).toBeNull()
+    })
+
+    test("routes a csv-format Geojson source to the csv panel", () => {
+        const source = makeCsvSource("s1")
+        const state = makeRootState({
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("csv")
+    })
+
+    test("routes a geojson-format source to the geojson panel", () => {
+        const state = makeRootState({
+            source: { items: { s1: makeGeojsonSource("s1") }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("geojson")
+    })
+
+    test("routes a FeatureCollection source to the geojson panel", () => {
+        const source = {
+            id: "s1",
+            name: "drawn",
+            type: SourceType.FeatureCollection,
+            location: "sphere://s1",
+            version: 0,
+            fractionIndex: 0,
+            editable: true,
+            pending: false,
+            meta: { columns: {} },
+        }
+        const state = makeRootState({
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("geojson")
+    })
+
+    test("routes an MVT source with a pbf format to the vector tiles panel", () => {
+        const source = makeMvtSource("s1", { format: "pbf" as const })
+        const state = makeRootState({
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("vector-tiles")
+    })
+
+    test("routes an MVT source with a raster tile format to the raster tiles panel", () => {
+        const source = makeMvtSource("s1", { format: "png" as const })
+        const state = makeRootState({
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("raster-tiles")
+    })
+
+    test("routes a Raster source to the raster tiles panel", () => {
+        const source = { ...makeGeojsonSource("s1"), type: SourceType.Raster }
+        const state = makeRootState({
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("raster-tiles")
     })
 })
