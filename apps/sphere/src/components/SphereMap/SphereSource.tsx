@@ -3,6 +3,7 @@ import { assertUnreachable } from "@/lib"
 import logger from "@/logger"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
+import type { Source as SourceEntry } from "@/types/source"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
@@ -12,39 +13,33 @@ export type SphereSourceProps = {
     id: string
 }
 
+export function selectSourceVersion(source: SourceEntry | undefined): number | null {
+    if (!source) {
+        return null
+    }
+    if (source.type === SourceType.Geojson) {
+        return source.version
+    }
+    if (source.type === SourceType.FeatureCollection && !source.pending) {
+        return source.version
+    }
+    return null
+}
+
 export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
     const source = useAppSelector(state => state.source.items[id])
     const [geojsonData, setGeojsonData] = useState<GeoJSON.FeatureCollection>(
         EMPTY_GEOJSON as GeoJSON.FeatureCollection,
     )
 
-    const sourceType = source?.type
-
-    const version = useAppSelector(state => {
-        const s = state.source.items[id]
-        if (s?.type === SourceType.FeatureCollection && !s.pending) return s.version
-        return null
-    })
-
-    useEffect(() => {
-        if (!sourceType || sourceType !== SourceType.Geojson) {
-            return
-        }
-        invoke<string>("source_get", { id })
-            .then(json => {
-                setGeojsonData(JSON.parse(json))
-            })
-            .catch(err => {
-                logger.error("Failed to fetch GeoJSON source %s: %s", id, err)
-            })
-    }, [id, sourceType])
+    const version = useAppSelector(state => selectSourceVersion(state.source.items[id]))
 
     useEffect(() => {
         if (version === null) return
         invoke<string>("source_get", { id })
             .then(json => setGeojsonData(JSON.parse(json)))
             .catch(err => {
-                logger.error("Failed to fetch source %s version %d: %s", id, version, err)
+                logger.error("Failed to fetch source %s version %s: %s", id, version, err)
             })
     }, [id, version])
 
