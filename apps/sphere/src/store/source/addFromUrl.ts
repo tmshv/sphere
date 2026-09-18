@@ -1,4 +1,6 @@
 import { MbtilesReader } from "@/lib/mbtiles"
+import { EMPTY_SOURCE_METADATA, sourceMetadataFromSchema } from "@/lib/source-metadata"
+import { DEFAULT_SOURCE_FORMAT, isSourceFormat } from "@/lib/source-format"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 import { SourceType } from "@/types"
@@ -11,6 +13,7 @@ type NewSource = {
     id: string
     name: string
     location: string
+    source_type: string
 }
 
 export type AddFromUrlOptions = {
@@ -78,24 +81,15 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
             case SourceType.Geojson: {
                 const r = new SourceReader(id)
                 const schema = await r.getSchema()
-                const meta = {
-                    columns: schema?.columns ?? {},
-                    pointsCount: schema?.points_count ?? 0,
-                    multiPointsCount: schema?.multi_points_count ?? 0,
-                    linesCount: schema?.lines_count ?? 0,
-                    multiLinesCount: schema?.multi_lines_count ?? 0,
-                    polygonsCount: schema?.polygons_count ?? 0,
-                    multiPolygonsCount: schema?.multi_polygons_count ?? 0,
-                    collectionsCount: schema?.collections_count ?? 0,
-                    nullGeometryCount: schema?.null_geometry_count ?? 0,
-                    featuresCount: schema?.features_count ?? 0,
-                }
+                const meta = schema ? sourceMetadataFromSchema(schema) : EMPTY_SOURCE_METADATA
+                const format = isSourceFormat(s.source_type) ? s.source_type : DEFAULT_SOURCE_FORMAT
                 thunkAPI.dispatch(
                     actions.addGeojsonSource({
                         id,
                         name,
                         location,
                         meta,
+                        format,
                     }),
                 )
                 break

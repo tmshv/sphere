@@ -1,5 +1,18 @@
 import type { SourceMetadata, SourceSchema } from "@/types"
 
+export const EMPTY_SOURCE_METADATA: SourceMetadata = {
+    columns: {},
+    pointsCount: 0,
+    multiPointsCount: 0,
+    linesCount: 0,
+    multiLinesCount: 0,
+    polygonsCount: 0,
+    multiPolygonsCount: 0,
+    collectionsCount: 0,
+    nullGeometryCount: 0,
+    featuresCount: 0,
+}
+
 export function createSourceMetadataFromFeatureCollection(
     fc: GeoJSON.FeatureCollection,
     columns: Record<string, string> = {},
