@@ -1,8 +1,9 @@
 import { makeGeojsonSource } from "@/testutils"
 import type { RootState } from "@/store"
+import { selectCurrentSourceItem } from "@/store/source"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
-import { selectCurrentSourceItem, selector } from "./index"
+import { selector } from "./index"
 
 const makeRootState = (overrides: object = {}) =>
     ({
