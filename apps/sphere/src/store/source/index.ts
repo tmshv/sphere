@@ -1,4 +1,4 @@
-import { type Id, type SourceMetadata, SourceType } from "@/types"
+import { type Id, type SourceFormat, type SourceMetadata, SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSlice } from "@reduxjs/toolkit"
@@ -65,8 +65,14 @@ export const sourceSlice = createSlice({
         },
         bumpVersion: (state, action: PayloadAction<Id>) => {
             const source = state.items[action.payload]
-            if (!source || source.type !== SourceType.FeatureCollection || source.pending) return
-            source.version++
+            if (!source) return
+            if (source.type === SourceType.Geojson) {
+                source.version++
+                return
+            }
+            if (source.type === SourceType.FeatureCollection && !source.pending) {
+                source.version++
+            }
         },
         addGeojsonSource: (
             state,
@@ -75,14 +81,17 @@ export const sourceSlice = createSlice({
                 name: string
                 location: string
                 meta: SourceMetadata
+                format: SourceFormat
             }>,
         ) => {
-            const { id, name, location, meta } = action.payload
+            const { id, name, location, meta, format } = action.payload
             state.items[id] = {
                 id,
                 name,
                 location,
                 type: SourceType.Geojson,
+                format,
+                version: 0,
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: false,

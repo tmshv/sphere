@@ -7,6 +7,7 @@ export function makeGeojsonSource<T extends object>(id: string, overrides: T = {
         type: SourceType.Geojson,
         location: `/path/to/${id}.geojson`,
         format: "geojson",
+        version: 0,
         fractionIndex: 0,
         editable: false,
         pending: false,

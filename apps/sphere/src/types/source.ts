@@ -1,10 +1,12 @@
-import type { Id, SourceMetadata, SourceType } from "@/types"
+import type { Id, SourceFormat, SourceMetadata, SourceType } from "@/types"
 import type { TileJSON } from "@/types/tilejson"
 
 export type GeojsonSource = {
     type: SourceType.Geojson
+    format: SourceFormat
     meta: SourceMetadata
     location: string
+    version: number
     editable: false
     pending: false
 }
