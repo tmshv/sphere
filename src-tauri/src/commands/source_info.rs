@@ -1,4 +1,6 @@
-use libsphere::csv::CsvGeometry;
+use libsphere::csv::{Csv, CsvGeometry};
+use libsphere::gpx::Gpx;
+use libsphere::shape::Shapefile;
 use libsphere::source::SourceData;
 use serde::Serialize;
 use tauri::State;
@@ -67,30 +69,51 @@ fn file_info_for(path: &str) -> Option<FileInfo> {
     })
 }
 
-#[tauri::command]
-pub async fn source_get_info(
-    id: String,
-    storage: State<'_, SourceStorage>,
-) -> Result<SourceInfo, String> {
-    let store = storage.store.lock().unwrap();
-    let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+/// What `source_get_info` still has to read from disk, lifted out of the storage
+/// lock. The source's own structs are not `Clone`, so the parts that identify the
+/// file — its path, and for CSV the geometry columns — are copied out and the
+/// reader is rebuilt on the blocking thread.
+enum InfoTarget {
+    Csv(Csv),
+    Shapefile(Shapefile),
+    Gpx(Gpx),
+    Plain(Option<String>),
+}
 
-    let schema = match &entry.store {
-        Some(fs) => fs.schema().clone(),
-        None => entry.source.get_schema()?,
-    };
+fn clone_csv_geometry(geometry: &CsvGeometry) -> CsvGeometry {
+    match geometry {
+        CsvGeometry::WKT(field) => CsvGeometry::WKT(field.clone()),
+        CsvGeometry::XY((x, y)) => CsvGeometry::XY((x.clone(), y.clone())),
+    }
+}
 
-    let (details, path) = match &entry.source.data {
-        SourceData::Csv(csv) => {
+fn info_target_for(data: &SourceData) -> InfoTarget {
+    match data {
+        SourceData::Csv(csv) => InfoTarget::Csv(Csv {
+            geometry: clone_csv_geometry(&csv.geometry),
+            path: csv.path.clone(),
+        }),
+        SourceData::Shapefile(shp) => InfoTarget::Shapefile(Shapefile {
+            path: shp.path.clone(),
+        }),
+        SourceData::Gpx(gpx) => InfoTarget::Gpx(Gpx {
+            path: gpx.path.clone(),
+        }),
+        SourceData::Geojson(g) => InfoTarget::Plain(Some(g.path.clone())),
+        SourceData::GeojsonSeq(g) => InfoTarget::Plain(Some(g.path.clone())),
+        _ => InfoTarget::Plain(None),
+    }
+}
+
+/// Parses the file. Blocking: never call this while holding the storage lock.
+fn details_and_file(target: InfoTarget) -> Result<(FormatDetails, Option<FileInfo>), String> {
+    let (details, path) = match target {
+        InfoTarget::Csv(csv) => {
             let read = csv.read().map_err(|e| e.to_string())?;
             let header_columns = csv.header_columns().map_err(|e| e.to_string())?;
             let (mode, wkt_column, x_column, y_column) = match &csv.geometry {
-                libsphere::csv::CsvGeometry::WKT(field) => {
-                    (CsvMode::Wkt, Some(field.clone()), None, None)
-                }
-                libsphere::csv::CsvGeometry::XY((x, y)) => {
-                    (CsvMode::Xy, None, Some(x.clone()), Some(y.clone()))
-                }
+                CsvGeometry::WKT(field) => (CsvMode::Wkt, Some(field.clone()), None, None),
+                CsvGeometry::XY((x, y)) => (CsvMode::Xy, None, Some(x.clone()), Some(y.clone())),
             };
             (
                 FormatDetails::Csv {
@@ -102,10 +125,10 @@ pub async fn source_get_info(
                     parsed_rows: read.features.len() as u64,
                     skipped_rows: read.skipped,
                 },
-                Some(csv.path.clone()),
+                Some(csv.path),
             )
         }
-        SourceData::Shapefile(shp) => {
+        InfoTarget::Shapefile(shp) => {
             let info = shp.info();
             (
                 FormatDetails::Shapefile {
@@ -115,10 +138,10 @@ pub async fn source_get_info(
                     has_cpg: info.has_cpg,
                     crs: info.crs,
                 },
-                Some(shp.path.clone()),
+                Some(shp.path),
             )
         }
-        SourceData::Gpx(gpx) => {
+        InfoTarget::Gpx(gpx) => {
             let info = gpx.info().map_err(|e| e.to_string())?;
             (
                 FormatDetails::Gpx {
@@ -127,15 +150,39 @@ pub async fn source_get_info(
                     routes: info.routes,
                     track_points: info.track_points,
                 },
-                Some(gpx.path.clone()),
+                Some(gpx.path),
             )
         }
-        SourceData::Geojson(g) => (FormatDetails::Geojson, Some(g.path.clone())),
-        SourceData::GeojsonSeq(g) => (FormatDetails::Geojson, Some(g.path.clone())),
-        _ => (FormatDetails::Geojson, None),
+        InfoTarget::Plain(path) => (FormatDetails::Geojson, path),
     };
 
     let file = path.as_deref().and_then(file_info_for);
+    Ok((details, file))
+}
+
+#[tauri::command]
+pub async fn source_get_info(
+    id: String,
+    storage: State<'_, SourceStorage>,
+) -> Result<SourceInfo, String> {
+    // Take only what is needed out of the lock: reading the file under it would
+    // block every other source command, `source_get` included, for the whole
+    // re-parse.
+    let (schema, target) = {
+        let store = storage.store.lock().unwrap();
+        let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
+
+        let schema = match &entry.store {
+            Some(fs) => fs.schema().clone(),
+            None => entry.source.get_schema()?,
+        };
+
+        (schema, info_target_for(&entry.source.data))
+    };
+
+    let (details, file) = tokio::task::spawn_blocking(move || details_and_file(target))
+        .await
+        .map_err(|e| e.to_string())??;
 
     Ok(SourceInfo {
         file,
@@ -289,6 +336,33 @@ mod tests {
                 .unwrap();
 
         assert!(matches!(geometry, CsvGeometry::XY((x, y)) if x == "lng" && y == "lat"));
+    }
+
+    #[test]
+    fn info_target_keeps_the_csv_path_and_geometry() {
+        let data = SourceData::Csv(Csv {
+            geometry: CsvGeometry::WKT("geom".to_string()),
+            path: "/tmp/a.csv".to_string(),
+        });
+
+        match info_target_for(&data) {
+            InfoTarget::Csv(csv) => {
+                assert_eq!(csv.path, "/tmp/a.csv");
+                assert!(matches!(csv.geometry, CsvGeometry::WKT(field) if field == "geom"));
+            }
+            _ => panic!("expected a csv target"),
+        }
+    }
+
+    #[test]
+    fn info_target_for_a_tile_source_has_no_path_to_read() {
+        let data = SourceData::InMemory(geojson::FeatureCollection {
+            bbox: None,
+            features: vec![],
+            foreign_members: None,
+        });
+
+        assert!(matches!(info_target_for(&data), InfoTarget::Plain(None)));
     }
 
     #[test]
