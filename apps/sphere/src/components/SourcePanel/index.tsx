@@ -9,6 +9,10 @@ import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash 
 import { useSelector } from "react-redux"
 import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
+import { GpxSourcePanel } from "./GpxSourcePanel"
+import { RasterTilesSourcePanel } from "./RasterTilesSourcePanel"
+import { ShapefileSourcePanel } from "./ShapefileSourcePanel"
+import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
@@ -69,6 +73,14 @@ function renderPanel(kind: PanelKind | null) {
             return <GeojsonSourcePanel />
         case "csv":
             return <CsvSourcePanel />
+        case "shapefile":
+            return <ShapefileSourcePanel />
+        case "gpx":
+            return <GpxSourcePanel />
+        case "vector-tiles":
+            return <VectorTilesSourcePanel />
+        case "raster-tiles":
+            return <RasterTilesSourcePanel />
         default:
             return null
     }
