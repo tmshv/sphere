@@ -31,7 +31,7 @@ export const GpxSourcePanel: FC = () => {
                 <InfoRow label={"Track points"} value={details.track_points} />
                 {hasUnrenderedContent ? (
                     <Text size={"xs"} color={"orange"}>
-                        Only tracks are drawn on the map — waypoints and routes are not rendered
+                        GPX rendering only supports tracks — waypoints and routes are not drawn on the map.
                     </Text>
                 ) : null}
             </PanelSection>
