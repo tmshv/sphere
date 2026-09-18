@@ -76,7 +76,7 @@ export const layerSelector = createSelector(
                     }))
                     const vl = source.tilejson.vector_layers?.find(x => x.id === layer.sourceLayer)
                     if (vl) {
-                        fields = Object.keys(vl.fields)
+                        fields = Object.keys(vl.fields ?? {})
                     }
                     break
                 }

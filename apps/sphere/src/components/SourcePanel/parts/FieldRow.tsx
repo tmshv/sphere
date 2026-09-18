@@ -22,7 +22,7 @@ function renderSummary(field: FieldEntry): ReactNode {
                     stats unavailable
                 </Text>
             )
-        default:
+        case "loading":
             return <Skeleton height={SKELETON_HEIGHT} />
     }
 }
