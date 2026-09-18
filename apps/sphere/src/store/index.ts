@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import app from "./app"
 import draw from "./draw"
 import error from "./error"
@@ -20,25 +20,33 @@ import tools from "./tools"
 export { actions } from "./actions"
 export { selectors } from "./selectors"
 
+const rootReducer = combineReducers({
+    app,
+    mapInteraction,
+    draw,
+    error,
+    projection,
+    tileBoundaries,
+    mapStyle,
+    sky,
+    terrain,
+    source,
+    sourceInfo,
+    layer,
+    selection,
+    settings,
+    properties,
+    tools,
+})
+
+// Derive `RootState` from the reducer tree, not from the store. The store's type
+// includes its middleware, and a middleware typed by `RootState` (e.g. a
+// `createListenerMiddleware<RootState>()` listener) would otherwise close a
+// circular reference back through `store`.
+export type RootState = ReturnType<typeof rootReducer>
+
 export const store = configureStore({
-    reducer: {
-        app,
-        mapInteraction,
-        draw,
-        error,
-        projection,
-        tileBoundaries,
-        mapStyle,
-        sky,
-        terrain,
-        source,
-        sourceInfo,
-        layer,
-        selection,
-        settings,
-        properties,
-        tools,
-    },
+    reducer: rootReducer,
     middleware: getDefaultMiddleWare => {
         return getDefaultMiddleWare().prepend(
             mapListener.middleware,
@@ -63,12 +71,10 @@ export const store = configureStore({
             listeners.menu.middleware,
             listeners.menuContext.middleware,
             listeners.copySelection.middleware,
+            listeners.loadSourceInfo.middleware,
         )
     },
 })
-
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>
 
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch
