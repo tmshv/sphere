@@ -3,6 +3,7 @@ import type { MockedFunction } from "vitest"
 import { SourceReader } from "./source-reader"
 
 type InvokeFn = (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
+type StringInvokeFn = (cmd: string, args?: Record<string, unknown>) => Promise<string>
 const invoke = _invoke as MockedFunction<InvokeFn>
 
 vi.mock("@tauri-apps/api/core", { spy: true })
@@ -30,7 +31,7 @@ describe("SourceReader::getGeojson", () => {
                 },
             ],
         }
-        const mockInvoke = vi.fn<InvokeFn>().mockResolvedValue(JSON.stringify(geojson))
+        const mockInvoke = vi.fn<StringInvokeFn>().mockResolvedValue(JSON.stringify(geojson))
         invoke.mockImplementation(mockInvoke)
 
         const reader = new SourceReader("XXX")
