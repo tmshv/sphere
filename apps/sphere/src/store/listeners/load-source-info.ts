@@ -1,7 +1,8 @@
 import { SourceReader } from "@/lib/source-reader"
-import type { Id } from "@/types"
+import { type Id, SourceType } from "@/types"
 import {
     createListenerMiddleware,
+    isAnyOf,
     type ListenerEffectAPI,
     type ThunkDispatch,
     type UnknownAction,
@@ -13,6 +14,13 @@ const listener = createListenerMiddleware<RootState>()
 
 type Dispatch = ThunkDispatch<RootState, unknown, UnknownAction>
 type Api = ListenerEffectAPI<RootState, Dispatch>
+
+// Tile sources have no feature store, so `source_get_info` can only fail for
+// them. The panel reads tile metadata from the TileJSON instead.
+function isTileSource(state: RootState, id: Id): boolean {
+    const type = state.source.items[id]?.type
+    return type === SourceType.MVT || type === SourceType.Raster
+}
 
 async function loadSourceInfo(id: Id, listenerApi: Api): Promise<void> {
     listenerApi.dispatch(actions.sourceInfo.infoRequested(id))
@@ -44,32 +52,35 @@ async function loadSourceInfo(id: Id, listenerApi: Api): Promise<void> {
     }
 }
 
+// Selecting a source, rebuilding one, and removing one all share a single
+// registration on purpose: `cancelActiveListeners()` only reaches other runs of
+// the same registration, so splitting them would let a run started by `select`
+// keep going — and overwrite fresh stats with pre-rebuild ones — after a
+// `bumpVersion` already started a newer run for the same id.
 listener.startListening({
-    actionCreator: actions.source.select,
+    matcher: isAnyOf(actions.source.select, actions.source.bumpVersion, actions.source.removeSource),
     effect: async (action, listenerApi) => {
+        if (actions.source.removeSource.match(action)) {
+            const removedId = action.payload
+            // The reducer has already cleared `selectedId`, so the pre-action
+            // state is what tells us whether the running scan was for this id.
+            if (listenerApi.getOriginalState().source.selectedId === removedId) {
+                listenerApi.cancelActiveListeners()
+            }
+            listenerApi.dispatch(actions.sourceInfo.invalidate(removedId))
+            return
+        }
+
         listenerApi.cancelActiveListeners()
-        if (!action.payload) return
-        await loadSourceInfo(action.payload, listenerApi)
-    },
-})
 
-listener.startListening({
-    actionCreator: actions.source.removeSource,
-    effect: async (action, listenerApi) => {
-        listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
-    },
-})
+        if (actions.source.bumpVersion.match(action)) {
+            listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
+            if (listenerApi.getState().source.selectedId !== action.payload) return
+        }
 
-listener.startListening({
-    actionCreator: actions.source.bumpVersion,
-    effect: async (action, listenerApi) => {
         const id = action.payload
-        listenerApi.dispatch(actions.sourceInfo.invalidate(id))
-
-        const state = listenerApi.getState()
-        if (state.source.selectedId !== id) return
-
-        listenerApi.cancelActiveListeners()
+        if (!id) return
+        if (isTileSource(listenerApi.getState(), id)) return
         await loadSourceInfo(id, listenerApi)
     },
 })
