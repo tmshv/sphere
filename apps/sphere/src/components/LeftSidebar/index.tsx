@@ -16,8 +16,31 @@ export function StyledTabs(props: TabsProps) {
         <Tabs
             unstyled
             styles={theme => ({
+                // The tabs own the whole sidebar height: the list keeps its
+                // natural height and the active panel takes the rest, so the
+                // panel content scrolls inside the sidebar instead of running
+                // past its bottom edge.
                 root: {
                     width: "100%",
+                    height: "100%",
+                    minHeight: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden",
+                },
+                panel: {
+                    flex: "1 1 0",
+                    minHeight: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden",
+
+                    // Toolbars and headers keep their height; the one child
+                    // that scrolls (the accordion) opts out with its own
+                    // inline flex value.
+                    "& > *": {
+                        flexShrink: 0,
+                    },
                 },
                 tab: {
                     ...theme.fn.focusStyles(),
@@ -67,6 +90,7 @@ export function StyledTabs(props: TabsProps) {
 
                 tabsList: {
                     display: "flex",
+                    flexShrink: 0,
                 },
             })}
             {...props}

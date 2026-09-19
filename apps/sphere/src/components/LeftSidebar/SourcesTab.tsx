@@ -2,7 +2,7 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
-import { ActionBar, type ActionBarOnClick } from "@sphere/ui"
+import { ActionBar, type ActionBarOnClick, PanelBody } from "@sphere/ui"
 import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
@@ -128,7 +128,9 @@ export const SourcesTab: React.FC = () => {
                 <Accordion.Item value={"outline"}>
                     <Accordion.Control>Outline</Accordion.Control>
                     <Accordion.Panel>
-                        <SourcesOutline />
+                        <PanelBody>
+                            <SourcesOutline />
+                        </PanelBody>
                     </Accordion.Panel>
                 </Accordion.Item>
 

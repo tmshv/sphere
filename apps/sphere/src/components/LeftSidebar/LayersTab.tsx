@@ -1,6 +1,6 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { ActionBar, type ActionBarOnClick } from "@sphere/ui"
+import { ActionBar, type ActionBarOnClick, PanelBody } from "@sphere/ui"
 import { Accordion } from "@mantine/core"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
 import { useCallback, useState } from "react"
@@ -57,7 +57,9 @@ export const LayersTab: React.FC = () => {
                 <Accordion.Item value={"outline"}>
                     <Accordion.Control>Outline</Accordion.Control>
                     <Accordion.Panel>
-                        <LayersOutline />
+                        <PanelBody>
+                            <LayersOutline />
+                        </PanelBody>
                     </Accordion.Panel>
                 </Accordion.Item>
 
