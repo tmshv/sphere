@@ -34,7 +34,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "My Source",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         expect(state.allIds).toContain("s1")
@@ -89,7 +101,18 @@ describe("sourceSlice reducer", () => {
     })
 
     test("addInMemorySource adds to items and allIds, sets version 0 and pending false", () => {
-        const meta = { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 }
+        const meta = {
+            columns: {},
+            pointsCount: 1,
+            multiPointsCount: 0,
+            linesCount: 0,
+            multiLinesCount: 0,
+            polygonsCount: 0,
+            multiPolygonsCount: 0,
+            collectionsCount: 0,
+            nullGeometryCount: 0,
+            featuresCount: 1,
+        }
         const state = reducer(
             undefined,
             addInMemorySource({
@@ -114,7 +137,18 @@ describe("sourceSlice reducer", () => {
     })
 
     test("bumpVersion increments version for FeatureCollection source", () => {
-        const meta = { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 }
+        const meta = {
+            columns: {},
+            pointsCount: 0,
+            multiPointsCount: 0,
+            linesCount: 0,
+            multiLinesCount: 0,
+            polygonsCount: 0,
+            multiPolygonsCount: 0,
+            collectionsCount: 0,
+            nullGeometryCount: 0,
+            featuresCount: 0,
+        }
         let state = reducer(
             undefined,
             addInMemorySource({ id: "s4", name: "FC Source", location: "sphere://s4", meta }),
@@ -151,18 +185,61 @@ describe("sourceSlice reducer", () => {
         expect(next.items.s4).toEqual(state.items.s4)
     })
 
-    test("bumpVersion does nothing for non-FeatureCollection source", () => {
+    test("bumpVersion increments version for Geojson source", () => {
         let state = reducer(
             undefined,
             addGeojsonSource({
                 id: "s1",
                 name: "My Source",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         state = reducer(state, bumpVersion("s1"))
-        expect(state.items.s1.type).toBe(SourceType.Geojson)
+        const s1 = state.items.s1
+        if (s1.type !== SourceType.Geojson) {
+            throw new Error("Expected GeojsonSource")
+        }
+        expect(s1.version).toBe(1)
+        state = reducer(state, bumpVersion("s1"))
+        const s1b = state.items.s1
+        if (s1b.type !== SourceType.Geojson) {
+            throw new Error("Expected GeojsonSource")
+        }
+        expect(s1b.version).toBe(2)
+    })
+
+    test("bumpVersion does nothing for a source with no version field (Raster)", () => {
+        let state = reducer(
+            undefined,
+            addRasterSource({
+                id: "s3",
+                name: "Raster Source",
+                location: "raster.mbtiles",
+            }),
+        )
+        state = reducer(state, bumpVersion("s3"))
+        expect(state.items.s3).toEqual({
+            id: "s3",
+            name: "Raster Source",
+            location: "raster.mbtiles",
+            type: SourceType.Raster,
+            pending: false,
+            fractionIndex: 0,
+            editable: false,
+        })
     })
 
     test("removeSource removes from items and allIds", () => {
@@ -172,7 +249,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "My Source",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         const state = reducer(prev, removeSource("s1"))
@@ -187,7 +276,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "My Source",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         const state = reducer(prev, removeSource("s1"))
@@ -201,7 +302,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "Source 1",
                 location: "file1.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         state = reducer(
@@ -210,7 +323,19 @@ describe("sourceSlice reducer", () => {
                 id: "s2",
                 name: "Source 2",
                 location: "file2.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         state = reducer(state, removeSource("s1"))
@@ -224,7 +349,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "Old Name",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         const state = reducer(prev, setName({ id: "s1", value: "New Name" }))
@@ -238,7 +375,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "My Source",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         const state = reducer(prev, select("s1"))
@@ -252,7 +401,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "My Source",
                 location: "file.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         state = reducer(state, select("s1"))
@@ -267,7 +428,19 @@ describe("sourceSlice reducer", () => {
                 id: "s1",
                 name: "Source 1",
                 location: "file1.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         state = reducer(
@@ -276,7 +449,19 @@ describe("sourceSlice reducer", () => {
                 id: "s2",
                 name: "Source 2",
                 location: "file2.geojson",
-                meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 0 },
+                format: "geojson",
+                meta: {
+                    columns: {},
+                    pointsCount: 0,
+                    multiPointsCount: 0,
+                    linesCount: 0,
+                    multiLinesCount: 0,
+                    polygonsCount: 0,
+                    multiPolygonsCount: 0,
+                    collectionsCount: 0,
+                    nullGeometryCount: 0,
+                    featuresCount: 0,
+                },
             }),
         )
         state = reducer(state, select("s1"))

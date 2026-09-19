@@ -109,31 +109,50 @@ impl Bounds for Csv {
     }
 }
 
+#[derive(Debug)]
+pub struct CsvReadResult {
+    pub features: Vec<Feature>,
+    pub skipped: u64,
+}
+
 impl Csv {
-    pub fn get_features(&self) -> Result<Vec<Feature>> {
+    pub fn read(&self) -> Result<CsvReadResult> {
         let file = File::open(self.path.as_str()).with_path(&self.path)?;
         let mut features = Vec::<Feature>::new();
+        let mut skipped: u64 = 0;
         let mut rdr = csv::Reader::from_reader(file);
         for result in rdr.deserialize() {
             let record: JsonObject = result.map_err(|source| SphereError::Csv {
                 path: self.path.clone(),
                 source,
             })?;
-            let geom = self.geometry.get_value(&record);
-            if let Some(geom) = geom {
-                let geometry = Geometry::new(geom);
-                let feature = Feature {
+            match self.geometry.get_value(&record) {
+                Some(geom) => features.push(Feature {
                     bbox: None,
-                    geometry: Some(geometry),
+                    geometry: Some(Geometry::new(geom)),
                     id: None,
                     properties: Some(record),
                     foreign_members: None,
-                };
-                features.push(feature);
+                }),
+                None => skipped += 1,
             }
         }
 
-        Ok(features)
+        Ok(CsvReadResult { features, skipped })
+    }
+
+    pub fn header_columns(&self) -> Result<Vec<String>> {
+        let file = File::open(self.path.as_str()).with_path(&self.path)?;
+        let mut rdr = csv::Reader::from_reader(file);
+        let headers = rdr.headers().map_err(|source| SphereError::Csv {
+            path: self.path.clone(),
+            source,
+        })?;
+        Ok(headers.iter().map(|h| h.to_string()).collect())
+    }
+
+    pub fn get_features(&self) -> Result<Vec<Feature>> {
+        Ok(self.read()?.features)
     }
 
     pub fn to_geojson(&self) -> Result<String> {
@@ -197,5 +216,57 @@ mod tests {
 
     #[test]
     fn test_valid_bounds() {
+    }
+
+    fn csv_at(path: &str, geometry: CsvGeometry) -> Csv {
+        Csv {
+            path: path.to_string(),
+            geometry,
+        }
+    }
+
+    #[test]
+    fn read_reports_zero_skipped_when_all_rows_parse() {
+        let source = csv_at(
+            "./assets/csv/points.csv",
+            CsvGeometry::XY(("lng".to_string(), "lat".to_string())),
+        );
+        let result = source.read().unwrap();
+
+        assert_eq!(result.features.len(), 2);
+        assert_eq!(result.skipped, 0);
+    }
+
+    #[test]
+    fn read_counts_every_row_that_yields_no_geometry() {
+        let source = csv_at(
+            "./assets/csv/broken.csv",
+            CsvGeometry::XY(("lng".to_string(), "lat".to_string())),
+        );
+        let result = source.read().unwrap();
+
+        assert_eq!(result.features.len(), 0);
+        assert_eq!(result.skipped, 3);
+    }
+
+    #[test]
+    fn header_columns_returns_the_header_row_regardless_of_geometry() {
+        let source = csv_at(
+            "./assets/csv/broken.csv",
+            CsvGeometry::XY(("lng".to_string(), "lat".to_string())),
+        );
+        let columns = source.header_columns().unwrap();
+
+        assert_eq!(columns, vec!["name", "longitude", "latitude"]);
+    }
+
+    #[test]
+    fn get_features_still_returns_only_parsed_features() {
+        let source = csv_at(
+            "./assets/csv/points.csv",
+            CsvGeometry::XY(("lng".to_string(), "lat".to_string())),
+        );
+
+        assert_eq!(source.get_features().unwrap().len(), 2);
     }
 }

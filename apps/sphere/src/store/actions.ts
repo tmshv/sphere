@@ -15,6 +15,8 @@ import { menuTrigger } from "./menu"
 import { settingsSlice } from "./settings"
 import { skySlice } from "./sky"
 import { actions as sourceActions } from "./source"
+import { sourceInfoSlice } from "./sourceInfo"
+import { applyCsvGeometry } from "./sourceInfo/applyCsvGeometry"
 import { terrainSlice } from "./terrain"
 import { mapInteractionSlice } from "./map-interaction"
 import { tileBoundariesSlice } from "./tile-boundaries"
@@ -30,6 +32,7 @@ export const actions = {
     sky: skySlice.actions,
     terrain: terrainSlice.actions,
     source: sourceActions,
+    sourceInfo: { ...sourceInfoSlice.actions, applyCsvGeometry },
     layer: layerActions,
     map: mapActions,
     selection: selectionActions,

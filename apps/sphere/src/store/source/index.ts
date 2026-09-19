@@ -1,7 +1,7 @@
-import { type Id, type SourceMetadata, SourceType } from "@/types"
+import { type Id, type SourceFormat, type SourceMetadata, SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
-import { createAction, createSlice } from "@reduxjs/toolkit"
+import { createAction, createSelector, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import addFromClipboard from "./addFromClipboard"
@@ -11,22 +11,6 @@ import reload from "./reload"
 import { showProperties } from "./showProperties"
 
 const NEW_SOURCE_INDEX = 0 // Will be at the top of the list
-
-export function computeGeometryMeta(
-    fc: GeoJSON.FeatureCollection,
-    columns: Record<string, string> = {},
-): SourceMetadata {
-    let pointsCount = 0
-    let linesCount = 0
-    let polygonsCount = 0
-    for (const feature of fc.features) {
-        const t = feature.geometry?.type
-        if (t === "Point" || t === "MultiPoint") pointsCount++
-        else if (t === "LineString" || t === "MultiLineString") linesCount++
-        else if (t === "Polygon" || t === "MultiPolygon") polygonsCount++
-    }
-    return { columns, pointsCount, linesCount, polygonsCount }
-}
 
 // Define a type for the slice state
 type SourceState = {
@@ -81,8 +65,14 @@ export const sourceSlice = createSlice({
         },
         bumpVersion: (state, action: PayloadAction<Id>) => {
             const source = state.items[action.payload]
-            if (!source || source.type !== SourceType.FeatureCollection || source.pending) return
-            source.version++
+            if (!source) return
+            if (source.type === SourceType.Geojson) {
+                source.version++
+                return
+            }
+            if (source.type === SourceType.FeatureCollection && !source.pending) {
+                source.version++
+            }
         },
         addGeojsonSource: (
             state,
@@ -91,14 +81,17 @@ export const sourceSlice = createSlice({
                 name: string
                 location: string
                 meta: SourceMetadata
+                format: SourceFormat
             }>,
         ) => {
-            const { id, name, location, meta } = action.payload
+            const { id, name, location, meta, format } = action.payload
             state.items[id] = {
                 id,
                 name,
                 location,
                 type: SourceType.Geojson,
+                format,
+                version: 0,
                 pending: false,
                 fractionIndex: NEW_SOURCE_INDEX,
                 editable: false,
@@ -206,6 +199,11 @@ export const actions = {
 // Other code such as selectors can use the imported `RootState` type
 export const selectSourcesAmount = (state: RootState) => state.source.allIds.length
 export const selectSourceIds = (state: RootState) => state.source.allIds
+
+export const selectCurrentSourceItem = createSelector(
+    [sourceSlice.selectors.selectSelectedId, sourceSlice.selectors.items],
+    (id, items) => (id ? (items[id] ?? null) : null),
+)
 // export const selectHasPending = (state: RootState) => state.source.pendingItems.length > 0
 
 export default sourceSlice.reducer
