@@ -1,7 +1,7 @@
 import { Stack, Text } from "@mantine/core"
 import type { FC } from "react"
-import type { FieldSummary } from "@/store/sourceInfo/selectors"
-import { InfoRow } from "./InfoRow"
+import type { FieldSummary } from "."
+import { InfoRow } from "../InfoRow"
 
 export type StringSummaryProps = {
     summary: Extract<FieldSummary, { kind: "string" }>

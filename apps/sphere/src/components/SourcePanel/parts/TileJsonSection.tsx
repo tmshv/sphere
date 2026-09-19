@@ -1,7 +1,7 @@
 import { Text } from "@mantine/core"
 import type { FC } from "react"
 import type { TileJSON } from "@/types/tilejson"
-import { InfoRow } from "./InfoRow"
+import { InfoRow } from "@sphere/ui"
 import { PanelSection } from "./PanelSection"
 
 const DEFAULT_MIN_ZOOM = 0

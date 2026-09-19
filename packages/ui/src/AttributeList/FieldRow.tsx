@@ -1,6 +1,6 @@
 import { Badge, Group, Skeleton, Stack, Text } from "@mantine/core"
 import type { FC, ReactNode } from "react"
-import type { FieldEntry } from "@/store/sourceInfo/selectors"
+import type { FieldEntry } from "."
 import { NumericSummary } from "./NumericSummary"
 import { StringSummary } from "./StringSummary"
 

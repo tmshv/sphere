@@ -3,7 +3,7 @@ import type { FC } from "react"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import { InfoRow } from "./parts/InfoRow"
+import { InfoRow } from "@sphere/ui"
 import { PanelSection } from "./parts/PanelSection"
 import { TileJsonSection } from "./parts/TileJsonSection"
 

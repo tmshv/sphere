@@ -3,10 +3,9 @@ import type { FC } from "react"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { CsvGeometryConfig } from "./CsvGeometryConfig"
-import { AttributeList } from "./parts/AttributeList"
+import { AttributeList, InfoRow } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
-import { InfoRow } from "./parts/InfoRow"
 import { PanelSection } from "./parts/PanelSection"
 
 export const CsvSourcePanel: FC = () => {

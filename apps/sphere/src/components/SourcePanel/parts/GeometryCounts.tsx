@@ -1,7 +1,7 @@
 import { Stack } from "@mantine/core"
 import type { FC } from "react"
 import type { SourceMetadata } from "@/types"
-import { InfoRow } from "./InfoRow"
+import { InfoRow } from "@sphere/ui"
 
 export type GeometryCountsProps = {
     meta: SourceMetadata

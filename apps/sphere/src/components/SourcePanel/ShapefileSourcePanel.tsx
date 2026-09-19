@@ -2,10 +2,9 @@ import { Stack, Text } from "@mantine/core"
 import type { FC } from "react"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { AttributeList } from "./parts/AttributeList"
+import { AttributeList, InfoRow } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
-import { InfoRow } from "./parts/InfoRow"
 import { PanelSection } from "./parts/PanelSection"
 
 const SIDECARS = [

@@ -1,7 +1,7 @@
 import { formatBytes, formatEpoch } from "@sphere/utils"
 import type { FC } from "react"
 import type { FileInfo } from "@/lib/source-reader"
-import { InfoRow } from "./InfoRow"
+import { InfoRow } from "@sphere/ui"
 import { PanelSection } from "./PanelSection"
 
 export type FileSectionProps = {

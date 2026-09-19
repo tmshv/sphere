@@ -1,21 +1,9 @@
+import type { FieldEntry, FieldSummary } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { selectCurrentSourceItem } from "../source"
 import { sourceInfoSlice } from "."
 import type { StatsEntry } from "."
-
-export type FieldSummary =
-    | { kind: "loading" }
-    | { kind: "error" }
-    | { kind: "numeric"; min?: number; max?: number; mean?: number; histogram: number[] }
-    | { kind: "string"; unique: number; topValues: [string, number][] }
-
-export type FieldEntry = {
-    name: string
-    type: string
-    nullCount?: number
-    summary: FieldSummary
-}
 
 function toSummary(entry: StatsEntry | undefined): FieldSummary {
     if (!entry || entry.status === "pending") {

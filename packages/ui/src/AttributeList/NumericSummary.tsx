@@ -1,8 +1,8 @@
-import { BarChart } from "@sphere/ui"
 import { Stack } from "@mantine/core"
 import type { FC } from "react"
-import type { FieldSummary } from "@/store/sourceInfo/selectors"
-import { InfoRow } from "./InfoRow"
+import { BarChart } from "../PropertiesTable/BarChart"
+import type { FieldSummary } from "."
+import { InfoRow } from "../InfoRow"
 
 const HISTOGRAM_WIDTH = 120
 const HISTOGRAM_HEIGHT = 28

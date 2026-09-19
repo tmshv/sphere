@@ -1,5 +1,7 @@
 export * from "./ActionBar"
 export * from "./AppLayout"
+export * from "./AttributeList"
+export * from "./InfoRow"
 export * from "./ContextMenu"
 export * from "./ErrorFallback"
 export * from "./ErrorFallback/RootErrorFallback"
