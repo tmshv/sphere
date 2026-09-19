@@ -123,4 +123,28 @@ describe("AttributeList", () => {
         expect(root).not.toBeNull()
         expect(root && getComputedStyle(root).userSelect).toBe("none")
     })
+
+    it("lets the data inside it be selected even so", () => {
+        render(<AttributeList fields={[numericField, stringField]} />)
+
+        // A column name, a statistic and a frequent value are all worth
+        // copying; the captions around them are not.
+        expect(getComputedStyle(screen.getByText("elevation")).userSelect).toBe("text")
+        expect(getComputedStyle(screen.getByText("1843")).userSelect).toBe("text")
+        expect(getComputedStyle(screen.getByText("Moscow")).userSelect).toBe("text")
+        expect(getComputedStyle(screen.getByText("max")).userSelect).toBe("none")
+    })
+
+    it("ellipsizes a long field name instead of pushing its type off the row", () => {
+        const longName: FieldEntry = {
+            name: "a_very_long_column_name_from_some_generated_export",
+            type: "String",
+            summary: { kind: "loading" },
+        }
+        render(<AttributeList fields={[longName]} />)
+        const style = getComputedStyle(screen.getByText(longName.name))
+
+        expect(style.textOverflow).toBe("ellipsis")
+        expect(Number.parseFloat(style.minWidth)).toBe(0)
+    })
 })

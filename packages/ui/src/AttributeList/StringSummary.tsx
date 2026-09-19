@@ -15,7 +15,7 @@ export const StringSummary: FC<StringSummaryProps> = ({ summary }) => {
                 {summary.unique} unique
             </Text>
             {summary.topValues.map(([value, count]) => (
-                <InfoRow key={value} label={value} value={count} />
+                <InfoRow key={value} label={value} value={count} labelIsData />
             ))}
             {remaining > 0 ? (
                 <Text size={"xs"} color={"dimmed"}>
