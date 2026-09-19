@@ -2,7 +2,7 @@ import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { LayerType, SourceType } from "@/types"
-import { ActionBar } from "@sphere/ui"
+import { ActionBar, PanelBody } from "@sphere/ui"
 import { Flex, Select, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
@@ -182,136 +182,141 @@ export const LayerPanel: React.FC = () => {
     }
     const { id: layerId, sourceId, sourceLayer, sourceLayers, name, type, filterError, isFilterable } = layer
 
+    const controls = (
+        <ActionBar
+            tooltipPosition={"top"}
+            onClick={name => {
+                switch (name) {
+                    case "trash": {
+                        dispatch(actions.layer.removeLayer(layerId))
+                        break
+                    }
+                    case "zoom": {
+                        if (!sourceId) break
+                        dispatch(actions.source.zoomTo(sourceId))
+                        break
+                    }
+                    case "duplicate": {
+                        dispatch(actions.layer.duplicate(layerId))
+                        break
+                    }
+                    default: {
+                        break
+                    }
+                }
+            }}
+            items={[
+                {
+                    name: "trash",
+                    label: "Delete layer",
+                    disabled: !layerId,
+                    icon: IconTrash,
+                    color: "red",
+                },
+                null,
+                {
+                    name: "duplicate",
+                    label: "Duplicate layer",
+                    icon: IconCopy,
+                },
+                {
+                    name: "zoom",
+                    label: "Zoom to layer",
+                    disabled: !sourceId,
+                    icon: IconCrosshair,
+                },
+            ]}
+        />
+    )
+
     return (
-        <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
-            <ActionBar
-                tooltipPosition={"top"}
-                onClick={name => {
-                    switch (name) {
-                        case "trash": {
-                            dispatch(actions.layer.removeLayer(layerId))
-                            break
-                        }
-                        case "zoom": {
-                            if (!sourceId) break
-                            dispatch(actions.source.zoomTo(sourceId))
-                            break
-                        }
-                        case "duplicate": {
-                            dispatch(actions.layer.duplicate(layerId))
-                            break
-                        }
-                        default: {
-                            break
-                        }
-                    }
-                }}
-                items={[
-                    {
-                        name: "trash",
-                        label: "Delete layer",
-                        disabled: !layerId,
-                        icon: IconTrash,
-                        color: "red",
-                    },
-                    null,
-                    {
-                        name: "duplicate",
-                        label: "Duplicate layer",
-                        icon: IconCopy,
-                    },
-                    {
-                        name: "zoom",
-                        label: "Zoom to layer",
-                        disabled: !sourceId,
-                        icon: IconCrosshair,
-                    },
-                ]}
-            />
-            <TextInput
-                size="xs"
-                label="Name"
-                value={name}
-                onChange={event => {
-                    const value = event.target.value
-                    dispatch(
-                        actions.layer.setName({
-                            id: layerId,
-                            value,
-                        }),
-                    )
-                }}
-            />
-
-            <Select
-                size="xs"
-                label="Source"
-                placeholder="Pick one"
-                value={sourceId}
-                data={sources}
-                onChange={newSourceId => {
-                    if (!newSourceId) {
-                        return
-                    }
-                    dispatch(
-                        actions.layer.setSource({
-                            id: layerId,
-                            sourceId: newSourceId,
-                        }),
-                    )
-                }}
-            />
-
-            {!isFilterable ? null : (
-                <LayerFilter
-                    key={layerId}
-                    layerId={layerId}
-                    filterExpression={layer.filterExpression}
-                    filterError={filterError}
+        <PanelBody header={controls}>
+            <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
+                <TextInput
+                    size="xs"
+                    label="Name"
+                    value={name}
+                    onChange={event => {
+                        const value = event.target.value
+                        dispatch(
+                            actions.layer.setName({
+                                id: layerId,
+                                value,
+                            }),
+                        )
+                    }}
                 />
-            )}
 
-            {!sourceLayers?.length ? null : (
                 <Select
                     size="xs"
-                    label="Source layer"
+                    label="Source"
                     placeholder="Pick one"
-                    value={sourceLayer}
-                    data={sourceLayers}
-                    onChange={value => {
-                        if (!value || !sourceId) {
+                    value={sourceId}
+                    data={sources}
+                    onChange={newSourceId => {
+                        if (!newSourceId) {
                             return
                         }
                         dispatch(
                             actions.layer.setSource({
                                 id: layerId,
-                                sourceId,
-                                sourceLayer: value,
+                                sourceId: newSourceId,
                             }),
                         )
                     }}
                 />
-            )}
 
-            <Select
-                size="xs"
-                label="View"
-                placeholder="Pick one"
-                value={type}
-                data={layer.layerTypeOptions}
-                onChange={value => {
-                    if (value) {
-                        dispatch(
-                            actions.layer.setType({
-                                id: layerId,
-                                type: value as LayerType,
-                            }),
-                        )
-                    }
-                }}
-            />
+                {!isFilterable ? null : (
+                    <LayerFilter
+                        key={layerId}
+                        layerId={layerId}
+                        filterExpression={layer.filterExpression}
+                        filterError={filterError}
+                    />
+                )}
 
-            {renderLayerControls(layer)}
-        </Flex>
+                {!sourceLayers?.length ? null : (
+                    <Select
+                        size="xs"
+                        label="Source layer"
+                        placeholder="Pick one"
+                        value={sourceLayer}
+                        data={sourceLayers}
+                        onChange={value => {
+                            if (!value || !sourceId) {
+                                return
+                            }
+                            dispatch(
+                                actions.layer.setSource({
+                                    id: layerId,
+                                    sourceId,
+                                    sourceLayer: value,
+                                }),
+                            )
+                        }}
+                    />
+                )}
+
+                <Select
+                    size="xs"
+                    label="View"
+                    placeholder="Pick one"
+                    value={type}
+                    data={layer.layerTypeOptions}
+                    onChange={value => {
+                        if (value) {
+                            dispatch(
+                                actions.layer.setType({
+                                    id: layerId,
+                                    type: value as LayerType,
+                                }),
+                            )
+                        }
+                    }}
+                />
+
+                {renderLayerControls(layer)}
+            </Flex>
+        </PanelBody>
     )
 }
