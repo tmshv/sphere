@@ -1,12 +1,10 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { ActionBar, type ActionBarOnClick, PanelBody } from "@sphere/ui"
-import { Accordion } from "@mantine/core"
+import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
 import { useCallback, useState } from "react"
 import { LayerPanel } from "../LayerPanel"
 import { LayersOutline } from "../LayersOutline"
-import { StyledAccordion } from "./StyledAccordion"
 
 export const LayersTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -53,23 +51,17 @@ export const LayersTab: React.FC = () => {
                 ]}
             />
 
-            <StyledAccordion value={value} onChange={setValue} pt={"sm"}>
-                <Accordion.Item value={"outline"}>
-                    <Accordion.Control>Outline</Accordion.Control>
-                    <Accordion.Panel>
-                        <PanelBody>
-                            <LayersOutline />
-                        </PanelBody>
-                    </Accordion.Panel>
-                </Accordion.Item>
+            <SectionStack value={value} onChange={setValue}>
+                <SectionStack.Section value={"outline"} title={"Outline"}>
+                    <PanelBody>
+                        <LayersOutline />
+                    </PanelBody>
+                </SectionStack.Section>
 
-                <Accordion.Item value={"layer-properties"}>
-                    <Accordion.Control>Layer</Accordion.Control>
-                    <Accordion.Panel>
-                        <LayerPanel />
-                    </Accordion.Panel>
-                </Accordion.Item>
-            </StyledAccordion>
+                <SectionStack.Section value={"layer-properties"} title={"Layer"}>
+                    <LayerPanel />
+                </SectionStack.Section>
+            </SectionStack>
         </>
     )
 }

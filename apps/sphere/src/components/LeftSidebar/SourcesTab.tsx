@@ -2,14 +2,13 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
-import { ActionBar, type ActionBarOnClick, PanelBody } from "@sphere/ui"
-import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
+import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
+import { Button, Group, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
 import { useCallback, useState } from "react"
 import { SourcePanel } from "../SourcePanel"
 import { SourcesOutline } from "../SourcesOutline"
-import { StyledAccordion } from "./StyledAccordion"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -124,23 +123,17 @@ export const SourcesTab: React.FC = () => {
                 ]}
             />
 
-            <StyledAccordion value={value} onChange={setValue} pt={"sm"}>
-                <Accordion.Item value={"outline"}>
-                    <Accordion.Control>Outline</Accordion.Control>
-                    <Accordion.Panel>
-                        <PanelBody>
-                            <SourcesOutline />
-                        </PanelBody>
-                    </Accordion.Panel>
-                </Accordion.Item>
+            <SectionStack value={value} onChange={setValue}>
+                <SectionStack.Section value={"outline"} title={"Outline"}>
+                    <PanelBody>
+                        <SourcesOutline />
+                    </PanelBody>
+                </SectionStack.Section>
 
-                <Accordion.Item value={"source-properties"}>
-                    <Accordion.Control>Source</Accordion.Control>
-                    <Accordion.Panel>
-                        <SourcePanel />
-                    </Accordion.Panel>
-                </Accordion.Item>
-            </StyledAccordion>
+                <SectionStack.Section value={"source-properties"} title={"Source"}>
+                    <SourcePanel />
+                </SectionStack.Section>
+            </SectionStack>
         </>
     )
 }
