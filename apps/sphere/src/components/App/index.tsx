@@ -45,9 +45,10 @@ export default function App() {
             <Spotlight mapId={id}>
                 <AppLayout
                     footer={<MapStatusbar id={id} />}
+                    onResize={onResize}
                     leftSidebar={
                         !left ? null : (
-                            <Sidebar startWidth={300} minWidth={265} maxWidth={500} onResize={onResize}>
+                            <Sidebar>
                                 <Center style={WORKING_INDICATOR_STYLE}>
                                     <WorkingIndicator />
                                 </Center>

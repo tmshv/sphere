@@ -5,7 +5,7 @@ import { Sidebar } from "."
 describe("Sidebar", () => {
     it("renders its children", () => {
         render(
-            <Sidebar startWidth={300} minWidth={265} maxWidth={500}>
+            <Sidebar>
                 <div>panel</div>
             </Sidebar>,
         )
