@@ -7,6 +7,7 @@ import { restoreSize } from "../Split/sizes"
 export const SECTION_HEADER_HEIGHT = 30
 const DEFAULT_MIN_CONTENT_SIZE = 120
 const CHEVRON_SIZE = 14
+const SPACER_MIN_SIZE = 0
 
 export type SectionProps = {
     value: string
@@ -122,7 +123,15 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, childr
             return
         }
 
-        handle.current?.resize(restoreSize(sizes.current, index, height, currentSections.map(currentMinSizeOf)))
+        // allotment reports a size for every pane it has ever laid out,
+        // including the trailing spacer, so sizes.current is one entry
+        // longer than currentSections. minSizes must line up with
+        // sizes.current by index, so the spacer's own zero minimum is
+        // appended explicitly here rather than left to restoreSize's
+        // internal `?? 0` default for a missing entry.
+        const minSizes = [...currentSections.map(currentMinSizeOf), SPACER_MIN_SIZE]
+
+        handle.current?.resize(restoreSize(sizes.current, index, height, minSizes))
     }, [value])
 
     const toggle = (section: React.ReactElement<SectionProps>) => {
@@ -183,7 +192,7 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, childr
             {/* With every section pinned to its header, nothing is willing to
                 absorb the leftover height. This takes it, so no header
                 stretches to fill the gap. */}
-            <SplitPane visible={allClosed} minSize={0} />
+            <SplitPane visible={allClosed} minSize={SPACER_MIN_SIZE} />
         </SplitView>
     )
 }
