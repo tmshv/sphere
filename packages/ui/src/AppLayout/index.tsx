@@ -46,7 +46,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
     return (
         <Flex direction={"column"} className={s.container}>
-            <SplitView className={s.main}>
+            <SplitView className={s.main} proportionalLayout={false}>
                 <SplitPane
                     visible={leftSidebar != null}
                     preferredSize={leftSidebarSize.preferred}
@@ -56,8 +56,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                     {leftSidebar}
                 </SplitPane>
 
-                {/* The body absorbs window resizes so the sidebars keep the
-                    width the user gave them. */}
+                {/* proportionalLayout is off, so panes are resized by priority
+                    instead of proportion: the body's LayoutPriority.High makes
+                    it absorb window-size changes first, leaving the sidebars
+                    at the width the user gave them. */}
                 <SplitPane priority={LayoutPriority.High}>{children}</SplitPane>
 
                 <SplitPane
