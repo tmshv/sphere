@@ -1,17 +1,17 @@
 import { useState } from "react"
 import { describe, expect, it } from "vitest"
 import { fireEvent, render, screen } from "../test-utils"
-import { SectionStack } from "."
+import { SectionStack, type SectionLayout } from "."
 
-function Stack({ initial }: { initial: string[] }) {
-    const [value, setValue] = useState(initial)
+function Stack({ initial }: { initial: SectionLayout[] }) {
+    const [sections, setSections] = useState(initial)
 
     return (
-        <SectionStack value={value} onChange={setValue}>
-            <SectionStack.Section value={"outline"} title={"Outline"}>
+        <SectionStack sections={sections} onSectionsChange={setSections}>
+            <SectionStack.Section name={"outline"} title={"Outline"}>
                 <div>outline body</div>
             </SectionStack.Section>
-            <SectionStack.Section value={"details"} title={"Details"}>
+            <SectionStack.Section name={"details"} title={"Details"}>
                 <div>details body</div>
             </SectionStack.Section>
         </SectionStack>
@@ -20,57 +20,60 @@ function Stack({ initial }: { initial: string[] }) {
 
 describe("SectionStack", () => {
     it("renders a header for every section", () => {
-        render(<Stack initial={["outline", "details"]} />)
+        render(
+            <Stack
+                initial={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: true, size: null },
+                ]}
+            />,
+        )
 
         expect(screen.getByRole("button", { name: /Outline/ })).toBeInTheDocument()
         expect(screen.getByRole("button", { name: /Details/ })).toBeInTheDocument()
     })
 
-    it("renders the body of an open section", () => {
-        render(<Stack initial={["outline"]} />)
+    it("renders the body of an open section and hides a closed one's body while keeping its header", () => {
+        render(
+            <Stack
+                initial={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: false, size: null },
+                ]}
+            />,
+        )
 
         expect(screen.getByText("outline body")).toBeInTheDocument()
-    })
-
-    it("hides the body of a closed section but keeps its header", () => {
-        render(<Stack initial={["outline"]} />)
-
         expect(screen.queryByText("details body")).not.toBeInTheDocument()
         expect(screen.getByRole("button", { name: /Details/ })).toBeInTheDocument()
     })
 
-    it("marks open sections with aria-expanded", () => {
-        render(<Stack initial={["outline"]} />)
+    it("tracks aria-expanded with each section's open state", () => {
+        render(
+            <Stack
+                initial={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: false, size: null },
+                ]}
+            />,
+        )
 
         expect(screen.getByRole("button", { name: /Outline/ })).toHaveAttribute("aria-expanded", "true")
         expect(screen.getByRole("button", { name: /Details/ })).toHaveAttribute("aria-expanded", "false")
     })
 
-    it("closes an open section when its header is clicked", () => {
-        render(<Stack initial={["outline", "details"]} />)
-
-        fireEvent.click(screen.getByRole("button", { name: /Outline/ }))
-
-        expect(screen.queryByText("outline body")).not.toBeInTheDocument()
-        expect(screen.getByText("details body")).toBeInTheDocument()
-    })
-
-    it("opens a closed section when its header is clicked", () => {
-        render(<Stack initial={[]} />)
-
-        fireEvent.click(screen.getByRole("button", { name: /Details/ }))
-
-        expect(screen.getByText("details body")).toBeInTheDocument()
-    })
-
-    it("reports the new open set through onChange", () => {
-        const calls: string[][] = []
+    it("calls onSectionsChange with only the clicked section's open flipped", () => {
+        const calls: SectionLayout[][] = []
+        const initial: SectionLayout[] = [
+            { name: "outline", open: true, size: 200 },
+            { name: "details", open: false, size: null },
+        ]
         render(
-            <SectionStack value={["outline"]} onChange={next => calls.push(next)}>
-                <SectionStack.Section value={"outline"} title={"Outline"}>
+            <SectionStack sections={initial} onSectionsChange={next => calls.push(next)}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
                     <div>outline body</div>
                 </SectionStack.Section>
-                <SectionStack.Section value={"details"} title={"Details"}>
+                <SectionStack.Section name={"details"} title={"Details"}>
                     <div>details body</div>
                 </SectionStack.Section>
             </SectionStack>,
@@ -78,6 +81,50 @@ describe("SectionStack", () => {
 
         fireEvent.click(screen.getByRole("button", { name: /Details/ }))
 
-        expect(calls.at(0)).toEqual(["outline", "details"])
+        const call = calls.at(0)
+        expect(call).toBeDefined()
+        expect(call).toEqual([
+            { name: "outline", open: true, size: 200 },
+            { name: "details", open: true, size: null },
+        ])
+    })
+
+    it("renders a child with no matching row as open by default", () => {
+        render(
+            <SectionStack sections={[]} onSectionsChange={() => {}}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
+                    <div>outline body</div>
+                </SectionStack.Section>
+            </SectionStack>,
+        )
+
+        expect(screen.getByRole("button", { name: /Outline/ })).toHaveAttribute("aria-expanded", "true")
+        expect(screen.getByText("outline body")).toBeInTheDocument()
+    })
+
+    it("ignores a row with no matching child for rendering but preserves it unchanged in onSectionsChange", () => {
+        const calls: SectionLayout[][] = []
+        const initial: SectionLayout[] = [
+            { name: "outline", open: true, size: 150 },
+            { name: "archived", open: false, size: 77 },
+        ]
+        render(
+            <SectionStack sections={initial} onSectionsChange={next => calls.push(next)}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
+                    <div>outline body</div>
+                </SectionStack.Section>
+            </SectionStack>,
+        )
+
+        expect(screen.queryByText(/archived/i)).not.toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole("button", { name: /Outline/ }))
+
+        const call = calls.at(0)
+        expect(call).toBeDefined()
+        expect(call).toEqual([
+            { name: "outline", open: false, size: 150 },
+            { name: "archived", open: false, size: 77 },
+        ])
     })
 })

@@ -10,7 +10,7 @@ const CHEVRON_SIZE = 14
 const SPACER_MIN_SIZE = 0
 
 export type SectionProps = {
-    value: string
+    name: string
     title: string
     minContentSize?: number
     children: React.ReactNode
@@ -23,6 +23,10 @@ export const Section: React.FC<SectionProps> = ({ children }) => <>{children}</>
 
 function isSection(node: React.ReactNode): node is React.ReactElement<SectionProps> {
     return isValidElement<SectionProps>(node) && node.type === Section
+}
+
+function isNumber(value: number | null): value is number {
+    return value !== null
 }
 
 const useStyles = createStyles(theme => ({
@@ -71,55 +75,99 @@ const useStyles = createStyles(theme => ({
     },
 }))
 
+export type SectionLayout = {
+    name: string
+    open: boolean
+    size: number | null
+}
+
 export type SectionStackProps = {
-    value: string[]
-    onChange: (value: string[]) => void
+    sections: SectionLayout[]
+    onSectionsChange: (sections: SectionLayout[]) => void
     children: React.ReactNode
 }
 
-const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, children }) => {
+const DEFAULT_LAYOUT = { open: true, size: null } as const
+
+function layoutOf(sections: SectionLayout[], name: string): SectionLayout {
+    const row = sections.find(section => section.name === name)
+    if (row !== undefined) {
+        return row
+    }
+
+    return { name, ...DEFAULT_LAYOUT }
+}
+
+const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSectionsChange, children }) => {
     const { classes: s, cx } = useStyles()
     const baseId = useId()
     const handle = useRef<SplitViewHandle>(null)
     const sizes = useRef<number[]>([])
-    const remembered = useRef(new Map<string, number>())
     const pending = useRef<string | null>(null)
 
-    const sections = Children.toArray(children).filter(isSection)
-    const openOf = (section: React.ReactElement<SectionProps>) => value.includes(section.props.value)
+    const renderedSections = Children.toArray(children).filter(isSection)
     const minSizeOf = (section: React.ReactElement<SectionProps>) => {
-        if (!openOf(section)) {
+        const layout = layoutOf(rows, section.props.name)
+        if (!layout.open) {
             return SECTION_HEADER_HEIGHT
         }
 
         return SECTION_HEADER_HEIGHT + (section.props.minContentSize ?? DEFAULT_MIN_CONTENT_SIZE)
     }
 
-    // sections and minSizeOf are rebuilt every render, so the effect below
-    // cannot depend on them directly without re-running on every render. It
-    // reads them from this ref, which is assigned on each render, and keys
-    // off `value` instead — the only input that actually changes when a
-    // section opens or closes.
-    const latest = useRef({ sections, minSizeOf })
-    latest.current = { sections, minSizeOf }
+    // renderedSections and minSizeOf are rebuilt every render, so the effect
+    // below cannot depend on them directly without re-running on every
+    // render. It reads them from this ref, which is assigned on each render,
+    // and keys off `rows` instead — the only input that actually changes
+    // when a section opens or closes.
+    const latest = useRef({ renderedSections, minSizeOf })
+    latest.current = { renderedSections, minSizeOf }
 
-    const onSplitChange = useCallback((next: number[]) => {
-        sizes.current = next
-    }, [])
+    const onSplitChange = useCallback(
+        (next: number[]) => {
+            sizes.current = next
+
+            const { renderedSections: currentSections } = latest.current
+            let changed = false
+            const nextRows = rows.map(row => {
+                if (!row.open) {
+                    return row
+                }
+
+                const index = currentSections.findIndex(section => section.props.name === row.name)
+                const height = index < 0 ? undefined : next.at(index)
+                if (height === undefined || height === row.size) {
+                    return row
+                }
+
+                changed = true
+                return { ...row, size: height }
+            })
+
+            if (changed) {
+                onSectionsChange(nextRows)
+            }
+        },
+        [rows, onSectionsChange],
+    )
 
     // A reopened pane only grows to its minimum, so the size it had before it
     // was closed is reapplied once the new minimums have been laid out.
     useEffect(() => {
         const target = pending.current
         pending.current = null
-        if (target === null || !value.includes(target)) {
+        if (target === null) {
             return
         }
 
-        const { sections: currentSections, minSizeOf: currentMinSizeOf } = latest.current
-        const height = remembered.current.get(target)
-        const index = currentSections.findIndex(section => section.props.value === target)
-        if (height === undefined || index < 0 || sizes.current.length < currentSections.length) {
+        const targetRow = rows.find(row => row.name === target)
+        if (targetRow === undefined || !targetRow.open || targetRow.size === null) {
+            return
+        }
+
+        const { renderedSections: currentSections, minSizeOf: currentMinSizeOf } = latest.current
+        const index = currentSections.findIndex(section => section.props.name === target)
+        if (index < 0 || sizes.current.length < currentSections.length) {
             return
         }
 
@@ -131,37 +179,53 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, childr
         // internal `?? 0` default for a missing entry.
         const minSizes = [...currentSections.map(currentMinSizeOf), SPACER_MIN_SIZE]
 
-        handle.current?.resize(restoreSize(sizes.current, index, height, minSizes))
-    }, [value])
+        handle.current?.resize(restoreSize(sizes.current, index, targetRow.size, minSizes))
+    }, [rows])
 
     const toggle = (section: React.ReactElement<SectionProps>) => {
-        const id = section.props.value
-        if (value.includes(id)) {
-            const index = sections.indexOf(section)
-            const height = sizes.current.at(index)
-            if (height !== undefined) {
-                remembered.current.set(id, height)
-            }
+        const name = section.props.name
+        const layout = layoutOf(rows, name)
 
-            onChange(value.filter(open => open !== id))
+        if (layout.open) {
+            const index = renderedSections.indexOf(section)
+            const height = sizes.current.at(index)
+
+            const closedRow = { ...layout, open: false, size: height ?? layout.size }
+            const nextRows = rows.some(row => row.name === name)
+                ? rows.map(row => (row.name === name ? closedRow : row))
+                : [...rows, closedRow]
+
+            onSectionsChange(nextRows)
             return
         }
 
-        pending.current = id
-        onChange([...value, id])
+        pending.current = name
+        const openRow = { ...layout, open: true }
+        const nextRows = rows.some(row => row.name === name)
+            ? rows.map(row => (row.name === name ? openRow : row))
+            : [...rows, openRow]
+
+        onSectionsChange(nextRows)
     }
 
-    const allClosed = sections.every(section => !openOf(section))
+    const allClosed = renderedSections.every(section => !layoutOf(rows, section.props.name).open)
+
+    const openSizes = renderedSections.map(section => {
+        const layout = layoutOf(rows, section.props.name)
+        return layout.open ? layout.size : SECTION_HEADER_HEIGHT
+    })
+    const defaultSizes = openSizes.every(isNumber) ? [...openSizes, SPACER_MIN_SIZE] : undefined
 
     return (
-        <SplitView vertical ref={handle} className={s.root} onChange={onSplitChange}>
-            {sections.map(section => {
-                const open = openOf(section)
-                const bodyId = `${baseId}-${section.props.value}`
+        <SplitView vertical ref={handle} className={s.root} onChange={onSplitChange} defaultSizes={defaultSizes}>
+            {renderedSections.map(section => {
+                const layout = layoutOf(rows, section.props.name)
+                const open = layout.open
+                const bodyId = `${baseId}-${section.props.name}`
 
                 return (
                     <SplitPane
-                        key={section.props.value}
+                        key={section.props.name}
                         minSize={minSizeOf(section)}
                         // allotment only writes maximumSize when the incoming prop is not
                         // undefined, so passing undefined here would leave a previously
