@@ -1,3 +1,4 @@
+import type { SidebarSection } from "@/types"
 import { describe, expect, test } from "vitest"
 import reducer, {
     appSlice,
@@ -5,6 +6,7 @@ import reducer, {
     selectShowAttribution,
     selectShowLeftSidebar,
     selectShowRightSidebar,
+    selectSidebarSections,
     selectVersion,
 } from "./app"
 
@@ -18,6 +20,7 @@ const {
     showRightSidebar,
     hideRightSidebar,
     setActiveSidebarTab,
+    setSidebarSections,
     setMapTool,
     toggleLeftSidebar,
     toggleRightSidebar,
@@ -210,5 +213,48 @@ describe("app slice sidebar toggles", () => {
         const prev = reducer(undefined, hideRightSidebar())
         const state = reducer(prev, toggleRightSidebar())
         expect(state.showRightSidebar).toBe(true)
+    })
+})
+
+describe("app slice sidebarSections", () => {
+    test("initial state has the expected section names for sources", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(state.sidebarSections.sources).toEqual([
+            { name: "outline", open: true, size: null },
+            { name: "source-properties", open: true, size: null },
+        ])
+    })
+
+    test("initial state has the expected section names for layers", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(state.sidebarSections.layers).toEqual([
+            { name: "outline", open: true, size: null },
+            { name: "layer-properties", open: true, size: null },
+        ])
+    })
+
+    test("setSidebarSections replaces the named tab's array", () => {
+        const next: SidebarSection[] = [{ name: "outline", open: false, size: 240 }]
+        const state = reducer(undefined, setSidebarSections({ tab: "sources", sections: next }))
+        expect(state.sidebarSections.sources).toEqual(next)
+    })
+
+    test("setSidebarSections leaves the other tab's array untouched", () => {
+        const prev = reducer(undefined, { type: "@@INIT" })
+        const next: SidebarSection[] = [{ name: "outline", open: false, size: 240 }]
+        const state = reducer(prev, setSidebarSections({ tab: "sources", sections: next }))
+        expect(state.sidebarSections.layers).toEqual(prev.sidebarSections.layers)
+    })
+
+    test("selectSidebarSections returns the sources array for the sources tab", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        const rootState = { app: state } as unknown as Parameters<typeof selectActiveSidebarTab>[0]
+        expect(selectSidebarSections("sources")(rootState)).toEqual(state.sidebarSections.sources)
+    })
+
+    test("selectSidebarSections returns the layers array for the layers tab", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        const rootState = { app: state } as unknown as Parameters<typeof selectActiveSidebarTab>[0]
+        expect(selectSidebarSections("layers")(rootState)).toEqual(state.sidebarSections.layers)
     })
 })

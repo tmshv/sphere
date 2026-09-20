@@ -1,7 +1,8 @@
-import { render, screen } from "@/test-utils"
+import appReducer, { appSlice } from "@/store/app"
+import { fireEvent, render, screen } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
-import { configureStore } from "@reduxjs/toolkit"
+import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
 import { describe, expect, it } from "vitest"
 import { SourcesTab } from "./SourcesTab"
@@ -22,20 +23,33 @@ const source: Source = {
     },
 }
 
-const makeStore = () =>
-    configureStore({
+function makeStore() {
+    const dispatchedActions: unknown[] = []
+    const captureMiddleware: Middleware = () => next => action => {
+        dispatchedActions.push(action)
+        return next(action)
+    }
+
+    const store = configureStore({
         reducer: {
+            app: appReducer,
             source: () => ({ selectedId: "s1", items: { s1: source }, allIds: ["s1"] }),
             draw: () => ({ sourceId: null, selectedIds: [] }),
         },
+        middleware: getDefaultMiddleware => getDefaultMiddleware().concat(captureMiddleware),
     })
 
+    return { store, dispatchedActions }
+}
+
 function renderTab() {
-    return render(
-        <Provider store={makeStore()}>
+    const { store, dispatchedActions } = makeStore()
+    render(
+        <Provider store={store}>
             <SourcesTab />
         </Provider>,
     )
+    return { dispatchedActions }
 }
 
 function scrollParentOf(element: Element) {
@@ -74,5 +88,21 @@ describe("SourcesTab", () => {
 
         expect(controls.querySelectorAll("button").length).toBeGreaterThan(0)
         expect(scrollParentOf(controls)).toBeNull()
+    })
+
+    it("dispatches setSidebarSections with the clicked section's open flag flipped", () => {
+        const { dispatchedActions } = renderTab()
+
+        fireEvent.click(screen.getByRole("button", { name: /Outline/ }))
+
+        const action = dispatchedActions.find(candidate => appSlice.actions.setSidebarSections.match(candidate))
+        expect(action).toBeDefined()
+        if (action === undefined || !appSlice.actions.setSidebarSections.match(action)) {
+            throw new Error("setSidebarSections action not dispatched")
+        }
+
+        expect(action.payload.tab).toBe("sources")
+        const outline = action.payload.sections.find(section => section.name === "outline")
+        expect(outline?.open).toBe(false)
     })
 })

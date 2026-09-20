@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { DEFAULT_MAP_TOOL, type MapTool } from "@/lib/map-tools"
+import type { SidebarSection, SidebarTab } from "@/types"
 import type { RootState } from "."
 
 type AppState = {
@@ -10,7 +11,8 @@ type AppState = {
     showAttribution: boolean
     showLeftSidebar: boolean
     showRightSidebar: boolean
-    activeSidebarTab: "sources" | "layers"
+    activeSidebarTab: SidebarTab
+    sidebarSections: Record<SidebarTab, SidebarSection[]>
     mapTool: MapTool
 }
 
@@ -22,6 +24,16 @@ const initialState: AppState = {
     showLeftSidebar: true,
     showRightSidebar: true,
     activeSidebarTab: "sources",
+    sidebarSections: {
+        sources: [
+            { name: "outline", open: true, size: null },
+            { name: "source-properties", open: true, size: null },
+        ],
+        layers: [
+            { name: "outline", open: true, size: null },
+            { name: "layer-properties", open: true, size: null },
+        ],
+    },
     mapTool: DEFAULT_MAP_TOOL,
 }
 
@@ -60,8 +72,12 @@ export const appSlice = createSlice({
         toggleRightSidebar: state => {
             state.showRightSidebar = !state.showRightSidebar
         },
-        setActiveSidebarTab: (state, action: PayloadAction<"sources" | "layers">) => {
+        setActiveSidebarTab: (state, action: PayloadAction<SidebarTab>) => {
             state.activeSidebarTab = action.payload
+        },
+        setSidebarSections: (state, action: PayloadAction<{ tab: SidebarTab; sections: SidebarSection[] }>) => {
+            const { tab, sections } = action.payload
+            state.sidebarSections[tab] = sections
         },
         setMapTool: (state, action: PayloadAction<MapTool>) => {
             state.mapTool = action.payload
@@ -78,6 +94,7 @@ export const actions = {
 }
 
 export const selectActiveSidebarTab = (state: RootState) => state.app.activeSidebarTab
+export const selectSidebarSections = (tab: SidebarTab) => (state: RootState) => state.app.sidebarSections[tab]
 export const selectMapTool = (state: RootState) => state.app.mapTool
 export const selectShowAttribution = (state: RootState) => state.app.showAttribution
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode

@@ -1,7 +1,9 @@
 import { actions, selectors } from "@/store"
+import { selectSidebarSections } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
+import type { SidebarSection } from "@/types"
 import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
 import { Button, Group, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
@@ -13,13 +15,20 @@ import { SourcesOutline } from "../SourcesOutline"
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(selectors.source.selectSelectedId)
+    const sections = useAppSelector(selectSidebarSections("sources"))
     const [showModal, setShowModal] = useState(false)
-    const [value, setValue] = useState<string[]>(["outline", "source-properties"])
     const form = useForm({
         initialValues: {
             url: "",
         },
     })
+
+    const onSectionsChange = useCallback(
+        (next: SidebarSection[]) => {
+            dispatch(actions.app.setSidebarSections({ tab: "sources", sections: next }))
+        },
+        [dispatch],
+    )
 
     const onClick = useCallback<ActionBarOnClick>(
         name => {
@@ -123,14 +132,14 @@ export const SourcesTab: React.FC = () => {
                 ]}
             />
 
-            <SectionStack value={value} onChange={setValue}>
-                <SectionStack.Section value={"outline"} title={"Outline"}>
+            <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
                     <PanelBody>
                         <SourcesOutline />
                     </PanelBody>
                 </SectionStack.Section>
 
-                <SectionStack.Section value={"source-properties"} title={"Source"}>
+                <SectionStack.Section name={"source-properties"} title={"Source"}>
                     <SourcePanel />
                 </SectionStack.Section>
             </SectionStack>

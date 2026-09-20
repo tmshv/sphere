@@ -1,14 +1,23 @@
 import { actions } from "@/store"
-import { useAppDispatch } from "@/store/hooks"
+import { selectSidebarSections } from "@/store/app"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import type { SidebarSection } from "@/types"
 import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 import { LayerPanel } from "../LayerPanel"
 import { LayersOutline } from "../LayersOutline"
 
 export const LayersTab: React.FC = () => {
     const dispatch = useAppDispatch()
-    const [value, setValue] = useState<string[]>(["outline", "layer-properties"])
+    const sections = useAppSelector(selectSidebarSections("layers"))
+
+    const onSectionsChange = useCallback(
+        (next: SidebarSection[]) => {
+            dispatch(actions.app.setSidebarSections({ tab: "layers", sections: next }))
+        },
+        [dispatch],
+    )
 
     const onClick = useCallback<ActionBarOnClick>(
         name => {
@@ -51,14 +60,14 @@ export const LayersTab: React.FC = () => {
                 ]}
             />
 
-            <SectionStack value={value} onChange={setValue}>
-                <SectionStack.Section value={"outline"} title={"Outline"}>
+            <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
                     <PanelBody>
                         <LayersOutline />
                     </PanelBody>
                 </SectionStack.Section>
 
-                <SectionStack.Section value={"layer-properties"} title={"Layer"}>
+                <SectionStack.Section name={"layer-properties"} title={"Layer"}>
                     <LayerPanel />
                 </SectionStack.Section>
             </SectionStack>
