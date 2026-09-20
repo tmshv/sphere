@@ -1,16 +1,23 @@
 import { actions } from "@/store"
-import { useAppDispatch } from "@/store/hooks"
-import { ActionBar, type ActionBarOnClick, PanelBody } from "@sphere/ui"
-import { Accordion } from "@mantine/core"
+import { selectSidebarSections } from "@/store/app"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import type { SidebarSection } from "@/types"
+import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 import { LayerPanel } from "../LayerPanel"
 import { LayersOutline } from "../LayersOutline"
-import { StyledAccordion } from "./StyledAccordion"
 
 export const LayersTab: React.FC = () => {
     const dispatch = useAppDispatch()
-    const [value, setValue] = useState<string[]>(["outline", "layer-properties"])
+    const sections = useAppSelector(selectSidebarSections("layers"))
+
+    const onSectionsChange = useCallback(
+        (next: SidebarSection[]) => {
+            dispatch(actions.app.setSidebarSections({ tab: "layers", sections: next }))
+        },
+        [dispatch],
+    )
 
     const onClick = useCallback<ActionBarOnClick>(
         name => {
@@ -53,23 +60,17 @@ export const LayersTab: React.FC = () => {
                 ]}
             />
 
-            <StyledAccordion value={value} onChange={setValue} pt={"sm"}>
-                <Accordion.Item value={"outline"}>
-                    <Accordion.Control>Outline</Accordion.Control>
-                    <Accordion.Panel>
-                        <PanelBody>
-                            <LayersOutline />
-                        </PanelBody>
-                    </Accordion.Panel>
-                </Accordion.Item>
+            <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
+                    <PanelBody>
+                        <LayersOutline />
+                    </PanelBody>
+                </SectionStack.Section>
 
-                <Accordion.Item value={"layer-properties"}>
-                    <Accordion.Control>Layer</Accordion.Control>
-                    <Accordion.Panel>
-                        <LayerPanel />
-                    </Accordion.Panel>
-                </Accordion.Item>
-            </StyledAccordion>
+                <SectionStack.Section name={"layer-properties"} title={"Layer"}>
+                    <LayerPanel />
+                </SectionStack.Section>
+            </SectionStack>
         </>
     )
 }

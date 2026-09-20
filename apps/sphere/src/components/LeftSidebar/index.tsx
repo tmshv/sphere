@@ -3,6 +3,7 @@ import { IconDatabase, IconSquaresFilled, IconStack } from "@tabler/icons"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectActiveSidebarTab } from "@/store/app"
+import { isSidebarTab } from "@/lib/sidebar"
 import { LayersTab } from "./LayersTab"
 import { SourcesTab } from "./SourcesTab"
 
@@ -36,8 +37,8 @@ export function StyledTabs(props: TabsProps) {
                     overflow: "hidden",
 
                     // Toolbars and headers keep their height; the one child
-                    // that scrolls (the accordion) opts out with its own
-                    // inline flex value.
+                    // that scrolls (SectionStack) opts out via its own
+                    // createStyles class.
                     "& > *": {
                         flexShrink: 0,
                     },
@@ -103,7 +104,11 @@ export const LeftSidebar: React.FC = () => {
     const activeTab = useAppSelector(selectActiveSidebarTab)
 
     const handleTabChange = (value: string | null) => {
-        dispatch(actions.app.setActiveSidebarTab(value as "sources" | "layers"))
+        if (!isSidebarTab(value)) {
+            return
+        }
+
+        dispatch(actions.app.setActiveSidebarTab(value))
     }
 
     return (

@@ -1,6 +1,6 @@
 import { MAP_ID } from "@/const"
 import logger from "@/logger"
-import { actions, selectors } from "@/store"
+import { selectors } from "@/store"
 import { selectShowLeftSidebar } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import addFromClipboard from "@/store/source/addFromClipboard"
@@ -30,10 +30,6 @@ export default function App() {
     const id = MAP_ID
     const dispatch = useAppDispatch()
 
-    const onResize = useCallback(() => {
-        dispatch(actions.map.resize(id))
-    }, [dispatch])
-
     const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
 
     useHotkeys([["mod+V", () => dispatch(addFromClipboard())]])
@@ -47,7 +43,7 @@ export default function App() {
                     footer={<MapStatusbar id={id} />}
                     leftSidebar={
                         !left ? null : (
-                            <Sidebar startWidth={300} minWidth={265} maxWidth={500} onResize={onResize}>
+                            <Sidebar>
                                 <Center style={WORKING_INDICATOR_STYLE}>
                                     <WorkingIndicator />
                                 </Center>

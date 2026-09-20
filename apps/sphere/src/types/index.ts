@@ -1,5 +1,13 @@
 export type Projection = "mercator" | "globe"
 
+export type SidebarTab = "sources" | "layers"
+
+export type SidebarSection = {
+    name: string
+    open: boolean
+    size: number | null
+}
+
 export type LayerRenderType = "Point" | "LineString" | "Polygon" | "photo" | "layer" | "unknown"
 
 export enum SourceType {

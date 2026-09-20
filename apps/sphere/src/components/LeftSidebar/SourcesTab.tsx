@@ -1,26 +1,34 @@
 import { actions, selectors } from "@/store"
+import { selectSidebarSections } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
-import { ActionBar, type ActionBarOnClick, PanelBody } from "@sphere/ui"
-import { Accordion, Button, Group, Modal, TextInput } from "@mantine/core"
+import type { SidebarSection } from "@/types"
+import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
+import { Button, Group, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
 import { useCallback, useState } from "react"
 import { SourcePanel } from "../SourcePanel"
 import { SourcesOutline } from "../SourcesOutline"
-import { StyledAccordion } from "./StyledAccordion"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
     const sourceId = useAppSelector(selectors.source.selectSelectedId)
+    const sections = useAppSelector(selectSidebarSections("sources"))
     const [showModal, setShowModal] = useState(false)
-    const [value, setValue] = useState<string[]>(["outline", "source-properties"])
     const form = useForm({
         initialValues: {
             url: "",
         },
     })
+
+    const onSectionsChange = useCallback(
+        (next: SidebarSection[]) => {
+            dispatch(actions.app.setSidebarSections({ tab: "sources", sections: next }))
+        },
+        [dispatch],
+    )
 
     const onClick = useCallback<ActionBarOnClick>(
         name => {
@@ -124,23 +132,17 @@ export const SourcesTab: React.FC = () => {
                 ]}
             />
 
-            <StyledAccordion value={value} onChange={setValue} pt={"sm"}>
-                <Accordion.Item value={"outline"}>
-                    <Accordion.Control>Outline</Accordion.Control>
-                    <Accordion.Panel>
-                        <PanelBody>
-                            <SourcesOutline />
-                        </PanelBody>
-                    </Accordion.Panel>
-                </Accordion.Item>
+            <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
+                    <PanelBody>
+                        <SourcesOutline />
+                    </PanelBody>
+                </SectionStack.Section>
 
-                <Accordion.Item value={"source-properties"}>
-                    <Accordion.Control>Source</Accordion.Control>
-                    <Accordion.Panel>
-                        <SourcePanel />
-                    </Accordion.Panel>
-                </Accordion.Item>
-            </StyledAccordion>
+                <SectionStack.Section name={"source-properties"} title={"Source"}>
+                    <SourcePanel />
+                </SectionStack.Section>
+            </SectionStack>
         </>
     )
 }
