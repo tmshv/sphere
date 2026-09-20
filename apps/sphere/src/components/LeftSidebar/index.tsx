@@ -3,6 +3,7 @@ import { IconDatabase, IconSquaresFilled, IconStack } from "@tabler/icons"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectActiveSidebarTab } from "@/store/app"
+import { isSidebarTab } from "@/lib/sidebar"
 import { LayersTab } from "./LayersTab"
 import { SourcesTab } from "./SourcesTab"
 
@@ -103,7 +104,11 @@ export const LeftSidebar: React.FC = () => {
     const activeTab = useAppSelector(selectActiveSidebarTab)
 
     const handleTabChange = (value: string | null) => {
-        dispatch(actions.app.setActiveSidebarTab(value as "sources" | "layers"))
+        if (!isSidebarTab(value)) {
+            return
+        }
+
+        dispatch(actions.app.setActiveSidebarTab(value))
     }
 
     return (
