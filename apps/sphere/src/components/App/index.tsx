@@ -1,6 +1,6 @@
 import { MAP_ID } from "@/const"
 import logger from "@/logger"
-import { actions, selectors } from "@/store"
+import { selectors } from "@/store"
 import { selectShowLeftSidebar } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import addFromClipboard from "@/store/source/addFromClipboard"
@@ -30,10 +30,6 @@ export default function App() {
     const id = MAP_ID
     const dispatch = useAppDispatch()
 
-    const onResize = useCallback(() => {
-        dispatch(actions.map.resize(id))
-    }, [dispatch])
-
     const copy = useCallback<LocationToString>(([lng, lat]) => `lng=${lng} lat=${lat}`, [])
 
     useHotkeys([["mod+V", () => dispatch(addFromClipboard())]])
@@ -45,7 +41,6 @@ export default function App() {
             <Spotlight mapId={id}>
                 <AppLayout
                     footer={<MapStatusbar id={id} />}
-                    onResize={onResize}
                     leftSidebar={
                         !left ? null : (
                             <Sidebar>

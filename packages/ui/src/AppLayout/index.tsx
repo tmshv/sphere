@@ -32,7 +32,6 @@ export type AppLayoutProps = {
     rightSidebar?: React.ReactNode
     leftSidebarSize?: SidebarSize
     rightSidebarSize?: SidebarSize
-    onResize?: (sizes: number[]) => void
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -42,13 +41,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     rightSidebar,
     leftSidebarSize = DEFAULT_SIDEBAR_SIZE,
     rightSidebarSize = DEFAULT_SIDEBAR_SIZE,
-    onResize,
 }) => {
     const { classes: s } = useStyles()
 
     return (
         <Flex direction={"column"} className={s.container}>
-            <SplitView className={s.main} onChange={onResize}>
+            <SplitView className={s.main}>
                 <SplitPane
                     visible={leftSidebar != null}
                     preferredSize={leftSidebarSize.preferred}
