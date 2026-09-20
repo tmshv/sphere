@@ -46,6 +46,7 @@ Three things are wrong with the current arrangement:
 ## Decisions
 
 | Decision            | Choice                                         |
+| ------------------- | ---------------------------------------------- |
 | Library             | `allotment` 1.20.5                             |
 | Sections open/close | Kept, driven by a controlled array of open ids |
 | Closed section      | Stays a pane, pinned to header height          |
@@ -172,6 +173,7 @@ and below it the section body.
 Sizing per section:
 
 | State  | `minSize`                        | `maxSize`       | Sash      |
+| ------ | -------------------------------- | --------------- | --------- |
 | Open   | `HEADER_HEIGHT + minContentSize` | unset           | Draggable |
 | Closed | `HEADER_HEIGHT`                  | `HEADER_HEIGHT` | Pinned    |
 
