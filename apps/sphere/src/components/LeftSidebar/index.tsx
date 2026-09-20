@@ -36,8 +36,8 @@ export function StyledTabs(props: TabsProps) {
                     overflow: "hidden",
 
                     // Toolbars and headers keep their height; the one child
-                    // that scrolls (the accordion) opts out with its own
-                    // inline flex value.
+                    // that scrolls (SectionStack) opts out via its own
+                    // createStyles class.
                     "& > *": {
                         flexShrink: 0,
                     },

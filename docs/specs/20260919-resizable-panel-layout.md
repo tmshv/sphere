@@ -172,10 +172,10 @@ and below it the section body.
 
 Sizing per section:
 
-| State  | `minSize`                        | `maxSize`       | Sash      |
-| ------ | -------------------------------- | --------------- | --------- |
-| Open   | `HEADER_HEIGHT + minContentSize` | unset           | Draggable |
-| Closed | `HEADER_HEIGHT`                  | `HEADER_HEIGHT` | Pinned    |
+| State  | `minSize`                        | `maxSize`                  | Sash      |
+| ------ | -------------------------------- | -------------------------- | --------- |
+| Open   | `HEADER_HEIGHT + minContentSize` | `Number.POSITIVE_INFINITY` | Draggable |
+| Closed | `HEADER_HEIGHT`                  | `HEADER_HEIGHT`            | Pinned    |
 
 `HEADER_HEIGHT` is `30`, the value `StyledAccordion` uses for its control
 today, defined once as a named constant. `minContentSize` defaults to `120`.

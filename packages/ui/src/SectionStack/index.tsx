@@ -163,7 +163,11 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, childr
                     <SplitPane
                         key={section.props.value}
                         minSize={minSizeOf(section)}
-                        maxSize={open ? undefined : SECTION_HEADER_HEIGHT}
+                        // allotment only writes maximumSize when the incoming prop is not
+                        // undefined, so passing undefined here would leave a previously
+                        // closed section's maximumSize pinned at SECTION_HEADER_HEIGHT
+                        // forever. Infinity is a real value that clears it.
+                        maxSize={open ? Number.POSITIVE_INFINITY : SECTION_HEADER_HEIGHT}
                     >
                         <div className={s.section}>
                             <UnstyledButton

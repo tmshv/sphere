@@ -1122,7 +1122,7 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, childr
                     <SplitPane
                         key={section.props.value}
                         minSize={minSizeOf(section)}
-                        maxSize={open ? undefined : SECTION_HEADER_HEIGHT}
+                        maxSize={open ? Number.POSITIVE_INFINITY : SECTION_HEADER_HEIGHT}
                     >
                         <div className={s.section}>
                             <UnstyledButton
