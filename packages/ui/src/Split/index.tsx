@@ -44,19 +44,15 @@ export const SplitView = forwardRef<SplitViewHandle, SplitViewProps>(function Sp
     )
 })
 
-export type SplitPaneProps = {
-    children?: React.ReactNode
-    minSize?: number
-    maxSize?: number
-    preferredSize?: number | string
-    priority?: LayoutPriority
-    snap?: boolean
-    visible?: boolean
-    className?: string
-}
+// SplitPane must BE Allotment.Pane, not wrap it. Allotment decides what is a
+// pane by checking `displayName === "Allotment.Pane"` on the child element's
+// type (see node_modules/allotment/dist/module.js). A wrapper component has
+// no displayName of its own, so allotment falls into its "not a pane"
+// branch for every child: minSize/maxSize/preferredSize/priority/visible are
+// silently discarded, and the wrapper's own split-view-view div gets
+// double-wrapped in a second, unregistered one that never receives a size —
+// collapsing all content to zero. Re-exporting the real component keeps its
+// displayName intact and is recognised natively.
+export const SplitPane = Allotment.Pane
 
-// allotment's Pane requires children; a spacer pane has none, so null stands
-// in for it.
-export const SplitPane: React.FC<SplitPaneProps> = ({ children = null, ...props }) => (
-    <Allotment.Pane {...props}>{children}</Allotment.Pane>
-)
+export type SplitPaneProps = React.ComponentProps<typeof SplitPane>

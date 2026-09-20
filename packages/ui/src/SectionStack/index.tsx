@@ -196,7 +196,9 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ value, onChange, childr
             {/* With every section pinned to its header, nothing is willing to
                 absorb the leftover height. This takes it, so no header
                 stretches to fill the gap. */}
-            <SplitPane visible={allClosed} minSize={SPACER_MIN_SIZE} />
+            <SplitPane visible={allClosed} minSize={SPACER_MIN_SIZE}>
+                {null}
+            </SplitPane>
         </SplitView>
     )
 }
