@@ -3,11 +3,11 @@ import { IconChevronRight } from "@tabler/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"
 import { restoreSize } from "../Split/sizes"
+import { defaultSizesOf, isSpacerVisible, mergeSections, resolveSections, SPACER_MIN_SIZE } from "./layout"
 
 export const SECTION_HEADER_HEIGHT = 30
 const DEFAULT_MIN_CONTENT_SIZE = 120
 const CHEVRON_SIZE = 14
-const SPACER_MIN_SIZE = 0
 
 export type SectionProps = {
     name: string
@@ -23,10 +23,6 @@ export const Section: React.FC<SectionProps> = ({ children }) => <>{children}</>
 
 function isSection(node: React.ReactNode): node is React.ReactElement<SectionProps> {
     return isValidElement<SectionProps>(node) && node.type === Section
-}
-
-function isNumber(value: number | null): value is number {
-    return value !== null
 }
 
 const useStyles = createStyles(theme => ({
@@ -87,15 +83,17 @@ export type SectionStackProps = {
     children: React.ReactNode
 }
 
-const DEFAULT_LAYOUT = { open: true, size: null } as const
-
-function layoutOf(sections: SectionLayout[], name: string): SectionLayout {
-    const row = sections.find(section => section.name === name)
-    if (row !== undefined) {
-        return row
+// resolveSections guarantees one entry per name in the list it was given, in
+// the same order, so a lookup against a resolved array built from the exact
+// same names can never actually miss. This fallback exists only to satisfy
+// the type system without an unguarded index/non-null assertion.
+function layoutOf(resolved: SectionLayout[], name: string): SectionLayout {
+    const found = resolved.find(section => section.name === name)
+    if (found !== undefined) {
+        return found
     }
 
-    return { name, ...DEFAULT_LAYOUT }
+    return { name, open: true, size: null }
 }
 
 const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSectionsChange, children }) => {
@@ -106,8 +104,13 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSecti
     const pending = useRef<string | null>(null)
 
     const renderedSections = Children.toArray(children).filter(isSection)
+    const resolved = resolveSections(
+        rows,
+        renderedSections.map(section => section.props.name),
+    )
+
     const minSizeOf = (section: React.ReactElement<SectionProps>) => {
-        const layout = layoutOf(rows, section.props.name)
+        const layout = layoutOf(resolved, section.props.name)
         if (!layout.open) {
             return SECTION_HEADER_HEIGHT
         }
@@ -128,24 +131,26 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSecti
             sizes.current = next
 
             const { renderedSections: currentSections } = latest.current
-            let changed = false
-            const nextRows = rows.map(row => {
-                if (!row.open) {
-                    return row
+            const currentResolved = resolveSections(
+                rows,
+                currentSections.map(section => section.props.name),
+            )
+
+            const changedLayouts = currentResolved.flatMap((layout, index) => {
+                if (!layout.open) {
+                    return []
                 }
 
-                const index = currentSections.findIndex(section => section.props.name === row.name)
-                const height = index < 0 ? undefined : next.at(index)
-                if (height === undefined || height === row.size) {
-                    return row
+                const height = next.at(index)
+                if (height === undefined || height === layout.size) {
+                    return []
                 }
 
-                changed = true
-                return { ...row, size: height }
+                return [{ ...layout, size: height }]
             })
 
-            if (changed) {
-                onSectionsChange(nextRows)
+            if (changedLayouts.length > 0) {
+                onSectionsChange(mergeSections(rows, changedLayouts))
             }
         },
         [rows, onSectionsChange],
@@ -160,14 +165,19 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSecti
             return
         }
 
-        const targetRow = rows.find(row => row.name === target)
-        if (targetRow === undefined || !targetRow.open || targetRow.size === null) {
+        const { renderedSections: currentSections, minSizeOf: currentMinSizeOf } = latest.current
+        const currentResolved = resolveSections(
+            rows,
+            currentSections.map(section => section.props.name),
+        )
+
+        const index = currentSections.findIndex(section => section.props.name === target)
+        const targetLayout = index < 0 ? undefined : currentResolved.at(index)
+        if (targetLayout === undefined || !targetLayout.open || targetLayout.size === null) {
             return
         }
 
-        const { renderedSections: currentSections, minSizeOf: currentMinSizeOf } = latest.current
-        const index = currentSections.findIndex(section => section.props.name === target)
-        if (index < 0 || sizes.current.length < currentSections.length) {
+        if (sizes.current.length < currentSections.length) {
             return
         }
 
@@ -179,47 +189,34 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSecti
         // internal `?? 0` default for a missing entry.
         const minSizes = [...currentSections.map(currentMinSizeOf), SPACER_MIN_SIZE]
 
-        handle.current?.resize(restoreSize(sizes.current, index, targetRow.size, minSizes))
+        handle.current?.resize(restoreSize(sizes.current, index, targetLayout.size, minSizes))
     }, [rows])
 
     const toggle = (section: React.ReactElement<SectionProps>) => {
         const name = section.props.name
-        const layout = layoutOf(rows, name)
+        const layout = layoutOf(resolved, name)
 
         if (layout.open) {
             const index = renderedSections.indexOf(section)
             const height = sizes.current.at(index)
 
-            const closedRow = { ...layout, open: false, size: height ?? layout.size }
-            const nextRows = rows.some(row => row.name === name)
-                ? rows.map(row => (row.name === name ? closedRow : row))
-                : [...rows, closedRow]
-
-            onSectionsChange(nextRows)
+            const closedLayout = { ...layout, open: false, size: height ?? layout.size }
+            onSectionsChange(mergeSections(rows, [closedLayout]))
             return
         }
 
         pending.current = name
-        const openRow = { ...layout, open: true }
-        const nextRows = rows.some(row => row.name === name)
-            ? rows.map(row => (row.name === name ? openRow : row))
-            : [...rows, openRow]
-
-        onSectionsChange(nextRows)
+        const openLayout = { ...layout, open: true }
+        onSectionsChange(mergeSections(rows, [openLayout]))
     }
 
-    const allClosed = renderedSections.every(section => !layoutOf(rows, section.props.name).open)
-
-    const openSizes = renderedSections.map(section => {
-        const layout = layoutOf(rows, section.props.name)
-        return layout.open ? layout.size : SECTION_HEADER_HEIGHT
-    })
-    const defaultSizes = openSizes.every(isNumber) ? [...openSizes, SPACER_MIN_SIZE] : undefined
+    const spacerVisible = isSpacerVisible(resolved)
+    const defaultSizes = defaultSizesOf(resolved, SECTION_HEADER_HEIGHT)
 
     return (
         <SplitView vertical ref={handle} className={s.root} onChange={onSplitChange} defaultSizes={defaultSizes}>
             {renderedSections.map(section => {
-                const layout = layoutOf(rows, section.props.name)
+                const layout = layoutOf(resolved, section.props.name)
                 const open = layout.open
                 const bodyId = `${baseId}-${section.props.name}`
 
@@ -260,7 +257,7 @@ const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSecti
             {/* With every section pinned to its header, nothing is willing to
                 absorb the leftover height. This takes it, so no header
                 stretches to fill the gap. */}
-            <SplitPane visible={allClosed} minSize={SPACER_MIN_SIZE}>
+            <SplitPane visible={spacerVisible} minSize={SPACER_MIN_SIZE}>
                 {null}
             </SplitPane>
         </SplitView>
