@@ -1,4 +1,4 @@
-import { SegmentedControl, Select, Stack, Text } from "@mantine/core"
+import { Group, SegmentedControl, Select, Stack, Text } from "@mantine/core"
 import type { FC } from "react"
 import { useState } from "react"
 import {
@@ -75,7 +75,9 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                     onChange={value => stage({ ...staged, wktColumn: value ?? undefined })}
                 />
             ) : (
-                <>
+                // X and Y are one coordinate, so they read as one row of two
+                // equal halves rather than as two unrelated settings.
+                <Group grow spacing={"xs"} align={"flex-start"} noWrap>
                     <Select
                         size={"xs"}
                         label={"X column"}
@@ -90,7 +92,7 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                         value={staged.yColumn ?? null}
                         onChange={value => stage({ ...staged, yColumn: value ?? undefined })}
                     />
-                </>
+                </Group>
             )}
             {missing.length === 0 ? null : (
                 <Text size={"xs"} color={"orange"}>

@@ -32,6 +32,19 @@ function renderConfig(overrides: Partial<CsvDetails> = {}) {
     return { dispatched }
 }
 
+// The nearest element holding both pickers — the row if they share one, the
+// stack of the whole config if they do not.
+function rowContaining(first: Element, second: Element) {
+    let node = first.parentElement
+    while (node) {
+        if (node.contains(second)) {
+            return node
+        }
+        node = node.parentElement
+    }
+    return null
+}
+
 async function chooseOption(user: ReturnType<typeof userEvent.setup>, label: string, option: string) {
     await user.click(screen.getByLabelText(label))
     await user.click(await screen.findByText(option))
@@ -44,6 +57,18 @@ describe("CsvGeometryConfig", () => {
         expect(screen.getByLabelText("X column")).toBeInTheDocument()
         expect(screen.getByLabelText("Y column")).toBeInTheDocument()
         expect(screen.queryByLabelText("WKT column")).not.toBeInTheDocument()
+    })
+
+    it("puts the x and y pickers on one row", () => {
+        renderConfig()
+        const row = rowContaining(screen.getByLabelText("X column"), screen.getByLabelText("Y column"))
+        if (!row) {
+            throw new Error("no common ancestor for the x and y pickers")
+        }
+        const style = window.getComputedStyle(row)
+
+        expect(style.display).toBe("flex")
+        expect(style.flexDirection).toBe("row")
     })
 
     it("swaps to the wkt picker when the mode is switched", async () => {
