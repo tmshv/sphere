@@ -344,8 +344,14 @@ name           str                            Kazan           812
 
 A `SegmentedControl` chooses between X/Y and WKT. X/Y mode shows two `Select`s, WKT mode one,
 all populated from `header_columns` — the raw header, so the pickers work even when no row
-parsed. An Apply button is disabled until the staged value both differs from what is applied and
-is complete.
+parsed. Every control applies as it changes, matching the rest of the app; there is no Apply
+button. A change is sent once the staged value both differs from what is applied and is complete
+for its mode, so picking an X column with no Y yet waits for the Y rather than sending half a
+choice the backend cannot answer.
+
+Choosing a column that holds no geometry is a supported outcome, not an error: those rows are
+counted as skipped, the map shows nothing, and the panel reports `0 of 5 000 rows had valid
+geometry`. The user undoes it by picking again.
 
 The staged pickers are local `useState` seeded from the applied values, with `key={sourceId}` on
 the component so switching sources resets them. This is the `key`-to-reset pattern CLAUDE.md

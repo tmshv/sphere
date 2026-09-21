@@ -1,4 +1,4 @@
-import { Button, SegmentedControl, Select, Stack, Text } from "@mantine/core"
+import { SegmentedControl, Select, Stack, Text } from "@mantine/core"
 import type { FC } from "react"
 import { useState } from "react"
 import {
@@ -40,6 +40,20 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
     const options = buildColumnOptions(details.header_columns, applied, staged.mode)
     const missing = missingAppliedColumns(details.header_columns, applied)
 
+    // Each control takes effect as it changes, like every other input in the
+    // panel. A column that holds no geometry is not an error — those rows are
+    // counted as skipped and the map shows nothing, which the panel reports and
+    // the user undoes by picking again. What cannot be sent is half a choice:
+    // an X column with no Y yet waits for its other half.
+    const stage = (next: StagedCsvGeometry) => {
+        setStaged(next)
+        if (!canApplyCsvGeometry(next, applied)) {
+            return
+        }
+
+        dispatch(actions.sourceInfo.applyCsvGeometry({ id: sourceId, ...toCsvGeometryParams(next) }))
+    }
+
     return (
         <Stack spacing={"xs"}>
             <SegmentedControl
@@ -48,7 +62,7 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                 value={staged.mode}
                 onChange={value => {
                     if (isCsvMode(value)) {
-                        setStaged({ ...staged, mode: value })
+                        stage({ ...staged, mode: value })
                     }
                 }}
             />
@@ -58,7 +72,7 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                     label={"WKT column"}
                     data={options}
                     value={staged.wktColumn ?? null}
-                    onChange={value => setStaged({ ...staged, wktColumn: value ?? undefined })}
+                    onChange={value => stage({ ...staged, wktColumn: value ?? undefined })}
                 />
             ) : (
                 <>
@@ -67,14 +81,14 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                         label={"X column"}
                         data={options}
                         value={staged.xColumn ?? null}
-                        onChange={value => setStaged({ ...staged, xColumn: value ?? undefined })}
+                        onChange={value => stage({ ...staged, xColumn: value ?? undefined })}
                     />
                     <Select
                         size={"xs"}
                         label={"Y column"}
                         data={options}
                         value={staged.yColumn ?? null}
-                        onChange={value => setStaged({ ...staged, yColumn: value ?? undefined })}
+                        onChange={value => stage({ ...staged, yColumn: value ?? undefined })}
                     />
                 </>
             )}
@@ -83,15 +97,6 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
                     Not in this file: {missing.join(", ")}
                 </Text>
             )}
-            <Button
-                size={"xs"}
-                disabled={!canApplyCsvGeometry(staged, applied)}
-                onClick={() => {
-                    dispatch(actions.sourceInfo.applyCsvGeometry({ id: sourceId, ...toCsvGeometryParams(staged) }))
-                }}
-            >
-                Apply
-            </Button>
         </Stack>
     )
 }

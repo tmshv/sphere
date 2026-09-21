@@ -56,41 +56,62 @@ describe("CsvGeometryConfig", () => {
         expect(screen.queryByLabelText("X column")).not.toBeInTheDocument()
     })
 
-    it("keeps Apply disabled until the new mode has a column", async () => {
+    it("waits for a column before applying a mode the file has no choice for yet", async () => {
         const user = userEvent.setup()
-        renderConfig()
+        const { dispatched } = renderConfig()
 
         await user.click(screen.getByText("WKT"))
 
-        expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled()
+        // Half a choice is not something the backend can answer, so nothing is
+        // sent until the WKT column names a column.
+        expect(dispatched.filter(a => a.type === "sourceInfo/applyCsvGeometry")).toHaveLength(0)
     })
 
     // The regression guard: before the payload was narrowed, this dispatch also
     // carried the x/y columns left over from the loaded geometry, and the
     // backend rejected the whole request.
-    it("dispatches only the wkt column after switching mode and applying", async () => {
+    it("applies the moment a wkt column is picked, with only that column", async () => {
         const user = userEvent.setup()
         const { dispatched } = renderConfig()
 
         await user.click(screen.getByText("WKT"))
         await chooseOption(user, "WKT column", "geom")
-        await user.click(screen.getByRole("button", { name: "Apply" }))
 
         const applied = dispatched.find(a => a.type === "sourceInfo/applyCsvGeometry")
         expect(applied?.payload).toEqual({ id: "s1", mode: "wkt", wktColumn: "geom" })
     })
 
-    it("dispatches only the x/y pair when applying an xy change", async () => {
+    it("applies an x/y pair once both halves are picked, and not before", async () => {
         const user = userEvent.setup()
         const { dispatched } = renderConfig({ mode: "wkt", wkt_column: "geom", x_column: null, y_column: null })
+        const applications = () => dispatched.filter(a => a.type === "sourceInfo/applyCsvGeometry")
 
         await user.click(screen.getByText("X / Y"))
         await chooseOption(user, "X column", "lng")
+        expect(applications()).toHaveLength(0)
+
         await chooseOption(user, "Y column", "lat")
-        await user.click(screen.getByRole("button", { name: "Apply" }))
+
+        expect(applications().at(0)?.payload).toEqual({ id: "s1", mode: "xy", xColumn: "lng", yColumn: "lat" })
+    })
+
+    it("applies a mode switch straight away when the new mode already has its columns", async () => {
+        const user = userEvent.setup()
+        const { dispatched } = renderConfig({ mode: "wkt", wkt_column: "geom", x_column: "lng", y_column: "lat" })
+
+        await user.click(screen.getByText("X / Y"))
 
         const applied = dispatched.find(a => a.type === "sourceInfo/applyCsvGeometry")
         expect(applied?.payload).toEqual({ id: "s1", mode: "xy", xColumn: "lng", yColumn: "lat" })
+    })
+
+    it("does not reapply a column that is already the applied one", async () => {
+        const user = userEvent.setup()
+        const { dispatched } = renderConfig()
+
+        await chooseOption(user, "X column", "lng")
+
+        expect(dispatched.filter(a => a.type === "sourceInfo/applyCsvGeometry")).toHaveLength(0)
     })
 
     it("warns about an applied column the file no longer has", () => {
