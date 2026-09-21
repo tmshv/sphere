@@ -58,14 +58,17 @@ const useStyles = createStyles(theme => ({
     chevronOpen: {
         transform: "rotate(90deg)",
     },
+    // A section pads above and below its content but not either side: a child
+    // that scrolls has to reach the section's own edge, or the overlay
+    // scrollbar macOS draws there lands on top of the text. The inset either
+    // side is the child's to apply, inside whatever it scrolls — PanelBody
+    // does exactly that.
     body: {
         flex: "1 1 auto",
         minHeight: 0,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        paddingLeft: theme.spacing.sm,
-        paddingRight: theme.spacing.sm,
         paddingTop: theme.spacing.sm,
         paddingBottom: theme.spacing.sm,
     },

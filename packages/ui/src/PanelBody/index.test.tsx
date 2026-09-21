@@ -55,6 +55,26 @@ describe("PanelBody", () => {
         expect(body && styleOf(body).overflowY).toBe("auto")
     })
 
+    it("insets its content from inside the part that scrolls", () => {
+        render(
+            <PanelBody header={<button type={"button"}>Delete</button>}>
+                <div>body</div>
+            </PanelBody>,
+        )
+        const body = screen.getByText("body").parentElement
+        const header = screen.getByRole("button", { name: "Delete" }).parentElement
+        if (!body || !header) {
+            throw new Error("panel parts not found")
+        }
+
+        // Padding outside the scrolling element would leave the overlay
+        // scrollbar macOS draws sitting on top of the text rather than the gap.
+        expect(Number.parseFloat(styleOf(body).paddingRight)).toBeGreaterThan(0)
+        expect(Number.parseFloat(styleOf(body).paddingLeft)).toBeGreaterThan(0)
+        // The header does not scroll, but it has to line up with the body.
+        expect(styleOf(header).paddingLeft).toBe(styleOf(body).paddingLeft)
+    })
+
     it("fills its parent without overflowing it", () => {
         const { container } = render(
             <PanelBody>

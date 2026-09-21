@@ -18,6 +18,11 @@ function Stack({ initial }: { initial: SectionLayout[] }) {
     )
 }
 
+// An unset padding computes to "" here rather than to a length.
+function paddingPx(value: string) {
+    return value === "" ? 0 : Number.parseFloat(value)
+}
+
 describe("SectionStack", () => {
     it("renders a header for every section", () => {
         render(
@@ -126,5 +131,27 @@ describe("SectionStack", () => {
             { name: "outline", open: false, size: 150 },
             { name: "archived", open: false, size: 77 },
         ])
+    })
+
+    it("leaves the inset either side of a section body to the child that scrolls", () => {
+        render(
+            <Stack
+                initial={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: true, size: null },
+                ]}
+            />,
+        )
+        const body = screen.getByText("outline body").parentElement
+        if (!body) {
+            throw new Error("section body not found")
+        }
+        const style = window.getComputedStyle(body)
+
+        // Padding here would hold the child's scrollport away from the section
+        // edge, putting the overlay scrollbar macOS draws over the text.
+        expect(paddingPx(style.paddingLeft)).toBe(0)
+        expect(paddingPx(style.paddingRight)).toBe(0)
+        expect(paddingPx(style.paddingTop)).toBeGreaterThan(0)
     })
 })
