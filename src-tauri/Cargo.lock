@@ -4393,7 +4393,7 @@ dependencies = [
 
 [[package]]
 name = "sphere"
-version = "0.18.0"
+version = "0.19.0"
 dependencies = [
  "csv",
  "flate2",

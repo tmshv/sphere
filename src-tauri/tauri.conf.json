@@ -8,7 +8,7 @@
         "frontendDist": "../apps/sphere/dist"
     },
     "productName": "Sphere",
-    "version": "0.18.0",
+    "version": "0.19.0",
     "app": {
         "withGlobalTauri": true,
         "windows": [
