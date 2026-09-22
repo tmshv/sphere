@@ -246,6 +246,7 @@ mod tests {
     use super::*;
     use flate2::write::GzEncoder;
     use flate2::Compression;
+    use serde_json::json;
     use std::fs;
     use std::io::Write;
     use std::path::PathBuf;
@@ -301,6 +302,12 @@ mod tests {
                 params![z, x, tms_y, data],
             )
             .expect("insert tile");
+        }
+
+        /// Runs arbitrary SQL, for fixtures the typed helpers cannot express.
+        fn exec(&self, sql: &str) {
+            let conn = Connection::open(&self.path).expect("open temp db");
+            conn.execute_batch(sql).expect("exec sql");
         }
     }
 
@@ -423,5 +430,188 @@ mod tests {
             .get_tile(&Tile { zoom: 0, x: 0, y: 0 })
             .expect("second read reuses the open connection");
         assert_eq!(tile, PBF);
+    }
+
+    #[test]
+    fn get_tile_flips_the_row_because_mbtiles_stores_tms() {
+        // XYZ (0, 1) at zoom 1 is TMS row 0, so XYZ (0, 0) must miss.
+        let db = TempDb::new();
+        db.set_tile(1, 0, 0, PBF);
+        let mbtiles = open(&db);
+
+        let bottom = mbtiles.get_tile(&Tile { zoom: 1, x: 0, y: 1 }).expect("tile found");
+        let top = mbtiles.get_tile(&Tile { zoom: 1, x: 0, y: 0 });
+
+        assert_eq!(bottom, PBF);
+        assert!(top.is_err());
+    }
+
+    #[test]
+    fn get_tile_on_a_database_without_a_tiles_table_is_an_error() {
+        let db = TempDb::new();
+        db.exec("DROP TABLE tiles");
+        let mbtiles = open(&db);
+
+        let result = mbtiles.get_tile(&Tile { zoom: 0, x: 0, y: 0 });
+
+        assert!(matches!(result, Err(MBTilesError::DB(_))));
+    }
+
+    #[test]
+    fn get_tilejson_maps_every_known_metadata_key() {
+        let db = TempDb::new();
+        db.set_metadata("name", "Sample");
+        db.set_metadata("description", "A sample archive");
+        db.set_metadata("version", "1.2.0");
+        db.set_metadata("attribution", "© Sphere");
+        db.set_metadata("legend", "a legend");
+        db.set_metadata("template", "a template");
+        db.set_metadata("scheme", "tms");
+        db.set_metadata("bounds", "-1.5,-2.5,3.5,4.5");
+        db.set_metadata("center", "1.0,2.0,5");
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["name"], "Sample");
+        assert_eq!(tilejson["description"], "A sample archive");
+        assert_eq!(tilejson["version"], "1.2.0");
+        assert_eq!(tilejson["attribution"], "© Sphere");
+        assert_eq!(tilejson["legend"], "a legend");
+        assert_eq!(tilejson["template"], "a template");
+        assert_eq!(tilejson["scheme"], "tms");
+        assert_eq!(tilejson["bounds"], json!([-1.5, -2.5, 3.5, 4.5]));
+        assert_eq!(tilejson["center"], json!([1.0, 2.0, 5.0]));
+    }
+
+    #[test]
+    fn get_tilejson_advertises_the_source_url_as_the_only_tile_endpoint() {
+        let db = TempDb::new();
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["tiles"], json!(["sphere://test/tile?z={z}&x={x}&y={y}"]));
+    }
+
+    #[test]
+    fn get_tilejson_falls_back_to_the_default_zoom_range() {
+        let db = TempDb::new();
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["minzoom"], MINZOOM);
+        assert_eq!(tilejson["maxzoom"], MAXZOOM);
+    }
+
+    #[test]
+    fn get_tilejson_ignores_a_zoom_value_that_is_not_a_number() {
+        let db = TempDb::new();
+        db.set_metadata("minzoom", "abc");
+        db.set_metadata("maxzoom", "14");
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["minzoom"], MINZOOM);
+        assert_eq!(tilejson["maxzoom"], 14);
+    }
+
+    #[test]
+    fn get_tilejson_ignores_bounds_and_center_with_the_wrong_arity() {
+        let db = TempDb::new();
+        db.set_metadata("bounds", "1,2");
+        db.set_metadata("center", "1,2,3,4");
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert!(tilejson["bounds"].is_null());
+        assert!(tilejson["center"].is_null());
+    }
+
+    #[test]
+    fn get_tilejson_ignores_an_unknown_scheme() {
+        let db = TempDb::new();
+        db.set_metadata("scheme", "quadkey");
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["scheme"], "xyz");
+    }
+
+    #[test]
+    fn get_tilejson_normalises_jpeg_to_jpg() {
+        let db = TempDb::new();
+        db.set_metadata("format", "jpeg");
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["format"], "jpg");
+    }
+
+    #[test]
+    fn get_tilejson_merges_the_json_metadata_blob() {
+        let db = TempDb::new();
+        db.set_metadata("name", "Sample");
+        db.set_metadata(
+            "json",
+            &json!({ "vector_layers": [{ "id": "roads", "fields": { "name": "String" } }] })
+                .to_string(),
+        );
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["name"], "Sample");
+        assert_eq!(tilejson["vector_layers"][0]["id"], "roads");
+        assert_eq!(tilejson["vector_layers"][0]["fields"]["name"], "String");
+    }
+
+    #[test]
+    fn get_tilejson_normalises_a_jpeg_format_coming_from_the_json_blob() {
+        let db = TempDb::new();
+        db.set_metadata("json", &json!({ "format": "jpeg" }).to_string());
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert_eq!(tilejson["format"], "jpg");
+    }
+
+    #[test]
+    fn get_tilejson_skips_metadata_rows_with_a_null_value() {
+        let db = TempDb::new();
+        db.exec("INSERT INTO metadata (name, value) VALUES ('name', NULL)");
+        let mbtiles = open(&db);
+
+        let tilejson = mbtiles.get_tilejson().expect("tilejson");
+
+        assert!(tilejson["name"].is_null());
+    }
+
+    #[test]
+    fn get_tilejson_rejects_a_json_blob_that_is_not_json() {
+        let db = TempDb::new();
+        db.set_metadata("json", "{not json");
+        let mbtiles = open(&db);
+
+        let result = mbtiles.get_tilejson();
+
+        assert!(matches!(result, Err(MBTilesError::Serialize(_))));
+    }
+
+    #[test]
+    fn get_tilejson_on_a_database_without_a_metadata_table_is_an_error() {
+        let db = TempDb::new();
+        db.exec("DROP TABLE metadata");
+        let mbtiles = open(&db);
+
+        let result = mbtiles.get_tilejson();
+
+        assert!(matches!(result, Err(MBTilesError::DB(_))));
     }
 }

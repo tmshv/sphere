@@ -51,6 +51,9 @@ tauri-plugin-fs = "2"
 tauri-plugin-clipboard-manager = "2"
 nanoid = "0.4"
 
+[dev-dependencies]
+tauri = { version = "2.9.0", features = ["test"] }
+
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
