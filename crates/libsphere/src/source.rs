@@ -135,7 +135,7 @@ impl Source {
                 Ok((SourceData::GeojsonSeq(source), file_url))
             }
             "mbtiles" => {
-                let source = Tiles::new(id.clone(), source_path);
+                let source = Tiles::new(id.clone(), source_path).map_err(|e| e.to_string())?;
                 Ok((SourceData::Mbtiles(source), file_url))
             }
             "csv" => {
