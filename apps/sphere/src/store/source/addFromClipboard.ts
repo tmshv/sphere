@@ -1,8 +1,9 @@
+import { createSourceMetadataFromFeatureCollection } from "@/lib/source-metadata"
 import logger from "@/logger"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { invoke } from "@tauri-apps/api/core"
 import { readText } from "@tauri-apps/plugin-clipboard-manager"
-import { actions, computeGeometryMeta } from "."
+import { actions } from "."
 
 const GEOJSON_TYPES = new Set([
     "FeatureCollection",
@@ -99,7 +100,7 @@ const action = createAsyncThunk("source/addFromClipboard", async (_, thunkAPI) =
             name: "Pasted GeoJSON",
             data: dataset,
         })
-        const meta = computeGeometryMeta(dataset)
+        const meta = createSourceMetadataFromFeatureCollection(dataset)
         thunkAPI.dispatch(
             actions.addInMemorySource({ id: result.id, name: result.name, location: result.location, meta }),
         )

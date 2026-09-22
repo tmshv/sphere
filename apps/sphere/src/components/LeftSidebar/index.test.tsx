@@ -27,14 +27,22 @@ const source: Source = {
     name: "Roads",
     fractionIndex: 1,
     type: SourceType.Geojson,
+    format: "geojson",
+    version: 0,
     location: "/tmp/roads.geojson",
     editable: false,
     pending: false,
     meta: {
         columns: {},
         pointsCount: 1,
+        multiPointsCount: 0,
         linesCount: 2,
+        multiLinesCount: 0,
         polygonsCount: 3,
+        multiPolygonsCount: 0,
+        collectionsCount: 0,
+        nullGeometryCount: 0,
+        featuresCount: 6,
     },
 }
 

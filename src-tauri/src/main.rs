@@ -43,6 +43,8 @@ async fn main() {
             commands::source::source_get_selected,
             commands::source::source_bounds,
             commands::source::source_get_schema,
+            commands::source_info::source_get_info,
+            commands::source_info::source_set_csv_geometry,
             commands::source::source_query_page,
             commands::source::source_get_column_stats,
             commands::source::source_get_filtered,

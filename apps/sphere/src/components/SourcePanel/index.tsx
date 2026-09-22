@@ -1,82 +1,105 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { isRasterTileFormat } from "@/lib/tilejson"
 import { type SourceMetadata, SourceType } from "@/types"
 import { ActionBar, PanelBody } from "@sphere/ui"
-import { Badge, Flex, Group, TextInput } from "@mantine/core"
+import { Flex, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { CsvSourcePanel } from "./CsvSourcePanel"
+import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
+import { GpxSourcePanel } from "./GpxSourcePanel"
+import { RasterTilesSourcePanel } from "./RasterTilesSourcePanel"
+import { ShapefileSourcePanel } from "./ShapefileSourcePanel"
+import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export const selectCurrentSourceItem = createSelector(
-    [selectors.source.selectSelectedId, selectors.source.items],
-    (id, items) => (id ? (items[id] ?? null) : null),
+export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "vector-tiles" | "raster-tiles"
+
+export const selectPanelKind = createSelector(
+    [selectors.source.selectCurrentSourceItem],
+    (source): PanelKind | null => {
+        if (!source) {
+            return null
+        }
+        switch (source.type) {
+            case SourceType.Geojson:
+                return source.format
+            case SourceType.FeatureCollection:
+                return "geojson"
+            case SourceType.MVT:
+                return isRasterTileFormat(source.format) ? "raster-tiles" : "vector-tiles"
+            case SourceType.Raster:
+                return "raster-tiles"
+            default:
+                return null
+        }
+    },
 )
 
-export const selector = createSelector([selectors.source.selectSelectedId, selectCurrentSourceItem], (id, source) => {
-    if (!id || !source) {
-        return null
-    }
+export const selector = createSelector(
+    [selectors.source.selectSelectedId, selectors.source.selectCurrentSourceItem],
+    (id, source) => {
+        if (!id || !source) {
+            return null
+        }
 
-    let meta: SourceMetadata | undefined
-    if (source.type === SourceType.Geojson) {
-        meta = source.meta
-    } else if (source.type === SourceType.FeatureCollection && !source.pending) {
-        meta = source.meta
-    }
+        let meta: SourceMetadata | undefined
+        if (source.type === SourceType.Geojson) {
+            meta = source.meta
+        } else if (source.type === SourceType.FeatureCollection && !source.pending) {
+            meta = source.meta
+        }
 
-    return {
-        id,
-        name: source.name,
-        type: source.type,
-        size: 0,
-        // size: source.data.length,
-        location: source.location,
-        editable: source.editable,
-        meta,
-        reloadDisabled: !reloadAvailable.has(source.type),
+        return {
+            id,
+            name: source.name,
+            type: source.type,
+            size: 0,
+            // size: source.data.length,
+            location: source.location,
+            editable: source.editable,
+            meta,
+            reloadDisabled: !reloadAvailable.has(source.type),
+        }
+    },
+)
+
+function renderPanel(kind: PanelKind | null) {
+    switch (kind) {
+        case "geojson":
+            return <GeojsonSourcePanel />
+        case "csv":
+            return <CsvSourcePanel />
+        case "shapefile":
+            return <ShapefileSourcePanel />
+        case "gpx":
+            return <GpxSourcePanel />
+        case "vector-tiles":
+            return <VectorTilesSourcePanel />
+        case "raster-tiles":
+            return <RasterTilesSourcePanel />
+        default:
+            return null
     }
-})
+}
 
 export const SourcePanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
+    const panelKind = useSelector(selectPanelKind)
 
     if (!source) {
         return null
     }
 
-    const { meta } = source
-
-    // let icon: React.ReactNode = (
-    //     <IconBraces size={16} color={getColor('blue')} />
-    // )
-    // if (source.type === SourceType.Geojson) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
-    // if (source.type === SourceType.FeatureCollection) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
-    // if (source.type === SourceType.Raster) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
-    // if (source.type === SourceType.Raster) {
-    //     icon = (
-    //         <IconBraces size={16} color={getColor('blue')} />
-    //     )
-    // }
     const controls = (
         <ActionBar
             tooltipPosition={"top"}
-            onClick={name => {
+            onClick={async name => {
                 switch (name) {
                     case "trash": {
                         dispatch(actions.source.removeSource(source.id))
@@ -169,28 +192,7 @@ export const SourcePanel: React.FC = () => {
                     }}
                 />
 
-                <Group>
-                    <Badge radius={"sm"}>{source.type}</Badge>
-                    <Badge radius={"sm"}>SIZE:{source.size}</Badge>
-                </Group>
-
-                <Badge radius={"sm"} size={"xs"}>
-                    {source.location}
-                </Badge>
-
-                {!meta ? null : (
-                    <>
-                        <Badge radius={"sm"} size={"xs"}>
-                            Points={meta.pointsCount}
-                        </Badge>
-                        <Badge radius={"sm"} size={"xs"}>
-                            Lines={meta.linesCount}
-                        </Badge>
-                        <Badge radius={"sm"} size={"xs"}>
-                            Polygons={meta.polygonsCount}
-                        </Badge>
-                    </>
-                )}
+                {renderPanel(panelKind)}
             </Flex>
         </PanelBody>
     )

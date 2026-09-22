@@ -12,14 +12,22 @@ const source: Source = {
     name: "Roads",
     fractionIndex: 1,
     type: SourceType.Geojson,
+    format: "geojson",
+    version: 0,
     location: "/tmp/roads.geojson",
     editable: false,
     pending: false,
     meta: {
         columns: {},
         pointsCount: 1,
+        multiPointsCount: 0,
         linesCount: 2,
+        multiLinesCount: 0,
         polygonsCount: 3,
+        multiPolygonsCount: 0,
+        collectionsCount: 0,
+        nullGeometryCount: 0,
+        featuresCount: 6,
     },
 }
 
@@ -35,6 +43,7 @@ function makeStore() {
             app: appReducer,
             source: () => ({ selectedId: "s1", items: { s1: source }, allIds: ["s1"] }),
             draw: () => ({ sourceId: null, selectedIds: [] }),
+            sourceInfo: () => ({ info: {}, stats: {} }),
         },
         middleware: getDefaultMiddleware => getDefaultMiddleware().concat(captureMiddleware),
     })

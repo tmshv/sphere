@@ -37,7 +37,42 @@ impl Bounds for Gpx {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct GpxInfo {
+    pub waypoints: u64,
+    pub tracks: u64,
+    pub routes: u64,
+    pub track_points: u64,
+}
+
 impl Gpx {
+    fn parse(&self) -> Result<gpx::Gpx> {
+        let file = File::open(self.path.as_str()).with_path(&self.path)?;
+        let reader = BufReader::new(file);
+        read(reader).map_err(|e| SphereError::Shape {
+            path: self.path.clone(),
+            detail: e.to_string(),
+        })
+    }
+
+    pub fn info(&self) -> Result<GpxInfo> {
+        let data = self.parse()?;
+
+        let track_points = data
+            .tracks
+            .iter()
+            .flat_map(|track| track.segments.iter())
+            .map(|segment| segment.points.len() as u64)
+            .sum();
+
+        Ok(GpxInfo {
+            waypoints: data.waypoints.len() as u64,
+            tracks: data.tracks.len() as u64,
+            routes: data.routes.len() as u64,
+            track_points,
+        })
+    }
+
     pub fn get_schema(&self) -> Result<SourceSchema> {
         let geojson_str = self.to_geojson()?;
         let geojson = geojson_str.parse::<GeoJson2>().map_err(|source| SphereError::GeoJson {
@@ -49,23 +84,15 @@ impl Gpx {
         }
         Ok(SourceSchema {
             columns: HashMap::new(),
-            points_count: 0,
-            lines_count: 0,
-            polygons_count: 0,
+            ..Default::default()
         })
     }
 
     pub fn to_geojson(&self) -> Result<String> {
         println!("reading GPX {}", self.path);
 
-        let file = File::open(self.path.as_str()).with_path(&self.path)?;
-        let reader = BufReader::new(file);
-
         // read takes any io::Read and gives a Result<Gpx, Error>.
-        let gpx: gpx::Gpx = read(reader).map_err(|e| SphereError::Shape {
-            path: self.path.clone(),
-            detail: e.to_string(),
-        })?;
+        let gpx = self.parse()?;
 
         let mut features = Vec::<Feature>::new();
         for track in gpx.tracks {
@@ -95,11 +122,36 @@ impl Gpx {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn test_valid_jsonfile() {
+    fn to_geojson_produces_one_linestring_per_track_segment() {
+        let source = Gpx {
+            path: "./assets/gpx/sample.gpx".to_string(),
+        };
+        let geojson_str = source.to_geojson().unwrap();
+        let geojson: GeoJson2 = geojson_str.parse().unwrap();
+        if let GeoJson2::FeatureCollection(fc) = geojson {
+            assert_eq!(fc.features.len(), 2);
+        } else {
+            panic!("expected FeatureCollection");
+        }
     }
 
     #[test]
     fn test_valid_bounds() {
+    }
+
+    #[test]
+    fn info_counts_waypoints_routes_tracks_and_track_points() {
+        let source = Gpx {
+            path: "./assets/gpx/sample.gpx".to_string(),
+        };
+        let info = source.info().unwrap();
+
+        assert_eq!(info.waypoints, 1);
+        assert_eq!(info.routes, 1);
+        assert_eq!(info.tracks, 1);
+        assert_eq!(info.track_points, 4);
     }
 }

@@ -11,14 +11,22 @@ const source: Source = {
     name: "Roads",
     fractionIndex: 1,
     type: SourceType.Geojson,
+    format: "geojson",
+    version: 0,
     location: "/tmp/roads.geojson",
     editable: false,
     pending: false,
     meta: {
         columns: {},
         pointsCount: 1,
+        multiPointsCount: 0,
         linesCount: 2,
+        multiLinesCount: 0,
         polygonsCount: 3,
+        multiPolygonsCount: 0,
+        collectionsCount: 0,
+        nullGeometryCount: 0,
+        featuresCount: 6,
     },
 }
 
@@ -27,6 +35,7 @@ const makeStore = (selectedId: string | null) =>
         reducer: {
             source: () => ({ selectedId, items: { s1: source }, allIds: ["s1"] }),
             draw: () => ({ sourceId: null, selectedIds: [] }),
+            sourceInfo: () => ({ info: {}, stats: {} }),
         },
     })
 
@@ -77,8 +86,11 @@ describe("SourcePanel", () => {
 
     it("shows the geometry counts of the source", () => {
         renderPanel()
-        expect(screen.getByText("Points=1")).toBeInTheDocument()
-        expect(screen.getByText("Lines=2")).toBeInTheDocument()
-        expect(screen.getByText("Polygons=3")).toBeInTheDocument()
+        expect(screen.getByText("Points")).toBeInTheDocument()
+        expect(screen.getByText("1")).toBeInTheDocument()
+        expect(screen.getByText("Lines")).toBeInTheDocument()
+        expect(screen.getByText("2")).toBeInTheDocument()
+        expect(screen.getByText("Polygons")).toBeInTheDocument()
+        expect(screen.getByText("3")).toBeInTheDocument()
     })
 })

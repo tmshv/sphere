@@ -31,6 +31,54 @@ export type ColumnStats = {
     top_values?: [string, number][]
 }
 
+export type FileInfo = {
+    size_bytes: number
+    modified: string | null
+}
+
+export type CsvMode = "xy" | "wkt"
+
+export type FormatDetails =
+    | { format: "geojson" }
+    | {
+          format: "csv"
+          mode: CsvMode
+          wkt_column: string | null
+          x_column: string | null
+          y_column: string | null
+          header_columns: string[]
+          parsed_rows: number
+          skipped_rows: number
+      }
+    | {
+          format: "shapefile"
+          has_dbf: boolean
+          has_shx: boolean
+          has_prj: boolean
+          has_cpg: boolean
+          crs: string | null
+      }
+    | {
+          format: "gpx"
+          waypoints: number
+          tracks: number
+          routes: number
+          track_points: number
+      }
+
+export type SourceInfo = {
+    file: FileInfo | null
+    schema: SourceSchema
+    details: FormatDetails
+}
+
+export type CsvGeometryParams = {
+    mode: CsvMode
+    wktColumn?: string
+    xColumn?: string
+    yColumn?: string
+}
+
 export class SourceReader {
     constructor(private id: string) {}
 
@@ -129,17 +177,39 @@ export class SourceReader {
         }
     }
 
-    public async getColumnStats(column: string, ids?: number[]): Promise<ColumnStats | null> {
+    public async getColumnStats(column: string, ids?: number[], topN?: number): Promise<ColumnStats | null> {
         try {
             return await invoke<ColumnStats>("source_get_column_stats", {
                 id: this.id,
                 column,
                 ids,
+                topN,
             })
         } catch (error) {
             logger.error("Failed to get column stats %s", error)
             return null
         }
+    }
+
+    public async getInfo(): Promise<SourceInfo | null> {
+        try {
+            return await invoke<SourceInfo>("source_get_info", {
+                id: this.id,
+            })
+        } catch (error) {
+            logger.error("Failed to get source info %s", error)
+            return null
+        }
+    }
+
+    public async setCsvGeometry(params: CsvGeometryParams): Promise<SourceSchema> {
+        return await invoke<SourceSchema>("source_set_csv_geometry", {
+            id: this.id,
+            mode: params.mode,
+            wktColumn: params.wktColumn ?? null,
+            xColumn: params.xColumn ?? null,
+            yColumn: params.yColumn ?? null,
+        })
     }
 
     async parse(value: string) {

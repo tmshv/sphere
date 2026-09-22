@@ -1,5 +1,6 @@
 export * from "./array"
 export * from "./color-scheme"
+export * from "./format"
 export * from "./math"
 export * from "./once"
 export * from "./path"
