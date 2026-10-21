@@ -5,6 +5,7 @@ pub mod geojson;
 pub mod geojsonseq;
 pub mod gpx;
 pub mod index;
+pub mod kml;
 pub mod mbtiles;
 pub mod schema;
 pub mod selection;
