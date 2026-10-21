@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>Good</name>
+      <Point><coordinates>30,60</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>Empty coordinates</name>
+      <Point><coordinates></coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>Self-closing coordinates</name>
+      <Point><coordinates/></Point>
+    </Placemark>
+    <Placemark>
+      <name>Whitespace coordinates</name>
+      <Point><coordinates>
+      </coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>No coordinates</name>
+      <Point></Point>
+    </Placemark>
+    <Placemark>
+      <name>Empty outer ring</name>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates></coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark>
+      <name>Empty hole</name>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>29,59 32,59 32,62 29,62 29,59</coordinates></LinearRing></outerBoundaryIs>
+        <innerBoundaryIs><LinearRing><coordinates> </coordinates></LinearRing></innerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

@@ -7,8 +7,9 @@ use geo::{
     BoundingRect, Geometry, GeometryCollection, LineString, MultiLineString, MultiPoint,
     MultiPolygon, Point, Polygon,
 };
-use quick_xml::events::Event as XmlEvent;
+use quick_xml::events::{BytesRef, Event as XmlEvent};
 use quick_xml::Reader as XmlReader;
+use quick_xml::Writer as XmlWriter;
 use serde_json::Map;
 use std::collections::HashMap;
 
@@ -94,39 +95,178 @@ fn collapse(members: Vec<Geometry<f64>>) -> Option<Geometry<f64>> {
     Some(Geometry::GeometryCollection(GeometryCollection(members)))
 }
 
-/// Guard run before the kml crate parses anything: kml 0.15 loops forever on
-/// truncated XML, so malformed input must be rejected up front. Start/End depth
-/// is counted because quick-xml only reports mismatched end tags, not a missing
-/// one at EOF. The root element must also be `kml`, so other XML is rejected.
-fn check_well_formed(text: &str) -> std::result::Result<(), String> {
+/// Geometry elements the pre-pass drops when they carry no coordinates.
+const GEOMETRY_ELEMENTS: [&[u8]; 4] = [b"Point", b"LineString", b"LinearRing", b"Polygon"];
+
+/// A geometry element held back until its end tag shows whether it has coordinates.
+struct PendingGeometry {
+    name: Vec<u8>,
+    events: Vec<XmlEvent<'static>>,
+    has_coordinates: bool,
+}
+
+fn is_geometry(name: &[u8]) -> bool {
+    GEOMETRY_ELEMENTS.contains(&name)
+}
+
+fn is_altitude_mode(name: &[u8]) -> bool {
+    name == b"altitudeMode"
+}
+
+/// Whether an entity reference stands for real content rather than whitespace.
+fn is_content_ref(reference: &BytesRef) -> bool {
+    !matches!(reference.resolve_char_ref(), Ok(Some(c)) if c.is_whitespace())
+}
+
+/// Send an event to the innermost held-back geometry, or straight to the output.
+fn emit(
+    event: XmlEvent<'_>,
+    pending: &mut [PendingGeometry],
+    writer: &mut XmlWriter<Vec<u8>>,
+) -> std::result::Result<(), String> {
+    match pending.last_mut() {
+        Some(geometry) => {
+            geometry.events.push(event.into_owned());
+            Ok(())
+        }
+        None => writer.write_event(event).map_err(|e| e.to_string()),
+    }
+}
+
+/// Pre-pass run before the kml crate parses anything. It returns the document
+/// rewritten so that kml 0.15 can read it safely:
+///
+/// - kml 0.15 loops forever on truncated XML, so malformed input is rejected.
+///   Open elements are tracked because quick-xml only reports mismatched end
+///   tags, not a missing one at EOF. The root must be `kml`, so other XML is
+///   rejected too.
+/// - kml 0.15 panics on a Point without coordinates, so `Point`, `LineString`,
+///   `LinearRing` and `Polygon` elements with no or whitespace-only coordinates
+///   are dropped. A Polygon goes when no outer ring survives. Their Placemarks
+///   end up without geometry and are counted as skipped.
+/// - kml 0.15 rejects `gx:altitudeMode` values such as `clampToSeaFloor`, so
+///   every `altitudeMode` element is dropped. Altitude is not used anyway.
+/// - kml 0.15 stops reading `ExtendedData` values at CDATA, so CDATA sections
+///   are re-emitted as escaped text.
+fn normalise(text: &str) -> std::result::Result<String, String> {
     let mut reader = XmlReader::from_str(text);
-    let mut depth: u64 = 0;
+    let mut writer = XmlWriter::new(Vec::new());
+    let mut open: Vec<Vec<u8>> = Vec::new();
+    let mut pending: Vec<PendingGeometry> = Vec::new();
+    let mut skipped_depth: u64 = 0;
     let mut root_checked = false;
     loop {
         let event = reader.read_event().map_err(|e| e.to_string())?;
-        match event {
-            XmlEvent::Start(ref e) | XmlEvent::Empty(ref e) if !root_checked => {
+        if let XmlEvent::Start(ref e) | XmlEvent::Empty(ref e) = event {
+            if !root_checked {
                 root_checked = true;
                 if e.local_name().as_ref() != b"kml" {
                     return Err("root element is not <kml>".to_string());
                 }
-                if matches!(event, XmlEvent::Start(_)) {
-                    depth += 1;
+            }
+        }
+        if skipped_depth > 0 {
+            match event {
+                XmlEvent::Start(_) => skipped_depth += 1,
+                XmlEvent::End(_) => skipped_depth -= 1,
+                XmlEvent::Eof => break,
+                _ => {}
+            }
+            continue;
+        }
+        // Coordinates text marks the geometry directly around `<coordinates>`.
+        let in_coordinates = open.last().map(Vec::as_slice) == Some(&b"coordinates"[..]);
+        let coordinates_owner = open.iter().rev().nth(1);
+        let mark_coordinates = |pending: &mut [PendingGeometry]| {
+            if let Some(geometry) = pending.last_mut() {
+                if in_coordinates
+                    && geometry.name.as_slice() != b"Polygon"
+                    && coordinates_owner == Some(&geometry.name)
+                {
+                    geometry.has_coordinates = true;
                 }
             }
-            XmlEvent::Start(_) => depth += 1,
-            XmlEvent::End(_) => depth = depth.saturating_sub(1),
+        };
+        match event {
+            XmlEvent::Start(e) => {
+                let name = e.local_name().as_ref().to_vec();
+                if is_altitude_mode(&name) {
+                    skipped_depth = 1;
+                    continue;
+                }
+                if is_geometry(&name) {
+                    pending.push(PendingGeometry {
+                        name: name.clone(),
+                        events: Vec::new(),
+                        has_coordinates: false,
+                    });
+                }
+                open.push(name);
+                emit(XmlEvent::Start(e), &mut pending, &mut writer)?;
+            }
+            XmlEvent::Empty(e) => {
+                let name = e.local_name();
+                // An empty geometry element has no coordinates at all.
+                if is_altitude_mode(name.as_ref()) || is_geometry(name.as_ref()) {
+                    continue;
+                }
+                emit(XmlEvent::Empty(e), &mut pending, &mut writer)?;
+            }
+            XmlEvent::End(e) => {
+                emit(XmlEvent::End(e), &mut pending, &mut writer)?;
+                let Some(name) = open.pop() else {
+                    continue;
+                };
+                if !is_geometry(&name) {
+                    continue;
+                }
+                let Some(geometry) = pending.pop() else {
+                    continue;
+                };
+                if !geometry.has_coordinates {
+                    continue;
+                }
+                let is_outer_ring = geometry.name.as_slice() == b"LinearRing"
+                    && open.last().map(Vec::as_slice) == Some(&b"outerBoundaryIs"[..]);
+                if let Some(parent) = pending.last_mut() {
+                    if is_outer_ring && parent.name.as_slice() == b"Polygon" {
+                        parent.has_coordinates = true;
+                    }
+                }
+                for held in geometry.events {
+                    emit(held, &mut pending, &mut writer)?;
+                }
+            }
+            XmlEvent::Text(t) => {
+                if !t.decode().map_err(|e| e.to_string())?.trim().is_empty() {
+                    mark_coordinates(&mut pending);
+                }
+                emit(XmlEvent::Text(t), &mut pending, &mut writer)?;
+            }
+            XmlEvent::CData(c) => {
+                let text = c.escape().map_err(|e| e.to_string())?;
+                if !text.decode().map_err(|e| e.to_string())?.trim().is_empty() {
+                    mark_coordinates(&mut pending);
+                }
+                emit(XmlEvent::Text(text), &mut pending, &mut writer)?;
+            }
+            XmlEvent::GeneralRef(r) => {
+                if is_content_ref(&r) {
+                    mark_coordinates(&mut pending);
+                }
+                emit(XmlEvent::GeneralRef(r), &mut pending, &mut writer)?;
+            }
             XmlEvent::Eof => break,
-            _ => {}
+            other => emit(other, &mut pending, &mut writer)?,
         }
     }
     if !root_checked {
         return Err("no root element".to_string());
     }
-    if depth > 0 {
+    if !open.is_empty() || skipped_depth > 0 {
         return Err("unexpected end of document: unclosed elements".to_string());
     }
-    Ok(())
+    String::from_utf8(writer.into_inner()).map_err(|e| e.to_string())
 }
 
 fn child<'a>(element: &'a Element, name: &str) -> Option<&'a Element> {
@@ -184,11 +324,12 @@ impl Kml {
             detail,
         };
         let text = std::fs::read_to_string(&self.path).with_path(&self.path)?;
-        // The kml reader loops forever on a truncated document, so check
-        // well-formedness first.
-        check_well_formed(&text).map_err(to_error)?;
-        KmlReader::<_, f64>::from_string(&text)
-            .read()
+        let normalised = normalise(&text).map_err(to_error)?;
+        // Backstop: the pre-pass removes every input known to panic kml 0.15,
+        // but a panic must never unwind through the Tauri command, so any other
+        // one becomes an error. This relies on the default `panic = "unwind"`.
+        std::panic::catch_unwind(|| KmlReader::<_, f64>::from_string(&normalised).read())
+            .map_err(|_| to_error("the KML parser crashed on this file".to_string()))?
             .map_err(|e| to_error(e.to_string()))
     }
 
@@ -406,6 +547,69 @@ mod tests {
             Err(SphereError::Kml { path, .. }) => assert!(path.ends_with("broken.kml")),
             other => panic!("expected Kml error, got {other:?}"),
         }
+    }
+
+    fn names(features: &[Feature]) -> Vec<String> {
+        features.iter().filter_map(|f| prop(f, "name")).collect()
+    }
+
+    fn info_of(path: &str) -> KmlInfo {
+        Kml {
+            path: path.to_string(),
+        }
+        .info()
+        .unwrap()
+    }
+
+    #[test]
+    fn placemarks_with_empty_point_coordinates_are_skipped() {
+        let path = "./assets/kml/empty-point.kml";
+        let features = load(path);
+        assert_eq!(names(&features), vec!["Good", "Empty hole"]);
+        let info = info_of(path);
+        assert_eq!(info.placemarks, 7);
+        assert_eq!(info.skipped_placemarks, 5);
+    }
+
+    #[test]
+    fn empty_inner_rings_are_dropped_and_the_polygon_kept() {
+        let features = load("./assets/kml/empty-point.kml");
+        match value(&by_name(&features, "Empty hole")) {
+            Value::Polygon(rings) => assert_eq!(rings.len(), 1),
+            other => panic!("expected Polygon, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn sea_floor_altitude_modes_are_ignored() {
+        let features = load("./assets/kml/sea-floor.kml");
+        assert!(matches!(
+            value(&by_name(&features, "Seabed route")),
+            Value::LineString(_)
+        ));
+        assert!(matches!(
+            value(&by_name(&features, "Reef")),
+            Value::Polygon(_)
+        ));
+    }
+
+    #[test]
+    fn cdata_in_extended_data_is_preserved() {
+        let features = load("./assets/kml/cdata.kml");
+        let rich = by_name(&features, "Rich");
+        assert_eq!(prop(&rich, "html").as_deref(), Some("<b>x</b>"));
+        assert_eq!(prop(&rich, "mixed").as_deref(), Some("pre x post"));
+        assert_eq!(prop(&rich, "simple").as_deref(), Some("<i>y</i>"));
+    }
+
+    #[test]
+    fn cdata_in_description_is_preserved() {
+        let features = load("./assets/kml/cdata.kml");
+        let rich = by_name(&features, "Rich");
+        assert_eq!(
+            prop(&rich, "description").as_deref(),
+            Some("<p>Hello & welcome</p>")
+        );
     }
 
     #[test]
