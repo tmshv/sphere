@@ -11,6 +11,7 @@ use super::csv::{Csv, CsvGeometry, CsvParams};
 use super::geojson::Geojson;
 use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
+use super::kml::Kml;
 use super::mbtiles::Tiles;
 use super::schema::{assign_feature_ids, SourceSchema};
 use super::shape::Shapefile;
@@ -42,6 +43,7 @@ pub enum SourceData {
     Mbtiles(Tiles),
     Csv(Csv),
     Gpx(Gpx),
+    Kml(Kml),
     InMemory(geojson::FeatureCollection),
     // Pmtiles,
 }
@@ -62,6 +64,7 @@ impl Bounds for Source {
             SourceData::Shapefile(val) => val.get_bounds(),
             SourceData::Csv(val) => val.get_bounds(),
             SourceData::Gpx(val) => val.get_bounds(),
+            SourceData::Kml(val) => val.get_bounds(),
             _ => None,
         }
     }
@@ -121,7 +124,8 @@ impl Source {
             .to_string();
         let file_url = format!("file://{}", source_path);
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-        match ext {
+        let ext = ext.to_lowercase();
+        match ext.as_str() {
             "shp" => {
                 let source = Shapefile { path: source_path };
                 Ok((SourceData::Shapefile(source), file_url))
@@ -151,6 +155,10 @@ impl Source {
                 let source = Gpx { path: source_path };
                 Ok((SourceData::Gpx(source), file_url))
             }
+            "kml" => {
+                let source = Kml { path: source_path };
+                Ok((SourceData::Kml(source), file_url))
+            }
             _ => Err(format!("Cannot handle extension {}", ext)),
         }
     }
@@ -163,6 +171,7 @@ impl Source {
             SourceData::GeojsonSeq(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Csv(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Gpx(src) => src.to_geojson().map_err(|e| e.to_string())?,
+            SourceData::Kml(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Mbtiles(_) => return Err("MBTiles sources cannot be converted to FeatureCollection".into()),
         };
         let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
@@ -213,6 +222,9 @@ impl Source {
                 src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::Gpx(src) => {
+                src.get_schema().map_err(|e| e.to_string())
+            }
+            SourceData::Kml(src) => {
                 src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::InMemory(_) => Err("use FeatureStore".into()),
@@ -431,5 +443,47 @@ mod tests {
         let fc = make_fc(&[1, 2]);
         let result = features_to_wkt(&fc, &[99], "\n");
         assert_eq!(result, "");
+    }
+
+    #[test]
+    fn create_data_maps_kml_extension_to_kml_source() {
+        let uri = SphereUri::parse("sphere://source?url=file:///tmp/sample.kml").unwrap();
+        let (data, _) = Source::create_data(
+            &"id".to_string(),
+            Path::new("./assets/kml/sample.kml"),
+            &uri,
+        )
+        .unwrap();
+        assert!(matches!(data, SourceData::Kml(_)));
+    }
+
+    #[test]
+    fn create_data_matches_extensions_case_insensitively() {
+        let uri = SphereUri::parse("sphere://source?url=file:///nonexistent/Sample.KML").unwrap();
+        let (data, _) = Source::create_data(
+            &"id".to_string(),
+            Path::new("/nonexistent/Sample.KML"),
+            &uri,
+        )
+        .unwrap();
+        assert!(matches!(data, SourceData::Kml(_)));
+    }
+
+    #[test]
+    fn kml_source_to_feature_collection_assigns_ids() {
+        let source = Source {
+            id: "id".into(),
+            name: "sample".into(),
+            location: String::new(),
+            data: SourceData::Kml(Kml {
+                path: "./assets/kml/sample.kml".into(),
+            }),
+        };
+        let fc = source.to_feature_collection().unwrap();
+        assert_eq!(fc.features.len(), 5);
+        assert!(fc
+            .features
+            .iter()
+            .all(|f| matches!(&f.id, Some(Id::Number(_)))));
     }
 }
