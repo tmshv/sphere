@@ -1,6 +1,6 @@
 # KML Support (tier one) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Open a `.kml` file in Sphere and display it on the map like CSV/GPX, so it gets feature IDs, selection, the attribute table, filters, and layers.
 
@@ -26,7 +26,7 @@
 1. **Malformed or non-KML XML.** Loading must return an `Err` that names the path. It must never panic, because the app would crash. The test is `to_geojson_returns_an_error_for_malformed_xml` in Task 1.
 2. **Uppercase extension (`Track.KML`).** Some Windows and Google Earth exports use it. The extension match must be case-insensitive. The test is `create_data_matches_extensions_case_insensitively` in Task 2.
 3. **A Placemark buried in nested Folders inside a Document.** It must still be drawn. This is covered by the sample asset and by `nested_folder_placemarks_are_included` in Task 1.
-4. **A file whose Placemarks have no drawable geometry.** It must load as an empty source, not as an error, and the panel must say honestly how many Placemarks were skipped. The tests are `get_bounds_is_none_when_nothing_is_drawable` in Task 1 and `shows a skipped-placemarks note…` in Task 4.
+4. **A file whose Placemarks have no supported geometry.** It must load as an empty source, not as an error, and the panel must say honestly how many Placemarks were skipped. The tests are `get_bounds_is_none_when_nothing_is_drawable` in Task 1 and `shows a skipped-placemarks note…` in Task 4.
 5. **MultiGeometry with mixed member types.** It must still render. Homogeneous members collapse to a `Multi*` type and mixed members become a `GeometryCollection`. The test is `multigeometry_collapses_homogeneous_members_and_keeps_mixed_as_collection` in Task 1.
 
 ---
@@ -50,11 +50,11 @@
   - `impl Bounds for Kml`, which returns `None` both on error and when there is no geometry, with no `unwrap`
   - `SphereError::Kml { path: String, detail: String }` with the message `"KML error in {path}: {detail}"`
 
-- [ ] **Step 1: Create branch, add dependency, bump version**
+- [x] **Step 1: Create branch, add dependency, bump version**
 
 Already on branch `issue-18`. In `crates/libsphere/Cargo.toml`, set `version = "0.11.0"` and add the `kml` line from Global Constraints. Then run `cargo update -p libsphere` from `src-tauri/`.
 
-- [ ] **Step 2: Write the fixtures**
+- [x] **Step 2: Write the fixtures**
 
 `sample.kml` is a `<kml><Document>` that contains:
 - Folder "Places" holding Placemark "Cafe": a Point at `30.1,59.9,15` (with altitude), a `<description>Nice</description>`, and `<ExtendedData><Data name="rating"><value>5</value></Data><Data name="name"><value>shadow</value></Data></ExtendedData>`
@@ -66,7 +66,7 @@ Already on branch `issue-18`. In `crates/libsphere/Cargo.toml`, set `version = "
 
 `empty.kml` is a Document with a single Placemark that has no geometry. `broken.kml` is `<kml><Document><Placemark>` with no closing tags.
 
-- [ ] **Step 3: Write the failing tests in `kml.rs` `mod tests`**
+- [x] **Step 3: Write the failing tests in `kml.rs` `mod tests`**
 
 All tests run against `./assets/kml/…`, and parse the output with `geojson_str.parse::<geojson::GeoJson>()`.
 
@@ -85,11 +85,11 @@ All tests run against `./assets/kml/…`, and parse the output with `geojson_str
 
 Look features up by their `name` property rather than by index. The ExtendedData `name="shadow"` must not overwrite `Cafe`.
 
-- [ ] **Step 4: Run tests to verify they fail**
+- [x] **Step 4: Run tests to verify they fail**
 
 Run `cargo test --manifest-path crates/libsphere/Cargo.toml kml`. Expected: compile errors, because `Kml` is not defined yet.
 
-- [ ] **Step 5: Implement `kml.rs`**
+- [x] **Step 5: Implement `kml.rs`**
 
 - `fn parse(&self) -> Result<kml::Kml<f64>>` calls `KmlReader::<_, f64>::from_path(&self.path)` and then `.read()`. It maps both errors to `SphereError::Kml { path, detail: e.to_string() }`.
 - `fn collect(node: kml::Kml<f64>, placemarks: &mut Vec<Placemark<f64>>, folders: &mut u64)` recurses into `Kml::KmlDocument(d).elements`, `Kml::Document { elements, .. }` and `Kml::Folder(f).elements`, adding 1 to `folders` for each Folder. It pushes `Kml::Placemark`. All other variants are ignored. `Kml` is `#[non_exhaustive]`, so keep a `_ => {}` arm.
@@ -99,11 +99,11 @@ Run `cargo test --manifest-path crates/libsphere/Cargo.toml kml`. Expected: comp
 - `get_schema` reuses `infer_source_schema(features.iter())`, as in `gpx.rs`.
 - `get_bounds` takes the `BoundingRect` of a `GeometryCollection` of the converted geometries.
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [x] **Step 6: Run tests to verify they pass**
 
 Run `cargo test --manifest-path crates/libsphere/Cargo.toml kml`. Expected: 10 passed.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add crates/libsphere src-tauri/Cargo.lock
@@ -122,7 +122,7 @@ git commit -m "Add KML reader to libsphere"
 - Consumes: `Kml`, `KmlInfo` and `Kml::info()` from Task 1
 - Produces: `source_add` returns `source_type: "kml"`. `source_get_info` returns `details: { format: "kml", placemarks, folders, skipped_placemarks }`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 In `source.rs` tests:
 - `create_data_maps_kml_extension_to_kml_source`: call `Source::create_data` with the path `Path::new("./assets/kml/sample.kml")` and the parsed `SphereUri` of that file URL, and check that it `matches!(data, SourceData::Kml(_))`.
@@ -133,17 +133,17 @@ In `source_info.rs` tests:
 - `kml_details_serialize_counts`: `format == "kml"`, `placemarks == 6`, `skipped_placemarks == 1`
 - `info_target_keeps_the_kml_path`
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run `cargo test --manifest-path crates/libsphere/Cargo.toml source` and `cargo test --manifest-path src-tauri/Cargo.toml source_info`. Expected: compile errors for `SourceData::Kml` / `FormatDetails::Kml`.
 
-- [ ] **Step 3: Implement the arms listed under Files**
+- [x] **Step 3: Implement the arms listed under Files**
 
-- [ ] **Step 4: Run the full Rust suites**
+- [x] **Step 4: Run the full Rust suites**
 
 Run `cargo test --manifest-path crates/libsphere/Cargo.toml` and `cargo test --manifest-path src-tauri/Cargo.toml` (there is no cargo workspace). Expected: all pass, with no non-exhaustive-match errors left anywhere.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/libsphere/src/source.rs src-tauri/src/commands
@@ -164,11 +164,11 @@ Drag-and-drop needs no change. `handleDragDrop` passes every path through `addFi
 **Interfaces:**
 - Produces: `SourceFormat` includes `"kml"`, and `FormatDetails` narrows on `format === "kml"`
 
-- [ ] **Step 1: Add `"kml"` to the `accepts %s` table in `source-format.test.ts`**
-- [ ] **Step 2: Run `npm test -w @sphere/app -- source-format` and check that it FAILS on `accepts kml`**
-- [ ] **Step 3: Make the four edits listed under Files**
-- [ ] **Step 4: Run `npm test -w @sphere/app -- source-format` and `npm run typecheck`. Both must PASS.**
-- [ ] **Step 5: Run `npm run format`, then commit with `git commit -m "Accept KML as a source format in the frontend"`**
+- [x] **Step 1: Add `"kml"` to the `accepts %s` table in `source-format.test.ts`**
+- [x] **Step 2: Run `npm test -w @sphere/app -- source-format` and check that it FAILS on `accepts kml`**
+- [x] **Step 3: Make the four edits listed under Files**
+- [x] **Step 4: Run `npm test -w @sphere/app -- source-format` and `npm run typecheck`. Both must PASS.**
+- [x] **Step 5: Run `npm run format`, then commit with `git commit -m "Accept KML as a source format in the frontend"`**
 
 ### Task 4: `KmlSourcePanel`
 
@@ -182,24 +182,24 @@ Drag-and-drop needs no change. `handleDragDrop` passes every path through `addFi
 - Consumes: the `FormatDetails` `kml` member from Task 3
 - Produces: `export const KmlSourcePanel: FC`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 In `index.test.ts` `describe("selectPanelKind")`, add `routes a kml-format Geojson source to the kml panel`, built from `makeGeojsonSource("s1", { format: "kml", location: "/path/to/s1.kml" })`. It expects `"kml"`.
 
 In `KmlSourcePanel.test.tsx`, build the store the same way as `index.test.tsx` and seed `sourceInfo: () => ({ info: { s1: { file: null, schema, details } }, stats: {} })`:
 - `shows placemark and folder counts`: details `{ format: "kml", placemarks: 6, folders: 3, skipped_placemarks: 0 }`. It finds the text `"Placemarks"` with `6` and `"Folders"` with `3`, and there is no skipped note.
-- `shows a skipped-placemarks note when some placemarks have no drawable geometry`: `skipped_placemarks: 1`. It finds `"1 placemark has no drawable geometry and is not shown on the map."` For `skipped_placemarks: 2`, it finds `"2 placemarks have no drawable geometry and are not shown on the map."`
+- `shows a skipped-placemarks note when some placemarks have no supported geometry`: `skipped_placemarks: 1`. It finds `"1 placemark has no supported geometry and is not shown on the map."` For `skipped_placemarks: 2`, it finds `"2 placemarks have no supported geometry and are not shown on the map."`
 - `renders nothing for non-kml details`: details `{ format: "geojson" }` renders an empty container.
 
-- [ ] **Step 2: Run `npm test -w @sphere/app -- SourcePanel` and check that the new tests FAIL**
+- [x] **Step 2: Run `npm test -w @sphere/app -- SourcePanel` and check that the new tests FAIL**
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Mirror `GpxSourcePanel.tsx`: a `FileSection`, a `PanelSection` titled `"KML contents"` with `InfoRow`s for Placemarks / Folders / Skipped placemarks, the orange `Text size="xs"` note when `skipped_placemarks > 0`, then the Geometry (`GeometryCounts`) and Attributes sections. Build the singular/plural note with an `if`, not a nested ternary. Register it in `index.tsx`.
 
-- [ ] **Step 4: Run `npm test`, `npm run typecheck` and `npm run lint`. All must PASS.**
+- [x] **Step 4: Run `npm test`, `npm run typecheck` and `npm run lint`. All must PASS.**
 
-- [ ] **Step 5: Run `npm run format`, then commit with `git commit -m "Add KML source panel"`**
+- [x] **Step 5: Run `npm run format`, then commit with `git commit -m "Add KML source panel"`**
 
 ### Task 5: Docs and end-to-end check
 
@@ -207,6 +207,6 @@ Mirror `GpxSourcePanel.tsx`: a `FileSection`, a `PanelSection` titled `"KML cont
 - Modify: `AGENTS.md` (formerly `CLAUDE.md`): in Project Overview, change "GeoJSON, Shapefile, CSV, GPX, and MBTiles" to include KML
 - Modify: `docs/plans/20261021-kml-support.md`: move it to `docs/plans/completed/` when done
 
-- [ ] **Step 1: Update `AGENTS.md`**
-- [ ] **Step 2: Run `npm run tauri dev`, open `crates/libsphere/assets/kml/sample.kml` from the dialog, and drop it onto the window.** Check that 5 features render, "Cafe" shows `rating: 5` in the attribute table, the KML panel shows Placemarks 6 / Folders 3 / Skipped 1 with the note, and zoom-to-source fits the data.
-- [ ] **Step 3: Move this plan to `docs/plans/completed/` and commit with `git commit -m "Document KML support"`**
+- [x] **Step 1: Update `AGENTS.md`**
+- [x] **Step 2: Run `npm run tauri dev`, open `crates/libsphere/assets/kml/sample.kml` from the dialog, and drop it onto the window.** Check that 5 features render, "Cafe" shows `rating: 5` in the attribute table, the KML panel shows Placemarks 6 / Folders 3 / Skipped 1 with the note, and zoom-to-source fits the data.
+- [x] **Step 3: Move this plan to `docs/plans/completed/` and commit with `git commit -m "Document KML support"`**
