@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>Good</name>
+      <Point><coordinates>30,60</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>One-point line</name>
+      <LineString><coordinates>30,60</coordinates></LineString>
+    </Placemark>
+    <Placemark>
+      <name>Empty polygon</name>
+      <Polygon></Polygon>
+    </Placemark>
+    <Placemark>
+      <name>Two-point ring</name>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>30,60 31,61</coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark>
+      <name>Partly degenerate</name>
+      <MultiGeometry>
+        <LineString><coordinates>30,60 31,61</coordinates></LineString>
+        <LineString><coordinates>30,60</coordinates></LineString>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark>
+      <name>All degenerate</name>
+      <MultiGeometry>
+        <LineString><coordinates>30,60</coordinates></LineString>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>30,60 31,61</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+  </Document>
+</kml>

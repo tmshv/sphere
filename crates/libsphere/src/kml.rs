@@ -54,6 +54,23 @@ fn collect(node: ::kml::Kml<f64>, placemarks: &mut Vec<Placemark<f64>>, folders:
     }
 }
 
+/// Fewest coordinates a LineString needs to be drawn.
+const MIN_LINE_STRING_COORDS: usize = 2;
+/// Fewest coordinates a closed Polygon outer ring needs to enclose an area.
+const MIN_RING_COORDS: usize = 4;
+
+/// Whether a geometry has enough coordinates for its type to be drawn. A Point
+/// always has its one coordinate here: the pre-pass drops empty Points.
+fn is_drawable(geometry: &Geometry<f64>) -> bool {
+    match geometry {
+        Geometry::LineString(line) => line.0.len() >= MIN_LINE_STRING_COORDS,
+        Geometry::Polygon(polygon) => polygon.exterior().0.len() >= MIN_RING_COORDS,
+        _ => true,
+    }
+}
+
+/// Convert to a drawable geometry. Degenerate geometries (and MultiGeometry
+/// members) become `None`, so their Placemark counts as skipped.
 fn to_geo(geometry: KmlGeometry<f64>) -> Option<Geometry<f64>> {
     match geometry {
         KmlGeometry::MultiGeometry(multi) => {
@@ -62,7 +79,7 @@ fn to_geo(geometry: KmlGeometry<f64>) -> Option<Geometry<f64>> {
             collapse(members)
         }
         KmlGeometry::Element(_) => None,
-        other => Geometry::try_from(other).ok(),
+        other => Geometry::try_from(other).ok().filter(is_drawable),
     }
 }
 
@@ -610,6 +627,40 @@ mod tests {
             prop(&rich, "description").as_deref(),
             Some("<p>Hello & welcome</p>")
         );
+    }
+
+    #[test]
+    fn one_point_line_string_is_skipped() {
+        let path = "./assets/kml/degenerate.kml";
+        assert!(!names(&load(path)).contains(&"One-point line".to_string()));
+    }
+
+    #[test]
+    fn empty_polygons_are_skipped() {
+        let path = "./assets/kml/degenerate.kml";
+        let found = names(&load(path));
+        assert!(!found.contains(&"Empty polygon".to_string()));
+        assert!(!found.contains(&"Two-point ring".to_string()));
+    }
+
+    #[test]
+    fn degenerate_multigeometry_members_are_dropped() {
+        let path = "./assets/kml/degenerate.kml";
+        let features = load(path);
+        assert_eq!(names(&features), vec!["Good", "Partly degenerate"]);
+        match value(&by_name(&features, "Partly degenerate")) {
+            Value::MultiLineString(lines) => assert_eq!(lines.len(), 1),
+            other => panic!("expected MultiLineString, got {other:?}"),
+        }
+        let info = info_of(path);
+        assert_eq!(info.placemarks, 6);
+        assert_eq!(info.skipped_placemarks, 4);
+    }
+
+    #[test]
+    fn to_geo_rejects_a_polygon_without_an_outer_ring() {
+        let polygon = KmlGeometry::Polygon(::kml::types::Polygon::default());
+        assert!(to_geo(polygon).is_none());
     }
 
     #[test]
