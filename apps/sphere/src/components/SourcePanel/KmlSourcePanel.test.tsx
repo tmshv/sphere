@@ -41,19 +41,20 @@ describe("KmlSourcePanel", () => {
 
         expect(screen.getByText("Placemarks").parentElement).toHaveTextContent("6")
         expect(screen.getByText("Folders").parentElement).toHaveTextContent("3")
-        expect(screen.queryByText(/no drawable geometry/)).toBeNull()
+        expect(screen.getByText("Skipped placemarks").parentElement).toHaveTextContent("0")
+        expect(screen.queryByText(/no supported geometry/)).toBeNull()
     })
 
-    it("shows a skipped-placemarks note when some placemarks have no drawable geometry", () => {
+    it("shows a skipped-placemarks note when some placemarks have no supported geometry", () => {
         const { unmount } = renderPanel({ format: "kml", placemarks: 6, folders: 3, skipped_placemarks: 1 })
         expect(
-            screen.getByText("1 placemark has no drawable geometry and is not shown on the map."),
+            screen.getByText("1 placemark has no supported geometry and is not shown on the map."),
         ).toBeInTheDocument()
         unmount()
 
         renderPanel({ format: "kml", placemarks: 6, folders: 3, skipped_placemarks: 2 })
         expect(
-            screen.getByText("2 placemarks have no drawable geometry and are not shown on the map."),
+            screen.getByText("2 placemarks have no supported geometry and are not shown on the map."),
         ).toBeInTheDocument()
     })
 

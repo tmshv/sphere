@@ -9,9 +9,9 @@ import { PanelSection } from "./parts/PanelSection"
 
 function skippedNote(count: number): string {
     if (count === 1) {
-        return "1 placemark has no drawable geometry and is not shown on the map."
+        return "1 placemark has no supported geometry and is not shown on the map."
     }
-    return `${count} placemarks have no drawable geometry and are not shown on the map.`
+    return `${count} placemarks have no supported geometry and are not shown on the map.`
 }
 
 export const KmlSourcePanel: FC = () => {
