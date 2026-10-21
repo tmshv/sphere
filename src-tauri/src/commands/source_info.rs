@@ -409,6 +409,25 @@ mod tests {
     }
 
     #[test]
+    fn details_and_file_reads_kml_counts_and_file_info() {
+        let target = InfoTarget::Kml(Kml {
+            path: "../crates/libsphere/assets/kml/sample.kml".to_string(),
+        });
+
+        let (details, file) = details_and_file(target).unwrap();
+
+        assert!(matches!(
+            details,
+            FormatDetails::Kml {
+                placemarks: 6,
+                folders: 3,
+                skipped_placemarks: 1,
+            }
+        ));
+        assert!(file.is_some_and(|f| f.size_bytes > 0));
+    }
+
+    #[test]
     fn info_target_keeps_the_kml_path() {
         let data = SourceData::Kml(Kml {
             path: "/tmp/a.kml".to_string(),
