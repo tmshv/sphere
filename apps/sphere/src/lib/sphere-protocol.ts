@@ -22,18 +22,24 @@ export class SphereProtocol {
             switch (path) {
                 case "/tilejson": {
                     const reader = new MbtilesReader(id)
-                    return { data: await reader.getTileJson() }
+                    const tilejson = await reader.getTileJson()
+                    if (!tilejson) throw new Error(`No TileJSON for source ${id}`)
+                    return { data: tilejson }
                 }
                 case "/tile": {
                     const reader = new MbtilesReader(id)
                     const [z, x, y] = this.parseZXY(url)
                     const bytes = await reader.getTile({ z, x, y })
-                    if (!bytes) return { data: null }
+                    // MapLibre treats an empty response as a tile with no data.
+                    // A fresh buffer per tile: MapLibre may transfer it to a worker.
+                    if (!bytes) return { data: new ArrayBuffer(0) }
                     return { data: bytes.buffer }
                 }
                 default: {
                     const reader = new SourceReader(id)
-                    return { data: await reader.getGeojson() }
+                    const geojson = await reader.getGeojson()
+                    if (!geojson) throw new Error(`No GeoJSON for source ${id}`)
+                    return { data: geojson }
                 }
             }
         }
