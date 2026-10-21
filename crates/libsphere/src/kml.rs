@@ -94,16 +94,34 @@ fn collapse(members: Vec<Geometry<f64>>) -> Option<Geometry<f64>> {
     Some(Geometry::GeometryCollection(GeometryCollection(members)))
 }
 
+/// Guard run before the kml crate parses anything: kml 0.15 loops forever on
+/// truncated XML, so malformed input must be rejected up front. Start/End depth
+/// is counted because quick-xml only reports mismatched end tags, not a missing
+/// one at EOF. The root element must also be `kml`, so other XML is rejected.
 fn check_well_formed(text: &str) -> std::result::Result<(), String> {
     let mut reader = XmlReader::from_str(text);
     let mut depth: u64 = 0;
+    let mut root_checked = false;
     loop {
-        match reader.read_event().map_err(|e| e.to_string())? {
+        let event = reader.read_event().map_err(|e| e.to_string())?;
+        match event {
+            XmlEvent::Start(ref e) | XmlEvent::Empty(ref e) if !root_checked => {
+                root_checked = true;
+                if e.local_name().as_ref() != b"kml" {
+                    return Err("root element is not <kml>".to_string());
+                }
+                if matches!(event, XmlEvent::Start(_)) {
+                    depth += 1;
+                }
+            }
             XmlEvent::Start(_) => depth += 1,
             XmlEvent::End(_) => depth = depth.saturating_sub(1),
             XmlEvent::Eof => break,
             _ => {}
         }
+    }
+    if !root_checked {
+        return Err("no root element".to_string());
     }
     if depth > 0 {
         return Err("unexpected end of document: unclosed elements".to_string());
@@ -386,6 +404,17 @@ mod tests {
         };
         match source.to_geojson() {
             Err(SphereError::Kml { path, .. }) => assert!(path.ends_with("broken.kml")),
+            other => panic!("expected Kml error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn to_geojson_returns_an_error_for_non_kml_xml() {
+        let source = Kml {
+            path: "./assets/kml/not-kml.xml".to_string(),
+        };
+        match source.to_geojson() {
+            Err(SphereError::Kml { path, .. }) => assert!(path.ends_with("not-kml.xml")),
             other => panic!("expected Kml error, got {other:?}"),
         }
     }

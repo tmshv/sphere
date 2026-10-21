@@ -42,5 +42,5 @@ wkt = "0.10"
 thiserror = "1.0"
 rstar = "0.12"
 libexpression = { path = "../libexpression" }
-kml = "0.15"
+kml = { version = "0.15", default-features = false, features = ["geo-types"] }
 quick-xml = "0.41"
