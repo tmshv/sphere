@@ -10,6 +10,7 @@ import { useSelector } from "react-redux"
 import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
 import { GpxSourcePanel } from "./GpxSourcePanel"
+import { KmlSourcePanel } from "./KmlSourcePanel"
 import { RasterTilesSourcePanel } from "./RasterTilesSourcePanel"
 import { ShapefileSourcePanel } from "./ShapefileSourcePanel"
 import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
@@ -77,6 +78,8 @@ function renderPanel(kind: PanelKind | null) {
             return <ShapefileSourcePanel />
         case "gpx":
             return <GpxSourcePanel />
+        case "kml":
+            return <KmlSourcePanel />
         case "vector-tiles":
             return <VectorTilesSourcePanel />
         case "raster-tiles":
