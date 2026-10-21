@@ -112,6 +112,9 @@ fn collapse(members: Vec<Geometry<f64>>) -> Option<Geometry<f64>> {
     Some(Geometry::GeometryCollection(GeometryCollection(members)))
 }
 
+/// Error detail for files that are not UTF-8 (UTF-16 or legacy code pages).
+const NOT_UTF8: &str = "KML file is not valid UTF-8";
+
 /// Geometry elements the pre-pass drops when they carry no coordinates.
 const GEOMETRY_ELEMENTS: [&[u8]; 4] = [b"Point", b"LineString", b"LinearRing", b"Polygon"];
 
@@ -340,7 +343,10 @@ impl Kml {
             path: self.path.clone(),
             detail,
         };
-        let text = std::fs::read_to_string(&self.path).with_path(&self.path)?;
+        // Read bytes so that I/O failures stay `Io` and a bad encoding is
+        // reported as a KML problem instead of a misleading I/O error.
+        let bytes = std::fs::read(&self.path).with_path(&self.path)?;
+        let text = String::from_utf8(bytes).map_err(|_| to_error(NOT_UTF8.to_string()))?;
         let normalised = normalise(&text).map_err(to_error)?;
         // Backstop: the pre-pass removes every input known to panic kml 0.15,
         // but a panic must never unwind through the Tauri command, so any other
@@ -661,6 +667,25 @@ mod tests {
     fn to_geo_rejects_a_polygon_without_an_outer_ring() {
         let polygon = KmlGeometry::Polygon(::kml::types::Polygon::default());
         assert!(to_geo(polygon).is_none());
+    }
+
+    #[test]
+    fn to_geojson_returns_an_error_for_non_utf8_files() {
+        let path = std::env::temp_dir().join(format!("sphere-non-utf8-{}.kml", std::process::id()));
+        let mut bytes = b"<?xml version=\"1.0\"?><kml><Document><Placemark><name>".to_vec();
+        bytes.extend_from_slice(&[0xC0, 0xEF, 0xFF]);
+        bytes.extend_from_slice(b"</name></Placemark></Document></kml>");
+        std::fs::write(&path, bytes).unwrap();
+        let path = path.to_string_lossy().to_string();
+        let result = Kml { path: path.clone() }.to_geojson();
+        std::fs::remove_file(&path).unwrap();
+        match result {
+            Err(SphereError::Kml { path: p, detail }) => {
+                assert_eq!(p, path);
+                assert_eq!(detail, "KML file is not valid UTF-8");
+            }
+            other => panic!("expected Kml error, got {other:?}"),
+        }
     }
 
     #[test]
