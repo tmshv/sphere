@@ -251,6 +251,5 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 1. **Error handling** - `libsphere` errors now carry path context via `SphereError`; `src-tauri` commands still convert errors to strings at the IPC boundary, discarding structure
 2. **Unsafe unwraps** - `src-tauri` URL parsing is now fallible, but `crates/libsphere` still has panicking `.unwrap()`s (`shape.rs`, `gpx.rs` bounds; `store.rs`, `schema.rs`) reachable from source loading
 3. **Fake async** - Some commands marked `async` but perform blocking I/O (no `spawn_blocking`)
-4. **Missing plugin** - `tauri-plugin-shell` in Cargo.toml but not registered in main.rs
-5. **CSP disabled** - `tauri.conf.json` has `"security": null` (no CSP — security concern for production)
-6. **No type sharing** - TypeScript and Rust types are duplicated and can drift out of sync
+4. **CSP disabled** - `tauri.conf.json` has `"security": null` (no CSP — security concern for production)
+5. **No type sharing** - TypeScript and Rust types are duplicated and can drift out of sync

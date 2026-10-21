@@ -18,7 +18,8 @@
         "@visx/group": "^3.12.0",
         "@visx/scale": "^3.12.0",
         "@visx/shape": "^3.12.0",
-        "@tanstack/react-table": "^8.21.0"
+        "@tanstack/react-table": "^8.21.0",
+        "date-fns": "^4.1.0"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
