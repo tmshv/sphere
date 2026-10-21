@@ -1,6 +1,6 @@
 import type { SourceFormat } from "@/types"
 
-const SOURCE_FORMATS = new Set<string>(["geojson", "csv", "shapefile", "gpx"])
+const SOURCE_FORMATS = new Set<string>(["geojson", "csv", "shapefile", "gpx", "kml"])
 
 export const DEFAULT_SOURCE_FORMAT: SourceFormat = "geojson"
 

@@ -16,7 +16,7 @@ import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "vector-tiles" | "raster-tiles"
+export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "kml" | "vector-tiles" | "raster-tiles"
 
 export const selectPanelKind = createSelector(
     [selectors.source.selectCurrentSourceItem],

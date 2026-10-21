@@ -65,6 +65,12 @@ export type FormatDetails =
           routes: number
           track_points: number
       }
+    | {
+          format: "kml"
+          placemarks: number
+          folders: number
+          skipped_placemarks: number
+      }
 
 export type SourceInfo = {
     file: FileInfo | null
