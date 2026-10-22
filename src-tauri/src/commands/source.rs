@@ -793,6 +793,60 @@ mod tests {
         assert!(!err.is_empty());
     }
 
+    /// `file://` URL of the Organic Maps KML sample shipped in `samples/`.
+    fn organic_maps_url() -> String {
+        let path = std::fs::canonicalize("../samples/organicmaps-spb.kml").unwrap();
+        format!("file://{}", path.display())
+    }
+
+    #[tokio::test]
+    async fn kml_source_add_reports_the_kml_type() {
+        let app = test_app();
+
+        let result = source_add(&organic_maps_url(), app.state()).await.unwrap();
+
+        assert_eq!(result.source_type, "kml");
+        assert_eq!(result.name, "organicmaps-spb");
+    }
+
+    #[tokio::test]
+    async fn kml_properties_reach_source_get() {
+        let app = test_app();
+        let id = source_add(&organic_maps_url(), app.state()).await.unwrap().id;
+
+        let geojson = source_get(id, app.state()).await.unwrap();
+        let parsed: Value = serde_json::from_str(&geojson).unwrap();
+
+        let first = &parsed["features"][0];
+        assert_eq!(first["id"], 1);
+        assert_eq!(first["properties"]["name"], "Building");
+        assert_eq!(first["properties"]["timestamp"], "2017/04/13 16:20:17+00");
+    }
+
+    #[tokio::test]
+    async fn kml_properties_reach_the_attribute_table_page() {
+        let app = test_app();
+        let id = source_add(&organic_maps_url(), app.state()).await.unwrap().id;
+
+        let page = source_query_page(id, 0, 2, None, None, None, app.state()).await.unwrap();
+
+        assert_eq!(page.total_matching, 329);
+        assert_eq!(page.features[0]["properties"]["name"], "Building");
+        assert_eq!(page.features[1]["properties"]["name"], "Канонерский остров");
+    }
+
+    #[tokio::test]
+    async fn kml_schema_lists_every_property() {
+        let app = test_app();
+        let id = source_add(&organic_maps_url(), app.state()).await.unwrap().id;
+
+        let schema = source_get_schema(id, app.state()).await.unwrap();
+
+        for column in ["name", "timestamp", "tessellate", "extrude", "visibility"] {
+            assert!(schema.columns.contains_key(column), "missing column {column}");
+        }
+    }
+
     #[tokio::test]
     async fn query_page_limits_the_page_but_reports_the_full_total() {
         let app = test_app();

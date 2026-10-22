@@ -436,6 +436,9 @@ mod tests {
     use ::geojson::{GeoJson, Value};
 
     const SAMPLE: &str = "./assets/kml/sample.kml";
+    /// A real Organic Maps bookmarks export: a Document-level `Schema`, one
+    /// Folder of Point placemarks with `SchemaData`, and Cyrillic names.
+    const ORGANIC_MAPS: &str = "../../samples/organicmaps-spb.kml";
 
     fn load(path: &str) -> Vec<Feature> {
         let source = Kml {
@@ -559,6 +562,43 @@ mod tests {
         };
         assert_eq!(source.get_bounds(), None);
         assert_eq!(load(path).len(), 0);
+    }
+
+    #[test]
+    fn organic_maps_export_loads_every_placemark() {
+        let features = load(ORGANIC_MAPS);
+        assert_eq!(features.len(), 329);
+        assert!(features.iter().all(|f| matches!(value(f), Value::Point(_))));
+    }
+
+    #[test]
+    fn organic_maps_export_keeps_name_and_schema_data_properties() {
+        let features = load(ORGANIC_MAPS);
+        let building = by_name(&features, "Building");
+        assert_eq!(
+            prop(&building, "timestamp").as_deref(),
+            Some("2017/04/13 16:20:17+00")
+        );
+        assert_eq!(prop(&building, "tessellate").as_deref(), Some("-1"));
+        assert_eq!(prop(&building, "extrude").as_deref(), Some("0"));
+        assert_eq!(prop(&building, "visibility").as_deref(), Some("-1"));
+        assert_eq!(value(&building), Value::Point(vec![30.328326, 59.923008]));
+        by_name(&features, "Канонерский остров");
+    }
+
+    #[test]
+    fn organic_maps_export_schema_lists_every_property() {
+        let source = Kml {
+            path: ORGANIC_MAPS.to_string(),
+        };
+        let schema = source.get_schema().unwrap();
+        let mut columns: Vec<&str> = schema.columns.keys().map(String::as_str).collect();
+        columns.sort_unstable();
+        assert_eq!(
+            columns,
+            vec!["extrude", "name", "tessellate", "timestamp", "visibility"]
+        );
+        assert_eq!(schema.points_count, 329);
     }
 
     #[test]
