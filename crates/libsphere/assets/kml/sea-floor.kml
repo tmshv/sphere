@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <Placemark>
+      <name>Seabed route</name>
+      <LineString>
+        <tessellate>1</tessellate>
+        <gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>
+        <coordinates>30,60 31,61</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <name>Reef</name>
+      <Polygon>
+        <gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+        <outerBoundaryIs><LinearRing><coordinates>29,59 32,59 32,62 29,62 29,59</coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

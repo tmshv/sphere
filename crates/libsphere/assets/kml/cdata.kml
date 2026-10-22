@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>Rich</name>
+      <description><![CDATA[<p>Hello & welcome</p>]]></description>
+      <ExtendedData>
+        <Data name="html"><value><![CDATA[<b>x</b>]]></value></Data>
+        <Data name="mixed"><value>pre <![CDATA[x]]> post</value></Data>
+        <SchemaData schemaUrl="#s">
+          <SimpleData name="simple"><![CDATA[<i>y</i>]]></SimpleData>
+        </SchemaData>
+      </ExtendedData>
+      <Point><coordinates>30,60</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

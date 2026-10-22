@@ -38,6 +38,12 @@ pub enum SphereError {
         detail: String,
     },
 
+    #[error("KML error in {path}: {detail}")]
+    Kml {
+        path: String,
+        detail: String,
+    },
+
     #[error("Source not found: {id}")]
     NotFound { id: String },
 

@@ -199,6 +199,14 @@ describe("selectPanelKind", () => {
         expect(selectPanelKind(state)).toBe("csv")
     })
 
+    test("routes a kml-format Geojson source to the kml panel", () => {
+        const source = makeGeojsonSource("s1", { format: "kml", location: "/path/to/s1.kml" })
+        const state = makeRootState({
+            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+        })
+        expect(selectPanelKind(state)).toBe("kml")
+    })
+
     test("routes a geojson-format source to the geojson panel", () => {
         const state = makeRootState({
             source: { items: { s1: makeGeojsonSource("s1") }, allIds: ["s1"], selectedId: "s1" },

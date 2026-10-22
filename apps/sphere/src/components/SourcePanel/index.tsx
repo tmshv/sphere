@@ -10,13 +10,14 @@ import { useSelector } from "react-redux"
 import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
 import { GpxSourcePanel } from "./GpxSourcePanel"
+import { KmlSourcePanel } from "./KmlSourcePanel"
 import { RasterTilesSourcePanel } from "./RasterTilesSourcePanel"
 import { ShapefileSourcePanel } from "./ShapefileSourcePanel"
 import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "vector-tiles" | "raster-tiles"
+export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "kml" | "vector-tiles" | "raster-tiles"
 
 export const selectPanelKind = createSelector(
     [selectors.source.selectCurrentSourceItem],
@@ -77,6 +78,8 @@ function renderPanel(kind: PanelKind | null) {
             return <ShapefileSourcePanel />
         case "gpx":
             return <GpxSourcePanel />
+        case "kml":
+            return <KmlSourcePanel />
         case "vector-tiles":
             return <VectorTilesSourcePanel />
         case "raster-tiles":

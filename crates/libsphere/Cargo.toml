@@ -1,6 +1,6 @@
 [package]
 name = "libsphere"
-version = "0.10.0"
+version = "0.11.0"
 description = "Sphere Lib"
 license = "MIT"
 edition = "2021"
@@ -42,3 +42,5 @@ wkt = "0.10"
 thiserror = "1.0"
 rstar = "0.12"
 libexpression = { path = "../libexpression" }
+kml = { version = "0.15", default-features = false, features = ["geo-types"] }
+quick-xml = "0.41"

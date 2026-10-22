@@ -10,7 +10,7 @@ export type SidebarSection = {
 
 export type LayerRenderType = "Point" | "LineString" | "Polygon" | "photo" | "layer" | "unknown"
 
-export type SourceFormat = "geojson" | "csv" | "shapefile" | "gpx"
+export type SourceFormat = "geojson" | "csv" | "shapefile" | "gpx" | "kml"
 
 export enum SourceType {
     FeatureCollection = "FeatureCollection",

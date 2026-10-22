@@ -1,0 +1,3308 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="organicmaps_sample" id="organicmaps_sample">
+	<SimpleField name="id" type="string"></SimpleField>
+	<SimpleField name="timestamp" type="string"></SimpleField>
+	<SimpleField name="begin" type="string"></SimpleField>
+	<SimpleField name="end" type="string"></SimpleField>
+	<SimpleField name="altitudeMode" type="string"></SimpleField>
+	<SimpleField name="tessellate" type="int"></SimpleField>
+	<SimpleField name="extrude" type="int"></SimpleField>
+	<SimpleField name="visibility" type="int"></SimpleField>
+	<SimpleField name="drawOrder" type="int"></SimpleField>
+	<SimpleField name="icon" type="string"></SimpleField>
+</Schema>
+<Folder><name>organicmaps_sample</name>
+  <Placemark id="organicmaps_sample.1">
+	<name>Building</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2017/04/13 16:20:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.328326,59.923008,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.2">
+	<name>Канонерский остров</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/06/27 01:24:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.202093,59.896439,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.3">
+	<name>Танцплощадка</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/06/30 02:00:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.325977,59.939065,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.4">
+	<name>парк Интернационалистов</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:50:45+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.402303,59.859492,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.5">
+	<name>парк Куракина Дача</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:51:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.452568,59.872526,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.6">
+	<name>Заячий остров</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:57:12+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.314805,59.949751,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.7">
+	<name>Площадь Ленина</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:57:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.35535,59.957216,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.8">
+	<name>Маяковская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:57:41+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.357621,59.930543,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.9">
+	<name>Владимирская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:57:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.347874,59.926084,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.10">
+	<name>Лиговский проспект</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:57:45+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.35565,59.920733,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.11">
+	<name>Звенигородская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:02+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.332497,59.921883,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.12">
+	<name>Технологический институт</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:13+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.318461,59.916257,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.13">
+	<name>Московские Ворота</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:24+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.319474,59.891402,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.14">
+	<name>Электросила</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:28+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.319073,59.88026,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.15">
+	<name>Московский парк Победы</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.328721,59.868142,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.16">
+	<name>Спортивно-Концертный Комплекс &quot;Петербургский&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:39+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.341674,59.869229,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.17">
+	<name>Россия - моя история</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:42+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.340335,59.865529,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.18">
+	<name>ТРЦ &quot;Радуга&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:58:57+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.350591,59.86877,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.19">
+	<name>Московская застава</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:59:41+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.351861,59.849105,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.20">
+	<name>ЖЕSТЬ</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:59:50+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.355484,59.855846,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.21">
+	<name>ТК &quot;Космос&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 20:59:55+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.349801,59.853841,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.22">
+	<name>ТРК &quot;Питер&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.340431,59.853484,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.23">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.336518,59.853845,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.24">
+	<name>Чесменская церковь святого Иоанна Предтечи</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:20+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.330931,59.856948,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.25">
+	<name>Дом Советов</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.326535,59.852209,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.26">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.323183,59.852163,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.27">
+	<name>сквер Северная Роща</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:36+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.322974,59.854165,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.28">
+	<name>сквер Южная Роща</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:40+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.323191,59.850137,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.29">
+	<name>Московская-2</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.322447,59.849774,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.30">
+	<name>Московская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:00:56+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.322382,59.851404,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.31">
+	<name>Купчино</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:07+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.375458,59.829678,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.32">
+	<name>Звёздная</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:10+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.351444,59.832883,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.33">
+	<name>Автово</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.260965,59.866572,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.34">
+	<name>Нарвская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:35+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.274057,59.899708,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.35">
+	<name>Фрунзенская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:40+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.31797,59.905329,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.36">
+	<name>Адмиралтейская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:44+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313891,59.936138,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.37">
+	<name>Спортивная</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:49+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.290191,59.950951,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.38">
+	<name>Чкаловская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.292033,59.960217,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.39">
+	<name>Петроградская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312689,59.965079,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.40">
+	<name>Выборгская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:01:58+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.34951,59.969371,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.41">
+	<name>Новочеркасская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:02:02+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.415198,59.929599,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.42">
+	<name>Ладожская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:02:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.442401,59.931534,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.43">
+	<name>Елизаровская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:02:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.421764,59.898081,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.44">
+	<name>Ломоносовская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:02:12+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.440148,59.878817,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.45">
+	<name>Пролетарская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/09/09 21:02:16+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.46731,59.866265,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.46">
+	<name>Шушары</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/14 22:03:50+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.375831,59.807457,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.47">
+	<name>Пулково</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/14 22:03:54+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.260432,59.801711,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.48">
+	<name>Вид на юг города</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/14 22:04:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.323029,59.774986,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.49">
+	<name>Пулковский меридиан</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/14 22:04:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.330042,59.770888,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.50">
+	<name>Таврический сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 05:54:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.372875,59.945874,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.51">
+	<name>сад на Неве</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 05:54:24+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.390981,59.954697,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.52">
+	<name>улица Кораблестроителей, 23 к2</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 05:54:55+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.217737,59.947207,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.53">
+	<name>Крестовский остров</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 05:55:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.24223,59.971572,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.54">
+	<name>Елагин остров</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 05:55:12+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.256942,59.978764,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.55">
+	<name>парк имени 300-летия Санкт-Петербурга</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 05:55:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.198061,59.983607,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.56">
+	<name>БЦ &quot;Бенуа&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:33:44+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.405484,59.958793,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.57">
+	<name>Строительство ЖК &quot;5 звёзд&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:33:50+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.405406,59.962406,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.58">
+	<name>сад &quot;Нева&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:33:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.411255,59.96095,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.59">
+	<name>Кудрово</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:34:10+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.508294,59.907093,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.60">
+	<name>Улица Дыбенко</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:34:19+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.481818,59.909101,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.61">
+	<name>парк Есенина</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:34:24+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.485099,59.911304,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.62">
+	<name>Лесопарк &quot;Оккервиль&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/15 08:34:35+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.514132,59.912851,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.63">
+	<name>сад Ткачей</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:54:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.429235,59.893837,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.64">
+	<name>улица Ткачей, 5</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:54:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.430591,59.893924,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.65">
+	<name>Ломоносовский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:54:34+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.43971,59.877085,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.66">
+	<name>Дворец спорта “Волна”</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:55:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.321775,59.885041,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.67">
+	<name>Walk ML</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:56:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.213217,59.978475,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.68">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:57:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.224295,59.949139,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.69">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:57:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.223854,59.948474,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.70">
+	<name>Калязинская улица, 7</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 22:58:27+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.31909,60.015381,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.71">
+	<name>Apartment Aleksandrovskoy Fermy 8</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/27 23:00:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.452395,59.861479,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.72">
+	<name>Xtrail</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:55:12+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.333326,59.884444,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.73">
+	<name>Chicago BBQ</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:56:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.205064,59.954361,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.74">
+	<name>Лето</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:57:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.31686,59.819766,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.75">
+	<name>О’кей</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:57:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.316116,59.827422,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.76">
+	<name>Пулковский парк</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:57:26+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.328557,59.83691,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.77">
+	<name>Дунайский проспект, 14 литД</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:57:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.327306,59.832138,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.78">
+	<name>МРЭО ГИБДД №3</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:57:47+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.337934,59.836185,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.79">
+	<name>улица Тельмана, 52</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:58:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.4856,59.892971,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.80">
+	<name>Пятёрочка</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:58:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.489137,59.893075,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.81">
+	<name>Карусель</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:58:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.493393,59.895436,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.82">
+	<name>ТК &quot;Невский&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:58:42+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.482438,59.908385,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.83">
+	<name>Улица Дыбенко</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:58:45+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.483216,59.907268,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.84">
+	<name>Александровская больница</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:59:01+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.490148,59.926938,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.85">
+	<name>Городская больница №26</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 12:59:31+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.295709,59.849236,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.86">
+	<name>ИКЕА</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:00:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.510507,59.892534,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.87">
+	<name>Мега Парк</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:00:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.511022,59.895616,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.88">
+	<name>Мега Дыбенко</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:00:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.51473,59.893826,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.89">
+	<name>Юсуповский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313115,59.922983,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.90">
+	<name>Александровский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:16+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.306799,59.936437,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.91">
+	<name>сад Зимнего дворца</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.311648,59.939628,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.92">
+	<name>Дворцовая площадь</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:27+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.314871,59.938853,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.93">
+	<name>Восточное крыло Главного штаба</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:37+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.318365,59.938564,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.94">
+	<name>Арка Главного штаба</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:42+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.317233,59.938079,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.95">
+	<name>Русский музей</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:52+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.331094,59.938625,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.96">
+	<name>Марсово поле</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/29 13:01:59+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.331644,59.943627,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.97">
+	<name>Пантелеймоновская церковь</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:35:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.401168,59.959267,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.98">
+	<name>БЦ &quot;Лето&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:35:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.402162,59.96199,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.99">
+	<name>Покровский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:42:40+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.289137,59.918412,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.100">
+	<name>остров Новая Голландия</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:42:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.289976,59.929587,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.101">
+	<name>Мариинский-2</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:43:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.294179,59.925165,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.102">
+	<name>Мариинский театр</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:43:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.295908,59.92543,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.103">
+	<name>Концертный зал Мариинского театра</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:43:20+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.286941,59.925237,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.104">
+	<name>Александровский парк</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:43:47+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.31762,59.954169,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.105">
+	<name>Ленинградский зоопарк</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:43:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.308534,59.951799,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.106">
+	<name>Государственный музей политической истории России</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:44:16+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.325172,59.954587,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.107">
+	<name>Музей блокады Ленинграда</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:44:30+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.322176,59.843161,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.108">
+	<name>Международная</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:45:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.381877,59.868622,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.109">
+	<name>Яблоневый сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:45:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.363754,59.863551,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.110">
+	<name>ТК Балкания Nova 1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/10/30 13:45:46+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.379154,59.827604,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.111">
+	<name>Музей железных дорог России</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/04 15:39:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.297111,59.904711,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.112">
+	<name>Гражданская улица, 13-15</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/04 15:40:34+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312271,59.928364,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.113">
+	<name>Диво-остров</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/04 15:41:31+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.251189,59.972877,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.114">
+	<name>Parklane Resort and SPA</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/04 15:41:37+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.255384,59.969751,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.115">
+	<name>БЦ &quot;Альянс&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/04 15:47:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.362433,59.877516,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.116">
+	<name>ТРЦ &quot;Рио&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/04 15:47:36+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.358756,59.877189,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.117">
+	<name>Брестский парк</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:06:40+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.466928,59.888381,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.118">
+	<name>Path</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:07:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.451273,59.913267,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.119">
+	<name>Лондон Молл</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:07:30+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.447199,59.91178,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.120">
+	<name>Ледовый дворец</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:08:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.467591,59.921627,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.121">
+	<name>Церковь святого Первоверховного апостола Петра</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:08:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.46087,59.908144,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.122">
+	<name>парк Строителей</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:08:46+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.458082,59.907834,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.123">
+	<name>Церковь Рождества Христова</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:09:03+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.46179,59.917114,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.124">
+	<name>Отделение пенсионного фонда</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:09:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.447151,59.920705,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.125">
+	<name>парк Боевого Братства</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:09:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.449573,59.919221,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.126">
+	<name>Реконструкция центра современного искусства им. С. Курёхина</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:09:55+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.245834,59.933915,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.127">
+	<name>Эрарта</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:10:06+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.251355,59.932114,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.128">
+	<name>Румянцевский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:10:26+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.292523,59.938454,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.129">
+	<name>Средний проспект В.О., 4</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:11:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.289348,59.945322,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.130">
+	<name>Стрелка Васильевского острова</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:11:19+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.307249,59.944298,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.131">
+	<name>Биржевой сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:11:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.306419,59.943982,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.132">
+	<name>Музей антропологии и этнографии имени Петра Великого Российской Академии наук</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:11:45+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.304266,59.941499,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.133">
+	<name>Менделеевский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:12:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.297345,59.943418,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.134">
+	<name>Исаакиевский собор</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:13:01+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.306156,59.934084,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.135">
+	<name>Исаакиевский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:13:06+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.307331,59.93306,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.136">
+	<name>Петру Великому</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:13:10+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.30221,59.9364,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.137">
+	<name>Площадь Труда</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:13:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.293412,59.931136,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.138">
+	<name>Василеостровская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:14:52+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.278437,59.942659,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.139">
+	<name>Районное травматологическое отделение</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:15:02+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.276042,59.943453,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.140">
+	<name>стадион «Петровский»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:15:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.286259,59.951936,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.141">
+	<name>Князь-Владимирский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:15:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.292538,59.952051,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.142">
+	<name>Заставская улица, 46 к1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:16:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313067,59.888147,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.143">
+	<name>Московский проспект, 137</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:16:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.314957,59.881695,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.144">
+	<name>Мебельный Континент</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:16:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.310617,59.881587,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.145">
+	<name>Российская национальная библиотека</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:16:55+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.31715,59.865496,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.146">
+	<name>Beach</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:18:47+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.163205,59.870445,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.147">
+	<name>Авиагородок</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:20:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.293895,59.813404,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.148">
+	<name>О’кей</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:21:19+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.350182,59.851319,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.149">
+	<name>проспект Космонавтов, 44</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:21:23+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.355852,59.851777,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.150">
+	<name>проспект Славы</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:21:35+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.365571,59.851741,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.151">
+	<name>ТРЦ Галерея</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:24:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.36053,59.927464,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.152">
+	<name>сад Сан-Галли</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:24:38+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.358093,59.922647,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.153">
+	<name>Московский вокзал. Копус «А»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:24:46+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.362172,59.929321,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.154">
+	<name>Торговый центр «Стокманн Невский Центр»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:24:57+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.359058,59.932114,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.155">
+	<name>Большой Концертный Зал «Октябрьский»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:25:07+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.365506,59.935556,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.156">
+	<name>Михайловский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:25:50+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.331633,59.937254,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.157">
+	<name>Большой Гостиный Двор</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:26:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.331046,59.933112,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.158">
+	<name>Апраксин двор</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:26:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.329895,59.929038,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.159">
+	<name>Петербургский ангел</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313024,59.919505,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.160">
+	<name>сад Маршала Говорова</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:16+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.316385,59.920532,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.161">
+	<name>Санкт-Петербургский государственный архитектурно-строительный университет</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.315407,59.915136,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.162">
+	<name>сад Олимпия</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:26+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.3197,59.912892,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.163">
+	<name>Малодетскосельский проспект, 23</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.32271,59.912445,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.164">
+	<name>Планетарий №1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:48+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.331033,59.911692,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.165">
+	<name>Building</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:27:52+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.329616,59.910019,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.166">
+	<name>Компьютерный Цехъ</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:28:02+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.330223,59.911664,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.167">
+	<name>Финляндский вокзал</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:28:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.356292,59.956459,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.168">
+	<name>Площадь Ленина</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:28:39+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.355544,59.954293,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.169">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:28:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.353839,59.958288,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.170">
+	<name>БЦ &quot;Петровский форт&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:29:07+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.342047,59.957299,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.171">
+	<name>Военно-исторический музей артиллерии, инженерных войск и войск связи</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:29:27+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.314204,59.953464,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.172">
+	<name>Park Inn by Radisson Pribaltiyskaya</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:30:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.215231,59.938981,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.173">
+	<name>Морской вокзал</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:30:53+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.234897,59.926042,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.174">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:32:10+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.336714,59.850804,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.175">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:32:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.337391,59.846992,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.176">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:32:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.337297,59.842417,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.177">
+	<name>Городская больница №20</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:32:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.335987,59.840571,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.178">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:32:41+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.336789,59.835853,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.179">
+	<name>Балтийский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:34:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.299027,59.908113,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.180">
+	<name>Лента</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:34:20+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.302495,59.906935,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.181">
+	<name>Балтийский вокзал</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/07 13:34:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.298697,59.906826,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.182">
+	<name>Митрополичий сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 09:06:24+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.38365,59.919673,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.183">
+	<name>Монастырский остров</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 09:06:27+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.389518,59.921144,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.184">
+	<name>Building</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 09:07:40+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.376755,59.917512,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.185">
+	<name>Красногвардейская площадь, 3</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 14:43:26+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.410534,59.941287,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.186">
+	<name>Единый центр документов</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 14:44:39+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.395478,59.941114,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.187">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 14:44:57+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.429152,59.89296,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.188">
+	<name>проспект Обуховской Обороны, 119Б</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 14:45:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.436578,59.892562,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.189">
+	<name>Максидом</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/16 14:46:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.47744,59.891008,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.190">
+	<name>Кафедра гидромашиностроения им. Вознесенского энергомашиностроительного факультета</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:47:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.37396,60.00537,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.191">
+	<name>Центр плавания</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:51:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.378783,60.000835,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.192">
+	<name>Политехническая</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:53:09+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.370745,60.008768,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.193">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:53:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.372368,60.008923,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.194">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:53:20+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.371467,60.009069,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.195">
+	<name>Кузнецовская улица, 52 к15</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:54:56+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.338523,59.8743,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.196">
+	<name>Дом Швеции</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:57:30+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.32511,59.938615,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.197">
+	<name>Казанский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:59:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.325077,59.935046,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.198">
+	<name>Воронихинский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 09:59:06+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.322842,59.934454,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.199">
+	<name>Street</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 10:03:48+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.408652,59.882417,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.200">
+	<name>Ладожский вокзал</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/17 19:58:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.440679,59.932056,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.201">
+	<name>Бухарестская улица, 72 к1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/18 21:05:41+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.378077,59.874377,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.202">
+	<name>Будапештская улица, 23 к5</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/18 21:06:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.371659,59.861366,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.203">
+	<name>парк Академика Сахарова</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/19 16:23:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.414668,59.978569,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.204">
+	<name>БЦ Акватория</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/26 11:53:57+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.322927,59.980735,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.205">
+	<name>Поликлиника №51</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/26 11:57:19+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.349354,59.856151,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.206">
+	<name>Park</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/26 11:57:27+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.347205,59.855438,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.207">
+	<name>БЦ &quot;Атлантик Сити&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/11/26 17:19:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.202722,59.985878,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.208">
+	<name>Миргородская улица, 3</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 16:58:20+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.373472,59.922597,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.209">
+	<name>Кронверкский проспект, 35</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:00:03+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313712,59.957176,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.210">
+	<name>Планетарий</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:00:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.311706,59.955388,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.211">
+	<name>Ботанический сад Петра Великого</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:00:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.325274,59.970043,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.212">
+	<name>Building</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:01:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.236057,59.928304,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.213">
+	<name>Севкабель</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:01:42+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.242615,59.923849,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.214">
+	<name>Российская академия художеств</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:02:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.289614,59.937584,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.215">
+	<name>Здание ИТМО</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:02:49+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.296863,59.942733,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.216">
+	<name>БЦ &quot;Universe&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/13 17:03:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.293515,59.942417,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.217">
+	<name>Невский проспект, 12</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2018/12/22 14:15:54+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.315709,59.937135,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.218">
+	<name>Мончегорская улица, 10А</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/13 17:21:06+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.293695,59.957631,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.219">
+	<name>Центр искусства и музыки библиотеки имени В.В. Маяковского</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:03:44+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.321055,59.936228,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.220">
+	<name>Дом Зингера</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:12:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.325888,59.935865,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.221">
+	<name>Государственный Эрмитаж</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:12:55+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.316189,59.941347,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.222">
+	<name>Viewpoint</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:13:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.308239,59.940844,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.223">
+	<name>Собор Успения Пресвятой Девы Марии</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:13:24+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312127,59.916632,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.224">
+	<name>Польский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:13:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.311393,59.917965,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.225">
+	<name>Измайловский гостиный двор</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:13:37+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.309135,59.91631,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.226">
+	<name>сад Троице-Измайловского собора</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:14:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.305937,59.916535,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.227">
+	<name>Gutenberg Hotel</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:15:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312686,59.928178,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.228">
+	<name>Дюны</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:15:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.363106,59.924239,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.229">
+	<name>Novotel St Petersburg Centre</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:16:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.356237,59.933672,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.230">
+	<name>Ломоносовский сквер</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:17:52+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.334603,59.928938,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.231">
+	<name>Бизнес центр на Сенной</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:19:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.319885,59.928161,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.232">
+	<name>ТК Пик</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:19:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.320843,59.926436,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.233">
+	<name>ТК Сенная</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/02/17 13:19:35+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.320234,59.925106,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.234">
+	<name>Витебский проспект, 47 к5</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/03/24 22:51:46+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.358902,59.851395,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.235">
+	<name>Московский проспект, 4А</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/03/24 22:52:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.318838,59.925261,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.236">
+	<name>улица Маяковского, 23/6</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/03/24 22:52:36+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.355767,59.939792,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.237">
+	<name>Манежный переулок, 1/4</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/03/24 22:53:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.353652,59.943088,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.238">
+	<name>Чернышевская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/03/24 22:56:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.359523,59.944505,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.239">
+	<name>Relax</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/04/22 06:58:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.149352,59.866019,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.240">
+	<name>Sauna</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/05/18 19:33:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.303238,59.930289,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.241">
+	<name>Kantemirovskaya Street, 3 к1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/06/13 11:34:44+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.327449,59.980021,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.242">
+	<name>Moskovskiy Avenue, 191А</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/07/25 10:33:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.316216,59.853512,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.243">
+	<name>Playground</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/04 22:57:35+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.346874,59.911509,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.244">
+	<name>Playground</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/04 22:58:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.350823,59.918397,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.245">
+	<name>Воронежская улица, 6-8</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/04 22:58:47+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.350072,59.918131,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.246">
+	<name>Ligovskiy Avenue, 127</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/04 22:58:49+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.350988,59.918244,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.247">
+	<name>обзорная площадка «Крыша»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/08 12:55:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.355478,59.922008,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.248">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/17 11:33:23+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.222733,59.938054,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.249">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/19 22:01:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.432622,59.872572,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.250">
+	<name>У карьера</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/19 22:01:36+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.430686,59.871943,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.251">
+	<name>Метрополис Арена</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/30 17:41:30+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.392021,59.916369,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.252">
+	<name>Библиотека имени А.И. Герцена</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/30 17:45:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.39245,59.942463,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.253">
+	<name>Лиговский проспект, 87</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/30 17:46:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.355894,59.9242,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.254">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/31 20:00:34+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.107222,59.86257,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.255">
+	<name>Шахматный дворик</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/31 23:07:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.340451,59.924779,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.256">
+	<name>Sotsialisticheskaya Street, 4</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/31 23:09:54+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.340103,59.924247,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.257">
+	<name>Нефтяная дорога</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/08/31 23:12:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.376281,59.903968,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.258">
+	<name>Mc Clane</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:17:35+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.356999,59.926815,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.259">
+	<name>Sit</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:26:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.347697,59.923693,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.260">
+	<name>Владимирская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:30:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.348006,59.927647,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.261">
+	<name>Достоевская</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:30:38+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.345836,59.927761,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.262">
+	<name>Владимирский Пассаж</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:30:42+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.34606,59.928677,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.263">
+	<name>улица Жуковского, 2</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:31:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.349134,59.936172,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.264">
+	<name>Nebar</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:31:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.347716,59.934893,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.265">
+	<name>Площадь Восстания - 1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:31:41+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.360851,59.931567,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.266">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:36:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.346868,59.922967,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.267">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:37:17+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.347324,59.923065,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.268">
+	<name>Unknown Place</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:39:26+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.346629,59.922851,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.269">
+	<name>Sitting on the white chair</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/02 23:43:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.347888,59.92318,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.270">
+	<name>Дом молодежи</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/04 16:14:27+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.458825,59.945418,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.271">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/04 16:41:44+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.456418,59.94338,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.272">
+	<name>Fence</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/07 23:44:57+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.218996,59.992573,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.273">
+	<name>Chkalovskiy Ave</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/08 14:13:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.296463,59.961515,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.274">
+	<name>ТРК «Питерлэнд»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/08 14:14:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.20995,59.98167,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.275">
+	<name>ТРЦ «Меркурий»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/08 14:14:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.205819,59.99082,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.276">
+	<name>ЖК &quot;МореОкеан&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/09/08 14:16:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.222632,60.00407,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.277">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/10/12 20:16:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.358534,59.929746,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.278">
+	<name>Горизонтальный меридианный круг Сухарева</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/10/24 09:31:42+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.325071,59.769401,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.279">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/10/24 10:11:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.32981,59.773027,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.280">
+	<name>Unknown Place</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/10/24 10:47:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.330634,59.769695,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.281">
+	<name>Na Grazhdanskoy 9</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/11/26 20:02:07+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313301,59.928321,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.282">
+	<name>Krylenko Street, 43 к1</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2019/12/19 08:08:10+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.49265,59.900396,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.283">
+	<name>Биржевая линия, 12</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/02/08 20:19:04+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.29594,59.943678,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.284">
+	<name>Василеостровский рынок</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/02/08 20:21:41+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.285797,59.939477,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.285">
+	<name>Kazanskaya Street, 7</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/02/15 19:53:49+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.320333,59.932161,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.286">
+	<name>набережная реки Мойки, 42</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/03/07 07:30:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.321243,59.936704,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.287">
+	<name>Храм святителя Николая Чудотворца на Вознесенском проспекте</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/03/18 06:22:21+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.310384,59.929542,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.288">
+	<name>Манеж</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/03/18 06:23:15+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.302452,59.933975,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.289">
+	<name>Бутылка</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/03/18 06:23:26+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.28784,59.929266,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.290">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 18:19:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.331077,59.967301,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.291">
+	<name>Амфитеатр</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 18:54:05+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.328255,59.967701,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.292">
+	<name>Карп</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 18:54:08+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.327656,59.967871,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.293">
+	<name>Качели</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 18:54:11+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.328729,59.96765,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.294">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 19:20:16+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.298359,59.978808,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.295">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 19:25:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.294045,59.978318,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.296">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 19:30:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.290702,59.978115,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.297">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 19:40:00+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.287667,59.979329,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.298">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 19:50:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.279871,59.976431,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.299">
+	<name>сквер Александра Белова</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 20:07:12+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.277171,59.969599,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.300">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/06/13 20:37:45+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.259109,59.974956,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.301">
+	<name>Dekabristov Street, 10</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/07/01 23:20:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.305971,59.928496,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.302">
+	<name>Усть-Ижора</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/07/19 07:24:14+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.599511,59.803872,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.303">
+	<name>Петрозаводское шоссе, 17</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/07/19 08:24:31+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.605655,59.797487,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.304">
+	<name>Невская битва</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/07/19 08:24:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.60384,59.802407,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.305">
+	<name>taking some food</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/07/19 10:13:56+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.58967,59.818844,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.306">
+	<name>My Position</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/07/19 11:08:23+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.517715,59.836611,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.307">
+	<name>Красотка с шавермой</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/09/13 01:07:18+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.302014,59.926357,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.308">
+	<name>Laboratoria Distilita</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/09/21 17:19:16+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.311884,59.928405,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.309">
+	<name>Бергольц центр</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/09/21 17:19:22+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312276,59.928323,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.310">
+	<name>Гражданская улица, 5</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/09/21 17:19:38+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.314316,59.928669,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.311">
+	<name>Флигель</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/10/12 17:35:49+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.35889,59.938184,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.312">
+	<name>17th Line, 54 к4</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2020/12/28 19:08:29+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.258302,59.94368,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.313">
+	<name>Никольский сад</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/02/16 10:11:28+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.299644,59.922998,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.314">
+	<name>Гамма</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/02/16 10:12:34+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.292015,59.908556,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.315">
+	<name>AF Brew Taproom</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/04/18 18:41:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.267416,59.911197,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.316">
+	<name>Желтая лестница</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/03 06:55:19+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312005,59.928295,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.317">
+	<name>STIM Coffee</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/03 06:55:25+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.311908,59.928349,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.318">
+	<name>Viewpoint</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/03 06:55:32+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.312037,59.92848,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.319">
+	<name>Julia Child</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/03 06:55:56+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.30903,59.92717,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.320">
+	<name>Moskovskiy Avenue, 115</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/05 10:45:02+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313502,59.888953,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.321">
+	<name>Moskovskiy Avenue, 115</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/05 10:45:06+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.313581,59.889968,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.322">
+	<name>Заставская улица, 33</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/06/05 10:45:13+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.315792,59.889731,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.323">
+	<name>Газовая улица, 10 литЗ</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/08/14 03:36:45+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.292967,59.968004,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.324">
+	<name>The Plaсe</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/10/17 17:48:43+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.289823,59.899679,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.325">
+	<name>набережная Обводного канала, 134-136-138ВМ</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/10/17 17:49:33+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.281436,59.906956,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.326">
+	<name>Com.nata</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/11/21 16:43:51+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.29368,59.967493,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.327">
+	<name>ТРК «Европолис»</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2021/12/18 08:44:48+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.354346,59.987602,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.328">
+	<name>Дом Культуры &quot;Невский&quot;</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2022/06/27 09:40:28+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.419047,59.906875,0</coordinates></Point>
+  </Placemark>
+  <Placemark id="organicmaps_sample.329">
+	<name>Utopist</name>
+	<ExtendedData><SchemaData schemaUrl="#organicmaps_sample">
+		<SimpleData name="timestamp">2022/08/12 20:24:36+00</SimpleData>
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+	</SchemaData></ExtendedData>
+      <Point><coordinates>30.359011,59.937945,0</coordinates></Point>
+  </Placemark>
+</Folder>
+</Document></kml>

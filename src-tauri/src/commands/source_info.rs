@@ -1,5 +1,6 @@
 use libsphere::csv::{Csv, CsvGeometry};
 use libsphere::gpx::Gpx;
+use libsphere::kml::Kml;
 use libsphere::shape::Shapefile;
 use libsphere::source::SourceData;
 use serde::Serialize;
@@ -41,6 +42,11 @@ pub enum FormatDetails {
         routes: u64,
         track_points: u64,
     },
+    Kml {
+        placemarks: u64,
+        folders: u64,
+        skipped_placemarks: u64,
+    },
 }
 
 #[derive(Serialize, Debug)]
@@ -77,6 +83,7 @@ enum InfoTarget {
     Csv(Csv),
     Shapefile(Shapefile),
     Gpx(Gpx),
+    Kml(Kml),
     Plain(Option<String>),
 }
 
@@ -98,6 +105,9 @@ fn info_target_for(data: &SourceData) -> InfoTarget {
         }),
         SourceData::Gpx(gpx) => InfoTarget::Gpx(Gpx {
             path: gpx.path.clone(),
+        }),
+        SourceData::Kml(kml) => InfoTarget::Kml(Kml {
+            path: kml.path.clone(),
         }),
         SourceData::Geojson(g) => InfoTarget::Plain(Some(g.path.clone())),
         SourceData::GeojsonSeq(g) => InfoTarget::Plain(Some(g.path.clone())),
@@ -151,6 +161,17 @@ fn details_and_file(target: InfoTarget) -> Result<(FormatDetails, Option<FileInf
                     track_points: info.track_points,
                 },
                 Some(gpx.path),
+            )
+        }
+        InfoTarget::Kml(kml) => {
+            let info = kml.info().map_err(|e| e.to_string())?;
+            (
+                FormatDetails::Kml {
+                    placemarks: info.placemarks,
+                    folders: info.folders,
+                    skipped_placemarks: info.skipped_placemarks,
+                },
+                Some(kml.path),
             )
         }
         InfoTarget::Plain(path) => (FormatDetails::Geojson, path),
@@ -370,5 +391,51 @@ mod tests {
         let err = csv_geometry_from_params("h3", None, None, None).unwrap_err();
 
         assert!(err.contains("h3"));
+    }
+
+    #[test]
+    fn kml_details_serialize_counts() {
+        let details = FormatDetails::Kml {
+            placemarks: 6,
+            folders: 3,
+            skipped_placemarks: 1,
+        };
+        let json = serde_json::to_value(details).unwrap();
+
+        assert_eq!(json["format"], "kml");
+        assert_eq!(json["placemarks"], 6);
+        assert_eq!(json["folders"], 3);
+        assert_eq!(json["skipped_placemarks"], 1);
+    }
+
+    #[test]
+    fn details_and_file_reads_kml_counts_and_file_info() {
+        let target = InfoTarget::Kml(Kml {
+            path: "../crates/libsphere/assets/kml/sample.kml".to_string(),
+        });
+
+        let (details, file) = details_and_file(target).unwrap();
+
+        assert!(matches!(
+            details,
+            FormatDetails::Kml {
+                placemarks: 6,
+                folders: 3,
+                skipped_placemarks: 1,
+            }
+        ));
+        assert!(file.is_some_and(|f| f.size_bytes > 0));
+    }
+
+    #[test]
+    fn info_target_keeps_the_kml_path() {
+        let data = SourceData::Kml(Kml {
+            path: "/tmp/a.kml".to_string(),
+        });
+
+        match info_target_for(&data) {
+            InfoTarget::Kml(kml) => assert_eq!(kml.path, "/tmp/a.kml"),
+            _ => panic!("expected a kml target"),
+        }
     }
 }

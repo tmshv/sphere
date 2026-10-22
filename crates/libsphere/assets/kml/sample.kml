@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Folder>
+      <name>Places</name>
+      <Placemark>
+        <name>Cafe</name>
+        <description>Nice</description>
+        <ExtendedData>
+          <Data name="rating"><value>5</value></Data>
+          <Data name="name"><value>shadow</value></Data>
+        </ExtendedData>
+        <Point><coordinates>30.1,59.9,15</coordinates></Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Routes</name>
+      <Folder>
+        <name>Day 1</name>
+        <Placemark>
+          <name>Walk</name>
+          <ExtendedData>
+            <SchemaData schemaUrl="#s">
+              <SimpleData name="km">3.2</SimpleData>
+            </SchemaData>
+          </ExtendedData>
+          <LineString><coordinates>30,60 31,60 31,61</coordinates></LineString>
+        </Placemark>
+      </Folder>
+    </Folder>
+    <Placemark>
+      <name>Park</name>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>29,59 32,59 32,62 29,62 29,59</coordinates></LinearRing></outerBoundaryIs>
+        <innerBoundaryIs><LinearRing><coordinates>30,60 30.5,60 30.5,60.5 30,60.5 30,60</coordinates></LinearRing></innerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark>
+      <name>Pair</name>
+      <MultiGeometry>
+        <Point><coordinates>30,60</coordinates></Point>
+        <Point><coordinates>31,61</coordinates></Point>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark>
+      <name>Mixed</name>
+      <MultiGeometry>
+        <Point><coordinates>30,60</coordinates></Point>
+        <LineString><coordinates>30,60 31,61</coordinates></LineString>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark>
+      <name>Note</name>
+    </Placemark>
+  </Document>
+</kml>
