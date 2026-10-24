@@ -75,6 +75,16 @@ function scrollParentOf(element: Element) {
     return null
 }
 
+// ActionBar renders its icons first, in item order: delete, zoom
+const DELETE_BUTTON_INDEX = 0
+const ZOOM_BUTTON_INDEX = 1
+
+function actionAt(index: number) {
+    const button = screen.getAllByRole("button").at(index)
+    if (!button) throw new Error(`no button at index ${index}`)
+    return button
+}
+
 describe("SourcesTab", () => {
     it("scrolls the outline instead of pushing the source panel off the sidebar", () => {
         renderTab()
@@ -121,22 +131,17 @@ describe("SourcesTab", () => {
     describe("with a selected source-layer node", () => {
         const mvt = makeMvtSource("m1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
         const childState = () => makeSourceState([mvt], { selectedIds: ["m1/roads"] })
-        // ActionBar renders its icons first, in item order: delete, zoom
-        const DELETE_BUTTON_INDEX = 0
-        const ZOOM_BUTTON_INDEX = 1
 
         function clickActionAt(index: number) {
-            const button = screen.getAllByRole("button").at(index)
-            if (!button) throw new Error(`no button at index ${index}`)
-            fireEvent.click(button)
+            fireEvent.click(actionAt(index))
         }
 
-        it("zooms to the parent source", () => {
+        it("zooms to the selected node", () => {
             const { dispatchedActions } = renderTab(childState())
 
             clickActionAt(ZOOM_BUTTON_INDEX)
 
-            expect(dispatchedActions).toContainEqual(actions.source.zoomTo("m1"))
+            expect(dispatchedActions).toContainEqual(actions.source.zoomTo("m1/roads"))
         })
 
         it("does not remove the parent source", () => {
@@ -145,6 +150,24 @@ describe("SourcesTab", () => {
             clickActionAt(DELETE_BUTTON_INDEX)
 
             expect(dispatchedActions).not.toContainEqual(actions.source.removeSource("m1"))
+        })
+
+        it("disables the delete button", () => {
+            renderTab(childState())
+
+            expect(actionAt(DELETE_BUTTON_INDEX)).toBeDisabled()
+            expect(actionAt(ZOOM_BUTTON_INDEX)).toBeEnabled()
+        })
+    })
+
+    describe("with a selected folder", () => {
+        const folderState = () => makeSourceState([source], { folderIds: ["f1"], selectedIds: ["f1"] })
+
+        it("enables delete and disables zoom", () => {
+            renderTab(folderState())
+
+            expect(actionAt(DELETE_BUTTON_INDEX)).toBeEnabled()
+            expect(actionAt(ZOOM_BUTTON_INDEX)).toBeDisabled()
         })
     })
 })

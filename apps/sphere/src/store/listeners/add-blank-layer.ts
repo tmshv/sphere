@@ -1,6 +1,8 @@
 import { nextColor } from "@sphere/utils"
 import { nextId } from "@/lib/nextId"
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
+import { hasFeatureStore } from "@/lib/source"
+import { resolveSourceRef } from "@/lib/source-tree"
 import { LayerType, SourceType } from "@/types"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
@@ -12,7 +14,10 @@ listener.startListening({
     actionCreator: actions.layer.addBlankLayer,
     effect: async (action, listenerApi) => {
         const state = listenerApi.getOriginalState() as RootState
-        const sourceId = action.payload
+        // The payload is a node id: a source-layer binds its parent source and its own vector layer
+        const nodeId = action.payload
+        const ref = nodeId ? resolveSourceRef(state.source.nodes, nodeId) : undefined
+        const sourceId = ref?.sourceId
         const layerId = nextId("layer")
         const source = sourceId ? state.source.items[sourceId] : undefined
         const name = source ? source.name : "Layer"
@@ -28,9 +33,9 @@ listener.startListening({
         )
 
         if (sourceId && source) {
-            let sourceLayer: string | undefined
+            let sourceLayer = ref?.sourceLayer
             // Automatically set sourceLayer for MVT sources with only one layer in it
-            if (source.type === SourceType.MVT && source.sourceLayers.length === 1) {
+            if (sourceLayer === undefined && source.type === SourceType.MVT && source.sourceLayers.length === 1) {
                 sourceLayer = source.sourceLayers.at(0)?.id
             }
 
@@ -43,10 +48,7 @@ listener.startListening({
             )
 
             // try to predict default layer view
-            if (
-                (source.type === SourceType.FeatureCollection && !source.pending) ||
-                source.type === SourceType.Geojson
-            ) {
+            if (hasFeatureStore(source)) {
                 const layerType = predictLayerType(source.meta) ?? fallbackLayerType(source.meta)
                 listenerApi.dispatch(
                     actions.layer.setType({

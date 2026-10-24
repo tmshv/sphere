@@ -1,3 +1,4 @@
+import { collectSubtree } from "@/lib/source-tree"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { sourceSlice } from "../source"
@@ -33,19 +34,25 @@ listener.startListening({
     actionCreator: actions.source.removeSource,
     effect: async (action, listenerApi) => {
         const before = listenerApi.getOriginalState() as RootState
-        const deletedSourceId = action.payload
-        const selectedSourceId = sourceSlice.selectors.selectSelectedId(before)
-
-        if (selectedSourceId !== deletedSourceId) {
+        const deletedNodeId = action.payload
+        const selectedNodeId = sourceSlice.selectors.selectSelectedId(before)
+        if (selectedNodeId === undefined) {
             return
         }
 
+        // Removing a root takes its whole subtree, so a selected child goes with it
+        const removedIds = collectSubtree(sourceSlice.selectors.nodes(before), deletedNodeId)
+        if (!removedIds.includes(selectedNodeId)) {
+            return
+        }
+
+        // Only a root can be removed, so the replacement is a root sibling
         const rootIds = sourceSlice.selectors.rootIds(before)
-        const idx = rootIds.indexOf(deletedSourceId)
+        const idx = rootIds.indexOf(deletedNodeId)
         if (idx === -1) {
             return
         }
-        const remaining = rootIds.filter(id => id !== deletedSourceId)
+        const remaining = rootIds.filter(id => id !== deletedNodeId)
         const nextId = remaining.at(idx) ?? remaining.at(idx - 1)
 
         listenerApi.dispatch(actions.source.select(nextId))

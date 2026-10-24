@@ -1,4 +1,4 @@
-import { makeGeojsonSource, makeSourceState } from "@/testutils"
+import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 import { configureStore, type Middleware } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
@@ -285,5 +285,61 @@ describe("auto-select-on-delete listener: source branch", () => {
         const selectAction = dispatchedActions.find(a => a.type === "source/select")
         expect(selectAction).toBeDefined()
         expect(selectAction).toMatchObject({ payload: undefined })
+    })
+
+    describe("with a child of the removed root selected", () => {
+        const MVT_ID = "m1"
+        const ROADS_NODE_ID = `${MVT_ID}/roads`
+        const mvt = makeMvtSource(MVT_ID, { sourceLayers: [{ id: "roads", name: "Roads" }] })
+
+        test("selects the next root", async () => {
+            const { store, dispatchedActions } = makeStore({
+                source: makeSourceState([makeGeojsonSource("s1"), mvt, makeGeojsonSource("s3")], {
+                    selectedIds: [ROADS_NODE_ID],
+                }),
+            })
+
+            store.dispatch({ type: "source/removeSource", payload: MVT_ID })
+            await vi.runAllTimersAsync()
+
+            const selectAction = dispatchedActions.find(a => a.type === "source/select")
+            expect(selectAction).toMatchObject({ payload: "s3" })
+        })
+
+        test("selects the previous root when the removed root is the last one", async () => {
+            const { store, dispatchedActions } = makeStore({
+                source: makeSourceState([makeGeojsonSource("s1"), mvt], { selectedIds: [ROADS_NODE_ID] }),
+            })
+
+            store.dispatch({ type: "source/removeSource", payload: MVT_ID })
+            await vi.runAllTimersAsync()
+
+            const selectAction = dispatchedActions.find(a => a.type === "source/select")
+            expect(selectAction).toMatchObject({ payload: "s1" })
+        })
+
+        test("selects nothing when the removed root was the only one", async () => {
+            const { store, dispatchedActions } = makeStore({
+                source: makeSourceState([mvt], { selectedIds: [ROADS_NODE_ID] }),
+            })
+
+            store.dispatch({ type: "source/removeSource", payload: MVT_ID })
+            await vi.runAllTimersAsync()
+
+            const selectAction = dispatchedActions.find(a => a.type === "source/select")
+            expect(selectAction).toBeDefined()
+            expect(selectAction).toMatchObject({ payload: undefined })
+        })
+
+        test("does not dispatch when the selected child belongs to another root", async () => {
+            const { store, dispatchedActions } = makeStore({
+                source: makeSourceState([makeGeojsonSource("s1"), mvt], { selectedIds: [ROADS_NODE_ID] }),
+            })
+
+            store.dispatch({ type: "source/removeSource", payload: "s1" })
+            await vi.runAllTimersAsync()
+
+            expect(dispatchedActions.find(a => a.type === "source/select")).toBeUndefined()
+        })
     })
 })

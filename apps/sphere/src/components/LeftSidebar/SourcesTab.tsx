@@ -14,9 +14,9 @@ import { SourcesOutline } from "../SourcesOutline"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
-    // Remove acts on the selected node; zoom acts on the data source it resolves to
+    // Source actions take the selected node id; which of them apply depends on the node kind
     const nodeId = useAppSelector(selectors.source.selectSelectedId)
-    const sourceId = useAppSelector(selectors.source.selectSelectedSourceId)
+    const { canRemove, canZoom } = useAppSelector(selectors.source.selectSelectedNodeActions)
     const sections = useAppSelector(selectSidebarSections("sources"))
     const [showModal, setShowModal] = useState(false)
     const form = useForm({
@@ -36,11 +36,11 @@ export const SourcesTab: React.FC = () => {
         name => {
             switch (name) {
                 case "trash": {
-                    if (nodeId) dispatch(actions.source.removeSource(nodeId))
+                    if (nodeId && canRemove) dispatch(actions.source.removeSource(nodeId))
                     break
                 }
                 case "zoom": {
-                    if (sourceId) dispatch(actions.source.zoomTo(sourceId))
+                    if (nodeId && canZoom) dispatch(actions.source.zoomTo(nodeId))
                     break
                 }
                 case "add-from-url": {
@@ -62,7 +62,7 @@ export const SourcesTab: React.FC = () => {
                 }
             }
         },
-        [dispatch, nodeId, sourceId],
+        [dispatch, nodeId, canRemove, canZoom],
     )
 
     return (
@@ -105,14 +105,14 @@ export const SourcesTab: React.FC = () => {
                     {
                         name: "trash",
                         label: "Delete source",
-                        disabled: !nodeId,
+                        disabled: !canRemove,
                         icon: IconTrash,
                         color: "red",
                     },
                     {
                         name: "zoom",
                         label: "Zoom to source",
-                        disabled: !sourceId,
+                        disabled: !canZoom,
                         icon: IconCrosshair,
                     },
                     null,

@@ -139,13 +139,13 @@ describe("menu listener", () => {
         expect(dispatched).toContainEqual(sourceActions.zoomTo(SOURCE_ID))
     })
 
-    test("zooms to the parent source of a selected source-layer node", () => {
+    test("zooms to a selected source-layer node by its node id", () => {
         store.dispatch(sourceActions.select(ROADS_NODE_ID))
         dispatched = []
 
         store.dispatch(menuTrigger("source.zoom-to"))
 
-        expect(dispatched).toContainEqual(sourceActions.zoomTo(MVT_ID))
+        expect(dispatched).toContainEqual(sourceActions.zoomTo(ROADS_NODE_ID))
     })
 
     test("does not zoom when a folder is selected", () => {
@@ -157,13 +157,22 @@ describe("menu listener", () => {
         expect(dispatchedTypes()).not.toContain("source/zoomTo")
     })
 
-    test("adds a blank layer for the parent source of a selected source-layer node", () => {
+    test("adds a blank layer for a selected source-layer node by its node id", () => {
         store.dispatch(sourceActions.select(ROADS_NODE_ID))
         dispatched = []
 
         store.dispatch(menuTrigger("layer.add-blank"))
 
-        expect(dispatched).toContainEqual(layerActions.addBlankLayer(MVT_ID))
+        expect(dispatched).toContainEqual(layerActions.addBlankLayer(ROADS_NODE_ID))
+    })
+
+    test("does not add a blank layer when a folder is selected", () => {
+        store.dispatch(sourceActions.select(FOLDER_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("layer.add-blank"))
+
+        expect(dispatchedTypes()).not.toContain("layer/addBlankLayer")
     })
 
     test("does not remove the parent source when a source-layer node is selected", () => {
@@ -173,6 +182,46 @@ describe("menu listener", () => {
 
         expect(store.getState().source.items[MVT_ID]).toBeDefined()
         expect(store.getState().source.nodes[ROADS_NODE_ID]).toBeDefined()
+    })
+
+    test("dispatches nothing for remove when a source-layer node is selected", () => {
+        store.dispatch(sourceActions.select(ROADS_NODE_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("source.remove"))
+
+        expect(dispatchedTypes()).toEqual(["menu/trigger"])
+    })
+
+    test("removes a selected root folder", () => {
+        store.dispatch(sourceActions.select(FOLDER_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("source.remove"))
+
+        expect(dispatched).toContainEqual(sourceActions.removeSource(FOLDER_ID))
+    })
+
+    test("shows properties for a selected source with a feature store", () => {
+        store.dispatch(sourceActions.select(SOURCE_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("source.show-properties"))
+
+        expect(dispatchedTypes()).toContain("source/showProperties/pending")
+    })
+
+    test.each([
+        { kind: "a source-layer node", nodeId: ROADS_NODE_ID },
+        { kind: "an MVT source", nodeId: MVT_ID },
+        { kind: "a folder", nodeId: FOLDER_ID },
+    ])("does not show properties when $kind is selected", ({ nodeId }) => {
+        store.dispatch(sourceActions.select(nodeId))
+        dispatched = []
+
+        store.dispatch(menuTrigger("source.show-properties"))
+
+        expect(dispatchedTypes()).not.toContain("source/showProperties/pending")
     })
 
     test("does not zoom when no source is selected", () => {

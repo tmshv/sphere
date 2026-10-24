@@ -11,6 +11,7 @@ import { selectCurrentSourceItem, sourceSlice as source } from "./source"
 import {
     selectSelectedInteractive,
     selectSelectedNode,
+    selectSelectedNodeActions,
     selectSelectedSourceId,
     selectSelectedSourceLayer,
     selectSelectedSourceRef,
@@ -66,6 +67,7 @@ export const selectors = {
         ...source.selectors,
         selectCurrentSourceItem,
         selectSelectedNode,
+        selectSelectedNodeActions,
         selectSelectedSourceRef,
         selectSelectedSourceId,
         selectSelectedSourceLayer,

@@ -94,6 +94,9 @@ export const SourcePanel: React.FC = () => {
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
     const panelKind = useSelector(selectPanelKind)
+    // Source actions take the selected node id; a child resolves to its parent's data here
+    const nodeId = useSelector(selectors.source.selectSelectedId)
+    const nodeActions = useSelector(selectors.source.selectSelectedNodeActions)
 
     if (!source) {
         return null
@@ -105,19 +108,19 @@ export const SourcePanel: React.FC = () => {
             onClick={async name => {
                 switch (name) {
                     case "trash": {
-                        dispatch(actions.source.removeSource(source.id))
+                        if (nodeId && nodeActions.canRemove) dispatch(actions.source.removeSource(nodeId))
                         break
                     }
                     case "zoom": {
-                        dispatch(actions.source.zoomTo(source.id))
+                        if (nodeId && nodeActions.canZoom) dispatch(actions.source.zoomTo(nodeId))
                         break
                     }
                     case "show-properties": {
-                        dispatch(actions.source.showProperties({ id: source.id }))
+                        if (nodeActions.canShowProperties) dispatch(actions.source.showProperties({ id: source.id }))
                         break
                     }
                     case "add-to-layer": {
-                        dispatch(actions.layer.addBlankLayer(source.id))
+                        if (nodeId && nodeActions.canAddLayer) dispatch(actions.layer.addBlankLayer(nodeId))
                         break
                     }
                     case "edit": {
@@ -144,17 +147,20 @@ export const SourcePanel: React.FC = () => {
                     label: "Delete source",
                     icon: IconTrash,
                     color: "red",
+                    disabled: !nodeActions.canRemove,
                 },
                 null,
                 {
                     name: "show-properties",
                     label: "Show properties",
                     icon: IconTable,
+                    disabled: !nodeActions.canShowProperties,
                 },
                 {
                     name: "add-to-layer",
                     label: "Add to layer",
                     icon: IconStack,
+                    disabled: !nodeActions.canAddLayer,
                 },
                 {
                     name: "edit",
@@ -166,6 +172,7 @@ export const SourcePanel: React.FC = () => {
                     name: "zoom",
                     label: "Zoom to source",
                     icon: IconCrosshair,
+                    disabled: !nodeActions.canZoom,
                 },
                 {
                     name: "reload",
