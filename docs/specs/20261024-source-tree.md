@@ -193,7 +193,8 @@ vector layer id.
   added to `menu_set_context` and `spec.rs`. Builder's call whether that backend change is worth it
   in this PR or the listener just no-ops; if it is added, that is the one allowed Rust change and
   the `src-tauri` crate version rules apply.
-- "Add blank layer" for a `source-layer` sets `sourceLayer` to that child. For an MVT root, today's
+- "Add blank layer" for a `source-layer` sets `sourceLayer` to that child and names the layer after
+  it (the vector layer name). For an MVT root, today's
   "auto-set `sourceLayer` when the MVT has exactly one layer" shortcut in `add-blank-layer.ts`
   stays, so single-layer MBTiles files don't regress.
 - The Layers tab layer source picker (`LayerPanel`) is unchanged: it lists data sources and offers

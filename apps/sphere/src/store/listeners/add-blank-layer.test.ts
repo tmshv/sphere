@@ -317,6 +317,30 @@ describe("add-blank-layer listener middleware", () => {
             )
         })
 
+        test("names a layer added from a source-layer node after the node", async () => {
+            const { store, dispatchedActions } = makeStore({
+                source: makeSourceState([makeMvtSource(MVT_ID, { name: "Tiles", sourceLayers: [roads, water] })]),
+            })
+
+            store.dispatch({ type: "layer/addBlankLayer", payload: ROADS_NODE_ID })
+            await vi.runAllTimersAsync()
+
+            const addLayerAction = dispatchedActions.find(a => hasType(a, "layer/addLayer"))
+            expect(addLayerAction?.payload).toEqual(expect.objectContaining({ name: roads.name }))
+        })
+
+        test("names a layer added from an MVT root after the source", async () => {
+            const { store, dispatchedActions } = makeStore({
+                source: makeSourceState([makeMvtSource(MVT_ID, { name: "Tiles", sourceLayers: [roads, water] })]),
+            })
+
+            store.dispatch({ type: "layer/addBlankLayer", payload: MVT_ID })
+            await vi.runAllTimersAsync()
+
+            const addLayerAction = dispatchedActions.find(a => hasType(a, "layer/addLayer"))
+            expect(addLayerAction?.payload).toEqual(expect.objectContaining({ name: "Tiles" }))
+        })
+
         test("keeps the single-layer shortcut for an MVT root", async () => {
             const { store, dispatchedActions } = makeStore({
                 source: makeSourceState([makeMvtSource(MVT_ID, { sourceLayers: [roads] })]),

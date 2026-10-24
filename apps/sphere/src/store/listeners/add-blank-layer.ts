@@ -3,11 +3,22 @@ import { nextId } from "@/lib/nextId"
 import predictLayerType, { fallbackLayerType } from "@/lib/predict-layer-type"
 import { hasFeatureStore } from "@/lib/source"
 import { resolveSourceRef } from "@/lib/source-tree"
-import { LayerType, SourceType } from "@/types"
+import { type Id, LayerType, SourceType } from "@/types"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
+
+const DEFAULT_LAYER_NAME = "Layer"
+
+// A source-layer node names the layer after its vector layer; any other node after its source
+function blankLayerName(state: RootState, nodeId: Id | undefined, sourceName: string | undefined): string {
+    const node = nodeId ? state.source.nodes[nodeId] : undefined
+    if (node?.kind === "source-layer") {
+        return node.name
+    }
+    return sourceName ?? DEFAULT_LAYER_NAME
+}
 
 const listener = createListenerMiddleware()
 listener.startListening({
@@ -20,7 +31,7 @@ listener.startListening({
         const sourceId = ref?.sourceId
         const layerId = nextId("layer")
         const source = sourceId ? state.source.items[sourceId] : undefined
-        const name = source ? source.name : "Layer"
+        const name = blankLayerName(state, nodeId, source?.name)
 
         listenerApi.dispatch(
             actions.layer.addLayer({
