@@ -1,7 +1,7 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { isRasterTileFormat } from "@/lib/tilejson"
-import { type SourceMetadata, SourceType } from "@/types"
+import { sourceKindOf } from "@/lib/source-kind"
+import { type SourceKind, type SourceMetadata, SourceType } from "@/types"
 import { ActionBar, PanelBody } from "@sphere/ui"
 import { Flex, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
@@ -19,39 +19,9 @@ import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export type PanelKind =
-    | "geojson"
-    | "csv"
-    | "shapefile"
-    | "gpx"
-    | "kml"
-    | "vector-tiles"
-    | "raster-tiles"
-    | "source-layer"
-    | "folder"
-
 export const selectPanelKind = createSelector(
     [selectors.source.selectSelectedNode, selectors.source.selectCurrentSourceItem],
-    (node, source): PanelKind | null => {
-        if (node?.kind === "source-layer" || node?.kind === "folder") {
-            return node.kind
-        }
-        if (!source) {
-            return null
-        }
-        switch (source.type) {
-            case SourceType.Geojson:
-                return source.format
-            case SourceType.FeatureCollection:
-                return "geojson"
-            case SourceType.MVT:
-                return isRasterTileFormat(source.format) ? "raster-tiles" : "vector-tiles"
-            case SourceType.Raster:
-                return "raster-tiles"
-            default:
-                return null
-        }
-    },
+    sourceKindOf,
 )
 
 export const selector = createSelector(
@@ -82,7 +52,7 @@ export const selector = createSelector(
     },
 )
 
-function renderPanel(kind: PanelKind | null) {
+function renderPanel(kind: SourceKind | null) {
     switch (kind) {
         case "geojson":
             return <GeojsonSourcePanel />

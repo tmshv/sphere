@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
 import type { SidebarSection } from "@/types"
-import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
+import { ActionBar, type ActionBarOnClick, SectionStack } from "@sphere/ui"
 import { Button, Group, Modal, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
@@ -136,9 +136,8 @@ export const SourcesTab: React.FC = () => {
 
             <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
                 <SectionStack.Section name={"outline"} title={"Outline"}>
-                    <PanelBody>
-                        <SourcesOutline />
-                    </PanelBody>
+                    {/* No PanelBody: the tree rows carry the inset themselves so a selected row spans the full width */}
+                    <SourcesOutline />
                 </SectionStack.Section>
 
                 <SectionStack.Section name={"source-properties"} title={"Source"}>

@@ -1,9 +1,7 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem } from "@sphere/ui"
-import { ActionIcon } from "@mantine/core"
+import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem, VisibilityToggle } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
-import { IconBulb, IconBulbOff } from "@tabler/icons"
 import { useCallback } from "react"
 import { Icon } from "./Icon"
 
@@ -70,21 +68,13 @@ export const LayersOutline: React.FC = () => {
                     }}
                     icon={<Icon type={type} color={color} />}
                     extra={
-                        <ActionIcon
-                            size={"md"}
-                            radius={"sm"}
-                            h={30}
-                            onClick={() => {
-                                dispatch(
-                                    actions.layer.setVisible({
-                                        id,
-                                        value: !visible,
-                                    }),
-                                )
+                        <VisibilityToggle
+                            visible={visible}
+                            color={bulbIconColor}
+                            onChange={value => {
+                                dispatch(actions.layer.setVisible({ id, value }))
                             }}
-                        >
-                            {visible ? <IconBulb size={16} color={bulbIconColor} /> : <IconBulbOff size={16} />}
-                        </ActionIcon>
+                        />
                     }
                 />
             )

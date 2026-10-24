@@ -1,4 +1,5 @@
-import type { Id, SourceNodeKind, SourceNodes, SourceTree, SourceType } from "@/types"
+import { sourceKindOf } from "@/lib/source-kind"
+import type { Id, SourceKind, SourceNodes, SourceTree } from "@/types"
 import type { Source } from "@/types/source"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from ".."
@@ -11,8 +12,7 @@ const selectItems = (state: RootState) => state.source.items
 export type OutlineNode = {
     id: Id
     label: string
-    kind: SourceNodeKind
-    sourceType?: SourceType
+    sourceKind: SourceKind | null
     visible: boolean
     children: OutlineNode[]
 }
@@ -23,15 +23,16 @@ function toOutlineNodes(nodes: SourceNodes, items: Record<Id, Source>, ids: Id[]
         if (!node) {
             return []
         }
-        const outline: OutlineNode = {
-            id,
-            label: node.name,
-            kind: node.kind,
-            visible: node.visible,
-            children: toOutlineNodes(nodes, items, node.children),
-        }
         const source = node.kind === "source" ? items[id] : undefined
-        return source ? { ...outline, sourceType: source.type } : outline
+        return [
+            {
+                id,
+                label: node.name,
+                sourceKind: sourceKindOf(node, source),
+                visible: node.visible,
+                children: toOutlineNodes(nodes, items, node.children),
+            },
+        ]
     })
 }
 

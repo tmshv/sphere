@@ -1,46 +1,43 @@
 import { actions, selectors } from "@/store"
 import type { OutlineNode } from "@/store/source/outline-selectors"
-import type { Id, SourceNodeKind } from "@/types"
-import { ActionIcon, useMantineTheme } from "@mantine/core"
+import type { Id, SourceKind } from "@/types"
+import { useMantineTheme } from "@mantine/core"
 import { canMove } from "@/lib/source-tree"
-import { Tree, type TreeItem, type TreeMove } from "@sphere/ui"
-import { IconBraces, IconBulb, IconBulbOff, IconFolder, IconStack } from "@tabler/icons"
+import { Tree, type TreeItem, type TreeMove, VisibilityToggle } from "@sphere/ui"
+import {
+    IconBraces,
+    IconFileUnknown,
+    IconFolder,
+    IconPhoto,
+    IconPolygon,
+    IconRoute,
+    IconStack2,
+    IconTable,
+    IconVector,
+    IconWorld,
+} from "@tabler/icons"
 import { useCallback, useMemo } from "react"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
-
-export const HIDE_LABEL = "Hide"
-export const SHOW_LABEL = "Show"
 
 const ICON_SIZE = 16
 const ICON_COLOR = "blue"
 const ICON_SHADE_DARK = 5
 const ICON_SHADE_LIGHT = 7
-const BULB_HEIGHT = 30
 
-const ICONS: Record<SourceNodeKind, typeof IconBraces> = {
-    source: IconBraces,
-    "source-layer": IconStack,
+const ICONS: Record<SourceKind, typeof IconBraces> = {
+    geojson: IconBraces,
+    csv: IconTable,
+    shapefile: IconPolygon,
+    gpx: IconRoute,
+    kml: IconWorld,
+    "vector-tiles": IconStack2,
+    "raster-tiles": IconPhoto,
+    "source-layer": IconVector,
     folder: IconFolder,
 }
 
-type BulbProps = {
-    id: Id
-    visible: boolean
-    onToggle: (id: Id, visible: boolean) => void
-}
-
-function Bulb({ id, visible, onToggle }: BulbProps) {
-    return (
-        <ActionIcon
-            size={"md"}
-            radius={"sm"}
-            h={BULB_HEIGHT}
-            aria-label={visible ? HIDE_LABEL : SHOW_LABEL}
-            onClick={() => onToggle(id, !visible)}
-        >
-            {visible ? <IconBulb size={ICON_SIZE} /> : <IconBulbOff size={ICON_SIZE} />}
-        </ActionIcon>
-    )
+function iconOf(kind: SourceKind | null) {
+    return kind ? ICONS[kind] : IconFileUnknown
 }
 
 export function SourcesOutline() {
@@ -60,13 +57,13 @@ export function SourcesOutline() {
     )
 
     const items = useMemo(() => {
-        const toItem = ({ id, label, kind, visible, children }: OutlineNode): TreeItem => {
-            const Icon = ICONS[kind]
+        const toItem = ({ id, label, sourceKind, visible, children }: OutlineNode): TreeItem => {
+            const Icon = iconOf(sourceKind)
             return {
                 id,
                 label,
                 icon: <Icon size={ICON_SIZE} color={iconColor} />,
-                extra: <Bulb id={id} visible={visible} onToggle={onVisible} />,
+                extra: <VisibilityToggle visible={visible} onChange={value => onVisible(id, value)} />,
                 children: children.map(toItem),
             }
         }

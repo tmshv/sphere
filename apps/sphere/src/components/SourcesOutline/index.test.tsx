@@ -1,10 +1,10 @@
-import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
+import { makeCsvSource, makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 import { act, fireEvent, render, screen, within } from "@/test-utils"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
-import type { TreeItem, TreeMove, TreeProps } from "@sphere/ui"
+import { HIDE_LABEL, SHOW_LABEL, type TreeItem, type TreeMove, type TreeProps } from "@sphere/ui"
 import { Provider } from "react-redux"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { HIDE_LABEL, SHOW_LABEL, SourcesOutline } from "."
+import { SourcesOutline } from "."
 
 const treeProps: { current?: TreeProps } = {}
 
@@ -36,6 +36,7 @@ vi.mock("@sphere/ui", async importOriginal => {
 
 const MVT_ID = "m1"
 const GEOJSON_ID = "g1"
+const CSV_ID = "c1"
 const FOLDER_ID = "f1"
 const ROADS_NODE_ID = `${MVT_ID}/roads`
 
@@ -47,10 +48,17 @@ function currentTree(): TreeProps {
     return props
 }
 
-function renderOutline(options: { hiddenIds?: string[]; selectedIds?: string[] } = {}) {
+type RenderOptions = {
+    hiddenIds?: string[]
+    selectedIds?: string[]
+    extraSources?: ReturnType<typeof makeCsvSource>[]
+}
+
+function renderOutline({ extraSources = [], ...options }: RenderOptions = {}) {
     const sources = [
         makeMvtSource(MVT_ID, { name: "Tiles", sourceLayers: [{ id: "roads", name: "Roads" }] }),
         makeGeojsonSource(GEOJSON_ID, { name: "Points" }),
+        ...extraSources,
     ]
     const sourceState = makeSourceState(sources, { folderIds: [FOLDER_ID], ...options })
     const dispatched: unknown[] = []
@@ -93,13 +101,16 @@ describe("SourcesOutline", () => {
         expect(currentTree().expandedIds).toEqual([MVT_ID])
     })
 
-    it("shows an icon per node kind", () => {
-        renderOutline()
+    it("shows an icon per file type and node kind", () => {
+        renderOutline({ extraSources: [makeCsvSource(CSV_ID)] })
 
-        const iconOf = (id: string) => row(id).querySelector("svg")?.getAttribute("class")
-        expect(iconOf(GEOJSON_ID)).toContain("icon-tabler-braces")
-        expect(iconOf(ROADS_NODE_ID)).toContain("icon-tabler-stack")
-        expect(iconOf(FOLDER_ID)).toContain("icon-tabler-folder")
+        const hasIcon = (id: string, name: string) =>
+            row(id).querySelector("svg")?.classList.contains(`icon-tabler-${name}`) ?? false
+        expect(hasIcon(MVT_ID, "stack-2")).toBe(true)
+        expect(hasIcon(ROADS_NODE_ID, "vector")).toBe(true)
+        expect(hasIcon(GEOJSON_ID, "braces")).toBe(true)
+        expect(hasIcon(CSV_ID, "table")).toBe(true)
+        expect(hasIcon(FOLDER_ID, "folder")).toBe(true)
     })
 
     it("dispatches source/setVisible with the flipped flag when a bulb is clicked", () => {

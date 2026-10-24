@@ -101,6 +101,14 @@ describe("Tree controlled sync", () => {
         expect(onToggle).not.toHaveBeenCalled()
     })
 
+    it("highlights the whole selected row, not just its label", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = screen.getByText("Beta").closest("[data-selected]")
+        expect(row).not.toBeNull()
+        expect(row?.contains(screen.getByText("Beta"))).toBe(true)
+        expect(screen.getByText("Alpha").closest("[data-selected]")).toBeNull()
+    })
+
     it("does not echo a selectedId change back through onSelect", () => {
         const { onSelect, update } = renderControlled({ expandedIds: [] })
         update({ expandedIds: [], selectedId: "b" })

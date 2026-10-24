@@ -20,6 +20,8 @@ export type TreeProps = {
     canDrop?: (move: TreeMove) => boolean
 }
 
+// Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block
+const CONTAINER_STYLE: React.CSSProperties = { flex: "1 1 0", minHeight: 0, height: "100%" }
 const ROW_HEIGHT = 30
 const INDENT = 16
 /** Pointer travel before a press on a row becomes a drag, so jitter while clicking the chevron or an extra does not start one. */
@@ -89,7 +91,7 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
     }
 
     return (
-        <div ref={ref} style={{ height: "100%" }}>
+        <div ref={ref} style={CONTAINER_STYLE}>
             <ArboristTree
                 ref={treeRef}
                 data={items}

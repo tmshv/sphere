@@ -1,5 +1,4 @@
 import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
-import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import type { RootState } from "../index"
 import { selectSourceOutline, selectSourceTreeShape } from "./outline-selectors"
@@ -32,23 +31,21 @@ describe("selectSourceOutline", () => {
             {
                 id: MVT_ID,
                 label: "Tiles",
-                kind: "source",
-                sourceType: SourceType.MVT,
+                sourceKind: "vector-tiles",
                 visible: true,
                 children: [
-                    { id: ROADS_NODE_ID, label: "Roads", kind: "source-layer", visible: true, children: [] },
-                    { id: WATER_NODE_ID, label: "Water", kind: "source-layer", visible: true, children: [] },
+                    { id: ROADS_NODE_ID, label: "Roads", sourceKind: "source-layer", visible: true, children: [] },
+                    { id: WATER_NODE_ID, label: "Water", sourceKind: "source-layer", visible: true, children: [] },
                 ],
             },
             {
                 id: GEOJSON_ID,
                 label: "Points",
-                kind: "source",
-                sourceType: SourceType.Geojson,
+                sourceKind: "geojson",
                 visible: true,
                 children: [],
             },
-            { id: FOLDER_ID, label: "Folder f1", kind: "folder", visible: true, children: [] },
+            { id: FOLDER_ID, label: "Folder f1", sourceKind: "folder", visible: true, children: [] },
         ])
     })
 

@@ -67,7 +67,10 @@ function renderTab(sourceState?: ReturnType<typeof makeSourceState>) {
 function scrollParentOf(element: Element) {
     let node = element.parentElement
     while (node) {
-        if (window.getComputedStyle(node).overflowY === "auto") {
+        // The outline tree scrolls through react-window, which sets the `overflow` shorthand inline;
+        // happy-dom does not expand that into `overflowY`
+        const style = window.getComputedStyle(node)
+        if (style.overflowY === "auto" || style.overflow === "auto") {
             return node
         }
         node = node.parentElement

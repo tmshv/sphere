@@ -1,4 +1,4 @@
-import type { Id, SourceType } from "./index"
+import type { Id, SourceFormat, SourceType } from "./index"
 
 type SourceNodeBase = {
     id: Id
@@ -14,6 +14,13 @@ export type SourceNode =
     | (SourceNodeBase & { kind: "folder" })
 
 export type SourceNodeKind = SourceNode["kind"]
+
+/** What a node holds, at the level the UI tells apart: its panel and its outline icon. */
+export type SourceKind =
+    | SourceFormat
+    | "vector-tiles"
+    | "raster-tiles"
+    | Extract<SourceNodeKind, "source-layer" | "folder">
 
 export type SourceNodes = Record<Id, SourceNode>
 

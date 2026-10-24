@@ -222,8 +222,11 @@ vector layer id.
 - `packages/ui/package.json` must declare `react-arborist`, `react-dnd`,
   `react-dnd-html5-backend` and `react-dnd-touch-backend` (as peers, like the other UI deps).
   `Outline` already imports `react-dnd` without declaring it; fix that at the same time.
-- Rows are custom-rendered: expand chevron, type icon, label, bulb `ActionIcon` in the right slot,
-  reusing `OutlineItem` styling so the Sources and Layers outlines look alike.
+- Rows are custom-rendered: expand chevron, type icon, label, and the shared `VisibilityToggle` bulb
+  (also used by the Layers outline) in the right slot. The chevron matches a `SectionStack` header's
+  (no hover, rotates when open, same left inset) so the first level lines up under the section
+  title; a selected row is tinted edge to edge in the primary colour's light variant. Each file
+  type has its own icon, chosen from `sourceKindOf`, the same kind that picks the Source panel.
 - react-arborist virtualizes and needs a numeric `height`/`width`: the `Tree` component measures
   its container (e.g. `ResizeObserver` via a small hook) and passes the size in.
 - **Pointer-event drag**: pass `react-dnd-touch-backend` with `enableMouseEvents: true` as the
