@@ -102,6 +102,8 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
                 // New parents start expanded; the sync effect closes any branch missing from expandedIds.
                 openByDefault={true}
                 disableMultiSelection
+                // Clicking empty space must not drop the selection (and with it the feature selection)
+                disableDeselectOnClick
                 disableEdit
                 dndManager={dndManager}
                 width={width}

@@ -116,4 +116,16 @@ describe("Tree controlled sync", () => {
         expect(screen.queryByText("Gamma One")).toBeNull()
         expect(onToggle).not.toHaveBeenCalled()
     })
+
+    it("keeps the selection when the empty tree background is clicked", () => {
+        const { onSelect } = renderControlled({ expandedIds: [], selectedId: "b" })
+        // react-arborist deselects on clicks that land on the list's outer (scroll) element itself
+        const background = screen.getByText("Beta").closest("[role=treeitem]")?.parentElement?.parentElement
+        if (!background) {
+            throw new Error("tree list element not found")
+        }
+        fireEvent.click(background)
+        expect(onSelect).not.toHaveBeenCalled()
+        expect(screen.getByText("Beta").closest("[role=treeitem]")).toHaveAttribute("aria-selected", "true")
+    })
 })
