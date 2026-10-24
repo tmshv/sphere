@@ -54,6 +54,9 @@ describe("ActionBar", () => {
 
     it("insets the bar when padded", () => {
         const { container } = render(<ActionBar items={[makeItem("a")]} onClick={vi.fn()} padded />)
-        expect(container.firstElementChild).toHaveStyle({ paddingLeft: `${GAP_PX.sm}px` })
+        expect(container.firstElementChild).toHaveStyle({
+            paddingLeft: `${GAP_PX.sm}px`,
+            paddingRight: `${GAP_PX.sm}px`,
+        })
     })
 })

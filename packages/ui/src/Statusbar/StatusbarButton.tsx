@@ -1,6 +1,13 @@
 import { ActionIcon, createStyles } from "@mantine/core"
 import type { ReactNode } from "react"
 
+// The statusbar used to sit in its own light-scheme MantineProvider. Its icons
+// keep the colours and press feel of that scheme in both themes, so they stay
+// legible on the always-dark bar.
+const ACCENT_COLOR = "yellow"
+const ICON_SHADE = 7
+const PRESS_STYLE = { transform: "translateY(1px)" }
+
 const useStyle = createStyles(theme => ({
     icon: {
         "&:hover": {
@@ -42,13 +49,15 @@ export function StatusbarButton({
             size={"xs"}
             radius={"sm"}
             className={cx(classes.icon, isFilled && classes.fill)}
-            color={isAccent ? "yellow" : undefined}
+            color={isAccent ? ACCENT_COLOR : undefined}
             aria-label={label}
             aria-pressed={active}
             title={label}
             disabled={disabled}
             onClick={onClick}
             sx={theme => ({
+                color: theme.colors[isAccent ? ACCENT_COLOR : "gray"][ICON_SHADE],
+                "&:active": PRESS_STYLE,
                 "&[data-disabled]": {
                     backgroundColor: "#00000000",
                     color: theme.colors.gray[8],

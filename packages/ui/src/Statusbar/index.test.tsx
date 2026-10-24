@@ -63,4 +63,32 @@ describe("StatusbarBadge", () => {
         render(<StatusbarBadge title="Longitude">lng=0</StatusbarBadge>)
         expect(screen.getByTitle("Longitude")).toHaveTextContent("lng=0")
     })
+
+    it("is 90px wide when short", () => {
+        render(
+            <StatusbarBadge width="short" title="Pitch">
+                pitch=0
+            </StatusbarBadge>,
+        )
+        expect(screen.getByTitle("Pitch")).toHaveStyle({ width: "90px" })
+    })
+
+    it("is 101px wide when long", () => {
+        render(
+            <StatusbarBadge width="long" title="Lng">
+                lng=0
+            </StatusbarBadge>,
+        )
+        expect(screen.getByTitle("Lng")).toHaveStyle({ width: "101px" })
+    })
+
+    it("has no fixed width by default", () => {
+        render(<StatusbarBadge title="Auto">auto</StatusbarBadge>)
+        expect(screen.getByTitle("Auto")).not.toHaveStyle({ width: "90px" })
+    })
+
+    it("renders the error tone", () => {
+        render(<StatusbarBadge tone="error">boom</StatusbarBadge>)
+        expect(screen.getByText("boom")).toBeInTheDocument()
+    })
 })
