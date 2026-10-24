@@ -2,6 +2,7 @@ import { render, screen } from "@/test-utils"
 import { act } from "react"
 import { describe, expect, it, vi } from "vitest"
 import { writeText } from "@tauri-apps/plugin-clipboard-manager"
+import logger from "@/logger"
 import { MapContextMenu } from "."
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre"
 
@@ -202,6 +203,16 @@ describe("MapContextMenu", () => {
             screen.getByText("Copy location").click()
         })
         expect(writeText).toHaveBeenCalledWith("lng=1 lat=2")
+    })
+
+    it("logs an error when copying the location fails", async () => {
+        vi.mocked(writeText).mockRejectedValue(new Error("denied"))
+        render(<MapContextMenu id="map" copyLocationValue={() => "lng=1 lat=2"} />)
+        openMenu()
+        await act(async () => {
+            screen.getByText("Copy location").click()
+        })
+        await expect.poll(() => logger.error).toHaveBeenCalledWith("Failed to copy location: %s", expect.any(Error))
     })
 
     it("keeps the Search item disabled", () => {

@@ -2,7 +2,7 @@ import { useCursor } from "@/hooks/useCursor"
 import { copySelectionAsGeojson, copySelectionAsWkt } from "@/lib/copy-selection"
 import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store/selectors"
-import logger from "@/logger"
+import { fireAndLog } from "@/lib/fire-and-log"
 import { ContextMenu, ContextMenuItem, ContextMenuLabel } from "@sphere/ui"
 import { IconCopy, IconSearch } from "@tabler/icons"
 import { writeText } from "@tauri-apps/plugin-clipboard-manager"
@@ -54,35 +54,19 @@ export function MapContextMenu({ id, copyLocationValue }: MapContextMenuProps) {
         setOpened(false)
     }, [])
 
-    const handleCopyGeojson = useCallback(async () => {
+    const onCopyGeojson = fireAndLog(async () => {
         if (selectionSourceId === undefined) return
         await copySelectionAsGeojson(selectionSourceId, copyWrapFc)
         setOpened(false)
-    }, [selectionSourceId, copyWrapFc])
+    }, "Failed to copy selection as GeoJSON")
 
-    const handleCopyWkt = useCallback(async () => {
+    const onCopyWkt = fireAndLog(async () => {
         if (selectionSourceId === undefined) return
         await copySelectionAsWkt(selectionSourceId, copyWktSeparator)
         setOpened(false)
-    }, [selectionSourceId, copyWktSeparator])
+    }, "Failed to copy selection as WKT")
 
-    const onCopyGeojson = useCallback(() => {
-        handleCopyGeojson().catch(err => {
-            logger.error("Failed to copy selection as GeoJSON: %s", err)
-        })
-    }, [handleCopyGeojson])
-
-    const onCopyWkt = useCallback(() => {
-        handleCopyWkt().catch(err => {
-            logger.error("Failed to copy selection as WKT: %s", err)
-        })
-    }, [handleCopyWkt])
-
-    const onCopyLocation = useCallback(() => {
-        writeText(copyLocationValue(coord)).catch(err => {
-            logger.error("Failed to copy location: %s", err)
-        })
-    }, [copyLocationValue, coord])
+    const onCopyLocation = fireAndLog(() => writeText(copyLocationValue(coord)), "Failed to copy location")
 
     return (
         <ContextMenu opened={opened} position={position} onClose={handleClose}>

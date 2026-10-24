@@ -1,0 +1,48 @@
+import { fireEvent, render, screen } from "../test-utils"
+import { describe, expect, it, vi } from "vitest"
+import { CommandPalette } from "."
+
+const SHORTCUT = "mod + p"
+const PLACEHOLDER = "Search..."
+const EMPTY_MESSAGE = "Nothing found..."
+
+function renderPalette(onTrigger = vi.fn()) {
+    render(
+        <CommandPalette
+            commands={[
+                { id: "zen", title: "Toggle Zen", description: "Zen mode", onTrigger },
+                { id: "globe", title: "Globe", onTrigger: vi.fn() },
+            ]}
+            shortcut={SHORTCUT}
+            placeholder={PLACEHOLDER}
+            emptyMessage={EMPTY_MESSAGE}
+        >
+            <div>content</div>
+        </CommandPalette>,
+    )
+    fireEvent.keyDown(document.documentElement, { key: "p", ctrlKey: true })
+}
+
+describe("CommandPalette", () => {
+    it("opens on its shortcut and lists command titles", async () => {
+        renderPalette()
+        expect(await screen.findByText("Toggle Zen")).toBeDefined()
+        expect(screen.getByText("Globe")).toBeDefined()
+    })
+
+    it("filters by typed text and shows emptyMessage", async () => {
+        renderPalette()
+        const input = await screen.findByPlaceholderText(PLACEHOLDER)
+        fireEvent.change(input, { target: { value: "zen" } })
+        expect(screen.queryByText("Globe")).toBeNull()
+        fireEvent.change(input, { target: { value: "zzzz" } })
+        expect(screen.getByText(EMPTY_MESSAGE)).toBeDefined()
+    })
+
+    it("runs onTrigger of the chosen command", async () => {
+        const onTrigger = vi.fn()
+        renderPalette(onTrigger)
+        fireEvent.click(await screen.findByText("Toggle Zen"))
+        expect(onTrigger).toHaveBeenCalledTimes(1)
+    })
+})

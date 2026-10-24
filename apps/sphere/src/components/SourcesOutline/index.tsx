@@ -1,6 +1,5 @@
 import { actions, selectors } from "@/store"
-import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem } from "@sphere/ui"
-import { useMantineTheme } from "@mantine/core"
+import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem, useAccentColor } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconBraces } from "@tabler/icons"
 import { useCallback } from "react"
@@ -20,9 +19,8 @@ const selector = createSelector(
         }),
 )
 
-export const SourcesOutline: React.FC = () => {
-    const theme = useMantineTheme()
-    const getColor = useCallback((color: string) => theme.colors[color][theme.colorScheme === "dark" ? 5 : 7], [theme])
+export function SourcesOutline() {
+    const accent = useAccentColor()
     const dispatch = useAppDispatch()
     const items = useAppSelector(selector)
 
@@ -49,11 +47,11 @@ export const SourcesOutline: React.FC = () => {
                     onClick={() => {
                         dispatch(actions.source.select(id))
                     }}
-                    icon={<IconBraces size={16} color={getColor("blue")} />}
+                    icon={<IconBraces size={16} color={accent} />}
                 />
             )
         },
-        [dispatch, getColor],
+        [dispatch, accent],
     )
 
     return <Outline draggable={false} items={items} onMove={moveItem} renderItem={renderItem} />
