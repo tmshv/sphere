@@ -12,11 +12,13 @@ const JUSTIFY_CONTENT: Record<Justify, string> = {
 }
 
 const useStyle = createStyles(() => ({
-    // Every child takes an equal share of the row.
+    // Every child takes an equal share of the row, and may shrink below its
+    // content width so a narrow row can't push it past the edge.
     grow: {
         "& > *": {
             flexGrow: 1,
             flexBasis: 0,
+            minWidth: 0,
         },
     },
 }))

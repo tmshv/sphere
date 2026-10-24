@@ -59,8 +59,8 @@ describe("Row", () => {
                 <span>b</span>
             </Row>,
         )
-        expect(screen.getByText("a")).toHaveStyle({ flexGrow: "1", flexBasis: "0" })
-        expect(screen.getByText("b")).toHaveStyle({ flexGrow: "1", flexBasis: "0" })
+        expect(screen.getByText("a")).toHaveStyle({ flexGrow: "1", flexBasis: "0", minWidth: "0" })
+        expect(screen.getByText("b")).toHaveStyle({ flexGrow: "1", flexBasis: "0", minWidth: "0" })
     })
 
     it("passes className and style through", () => {
