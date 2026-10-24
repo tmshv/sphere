@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { visualCases } from "../visual/visualCases"
 import { Overlay } from "."
 
@@ -7,7 +8,7 @@ function Chip({ children }: { children: string }) {
     return <div style={CHIP_STYLE}>{children}</div>
 }
 
-function Frame({ children }: { children: React.ReactNode }) {
+function Frame({ children }: { children: ReactNode }) {
     return <div style={{ position: "relative", width: "100%", height: "100%", background: "#868e96" }}>{children}</div>
 }
 
