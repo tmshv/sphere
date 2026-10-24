@@ -1,11 +1,18 @@
+import { actions } from "@/store"
 import appReducer, { appSlice } from "@/store/app"
 import { fireEvent, render, screen } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
+import userEvent from "@testing-library/user-event"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { SourcesTab } from "./SourcesTab"
+
+vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
+vi.mock("@tauri-apps/api/core", () => ({
+    invoke: vi.fn(() => Promise.reject(new Error("no backend in tests"))),
+}))
 
 const source: Source = {
     id: "s1",
@@ -113,5 +120,50 @@ describe("SourcesTab", () => {
         expect(action.payload.tab).toBe("sources")
         const outline = action.payload.sections.find(section => section.name === "outline")
         expect(outline?.open).toBe(false)
+    })
+
+    it("opens the URL dialog, dispatches addFromUrl with the typed URL and closes", () => {
+        const { dispatchedActions } = renderTab()
+
+        fireEvent.click(screen.getByRole("button", { name: "Add from URL" }))
+        expect(screen.getByText("Input URL")).toBeInTheDocument()
+
+        fireEvent.change(screen.getByRole("textbox", { name: /^URL/ }), {
+            target: { value: "https://example.com/a.geojson" },
+        })
+        fireEvent.click(screen.getByRole("button", { name: "Submit" }))
+
+        const pending = dispatchedActions.find(candidate => actions.source.addFromUrl.pending.match(candidate))
+        if (pending === undefined || !actions.source.addFromUrl.pending.match(pending)) {
+            throw new Error("addFromUrl not dispatched")
+        }
+        expect(pending.meta.arg.url).toBe("https://example.com/a.geojson")
+        expect(screen.queryByText("Input URL")).toBeNull()
+    })
+
+    it("dispatches nothing and keeps the dialog open when the URL is empty", () => {
+        const { dispatchedActions } = renderTab()
+
+        fireEvent.click(screen.getByRole("button", { name: "Add from URL" }))
+        fireEvent.click(screen.getByRole("button", { name: "Submit" }))
+        fireEvent.change(screen.getByRole("textbox", { name: /^URL/ }), { target: { value: "   " } })
+        fireEvent.click(screen.getByRole("button", { name: "Submit" }))
+
+        expect(dispatchedActions.some(candidate => actions.source.addFromUrl.pending.match(candidate))).toBe(false)
+        expect(screen.getByText("Input URL")).toBeInTheDocument()
+    })
+
+    it("submits when Enter is pressed in the URL field", async () => {
+        const user = userEvent.setup()
+        const { dispatchedActions } = renderTab()
+
+        await user.click(screen.getByRole("button", { name: "Add from URL" }))
+        await user.type(screen.getByRole("textbox", { name: /^URL/ }), "https://example.com/b.geojson{Enter}")
+
+        const pending = dispatchedActions.find(candidate => actions.source.addFromUrl.pending.match(candidate))
+        if (pending === undefined || !actions.source.addFromUrl.pending.match(pending)) {
+            throw new Error("addFromUrl not dispatched")
+        }
+        expect(pending.meta.arg.url).toBe("https://example.com/b.geojson")
     })
 })

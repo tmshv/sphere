@@ -2,8 +2,7 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { type SourceMetadata, SourceType } from "@/types"
-import { ActionBar, GAP_PX, PanelBody, Stack } from "@sphere/ui"
-import { TextInput } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Stack, TextField } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import type { CSSProperties } from "react"
@@ -183,12 +182,10 @@ export function SourcePanel() {
     return (
         <PanelBody header={controls}>
             <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
-                <TextInput
-                    size="xs"
+                <TextField
                     label="Name"
                     value={source.name}
-                    onChange={event => {
-                        const value = event.target.value
+                    onChange={value => {
                         dispatch(
                             actions.source.setName({
                                 id: source.id,

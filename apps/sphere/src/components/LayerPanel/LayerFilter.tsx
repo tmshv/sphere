@@ -1,10 +1,12 @@
 import { isValidFilterExpression } from "@/lib/maplibre"
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { ActionIcon, TextInput } from "@mantine/core"
+import { IconButton, TextField } from "@sphere/ui"
 import { IconX } from "@tabler/icons"
 import type { FilterSpecification } from "maplibre-gl"
-import { type FC, useState } from "react"
+import { useState } from "react"
+
+const CLEAR_ICON_SIZE = 10
 
 type LayerFilterProps = {
     layerId: string
@@ -12,7 +14,7 @@ type LayerFilterProps = {
     filterError: string | null
 }
 
-export const LayerFilter: FC<LayerFilterProps> = ({ layerId, filterExpression, filterError }) => {
+export function LayerFilter({ layerId, filterExpression, filterError }: LayerFilterProps) {
     const dispatch = useAppDispatch()
     const [filterText, setFilterText] = useState(filterExpression ? JSON.stringify(filterExpression) : "")
     const [filterLocalError, setFilterLocalError] = useState<string | null>(null)
@@ -56,24 +58,25 @@ export const LayerFilter: FC<LayerFilterProps> = ({ layerId, filterExpression, f
     }
 
     return (
-        <TextInput
-            size="xs"
-            label="Filter"
-            placeholder='["==", ["get", "field"], "value"]'
-            value={filterText}
-            error={filterLocalError ?? filterError ?? undefined}
-            autoCorrect="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            rightSection={
-                filterText ? (
-                    <ActionIcon size="xs" onClick={clearFilter}>
-                        <IconX size={10} />
-                    </ActionIcon>
-                ) : null
-            }
-            onChange={e => handleFilterChange(e.currentTarget.value)}
-            onBlur={handleFilterBlur}
-        />
+        <div onBlur={handleFilterBlur}>
+            <TextField
+                code
+                label="Filter"
+                placeholder='["==", ["get", "field"], "value"]'
+                value={filterText}
+                error={filterLocalError ?? filterError ?? undefined}
+                rightSection={
+                    filterText ? (
+                        <IconButton
+                            size="sm"
+                            icon={<IconX size={CLEAR_ICON_SIZE} />}
+                            label="Clear filter"
+                            onClick={clearFilter}
+                        />
+                    ) : null
+                }
+                onChange={handleFilterChange}
+            />
+        </div>
     )
 }

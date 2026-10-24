@@ -2,8 +2,8 @@ import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { LayerType, SourceType } from "@/types"
-import { ActionBar, GAP_PX, PanelBody, Stack } from "@sphere/ui"
-import { Select, TextInput } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Stack, TextField } from "@sphere/ui"
+import { Select } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import type { CSSProperties } from "react"
@@ -235,12 +235,10 @@ export function LayerPanel() {
     return (
         <PanelBody header={controls}>
             <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
-                <TextInput
-                    size="xs"
+                <TextField
                     label="Name"
                     value={name}
-                    onChange={event => {
-                        const value = event.target.value
+                    onChange={value => {
                         dispatch(
                             actions.layer.setName({
                                 id: layerId,
