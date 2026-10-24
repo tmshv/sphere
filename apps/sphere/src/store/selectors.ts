@@ -8,6 +8,13 @@ import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId }
 import { selectionSlice as selection } from "./selection"
 import { settingsSlice as settings } from "./settings"
 import { selectCurrentSourceItem, sourceSlice as source } from "./source"
+import {
+    selectSelectedInteractive,
+    selectSelectedNode,
+    selectSelectedSourceId,
+    selectSelectedSourceLayer,
+    selectSelectedSourceRef,
+} from "./source/tree-selectors"
 import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./sourceInfo/selectors"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
@@ -58,6 +65,11 @@ export const selectors = {
     source: {
         ...source.selectors,
         selectCurrentSourceItem,
+        selectSelectedNode,
+        selectSelectedSourceRef,
+        selectSelectedSourceId,
+        selectSelectedSourceLayer,
+        selectSelectedInteractive,
     },
     layer: {
         ...layer.selectors,

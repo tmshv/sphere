@@ -1,6 +1,6 @@
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { makeSourceState } from "@/testutils"
+import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 
 const invokeMock = vi.fn()
 
@@ -86,7 +86,9 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag issues a single selection_rect IPC call with op=set (no modifier)", async () => {
-        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectDrag({
@@ -110,7 +112,9 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag with shift modifier uses op=preview", async () => {
-        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectDrag({
@@ -128,7 +132,9 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag right-to-left produces mode=intersect", async () => {
-        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectDrag({
@@ -160,6 +166,58 @@ describe("rect-select listener", () => {
         expect(invokeMock).not.toHaveBeenCalled()
     })
 
+    test("rectSelectDrag is a no-op when a source-layer node of a vector MVT is selected", async () => {
+        const mvt = makeMvtSource("mvt-1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const { store } = makeStore({ source: makeSourceState([mvt], { selectedIds: ["mvt-1/roads"] }) })
+
+        store.dispatch(
+            rectSelectDrag({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+    })
+
+    test("rectSelectDrag is a no-op when a folder is selected", async () => {
+        const { store } = makeStore({
+            source: makeSourceState([], { folderIds: ["folder-1"], selectedIds: ["folder-1"] }),
+        })
+
+        store.dispatch(
+            rectSelectDrag({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+    })
+
+    test("rectSelectCommit is a no-op when a source-layer node of a vector MVT is selected", async () => {
+        const mvt = makeMvtSource("mvt-1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const { store } = makeStore({ source: makeSourceState([mvt], { selectedIds: ["mvt-1/roads"] }) })
+
+        store.dispatch(
+            rectSelectCommit({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+    })
+
     test("rectSelectCommit uses op=set (no modifier), then apply + reconcile + count", async () => {
         invokeMock.mockImplementation((cmd: string) => {
             if (cmd === "selection_rect") return Promise.resolve({ added: [1], removed: [] })
@@ -168,7 +226,9 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store, dispatched } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
+        const { store, dispatched } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectCommit({
@@ -198,7 +258,9 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectCommit({

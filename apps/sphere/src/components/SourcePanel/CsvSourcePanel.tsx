@@ -12,7 +12,7 @@ export const CsvSourcePanel: FC = () => {
     const info = useAppSelector(selectors.sourceInfo.selectCurrentSourceInfo)
     const fields = useAppSelector(selectors.sourceInfo.selectCurrentSourceFields)
     const meta = useAppSelector(selectors.sourceInfo.selectCurrentSourceMeta)
-    const sourceId = useAppSelector(selectors.source.selectSelectedId)
+    const sourceId = useAppSelector(selectors.source.selectSelectedSourceId)
     const details = info?.details
 
     if (!sourceId || details?.format !== "csv") {

@@ -1,6 +1,6 @@
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { createSourceNodes } from "@/lib/source-tree"
-import { type Id, type SourceTreeInput, SourceType } from "@/types"
+import { type Id, type SourceNode, type SourceTreeInput, SourceType } from "@/types"
 
 export type CapturedAction = { type: string; payload?: unknown }
 
@@ -100,6 +100,14 @@ export function makeMvtSource<T extends object>(id: string, overrides: T = {} as
 
 export type MakeSourceStateOptions = {
     selectedIds?: Id[]
+    // Empty root folders, placed after the source roots
+    folderIds?: Id[]
+    // Nodes built with `visible: false`
+    hiddenIds?: Id[]
+}
+
+function makeFolderNode(id: Id): SourceNode {
+    return { id, name: `Folder ${id}`, kind: "folder", visible: true, children: [] }
 }
 
 /**
@@ -110,13 +118,17 @@ export type MakeSourceStateOptions = {
  */
 export function makeSourceState<T extends SourceTreeInput>(sources: T[], options: MakeSourceStateOptions = {}) {
     const built = sources.map(source => createSourceNodes(source))
-    const nodeList = built.flatMap(({ root, children }) => [root, ...children])
+    const folders = (options.folderIds ?? []).map(makeFolderNode)
+    const hidden = new Set(options.hiddenIds ?? [])
+    const nodeList = [...built.flatMap(({ root, children }) => [root, ...children]), ...folders].map(node =>
+        hidden.has(node.id) ? { ...node, visible: false } : node,
+    )
     const ids = sources.map(source => source.id)
     return {
         items: Object.fromEntries(sources.map(source => [source.id, source])),
         allIds: ids,
         nodes: Object.fromEntries(nodeList.map(node => [node.id, node])),
-        rootIds: ids,
+        rootIds: [...ids, ...folders.map(folder => folder.id)],
         expandedIds: built.filter(({ children }) => children.length > 0).map(({ root }) => root.id),
         selectedIds: options.selectedIds ?? [],
     }

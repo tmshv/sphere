@@ -5,6 +5,12 @@ import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import { selector, selectPanelKind } from "./index"
 
+const MVT_ID = "m1"
+const ROADS_NODE_ID = `${MVT_ID}/roads`
+const FOLDER_ID = "f1"
+
+const makeVectorMvt = () => makeMvtSource(MVT_ID, { sourceLayers: [{ id: "roads", name: "Roads" }] })
+
 const makeRootState = (overrides: object = {}) =>
     ({
         selection: { count: 0, version: 0 },
@@ -32,6 +38,21 @@ describe("selectCurrentSourceItem", () => {
     test("returns null when selected id does not exist in items", () => {
         const state = makeRootState({
             source: makeSourceState([], { selectedIds: ["missing"] }),
+        })
+        expect(selectCurrentSourceItem(state)).toBeNull()
+    })
+
+    test("returns the parent MVT source for a selected source-layer node", () => {
+        const mvt = makeVectorMvt()
+        const state = makeRootState({
+            source: makeSourceState([mvt], { selectedIds: [ROADS_NODE_ID] }),
+        })
+        expect(selectCurrentSourceItem(state)).toEqual(mvt)
+    })
+
+    test("returns null for a selected folder", () => {
+        const state = makeRootState({
+            source: makeSourceState([makeGeojsonSource("s1")], { folderIds: [FOLDER_ID], selectedIds: [FOLDER_ID] }),
         })
         expect(selectCurrentSourceItem(state)).toBeNull()
     })
@@ -67,6 +88,15 @@ describe("selector (SourcePanel)", () => {
             source: makeSourceState([], { selectedIds: ["missing"] }),
         })
         expect(selector(state)).toBeNull()
+    })
+
+    test("returns the parent MVT's panel data for a selected source-layer node", () => {
+        const state = makeRootState({
+            source: makeSourceState([makeVectorMvt()], { selectedIds: [ROADS_NODE_ID] }),
+        })
+        const result = selector(state)
+        expect(result?.id).toBe(MVT_ID)
+        expect(result?.type).toBe(SourceType.MVT)
     })
 
     test("returns panel data for selected Geojson source", () => {

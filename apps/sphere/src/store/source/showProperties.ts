@@ -5,7 +5,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit"
 import { emit } from "@tauri-apps/api/event"
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
 import type { RootState } from ".."
-import { sourceSlice } from "."
+import { selectSelectedSourceId } from "./tree-selectors"
 
 const PROPERTIES_INIT_TIMEOUT_MS = 10000
 
@@ -50,8 +50,7 @@ export const showProperties = createAsyncThunk(
         })
 
         const freshState = thunkAPI.getState() as RootState
-        const selectionSourceId =
-            freshState.selection.sourceId ?? sourceSlice.selectors.selectSelectedId(freshState) ?? undefined
+        const selectionSourceId = freshState.selection.sourceId ?? selectSelectedSourceId(freshState) ?? undefined
         const count = freshState.selection.count
         if (count > 0 && selectionSourceId === id) {
             await emit("properties-selection-changed", {

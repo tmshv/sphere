@@ -1,7 +1,7 @@
-import { makeSourceState } from "@/testutils"
+import { makeMvtSource, makeSourceState } from "@/testutils"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
-import { selectCurrentSourceFields, selectCurrentSourceMeta } from "./selectors"
+import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./selectors"
 
 const makeState = (overrides: object = {}) =>
     ({
@@ -145,5 +145,28 @@ describe("selectCurrentSourceFields", () => {
             sourceInfo: { info: {}, stats: {} },
         })
         expect(selectCurrentSourceFields(state).map(f => f.name)).toEqual(["alpha", "zebra"])
+    })
+})
+
+describe("selectCurrentSourceInfo", () => {
+    const MVT_ID = "m1"
+    const ROADS_NODE_ID = `${MVT_ID}/roads`
+    const mvtInfo = { file: { size_bytes: 1, modified: null } }
+
+    test("returns the info of the selected source", () => {
+        const state = makeState({
+            source: makeSourceState([{ id: "s1", name: "s1", type: SourceType.Geojson }], { selectedIds: ["s1"] }),
+            sourceInfo: { info: { s1: mvtInfo }, stats: {} },
+        })
+        expect(selectCurrentSourceInfo(state)).toEqual(mvtInfo)
+    })
+
+    test("returns the parent source's info for a selected source-layer node", () => {
+        const mvt = makeMvtSource(MVT_ID, { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const state = makeState({
+            source: makeSourceState([mvt], { selectedIds: [ROADS_NODE_ID] }),
+            sourceInfo: { info: { [MVT_ID]: mvtInfo }, stats: {} },
+        })
+        expect(selectCurrentSourceInfo(state)).toEqual(mvtInfo)
     })
 })

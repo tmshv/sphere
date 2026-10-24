@@ -4,14 +4,20 @@ import { Provider } from "react-redux"
 import { describe, expect, it, vi } from "vitest"
 import useFeatureState from "./useFeatureState"
 import { emitSelectionDelta } from "@/lib/selection-bus"
-import { makeSourceState } from "@/testutils"
+import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 
-// Minimal store: useFeatureState reads selectedLayerId and selectedSourceId
-const makeStore = (selectedLayerId: string | undefined, selectedSourceId: string | undefined) =>
+type SourceFixture = ReturnType<typeof makeGeojsonSource> | ReturnType<typeof makeMvtSource>
+
+// Minimal store: useFeatureState reads selectedLayerId and the selected source node
+const makeStore = (
+    selectedLayerId: string | undefined,
+    selectedNodeId: string | undefined,
+    sources: SourceFixture[] = selectedNodeId ? [makeGeojsonSource(selectedNodeId)] : [],
+) =>
     configureStore({
         reducer: {
             layer: () => ({ items: {}, selectedId: selectedLayerId }),
-            source: () => makeSourceState([], { selectedIds: selectedSourceId ? [selectedSourceId] : [] }),
+            source: () => makeSourceState(sources, { selectedIds: selectedNodeId ? [selectedNodeId] : [] }),
         },
     })
 
@@ -70,6 +76,20 @@ describe("useFeatureState", () => {
         expect(map.removeFeatureState).toHaveBeenCalledTimes(2)
         expect(map.removeFeatureState).toHaveBeenCalledWith({ source: "src1", id: 3 })
         expect(map.removeFeatureState).toHaveBeenCalledWith({ source: "src1", id: 4 })
+    })
+
+    it("sets feature state on the parent source when a source-layer node is selected", () => {
+        const map = makeMap()
+        const mvt = makeMvtSource("mvt1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const store = makeStore(undefined, "mvt1/roads", [mvt])
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            emitSelectionDelta({ added: [7], removed: [] })
+        })
+        expect(map.setFeatureState).toHaveBeenCalledWith(
+            { source: "mvt1", sourceLayer: "roads", id: 7 },
+            { selected: true },
+        )
     })
 
     it("resolves source from MapLibre layer when selectedLayerId is set", () => {

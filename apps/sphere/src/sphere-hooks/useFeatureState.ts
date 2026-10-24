@@ -70,7 +70,7 @@ function clearAllState(map: MaplibreMap, sourceId: string, sourceLayers: string[
 
 export default function useFeatureState(ref: MapRef | undefined) {
     const selectedLayerId = useAppSelector(selectors.layer.selectSelectedId)
-    const selectedSourceId = useAppSelector(selectors.source.selectSelectedId)
+    const selectedSourceId = useAppSelector(selectors.source.selectSelectedSourceId)
     const layerItems = useAppSelector(state => state.layer.items)
     const sourceItems = useAppSelector(state => state.source.items)
 

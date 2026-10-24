@@ -1,3 +1,4 @@
+import type { TileJSON } from "@/types/tilejson"
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
@@ -36,6 +37,45 @@ import menu from "./menu"
 const LAYER_ID = "layer-1"
 const SOURCE_ID = "source-1"
 
+const MVT_ID = "mvt-1"
+const ROADS_NODE_ID = `${MVT_ID}/roads`
+const FOLDER_ID = "folder-1"
+
+const meta = {
+    columns: {},
+    pointsCount: 0,
+    multiPointsCount: 0,
+    linesCount: 0,
+    multiLinesCount: 0,
+    polygonsCount: 0,
+    multiPolygonsCount: 0,
+    collectionsCount: 0,
+    nullGeometryCount: 0,
+    featuresCount: 0,
+}
+
+const tilejson: TileJSON = {
+    tilejson: "3.0.0",
+    tiles: [],
+    vector_layers: [],
+    attribution: null,
+    description: null,
+    legend: null,
+    template: null,
+    name: null,
+}
+
+const addSource = sourceActions.addInMemorySource({ id: SOURCE_ID, name: "Source", location: "sphere://source", meta })
+const addVectorMvt = sourceActions.addMVTSource({
+    id: MVT_ID,
+    name: "Tiles",
+    location: "tiles.mbtiles",
+    tilejson,
+    format: "pbf",
+    sourceLayers: [{ id: "roads", name: "Roads" }],
+})
+const addFolder = sourceActions.addFolder({ id: FOLDER_ID, name: "Folder" })
+
 let dispatched: UnknownAction[] = []
 
 const capture: Middleware = () => next => action => {
@@ -60,6 +100,10 @@ describe("menu listener", () => {
     beforeEach(() => {
         dispatched = []
         store = makeStore()
+        store.dispatch(addSource)
+        store.dispatch(addVectorMvt)
+        store.dispatch(addFolder)
+        dispatched = []
     })
 
     test("toggles zen mode", () => {
@@ -93,6 +137,42 @@ describe("menu listener", () => {
         store.dispatch(menuTrigger("source.zoom-to"))
 
         expect(dispatched).toContainEqual(sourceActions.zoomTo(SOURCE_ID))
+    })
+
+    test("zooms to the parent source of a selected source-layer node", () => {
+        store.dispatch(sourceActions.select(ROADS_NODE_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("source.zoom-to"))
+
+        expect(dispatched).toContainEqual(sourceActions.zoomTo(MVT_ID))
+    })
+
+    test("does not zoom when a folder is selected", () => {
+        store.dispatch(sourceActions.select(FOLDER_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("source.zoom-to"))
+
+        expect(dispatchedTypes()).not.toContain("source/zoomTo")
+    })
+
+    test("adds a blank layer for the parent source of a selected source-layer node", () => {
+        store.dispatch(sourceActions.select(ROADS_NODE_ID))
+        dispatched = []
+
+        store.dispatch(menuTrigger("layer.add-blank"))
+
+        expect(dispatched).toContainEqual(layerActions.addBlankLayer(MVT_ID))
+    })
+
+    test("does not remove the parent source when a source-layer node is selected", () => {
+        store.dispatch(sourceActions.select(ROADS_NODE_ID))
+
+        store.dispatch(menuTrigger("source.remove"))
+
+        expect(store.getState().source.items[MVT_ID]).toBeDefined()
+        expect(store.getState().source.nodes[ROADS_NODE_ID]).toBeDefined()
     })
 
     test("does not zoom when no source is selected", () => {

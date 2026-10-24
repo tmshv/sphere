@@ -1,6 +1,7 @@
 import type { FieldEntry, FieldSummary } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
-import { selectCurrentSourceItem, sourceSlice } from "../source"
+import { selectCurrentSourceItem } from "../source"
+import { selectSelectedSourceId } from "../source/tree-selectors"
 import { sourceInfoSlice } from "."
 import type { StatsEntry } from "."
 
@@ -30,9 +31,8 @@ function toSummary(entry: StatsEntry | undefined): FieldSummary {
 
 const selectStats = sourceInfoSlice.selectors.stats
 const selectInfo = sourceInfoSlice.selectors.info
-const selectSelectedId = sourceSlice.selectors.selectSelectedId
 
-export const selectCurrentSourceInfo = createSelector([selectInfo, selectSelectedId], (info, id) =>
+export const selectCurrentSourceInfo = createSelector([selectInfo, selectSelectedSourceId], (info, id) =>
     id ? (info[id] ?? null) : null,
 )
 
@@ -44,7 +44,7 @@ export const selectCurrentSourceMeta = createSelector([selectCurrentSourceItem],
 })
 
 export const selectCurrentSourceFields = createSelector(
-    [selectCurrentSourceItem, selectStats, selectSelectedId],
+    [selectCurrentSourceItem, selectStats, selectSelectedSourceId],
     (source, stats, id): FieldEntry[] => {
         if (!source || !id || !("meta" in source) || !source.meta) {
             return []

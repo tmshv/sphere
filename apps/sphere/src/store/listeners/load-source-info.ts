@@ -1,4 +1,5 @@
 import { SourceReader } from "@/lib/source-reader"
+import { resolveSourceRef } from "@/lib/source-tree"
 import { type Id, SourceType } from "@/types"
 import {
     createListenerMiddleware,
@@ -8,7 +9,7 @@ import {
     type UnknownAction,
 } from "@reduxjs/toolkit"
 import type { RootState } from ".."
-import { sourceSlice } from "../source"
+import { selectSelectedSourceId } from "../source/tree-selectors"
 import { actions } from "../actions"
 
 const listener = createListenerMiddleware<RootState>()
@@ -66,7 +67,7 @@ listener.startListening({
         if (actions.source.removeSource.match(action)) {
             // The reducer already cleared `selectedIds`, so the pre-action state
             // is what tells us whether the running scan was for this id.
-            if (sourceSlice.selectors.selectSelectedId(listenerApi.getOriginalState()) === action.payload) {
+            if (selectSelectedSourceId(listenerApi.getOriginalState()) === action.payload) {
                 listenerApi.cancelActiveListeners()
             }
             listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
@@ -77,14 +78,17 @@ listener.startListening({
             const id = action.payload
             listenerApi.cancelActiveListeners()
             listenerApi.dispatch(actions.sourceInfo.invalidate(id))
-            if (sourceSlice.selectors.selectSelectedId(listenerApi.getState()) !== id) return
+            if (selectSelectedSourceId(listenerApi.getState()) !== id) return
             await loadSourceInfo(id, listenerApi)
             return
         }
 
         if (actions.source.select.match(action)) {
-            const id = action.payload
+            const nodeId = action.payload
             listenerApi.cancelActiveListeners()
+            if (!nodeId) return
+            // Info belongs to the data source; a source-layer node resolves to its parent
+            const id = resolveSourceRef(listenerApi.getState().source.nodes, nodeId).sourceId
             if (!id) return
             await loadSourceInfo(id, listenerApi)
         }

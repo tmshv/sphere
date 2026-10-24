@@ -10,6 +10,7 @@ import addFromUrl from "./addFromUrl"
 import newSource from "./new"
 import reload from "./reload"
 import { showProperties } from "./showProperties"
+import { selectSelectedSourceId } from "./tree-selectors"
 
 const NEW_NODE_INDEX = 0 // New nodes go to the top of their sibling list
 
@@ -279,7 +280,7 @@ export const selectSourcesAmount = (state: RootState) => state.source.allIds.len
 export const selectSourceIds = (state: RootState) => state.source.allIds
 
 export const selectCurrentSourceItem = createSelector(
-    [sourceSlice.selectors.selectSelectedId, sourceSlice.selectors.items],
+    [selectSelectedSourceId, sourceSlice.selectors.items],
     (id, items) => (id ? (items[id] ?? null) : null),
 )
 // export const selectHasPending = (state: RootState) => state.source.pendingItems.length > 0

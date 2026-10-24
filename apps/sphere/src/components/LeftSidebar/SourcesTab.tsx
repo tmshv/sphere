@@ -14,7 +14,9 @@ import { SourcesOutline } from "../SourcesOutline"
 
 export const SourcesTab: React.FC = () => {
     const dispatch = useAppDispatch()
-    const sourceId = useAppSelector(selectors.source.selectSelectedId)
+    // Remove acts on the selected node; zoom acts on the data source it resolves to
+    const nodeId = useAppSelector(selectors.source.selectSelectedId)
+    const sourceId = useAppSelector(selectors.source.selectSelectedSourceId)
     const sections = useAppSelector(selectSidebarSections("sources"))
     const [showModal, setShowModal] = useState(false)
     const form = useForm({
@@ -34,7 +36,7 @@ export const SourcesTab: React.FC = () => {
         name => {
             switch (name) {
                 case "trash": {
-                    if (sourceId) dispatch(actions.source.removeSource(sourceId))
+                    if (nodeId) dispatch(actions.source.removeSource(nodeId))
                     break
                 }
                 case "zoom": {
@@ -60,7 +62,7 @@ export const SourcesTab: React.FC = () => {
                 }
             }
         },
-        [dispatch, sourceId],
+        [dispatch, nodeId, sourceId],
     )
 
     return (
@@ -103,7 +105,7 @@ export const SourcesTab: React.FC = () => {
                     {
                         name: "trash",
                         label: "Delete source",
-                        disabled: !sourceId,
+                        disabled: !nodeId,
                         icon: IconTrash,
                         color: "red",
                     },

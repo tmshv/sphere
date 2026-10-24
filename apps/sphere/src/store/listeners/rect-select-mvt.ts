@@ -22,7 +22,7 @@ import type { MapGeoJSONFeature } from "maplibre-gl"
 import { Point } from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
-import { sourceSlice } from "../source"
+import { selectSelectedSourceId } from "../source/tree-selectors"
 import { actions } from "../actions"
 import { selectPreviewLayerIds } from "../preview"
 import { type RectSelectModifier, rectSelectClick, rectSelectCommit, rectSelectDrag } from "../rect-select"
@@ -53,7 +53,7 @@ listener.startListening({
     actionCreator: rectSelectDrag,
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
-        const sourceId = sourceSlice.selectors.selectSelectedId(state)
+        const sourceId = selectSelectedSourceId(state)
         if (!sourceId) return
         if (!isMvtSource(state.source.items[sourceId])) return
 
@@ -104,7 +104,7 @@ listener.startListening({
     actionCreator: rectSelectCommit,
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
-        const sourceId = sourceSlice.selectors.selectSelectedId(state)
+        const sourceId = selectSelectedSourceId(state)
         if (!sourceId) return
         if (!isMvtSource(state.source.items[sourceId])) return
 
@@ -147,7 +147,7 @@ listener.startListening({
     actionCreator: rectSelectClick,
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
-        const sourceId = sourceSlice.selectors.selectSelectedId(state)
+        const sourceId = selectSelectedSourceId(state)
         if (!sourceId) return
         if (!isMvtSource(state.source.items[sourceId])) return
 

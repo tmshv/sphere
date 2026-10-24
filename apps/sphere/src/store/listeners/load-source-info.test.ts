@@ -6,7 +6,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
 vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
 
 import { makeCaptureStore, makeSourceState } from "@/testutils"
-import { SourceType } from "@/types"
+import { SourceType, type SourceTreeInput } from "@/types"
 import { actions } from "../actions"
 import listener from "./load-source-info"
 
@@ -27,14 +27,16 @@ const flush = async () => {
     await new Promise(resolve => setTimeout(resolve, 0))
 }
 
+const DEFAULT_ITEMS = { s1: { type: SourceType.Geojson }, s2: { type: SourceType.Geojson } }
+
 type StoreOptions = {
     selectedId?: string
-    items?: Record<string, { type: SourceType }>
+    items?: Record<string, Omit<SourceTreeInput, "id" | "name">>
     stats?: Record<string, Record<string, { status: string; data?: unknown }>>
 }
 
 function makeStore(options: StoreOptions = {}) {
-    const items = options.items ?? {}
+    const items = options.items ?? DEFAULT_ITEMS
     return makeCaptureStore({
         preloadedState: {
             source: makeSourceState(
@@ -281,6 +283,17 @@ describe("load-source-info listener", () => {
 
         expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(false)
         expect(dispatched.some(a => a.type === "sourceInfo/infoFailed")).toBe(false)
+    })
+
+    test("requests no info for the id of a selected source-layer node", async () => {
+        const vector = { type: SourceType.MVT, format: "pbf", sourceLayers: [{ id: "roads", name: "Roads" }] }
+        const { store, dispatched } = makeStore({ items: { t1: vector } })
+
+        store.dispatch(actions.source.select("t1/roads"))
+        await flush()
+
+        expect(mockInvoke.mock.calls.some(call => call[0] === "source_get_info")).toBe(false)
+        expect(dispatched.some(a => a.type === "sourceInfo/infoRequested")).toBe(false)
     })
 
     test("loads no info for a raster tile source", async () => {

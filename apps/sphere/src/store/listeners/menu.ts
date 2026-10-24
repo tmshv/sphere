@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { sourceSlice } from "../source"
+import { selectSelectedSourceId } from "../source/tree-selectors"
 import { actions } from "../actions"
 import { menuTrigger } from "../menu"
 
@@ -11,7 +12,9 @@ listener.startListening({
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
         const { dispatch } = listenerApi
-        const sourceId = sourceSlice.selectors.selectSelectedId(state)
+        const sourceId = selectSelectedSourceId(state)
+        // Remove acts on the node itself: a child resolves to its parent, which must not be removed
+        const nodeId = sourceSlice.selectors.selectSelectedId(state)
         const layerId = state.layer.selectedId
         const hasSelection = state.selection.count > 0 && Boolean(state.selection.sourceId)
 
@@ -69,8 +72,8 @@ listener.startListening({
                 return
 
             case "source.remove":
-                if (!sourceId) return
-                dispatch(actions.source.removeSource(sourceId))
+                if (!nodeId) return
+                dispatch(actions.source.removeSource(nodeId))
                 return
 
             case "layer.add-blank":

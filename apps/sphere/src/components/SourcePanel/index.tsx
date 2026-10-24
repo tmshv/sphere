@@ -41,7 +41,7 @@ export const selectPanelKind = createSelector(
 )
 
 export const selector = createSelector(
-    [selectors.source.selectSelectedId, selectors.source.selectCurrentSourceItem],
+    [selectors.source.selectSelectedSourceId, selectors.source.selectCurrentSourceItem],
     (id, source) => {
         if (!id || !source) {
             return null
