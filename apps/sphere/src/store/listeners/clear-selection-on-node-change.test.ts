@@ -1,4 +1,4 @@
-import { configureStore, type Middleware } from "@reduxjs/toolkit"
+import { configureStore, isAction, type Middleware } from "@reduxjs/toolkit"
 import { afterEach, describe, expect, test, vi } from "vitest"
 import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 
@@ -40,7 +40,9 @@ type TestState = {
 function makeStore(selectedId: string | undefined, count: number) {
     const dispatchedActions: Action[] = []
     const captureMiddleware: Middleware = () => next => action => {
-        dispatchedActions.push(action as Action)
+        if (isAction(action)) {
+            dispatchedActions.push(action)
+        }
         return next(action)
     }
     const initial: TestState = {
@@ -58,10 +60,12 @@ function makeStore(selectedId: string | undefined, count: number) {
         }
         return state
     }
+    // The listener is typed by the app's RootState; this store only carries the slices it reads
+    const listenerMiddleware: Middleware = listener.middleware
     const store = configureStore({
         reducer,
         middleware: getDefaultMiddleware =>
-            getDefaultMiddleware({ serializableCheck: false }).prepend(listener.middleware).concat(captureMiddleware),
+            getDefaultMiddleware({ serializableCheck: false }).prepend(listenerMiddleware).concat(captureMiddleware),
     })
     return { store, dispatchedActions }
 }
