@@ -10,7 +10,7 @@
                     "options": {
                         "patterns": [
                             {
-                                "group": ["@mantine/*", "@emotion/*"],
+                                "group": ["@mantine/**", "@emotion/**"],
                                 "message": "The app must not import Mantine. Use components from @sphere/ui."
                             }
                         ]
