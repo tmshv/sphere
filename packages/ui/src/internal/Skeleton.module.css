@@ -1,0 +1,38 @@
+/* Mantine 5 Skeleton.styles.js, visible and animated. */
+.skeleton {
+    --skeleton-fade-duration: 1500ms;
+    --skeleton-fade-low: 0.4;
+
+    position: relative;
+    border-radius: var(--sphere-radius-sm);
+    transform: translateZ(0);
+    overflow: hidden;
+}
+
+.skeleton::before {
+    content: "";
+    position: absolute;
+    background: var(--sphere-color-skeleton-cover);
+    inset: 0;
+    z-index: 10;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    background: var(--sphere-color-skeleton-bg);
+    inset: 0;
+    animation: fade var(--skeleton-fade-duration) linear infinite;
+    z-index: 11;
+}
+
+@keyframes fade {
+    from,
+    to {
+        opacity: var(--skeleton-fade-low);
+    }
+
+    50% {
+        opacity: 1;
+    }
+}

@@ -14,11 +14,15 @@ describe("Text", () => {
                 Title
             </Text>,
         )
-        expect(screen.getByText("Title")).toHaveStyle({
-            fontWeight: "600",
-            textTransform: "uppercase",
-            userSelect: "none",
-        })
+        const text = screen.getByText("Title")
+        expect(text.className).toContain("weightSemibold")
+        expect(text.className).toContain("uppercase")
+        expect(text).toHaveStyle({ userSelect: "none" })
+    })
+
+    it("applies the tone", () => {
+        render(<Text tone={"dimmed"}>Quiet</Text>)
+        expect(screen.getByText("Quiet").className).toContain("dimmed")
     })
 })
 

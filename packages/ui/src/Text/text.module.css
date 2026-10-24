@@ -1,0 +1,42 @@
+/* Mantine 5 Text.styles.js with size xs. */
+.text {
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-xs);
+    line-height: var(--sphere-line-height-body);
+    color: inherit;
+    text-decoration: none;
+}
+
+.dimmed {
+    color: var(--sphere-color-text-dimmed);
+}
+
+.warning {
+    color: var(--sphere-color-warning-text);
+}
+
+.weightNormal {
+    font-weight: var(--sphere-font-weight-normal);
+}
+
+.weightMedium {
+    font-weight: var(--sphere-font-weight-medium);
+}
+
+.weightSemibold {
+    font-weight: var(--sphere-font-weight-semibold);
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+/* Mantine 5 Title.styles.js, order 3 (h3 size overridden to 18 by Sphere's theme). */
+.heading {
+    font-family: var(--sphere-font-family-sans);
+    font-weight: var(--sphere-font-weight-bold);
+    font-size: var(--sphere-font-size-lg);
+    line-height: var(--sphere-line-height-heading);
+    margin: 0;
+}

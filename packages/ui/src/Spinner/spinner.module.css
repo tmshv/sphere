@@ -1,0 +1,8 @@
+/* Mantine 5 Loader (oval), size xs, primary colour. */
+.spinner {
+    display: inline-flex;
+}
+
+.oval {
+    stroke: var(--sphere-color-accent);
+}

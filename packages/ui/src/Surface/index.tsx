@@ -1,6 +1,5 @@
-import { Paper } from "@mantine/core"
 import type { CSSProperties, ReactNode } from "react"
-import { GAP_PX } from "../Layout"
+import s from "./surface.module.css"
 
 export type SurfaceProps = {
     style?: CSSProperties
@@ -9,8 +8,8 @@ export type SurfaceProps = {
 
 export function Surface({ style, children }: SurfaceProps) {
     return (
-        <Paper p={GAP_PX.sm} style={style}>
+        <div className={s.surface} style={style}>
             {children}
-        </Paper>
+        </div>
     )
 }

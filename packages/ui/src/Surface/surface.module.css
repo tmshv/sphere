@@ -1,0 +1,12 @@
+/* Mantine 5 Paper.styles.js with p = space.sm and no shadow or border. */
+.surface {
+    outline: 0;
+    -webkit-tap-highlight-color: transparent;
+    display: block;
+    text-decoration: none;
+    color: var(--sphere-color-text);
+    background-color: var(--sphere-color-body);
+    box-sizing: border-box;
+    border-radius: var(--sphere-radius-sm);
+    padding: var(--sphere-space-sm);
+}

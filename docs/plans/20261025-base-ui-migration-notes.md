@@ -26,3 +26,4 @@
 - The app uses no disabled or error `Select` and no disabled `SliderField`, so none are covered.
 - Text: an unset `weight` renders identically to `weight="normal"` (no weight style applied, the inherited 400 is used), so only `normal` is covered.
 - Outline: `draggable` renders identically to the plain list (the drag wrapper only sets `opacity: 1`), so only the plain list is covered. The new Outline must not add a visible difference for `draggable`.
+- ThemeProvider: `packages/ui/src/ThemeProvider/global.css` keeps Mantine 5's misspelled `kbp` selector (meant `kbd`) verbatim, because it reproduces what renders today.

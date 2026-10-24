@@ -1,6 +1,6 @@
 import { semantic } from "./semantic"
 import type { ColorScheme } from "./semantic"
-import { duration, fontFamily, fontSize, lineHeight, radius, shadow, space, zIndex } from "./scales"
+import { duration, fontFamily, fontSize, fontWeight, lineHeight, radius, shadow, space, zIndex } from "./scales"
 
 const PREFIX = "--sphere"
 const PX = "px"
@@ -31,6 +31,7 @@ export function tokensToCss(): string {
         ...group("radius", radius, PX),
         ...group("font-size", fontSize, PX),
         ...group("font-family", fontFamily),
+        ...group("font-weight", fontWeight),
         ...group("line-height", lineHeight),
         ...group("shadow", shadow),
         ...group("z-index", zIndex),

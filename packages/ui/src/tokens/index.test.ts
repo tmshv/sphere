@@ -29,5 +29,7 @@ describe("tokens", () => {
         expect(css).toContain(`--sphere-color-body:${palette.dark[7]}`)
         expect(css).toContain("--sphere-space-sm:12px")
         expect(css).toContain("--sphere-line-height-body:1.55")
+        expect(css).toContain("--sphere-font-weight-semibold:600")
+        expect(css).toContain("--sphere-font-weight-bold:700")
     })
 })

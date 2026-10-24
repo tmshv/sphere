@@ -1,22 +1,20 @@
-import { Text as MantineText, Title } from "@mantine/core"
 import type { CSSProperties, ReactNode } from "react"
+import s from "./text.module.css"
 
 export type TextTone = "default" | "dimmed" | "warning"
 export type TextWeight = "normal" | "medium" | "semibold"
 
-const TONE_COLOR: Record<TextTone, string | undefined> = {
+const TONE_CLASS: Record<TextTone, string | undefined> = {
     default: undefined,
-    dimmed: "dimmed",
-    warning: "orange",
+    dimmed: s.dimmed,
+    warning: s.warning,
 }
 
-const WEIGHT: Record<TextWeight, number> = {
-    normal: 400,
-    medium: 500,
-    semibold: 600,
+const WEIGHT_CLASS: Record<TextWeight, string> = {
+    normal: s.weightNormal,
+    medium: s.weightMedium,
+    semibold: s.weightSemibold,
 }
-
-const HEADING_ORDER = 3
 
 export type TextProps = {
     tone?: TextTone
@@ -27,16 +25,11 @@ export type TextProps = {
 }
 
 export function Text({ tone = "default", weight, uppercase = false, style, children }: TextProps) {
+    const classes = [s.text, TONE_CLASS[tone], weight && WEIGHT_CLASS[weight], uppercase && s.uppercase]
     return (
-        <MantineText
-            size={"xs"}
-            color={TONE_COLOR[tone]}
-            weight={weight ? WEIGHT[weight] : undefined}
-            transform={uppercase ? "uppercase" : undefined}
-            style={style}
-        >
+        <div className={classes.filter(Boolean).join(" ")} style={style}>
             {children}
-        </MantineText>
+        </div>
     )
 }
 
@@ -45,5 +38,5 @@ export type HeadingProps = {
 }
 
 export function Heading({ children }: HeadingProps) {
-    return <Title order={HEADING_ORDER}>{children}</Title>
+    return <h3 className={s.heading}>{children}</h3>
 }

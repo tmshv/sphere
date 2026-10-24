@@ -12,7 +12,10 @@ export const fontFamily = {
     mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
 } as const
 
-export const lineHeight = { body: 1.55 } as const
+// Body is Mantine's theme.lineHeight; heading is the h3 line height.
+export const lineHeight = { body: 1.55, heading: 1.4 } as const
+
+export const fontWeight = { normal: 400, medium: 500, semibold: 600, bold: 700 } as const
 
 export const shadow = {
     xs: "0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)",
