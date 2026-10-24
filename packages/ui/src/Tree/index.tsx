@@ -1,5 +1,5 @@
 import { createDragDropManager } from "dnd-core"
-import { useEffect, useRef } from "react"
+import { useLayoutEffect, useRef } from "react"
 import { type NodeApi, type TreeApi, Tree as ArboristTree } from "react-arborist"
 import { TouchBackend } from "react-dnd-touch-backend"
 import { childIds, branchIds, openState } from "./items"
@@ -22,19 +22,22 @@ export type TreeProps = {
 
 const ROW_HEIGHT = 30
 const INDENT = 16
+/** Pointer travel before a press on a row becomes a drag, so jitter while clicking the chevron or an extra does not start one. */
+const DRAG_SLOP_PX = 4
 
 /**
  * One manager for every Tree, on the pointer-event touch backend: it stays isolated from other
  * react-dnd providers (the HTML5 one) and is not swallowed by Tauri's native file-drop handler.
  */
-const dndManager = createDragDropManager(TouchBackend, undefined, { enableMouseEvents: true })
+const dndManager = createDragDropManager(TouchBackend, undefined, { enableMouseEvents: true, touchSlop: DRAG_SLOP_PX })
 
 export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMove, canDrop }: TreeProps) {
     const { ref, width, height } = useElementSize<HTMLDivElement>()
     const treeRef = useRef<TreeApi<TreeItem> | undefined>(undefined)
 
-    // Keep react-arborist's internal open state in line with the controlled expanded ids.
-    useEffect(() => {
+    // Keep react-arborist's internal open state in line with the controlled expanded ids. A layout
+    // effect applies it before paint, so a node opened by default never shows as open for a frame.
+    useLayoutEffect(() => {
         const tree = treeRef.current
         if (!tree) {
             return
@@ -96,6 +99,8 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
                 onToggle={handleToggle}
                 onMove={({ dragIds, parentId, index }) => onMove(toMove({ dragIds, parentId, index }))}
                 disableDrop={handleDisableDrop}
+                // New parents start expanded; the sync effect closes any branch missing from expandedIds.
+                openByDefault={true}
                 disableMultiSelection
                 disableEdit
                 dndManager={dndManager}

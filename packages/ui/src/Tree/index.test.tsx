@@ -20,12 +20,32 @@ const items: TreeItem[] = [
     { id: "b", label: "Beta" },
 ]
 
+type TreeState = {
+    items?: TreeItem[]
+    expandedIds: string[]
+    selectedId?: string
+}
+
 function renderTree(expandedIds: string[]) {
+    return renderControlled({ expandedIds })
+}
+
+function renderControlled(initial: TreeState) {
     const onSelect = vi.fn()
     const onToggle = vi.fn()
     const onMove = vi.fn()
-    render(<Tree items={items} expandedIds={expandedIds} onSelect={onSelect} onToggle={onToggle} onMove={onMove} />)
-    return { onSelect, onToggle, onMove }
+    const element = (state: TreeState) => (
+        <Tree
+            items={state.items ?? items}
+            expandedIds={state.expandedIds}
+            selectedId={state.selectedId}
+            onSelect={onSelect}
+            onToggle={onToggle}
+            onMove={onMove}
+        />
+    )
+    const { rerender } = render(element(initial))
+    return { onSelect, onToggle, onMove, update: (state: TreeState) => rerender(element(state)) }
 }
 
 describe("Tree", () => {
@@ -61,5 +81,39 @@ describe("Tree", () => {
         const { onSelect } = renderTree([])
         fireEvent.click(screen.getByRole("button", { name: "Bulb" }))
         expect(onSelect).not.toHaveBeenCalled()
+    })
+})
+
+describe("Tree controlled sync", () => {
+    it("expands a branch when its id is added to expandedIds", () => {
+        const { onToggle, update } = renderControlled({ expandedIds: [] })
+        expect(screen.queryByText("Alpha One")).toBeNull()
+        update({ expandedIds: ["a"] })
+        expect(screen.getByText("Alpha One")).toBeInTheDocument()
+        expect(onToggle).not.toHaveBeenCalled()
+    })
+
+    it("collapses a branch when its id is removed from expandedIds", () => {
+        const { onToggle, update } = renderControlled({ expandedIds: ["a"] })
+        expect(screen.getByText("Alpha One")).toBeInTheDocument()
+        update({ expandedIds: [] })
+        expect(screen.queryByText("Alpha One")).toBeNull()
+        expect(onToggle).not.toHaveBeenCalled()
+    })
+
+    it("does not echo a selectedId change back through onSelect", () => {
+        const { onSelect, update } = renderControlled({ expandedIds: [] })
+        update({ expandedIds: [], selectedId: "b" })
+        expect(screen.getByText("Beta").closest("[role=treeitem]")).toHaveAttribute("aria-selected", "true")
+        expect(onSelect).not.toHaveBeenCalled()
+    })
+
+    it("renders a new branch collapsed when it is absent from expandedIds", () => {
+        const { onToggle, update } = renderControlled({ expandedIds: [] })
+        const branch: TreeItem = { id: "c", label: "Gamma", children: [{ id: "c/1", label: "Gamma One" }] }
+        update({ items: [...items, branch], expandedIds: [] })
+        expect(screen.getByText("Gamma")).toBeInTheDocument()
+        expect(screen.queryByText("Gamma One")).toBeNull()
+        expect(onToggle).not.toHaveBeenCalled()
     })
 })
