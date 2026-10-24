@@ -1,6 +1,7 @@
 import { render, screen } from "@/test-utils"
 import { act } from "react"
 import { describe, expect, it, vi } from "vitest"
+import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { MapContextMenu } from "."
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre"
 
@@ -98,6 +99,14 @@ vi.mock("@/lib/copy-selection", () => ({
     copySelectionAsWkt: (...args: unknown[]) => mockCopyWkt(...args),
 }))
 
+vi.mock("@tauri-apps/plugin-clipboard-manager", () => ({
+    writeText: vi.fn(),
+}))
+
+vi.mock("@/logger", () => ({
+    default: { error: vi.fn() },
+}))
+
 function fireMapContextMenu(point: { x: number; y: number }) {
     contextmenuHandlerRef.current?.({
         point,
@@ -123,9 +132,14 @@ describe("MapContextMenu", () => {
         expect(screen.getByText("Copy location")).toBeDefined()
     })
 
-    it("calls copyLocationValue with the cursor coord", () => {
+    it("calls copyLocationValue with the cursor coord when copying", async () => {
+        vi.mocked(writeText).mockResolvedValue(undefined)
         const copyLocationValue = vi.fn(([lng, lat]: [number, number]) => `${lng},${lat}`)
         render(<MapContextMenu id="map" copyLocationValue={copyLocationValue} />)
+        openMenu()
+        await act(async () => {
+            screen.getByText("Copy location").click()
+        })
         expect(copyLocationValue).toHaveBeenCalledWith([10, 20])
     })
 
@@ -178,5 +192,22 @@ describe("MapContextMenu", () => {
             screen.getByText("Copy selection as WKT").click()
         })
         expect(mockCopyWkt).toHaveBeenCalledWith("src-1", "\n")
+    })
+
+    it("copies the copyLocationValue string when Copy location is clicked", async () => {
+        vi.mocked(writeText).mockResolvedValue(undefined)
+        render(<MapContextMenu id="map" copyLocationValue={() => "lng=1 lat=2"} />)
+        openMenu()
+        await act(async () => {
+            screen.getByText("Copy location").click()
+        })
+        expect(writeText).toHaveBeenCalledWith("lng=1 lat=2")
+    })
+
+    it("keeps the Search item disabled", () => {
+        render(<MapContextMenu id="map" copyLocationValue={([lng, lat]) => `${lng},${lat}`} />)
+        openMenu()
+        expect(screen.getByRole("menuitem", { name: /Search/ }).hasAttribute("disabled")).toBe(true)
+        expect(screen.getByText("⌘K")).toBeDefined()
     })
 })
