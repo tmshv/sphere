@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest"
-import type { Id, SourceNode, SourceNodes } from "@/types"
+import { type Id, type SourceNode, type SourceNodes, SourceType } from "@/types"
 import {
     canMove,
     childLayerNodeId,
     collectSubtree,
+    createSourceNodes,
     isEffectivelyVisible,
+    moveNodes,
     resolveSourceRef,
     siblingsOf,
     walkTree,
@@ -105,5 +107,86 @@ describe("siblingsOf", () => {
     it("returns ids sharing the parent including itself", () => {
         expect(siblingsOf(tree, rootIds, "a")).toEqual(["a", "b"])
         expect(siblingsOf(tree, rootIds, "r2")).toEqual(rootIds)
+    })
+})
+
+describe("createSourceNodes", () => {
+    it("creates a visible root without children for a non-MVT source", () => {
+        const { root, children } = createSourceNodes({ id: "s1", name: "S1", type: SourceType.Geojson })
+        expect(root).toEqual({ id: "s1", name: "S1", kind: "source", visible: true, children: [] })
+        expect(children).toEqual([])
+    })
+    it("creates one visible source-layer child per vector layer, in order", () => {
+        const { root, children } = createSourceNodes({
+            id: "m",
+            name: "M",
+            type: SourceType.MVT,
+            format: "pbf",
+            sourceLayers: [
+                { id: "roads", name: "Roads" },
+                { id: "water", name: "Water" },
+            ],
+        })
+        expect(root.children).toEqual(["m/roads", "m/water"])
+        expect(children).toEqual([
+            {
+                id: "m/roads",
+                name: "Roads",
+                kind: "source-layer",
+                sourceLayer: "roads",
+                parentId: "m",
+                visible: true,
+                children: [],
+            },
+            {
+                id: "m/water",
+                name: "Water",
+                kind: "source-layer",
+                sourceLayer: "water",
+                parentId: "m",
+                visible: true,
+                children: [],
+            },
+        ])
+    })
+    it("creates no children for a raster MVT source", () => {
+        const { root, children } = createSourceNodes({
+            id: "r",
+            name: "R",
+            type: SourceType.MVT,
+            format: "png",
+            sourceLayers: [{ id: "x", name: "x" }],
+        })
+        expect(root.children).toEqual([])
+        expect(children).toEqual([])
+    })
+})
+
+describe("moveNodes", () => {
+    it("reorders roots using the post-removal index", () => {
+        const next = moveNodes(tree, rootIds, ["root"], undefined, 2)
+        expect(next.rootIds).toEqual(["r2", "f", "root"])
+        expect(next.nodes).toEqual(tree)
+    })
+    it("keeps the given order of ids", () => {
+        const next = moveNodes(tree, rootIds, ["f", "root"], undefined, 0)
+        expect(next.rootIds).toEqual(["f", "root", "r2"])
+    })
+    it("reorders children of a parent", () => {
+        const next = moveNodes(tree, rootIds, ["b"], "root", 0)
+        expect(next.nodes.root?.children).toEqual(["b", "a"])
+        expect(next.rootIds).toEqual(rootIds)
+    })
+    it("moves a root into a folder and sets its parent", () => {
+        const next = moveNodes(tree, rootIds, ["r2"], "f", 1)
+        expect(next.rootIds).toEqual(["root", "f"])
+        expect(next.nodes.f?.children).toEqual(["g", "r2"])
+        expect(next.nodes.r2?.parentId).toBe("f")
+    })
+    it("does not mutate its input", () => {
+        const before = structuredClone(tree)
+        moveNodes(tree, rootIds, ["r2"], "f", 0)
+        expect(tree).toEqual(before)
+        expect(rootIds).toEqual(["root", "r2", "f"])
     })
 })

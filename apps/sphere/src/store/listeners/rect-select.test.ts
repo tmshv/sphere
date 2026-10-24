@@ -1,5 +1,6 @@
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+import { makeSourceState } from "@/testutils"
 
 const invokeMock = vi.fn()
 
@@ -85,7 +86,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag issues a single selection_rect IPC call with op=set (no modifier)", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
 
         store.dispatch(
             rectSelectDrag({
@@ -109,7 +110,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag with shift modifier uses op=preview", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
 
         store.dispatch(
             rectSelectDrag({
@@ -127,7 +128,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag right-to-left produces mode=intersect", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
 
         store.dispatch(
             rectSelectDrag({
@@ -144,7 +145,7 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag is a no-op when no source is selected", async () => {
-        const { store } = makeStore({ source: { selectedId: null } })
+        const { store } = makeStore({ source: makeSourceState([]) })
 
         store.dispatch(
             rectSelectDrag({
@@ -167,7 +168,7 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store, dispatched } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store, dispatched } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
 
         store.dispatch(
             rectSelectCommit({
@@ -197,7 +198,7 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({ source: makeSourceState([], { selectedIds: ["src-1"] }) })
 
         store.dispatch(
             rectSelectCommit({

@@ -64,7 +64,6 @@ const fcSourceState = (sourceId: string) => ({
                 location: "sphere://fc-source",
                 version: 0,
                 editable: true,
-                fractionIndex: 0,
                 pending: false,
                 meta: { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 },
             },

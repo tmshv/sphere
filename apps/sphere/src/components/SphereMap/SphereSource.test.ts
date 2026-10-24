@@ -11,7 +11,6 @@ const geojsonSource: Source = {
     format: "geojson",
     location: "/path/to/s1.geojson",
     version: 3,
-    fractionIndex: 0,
     editable: false,
     pending: false,
     meta: EMPTY_SOURCE_METADATA,
@@ -23,7 +22,6 @@ const featureCollectionSource: Source = {
     type: SourceType.FeatureCollection,
     location: "sphere://s2",
     version: 7,
-    fractionIndex: 0,
     editable: true,
     pending: false,
     meta: EMPTY_SOURCE_METADATA,
@@ -33,7 +31,6 @@ const pendingSource: Source = {
     id: "s3",
     name: "Source s3",
     type: SourceType.FeatureCollection,
-    fractionIndex: 0,
     editable: true,
     pending: true,
 }
@@ -43,7 +40,6 @@ const rasterSource: Source = {
     name: "Source s4",
     type: SourceType.Raster,
     location: "https://tiles.example/{z}/{x}/{y}.png",
-    fractionIndex: 0,
     editable: false,
     pending: false,
 }

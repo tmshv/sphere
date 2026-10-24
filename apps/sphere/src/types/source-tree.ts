@@ -1,4 +1,4 @@
-import type { Id } from "./index"
+import type { Id, SourceType } from "./index"
 
 type SourceNodeBase = {
     id: Id
@@ -21,4 +21,22 @@ export type SelectedSourceRef = {
     nodeId: Id
     sourceId?: Id
     sourceLayer?: string
+}
+
+export type SourceLayerRef = {
+    id: string
+    name: string
+}
+
+export type SourceTreeInput = {
+    id: Id
+    name: string
+    type: SourceType
+    format?: string
+    sourceLayers?: SourceLayerRef[]
+}
+
+export type SourceTree = {
+    nodes: SourceNodes
+    rootIds: Id[]
 }

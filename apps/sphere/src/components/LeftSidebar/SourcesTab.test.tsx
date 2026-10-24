@@ -1,3 +1,4 @@
+import { makeSourceState } from "@/testutils"
 import appReducer, { appSlice } from "@/store/app"
 import { fireEvent, render, screen } from "@/test-utils"
 import { SourceType } from "@/types"
@@ -10,7 +11,6 @@ import { SourcesTab } from "./SourcesTab"
 const source: Source = {
     id: "s1",
     name: "Roads",
-    fractionIndex: 1,
     type: SourceType.Geojson,
     format: "geojson",
     version: 0,
@@ -41,7 +41,7 @@ function makeStore() {
     const store = configureStore({
         reducer: {
             app: appReducer,
-            source: () => ({ selectedId: "s1", items: { s1: source }, allIds: ["s1"] }),
+            source: () => makeSourceState([source], { selectedIds: ["s1"] }),
             draw: () => ({ sourceId: null, selectedIds: [] }),
             sourceInfo: () => ({ info: {}, stats: {} }),
         },

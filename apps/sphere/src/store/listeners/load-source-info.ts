@@ -8,6 +8,7 @@ import {
     type UnknownAction,
 } from "@reduxjs/toolkit"
 import type { RootState } from ".."
+import { sourceSlice } from "../source"
 import { actions } from "../actions"
 
 const listener = createListenerMiddleware<RootState>()
@@ -63,9 +64,9 @@ listener.startListening({
     matcher: isAnyOf(actions.source.select, actions.source.bumpVersion, actions.source.removeSource),
     effect: async (action, listenerApi) => {
         if (actions.source.removeSource.match(action)) {
-            // The reducer already cleared `selectedId`, so the pre-action state
+            // The reducer already cleared `selectedIds`, so the pre-action state
             // is what tells us whether the running scan was for this id.
-            if (listenerApi.getOriginalState().source.selectedId === action.payload) {
+            if (sourceSlice.selectors.selectSelectedId(listenerApi.getOriginalState()) === action.payload) {
                 listenerApi.cancelActiveListeners()
             }
             listenerApi.dispatch(actions.sourceInfo.invalidate(action.payload))
@@ -76,7 +77,7 @@ listener.startListening({
             const id = action.payload
             listenerApi.cancelActiveListeners()
             listenerApi.dispatch(actions.sourceInfo.invalidate(id))
-            if (listenerApi.getState().source.selectedId !== id) return
+            if (sourceSlice.selectors.selectSelectedId(listenerApi.getState()) !== id) return
             await loadSourceInfo(id, listenerApi)
             return
         }

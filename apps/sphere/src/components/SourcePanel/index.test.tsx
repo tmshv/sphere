@@ -1,3 +1,4 @@
+import { makeSourceState } from "@/testutils"
 import { render, screen } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
@@ -9,7 +10,6 @@ import { SourcePanel } from "."
 const source: Source = {
     id: "s1",
     name: "Roads",
-    fractionIndex: 1,
     type: SourceType.Geojson,
     format: "geojson",
     version: 0,
@@ -33,7 +33,7 @@ const source: Source = {
 const makeStore = (selectedId: string | null) =>
     configureStore({
         reducer: {
-            source: () => ({ selectedId, items: { s1: source }, allIds: ["s1"] }),
+            source: () => makeSourceState([source], { selectedIds: selectedId ? [selectedId] : [] }),
             draw: () => ({ sourceId: null, selectedIds: [] }),
             sourceInfo: () => ({ info: {}, stats: {} }),
         },

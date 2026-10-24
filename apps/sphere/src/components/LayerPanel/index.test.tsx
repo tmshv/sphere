@@ -1,3 +1,4 @@
+import { makeSourceState } from "@/testutils"
 import { render, screen } from "@/test-utils"
 import { LayerType } from "@/types"
 import { configureStore } from "@reduxjs/toolkit"
@@ -19,7 +20,7 @@ const makeStore = (selectedId: string | null) =>
     configureStore({
         reducer: {
             layer: () => ({ selectedId, items: { l1: layer }, allIds: ["l1"] }),
-            source: () => ({ selectedId: null, items: {}, allIds: [] }),
+            source: () => makeSourceState([]),
         },
     })
 

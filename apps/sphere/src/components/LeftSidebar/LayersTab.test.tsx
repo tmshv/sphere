@@ -1,3 +1,4 @@
+import { makeSourceState } from "@/testutils"
 import appReducer, { appSlice } from "@/store/app"
 import { fireEvent, render, screen } from "@/test-utils"
 import { LayerType } from "@/types"
@@ -27,7 +28,7 @@ function makeStore() {
         reducer: {
             app: appReducer,
             layer: () => ({ selectedId: "l1", items: { l1: layer }, allIds: ["l1"] }),
-            source: () => ({ selectedId: null, items: {}, allIds: [] }),
+            source: () => makeSourceState([]),
         },
         middleware: getDefaultMiddleware => getDefaultMiddleware().concat(captureMiddleware),
     })

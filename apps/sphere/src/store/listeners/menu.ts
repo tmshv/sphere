@@ -1,5 +1,6 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
+import { sourceSlice } from "../source"
 import { actions } from "../actions"
 import { menuTrigger } from "../menu"
 
@@ -10,7 +11,7 @@ listener.startListening({
     effect: async (action, listenerApi) => {
         const state = listenerApi.getState() as RootState
         const { dispatch } = listenerApi
-        const sourceId = state.source.selectedId
+        const sourceId = sourceSlice.selectors.selectSelectedId(state)
         const layerId = state.layer.selectedId
         const hasSelection = state.selection.count > 0 && Boolean(state.selection.sourceId)
 

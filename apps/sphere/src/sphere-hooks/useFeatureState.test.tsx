@@ -4,13 +4,14 @@ import { Provider } from "react-redux"
 import { describe, expect, it, vi } from "vitest"
 import useFeatureState from "./useFeatureState"
 import { emitSelectionDelta } from "@/lib/selection-bus"
+import { makeSourceState } from "@/testutils"
 
 // Minimal store: useFeatureState reads selectedLayerId and selectedSourceId
 const makeStore = (selectedLayerId: string | undefined, selectedSourceId: string | undefined) =>
     configureStore({
         reducer: {
             layer: () => ({ items: {}, selectedId: selectedLayerId }),
-            source: () => ({ items: {}, selectedId: selectedSourceId }),
+            source: () => makeSourceState([], { selectedIds: selectedSourceId ? [selectedSourceId] : [] }),
         },
     })
 

@@ -2,6 +2,7 @@ import { type LayerRenderType, SourceType } from "@/types"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
+import { sourceSlice } from "./source"
 import { selectActiveSidebarTab } from "./app"
 import { PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 
@@ -36,7 +37,7 @@ export type PreviewLayerSpec =
       }
 
 export const selectPreviewSourceId = createSelector(
-    [(state: RootState) => state.source.selectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    [sourceSlice.selectors.selectSelectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab) => {
         if (tab !== "sources") return undefined
         if (!sourceId) return undefined
@@ -113,7 +114,7 @@ export const selectPreviewLayerSpecs = createSelector(
 )
 
 export const selectPreviewLayerIds = createSelector(
-    [(state: RootState) => state.source.selectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
+    [sourceSlice.selectors.selectSelectedId, (state: RootState) => state.source.items, selectActiveSidebarTab],
     (sourceId, items, tab): string[] => {
         if (tab !== "sources") return []
         if (!sourceId) return []

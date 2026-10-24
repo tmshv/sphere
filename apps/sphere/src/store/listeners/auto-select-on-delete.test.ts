@@ -1,3 +1,4 @@
+import { makeGeojsonSource, makeSourceState } from "@/testutils"
 import { configureStore, type Middleware } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
@@ -196,7 +197,7 @@ describe("auto-select-on-delete listener: source branch", () => {
 
     test("does not dispatch when deleted source is not selected", async () => {
         const { store, dispatchedActions } = makeStore({
-            source: { selectedId: "s2", allIds: ["s1", "s2"] },
+            source: makeSourceState([makeGeojsonSource("s1"), makeGeojsonSource("s2")], { selectedIds: ["s2"] }),
         })
 
         store.dispatch({ type: "source/removeSource", payload: "s1" })
@@ -207,7 +208,9 @@ describe("auto-select-on-delete listener: source branch", () => {
 
     test("selects next source when selected source is deleted and a next sibling exists", async () => {
         const { store, dispatchedActions } = makeStore({
-            source: { selectedId: "s1", allIds: ["s1", "s2", "s3"] },
+            source: makeSourceState([makeGeojsonSource("s1"), makeGeojsonSource("s2"), makeGeojsonSource("s3")], {
+                selectedIds: ["s1"],
+            }),
         })
 
         store.dispatch({ type: "source/removeSource", payload: "s1" })
@@ -217,9 +220,11 @@ describe("auto-select-on-delete listener: source branch", () => {
         expect(selectAction).toMatchObject({ payload: "s2" })
     })
 
-    test("selects previous source when selected source is the last in allIds", async () => {
+    test("selects previous source when selected source is the last root", async () => {
         const { store, dispatchedActions } = makeStore({
-            source: { selectedId: "s3", allIds: ["s1", "s2", "s3"] },
+            source: makeSourceState([makeGeojsonSource("s1"), makeGeojsonSource("s2"), makeGeojsonSource("s3")], {
+                selectedIds: ["s3"],
+            }),
         })
 
         store.dispatch({ type: "source/removeSource", payload: "s3" })
@@ -231,7 +236,9 @@ describe("auto-select-on-delete listener: source branch", () => {
 
     test("selects next source when a middle source is deleted", async () => {
         const { store, dispatchedActions } = makeStore({
-            source: { selectedId: "s2", allIds: ["s1", "s2", "s3"] },
+            source: makeSourceState([makeGeojsonSource("s1"), makeGeojsonSource("s2"), makeGeojsonSource("s3")], {
+                selectedIds: ["s2"],
+            }),
         })
 
         store.dispatch({ type: "source/removeSource", payload: "s2" })
@@ -241,9 +248,9 @@ describe("auto-select-on-delete listener: source branch", () => {
         expect(selectAction).toMatchObject({ payload: "s3" })
     })
 
-    test("does not dispatch when deletedSourceId is not found in allIds", async () => {
+    test("does not dispatch when deletedSourceId is not a root", async () => {
         const { store, dispatchedActions } = makeStore({
-            source: { selectedId: "s-ghost", allIds: ["s1"] },
+            source: makeSourceState([makeGeojsonSource("s1")], { selectedIds: ["s-ghost"] }),
         })
 
         store.dispatch({ type: "source/removeSource", payload: "s-ghost" })
@@ -252,9 +259,24 @@ describe("auto-select-on-delete listener: source branch", () => {
         expect(dispatchedActions.find(a => a.type === "source/select")).toBeUndefined()
     })
 
+    test("uses rootIds order, not allIds order, to pick the next source", async () => {
+        const tree = makeSourceState([makeGeojsonSource("s3"), makeGeojsonSource("s1"), makeGeojsonSource("s2")], {
+            selectedIds: ["s1"],
+        })
+        const { store, dispatchedActions } = makeStore({
+            source: { ...tree, allIds: ["s1", "s2", "s3"] },
+        })
+
+        store.dispatch({ type: "source/removeSource", payload: "s1" })
+        await vi.runAllTimersAsync()
+
+        const selectAction = dispatchedActions.find(a => a.type === "source/select")
+        expect(selectAction).toMatchObject({ payload: "s2" })
+    })
+
     test("dispatches select with undefined when only one source is deleted", async () => {
         const { store, dispatchedActions } = makeStore({
-            source: { selectedId: "s1", allIds: ["s1"] },
+            source: makeSourceState([makeGeojsonSource("s1")], { selectedIds: ["s1"] }),
         })
 
         store.dispatch({ type: "source/removeSource", payload: "s1" })

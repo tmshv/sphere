@@ -165,7 +165,6 @@ describe("add-blank-layer listener middleware", () => {
                         location: "sphere://fc-source",
                         version: 0,
                         editable: true,
-                        fractionIndex: 0,
                         meta: { columns: {}, pointsCount: 0, linesCount: 0, polygonsCount: 1 },
                         pending: false,
                     },

@@ -1,5 +1,6 @@
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
-import { SourceType } from "@/types"
+import { createSourceNodes } from "@/lib/source-tree"
+import { type Id, type SourceTreeInput, SourceType } from "@/types"
 
 export type CapturedAction = { type: string; payload?: unknown }
 
@@ -60,7 +61,6 @@ export function makeGeojsonSource<T extends object>(id: string, overrides: T = {
         location: `/path/to/${id}.geojson`,
         format: "geojson",
         version: 0,
-        fractionIndex: 0,
         editable: false,
         pending: false,
         meta: {
@@ -89,12 +89,35 @@ export function makeMvtSource<T extends object>(id: string, overrides: T = {} as
         name: `Source ${id}`,
         type: SourceType.MVT,
         location: `/path/to/${id}.mbtiles`,
-        fractionIndex: 0,
         editable: false as const,
         pending: false as const,
         format: "pbf" as const,
         tilejson: { vector_layers: [] },
         sourceLayers: [],
         ...overrides,
+    }
+}
+
+export type MakeSourceStateOptions = {
+    selectedIds?: Id[]
+}
+
+/**
+ * Builds a `source` slice state from a list of source fixtures (e.g. from
+ * `makeGeojsonSource` / `makeMvtSource`). Items are stored verbatim; root nodes
+ * follow the given order and nodes come from the same `createSourceNodes` the
+ * reducer uses, so vector MVT fixtures get expanded `source-layer` children.
+ */
+export function makeSourceState<T extends SourceTreeInput>(sources: T[], options: MakeSourceStateOptions = {}) {
+    const built = sources.map(source => createSourceNodes(source))
+    const nodeList = built.flatMap(({ root, children }) => [root, ...children])
+    const ids = sources.map(source => source.id)
+    return {
+        items: Object.fromEntries(sources.map(source => [source.id, source])),
+        allIds: ids,
+        nodes: Object.fromEntries(nodeList.map(node => [node.id, node])),
+        rootIds: ids,
+        expandedIds: built.filter(({ children }) => children.length > 0).map(({ root }) => root.id),
+        selectedIds: options.selectedIds ?? [],
     }
 }

@@ -1,5 +1,6 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
+import { sourceSlice } from "../source"
 import { actions } from "../actions"
 import { toPropertiesEntries } from "@/lib/properties"
 import { selectionQueryPage } from "@/lib/selection-ipc"
@@ -24,7 +25,7 @@ listener.startListening({
         const count = state.selection.count
         const sourceId =
             state.selection.sourceId ??
-            state.source.selectedId ??
+            sourceSlice.selectors.selectSelectedId(state) ??
             (state.layer.selectedId ? state.layer.items[state.layer.selectedId]?.sourceId : undefined)
 
         if (state.selection.sourceId !== sourceId) {

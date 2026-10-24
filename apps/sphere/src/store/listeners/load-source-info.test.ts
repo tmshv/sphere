@@ -5,7 +5,7 @@ const { mockInvoke } = vi.hoisted(() => ({ mockInvoke: vi.fn() }))
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
 vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
 
-import { makeCaptureStore } from "@/testutils"
+import { makeCaptureStore, makeSourceState } from "@/testutils"
 import { SourceType } from "@/types"
 import { actions } from "../actions"
 import listener from "./load-source-info"
@@ -37,7 +37,10 @@ function makeStore(options: StoreOptions = {}) {
     const items = options.items ?? {}
     return makeCaptureStore({
         preloadedState: {
-            source: { items, allIds: Object.keys(items), selectedId: options.selectedId },
+            source: makeSourceState(
+                Object.entries(items).map(([id, item]) => ({ id, name: id, ...item })),
+                { selectedIds: options.selectedId ? [options.selectedId] : [] },
+            ),
             sourceInfo: { info: {}, stats: options.stats ?? {} },
         },
         middleware: listener.middleware,

@@ -1,4 +1,4 @@
-import { makeCsvSource, makeGeojsonSource, makeMvtSource } from "@/testutils"
+import { makeCsvSource, makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 import type { RootState } from "@/store"
 import { selectCurrentSourceItem } from "@/store/source"
 import { SourceType } from "@/types"
@@ -9,14 +9,14 @@ const makeRootState = (overrides: object = {}) =>
     ({
         selection: { count: 0, version: 0 },
         layer: { items: {}, allIds: [] },
-        source: { items: {}, allIds: [] },
+        source: makeSourceState([]),
         ...overrides,
     }) as unknown as RootState
 
 describe("selectCurrentSourceItem", () => {
     test("returns null when no source is selected", () => {
         const state = makeRootState({
-            source: { items: { s1: makeGeojsonSource("s1") }, allIds: ["s1"] },
+            source: makeSourceState([makeGeojsonSource("s1")]),
         })
         expect(selectCurrentSourceItem(state)).toBeNull()
     })
@@ -24,14 +24,14 @@ describe("selectCurrentSourceItem", () => {
     test("returns the selected source", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectCurrentSourceItem(state)).toEqual(source)
     })
 
     test("returns null when selected id does not exist in items", () => {
         const state = makeRootState({
-            source: { items: {}, allIds: [], selectedId: "missing" },
+            source: makeSourceState([], { selectedIds: ["missing"] }),
         })
         expect(selectCurrentSourceItem(state)).toBeNull()
     })
@@ -40,13 +40,13 @@ describe("selectCurrentSourceItem", () => {
         const s1 = makeGeojsonSource("s1")
         const s2 = makeGeojsonSource("s2")
         const state1 = makeRootState({
-            source: { items: { s1, s2 }, allIds: ["s1", "s2"], selectedId: "s1" },
+            source: makeSourceState([s1, s2], { selectedIds: ["s1"] }),
         })
         const result1 = selectCurrentSourceItem(state1)
 
         const s2updated = { ...s2, name: "Updated Source s2" }
         const state2 = makeRootState({
-            source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"], selectedId: "s1" },
+            source: makeSourceState([s1, s2updated], { selectedIds: ["s1"] }),
         })
         const result2 = selectCurrentSourceItem(state2)
 
@@ -57,14 +57,14 @@ describe("selectCurrentSourceItem", () => {
 describe("selector (SourcePanel)", () => {
     test("returns null when no source is selected", () => {
         const state = makeRootState({
-            source: { items: {}, allIds: [] },
+            source: makeSourceState([]),
         })
         expect(selector(state)).toBeNull()
     })
 
     test("returns null when selected source does not exist", () => {
         const state = makeRootState({
-            source: { items: {}, allIds: [], selectedId: "missing" },
+            source: makeSourceState([], { selectedIds: ["missing"] }),
         })
         expect(selector(state)).toBeNull()
     })
@@ -72,7 +72,7 @@ describe("selector (SourcePanel)", () => {
     test("returns panel data for selected Geojson source", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         const result = selector(state)
         expect(result).not.toBeNull()
@@ -93,7 +93,7 @@ describe("selector (SourcePanel)", () => {
             tilejson: { vector_layers: [] },
         }
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         const result = selector(state)
         expect(result?.reloadDisabled).toBe(true)
@@ -102,7 +102,7 @@ describe("selector (SourcePanel)", () => {
     test("meta is populated for Geojson sources", () => {
         const source = makeGeojsonSource("s1")
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         const result = selector(state)
         expect(result?.meta).toEqual({
@@ -138,13 +138,12 @@ describe("selector (SourcePanel)", () => {
             type: SourceType.FeatureCollection,
             location: "sphere://s1",
             version: 0,
-            fractionIndex: 0,
             editable: true,
             pending: false,
             meta,
         }
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         const result = selector(state)
         expect(result?.meta).toEqual(meta)
@@ -154,13 +153,13 @@ describe("selector (SourcePanel)", () => {
         const s1 = makeGeojsonSource("s1")
         const s2 = makeGeojsonSource("s2")
         const state1 = makeRootState({
-            source: { items: { s1, s2 }, allIds: ["s1", "s2"], selectedId: "s1" },
+            source: makeSourceState([s1, s2], { selectedIds: ["s1"] }),
         })
         const result1 = selector(state1)
 
         const s2updated = { ...s2, name: "Updated Source s2" }
         const state2 = makeRootState({
-            source: { items: { s1, s2: s2updated }, allIds: ["s1", "s2"], selectedId: "s1" },
+            source: makeSourceState([s1, s2updated], { selectedIds: ["s1"] }),
         })
         const result2 = selector(state2)
 
@@ -170,13 +169,13 @@ describe("selector (SourcePanel)", () => {
     test("recomputes when the selected source itself changes", () => {
         const s1 = makeGeojsonSource("s1", { name: "Original" })
         const state1 = makeRootState({
-            source: { items: { s1 }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([s1], { selectedIds: ["s1"] }),
         })
         const result1 = selector(state1)
 
         const s1updated = { ...s1, name: "Updated" }
         const state2 = makeRootState({
-            source: { items: { s1: s1updated }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([s1updated], { selectedIds: ["s1"] }),
         })
         const result2 = selector(state2)
 
@@ -187,14 +186,14 @@ describe("selector (SourcePanel)", () => {
 
 describe("selectPanelKind", () => {
     test("returns null when nothing is selected", () => {
-        const state = makeRootState({ source: { items: {}, allIds: [] } })
+        const state = makeRootState({ source: makeSourceState([]) })
         expect(selectPanelKind(state)).toBeNull()
     })
 
     test("routes a csv-format Geojson source to the csv panel", () => {
         const source = makeCsvSource("s1")
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("csv")
     })
@@ -202,14 +201,14 @@ describe("selectPanelKind", () => {
     test("routes a kml-format Geojson source to the kml panel", () => {
         const source = makeGeojsonSource("s1", { format: "kml", location: "/path/to/s1.kml" })
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("kml")
     })
 
     test("routes a geojson-format source to the geojson panel", () => {
         const state = makeRootState({
-            source: { items: { s1: makeGeojsonSource("s1") }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([makeGeojsonSource("s1")], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("geojson")
     })
@@ -221,13 +220,12 @@ describe("selectPanelKind", () => {
             type: SourceType.FeatureCollection,
             location: "sphere://s1",
             version: 0,
-            fractionIndex: 0,
             editable: true,
             pending: false,
             meta: { columns: {} },
         }
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("geojson")
     })
@@ -235,7 +233,7 @@ describe("selectPanelKind", () => {
     test("routes an MVT source with a pbf format to the vector tiles panel", () => {
         const source = makeMvtSource("s1", { format: "pbf" as const })
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("vector-tiles")
     })
@@ -243,7 +241,7 @@ describe("selectPanelKind", () => {
     test("routes an MVT source with a raster tile format to the raster tiles panel", () => {
         const source = makeMvtSource("s1", { format: "png" as const })
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("raster-tiles")
     })
@@ -251,7 +249,7 @@ describe("selectPanelKind", () => {
     test("routes a Raster source to the raster tiles panel", () => {
         const source = { ...makeGeojsonSource("s1"), type: SourceType.Raster }
         const state = makeRootState({
-            source: { items: { s1: source }, allIds: ["s1"], selectedId: "s1" },
+            source: makeSourceState([source], { selectedIds: ["s1"] }),
         })
         expect(selectPanelKind(state)).toBe("raster-tiles")
     })
