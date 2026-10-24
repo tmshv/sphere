@@ -4,8 +4,8 @@ import type { ReactNode } from "react"
 // The statusbar used to sit in its own light-scheme MantineProvider. Its icons
 // keep the colours and press feel of that scheme in both themes, so they stay
 // legible on the always-dark bar.
+const LIGHT_SCHEME = "light"
 const ACCENT_COLOR = "yellow"
-const ICON_SHADE = 7
 const PRESS_STYLE = { transform: "translateY(1px)" }
 
 const useStyle = createStyles(theme => ({
@@ -56,7 +56,7 @@ export function StatusbarButton({
             disabled={disabled}
             onClick={onClick}
             sx={theme => ({
-                color: theme.colors[isAccent ? ACCENT_COLOR : "gray"][ICON_SHADE],
+                color: theme.colors[isAccent ? ACCENT_COLOR : "gray"][theme.fn.primaryShade(LIGHT_SCHEME)],
                 "&:active": PRESS_STYLE,
                 "&[data-disabled]": {
                     backgroundColor: "#00000000",
