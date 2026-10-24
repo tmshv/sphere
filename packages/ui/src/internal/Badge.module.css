@@ -1,8 +1,6 @@
 /* Mantine 5 Badge.styles.js for sizes xs/sm and variants light/filled. */
+/* Height, font size and padding come from the size class. */
 .badge {
-    --badge-height: 16px;
-    --badge-font-size: 9px;
-    --badge-padding-space: var(--sphere-space-xs);
     --badge-letter-spacing: 0.25px;
     /* Mantine pads by spacing[size] / 1.5. */
     --badge-padding-divisor: 1.5;
