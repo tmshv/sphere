@@ -13,6 +13,8 @@ export type PointLayerProps = {
     color: string
     visible: boolean
     filter?: FilterSpecification
+    // Layer to draw below; absent means on top
+    beforeId?: string
     options?: {
         maxRadius: number
         minRadius: number
@@ -27,6 +29,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({
     options,
     visible,
     filter,
+    beforeId,
 }) => {
     const circle = useMemo(() => {
         const radius = options?.maxRadius ?? 4
@@ -42,6 +45,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({
     return (
         <Layer
             id={layerId}
+            beforeId={beforeId}
             source={sourceId}
             type="circle"
             paint={circle}

@@ -2,6 +2,8 @@ import { collectSubtree, isEffectivelyVisible, walkTree } from "@/lib/source-tre
 import type { Source } from "@/types/source"
 import { type Id, type LayerRenderType, SourceType } from "@/types"
 import { isRasterTileFormat } from "@/lib/tilejson"
+import { lineStringLayerIds, polygonLayerIds } from "@/lib/maplibre"
+import { assertUnreachable } from "@/lib"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
 import { selectSelectedInteractive, selectSelectedNode } from "./source/tree-selectors"
@@ -102,6 +104,45 @@ export const selectPreviewLayerSpecs = createSelector(
         // Tree top is rendered last, so it lands on top of the map
         return specs.reverse()
     },
+)
+
+/** Every MapLibre layer a spec draws, bottom to top */
+function specMapLayerIds(spec: PreviewLayerSpec): string[] {
+    switch (spec.kind) {
+        case "Point":
+        case "Raster":
+            return [spec.layerId]
+        case "LineString":
+            return lineStringLayerIds(spec.layerId)
+        case "Polygon":
+            return polygonLayerIds(spec.layerId)
+        default:
+            return assertUnreachable(spec)
+    }
+}
+
+export type PreviewLayerStackEntry = {
+    spec: PreviewLayerSpec
+    // Bottom MapLibre layer of the spec above; absent for the topmost spec
+    beforeId?: string
+}
+
+/**
+ * Specs in mount order, tree top first, each placed directly below the spec above it. Mounting top
+ * first means a layer's `beforeId` names a layer rendered before it, so it is normally on the map already.
+ */
+export const selectPreviewLayerStack = createSelector([selectPreviewLayerSpecs], (specs): PreviewLayerStackEntry[] => {
+    const topFirst = [...specs].reverse()
+    return topFirst.map((spec, index) => {
+        const above = index === 0 ? undefined : topFirst.at(index - 1)
+        const beforeId = above === undefined ? undefined : specMapLayerIds(above).at(0)
+        return { spec, beforeId }
+    })
+})
+
+/** Every MapLibre layer of the preview, bottom to top */
+export const selectPreviewDrawOrder = createSelector([selectPreviewLayerSpecs], (specs): string[] =>
+    specs.flatMap(specMapLayerIds),
 )
 
 export const selectPreviewActive = createSelector([selectPreviewLayerSpecs], (specs): boolean => specs.length > 0)

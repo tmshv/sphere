@@ -121,6 +121,42 @@ describe("selectPreviewLayerSpecs", () => {
     })
 })
 
+describe("selectPreviewLayerStack", () => {
+    test("lists specs top first, each placed below the bottom layer of the spec above", () => {
+        const state = makeRootState({ source: makeSourceState([makeGeojsonSource("a"), makeGeojsonSource("b")]) })
+        const stack = selectors.preview.layerStack(state)
+        expect(stack.map(({ spec, beforeId }) => [spec.layerId, beforeId])).toEqual([
+            ["preview-a-point", undefined],
+            ["preview-a-line", "preview-a-point"],
+            ["preview-a-polygon", "preview-a-line-outline"],
+            ["preview-b-point", "preview-a-polygon"],
+            ["preview-b-line", "preview-b-point"],
+            ["preview-b-polygon", "preview-b-line-outline"],
+        ])
+    })
+
+    test("is empty without specs", () => {
+        expect(selectors.preview.layerStack(makeRootState())).toEqual([])
+    })
+})
+
+describe("selectPreviewDrawOrder", () => {
+    test("lists every MapLibre layer of the preview bottom to top", () => {
+        const state = makeRootState({
+            source: makeSourceState([makeGeojsonSource("a"), makeMvtSource("r1", { format: "png" })]),
+        })
+        expect(selectors.preview.drawOrder(state)).toEqual([
+            "preview-r1-raster",
+            "preview-a-polygon",
+            "preview-a-polygon-outline-0",
+            "preview-a-polygon-outline-1",
+            "preview-a-line-outline",
+            "preview-a-line",
+            "preview-a-point",
+        ])
+    })
+})
+
 describe("selectPreviewActive", () => {
     test("true on Sources tab with a visible source", () => {
         const state = makeRootState({ source: makeSourceState([makeGeojsonSource("a")]) })

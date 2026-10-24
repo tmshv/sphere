@@ -139,3 +139,42 @@ export function sourceLayerProp(value?: string | null): object {
         "source-layer": value,
     }
 }
+
+/** MapLibre layers a line-string layer draws, bottom to top: the white casing, then the line. */
+export function lineStringLayerIds(layerId: string): [outline: string, line: string] {
+    return [`${layerId}-outline`, layerId]
+}
+
+/** MapLibre layers a polygon layer draws, bottom to top: the fill, then its two outlines. */
+export function polygonLayerIds(layerId: string): [fill: string, outline0: string, outline1: string] {
+    return [layerId, `${layerId}-outline-0`, `${layerId}-outline-1`]
+}
+
+export type LayerMove = {
+    id: string
+    beforeId: string
+}
+
+/**
+ * The `moveLayer(id, beforeId)` calls that stack `layerIds` (bottom to top) in that order. The
+ * topmost one stays where it is and the rest go directly below it, so other layers are untouched.
+ * Ids missing from `current` (the map's order) are skipped; nothing moves when already in order.
+ */
+export function layerOrderMoves(current: string[], layerIds: string[]): LayerMove[] {
+    const present = new Set(current)
+    const wanted = layerIds.filter(id => present.has(id))
+    const wantedSet = new Set(wanted)
+    const actual = current.filter(id => wantedSet.has(id))
+    if (actual.every((id, index) => id === wanted.at(index))) {
+        return []
+    }
+    const moves: LayerMove[] = []
+    let above: string | undefined
+    for (const id of [...wanted].reverse()) {
+        if (above !== undefined) {
+            moves.push({ id, beforeId: above })
+        }
+        above = id
+    }
+    return moves
+}

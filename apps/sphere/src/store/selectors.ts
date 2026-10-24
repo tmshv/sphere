@@ -4,7 +4,13 @@ import type { RootState } from "."
 import { appSlice as app } from "./app"
 import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
-import { selectPreviewActive, selectPreviewLayerIds, selectPreviewLayerSpecs } from "./preview"
+import {
+    selectPreviewActive,
+    selectPreviewDrawOrder,
+    selectPreviewLayerIds,
+    selectPreviewLayerSpecs,
+    selectPreviewLayerStack,
+} from "./preview"
 import { selectionSlice as selection } from "./selection"
 import { settingsSlice as settings } from "./settings"
 import { selectCurrentSourceItem, sourceSlice as source } from "./source"
@@ -22,7 +28,7 @@ import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
 import { selectIsShowTerrain } from "./terrain"
 import { toolsSlice as tools } from "./tools"
-export type { PreviewLayerSpec } from "./preview"
+export type { PreviewLayerSpec, PreviewLayerStackEntry } from "./preview"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -94,6 +100,8 @@ export const selectors = {
         active: selectPreviewActive,
         layerSpecs: selectPreviewLayerSpecs,
         layerIds: selectPreviewLayerIds,
+        layerStack: selectPreviewLayerStack,
+        drawOrder: selectPreviewDrawOrder,
     },
     mapInteraction: mapInteraction.selectors,
     tools: tools.selectors,
