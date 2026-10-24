@@ -68,6 +68,17 @@ function clearAllState(map: MaplibreMap, sourceId: string, sourceLayers: string[
     }
 }
 
+function isSameTarget(
+    prevSourceId: string,
+    prevSourceLayers: string[],
+    sourceId: string | undefined,
+    sourceLayers: string[],
+): boolean {
+    if (prevSourceId !== sourceId) return false
+    if (prevSourceLayers.length !== sourceLayers.length) return false
+    return prevSourceLayers.every((sl, i) => sl === sourceLayers.at(i))
+}
+
 export default function useFeatureState(ref: MapRef | undefined) {
     const selectedLayerId = useAppSelector(selectors.layer.selectSelectedId)
     const selectedSourceId = useAppSelector(selectors.source.selectSelectedSourceId)
@@ -80,30 +91,39 @@ export default function useFeatureState(ref: MapRef | undefined) {
 
     // Keep sourceId and sourceLayers refs in sync
     useEffect(() => {
+        let sourceId: string | undefined
         if (selectedLayerId) {
             const fromStore = layerItems[selectedLayerId]?.sourceId
             if (fromStore) {
-                sourceIdRef.current = fromStore
+                sourceId = fromStore
             } else {
                 const mapLayer = ref?.getMap()?.getLayer(selectedLayerId)
-                sourceIdRef.current = (mapLayer as { source?: string } | undefined)?.source
+                sourceId = (mapLayer as { source?: string } | undefined)?.source
             }
         } else {
-            sourceIdRef.current = selectedSourceId
+            sourceId = selectedSourceId
         }
 
         // Track source-layers for MVT sources
-        const sid = sourceIdRef.current
-        if (sid) {
-            const src = sourceItems[sid]
-            if (src?.type === SourceType.MVT && "sourceLayers" in src) {
-                // A source-layer node narrows highlighting to its own layer; Layers-tab selection keeps all
-                const narrowed = !selectedLayerId && selectedSourceLayer !== undefined
-                sourceLayersRef.current = narrowed ? [selectedSourceLayer] : src.sourceLayers.map(sl => sl.id)
-                return
-            }
+        let sourceLayers: string[] = []
+        const src = sourceId ? sourceItems[sourceId] : undefined
+        if (src?.type === SourceType.MVT && "sourceLayers" in src) {
+            // A source-layer node narrows highlighting to its own layer; Layers-tab selection keeps all
+            const narrowed = !selectedLayerId && selectedSourceLayer !== undefined
+            sourceLayers = narrowed ? [selectedSourceLayer] : src.sourceLayers.map(sl => sl.id)
         }
-        sourceLayersRef.current = []
+
+        // The selection reset that follows a node change lands after the refs moved on,
+        // so the previous target's highlights are cleared here instead
+        const prevSourceId = sourceIdRef.current
+        const prevSourceLayers = sourceLayersRef.current
+        const map = ref?.getMap()
+        if (map && prevSourceId && !isSameTarget(prevSourceId, prevSourceLayers, sourceId, sourceLayers)) {
+            clearAllState(map, prevSourceId, prevSourceLayers)
+        }
+
+        sourceIdRef.current = sourceId
+        sourceLayersRef.current = sourceLayers
     }, [selectedLayerId, layerItems, selectedSourceId, selectedSourceLayer, sourceItems, ref])
 
     // Subscribe to delta + reconcile buses and drive MapLibre feature state

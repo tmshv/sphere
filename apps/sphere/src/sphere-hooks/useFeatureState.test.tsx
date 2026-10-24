@@ -21,6 +21,22 @@ const makeStore = (
         },
     })
 
+const SELECT_NODE = "test/selectNode"
+
+// Store whose selected source node can be switched by dispatching SELECT_NODE
+const makeSwitchableStore = (selectedNodeId: string, sources: SourceFixture[]) => {
+    const initial = makeSourceState(sources, { selectedIds: [selectedNodeId] })
+    return configureStore({
+        reducer: {
+            layer: () => ({ items: {}, selectedId: undefined }),
+            source: (state: typeof initial = initial, action: { type: string; payload?: unknown }) => {
+                if (action.type !== SELECT_NODE || typeof action.payload !== "string") return state
+                return { ...state, selectedIds: [action.payload] }
+            },
+        },
+    })
+}
+
 type MockMap = {
     setFeatureState: ReturnType<typeof vi.fn>
     removeFeatureState: ReturnType<typeof vi.fn>
@@ -40,7 +56,7 @@ const makeMapRef = (map: MockMap): MockMapRef => ({
 })
 
 const wrapper =
-    (store: ReturnType<typeof makeStore>) =>
+    (store: ReturnType<typeof makeStore> | ReturnType<typeof makeSwitchableStore>) =>
     ({ children }: { children: React.ReactNode }) => <Provider store={store}>{children}</Provider>
 
 describe("useFeatureState", () => {
@@ -139,5 +155,43 @@ describe("useFeatureState", () => {
         })
         expect(map.setFeatureState).toHaveBeenCalledTimes(1)
         expect(map.setFeatureState).toHaveBeenCalledWith({ source: "src1", id: 5 }, { selected: true })
+    })
+
+    it("clears the previous source-layer highlight when another source-layer is selected", () => {
+        const map = makeMap()
+        const mvt = makeMvtSource("id", {
+            sourceLayers: [
+                { id: "roads", name: "Roads" },
+                { id: "water", name: "Water" },
+            ],
+        })
+        const store = makeSwitchableStore("id/roads", [mvt])
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            store.dispatch({ type: SELECT_NODE, payload: "id/water" })
+        })
+        expect(map.removeFeatureState).toHaveBeenCalledWith({ source: "id", sourceLayer: "roads" })
+        expect(map.removeFeatureState).not.toHaveBeenCalledWith({ source: "id", sourceLayer: "water" })
+    })
+
+    it("clears the previous source highlight when another GeoJSON source is selected", () => {
+        const map = makeMap()
+        const store = makeSwitchableStore("A", [makeGeojsonSource("A"), makeGeojsonSource("B")])
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            store.dispatch({ type: SELECT_NODE, payload: "B" })
+        })
+        expect(map.removeFeatureState).toHaveBeenCalledWith({ source: "A" })
+        expect(map.removeFeatureState).not.toHaveBeenCalledWith({ source: "B" })
+    })
+
+    it("does not clear highlights when the resolved source stays the same", () => {
+        const map = makeMap()
+        const store = makeSwitchableStore("A", [makeGeojsonSource("A"), makeGeojsonSource("B")])
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            store.dispatch({ type: SELECT_NODE, payload: "A" })
+        })
+        expect(map.removeFeatureState).not.toHaveBeenCalled()
     })
 })
