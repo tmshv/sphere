@@ -1,7 +1,7 @@
 import { visualCases } from "../visual/visualCases"
 import { Surface } from "."
 
-const PANEL_STYLE = { width: 200 }
+const PANEL_STYLE = { width: 200, outline: "1px solid currentColor" }
 
 visualCases("Surface", {
     default: { render: () => <Surface>Surface content</Surface> },

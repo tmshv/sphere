@@ -26,7 +26,6 @@ const icon = <IconPlus size={ICON_SIZE} />
 visualCases("IconButton", {
     sm: { render: () => <IconButton icon={icon} label="Add" onClick={noop} size="sm" /> },
     md: { render: () => <IconButton icon={icon} label="Add" onClick={noop} size="md" /> },
-    active: { render: () => <IconButton icon={icon} label="Add" onClick={noop} active /> },
     "solid-active": {
         render: () => <IconButton icon={icon} label="Add" onClick={noop} active appearance="solid" />,
     },

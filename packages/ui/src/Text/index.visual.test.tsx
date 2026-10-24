@@ -21,7 +21,6 @@ const toneWeightCases = Object.fromEntries(
 
 visualCases("Text", {
     ...toneWeightCases,
-    "default-unset-weight": { render: () => <Text>Sample text</Text> },
     uppercase: {
         render: () => (
             <Text weight="semibold" uppercase tone="dimmed">

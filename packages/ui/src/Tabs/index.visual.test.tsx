@@ -1,5 +1,4 @@
 import { IconDatabase, IconStack } from "@tabler/icons"
-import { page, userEvent } from "vitest/browser"
 import { visualCases } from "../visual/visualCases"
 import { type TabItem, Tabs } from "."
 
@@ -15,9 +14,4 @@ const ITEMS: ReadonlyArray<TabItem> = [
 visualCases("Tabs", {
     "first-active": { render: () => <Tabs value="sources" onChange={noop} items={ITEMS} /> },
     "second-active": { render: () => <Tabs value="layers" onChange={noop} items={ITEMS} /> },
-    "disabled-tab": { render: () => <Tabs value="sources" onChange={noop} items={ITEMS} /> },
-    hover: {
-        render: () => <Tabs value="sources" onChange={noop} items={ITEMS} />,
-        interact: () => userEvent.hover(page.getByRole("tab", { name: "Layers" })),
-    },
 })

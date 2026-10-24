@@ -110,7 +110,12 @@ export function visualCases(component: string, cases: Record<string, VisualCase>
     })
 }
 
-/** Focuses an element the way the keyboard does, so :focus-visible styles apply. */
+/**
+ * Focuses an element the way the keyboard does, so :focus-visible styles apply.
+ * WebKit never tabs onto buttons, and a bare programmatic focus() after a pointer
+ * action does not match :focus-visible. A key press first makes the browser treat
+ * the next focus() as keyboard-driven.
+ */
 export async function focusWithKeyboard(target: Locator) {
     await userEvent.keyboard("{Shift}")
     target.element().focus()
