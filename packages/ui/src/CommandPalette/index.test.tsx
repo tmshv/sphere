@@ -45,4 +45,27 @@ describe("CommandPalette", () => {
         fireEvent.click(await screen.findByText("Toggle Zen"))
         expect(onTrigger).toHaveBeenCalledTimes(1)
     })
+
+    it("runs the current onTrigger after commands change", async () => {
+        const first = vi.fn()
+        const second = vi.fn()
+        function palette(onTrigger: () => void) {
+            return (
+                <CommandPalette
+                    commands={[{ id: "zen", title: "Toggle Zen", onTrigger }]}
+                    shortcut={SHORTCUT}
+                    placeholder={PLACEHOLDER}
+                    emptyMessage={EMPTY_MESSAGE}
+                >
+                    <div>content</div>
+                </CommandPalette>
+            )
+        }
+        const { rerender } = render(palette(first))
+        rerender(palette(second))
+        fireEvent.keyDown(document.documentElement, { key: "p", ctrlKey: true })
+        fireEvent.click(await screen.findByText("Toggle Zen"))
+        expect(second).toHaveBeenCalledTimes(1)
+        expect(first).not.toHaveBeenCalled()
+    })
 })
