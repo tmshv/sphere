@@ -88,9 +88,7 @@ export function SourcesTab() {
             </Dialog>
 
             <ActionBar
-                pl={"sm"}
-                pr={"sm"}
-                tooltipPosition={"top"}
+                padded
                 onClick={onClick}
                 items={[
                     {

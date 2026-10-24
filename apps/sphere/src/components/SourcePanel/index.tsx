@@ -103,7 +103,6 @@ export function SourcePanel() {
 
     const controls = (
         <ActionBar
-            tooltipPosition={"top"}
             onClick={async name => {
                 switch (name) {
                     case "trash": {

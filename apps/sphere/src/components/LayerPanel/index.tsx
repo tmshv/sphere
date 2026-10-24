@@ -186,7 +186,6 @@ export function LayerPanel() {
 
     const controls = (
         <ActionBar
-            tooltipPosition={"top"}
             onClick={name => {
                 switch (name) {
                     case "trash": {
