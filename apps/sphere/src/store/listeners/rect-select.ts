@@ -20,7 +20,7 @@ import { isMvtSource } from "@/lib/source"
 import { Point } from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
-import { selectSelectedSourceId } from "../source/tree-selectors"
+import { selectSelectedInteractive, selectSelectedSourceId } from "../source/tree-selectors"
 import { actions } from "../actions"
 import { selectPreviewLayerIds } from "../preview"
 import { type RectSelectModifier, rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
@@ -62,6 +62,7 @@ listener.startListening({
                 if (session !== dragSession) break
 
                 const state = listenerApi.getState() as RootState
+                if (!selectSelectedInteractive(state)) continue
                 const sourceId = selectSelectedSourceId(state)
                 if (!sourceId) continue
                 if (isMvtSource(state.source.items[sourceId])) continue
@@ -103,6 +104,7 @@ listener.startListening({
 
         const generation = ++queryGeneration
         const state = listenerApi.getState() as RootState
+        if (!selectSelectedInteractive(state)) return
         const sourceId = selectSelectedSourceId(state)
         if (!sourceId) return
         if (isMvtSource(state.source.items[sourceId])) return
@@ -142,6 +144,7 @@ listener.startListening({
         resetDragDedup()
 
         const state = listenerApi.getState() as RootState
+        if (!selectSelectedInteractive(state)) return
         const sourceId = selectSelectedSourceId(state)
         if (sourceId && isMvtSource(state.source.items[sourceId])) return
 

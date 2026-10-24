@@ -53,6 +53,7 @@ export const store = configureStore({
             listeners.addBlankLayer.middleware,
             listeners.forceResizeMap.middleware,
             listeners.clearSelection.middleware,
+            listeners.clearSelectionOnNodeChange.middleware,
             listeners.selectionChanged.middleware,
             listeners.zoomTo.middleware,
             listeners.addSource.middleware,

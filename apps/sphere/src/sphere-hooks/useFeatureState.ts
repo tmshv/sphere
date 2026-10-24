@@ -71,6 +71,7 @@ function clearAllState(map: MaplibreMap, sourceId: string, sourceLayers: string[
 export default function useFeatureState(ref: MapRef | undefined) {
     const selectedLayerId = useAppSelector(selectors.layer.selectSelectedId)
     const selectedSourceId = useAppSelector(selectors.source.selectSelectedSourceId)
+    const selectedSourceLayer = useAppSelector(selectors.source.selectSelectedSourceLayer)
     const layerItems = useAppSelector(state => state.layer.items)
     const sourceItems = useAppSelector(state => state.source.items)
 
@@ -96,12 +97,14 @@ export default function useFeatureState(ref: MapRef | undefined) {
         if (sid) {
             const src = sourceItems[sid]
             if (src?.type === SourceType.MVT && "sourceLayers" in src) {
-                sourceLayersRef.current = src.sourceLayers.map(sl => sl.id)
+                // A source-layer node narrows highlighting to its own layer; Layers-tab selection keeps all
+                const narrowed = !selectedLayerId && selectedSourceLayer !== undefined
+                sourceLayersRef.current = narrowed ? [selectedSourceLayer] : src.sourceLayers.map(sl => sl.id)
                 return
             }
         }
         sourceLayersRef.current = []
-    }, [selectedLayerId, layerItems, selectedSourceId, sourceItems, ref])
+    }, [selectedLayerId, layerItems, selectedSourceId, selectedSourceLayer, sourceItems, ref])
 
     // Subscribe to delta + reconcile buses and drive MapLibre feature state
     useEffect(() => {

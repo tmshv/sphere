@@ -92,6 +92,43 @@ describe("useFeatureState", () => {
         )
     })
 
+    it("sets feature state only on the selected source-layer, not its siblings", () => {
+        const map = makeMap()
+        const mvt = makeMvtSource("id", {
+            sourceLayers: [
+                { id: "roads", name: "Roads" },
+                { id: "water", name: "Water" },
+            ],
+        })
+        const store = makeStore(undefined, "id/roads", [mvt])
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            emitSelectionDelta({ added: [7], removed: [8] })
+        })
+        expect(map.setFeatureState).toHaveBeenCalledWith(
+            { source: "id", sourceLayer: "roads", id: 7 },
+            { selected: true },
+        )
+        const touched = [...map.setFeatureState.mock.calls, ...map.removeFeatureState.mock.calls]
+        expect(touched.some(([target]) => target.sourceLayer === "water")).toBe(false)
+    })
+
+    it("sets feature state on every source-layer when the MVT root is selected", () => {
+        const map = makeMap()
+        const mvt = makeMvtSource("id", {
+            sourceLayers: [
+                { id: "roads", name: "Roads" },
+                { id: "water", name: "Water" },
+            ],
+        })
+        const store = makeStore(undefined, "id", [mvt])
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            emitSelectionDelta({ added: [7], removed: [] })
+        })
+        expect(map.setFeatureState).toHaveBeenCalledTimes(2)
+    })
+
     it("resolves source from MapLibre layer when selectedLayerId is set", () => {
         const map = makeMap()
         map.getLayer.mockReturnValue({ source: "src1" })
