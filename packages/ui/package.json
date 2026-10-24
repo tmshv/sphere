@@ -19,7 +19,12 @@
         "@visx/scale": "^3.12.0",
         "@visx/shape": "^3.12.0",
         "@tanstack/react-table": "^8.21.0",
-        "date-fns": "^4.1.0"
+        "date-fns": "^4.1.0",
+        "dnd-core": "^16.0.1",
+        "react-arborist": "4.0.0",
+        "react-dnd": "^16.0.1",
+        "react-dnd-html5-backend": "^16.0.1",
+        "react-dnd-touch-backend": "16.0.1"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
