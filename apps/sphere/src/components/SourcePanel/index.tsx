@@ -7,6 +7,8 @@ import { Flex, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import { useSelector } from "react-redux"
+import { FolderPanel } from "./FolderPanel"
+import { SourceLayerPanel } from "./SourceLayerPanel"
 import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
 import { GpxSourcePanel } from "./GpxSourcePanel"
@@ -17,11 +19,23 @@ import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "kml" | "vector-tiles" | "raster-tiles"
+export type PanelKind =
+    | "geojson"
+    | "csv"
+    | "shapefile"
+    | "gpx"
+    | "kml"
+    | "vector-tiles"
+    | "raster-tiles"
+    | "source-layer"
+    | "folder"
 
 export const selectPanelKind = createSelector(
-    [selectors.source.selectCurrentSourceItem],
-    (source): PanelKind | null => {
+    [selectors.source.selectSelectedNode, selectors.source.selectCurrentSourceItem],
+    (node, source): PanelKind | null => {
+        if (node?.kind === "source-layer" || node?.kind === "folder") {
+            return node.kind
+        }
         if (!source) {
             return null
         }
@@ -84,6 +98,10 @@ function renderPanel(kind: PanelKind | null) {
             return <VectorTilesSourcePanel />
         case "raster-tiles":
             return <RasterTilesSourcePanel />
+        case "source-layer":
+            return <SourceLayerPanel />
+        case "folder":
+            return <FolderPanel />
         default:
             return null
     }
@@ -94,13 +112,20 @@ export const SourcePanel: React.FC = () => {
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
     const panelKind = useSelector(selectPanelKind)
+    const node = useSelector(selectors.source.selectSelectedNode)
     // Source actions take the selected node id; a child resolves to its parent's data here
     const nodeId = useSelector(selectors.source.selectSelectedId)
     const nodeActions = useSelector(selectors.source.selectSelectedNodeActions)
 
-    if (!source) {
+    if (!node) {
         return null
     }
+    // A folder has no data source behind it, only a node
+    if (!source && node.kind !== "folder") {
+        return null
+    }
+    const editable = source?.editable ?? false
+    const reloadDisabled = source?.reloadDisabled ?? true
 
     const controls = (
         <ActionBar
@@ -116,7 +141,8 @@ export const SourcePanel: React.FC = () => {
                         break
                     }
                     case "show-properties": {
-                        if (nodeActions.canShowProperties) dispatch(actions.source.showProperties({ id: source.id }))
+                        if (source && nodeActions.canShowProperties)
+                            dispatch(actions.source.showProperties({ id: source.id }))
                         break
                     }
                     case "add-to-layer": {
@@ -124,7 +150,7 @@ export const SourcePanel: React.FC = () => {
                         break
                     }
                     case "edit": {
-                        if (!source.editable) break
+                        if (!source || !editable) break
                         if (drawing) {
                             dispatch(actions.tools.reset())
                         } else {
@@ -133,7 +159,7 @@ export const SourcePanel: React.FC = () => {
                         break
                     }
                     case "reload": {
-                        dispatch(actions.source.reload(source.id))
+                        if (source) dispatch(actions.source.reload(source.id))
                         break
                     }
                     default: {
@@ -166,7 +192,7 @@ export const SourcePanel: React.FC = () => {
                     name: "edit",
                     label: "Switch to edit mode",
                     icon: IconPencil,
-                    disabled: !source.editable,
+                    disabled: !editable,
                 },
                 {
                     name: "zoom",
@@ -178,7 +204,7 @@ export const SourcePanel: React.FC = () => {
                     name: "reload",
                     label: "Reload",
                     icon: IconReload,
-                    disabled: source.reloadDisabled,
+                    disabled: reloadDisabled,
                 },
             ]}
         />
@@ -190,12 +216,12 @@ export const SourcePanel: React.FC = () => {
                 <TextInput
                     size="xs"
                     label="Name"
-                    value={source.name}
+                    value={node.name}
                     onChange={event => {
                         const value = event.target.value
                         dispatch(
                             actions.source.setName({
-                                id: source.id,
+                                id: node.id,
                                 value,
                             }),
                         )

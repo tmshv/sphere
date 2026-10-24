@@ -155,4 +155,30 @@ describe("SourcePanel", () => {
             expect(dispatched).toContainEqual(actions.source.zoomTo(CHILD_NODE_ID))
         })
     })
+
+    describe("with a selected folder node", () => {
+        function renderFolderPanel() {
+            const store = configureStore({
+                reducer: {
+                    source: () => makeSourceState([source], { folderIds: ["f1"], selectedIds: ["f1"] }),
+                    draw: () => ({ sourceId: null, selectedIds: [] }),
+                    sourceInfo: () => ({ info: {}, stats: {} }),
+                },
+            })
+            return render(
+                <Provider store={store}>
+                    <SourcePanel />
+                </Provider>,
+            )
+        }
+
+        it("shows the folder name and its item count under the controls", () => {
+            const { container } = renderFolderPanel()
+            const { header, body } = partsOf(container)
+
+            expect(header.querySelectorAll("button").length).toBeGreaterThan(0)
+            expect(body.contains(screen.getByDisplayValue("Folder f1"))).toBe(true)
+            expect(screen.getByText("Items")).toBeInTheDocument()
+        })
+    })
 })

@@ -215,6 +215,20 @@ describe("selector (SourcePanel)", () => {
 })
 
 describe("selectPanelKind", () => {
+    test("routes a source-layer node to the source-layer panel", () => {
+        const state = makeRootState({
+            source: makeSourceState([makeVectorMvt()], { selectedIds: [ROADS_NODE_ID] }),
+        })
+        expect(selectPanelKind(state)).toBe("source-layer")
+    })
+
+    test("routes a folder node to the folder panel", () => {
+        const state = makeRootState({
+            source: makeSourceState([makeGeojsonSource("s1")], { folderIds: [FOLDER_ID], selectedIds: [FOLDER_ID] }),
+        })
+        expect(selectPanelKind(state)).toBe("folder")
+    })
+
     test("returns null when nothing is selected", () => {
         const state = makeRootState({ source: makeSourceState([]) })
         expect(selectPanelKind(state)).toBeNull()

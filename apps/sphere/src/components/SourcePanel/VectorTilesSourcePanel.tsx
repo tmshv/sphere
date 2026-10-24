@@ -3,7 +3,7 @@ import type { FC } from "react"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import { InfoRow } from "@sphere/ui"
+import { VectorLayerSection } from "./VectorLayerSection"
 import { PanelSection } from "./parts/PanelSection"
 import { TileJsonSection } from "./parts/TileJsonSection"
 
@@ -26,19 +26,7 @@ export const VectorTilesSourcePanel: FC = () => {
                 ) : (
                     <Stack spacing={"sm"}>
                         {layers.map(layer => (
-                            <Stack key={layer.id} spacing={2}>
-                                <Text size={"xs"} weight={500}>
-                                    {layer.id}
-                                </Text>
-                                {layer.description ? (
-                                    <Text size={"xs"} color={"dimmed"}>
-                                        {layer.description}
-                                    </Text>
-                                ) : null}
-                                {Object.entries(layer.fields ?? {}).map(([name, fieldType]) => (
-                                    <InfoRow key={name} label={name} value={String(fieldType)} labelIsData />
-                                ))}
-                            </Stack>
+                            <VectorLayerSection key={layer.id} layer={layer} />
                         ))}
                     </Stack>
                 )}

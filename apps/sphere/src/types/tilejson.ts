@@ -1,3 +1,11 @@
+export type VectorLayer = {
+    id: string
+    fields: object | null
+    description?: string
+    minzoom?: number
+    maxzoom?: number
+}
+
 export type TileJSON = {
     // A semver.org style version number as a string.
     // Describes the version of the TileJSON spec that is implemented by this JSON object.
@@ -27,13 +35,7 @@ export type TileJSON = {
     // Note: Will be added on merge step.
     // `fields` is required by the spec, but an MBTiles metadata blob can still
     // carry a JSON null there, and the backend passes it through verbatim.
-    vector_layers?: {
-        id: string
-        fields: object | null
-        description?: string
-        minzoom?: number
-        maxzoom?: number
-    }[]
+    vector_layers?: VectorLayer[]
 
     // Contains an attribution to be displayed when the map is shown to a user.
     // Implementations MAY decide to treat this as HTML or literal text.
