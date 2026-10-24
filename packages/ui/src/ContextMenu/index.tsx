@@ -48,7 +48,7 @@ export function ContextMenuItem({ icon, shortcut, disabled = false, onClick, chi
         <Menu.Item
             icon={icon}
             disabled={disabled}
-            onClick={onClick}
+            onClick={() => onClick?.()}
             rightSection={shortcut === undefined ? undefined : <Text tone={"dimmed"}>{shortcut}</Text>}
         >
             {children}

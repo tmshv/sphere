@@ -9,7 +9,7 @@ export type DialogProps = {
     onClose: () => void
     title: string
     footer?: ReactNode
-    children?: ReactNode
+    children: ReactNode
 }
 
 export function Dialog({ opened, onClose, title, footer, children }: DialogProps) {

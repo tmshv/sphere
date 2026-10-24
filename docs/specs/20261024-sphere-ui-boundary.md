@@ -205,8 +205,8 @@ listed under it.
   whitespace-only URL dispatches nothing and keeps the dialog open.
 - **Icon buttons get hover titles.** `IconButton` and `StatusbarButton` set
   `title` from `label`. Today only the Navigation, Select and Info buttons
-  have one; the other statusbar buttons and the layer visibility button
-  gain a native tooltip.
+  have one; the other statusbar buttons, the layer visibility button and the
+  layer filter's Clear button gain a native tooltip.
 - **Layer visibility button is 28px tall, not 30px.** Its `h={30}` override
   is dropped; the button keeps its 28px width.
 

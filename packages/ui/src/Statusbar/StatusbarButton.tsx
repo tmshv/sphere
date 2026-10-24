@@ -54,7 +54,7 @@ export function StatusbarButton({
             aria-pressed={active}
             title={label}
             disabled={disabled}
-            onClick={onClick}
+            onClick={() => onClick()}
             sx={theme => ({
                 color: theme.colors[isAccent ? ACCENT_COLOR : "gray"][theme.fn.primaryShade(LIGHT_SCHEME)],
                 "&:active": PRESS_STYLE,

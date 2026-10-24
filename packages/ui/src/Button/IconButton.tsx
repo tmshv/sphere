@@ -38,7 +38,7 @@ export function IconButton({
             aria-pressed={active}
             title={label}
             disabled={disabled}
-            onClick={onClick}
+            onClick={() => onClick()}
         >
             {icon}
         </ActionIcon>

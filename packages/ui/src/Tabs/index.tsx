@@ -1,8 +1,8 @@
 import { Tabs as MantineTabs } from "@mantine/core"
 import type { ReactNode } from "react"
+import { GAP_PX } from "../Layout"
 
 const TAB_HEIGHT_PX = 30
-const LIST_PADDING_PX = 12
 
 export type TabItem = {
     value: string
@@ -108,7 +108,7 @@ export function Tabs({ value, onChange, items }: TabsProps) {
                 },
             })}
         >
-            <MantineTabs.List p={LIST_PADDING_PX}>
+            <MantineTabs.List p={GAP_PX.sm}>
                 {items.map(item => (
                     <MantineTabs.Tab key={item.value} value={item.value} icon={item.icon} disabled={item.disabled}>
                         {item.label}

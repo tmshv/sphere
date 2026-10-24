@@ -11,7 +11,7 @@ export type ButtonProps = {
     type?: "button" | "submit"
     disabled?: boolean
     onClick?: () => void
-    children?: ReactNode
+    children: ReactNode
 }
 
 export function Button({ variant = "primary", type = "button", disabled, onClick, children }: ButtonProps) {
@@ -21,7 +21,7 @@ export function Button({ variant = "primary", type = "button", disabled, onClick
             color={variant === "secondary" ? SECONDARY_COLOR : undefined}
             type={type}
             disabled={disabled}
-            onClick={onClick}
+            onClick={() => onClick?.()}
         >
             {children}
         </MantineButton>

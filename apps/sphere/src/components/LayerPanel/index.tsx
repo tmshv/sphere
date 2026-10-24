@@ -1,6 +1,7 @@
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { isLayerType } from "@/lib/layer-type"
 import { LayerType, SourceType } from "@/types"
 import { ActionBar, GAP_PX, PanelBody, Select, Stack, TextField } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
@@ -300,11 +301,11 @@ export function LayerPanel() {
                     value={type ?? null}
                     options={layer.layerTypeOptions}
                     onChange={value => {
-                        if (value) {
+                        if (isLayerType(value)) {
                             dispatch(
                                 actions.layer.setType({
                                     id: layerId,
-                                    type: value as LayerType,
+                                    type: value,
                                 }),
                             )
                         }
