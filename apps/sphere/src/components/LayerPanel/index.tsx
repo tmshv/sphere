@@ -2,8 +2,7 @@ import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { LayerType, SourceType } from "@/types"
-import { ActionBar, GAP_PX, PanelBody, Stack, TextField } from "@sphere/ui"
-import { Select } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Select, Stack, TextField } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
 import type { CSSProperties } from "react"
@@ -249,11 +248,10 @@ export function LayerPanel() {
                 />
 
                 <Select
-                    size="xs"
                     label="Source"
                     placeholder="Pick one"
-                    value={sourceId}
-                    data={sources}
+                    value={sourceId ?? null}
+                    options={sources}
                     onChange={newSourceId => {
                         if (!newSourceId) {
                             return
@@ -278,11 +276,10 @@ export function LayerPanel() {
 
                 {!sourceLayers?.length ? null : (
                     <Select
-                        size="xs"
                         label="Source layer"
                         placeholder="Pick one"
-                        value={sourceLayer}
-                        data={sourceLayers}
+                        value={sourceLayer ?? null}
+                        options={sourceLayers}
                         onChange={value => {
                             if (!value || !sourceId) {
                                 return
@@ -299,11 +296,10 @@ export function LayerPanel() {
                 )}
 
                 <Select
-                    size="xs"
                     label="View"
                     placeholder="Pick one"
-                    value={type}
-                    data={layer.layerTypeOptions}
+                    value={type ?? null}
+                    options={layer.layerTypeOptions}
                     onChange={value => {
                         if (value) {
                             dispatch(

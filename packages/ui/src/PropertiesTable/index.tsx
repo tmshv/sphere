@@ -1,4 +1,5 @@
-import { Select, type SelectOption, Statusbar } from "../Statusbar"
+import type { SelectOption } from "../Select"
+import { Statusbar, StatusbarSelect } from "../Statusbar"
 import {
     ActionIcon,
     Badge,
@@ -495,7 +496,7 @@ export function PropertesTable({
             </div>
 
             <Statusbar>
-                <Select
+                <StatusbarSelect
                     className={cx(s.widget, s.widgetSelect)}
                     value={attributeFilter}
                     options={ATTRIBUTE_FILTER_OPTIONS}
@@ -508,7 +509,7 @@ export function PropertesTable({
 
                 <Box style={{ flex: 1 }} />
 
-                <Select
+                <StatusbarSelect
                     className={cx(s.widget, s.widgetSelect)}
                     value={String(pageSize)}
                     options={pageSizeOptions}
