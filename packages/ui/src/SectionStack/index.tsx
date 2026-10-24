@@ -19,7 +19,9 @@ export type SectionProps = {
 // Section is a declaration, not a renderer: SectionStack reads its props and
 // draws the pane itself. Rendering the children keeps it valid if it is ever
 // used on its own.
-export const Section: React.FC<SectionProps> = ({ children }) => <>{children}</>
+export function Section({ children }: SectionProps) {
+    return <>{children}</>
+}
 
 function isSection(node: React.ReactNode): node is React.ReactElement<SectionProps> {
     return isValidElement<SectionProps>(node) && node.type === Section
@@ -99,7 +101,7 @@ function layoutOf(resolved: SectionLayout[], name: string): SectionLayout {
     return { name, open: true, size: null }
 }
 
-const SectionStackRoot: React.FC<SectionStackProps> = ({ sections: rows, onSectionsChange, children }) => {
+function SectionStackRoot({ sections: rows, onSectionsChange, children }: SectionStackProps) {
     const { classes: s, cx } = useStyles()
     const baseId = useId()
     const handle = useRef<SplitViewHandle>(null)

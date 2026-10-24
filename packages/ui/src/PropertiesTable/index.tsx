@@ -144,7 +144,7 @@ type PropertyTableProps = {
     onSortingChange: OnChangeFn<SortingState>
 }
 
-export const PropertesTable: React.FC<PropertyTableProps> = ({
+export function PropertesTable({
     data,
     columns,
     meta,
@@ -158,7 +158,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
     onPageSizeChange,
     onAttributeFilterChange,
     onSortingChange,
-}) => {
+}: PropertyTableProps) {
     const { classes: s, cx } = useStyle()
     const [photos, setPhotos] = useState<Record<string, boolean>>({})
     const table = useReactTable({

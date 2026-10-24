@@ -7,7 +7,7 @@ export type ContextMenuProps = {
     children: React.ReactNode
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({ opened, position, onClose, children }) => {
+export function ContextMenu({ opened, position, onClose, children }: ContextMenuProps) {
     return (
         <Menu
             shadow="md"

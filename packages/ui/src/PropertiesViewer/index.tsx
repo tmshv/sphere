@@ -22,7 +22,7 @@ export type PropertiesViewerProps = {
     checkUrls?: boolean
 }
 
-export const PropertiesViewer: React.FC<PropertiesViewerProps> = ({ properties, checkUrls = false }) => {
+export function PropertiesViewer({ properties, checkUrls = false }: PropertiesViewerProps) {
     const { classes: s } = useStyles()
 
     return (

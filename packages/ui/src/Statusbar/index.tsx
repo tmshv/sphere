@@ -17,7 +17,7 @@ export type StatusbarProps = {
     color?: MantineColor
 }
 
-export const Statusbar: React.FC<StatusbarProps> = ({ children, color }) => {
+export function Statusbar({ children, color }: StatusbarProps) {
     const { classes: s } = useStyle()
     return (
         <Flex

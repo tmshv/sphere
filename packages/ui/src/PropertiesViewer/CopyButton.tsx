@@ -18,7 +18,7 @@ type CopyButtonProps = {
     value: string
 }
 
-export const CopyButton: React.FC<CopyButtonProps> = ({ value }) => {
+export function CopyButton({ value }: CopyButtonProps) {
     const { classes: s } = useStyles()
     const [copied, setCopied] = useState(false)
 

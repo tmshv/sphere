@@ -18,44 +18,46 @@ export type ActionBarProps = MantineStyleSystemProps & {
     tooltipPosition: FloatingPosition
 }
 
-export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPosition, ...props }) => (
-    <Flex direction={"row"} gap={"xs"} {...props}>
-        {items.map((item, i) => {
-            if (!item) {
-                return <Space key={`separator-before-${items[i + 1]?.name ?? "end"}`} style={{ flex: 1 }} />
-            }
-            const { name, label, icon: Icon, color, disabled = false } = item
+export function ActionBar({ items, onClick, tooltipPosition, ...props }: ActionBarProps) {
+    return (
+        <Flex direction={"row"} gap={"xs"} {...props}>
+            {items.map((item, i) => {
+                if (!item) {
+                    return <Space key={`separator-before-${items[i + 1]?.name ?? "end"}`} style={{ flex: 1 }} />
+                }
+                const { name, label, icon: Icon, color, disabled = false } = item
 
-            return (
-                <Tooltip
-                    key={name}
-                    disabled
-                    label={label}
-                    position={tooltipPosition}
-                    openDelay={1000}
-                    closeDelay={250}
-                    transitionDuration={0}
-                >
-                    <ActionIcon
-                        size={"md"}
-                        disabled={disabled}
-                        sx={{
-                            "&[data-disabled]": {
-                                opacity: 0.5,
-                                backgroundColor: "#00000000",
-                                border: "none",
-                                cursor: "not-allowed",
-                                pointerEvents: "none",
-                            },
-                        }}
-                        onClick={() => {
-                            onClick(name)
-                        }}
+                return (
+                    <Tooltip
+                        key={name}
+                        disabled
+                        label={label}
+                        position={tooltipPosition}
+                        openDelay={1000}
+                        closeDelay={250}
+                        transitionDuration={0}
                     >
-                        <Icon size={16} color={color} />
-                    </ActionIcon>
-                </Tooltip>
-            )
-        })}
-    </Flex>
-)
+                        <ActionIcon
+                            size={"md"}
+                            disabled={disabled}
+                            sx={{
+                                "&[data-disabled]": {
+                                    opacity: 0.5,
+                                    backgroundColor: "#00000000",
+                                    border: "none",
+                                    cursor: "not-allowed",
+                                    pointerEvents: "none",
+                                },
+                            }}
+                            onClick={() => {
+                                onClick(name)
+                            }}
+                        >
+                            <Icon size={16} color={color} />
+                        </ActionIcon>
+                    </Tooltip>
+                )
+            })}
+        </Flex>
+    )
+}
