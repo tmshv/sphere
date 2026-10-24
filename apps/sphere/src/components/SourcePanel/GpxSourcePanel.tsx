@@ -1,13 +1,11 @@
-import { Stack, Text } from "@mantine/core"
-import type { FC } from "react"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { AttributeList, InfoRow } from "@sphere/ui"
+import { AttributeList, InfoRow, Stack, Text } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
 import { PanelSection } from "./parts/PanelSection"
 
-export const GpxSourcePanel: FC = () => {
+export function GpxSourcePanel() {
     const info = useAppSelector(selectors.sourceInfo.selectCurrentSourceInfo)
     const fields = useAppSelector(selectors.sourceInfo.selectCurrentSourceFields)
     const meta = useAppSelector(selectors.sourceInfo.selectCurrentSourceMeta)
@@ -20,7 +18,7 @@ export const GpxSourcePanel: FC = () => {
     const hasUnrenderedContent = details.waypoints > 0 || details.routes > 0
 
     return (
-        <Stack spacing={"md"}>
+        <Stack gap={"md"}>
             <FileSection file={info?.file} />
 
             <PanelSection title={"GPX contents"}>
@@ -29,7 +27,7 @@ export const GpxSourcePanel: FC = () => {
                 <InfoRow label={"Routes"} value={details.routes} />
                 <InfoRow label={"Track points"} value={details.track_points} />
                 {hasUnrenderedContent ? (
-                    <Text size={"xs"} color={"orange"}>
+                    <Text tone={"warning"}>
                         GPX rendering only supports tracks — waypoints and routes are not drawn on the map.
                     </Text>
                 ) : null}

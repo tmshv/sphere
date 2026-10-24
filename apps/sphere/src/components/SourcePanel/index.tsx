@@ -2,10 +2,11 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { type SourceMetadata, SourceType } from "@/types"
-import { ActionBar, PanelBody } from "@sphere/ui"
-import { Flex, TextInput } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Stack } from "@sphere/ui"
+import { TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
+import type { CSSProperties } from "react"
 import { useSelector } from "react-redux"
 import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
@@ -14,6 +15,8 @@ import { KmlSourcePanel } from "./KmlSourcePanel"
 import { RasterTilesSourcePanel } from "./RasterTilesSourcePanel"
 import { ShapefileSourcePanel } from "./ShapefileSourcePanel"
 import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
+
+const FORM_STYLE: CSSProperties = { marginBottom: GAP_PX.sm }
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
@@ -89,7 +92,7 @@ function renderPanel(kind: PanelKind | null) {
     }
 }
 
-export const SourcePanel: React.FC = () => {
+export function SourcePanel() {
     const dispatch = useAppDispatch()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
@@ -179,7 +182,7 @@ export const SourcePanel: React.FC = () => {
 
     return (
         <PanelBody header={controls}>
-            <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
+            <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
                 <TextInput
                     size="xs"
                     label="Name"
@@ -196,7 +199,7 @@ export const SourcePanel: React.FC = () => {
                 />
 
                 {renderPanel(panelKind)}
-            </Flex>
+            </Stack>
         </PanelBody>
     )
 }

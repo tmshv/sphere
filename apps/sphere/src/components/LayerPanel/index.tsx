@@ -2,10 +2,11 @@ import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { LayerType, SourceType } from "@/types"
-import { ActionBar, PanelBody } from "@sphere/ui"
-import { Flex, Select, TextInput } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Stack } from "@sphere/ui"
+import { Select, TextInput } from "@mantine/core"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
+import type { CSSProperties } from "react"
 import { useSelector } from "react-redux"
 import { ExtrusionControls } from "./ExtrusionControls"
 import { HeatmapControls } from "./HeatmapControls"
@@ -14,6 +15,8 @@ import { LineControls } from "./LineControls"
 import { PhotoControls } from "./PhotoControls"
 import { PointControls } from "./PointControls"
 import { PolygonControls } from "./PolygonControls"
+
+const FORM_STYLE: CSSProperties = { marginBottom: GAP_PX.sm }
 
 type Option = {
     value: string
@@ -173,7 +176,7 @@ function renderLayerControls(layer: LayerData) {
     }
 }
 
-export const LayerPanel: React.FC = () => {
+export function LayerPanel() {
     const dispatch = useAppDispatch()
     const sources = useSelector(sourcesSelector)
     const layer = useSelector(layerSelector)
@@ -231,7 +234,7 @@ export const LayerPanel: React.FC = () => {
 
     return (
         <PanelBody header={controls}>
-            <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
+            <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
                 <TextInput
                     size="xs"
                     label="Name"
@@ -316,7 +319,7 @@ export const LayerPanel: React.FC = () => {
                 />
 
                 {renderLayerControls(layer)}
-            </Flex>
+            </Stack>
         </PanelBody>
     )
 }

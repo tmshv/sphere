@@ -1,16 +1,15 @@
-import { Stack, Text } from "@mantine/core"
-import type { FC, ReactNode } from "react"
-import { NO_SELECT } from "@sphere/ui"
+import { NO_SELECT, Stack, Text } from "@sphere/ui"
+import type { ReactNode } from "react"
 
 export type PanelSectionProps = {
     title: string
     children: ReactNode
 }
 
-export const PanelSection: FC<PanelSectionProps> = ({ title, children }) => {
+export function PanelSection({ title, children }: PanelSectionProps) {
     return (
-        <Stack spacing={4}>
-            <Text size={"xs"} weight={600} transform={"uppercase"} color={"dimmed"} style={NO_SELECT}>
+        <Stack gap={"xs"}>
+            <Text weight={"semibold"} uppercase tone={"dimmed"} style={NO_SELECT}>
                 {title}
             </Text>
             {children}

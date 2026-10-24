@@ -5,7 +5,6 @@ import { selectShowLeftSidebar } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import addFromClipboard from "@/store/source/addFromClipboard"
 import { AppLayout, ErrorFallback, Overlay, Sidebar } from "@sphere/ui"
-import { Center } from "@mantine/core"
 import { useHotkeys } from "@mantine/hooks"
 import { useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -19,6 +18,9 @@ import { Spotlight } from "../Spotlight"
 import { WorkingIndicator } from "../WorkingIndicator"
 
 const WORKING_INDICATOR_STYLE: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     position: "absolute",
     top: 0,
     right: 0,
@@ -44,9 +46,9 @@ export default function App() {
                     leftSidebar={
                         !left ? null : (
                             <Sidebar>
-                                <Center style={WORKING_INDICATOR_STYLE}>
+                                <div style={WORKING_INDICATOR_STYLE}>
                                     <WorkingIndicator />
-                                </Center>
+                                </div>
                                 <ErrorBoundary
                                     fallbackRender={props => <ErrorFallback {...props} variant="sidebar" />}
                                     onError={error =>

@@ -1,7 +1,6 @@
 import { selectors } from "@/store/selectors"
 import { useAppSelector } from "@/store/hooks"
-import { Overlay, PropertiesViewer } from "@sphere/ui"
-import { Paper, Title } from "@mantine/core"
+import { Heading, Overlay, PropertiesViewer, Surface } from "@sphere/ui"
 
 // The panel is sized by its content and capped by the overlay region, so it
 // never covers the map with an invisible full-height block.
@@ -27,14 +26,14 @@ export default function PropertiesPopup() {
     return (
         <Overlay
             topRight={
-                <Paper p={"sm"} style={PAPER_STYLE}>
-                    <Title order={3}>Properties</Title>
+                <Surface style={PAPER_STYLE}>
+                    <Heading>Properties</Heading>
                     <div style={BODY_STYLE}>
                         {entries.map(x => (
                             <PropertiesViewer key={x.id} properties={x.items} />
                         ))}
                     </div>
-                </Paper>
+                </Surface>
             }
         />
     )
