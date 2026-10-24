@@ -14,6 +14,14 @@ const OPTIMIZED_DEPS = [
     "@mantine/spotlight",
     "@emotion/react",
     "@tabler/icons",
+    "allotment",
+    "@tanstack/react-table",
+    "react-dnd",
+    "react-dnd-html5-backend",
+    "@visx/group",
+    "@visx/scale",
+    "@visx/shape",
+    "date-fns",
 ]
 
 export default defineConfig({
