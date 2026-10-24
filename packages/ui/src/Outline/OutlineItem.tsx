@@ -40,7 +40,7 @@ export type OutlineItemProps = {
     onClick?: MouseEventHandler<HTMLButtonElement>
 }
 
-export const OutlineItem: React.FC<OutlineItemProps> = ({ label, active, icon, extra, onClick }) => {
+export function OutlineItem({ label, active, icon, extra, onClick }: OutlineItemProps) {
     const { classes: s, cx } = useStyle()
     return (
         <Flex justify={"space-between"} gap={"xs"}>

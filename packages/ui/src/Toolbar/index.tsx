@@ -59,7 +59,7 @@ export type NavbarLinkProps = {
     onClick?(): void
 }
 
-export const NavbarLink: React.FC<NavbarLinkProps> = ({ icon: Icon, label, active, onClick }: NavbarLinkProps) => {
+export function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
     const { classes: s, cx } = useStyles()
 
     return (
@@ -84,7 +84,7 @@ export type ToolbarProps = {
     horizontal?: boolean
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({ horizontal = false }) => {
+export function Toolbar({ horizontal = false }: ToolbarProps) {
     const [active, setActive] = useState(2)
     const { classes: s, cx } = useStyles()
 

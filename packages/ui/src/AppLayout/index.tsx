@@ -34,14 +34,14 @@ export type AppLayoutProps = {
     rightSidebarSize?: SidebarSize
 }
 
-export const AppLayout: React.FC<AppLayoutProps> = ({
+export function AppLayout({
     children,
     footer,
     leftSidebar,
     rightSidebar,
     leftSidebarSize = DEFAULT_SIDEBAR_SIZE,
     rightSidebarSize = DEFAULT_SIDEBAR_SIZE,
-}) => {
+}: AppLayoutProps) {
     const { classes: s } = useStyles()
 
     return (

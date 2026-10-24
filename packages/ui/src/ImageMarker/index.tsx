@@ -34,25 +34,29 @@ export type ImageMarkerProps = {
     onLeaveHover?: () => void
 }
 
-export const ImageMarker: React.FC<ImageMarkerProps> = memo(
-    ({ src, size, layout, style, children, onHover, onLeaveHover }) => {
-        const { classes: s, cx } = useStyle()
-        return (
-            <span
-                className={cx(s.icon, s[layout])}
-                style={{
-                    ...style,
-                    width: size,
-                    height: size,
-                    backgroundImage: `url(${src})`,
-                }}
-                onMouseEnter={onHover}
-                onMouseLeave={onLeaveHover}
-            >
-                {children}
-            </span>
-        )
-    },
-)
-
-ImageMarker.displayName = "ImageMarker"
+export const ImageMarker = memo(function ImageMarker({
+    src,
+    size,
+    layout,
+    style,
+    children,
+    onHover,
+    onLeaveHover,
+}: ImageMarkerProps) {
+    const { classes: s, cx } = useStyle()
+    return (
+        <span
+            className={cx(s.icon, s[layout])}
+            style={{
+                ...style,
+                width: size,
+                height: size,
+                backgroundImage: `url(${src})`,
+            }}
+            onMouseEnter={onHover}
+            onMouseLeave={onLeaveHover}
+        >
+            {children}
+        </span>
+    )
+})

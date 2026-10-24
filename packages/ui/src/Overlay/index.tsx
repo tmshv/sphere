@@ -81,7 +81,7 @@ export type OverlayProps = {
     topRight?: React.ReactNode
 }
 
-export const Overlay: React.FC<OverlayProps> = ({ topLeft, topRight, left, right, top, bottom }) => {
+export function Overlay({ topLeft, topRight, left, right, top, bottom }: OverlayProps) {
     const { classes: s, cx } = useStyles()
 
     return (

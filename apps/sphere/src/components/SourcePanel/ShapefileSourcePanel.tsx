@@ -1,8 +1,6 @@
-import { Stack, Text } from "@mantine/core"
-import type { FC } from "react"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { AttributeList, InfoRow } from "@sphere/ui"
+import { AttributeList, InfoRow, Stack, Text } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
 import { PanelSection } from "./parts/PanelSection"
@@ -14,7 +12,7 @@ const SIDECARS = [
     { extension: ".cpg", key: "has_cpg" },
 ] as const
 
-export const ShapefileSourcePanel: FC = () => {
+export function ShapefileSourcePanel() {
     const info = useAppSelector(selectors.sourceInfo.selectCurrentSourceInfo)
     const fields = useAppSelector(selectors.sourceInfo.selectCurrentSourceFields)
     const meta = useAppSelector(selectors.sourceInfo.selectCurrentSourceMeta)
@@ -25,7 +23,7 @@ export const ShapefileSourcePanel: FC = () => {
     }
 
     return (
-        <Stack spacing={"md"}>
+        <Stack gap={"md"}>
             <FileSection file={info?.file} />
 
             <PanelSection title={"Sidecars & CRS"}>
@@ -38,9 +36,7 @@ export const ShapefileSourcePanel: FC = () => {
                 ))}
                 <InfoRow label={"CRS"} value={details.crs ?? "unknown"} />
                 {details.has_dbf ? null : (
-                    <Text size={"xs"} color={"orange"}>
-                        No .dbf sidecar — this shapefile has no attributes
-                    </Text>
+                    <Text tone={"warning"}>No .dbf sidecar — this shapefile has no attributes</Text>
                 )}
             </PanelSection>
 

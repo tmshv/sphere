@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/store/hooks"
-import { Loader } from "@mantine/core"
+import { Spinner } from "@sphere/ui"
 
 export function WorkingIndicator() {
     const working = useAppSelector(state => {
@@ -18,5 +18,5 @@ export function WorkingIndicator() {
         return null
     }
 
-    return <Loader size={"xs"} />
+    return <Spinner />
 }

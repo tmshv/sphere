@@ -1,5 +1,4 @@
 import { Stack } from "@mantine/core"
-import type { FC } from "react"
 import { BarChart } from "../PropertiesTable/BarChart"
 import type { FieldSummary } from "."
 import { InfoRow } from "../InfoRow"
@@ -12,7 +11,7 @@ export type NumericSummaryProps = {
     summary: Extract<FieldSummary, { kind: "numeric" }>
 }
 
-export const NumericSummary: FC<NumericSummaryProps> = ({ summary }) => {
+export function NumericSummary({ summary }: NumericSummaryProps) {
     return (
         <Stack spacing={2}>
             <BarChart

@@ -5,8 +5,7 @@ import { loadDrawFeatures } from "@/lib/draw-source"
 import logger from "@/logger"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Overlay } from "@sphere/ui"
-import { Button, Flex } from "@mantine/core"
+import { Button, Overlay, Row } from "@sphere/ui"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
@@ -191,14 +190,14 @@ export default function Draw({ mapId }: DrawProps) {
             )}
             <Overlay
                 bottom={
-                    <Flex gap="xs">
-                        <Button size="xs" color="gray" onClick={onCancel}>
+                    <Row gap="xs">
+                        <Button variant="secondary" onClick={onCancel}>
                             Cancel
                         </Button>
-                        <Button size="xs" onClick={onDone} disabled={loading}>
+                        <Button onClick={onDone} disabled={loading}>
                             Done
                         </Button>
-                    </Flex>
+                    </Row>
                 }
             />
         </>

@@ -1,5 +1,4 @@
 import { Stack, Text, createStyles } from "@mantine/core"
-import type { FC } from "react"
 import { FieldRow } from "./FieldRow"
 
 /**
@@ -32,7 +31,7 @@ const useStyle = createStyles(() => ({
     },
 }))
 
-export const AttributeList: FC<AttributeListProps> = ({ fields }) => {
+export function AttributeList({ fields }: AttributeListProps) {
     const { classes } = useStyle()
 
     if (fields.length === 0) {
