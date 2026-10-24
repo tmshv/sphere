@@ -109,6 +109,15 @@ describe("Tree controlled sync", () => {
         expect(screen.getByText("Alpha").closest("[data-selected]")).toBeNull()
     })
 
+    it("does not let a row drag select the labels' text", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = screen.getByText("Beta").closest("[data-selected]")
+        if (!row) {
+            throw new Error("selected row not found")
+        }
+        expect(window.getComputedStyle(row).userSelect).toBe("none")
+    })
+
     it("does not echo a selectedId change back through onSelect", () => {
         const { onSelect, update } = renderControlled({ expandedIds: [] })
         update({ expandedIds: [], selectedId: "b" })

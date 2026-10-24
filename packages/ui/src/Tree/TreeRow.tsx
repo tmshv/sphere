@@ -15,6 +15,10 @@ const useStyles = createStyles(theme => ({
     row: {
         height: "100%",
         cursor: "default",
+        // Rows are dragged with mouse events (touch backend), which the webview would otherwise
+        // read as a text selection across the labels
+        userSelect: "none",
+        WebkitUserSelect: "none",
         color: theme.colorScheme === "dark" ? theme.white : theme.black,
         fontSize: theme.fontSizes.xs,
         "&:hover": {
