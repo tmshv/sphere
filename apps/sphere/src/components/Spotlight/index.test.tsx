@@ -1,6 +1,15 @@
-import { fireEvent, render, screen } from "@/test-utils"
-import { describe, expect, it, vi } from "vitest"
+import { act, fireEvent, render, screen } from "@/test-utils"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { Spotlight } from "."
+
+// Opening or closing the palette starts a Mantine transition whose 10ms
+// pre-state timer survives unmount. Let it fire while the DOM still exists,
+// or it throws "window is not defined" after the environment is torn down.
+const TRANSITION_SETTLE_MS = 20
+
+afterEach(async () => {
+    await act(() => new Promise(resolve => setTimeout(resolve, TRANSITION_SETTLE_MS)))
+})
 
 const { mockDispatch, mockCopyGeojson, selectorSourceId, selectorCount, selectorWrapFc, selectorWktSep } = vi.hoisted(
     () => ({
