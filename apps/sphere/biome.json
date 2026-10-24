@@ -1,0 +1,25 @@
+{
+    "root": false,
+    "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
+    "extends": ["../../biome.json"],
+    "linter": {
+        "rules": {
+            "style": {
+                "noRestrictedImports": {
+                    "level": "error",
+                    "options": {
+                        "patterns": [
+                            {
+                                "group": ["@mantine/*", "@emotion/*"],
+                                "message": "The app must not import Mantine. Use components from @sphere/ui."
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "files": {
+        "includes": ["**/src/**/*.ts", "**/src/**/*.tsx"]
+    }
+}

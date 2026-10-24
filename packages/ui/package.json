@@ -5,16 +5,16 @@
     "type": "module",
     "main": "./src/index.ts",
     "dependencies": {
-        "@sphere/utils": "*"
+        "@sphere/utils": "*",
+        "@mantine/core": "^5.10.5",
+        "@mantine/hooks": "^5.10.5",
+        "@mantine/spotlight": "^5.10.5",
+        "@emotion/react": "^11.14.0"
     },
     "peerDependencies": {
         "allotment": "^1.20.5",
         "react": "^18.3.0",
         "react-dom": "^18.3.0",
-        "@mantine/core": "^5.10.5",
-        "@mantine/hooks": "^5.10.5",
-        "@mantine/spotlight": "^5.10.5",
-        "@emotion/react": "^11.14.0",
         "@tabler/icons": "^1.119.0",
         "@visx/group": "^3.12.0",
         "@visx/scale": "^3.12.0",

@@ -1,27 +1,13 @@
-import { createStyles } from "@mantine/core"
-
-const useStyle = createStyles(theme => ({
-    badge: {
-        backgroundColor: theme.white,
-        padding: "0 5px",
-        borderRadius: 50,
-        color: theme.black,
-        fontSize: 12,
-        minWidth: 20,
-        textAlign: "center",
-        transform: "translate(50 %, -50 %)",
-        boxShadow: "0px 0px 3px rgba(0, 0, 20, 0.1)",
-    },
-}))
+import type { ReactNode } from "react"
+import s from "./Badge.module.css"
 
 export type BadgeProps = {
     top?: number
     right?: number
-    children?: React.ReactNode
+    children?: ReactNode
 }
 
-export const Badge: React.FC<BadgeProps> = ({ top, right, children }) => {
-    const { classes: s } = useStyle()
+export function Badge({ top, right, children }: BadgeProps) {
     return (
         <div
             className={s.badge}
