@@ -2,9 +2,10 @@ import { useCursor } from "@/hooks/useCursor"
 import { copySelectionAsGeojson, copySelectionAsWkt } from "@/lib/copy-selection"
 import { useAppSelector } from "@/store/hooks"
 import { selectors } from "@/store/selectors"
-import { ContextMenu } from "@sphere/ui"
-import { CopyButton, Menu, Text } from "@mantine/core"
+import { fireAndLog } from "@/lib/fire-and-log"
+import { ContextMenu, ContextMenuItem, ContextMenuLabel } from "@sphere/ui"
 import { IconCopy, IconSearch } from "@tabler/icons"
+import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { useCallback, useEffect, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre"
@@ -16,7 +17,10 @@ export type MapContextMenuProps = {
     copyLocationValue: LocationToString
 }
 
-export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocationValue }) => {
+const ICON_SIZE = 14
+const SEARCH_SHORTCUT = "⌘K"
+
+export function MapContextMenu({ id, copyLocationValue }: MapContextMenuProps) {
     const { [id]: ref } = useMap()
     const map = ref?.getMap() ?? null
     const coord = useCursor(ref)
@@ -50,49 +54,39 @@ export const MapContextMenu: React.FC<MapContextMenuProps> = ({ id, copyLocation
         setOpened(false)
     }, [])
 
-    const handleCopyGeojson = useCallback(async () => {
+    const onCopyGeojson = fireAndLog(async () => {
         if (selectionSourceId === undefined) return
         await copySelectionAsGeojson(selectionSourceId, copyWrapFc)
         setOpened(false)
-    }, [selectionSourceId, copyWrapFc])
+    }, "Failed to copy selection as GeoJSON")
 
-    const handleCopyWkt = useCallback(async () => {
+    const onCopyWkt = fireAndLog(async () => {
         if (selectionSourceId === undefined) return
         await copySelectionAsWkt(selectionSourceId, copyWktSeparator)
         setOpened(false)
-    }, [selectionSourceId, copyWktSeparator])
+    }, "Failed to copy selection as WKT")
+
+    const onCopyLocation = fireAndLog(() => writeText(copyLocationValue(coord)), "Failed to copy location")
 
     return (
         <ContextMenu opened={opened} position={position} onClose={handleClose}>
-            <Menu.Label>Map</Menu.Label>
+            <ContextMenuLabel>Map</ContextMenuLabel>
             {hasSelection && (
                 <>
-                    <Menu.Item icon={<IconCopy size={14} />} onClick={handleCopyGeojson}>
+                    <ContextMenuItem icon={<IconCopy size={ICON_SIZE} />} onClick={onCopyGeojson}>
                         Copy selection as GeoJSON
-                    </Menu.Item>
-                    <Menu.Item icon={<IconCopy size={14} />} onClick={handleCopyWkt}>
+                    </ContextMenuItem>
+                    <ContextMenuItem icon={<IconCopy size={ICON_SIZE} />} onClick={onCopyWkt}>
                         Copy selection as WKT
-                    </Menu.Item>
+                    </ContextMenuItem>
                 </>
             )}
-            <CopyButton value={copyLocationValue(coord)}>
-                {({ copy }) => (
-                    <Menu.Item icon={<IconCopy size={14} />} onClick={copy}>
-                        Copy location
-                    </Menu.Item>
-                )}
-            </CopyButton>
-            <Menu.Item
-                disabled
-                icon={<IconSearch size={14} />}
-                rightSection={
-                    <Text size="xs" color="dimmed">
-                        ⌘K
-                    </Text>
-                }
-            >
+            <ContextMenuItem icon={<IconCopy size={ICON_SIZE} />} onClick={onCopyLocation}>
+                Copy location
+            </ContextMenuItem>
+            <ContextMenuItem disabled icon={<IconSearch size={ICON_SIZE} />} shortcut={SEARCH_SHORTCUT}>
                 Search
-            </Menu.Item>
+            </ContextMenuItem>
         </ContextMenu>
     )
 }

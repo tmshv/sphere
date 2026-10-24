@@ -9,9 +9,7 @@ import { selectErrorMessage } from "@/store/error"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
 import { selectIsShowTerrain } from "@/store/terrain"
-import { Statusbar } from "@sphere/ui"
-import { ActionIcon, Badge, MantineProvider, type MantineTheme, createStyles } from "@mantine/core"
-import type { ActionIconProps } from "@mantine/core"
+import { Statusbar, StatusbarBadge, StatusbarButton } from "@sphere/ui"
 import {
     IconHandStop,
     IconInfoCircle,
@@ -25,51 +23,13 @@ import {
     IconWorld,
     IconWorldOff,
 } from "@tabler/icons"
-import { useCallback, useMemo } from "react"
+import { type CSSProperties, useCallback } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
-const useStyle = createStyles(theme => ({
-    s: {
-        flex: 1,
-    },
-    icon: {
-        "&:hover": {
-            backgroundColor: theme.colors.gray[8],
-        },
-    },
-    active: {
-        backgroundColor: theme.colors.gray[8],
-    },
-
-    widget: {
-        fontFamily: "monospace",
-        userSelect: "none",
-        cursor: "default",
-
-        justifyContent: "start",
-
-        // For pixel perfect vertical alignment.
-        // Works together with Statusbar height 27 px
-        position: "relative",
-        top: 1,
-
-        backgroundColor: theme.colors.dark,
-        color: theme.white,
-    },
-
-    error: {
-        backgroundColor: theme.colors.red[8],
-        color: theme.white,
-    },
-
-    fix0: {
-        width: 90,
-    },
-
-    fix: {
-        width: 101,
-    },
-}))
+const SPACER_STYLE: CSSProperties = { flex: 1 }
+const ICON_SIZE_PX = 16
+const SELECTED_PAD_LENGTH = 5
+const NBSP = "\u00a0"
 
 function round(value: number, n: number): number {
     return Math.round(value * n) / n
@@ -85,19 +45,12 @@ function format(value: number, floatingLength: number): string {
     return `${a}.${c}`
 }
 
-const actionIconDefaultProps: Partial<ActionIconProps> = {
-    size: "xs",
-    radius: "sm",
-    // className: s.icon,
-}
-
 export type MapStatusbarProps = {
     id: string
 }
 
-export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
+export function MapStatusbar({ id }: MapStatusbarProps) {
     const dispatch = useAppDispatch()
-    const { classes: s, cx } = useStyle()
     const { [id]: ref } = useMap()
     const [lng, lat] = useCursor(ref)
     const zoom = useZoom(ref)
@@ -146,111 +99,81 @@ export const MapStatusbar: React.FC<MapStatusbarProps> = ({ id }) => {
         }
     }, [dispatch, isGlobe])
 
-    const mantineTheme = useMemo(
-        () => ({
-            components: {
-                ActionIcon: {
-                    defaultProps: (theme: MantineTheme) => ({
-                        ...actionIconDefaultProps,
-                        className: s.icon,
-                        sx: {
-                            "&[data-disabled]": {
-                                backgroundColor: "#00000000",
-                                color: theme.colors.gray[8],
-                                border: "none",
-                            },
-                        },
-                    }),
-                },
-            },
-        }),
-        [s.icon],
-    )
-
     return (
         <Statusbar>
-            <MantineProvider theme={mantineTheme}>
-                <ActionIcon className={cx(s.icon, { [s.active]: sidebar })} onClick={toggleSidebar}>
-                    <IconLayoutSidebar size={16} />
-                </ActionIcon>
+            <StatusbarButton
+                icon={<IconLayoutSidebar size={ICON_SIZE_PX} />}
+                label="Toggle sidebar"
+                active={sidebar}
+                activeLook="fill"
+                onClick={toggleSidebar}
+            />
 
-                <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
-                    sources={sources}
-                </Badge>
+            <StatusbarBadge>sources={sources}</StatusbarBadge>
+            <StatusbarBadge>selected={`${selectedCount}`.padEnd(SELECTED_PAD_LENGTH, NBSP)}</StatusbarBadge>
+            <StatusbarBadge width="short">pitch={format(round(pitch, 1000), 3)}</StatusbarBadge>
+            <StatusbarBadge width="short">zoom={format(round(zoom, 1000), 3)}</StatusbarBadge>
+            <StatusbarBadge width="long" title="Longitude">
+                lng={format(round(lng, 1000000), 5)}
+            </StatusbarBadge>
+            <StatusbarBadge width="long" title="Latitude">
+                lat={format(round(lat, 1000000), 5)}
+            </StatusbarBadge>
 
-                <Badge className={s.widget} radius={"sm"} size="sm" variant="light">
-                    selected={`${selectedCount}`.padEnd(5, "\u00a0")}
-                </Badge>
+            {!errorMessage ? null : (
+                <StatusbarBadge tone="error" title="Error">
+                    {errorMessage}
+                </StatusbarBadge>
+            )}
 
-                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
-                    pitch={format(round(pitch, 1000), 3)}
-                </Badge>
-                <Badge className={cx(s.widget, s.fix0)} radius={"sm"} size="sm" variant="light">
-                    zoom={format(round(zoom, 1000), 3)}
-                </Badge>
+            <div style={SPACER_STYLE} />
 
-                <Badge className={cx(s.widget, s.fix)} title={"Longitude"} radius={"sm"} size="sm" variant="light">
-                    lng={format(round(lng, 1000000), 5)}
-                </Badge>
-                <Badge className={cx(s.widget, s.fix)} title={"Latitude"} radius={"sm"} size="sm" variant="light">
-                    lat={format(round(lat, 1000000), 5)}
-                </Badge>
+            <StatusbarButton
+                icon={<IconHandStop size={ICON_SIZE_PX} />}
+                label="Navigation"
+                active={mapTool === "navigation"}
+                onClick={() => dispatch(actions.app.setMapTool("navigation"))}
+            />
+            <StatusbarButton
+                icon={<IconPointer size={ICON_SIZE_PX} />}
+                label="Select"
+                active={mapTool === "select"}
+                onClick={() => dispatch(actions.app.setMapTool("select"))}
+            />
+            <StatusbarButton
+                icon={<IconInfoCircle size={ICON_SIZE_PX} />}
+                label="Info"
+                active={mapTool === "info"}
+                onClick={() => dispatch(actions.app.setMapTool("info"))}
+            />
 
-                {!errorMessage ? null : (
-                    <Badge className={cx(s.widget, s.error)} title={"Error"} radius={"sm"} size="sm" variant="filled">
-                        {errorMessage}
-                    </Badge>
-                )}
+            <StatusbarButton
+                icon={<IconLiveView size={ICON_SIZE_PX} />}
+                label="Print viewport"
+                onClick={printViewport}
+            />
+            <StatusbarButton icon={<IconNorthStar size={ICON_SIZE_PX} />} label="Reset north" onClick={resetNorth} />
+            <StatusbarButton
+                icon={<IconSatellite size={ICON_SIZE_PX} />}
+                label="Satellite"
+                disabled
+                onClick={setSatellite}
+            />
+            <StatusbarButton
+                icon={terrain ? <IconMountain size={ICON_SIZE_PX} /> : <IconMountainOff size={ICON_SIZE_PX} />}
+                label="Terrain"
+                disabled
+                onClick={toggleTerrain}
+            />
+            <StatusbarButton
+                icon={isGlobe ? <IconWorld size={ICON_SIZE_PX} /> : <IconWorldOff size={ICON_SIZE_PX} />}
+                label="Globe"
+                active={isGlobe}
+                disabled={!changeProjection}
+                onClick={toggleProjection}
+            />
 
-                <div className={s.s} />
-
-                <ActionIcon
-                    color={mapTool === "navigation" ? "yellow" : undefined}
-                    onClick={() => dispatch(actions.app.setMapTool("navigation"))}
-                    title="Navigation"
-                >
-                    <IconHandStop size={16} />
-                </ActionIcon>
-                <ActionIcon
-                    color={mapTool === "select" ? "yellow" : undefined}
-                    onClick={() => dispatch(actions.app.setMapTool("select"))}
-                    title="Select"
-                >
-                    <IconPointer size={16} />
-                </ActionIcon>
-                <ActionIcon
-                    color={mapTool === "info" ? "yellow" : undefined}
-                    onClick={() => dispatch(actions.app.setMapTool("info"))}
-                    title="Info"
-                >
-                    <IconInfoCircle size={16} />
-                </ActionIcon>
-
-                <ActionIcon onClick={printViewport}>
-                    <IconLiveView size={16} />
-                </ActionIcon>
-
-                <ActionIcon onClick={resetNorth}>
-                    <IconNorthStar size={16} />
-                </ActionIcon>
-                <ActionIcon disabled onClick={setSatellite}>
-                    <IconSatellite size={16} />
-                </ActionIcon>
-                <ActionIcon disabled onClick={toggleTerrain}>
-                    {terrain ? <IconMountain size={16} /> : <IconMountainOff size={16} />}
-                </ActionIcon>
-                <ActionIcon
-                    color={isGlobe ? "yellow" : undefined}
-                    disabled={!changeProjection}
-                    onClick={toggleProjection}
-                >
-                    {isGlobe ? <IconWorld size={16} /> : <IconWorldOff size={16} />}
-                </ActionIcon>
-
-                <Badge className={s.widget} radius={"sm"} size={"sm"} variant="light">
-                    Sphere {version}
-                </Badge>
-            </MantineProvider>
+            <StatusbarBadge>Sphere {version}</StatusbarBadge>
         </Statusbar>
     )
 }

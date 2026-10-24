@@ -1,7 +1,12 @@
-import { Flex, type MantineColor, createStyles } from "@mantine/core"
+import { Flex, createStyles } from "@mantine/core"
+import type { ReactNode } from "react"
 
-export { Select } from "./Select"
-export type { SelectOption, SelectProps } from "./Select"
+export { StatusbarBadge } from "./StatusbarBadge"
+export type { StatusbarBadgeProps, StatusbarBadgeTone, StatusbarBadgeWidth } from "./StatusbarBadge"
+export { StatusbarButton } from "./StatusbarButton"
+export type { StatusbarButtonLook, StatusbarButtonProps } from "./StatusbarButton"
+export { StatusbarSelect } from "./StatusbarSelect"
+export type { StatusbarSelectProps } from "./StatusbarSelect"
 
 const useStyle = createStyles(theme => ({
     container: {
@@ -13,22 +18,13 @@ const useStyle = createStyles(theme => ({
 }))
 
 export type StatusbarProps = {
-    children: React.ReactNode
-    color?: MantineColor
+    children: ReactNode
 }
 
-export const Statusbar: React.FC<StatusbarProps> = ({ children, color }) => {
+export function Statusbar({ children }: StatusbarProps) {
     const { classes: s } = useStyle()
     return (
-        <Flex
-            gap={"sm"}
-            p={"xs"}
-            pl={"sm"}
-            pr={"sm"}
-            align={"center"}
-            className={s.container}
-            style={{ backgroundColor: color }}
-        >
+        <Flex gap={"sm"} p={"xs"} pl={"sm"} pr={"sm"} align={"center"} className={s.container}>
             {children}
         </Flex>
     )

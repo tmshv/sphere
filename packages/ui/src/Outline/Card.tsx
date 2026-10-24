@@ -17,7 +17,7 @@ export type CardProps = {
     onMove: (dragIndex: number, hoverIndex: number) => void
 }
 
-export const Card: React.FC<CardProps> = ({ id, children, index, onMove }) => {
+export function Card({ id, children, index, onMove }: CardProps) {
     const ref = useRef<HTMLDivElement>(null)
     const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
         accept: ItemTypes.CARD,

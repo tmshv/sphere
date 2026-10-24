@@ -1,6 +1,11 @@
-import { ActionIcon, Flex, type MantineStyleSystemProps, Space, Tooltip } from "@mantine/core"
-import type { FloatingPosition } from "@mantine/core/lib/Floating"
+import { ActionIcon, Flex, Space } from "@mantine/core"
 import type { TablerIconProps } from "@tabler/icons"
+import type { CSSProperties } from "react"
+import { GAP_PX } from "../Layout"
+
+const SPACER_STYLE: CSSProperties = { flex: 1 }
+const PADDED_STYLE: CSSProperties = { paddingLeft: GAP_PX.sm, paddingRight: GAP_PX.sm }
+const ICON_SIZE_PX = 16
 
 export type ActionBarItem = {
     name: string
@@ -12,32 +17,27 @@ export type ActionBarItem = {
 
 export type ActionBarOnClick = (name: string) => void
 
-export type ActionBarProps = MantineStyleSystemProps & {
+export type ActionBarProps = {
     items: Array<ActionBarItem | null>
     onClick: ActionBarOnClick
-    tooltipPosition: FloatingPosition
+    /** Insets the bar horizontally by the standard gap. */
+    padded?: boolean
 }
 
-export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPosition, ...props }) => (
-    <Flex direction={"row"} gap={"xs"} {...props}>
-        {items.map((item, i) => {
-            if (!item) {
-                return <Space key={`separator-before-${items[i + 1]?.name ?? "end"}`} style={{ flex: 1 }} />
-            }
-            const { name, label, icon: Icon, color, disabled = false } = item
+export function ActionBar({ items, onClick, padded = false }: ActionBarProps) {
+    return (
+        <Flex direction={"row"} gap={"xs"} style={padded ? PADDED_STYLE : undefined}>
+            {items.map((item, i) => {
+                if (!item) {
+                    return <Space key={`separator-before-${items[i + 1]?.name ?? "end"}`} style={SPACER_STYLE} />
+                }
+                const { name, label, icon: Icon, color, disabled = false } = item
 
-            return (
-                <Tooltip
-                    key={name}
-                    disabled
-                    label={label}
-                    position={tooltipPosition}
-                    openDelay={1000}
-                    closeDelay={250}
-                    transitionDuration={0}
-                >
+                return (
                     <ActionIcon
+                        key={name}
                         size={"md"}
+                        aria-label={label}
                         disabled={disabled}
                         sx={{
                             "&[data-disabled]": {
@@ -52,10 +52,10 @@ export const ActionBar: React.FC<ActionBarProps> = ({ items, onClick, tooltipPos
                             onClick(name)
                         }}
                     >
-                        <Icon size={16} color={color} />
+                        <Icon size={ICON_SIZE_PX} color={color} />
                     </ActionIcon>
-                </Tooltip>
-            )
-        })}
-    </Flex>
-)
+                )
+            })}
+        </Flex>
+    )
+}

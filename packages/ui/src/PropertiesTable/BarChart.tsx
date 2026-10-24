@@ -14,7 +14,7 @@ export type BarsProps = {
     color: string
 }
 
-export const BarChart: React.FC<BarsProps> = ({ data, min, max, width, height, color }) => {
+export function BarChart({ data, min, max, width, height, color }: BarsProps) {
     const radius = 3
     // bounds
     const xMax = width

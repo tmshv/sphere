@@ -13,7 +13,7 @@ export type SidebarProps = {
     children: React.ReactNode
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
+export function Sidebar({ children }: SidebarProps) {
     const { classes: s } = useStyle()
 
     return (

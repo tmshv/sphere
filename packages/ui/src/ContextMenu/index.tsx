@@ -1,4 +1,6 @@
 import { Menu } from "@mantine/core"
+import type { ReactNode } from "react"
+import { Text } from "../Text"
 
 export type ContextMenuProps = {
     opened: boolean
@@ -7,7 +9,7 @@ export type ContextMenuProps = {
     children: React.ReactNode
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({ opened, position, onClose, children }) => {
+export function ContextMenu({ opened, position, onClose, children }: ContextMenuProps) {
     return (
         <Menu
             shadow="md"
@@ -31,4 +33,33 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ opened, position, onCl
             <Menu.Dropdown>{children}</Menu.Dropdown>
         </Menu>
     )
+}
+
+export type ContextMenuItemProps = {
+    icon?: ReactNode
+    shortcut?: string
+    disabled?: boolean
+    onClick?: () => void
+    children: ReactNode
+}
+
+export function ContextMenuItem({ icon, shortcut, disabled = false, onClick, children }: ContextMenuItemProps) {
+    return (
+        <Menu.Item
+            icon={icon}
+            disabled={disabled}
+            onClick={() => onClick?.()}
+            rightSection={shortcut === undefined ? undefined : <Text tone={"dimmed"}>{shortcut}</Text>}
+        >
+            {children}
+        </Menu.Item>
+    )
+}
+
+export type ContextMenuLabelProps = {
+    children: ReactNode
+}
+
+export function ContextMenuLabel({ children }: ContextMenuLabelProps) {
+    return <Menu.Label>{children}</Menu.Label>
 }

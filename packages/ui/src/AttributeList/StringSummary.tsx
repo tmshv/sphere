@@ -1,5 +1,4 @@
 import { Stack, Text } from "@mantine/core"
-import type { FC } from "react"
 import type { FieldSummary } from "."
 import { InfoRow } from "../InfoRow"
 
@@ -7,7 +6,7 @@ export type StringSummaryProps = {
     summary: Extract<FieldSummary, { kind: "string" }>
 }
 
-export const StringSummary: FC<StringSummaryProps> = ({ summary }) => {
+export function StringSummary({ summary }: StringSummaryProps) {
     const remaining = summary.unique - summary.topValues.length
     return (
         <Stack spacing={2}>

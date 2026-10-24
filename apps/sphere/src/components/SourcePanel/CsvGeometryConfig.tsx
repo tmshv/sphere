@@ -1,5 +1,4 @@
-import { Group, SegmentedControl, Select, Stack, Text } from "@mantine/core"
-import type { FC } from "react"
+import { Row, SegmentedControl, Select, Stack, Text } from "@sphere/ui"
 import { useState } from "react"
 import {
     buildColumnOptions,
@@ -27,7 +26,7 @@ function isCsvMode(value: string): value is CsvMode {
     return value === "xy" || value === "wkt"
 }
 
-export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, details }) => {
+export function CsvGeometryConfig({ sourceId, details }: CsvGeometryConfigProps) {
     const dispatch = useAppDispatch()
     const applied: StagedCsvGeometry = {
         mode: details.mode,
@@ -55,10 +54,10 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
     }
 
     return (
-        <Stack spacing={"xs"}>
+        <Stack gap={"xs"}>
             <SegmentedControl
-                size={"xs"}
-                data={MODE_OPTIONS}
+                label={"Geometry mode"}
+                options={MODE_OPTIONS}
                 value={staged.mode}
                 onChange={value => {
                     if (isCsvMode(value)) {
@@ -68,37 +67,30 @@ export const CsvGeometryConfig: FC<CsvGeometryConfigProps> = ({ sourceId, detail
             />
             {staged.mode === "wkt" ? (
                 <Select
-                    size={"xs"}
                     label={"WKT column"}
-                    data={options}
+                    options={options}
                     value={staged.wktColumn ?? null}
                     onChange={value => stage({ ...staged, wktColumn: value ?? undefined })}
                 />
             ) : (
                 // X and Y are one coordinate, so they read as one row of two
                 // equal halves rather than as two unrelated settings.
-                <Group grow spacing={"xs"} align={"flex-start"} noWrap>
+                <Row grow gap={"xs"} align={"start"}>
                     <Select
-                        size={"xs"}
                         label={"X column"}
-                        data={options}
+                        options={options}
                         value={staged.xColumn ?? null}
                         onChange={value => stage({ ...staged, xColumn: value ?? undefined })}
                     />
                     <Select
-                        size={"xs"}
                         label={"Y column"}
-                        data={options}
+                        options={options}
                         value={staged.yColumn ?? null}
                         onChange={value => stage({ ...staged, yColumn: value ?? undefined })}
                     />
-                </Group>
+                </Row>
             )}
-            {missing.length === 0 ? null : (
-                <Text size={"xs"} color={"orange"}>
-                    Not in this file: {missing.join(", ")}
-                </Text>
-            )}
+            {missing.length === 0 ? null : <Text tone={"warning"}>Not in this file: {missing.join(", ")}</Text>}
         </Stack>
     )
 }

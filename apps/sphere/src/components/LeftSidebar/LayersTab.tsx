@@ -8,7 +8,7 @@ import { useCallback } from "react"
 import { LayerPanel } from "../LayerPanel"
 import { LayersOutline } from "../LayersOutline"
 
-export const LayersTab: React.FC = () => {
+export function LayersTab() {
     const dispatch = useAppDispatch()
     const sections = useAppSelector(selectSidebarSections("layers"))
 
@@ -41,9 +41,7 @@ export const LayersTab: React.FC = () => {
     return (
         <>
             <ActionBar
-                pl={"sm"}
-                pr={"sm"}
-                tooltipPosition={"top"}
+                padded
                 onClick={onClick}
                 items={[
                     null,

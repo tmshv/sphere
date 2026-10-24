@@ -1,9 +1,10 @@
 import "./style.css"
 
+import styles from "./properties.module.css"
+
 import { type ColumnStats, type PageResult, SourceReader } from "@/lib/source-reader"
 import { selectionGetIds, selectionQueryPage } from "@/lib/selection-ipc"
 import type { SourceMetadata } from "@/types"
-import { Box, createStyles } from "@mantine/core"
 import { type ColumnDef, type SortingState, createColumnHelper } from "@tanstack/react-table"
 import { type UnlistenFn, emit, listen } from "@tauri-apps/api/event"
 import React, { useEffect, useState, useCallback } from "react"
@@ -15,15 +16,6 @@ type PropertiesSetPayload = {
     schema: SourceMetadata
     filterExpression: unknown[] | null
 }
-
-const useStyle = createStyles(() => ({
-    container: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        overflow: "hidden",
-    },
-}))
 
 const columnHelper = createColumnHelper<PropertyItem>()
 
@@ -83,7 +75,7 @@ const PAGE_SIZE_OPTIONS = [50, 100, 500, 1000].map(n => ({
 }))
 const DEFAULT_PAGE_SIZE = 50
 
-const View: React.FC = () => {
+function View() {
     const [sourceId, setSourceId] = useState<string | null>(null)
     const [schema, setSchema] = useState<SourceMetadata | null>(null)
     const [filterExpression, setFilterExpression] = useState<unknown[] | null>(null)
@@ -237,17 +229,15 @@ const View: React.FC = () => {
     )
 }
 
-const App: React.FC = () => {
-    const { classes: s } = useStyle()
-
+function App() {
     useEffect(() => {
         emit("properties-init", {})
     }, [])
 
     return (
-        <Box className={s.container}>
+        <div className={styles.container}>
             <View />
-        </Box>
+        </div>
     )
 }
 

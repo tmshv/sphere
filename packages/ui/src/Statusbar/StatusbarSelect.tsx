@@ -1,16 +1,13 @@
-export type SelectOption = {
-    value: string
-    label: string
-}
+import type { SelectOption } from "../Select"
 
-export type SelectProps = {
+export type StatusbarSelectProps = {
     value: string
     options: SelectOption[]
     className?: string
     onChange: (value: string) => void
 }
 
-export function Select({ value, options, className, onChange }: SelectProps) {
+export function StatusbarSelect({ value, options, className, onChange }: StatusbarSelectProps) {
     return (
         <select
             value={value}

@@ -1,7 +1,5 @@
-import { Stack } from "@mantine/core"
-import type { FC } from "react"
 import type { SourceMetadata } from "@/types"
-import { InfoRow } from "@sphere/ui"
+import { InfoRow, Stack } from "@sphere/ui"
 
 export type GeometryCountsProps = {
     meta: SourceMetadata
@@ -11,9 +9,9 @@ function bucketValue(total: number, multi: number) {
     return multi > 0 ? `${total} (${multi} multi)` : `${total}`
 }
 
-export const GeometryCounts: FC<GeometryCountsProps> = ({ meta }) => {
+export function GeometryCounts({ meta }: GeometryCountsProps) {
     return (
-        <Stack spacing={2}>
+        <Stack gap={"xxs"}>
             <InfoRow label={"Features"} value={meta.featuresCount} />
             {meta.pointsCount > 0 ? (
                 <InfoRow label={"Points"} value={bucketValue(meta.pointsCount, meta.multiPointsCount)} />
