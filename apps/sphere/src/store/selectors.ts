@@ -4,7 +4,7 @@ import type { RootState } from "."
 import { appSlice as app } from "./app"
 import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
-import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"
+import { selectPreviewActive, selectPreviewLayerIds, selectPreviewLayerSpecs } from "./preview"
 import { selectionSlice as selection } from "./selection"
 import { settingsSlice as settings } from "./settings"
 import { selectCurrentSourceItem, sourceSlice as source } from "./source"
@@ -86,7 +86,7 @@ export const selectors = {
         show: showTileBoundaries,
     },
     preview: {
-        sourceId: selectPreviewSourceId,
+        active: selectPreviewActive,
         layerSpecs: selectPreviewLayerSpecs,
         layerIds: selectPreviewLayerIds,
     },
