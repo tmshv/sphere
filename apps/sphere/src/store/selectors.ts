@@ -16,6 +16,7 @@ import {
     selectSelectedSourceLayer,
     selectSelectedSourceRef,
 } from "./source/tree-selectors"
+import { selectSourceOutline, selectSourceTreeShape } from "./source/outline-selectors"
 import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./sourceInfo/selectors"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
@@ -72,6 +73,8 @@ export const selectors = {
         selectSelectedSourceId,
         selectSelectedSourceLayer,
         selectSelectedInteractive,
+        selectSourceOutline,
+        selectSourceTreeShape,
     },
     layer: {
         ...layer.selectors,
