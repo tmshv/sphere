@@ -260,7 +260,7 @@ describe("auto-select-on-delete listener: source branch", () => {
     })
 
     test("uses rootIds order, not allIds order, to pick the next source", async () => {
-        const tree = makeSourceState([makeGeojsonSource("s3"), makeGeojsonSource("s1"), makeGeojsonSource("s2")], {
+        const tree = makeSourceState([makeGeojsonSource("s2"), makeGeojsonSource("s1"), makeGeojsonSource("s3")], {
             selectedIds: ["s1"],
         })
         const { store, dispatchedActions } = makeStore({
@@ -271,7 +271,7 @@ describe("auto-select-on-delete listener: source branch", () => {
         await vi.runAllTimersAsync()
 
         const selectAction = dispatchedActions.find(a => a.type === "source/select")
-        expect(selectAction).toMatchObject({ payload: "s2" })
+        expect(selectAction).toMatchObject({ payload: "s3" })
     })
 
     test("dispatches select with undefined when only one source is deleted", async () => {
