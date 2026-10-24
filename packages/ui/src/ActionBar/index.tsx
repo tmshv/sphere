@@ -39,6 +39,7 @@ export function ActionBar({ items, onClick, tooltipPosition, ...props }: ActionB
                     >
                         <ActionIcon
                             size={"md"}
+                            aria-label={label}
                             disabled={disabled}
                             sx={{
                                 "&[data-disabled]": {

@@ -50,4 +50,10 @@ describe("ActionBar", () => {
         const button = screen.getByRole("button")
         expect(button).toBeDisabled()
     })
+
+    it("names each button by its item label", () => {
+        render(<ActionBar items={[makeItem("a"), makeItem("b")]} onClick={vi.fn()} tooltipPosition="bottom" />)
+        expect(screen.getByRole("button", { name: "Label for a" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Label for b" })).toBeInTheDocument()
+    })
 })

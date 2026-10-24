@@ -1,11 +1,13 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem } from "@sphere/ui"
-import { ActionIcon } from "@mantine/core"
+import { IconButton, Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconBulb, IconBulbOff } from "@tabler/icons"
 import { useCallback } from "react"
 import { Icon } from "./Icon"
+
+const HIDE_LAYER_LABEL = "Hide layer"
+const SHOW_LAYER_LABEL = "Show layer"
 
 const selectLayers = createSelector(
     [selectors.layer.selectSelectedId, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
@@ -34,7 +36,7 @@ const selectLayers = createSelector(
     },
 )
 
-export const LayersOutline: React.FC = () => {
+export function LayersOutline() {
     const dispatch = useAppDispatch()
     const items = useAppSelector(selectLayers)
 
@@ -70,10 +72,9 @@ export const LayersOutline: React.FC = () => {
                     }}
                     icon={<Icon type={type} color={color} />}
                     extra={
-                        <ActionIcon
-                            size={"md"}
-                            radius={"sm"}
-                            h={30}
+                        <IconButton
+                            icon={visible ? <IconBulb size={16} color={bulbIconColor} /> : <IconBulbOff size={16} />}
+                            label={visible ? HIDE_LAYER_LABEL : SHOW_LAYER_LABEL}
                             onClick={() => {
                                 dispatch(
                                     actions.layer.setVisible({
@@ -82,9 +83,7 @@ export const LayersOutline: React.FC = () => {
                                     }),
                                 )
                             }}
-                        >
-                            {visible ? <IconBulb size={16} color={bulbIconColor} /> : <IconBulbOff size={16} />}
-                        </ActionIcon>
+                        />
                     }
                 />
             )

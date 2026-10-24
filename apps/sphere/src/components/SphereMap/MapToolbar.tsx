@@ -2,7 +2,7 @@ import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { DEFAULT_MAP_TOOL, type MapTool } from "@/lib/map-tools"
-import { ActionIcon, Group } from "@mantine/core"
+import { IconButton, Row } from "@sphere/ui"
 import { IconHandStop, IconInfoCircle, IconPointer } from "@tabler/icons"
 import { useEffect } from "react"
 
@@ -37,8 +37,8 @@ export default function MapToolbar() {
     }
 
     return (
-        <Group
-            spacing={4}
+        <Row
+            gap="xs"
             style={{
                 position: "absolute",
                 bottom: 12,
@@ -51,16 +51,15 @@ export default function MapToolbar() {
             }}
         >
             {TOOLS.map(({ tool, title, Icon }) => (
-                <ActionIcon
+                <IconButton
                     key={tool}
-                    size="md"
-                    variant={mapTool === tool ? "filled" : "subtle"}
-                    title={title}
+                    appearance="solid"
+                    active={mapTool === tool}
+                    label={title}
+                    icon={<Icon size={16} />}
                     onClick={() => dispatch(actions.app.setMapTool(tool))}
-                >
-                    <Icon size={16} />
-                </ActionIcon>
+                />
             ))}
-        </Group>
+        </Row>
     )
 }
