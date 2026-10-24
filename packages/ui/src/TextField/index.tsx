@@ -16,6 +16,7 @@ export type TextFieldProps = {
     /** Turns off autocorrect, autocapitalize and spellcheck, for expressions and identifiers. */
     code?: boolean
     rightSection?: ReactNode
+    onBlur?: () => void
 }
 
 export function TextField({
@@ -28,6 +29,7 @@ export function TextField({
     name,
     code = false,
     rightSection,
+    onBlur,
 }: TextFieldProps) {
     return (
         <TextInput
@@ -44,6 +46,7 @@ export function TextField({
             autoCapitalize={code ? NO_AUTOCAPITALIZE : undefined}
             spellCheck={code ? false : undefined}
             rightSection={rightSection}
+            onBlur={() => onBlur?.()}
         />
     )
 }

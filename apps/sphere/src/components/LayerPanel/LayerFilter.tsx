@@ -58,25 +58,24 @@ export function LayerFilter({ layerId, filterExpression, filterError }: LayerFil
     }
 
     return (
-        <div onBlur={handleFilterBlur}>
-            <TextField
-                code
-                label="Filter"
-                placeholder='["==", ["get", "field"], "value"]'
-                value={filterText}
-                error={filterLocalError ?? filterError ?? undefined}
-                rightSection={
-                    filterText ? (
-                        <IconButton
-                            size="sm"
-                            icon={<IconX size={CLEAR_ICON_SIZE} />}
-                            label="Clear filter"
-                            onClick={clearFilter}
-                        />
-                    ) : null
-                }
-                onChange={handleFilterChange}
-            />
-        </div>
+        <TextField
+            code
+            label="Filter"
+            placeholder='["==", ["get", "field"], "value"]'
+            value={filterText}
+            error={filterLocalError ?? filterError ?? undefined}
+            rightSection={
+                filterText ? (
+                    <IconButton
+                        size="sm"
+                        icon={<IconX size={CLEAR_ICON_SIZE} />}
+                        label="Clear filter"
+                        onClick={clearFilter}
+                    />
+                ) : null
+            }
+            onChange={handleFilterChange}
+            onBlur={handleFilterBlur}
+        />
     )
 }

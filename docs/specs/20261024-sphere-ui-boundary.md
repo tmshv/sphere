@@ -113,7 +113,7 @@ listed under it.
   `md` is today's `md`. There is no `radius` or height prop:
   `LayersOutline`'s `radius="sm"` is already Mantine's default, and its
   `h={30}` is dropped (see "Behaviour changes").
-- `TextField` — `{ label: string; value: string; onChange(value: string); placeholder?; error?: string; required?: boolean; name?: string; code?: boolean; rightSection?: ReactNode }`.
+- `TextField` — `{ label: string; value: string; onChange(value: string); placeholder?; error?: string; required?: boolean; name?: string; code?: boolean; rightSection?: ReactNode; onBlur?(): void }`.
   `code` turns off autocorrect, autocapitalize and spellcheck (used by the
   filter expression field).
 - `Select` — `{ label: string; value: string | null; options: SelectOptions; onChange(value: string | null); placeholder?: string; searchable?: boolean }`.

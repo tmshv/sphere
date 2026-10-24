@@ -19,6 +19,17 @@ describe("TextField", () => {
         expect(screen.getByLabelText("Name")).toHaveAttribute("aria-invalid", "true")
     })
 
+    it("calls onBlur when the input loses focus", () => {
+        const onBlur = vi.fn()
+        render(<TextField label="Name" value="" onChange={vi.fn()} onBlur={onBlur} />)
+        const input = screen.getByLabelText("Name")
+
+        fireEvent.focus(input)
+        fireEvent.blur(input)
+
+        expect(onBlur).toHaveBeenCalledTimes(1)
+    })
+
     it("code disables spellcheck, autocorrect and autocapitalize", () => {
         render(<TextField label="Expr" value="" onChange={vi.fn()} code />)
         const input = screen.getByLabelText("Expr")
