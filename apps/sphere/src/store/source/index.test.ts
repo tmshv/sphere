@@ -195,6 +195,41 @@ describe("sourceSlice reducer", () => {
         expect(state.expandedIds).toEqual(["m"])
     })
 
+    test("re-adding an MVT source keeps each surviving child's visibility", () => {
+        const state = run(
+            addMvt("m", "pbf", roadsAndWater),
+            setVisible({ id: "m/water", value: false }),
+            addMvt("m", "pbf", roadsAndWater),
+        )
+        expect(state.nodes["m/roads"]?.visible).toBe(true)
+        expect(state.nodes["m/water"]?.visible).toBe(false)
+    })
+
+    test("re-adding an MVT source keeps the existing child order, drops removed and appends new children", () => {
+        const state = run(
+            addMvt("m", "pbf", [...roadsAndWater, { id: "parks", name: "parks" }]),
+            move({ ids: ["m/parks"], parentId: "m", index: 0 }),
+            addMvt("m", "pbf", [{ id: "buildings", name: "buildings" }, ...roadsAndWater]),
+        )
+        expect(state.nodes.m?.children).toEqual(["m/roads", "m/water", "m/buildings"])
+        expect(state.nodes["m/parks"]).toBeUndefined()
+        expect(state.nodes["m/buildings"]?.visible).toBe(true)
+    })
+
+    test("re-adding an MVT source keeps a collapsed root collapsed", () => {
+        const state = run(
+            addMvt("m", "pbf", roadsAndWater),
+            setExpanded({ id: "m", value: false }),
+            addMvt("m", "pbf", roadsAndWater),
+        )
+        expect(state.expandedIds).toEqual([])
+    })
+
+    test("re-adding a childless MVT source with vector layers expands it", () => {
+        const state = run(addMvt("m", "pbf", []), addMvt("m", "pbf", roadsAndWater))
+        expect(state.expandedIds).toEqual(["m"])
+    })
+
     test("bumpVersion increments version for FeatureCollection source", () => {
         let state = run(addInMemorySource({ id: "s4", name: "FC Source", location: "sphere://s4", meta }))
         state = reducer(state, bumpVersion("s4"))

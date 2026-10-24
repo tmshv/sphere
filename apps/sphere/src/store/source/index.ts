@@ -47,19 +47,33 @@ function upsertSource(state: SourceState, source: Source) {
     const { root, children } = createSourceNodes(source)
     const previous = state.nodes[id]
     if (previous) {
-        // Re-added in place: keep position, parent and visibility, rebuild children
+        // Re-added in place: keep position, parent and visibility, and the user's state of
+        // children that still exist (visibility, order); removed ones drop, new ones append
+        const previousVisible = new Map(
+            previous.children.flatMap(childId => state.nodes[childId] ?? []).map(child => [child.id, child.visible]),
+        )
         for (const staleId of previous.children.flatMap(childId => collectSubtree(state.nodes, childId))) {
             delete state.nodes[staleId]
         }
-        state.nodes[id] = { ...root, parentId: previous.parentId, visible: previous.visible }
+        const freshIds = new Set(children.map(child => child.id))
+        const childIds = [
+            ...previous.children.filter(childId => freshIds.has(childId)),
+            ...children.map(child => child.id).filter(childId => !previousVisible.has(childId)),
+        ]
+        state.nodes[id] = { ...root, children: childIds, parentId: previous.parentId, visible: previous.visible }
+        for (const child of children) {
+            state.nodes[child.id] = { ...child, visible: previousVisible.get(child.id) ?? child.visible }
+        }
     } else {
         state.nodes[id] = root
         state.rootIds.splice(NEW_NODE_INDEX, 0, id)
+        for (const child of children) {
+            state.nodes[child.id] = child
+        }
     }
-    for (const child of children) {
-        state.nodes[child.id] = child
-    }
-    if (children.length > 0 && !state.expandedIds.includes(id)) {
+    // A root that already had children keeps the user's expanded state
+    const hadChildren = (previous?.children.length ?? 0) > 0
+    if (children.length > 0 && !hadChildren && !state.expandedIds.includes(id)) {
         state.expandedIds.push(id)
     }
     state.expandedIds = state.expandedIds.filter(nodeId => nodeId in state.nodes)
