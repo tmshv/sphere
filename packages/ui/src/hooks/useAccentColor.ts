@@ -1,10 +1,6 @@
-import { useMantineTheme } from "@mantine/core"
-
-const LIGHT_SHADE = 7
-const DARK_SHADE = 5
+import { semantic } from "../tokens"
+import { useColorScheme } from "./useColorScheme"
 
 export function useAccentColor(): string {
-    const theme = useMantineTheme()
-    const shade = theme.colorScheme === "dark" ? DARK_SHADE : LIGHT_SHADE
-    return theme.colors.blue[shade]
+    return semantic["accent-icon"][useColorScheme()]
 }
