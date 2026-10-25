@@ -3,8 +3,7 @@ import { describe, expect, test } from "vitest"
 import { sourceSlice } from "../source"
 import reducer, { layerSlice } from "./index"
 
-const { addLayer, removeLayer, select, setVisible, setColor, setName, setType, setPositionBefore, setPositionAfter } =
-    layerSlice.actions
+const { addLayer, removeLayer, select, setVisible, setColor, setName, setType, move } = layerSlice.actions
 const { items, allIds, selectSelectedId } = layerSlice.selectors
 
 import type { RootState } from "../index"
@@ -109,22 +108,41 @@ describe("layerSlice reducer", () => {
         expect(state.items.l1.photo).toBeDefined()
     })
 
-    test("setPositionBefore sets fractionIndex below the other layer", () => {
-        const l1 = makeLayer("l1", { fractionIndex: 0 })
-        const l2 = makeLayer("l2", { fractionIndex: 1 })
-        let state = reducer(undefined, addLayer(l1))
-        state = reducer(state, addLayer(l2))
-        state = reducer(state, setPositionBefore({ layerId: "l1", otherLayerId: "l2" }))
-        expect(state.items.l1.fractionIndex).toBeLessThan(state.items.l2.fractionIndex)
-    })
+    describe("move", () => {
+        const threeLayers = () =>
+            [
+                makeLayer("l1", { fractionIndex: 0 }),
+                makeLayer("l2", { fractionIndex: 1 }),
+                makeLayer("l3", { fractionIndex: 2 }),
+            ].reduce((state, layer) => reducer(state, addLayer(layer)), reducer(undefined, { type: "@@INIT" }))
+        const order = (state: ReturnType<typeof reducer>) =>
+            [...state.allIds].sort(
+                (a, b) => (state.items[a]?.fractionIndex ?? 0) - (state.items[b]?.fractionIndex ?? 0),
+            )
 
-    test("setPositionAfter sets fractionIndex above the other layer", () => {
-        const l1 = makeLayer("l1", { fractionIndex: 0 })
-        const l2 = makeLayer("l2", { fractionIndex: 1 })
-        let state = reducer(undefined, addLayer(l1))
-        state = reducer(state, addLayer(l2))
-        state = reducer(state, setPositionAfter({ layerId: "l2", otherLayerId: "l1" }))
-        expect(state.items.l2.fractionIndex).toBeGreaterThan(state.items.l1.fractionIndex)
+        test("moves a layer to the top of the list", () => {
+            expect(order(reducer(threeLayers(), move({ ids: ["l3"], index: 0 })))).toEqual(["l3", "l1", "l2"])
+        })
+
+        test("moves a layer between two others", () => {
+            expect(order(reducer(threeLayers(), move({ ids: ["l1"], index: 1 })))).toEqual(["l2", "l1", "l3"])
+        })
+
+        test("moves a layer to the bottom of the list", () => {
+            expect(order(reducer(threeLayers(), move({ ids: ["l1"], index: 2 })))).toEqual(["l2", "l3", "l1"])
+        })
+
+        test("keeps every other layer's position", () => {
+            const state = reducer(threeLayers(), move({ ids: ["l3"], index: 1 }))
+            expect(state.items.l1?.fractionIndex).toBe(0)
+            expect(state.items.l2?.fractionIndex).toBe(1)
+        })
+
+        test("ignores an empty move or an unknown layer", () => {
+            const state = threeLayers()
+            expect(reducer(state, move({ ids: [], index: 0 }))).toEqual(state)
+            expect(reducer(state, move({ ids: ["nope"], index: 0 }))).toEqual(state)
+        })
     })
 
     test("removeSource extra reducer clears sourceId from affected layers", () => {

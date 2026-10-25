@@ -1,6 +1,6 @@
 import { makeSourceState } from "@/testutils"
 import appReducer, { appSlice } from "@/store/app"
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen, scrollParentOf } from "@/test-utils"
 import { LayerType } from "@/types"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
@@ -44,17 +44,6 @@ function renderTab() {
         </Provider>,
     )
     return { dispatchedActions }
-}
-
-function scrollParentOf(element: Element) {
-    let node = element.parentElement
-    while (node) {
-        if (window.getComputedStyle(node).overflowY === "auto") {
-            return node
-        }
-        node = node.parentElement
-    }
-    return null
 }
 
 describe("LayersTab", () => {

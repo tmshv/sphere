@@ -1,7 +1,7 @@
 import { makeMvtSource, makeSourceState } from "@/testutils"
 import { actions } from "@/store"
 import appReducer, { appSlice } from "@/store/app"
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen, scrollParentOf } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
@@ -62,20 +62,6 @@ function renderTab(sourceState?: ReturnType<typeof makeSourceState>) {
         </Provider>,
     )
     return { dispatchedActions }
-}
-
-function scrollParentOf(element: Element) {
-    let node = element.parentElement
-    while (node) {
-        // The outline tree scrolls through react-window, which sets the `overflow` shorthand inline;
-        // happy-dom does not expand that into `overflowY`
-        const style = window.getComputedStyle(node)
-        if (style.overflowY === "auto" || style.overflow === "auto") {
-            return node
-        }
-        node = node.parentElement
-    }
-    return null
 }
 
 // ActionBar renders its icons first, in item order: delete, zoom

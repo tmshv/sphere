@@ -1,13 +1,16 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Outline, type OutlineOnMove, type OutlineRenderItem, OutlineItem, VisibilityToggle } from "@sphere/ui"
+import type { Id } from "@/types"
+import { Tree, type TreeItem, type TreeMove, VisibilityToggle } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import { Icon } from "./Icon"
 
+const NO_EXPANDED: string[] = []
+
 const selectLayers = createSelector(
-    [selectors.layer.selectSelectedId, selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
-    (selectedLayerId, dark, items, allIds) => {
+    [selectors.app.isDark, selectors.layer.items, selectors.layer.allIds],
+    (dark, items, allIds) => {
         return allIds
             .map(id => {
                 const item = items[id]
@@ -20,7 +23,6 @@ const selectLayers = createSelector(
                 return {
                     id,
                     index: item.fractionIndex,
-                    active: id === selectedLayerId,
                     name: item.name,
                     type: item.type,
                     color: item.color,
@@ -32,55 +34,68 @@ const selectLayers = createSelector(
     },
 )
 
-export const LayersOutline: React.FC = () => {
-    const dispatch = useAppDispatch()
-    const items = useAppSelector(selectLayers)
+// Layers are a flat list: a layer can only go back into the list, never inside another layer
+function canDropLayer(move: TreeMove): boolean {
+    return move.parentId === undefined
+}
 
-    const moveLayerItem = useCallback<OutlineOnMove<(typeof items)[0]>>(
-        (drag, hover) => {
-            if (drag.index < hover.index) {
-                dispatch(
-                    actions.layer.setPositionAfter({
-                        layerId: drag.id,
-                        otherLayerId: hover.id,
-                    }),
-                )
-            } else {
-                dispatch(
-                    actions.layer.setPositionBefore({
-                        layerId: drag.id,
-                        otherLayerId: hover.id,
-                    }),
-                )
-            }
+export function LayersOutline() {
+    const dispatch = useAppDispatch()
+    const layers = useAppSelector(selectLayers)
+    const selectedId = useAppSelector(selectors.layer.selectSelectedId)
+
+    const onVisible = useCallback(
+        (id: Id, value: boolean) => {
+            dispatch(actions.layer.setVisible({ id, value }))
         },
         [dispatch],
     )
 
-    const renderLayerItem = useCallback<OutlineRenderItem<(typeof items)[0]>>(
-        ({ id, name, type, color, visible, active, bulbIconColor }) => {
-            return (
-                <OutlineItem
-                    label={name}
-                    active={active}
-                    onClick={() => {
-                        dispatch(actions.layer.select(id))
-                    }}
-                    icon={<Icon type={type} color={color} />}
-                    extra={
+    const items = useMemo(
+        () =>
+            layers.map(
+                ({ id, name, type, color, visible, bulbIconColor }): TreeItem => ({
+                    id,
+                    label: name,
+                    icon: <Icon type={type} color={color} />,
+                    extra: (
                         <VisibilityToggle
                             visible={visible}
                             color={bulbIconColor}
-                            onChange={value => {
-                                dispatch(actions.layer.setVisible({ id, value }))
-                            }}
+                            onChange={value => onVisible(id, value)}
                         />
-                    }
-                />
-            )
+                    ),
+                }),
+            ),
+        [layers, onVisible],
+    )
+
+    const onSelect = useCallback(
+        (id: Id | undefined) => {
+            dispatch(actions.layer.select(id))
         },
         [dispatch],
     )
 
-    return <Outline items={items} onMove={moveLayerItem} renderItem={renderLayerItem} />
+    const onMove = useCallback(
+        ({ ids, index }: TreeMove) => {
+            dispatch(actions.layer.move({ ids, index }))
+        },
+        [dispatch],
+    )
+
+    // A flat list has no branches to open or close
+    const onToggle = useCallback(() => {}, [])
+
+    return (
+        <Tree
+            items={items}
+            selectedId={selectedId}
+            expandedIds={NO_EXPANDED}
+            onSelect={onSelect}
+            onToggle={onToggle}
+            onMove={onMove}
+            canDrop={canDropLayer}
+        />
+    )
 }

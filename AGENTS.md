@@ -138,7 +138,7 @@ apps/sphere  ->  @sphere/ui  ->  @sphere/utils
 ```
 
 - `@sphere/utils` (`packages/utils/`) — pure TS helpers. No React, no maplibre, no Tauri, no Redux, no domain types. Each package exposes a single barrel: `import { lerp, deduplicate } from "@sphere/utils"`. Public surface is declared in `packages/utils/src/index.ts`.
-- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. `Tree` wraps react-arborist with its own react-dnd manager on the touch (pointer-event) backend, not HTML5: Tauri's `dragDropEnabled` swallows HTML5 drag events on Windows, and a private manager keeps it isolated from other dnd providers. `VisibilityToggle` is the outline bulb shared by the Sources and Layers outlines. No Tauri, no Redux, no maplibre. React and Mantine are peer deps. Imported via the same barrel pattern: `import { ActionBar, Sidebar } from "@sphere/ui"`. Public surface is declared in `packages/ui/src/index.ts`.
+- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. `Tree` wraps react-arborist with its own react-dnd manager on the touch (pointer-event) backend, not HTML5: Tauri's `dragDropEnabled` swallows HTML5 drag events on Windows, and a private manager keeps it isolated from other dnd providers. Both sidebar outlines render it: Sources as a nested tree, Layers as a flat list (a layer can only be dropped back into the list). `VisibilityToggle` is the outline bulb they share. No Tauri, no Redux, no maplibre. React and Mantine are peer deps. Imported via the same barrel pattern: `import { ActionBar, Sidebar } from "@sphere/ui"`. Public surface is declared in `packages/ui/src/index.ts`.
 - `apps/sphere/` — the Tauri app. May import from both packages and from `@/*` (app-local paths).
 
 Boundaries are enforced by:
