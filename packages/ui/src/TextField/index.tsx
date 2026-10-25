@@ -1,9 +1,16 @@
-import { TextInput } from "@mantine/core"
-import type { ReactNode } from "react"
+import { Field } from "@base-ui/react/field"
+import type { CSSProperties, ReactNode } from "react"
+import input from "../internal/input.module.css"
 
-const FIELD_SIZE = "xs"
 const NO_AUTOCORRECT = "off"
 const NO_AUTOCAPITALIZE = "none"
+// Mantine 5 Input: rightSectionWidth defaults to 36.
+const RIGHT_SECTION_WIDTH = "36px"
+const REQUIRED_MARK = " *"
+
+type RightSectionStyle = CSSProperties & { "--right-section-width": string }
+
+const RIGHT_SECTION_STYLE: RightSectionStyle = { "--right-section-width": RIGHT_SECTION_WIDTH }
 
 export type TextFieldProps = {
     label: string
@@ -31,22 +38,44 @@ export function TextField({
     rightSection,
     onBlur,
 }: TextFieldProps) {
+    const invalid = Boolean(error)
+    const hasRightSection = Boolean(rightSection)
+    const wrapperClasses = [input.wrapper, invalid ? input.wrapperWithError : undefined]
+    const inputClasses = [
+        input.input,
+        invalid ? input.invalid : undefined,
+        hasRightSection ? input.withRightSection : undefined,
+    ]
+
     return (
-        <TextInput
-            size={FIELD_SIZE}
-            label={label}
-            value={value}
-            onChange={event => onChange(event.currentTarget.value)}
-            placeholder={placeholder}
-            error={error}
-            required={required}
-            withAsterisk={required}
-            name={name}
-            autoCorrect={code ? NO_AUTOCORRECT : undefined}
-            autoCapitalize={code ? NO_AUTOCAPITALIZE : undefined}
-            spellCheck={code ? false : undefined}
-            rightSection={rightSection}
-            onBlur={() => onBlur?.()}
-        />
+        <Field.Root className={input.root} invalid={invalid} name={name}>
+            <Field.Label className={input.label}>
+                {label}
+                {required ? (
+                    <span className={input.required} aria-hidden>
+                        {REQUIRED_MARK}
+                    </span>
+                ) : null}
+            </Field.Label>
+            <div className={wrapperClasses.filter(Boolean).join(" ")} style={RIGHT_SECTION_STYLE}>
+                <Field.Control
+                    className={inputClasses.filter(Boolean).join(" ")}
+                    value={value}
+                    onValueChange={newValue => onChange(newValue)}
+                    placeholder={placeholder}
+                    required={required}
+                    autoCorrect={code ? NO_AUTOCORRECT : undefined}
+                    autoCapitalize={code ? NO_AUTOCAPITALIZE : undefined}
+                    spellCheck={code ? false : undefined}
+                    onBlur={() => onBlur?.()}
+                />
+                {hasRightSection ? <div className={input.rightSection}>{rightSection}</div> : null}
+            </div>
+            {invalid ? (
+                <Field.Error className={input.error} match>
+                    {error}
+                </Field.Error>
+            ) : null}
+        </Field.Root>
     )
 }
