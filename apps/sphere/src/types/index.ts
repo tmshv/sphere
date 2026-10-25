@@ -83,3 +83,5 @@ export type DatasetRow<G> = {
 // export type Dataset<T extends SourceType, G = PointLike | LineStringLike | PolygonLike> = {
 //     data: DatasetRow<G>[]
 // }
+
+export * from "./source-tree"

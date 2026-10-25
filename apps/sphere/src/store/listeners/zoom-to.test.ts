@@ -1,8 +1,11 @@
+import { makeMvtSource, makeSourceState } from "@/testutils"
 import { SourceType } from "@/types"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const mockGetBounds = vi.fn().mockResolvedValue(null)
+const mockGetTileJson = vi.fn().mockResolvedValue(null)
+const mockMbtilesReader = vi.fn()
 
 vi.mock("@/lib/source-reader", () => ({
     SourceReader: vi.fn().mockImplementation(function mock() {
@@ -11,9 +14,10 @@ vi.mock("@/lib/source-reader", () => ({
 }))
 
 vi.mock("@/lib/mbtiles", () => ({
-    MbtilesReader: vi.fn().mockImplementation(() => ({
-        getTileJson: vi.fn().mockResolvedValue(null),
-    })),
+    MbtilesReader: vi.fn().mockImplementation(function mock(id: string) {
+        mockMbtilesReader(id)
+        return { getTileJson: mockGetTileJson }
+    }),
 }))
 
 vi.mock("@/map", () => ({
@@ -55,21 +59,18 @@ function hasType(action: unknown, type: string): action is { type: string; paylo
 }
 
 const fcSourceState = (sourceId: string) => ({
-    source: {
-        items: {
-            [sourceId]: {
-                id: sourceId,
-                type: SourceType.FeatureCollection,
-                name: "test",
-                location: "sphere://fc-source",
-                version: 0,
-                editable: true,
-                fractionIndex: 0,
-                pending: false,
-                meta: { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 },
-            },
+    source: makeSourceState([
+        {
+            id: sourceId,
+            type: SourceType.FeatureCollection,
+            name: "test",
+            location: "sphere://fc-source",
+            version: 0,
+            editable: true,
+            pending: false,
+            meta: { columns: {}, pointsCount: 1, linesCount: 0, polygonsCount: 0 },
         },
-    },
+    ]),
 })
 
 function makeStore(state: Record<string, unknown> = {}) {
@@ -127,12 +128,59 @@ describe("zoom-to listener: FeatureCollection source", () => {
     })
 
     test("does nothing when source does not exist", async () => {
-        const { store, dispatchedActions } = makeStore({ source: { items: {} } })
+        const { store, dispatchedActions } = makeStore({ source: makeSourceState([]) })
 
         store.dispatch({ type: "source/zoomTo", payload: "nonexistent" })
         await vi.runAllTimersAsync()
 
         expect(dispatchedActions.find(a => hasType(a, "map/fitBounds"))).toBeUndefined()
+        expect(mockGetBounds).not.toHaveBeenCalled()
+    })
+})
+
+describe("zoom-to listener: tree nodes", () => {
+    const MVT_ID = "m1"
+    const ROADS_NODE_ID = `${MVT_ID}/roads`
+    const FOLDER_ID = "f1"
+    const MVT_BOUNDS: [number, number, number, number] = [1, 2, 3, 4]
+
+    const treeState = () => ({
+        source: makeSourceState([makeMvtSource(MVT_ID, { sourceLayers: [{ id: "roads", name: "Roads" }] })], {
+            folderIds: [FOLDER_ID],
+        }),
+    })
+
+    beforeEach(() => {
+        vi.useFakeTimers()
+        mockGetTileJson.mockResolvedValue({ bounds: MVT_BOUNDS })
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+        vi.clearAllMocks()
+    })
+
+    test("fits the parent's TileJSON bounds for a source-layer node", async () => {
+        const { store, dispatchedActions } = makeStore(treeState())
+
+        store.dispatch({ type: "source/zoomTo", payload: ROADS_NODE_ID })
+        await vi.runAllTimersAsync()
+
+        expect(mockMbtilesReader).toHaveBeenCalledWith(MVT_ID)
+        const fitBoundsAction = dispatchedActions.find(a => hasType(a, "map/fitBounds"))
+        expect(fitBoundsAction).toEqual(
+            expect.objectContaining({ payload: expect.objectContaining({ bounds: MVT_BOUNDS }) }),
+        )
+    })
+
+    test("does nothing for a folder", async () => {
+        const { store, dispatchedActions } = makeStore(treeState())
+
+        store.dispatch({ type: "source/zoomTo", payload: FOLDER_ID })
+        await vi.runAllTimersAsync()
+
+        expect(dispatchedActions.find(a => hasType(a, "map/fitBounds"))).toBeUndefined()
+        expect(mockMbtilesReader).not.toHaveBeenCalled()
         expect(mockGetBounds).not.toHaveBeenCalled()
     })
 })

@@ -12,3 +12,20 @@ function customRender(ui: React.ReactElement, options?: Omit<RenderOptions, "wra
 
 export * from "@testing-library/react"
 export { customRender as render }
+
+/**
+ * The nearest ancestor of `element` that scrolls vertically, or `null`. Outline trees scroll through
+ * react-window, which sets the `overflow` shorthand inline; happy-dom does not expand that into
+ * `overflowY`, so both are checked.
+ */
+export function scrollParentOf(element: Element): HTMLElement | null {
+    let node = element.parentElement
+    while (node) {
+        const style = window.getComputedStyle(node)
+        if (style.overflowY === "auto" || style.overflow === "auto") {
+            return node
+        }
+        node = node.parentElement
+    }
+    return null
+}

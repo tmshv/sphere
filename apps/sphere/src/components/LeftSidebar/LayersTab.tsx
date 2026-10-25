@@ -2,7 +2,7 @@ import { actions } from "@/store"
 import { selectSidebarSections } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import type { SidebarSection } from "@/types"
-import { ActionBar, type ActionBarOnClick, PanelBody, SectionStack } from "@sphere/ui"
+import { ActionBar, type ActionBarOnClick, SectionStack } from "@sphere/ui"
 import { IconBulbOff, IconPlus } from "@tabler/icons"
 import { useCallback } from "react"
 import { LayerPanel } from "../LayerPanel"
@@ -60,9 +60,8 @@ export function LayersTab() {
 
             <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
                 <SectionStack.Section name={"outline"} title={"Outline"}>
-                    <PanelBody>
-                        <LayersOutline />
-                    </PanelBody>
+                    {/* No PanelBody: the tree rows carry the inset themselves so a selected row spans the full width */}
+                    <LayersOutline />
                 </SectionStack.Section>
 
                 <SectionStack.Section name={"layer-properties"} title={"Layer"}>

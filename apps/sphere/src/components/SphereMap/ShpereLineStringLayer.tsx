@@ -1,5 +1,5 @@
 import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
-import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import { combineFilters, lineStringLayerIds, sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { FilterSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
@@ -14,6 +14,8 @@ export type SphereLineStringLayerProps = {
     visible: boolean
     thick: boolean
     filter?: FilterSpecification
+    // Layer to draw below; absent means on top
+    beforeId?: string
 }
 
 export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
@@ -24,6 +26,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
     visible,
     thick,
     filter,
+    beforeId,
 }) => {
     const [outline, line] = useMemo(() => {
         const outline: LinePaint = {
@@ -38,10 +41,13 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
         return [outline, line]
     }, [color, thick])
 
+    const [outlineId, lineId] = lineStringLayerIds(layerId)
+
     return (
         <>
             <Layer
-                id={`${layerId}-outline`}
+                id={outlineId}
+                beforeId={beforeId}
                 source={sourceId}
                 type={"line"}
                 paint={outline}
@@ -57,7 +63,8 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
-                id={layerId}
+                id={lineId}
+                beforeId={beforeId}
                 source={sourceId}
                 type={"line"}
                 paint={line}

@@ -32,7 +32,6 @@ const preloadedState = {
                 format: "geojson",
                 location: "file:///data/points.geojson",
                 version: 0,
-                fractionIndex: 0,
                 editable: false,
                 pending: false,
                 meta: {

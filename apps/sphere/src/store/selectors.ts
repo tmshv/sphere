@@ -4,16 +4,31 @@ import type { RootState } from "."
 import { appSlice as app } from "./app"
 import { drawSlice as draw } from "./draw"
 import { layerSlice as layer } from "./layer"
-import { selectPreviewLayerIds, selectPreviewLayerSpecs, selectPreviewSourceId } from "./preview"
+import {
+    selectPreviewActive,
+    selectPreviewDrawOrder,
+    selectPreviewLayerIds,
+    selectPreviewLayerSpecs,
+    selectPreviewLayerStack,
+} from "./preview"
 import { selectionSlice as selection } from "./selection"
 import { settingsSlice as settings } from "./settings"
 import { selectCurrentSourceItem, sourceSlice as source } from "./source"
+import {
+    selectSelectedInteractive,
+    selectSelectedNode,
+    selectSelectedNodeActions,
+    selectSelectedSourceId,
+    selectSelectedSourceLayer,
+    selectSelectedSourceRef,
+} from "./source/tree-selectors"
+import { selectSourceOutline, selectSourceTreeShape } from "./source/outline-selectors"
 import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./sourceInfo/selectors"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
 import { selectIsShowTerrain } from "./terrain"
 import { toolsSlice as tools } from "./tools"
-export type { PreviewLayerSpec } from "./preview"
+export type { PreviewLayerSpec, PreviewLayerStackEntry } from "./preview"
 // Other code such as selectors can use the imported `RootState` type
 const selectProjection = (state: RootState) => {
     const drawing = draw.selectors.isDrawing(state)
@@ -58,6 +73,14 @@ export const selectors = {
     source: {
         ...source.selectors,
         selectCurrentSourceItem,
+        selectSelectedNode,
+        selectSelectedNodeActions,
+        selectSelectedSourceRef,
+        selectSelectedSourceId,
+        selectSelectedSourceLayer,
+        selectSelectedInteractive,
+        selectSourceOutline,
+        selectSourceTreeShape,
     },
     layer: {
         ...layer.selectors,
@@ -74,9 +97,11 @@ export const selectors = {
         show: showTileBoundaries,
     },
     preview: {
-        sourceId: selectPreviewSourceId,
+        active: selectPreviewActive,
         layerSpecs: selectPreviewLayerSpecs,
         layerIds: selectPreviewLayerIds,
+        layerStack: selectPreviewLayerStack,
+        drawOrder: selectPreviewDrawOrder,
     },
     mapInteraction: mapInteraction.selectors,
     tools: tools.selectors,

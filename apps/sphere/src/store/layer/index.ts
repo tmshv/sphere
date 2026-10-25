@@ -3,6 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { Draft } from "immer"
 import type { FilterSpecification } from "maplibre-gl"
+import { fractionsBetween } from "@/lib/fraction-index"
 import { sourceSlice } from "../source"
 
 export type PhotoIconLayout = "circle" | "square"
@@ -86,15 +87,21 @@ export const layerSlice = createSlice({
         select: (state, action: PayloadAction<Id | undefined>) => {
             state.selectedId = action.payload
         },
-        setPositionBefore: (state, action: PayloadAction<{ layerId: Id; otherLayerId: Id }>) => {
-            const { layerId, otherLayerId } = action.payload
-            const index = state.items[otherLayerId].fractionIndex
-            state.items[layerId].fractionIndex = index - 0.00001
-        },
-        setPositionAfter: (state, action: PayloadAction<{ layerId: Id; otherLayerId: Id }>) => {
-            const { layerId, otherLayerId } = action.payload
-            const index = state.items[otherLayerId].fractionIndex
-            state.items[layerId].fractionIndex = index + 0.00001
+        // `index` is the slot in the outline order after the moved layers are taken out of it
+        move: (state, action: PayloadAction<{ ids: Id[]; index: number }>) => {
+            const { ids, index } = action.payload
+            const moved = ids.filter(id => id in state.items)
+            if (moved.length === 0) return
+            const rest = state.allIds
+                .filter(id => !moved.includes(id))
+                .map(id => state.items[id].fractionIndex)
+                .sort((a, b) => a - b)
+            // `.at(-1)` would wrap to the last layer, so the slot above the first one is empty
+            const prev = index > 0 ? rest.at(index - 1) : undefined
+            const fractions = fractionsBetween(prev, rest.at(index), moved.length)
+            moved.forEach((id, i) => {
+                state.items[id].fractionIndex = fractions.at(i) ?? state.items[id].fractionIndex
+            })
         },
         setSource: (state, action: PayloadAction<{ id: Id; sourceId: Id; sourceLayer?: string }>) => {
             const { id, sourceId, sourceLayer } = action.payload

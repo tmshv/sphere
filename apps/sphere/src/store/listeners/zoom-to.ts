@@ -1,6 +1,7 @@
 import { MAP_ID } from "@/const"
 import { assertUnreachable } from "@/lib"
 import { MbtilesReader } from "@/lib/mbtiles"
+import { resolveSourceRef } from "@/lib/source-tree"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
 import { getMap } from "@/map"
@@ -20,8 +21,14 @@ listener.startListening({
             return
         }
 
-        const sourceId = action.payload
+        // The payload is a node id: a source-layer zooms to its parent, a folder has nothing to zoom to
+        const nodeId = action.payload
         const state = listenerApi.getOriginalState() as RootState
+        const { sourceId } = resolveSourceRef(state.source.nodes, nodeId)
+        if (sourceId === undefined) {
+            logger.info("No source for node %s", nodeId)
+            return
+        }
         const source = state.source.items[sourceId]
         if (!source) {
             logger.info("No source %s", sourceId)

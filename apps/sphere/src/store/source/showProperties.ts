@@ -1,10 +1,12 @@
+import { hasFeatureStore } from "@/lib/source"
 import { waitEvent } from "@/lib/tauri"
 import logger from "@/logger"
-import { type Id, SourceType } from "@/types"
+import type { Id } from "@/types"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { emit } from "@tauri-apps/api/event"
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
 import type { RootState } from ".."
+import { selectSelectedSourceId } from "./tree-selectors"
 
 const PROPERTIES_INIT_TIMEOUT_MS = 10000
 
@@ -17,7 +19,7 @@ export const showProperties = createAsyncThunk(
             throw new Error("Source is not found")
         }
 
-        if ((source.type !== SourceType.Geojson && source.type !== SourceType.FeatureCollection) || source.pending) {
+        if (!hasFeatureStore(source)) {
             logger.error(`Properties table is not available for source type "${source.type}"`)
             throw new Error(`Property table is not available for "${source.name}"`)
         }
@@ -49,7 +51,7 @@ export const showProperties = createAsyncThunk(
         })
 
         const freshState = thunkAPI.getState() as RootState
-        const selectionSourceId = freshState.selection.sourceId ?? freshState.source.selectedId ?? undefined
+        const selectionSourceId = freshState.selection.sourceId ?? selectSelectedSourceId(freshState) ?? undefined
         const count = freshState.selection.count
         if (count > 0 && selectionSourceId === id) {
             await emit("properties-selection-changed", {

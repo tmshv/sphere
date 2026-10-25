@@ -1,5 +1,6 @@
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
 
 const invokeMock = vi.fn()
 
@@ -45,7 +46,7 @@ vi.mock("../actions", () => {
     }
 })
 
-import { rectSelectDrag, rectSelectCommit } from "../rect-select"
+import { rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
 import listener from "./rect-select"
 
 function isAction(value: unknown): value is UnknownAction {
@@ -85,7 +86,9 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag issues a single selection_rect IPC call with op=set (no modifier)", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectDrag({
@@ -109,7 +112,9 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag with shift modifier uses op=preview", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectDrag({
@@ -127,7 +132,9 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag right-to-left produces mode=intersect", async () => {
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectDrag({
@@ -144,10 +151,62 @@ describe("rect-select listener", () => {
     })
 
     test("rectSelectDrag is a no-op when no source is selected", async () => {
-        const { store } = makeStore({ source: { selectedId: null } })
+        const { store } = makeStore({ source: makeSourceState([]) })
 
         store.dispatch(
             rectSelectDrag({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+    })
+
+    test("rectSelectDrag is a no-op when a source-layer node of a vector MVT is selected", async () => {
+        const mvt = makeMvtSource("mvt-1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const { store } = makeStore({ source: makeSourceState([mvt], { selectedIds: ["mvt-1/roads"] }) })
+
+        store.dispatch(
+            rectSelectDrag({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+    })
+
+    test("rectSelectDrag is a no-op when a folder is selected", async () => {
+        const { store } = makeStore({
+            source: makeSourceState([], { folderIds: ["folder-1"], selectedIds: ["folder-1"] }),
+        })
+
+        store.dispatch(
+            rectSelectDrag({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+    })
+
+    test("rectSelectCommit is a no-op when a source-layer node of a vector MVT is selected", async () => {
+        const mvt = makeMvtSource("mvt-1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const { store } = makeStore({ source: makeSourceState([mvt], { selectedIds: ["mvt-1/roads"] }) })
+
+        store.dispatch(
+            rectSelectCommit({
                 start: { x: 10, y: 10 },
                 current: { x: 100, y: 100 },
                 modifier: "none",
@@ -167,7 +226,9 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store, dispatched } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store, dispatched } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectCommit({
@@ -197,7 +258,9 @@ describe("rect-select listener", () => {
             if (cmd === "selection_count") return Promise.resolve(1)
             return Promise.resolve()
         })
-        const { store } = makeStore({ source: { selectedId: "src-1", items: {} } })
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
 
         store.dispatch(
             rectSelectCommit({
@@ -212,5 +275,64 @@ describe("rect-select listener", () => {
         const rectCalls = invokeMock.mock.calls.filter((c: unknown[]) => c[0] === "selection_rect")
         expect(rectCalls).toHaveLength(1)
         expect(rectCalls[0][1]).toMatchObject({ op: "add" })
+    })
+
+    test("rectSelectCommit makes no IPC call and dispatches nothing when the selected node is hidden", async () => {
+        const { store, dispatched } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], {
+                selectedIds: ["src-1"],
+                hiddenIds: ["src-1"],
+            }),
+        })
+
+        store.dispatch(
+            rectSelectCommit({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+        expect(dispatched.map(a => a.type)).toEqual(["rectSelect/commit"])
+    })
+
+    test("rectSelectClick makes no IPC call and dispatches nothing when the selected node is hidden", async () => {
+        const { store, dispatched } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], {
+                selectedIds: ["src-1"],
+                hiddenIds: ["src-1"],
+            }),
+        })
+
+        store.dispatch(rectSelectClick({ point: { x: 10, y: 10 }, modifier: "none" }))
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
+        expect(dispatched.map(a => a.type)).toEqual(["rectSelect/click"])
+    })
+
+    test("rectSelectDrag makes no IPC call when the selected node is hidden", async () => {
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], {
+                selectedIds: ["src-1"],
+                hiddenIds: ["src-1"],
+            }),
+        })
+
+        store.dispatch(
+            rectSelectDrag({
+                start: { x: 10, y: 10 },
+                current: { x: 100, y: 100 },
+                modifier: "none",
+            }),
+        )
+
+        await vi.runAllTimersAsync()
+
+        expect(invokeMock).not.toHaveBeenCalled()
     })
 })

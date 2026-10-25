@@ -1,6 +1,7 @@
+import { makeMvtSource, makeSourceState } from "@/testutils"
 import { actions } from "@/store"
 import appReducer, { appSlice } from "@/store/app"
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen, scrollParentOf } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import userEvent from "@testing-library/user-event"
@@ -17,7 +18,6 @@ vi.mock("@tauri-apps/api/core", () => ({
 const source: Source = {
     id: "s1",
     name: "Roads",
-    fractionIndex: 1,
     type: SourceType.Geojson,
     format: "geojson",
     version: 0,
@@ -38,7 +38,9 @@ const source: Source = {
     },
 }
 
-function makeStore() {
+function makeStore(
+    sourceState: ReturnType<typeof makeSourceState> = makeSourceState([source], { selectedIds: ["s1"] }),
+) {
     const dispatchedActions: unknown[] = []
     const captureMiddleware: Middleware = () => next => action => {
         dispatchedActions.push(action)
@@ -48,7 +50,7 @@ function makeStore() {
     const store = configureStore({
         reducer: {
             app: appReducer,
-            source: () => ({ selectedId: "s1", items: { s1: source }, allIds: ["s1"] }),
+            source: () => sourceState,
             draw: () => ({ sourceId: null, selectedIds: [] }),
             sourceInfo: () => ({ info: {}, stats: {} }),
         },
@@ -58,8 +60,8 @@ function makeStore() {
     return { store, dispatchedActions }
 }
 
-function renderTab() {
-    const { store, dispatchedActions } = makeStore()
+function renderTab(sourceState?: ReturnType<typeof makeSourceState>) {
+    const { store, dispatchedActions } = makeStore(sourceState)
     render(
         <Provider store={store}>
             <SourcesTab />
@@ -68,15 +70,14 @@ function renderTab() {
     return { dispatchedActions }
 }
 
-function scrollParentOf(element: Element) {
-    let node = element.parentElement
-    while (node) {
-        if (window.getComputedStyle(node).overflowY === "auto") {
-            return node
-        }
-        node = node.parentElement
-    }
-    return null
+// ActionBar renders its icons first, in item order: delete, zoom
+const DELETE_BUTTON_INDEX = 0
+const ZOOM_BUTTON_INDEX = 1
+
+function actionAt(index: number) {
+    const button = screen.getAllByRole("button").at(index)
+    if (!button) throw new Error(`no button at index ${index}`)
+    return button
 }
 
 describe("SourcesTab", () => {
@@ -120,6 +121,49 @@ describe("SourcesTab", () => {
         expect(action.payload.tab).toBe("sources")
         const outline = action.payload.sections.find(section => section.name === "outline")
         expect(outline?.open).toBe(false)
+    })
+
+    describe("with a selected source-layer node", () => {
+        const mvt = makeMvtSource("m1", { sourceLayers: [{ id: "roads", name: "Roads" }] })
+        const childState = () => makeSourceState([mvt], { selectedIds: ["m1/roads"] })
+
+        function clickActionAt(index: number) {
+            fireEvent.click(actionAt(index))
+        }
+
+        it("zooms to the selected node", () => {
+            const { dispatchedActions } = renderTab(childState())
+
+            clickActionAt(ZOOM_BUTTON_INDEX)
+
+            expect(dispatchedActions).toContainEqual(actions.source.zoomTo("m1/roads"))
+        })
+
+        it("does not remove the parent source", () => {
+            const { dispatchedActions } = renderTab(childState())
+
+            clickActionAt(DELETE_BUTTON_INDEX)
+
+            expect(dispatchedActions).not.toContainEqual(actions.source.removeSource("m1"))
+        })
+
+        it("disables the delete button", () => {
+            renderTab(childState())
+
+            expect(actionAt(DELETE_BUTTON_INDEX)).toBeDisabled()
+            expect(actionAt(ZOOM_BUTTON_INDEX)).toBeEnabled()
+        })
+    })
+
+    describe("with a selected folder", () => {
+        const folderState = () => makeSourceState([source], { folderIds: ["f1"], selectedIds: ["f1"] })
+
+        it("enables delete and disables zoom", () => {
+            renderTab(folderState())
+
+            expect(actionAt(DELETE_BUTTON_INDEX)).toBeEnabled()
+            expect(actionAt(ZOOM_BUTTON_INDEX)).toBeDisabled()
+        })
     })
 
     it("opens the URL dialog, dispatches addFromUrl with the typed URL and closes", () => {

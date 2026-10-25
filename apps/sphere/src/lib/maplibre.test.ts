@@ -3,6 +3,9 @@ import {
     combineFilters,
     isExpressionFilter,
     isValidFilterExpression,
+    layerOrderMoves,
+    lineStringLayerIds,
+    polygonLayerIds,
     serializeFeaturesForIpc,
     sourceLayerProp,
     visibility,
@@ -170,5 +173,55 @@ describe("combineFilters", () => {
             ["==", ["get", "type"], "airport"],
             [">=", ["get", "pop"], 1000],
         ])
+    })
+})
+
+describe("lineStringLayerIds", () => {
+    it("lists the casing below the line", () => {
+        expect(lineStringLayerIds("roads")).toEqual(["roads-outline", "roads"])
+    })
+})
+
+describe("polygonLayerIds", () => {
+    it("lists the fill below both outlines", () => {
+        expect(polygonLayerIds("parks")).toEqual(["parks", "parks-outline-0", "parks-outline-1"])
+    })
+})
+
+describe("layerOrderMoves", () => {
+    // Same semantics as MapLibre's `moveLayer(id, beforeId)`
+    function applyMoves(order: string[], moves: { id: string; beforeId: string }[]) {
+        return moves.reduce((current, { id, beforeId }) => {
+            const rest = current.filter(other => other !== id)
+            const index = rest.indexOf(beforeId)
+            return [...rest.slice(0, index), id, ...rest.slice(index)]
+        }, order)
+    }
+
+    it("moves nothing when the layers are already in order", () => {
+        expect(layerOrderMoves(["base", "a", "b", "c"], ["a", "b", "c"])).toEqual([])
+    })
+
+    it("restacks a block of layers that moved together", () => {
+        const current = ["d", "c", "b", "a"]
+        const wanted = ["b", "a", "d", "c"]
+
+        expect(applyMoves(current, layerOrderMoves(current, wanted))).toEqual(wanted)
+    })
+
+    it("keeps the topmost wanted layer in place and leaves other layers alone", () => {
+        const current = ["base", "b", "a", "label"]
+        const moves = layerOrderMoves(current, ["a", "b"])
+
+        expect(moves).toEqual([{ id: "a", beforeId: "b" }])
+        expect(applyMoves(current, moves)).toEqual(["base", "a", "b", "label"])
+    })
+
+    it("skips layers the map does not have yet", () => {
+        const current = ["b", "a"]
+        const moves = layerOrderMoves(current, ["a", "missing", "b"])
+
+        expect(applyMoves(current, moves)).toEqual(["a", "b"])
+        expect(moves.flatMap(({ id, beforeId }) => [id, beforeId])).not.toContain("missing")
     })
 })
