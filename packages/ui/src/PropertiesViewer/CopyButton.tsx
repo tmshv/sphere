@@ -1,26 +1,46 @@
 import { IconCheck, IconCopy } from "@tabler/icons"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import iconButton from "../Button/icon-button.module.css"
 import { Tooltip, unstyledButton } from "../internal"
 import s from "./properties-viewer.module.css"
 
 const ICON_SIZE = 12
-const COPIED_MS = 1500
+const FEEDBACK_MS = 1500
+
+type CopyStatus = "idle" | "copied" | "failed"
+
+const LABEL: Record<CopyStatus, string> = {
+    idle: "Copy",
+    copied: "Copied!",
+    failed: "Copy failed",
+}
 
 type CopyButtonProps = {
     value: string
 }
 
 export function CopyButton({ value }: CopyButtonProps) {
-    const [copied, setCopied] = useState(false)
+    const [status, setStatus] = useState<CopyStatus>("idle")
+    const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(value)
-        setCopied(true)
-        setTimeout(() => setCopied(false), COPIED_MS)
+    useEffect(() => () => clearTimeout(timer.current), [])
+
+    const show = (next: CopyStatus) => {
+        clearTimeout(timer.current)
+        setStatus(next)
+        timer.current = setTimeout(() => setStatus("idle"), FEEDBACK_MS)
     }
 
-    const label = copied ? "Copied!" : "Copy"
+    // "Copied" appears only once the clipboard accepted the text; a refusal shows in the tooltip.
+    const handleCopy = () => {
+        navigator.clipboard
+            .writeText(value)
+            .then(() => show("copied"))
+            .catch(() => show("failed"))
+    }
+
+    const copied = status === "copied"
+    const label = LABEL[status]
     const classes = [
         unstyledButton,
         iconButton.iconButton,

@@ -18,32 +18,6 @@
     max-width: var(--viewer-value-max-width);
 }
 
-/* Mantine 5 Image (Image.js, Image.styles.js) with width 120, height 120, fit cover, radius 0:
-   a root box, a figure, a relative wrapper and the image. */
-.image {
-    /* The image's width and height props. */
-    --viewer-image-size: 120px;
-
-    width: var(--viewer-image-size);
-}
-
-.figure {
-    margin: 0;
-}
-
-.imageWrapper {
-    position: relative;
-}
-
-.img {
-    display: block;
-    width: var(--viewer-image-size);
-    height: var(--viewer-image-size);
-    object-fit: cover;
-    border: 0;
-    border-radius: 0;
-}
-
 /* The copy button shows on row hover through its own :hover, and stays lit while "Copied" shows. */
 .copy {
     opacity: 0;

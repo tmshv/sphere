@@ -1,0 +1,30 @@
+/* Mantine 5 Image in a figure: a root box, a figure, a relative wrapper and the image. */
+.image {
+    width: var(--value-image-size);
+}
+
+/* The image's width and height props: 50px in the table cell, 120px in the viewer. */
+.small {
+    --value-image-size: 50px;
+}
+
+.large {
+    --value-image-size: 120px;
+}
+
+.figure {
+    margin: 0;
+}
+
+.wrapper {
+    position: relative;
+}
+
+.img {
+    display: block;
+    width: var(--value-image-size);
+    height: var(--value-image-size);
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+}

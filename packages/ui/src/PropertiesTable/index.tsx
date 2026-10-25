@@ -12,7 +12,7 @@ import {
 import { format } from "date-fns"
 import { type ReactNode, useState } from "react"
 import iconButton from "../Button/icon-button.module.css"
-import { Badge, Tooltip, unstyledButton } from "../internal"
+import { Badge, Tooltip, unstyledButton, ValueImage } from "../internal"
 import type { SelectOption } from "../Select"
 import { Statusbar, StatusbarSelect } from "../Statusbar"
 import { BarChart } from "./BarChart"
@@ -85,18 +85,6 @@ function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
     if (sorted === "asc") return <IconArrowUp size={ICON_SIZE} />
     if (sorted === "desc") return <IconArrowDown size={ICON_SIZE} />
     return null
-}
-
-function ValueImage({ src, alt }: { src: string; alt: string }) {
-    return (
-        <div className={s.image}>
-            <figure className={s.figure}>
-                <div className={s.imageWrapper}>
-                    <img className={s.img} src={src} alt={alt} />
-                </div>
-            </figure>
-        </div>
-    )
 }
 
 type PhotoToggleProps = {
@@ -220,7 +208,7 @@ function CellValue({ type, info, showPhoto }: CellProps) {
     switch (type) {
         case "url": {
             const text = String(value ?? "")
-            return showPhoto ? <ValueImage src={text} alt={info.column.id} /> : <UrlBadge value={text} />
+            return showPhoto ? <ValueImage src={text} alt={info.column.id} size="small" /> : <UrlBadge value={text} />
         }
         case "mixed": {
             return <MixedValue value={value} />

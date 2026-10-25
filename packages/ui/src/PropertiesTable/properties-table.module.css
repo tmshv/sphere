@@ -114,32 +114,6 @@
     width: 100%;
 }
 
-/* Mantine 5 Image (Image.js, Image.styles.js) with width 50, height 50, fit cover, radius 0:
-   a root box, a figure, a relative wrapper and the image. */
-.image {
-    /* The image's width and height props. */
-    --table-image-size: 50px;
-
-    width: var(--table-image-size);
-}
-
-.figure {
-    margin: 0;
-}
-
-.imageWrapper {
-    position: relative;
-}
-
-.img {
-    display: block;
-    width: var(--table-image-size);
-    height: var(--table-image-size);
-    object-fit: cover;
-    border: 0;
-    border-radius: 0;
-}
-
 /* The footer widgets. Each rule overrides the internal Badge, StatusbarSelect or icon button module,
    so it is doubled or tripled to win by specificity, never by stylesheet order (R10). */
 /* `backgroundColor: theme.colors.dark` is an array; emotion wrote every entry and the last (dark[9]) won. */
@@ -178,4 +152,10 @@
     background-color: transparent;
     color: var(--sphere-color-statusbar-icon-disabled);
     border: none;
+}
+
+/* The footer sat in a nested MantineProvider, which does not inherit Sphere's `activeStyles: none`,
+   so Mantine's default ActionIcon press applied. A disabled pager never receives the press. */
+.pager.pager.pager:active:not(:disabled) {
+    transform: translateY(1px);
 }
