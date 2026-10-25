@@ -100,8 +100,8 @@
     margin-top: var(--sphere-space-md);
 }
 
-/* Mantine CloseButton: ActionIcon gray, subtle, size md, with the 16px close glyph. Doubled to beat .iconButton.iconButton (R10). */
-.close.close {
+/* Mantine CloseButton: ActionIcon gray, subtle, size md, with the 16px close glyph. Tripled: it must beat .iconButton.iconButton (0,2,0), which also sets height and width (R10). */
+.close.close.close {
     --close-size: 28px;
     --close-icon-size: 16px;
 
