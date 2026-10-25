@@ -55,7 +55,6 @@
     outline: none;
 }
 
-.tab:disabled,
 .tab[data-disabled] {
     opacity: 0.5;
     cursor: not-allowed;

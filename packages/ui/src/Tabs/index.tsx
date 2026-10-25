@@ -19,37 +19,51 @@ export type TabsProps = {
 type ListKeyDownEvent = Parameters<NonNullable<ComponentProps<typeof BaseTabs.List>["onKeyDown"]>>[0]
 
 const ENABLED_TAB_SELECTOR = '[role="tab"]:not([aria-disabled="true"])'
-const LAST_STEP = -1
 
 type NavigationKey = "ArrowLeft" | "ArrowRight" | "Home" | "End"
 
-// How far each key moves from the focused tab; Home and End jump to an end.
-const STEP: Record<NavigationKey, number | "first" | "last"> = {
-    ArrowLeft: LAST_STEP,
-    ArrowRight: 1,
-    Home: "first",
-    End: "last",
-}
+const NAVIGATION_KEYS: ReadonlySet<string> = new Set<NavigationKey>(["ArrowLeft", "ArrowRight", "Home", "End"])
 
 function isNavigationKey(key: string): key is NavigationKey {
-    return key in STEP
+    return NAVIGATION_KEYS.has(key)
 }
 
-// Base UI keeps disabled tabs in the arrow-key order; Mantine skipped them, so the list
-// does its own roving over the enabled tabs.
+// Index of the tab holding the event target, or -1 when focus is elsewhere (the list itself).
+function indexOfTabContaining(tabs: ReadonlyArray<HTMLElement>, target: EventTarget): number {
+    if (!(target instanceof Node)) {
+        return -1
+    }
+    return tabs.findIndex(tab => tab.contains(target))
+}
+
+// Neighbour of `current` in a ring of `count` tabs. From outside the tabs (-1), forward
+// lands on the first tab and backward on the last.
+function ringNeighbour(current: number, count: number, direction: 1 | -1): number {
+    if (current < 0) {
+        return direction === 1 ? 0 : count - 1
+    }
+    return (current + direction + count) % count
+}
+
+// Base UI exposes no way to skip disabled tabs: TabsList passes `disabledIndices: EMPTY_ARRAY`
+// to its composite (base-ui tabs/list/TabsList.js), so arrows would land on disabled tabs.
+// Mantine skipped them, so the list roves over the enabled tabs itself. Do not remove this
+// unless Base UI gains a skip-disabled option.
 function nextEnabledTab(
     tabs: ReadonlyArray<HTMLElement>,
     current: number,
     key: NavigationKey,
 ): HTMLElement | undefined {
-    const step = STEP[key]
-    if (step === "first") {
-        return tabs.at(0)
+    switch (key) {
+        case "Home":
+            return tabs.at(0)
+        case "End":
+            return tabs.at(-1)
+        case "ArrowRight":
+            return tabs.at(ringNeighbour(current, tabs.length, 1))
+        case "ArrowLeft":
+            return tabs.at(ringNeighbour(current, tabs.length, -1))
     }
-    if (step === "last") {
-        return tabs.at(-1)
-    }
-    return tabs.at((current + step + tabs.length) % tabs.length)
 }
 
 export function Tabs({ value, onChange, items }: TabsProps) {
@@ -64,11 +78,7 @@ export function Tabs({ value, onChange, items }: TabsProps) {
             return
         }
         const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(ENABLED_TAB_SELECTOR))
-        const target = nextEnabledTab(
-            tabs,
-            tabs.findIndex(tab => tab === document.activeElement),
-            event.key,
-        )
+        const target = nextEnabledTab(tabs, indexOfTabContaining(tabs, event.target), event.key)
         if (!target) {
             return
         }

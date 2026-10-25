@@ -62,6 +62,34 @@ describe("Tabs", () => {
         expect(screen.getByRole("tab", { name: "Sources" })).toHaveFocus()
     })
 
+    it("ArrowLeft wraps past the disabled tab, Home and End jump to the ends", async () => {
+        const user = userEvent.setup()
+        render(<Controlled />)
+
+        await user.click(screen.getByRole("tab", { name: "Sources" }))
+        await user.keyboard("{ArrowLeft}")
+        expect(screen.getByRole("tab", { name: "Layers" })).toHaveFocus()
+
+        await user.keyboard("{Home}")
+        expect(screen.getByRole("tab", { name: "Sources" })).toHaveFocus()
+
+        await user.keyboard("{End}")
+        expect(screen.getByRole("tab", { name: "Layers" })).toHaveFocus()
+    })
+
+    it("arrows from the list itself land on the first or last enabled tab", async () => {
+        render(<Controlled />)
+        const list = screen.getByRole("tablist")
+
+        list.focus()
+        fireEvent.keyDown(list, { key: "ArrowRight" })
+        expect(screen.getByRole("tab", { name: "Sources" })).toHaveFocus()
+
+        list.focus()
+        fireEvent.keyDown(list, { key: "ArrowLeft" })
+        expect(screen.getByRole("tab", { name: "Layers" })).toHaveFocus()
+    })
+
     it("switching tabs unmounts the previous content", () => {
         render(<Controlled />)
 

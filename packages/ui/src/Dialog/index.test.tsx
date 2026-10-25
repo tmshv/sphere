@@ -67,6 +67,7 @@ describe("Dialog focus and dismissal", () => {
 
         await user.click(opener)
         const dialog = await screen.findByRole("dialog")
+        expect(screen.getByRole("button", { name: "Close" })).toHaveFocus()
         expect(dialog.contains(document.activeElement)).toBe(true)
 
         for (let i = 0; i < TAB_PRESSES; i++) {

@@ -1,6 +1,8 @@
 .backdrop,
 .viewport {
     --dialog-duration: 250ms;
+    /* Mantine Transition `pop` (transitions.js popIn.out). */
+    --dialog-pop-out: scale(0.9) translateY(10px);
 }
 
 /* Mantine 5 Modal.styles.js: centered, size md (440px), padding lg, shadow lg, radius sm,
@@ -24,6 +26,8 @@
 /* Mantine `inner`: scrolls when the modal is taller than the window. */
 .viewport {
     --dialog-width: 440px;
+    /* Mantine Modal.styles.js header: marginRight -9, so the close glyph's padding aligns with the body edge. */
+    --dialog-header-bleed: -9px;
 
     position: fixed;
     top: 0;
@@ -61,7 +65,7 @@
 .popup[data-starting-style],
 .popup[data-ending-style] {
     opacity: 0;
-    transform: scale(0.9) translateY(10px);
+    transform: var(--dialog-pop-out);
 }
 
 .header {
@@ -69,7 +73,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--sphere-space-md);
-    margin-right: -9px;
+    margin-right: var(--dialog-header-bleed);
 }
 
 .title {
