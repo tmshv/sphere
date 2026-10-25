@@ -1,0 +1,212 @@
+/* Mantine 5.10.5 Spotlight (centered=false, topOffset 120, maxWidth 600, shadow md, radius sm,
+   overlay #000 at .25 with a 3px blur, `pop` transition over 150ms, the overlay fades in 75ms). */
+.backdrop,
+.viewport {
+    --palette-duration: 150ms;
+    /* Mantine Transition `pop` (transitions.js popIn.out). */
+    --palette-pop-out: scale(0.9) translateY(10px);
+}
+
+.backdrop {
+    /* Mantine Overlay blur prop. */
+    --palette-blur: 3px;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--sphere-z-index-max);
+    background-color: var(--sphere-color-palette-overlay);
+    backdrop-filter: blur(var(--palette-blur));
+    transition: opacity calc(var(--palette-duration) / 2) ease;
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+    opacity: 0;
+}
+
+.viewport {
+    /* Mantine topOffset and maxWidth defaults. */
+    --palette-top-offset: 120px;
+    --palette-max-width: 600px;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--sphere-z-index-max);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--palette-top-offset);
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.popup {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: var(--palette-max-width);
+    overflow: auto;
+    outline: 0;
+    background-color: var(--sphere-color-dropdown-bg);
+    color: var(--sphere-color-text);
+    border-radius: var(--sphere-radius-sm);
+    box-shadow: var(--sphere-shadow-md);
+    font-family: var(--sphere-font-family-sans);
+    line-height: var(--sphere-line-height-body);
+    -webkit-tap-highlight-color: transparent;
+    transform-origin: center center;
+    transition: transform var(--palette-duration) ease, opacity var(--palette-duration) ease;
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+    opacity: 0;
+    transform: var(--palette-pop-out);
+}
+
+/* Mantine TextInput, size lg, with the Spotlight searchInput override (no border, square bottom). */
+.search {
+    --search-height: 50px;
+    --search-border-width: 2px;
+    /* Mantine pads by size / 3. */
+    --search-padding-divisor: 3;
+
+    position: relative;
+}
+
+.searchIcon {
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--search-height);
+    color: var(--sphere-color-input-icon);
+}
+
+.searchInput {
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--sphere-font-family-sans);
+    height: var(--search-height);
+    min-height: var(--search-height);
+    line-height: calc(var(--search-height) - var(--search-border-width));
+    appearance: none;
+    resize: none;
+    box-sizing: border-box;
+    font-size: var(--sphere-font-size-lg);
+    width: 100%;
+    color: var(--sphere-color-text);
+    display: block;
+    text-align: left;
+    padding-left: var(--search-height);
+    padding-right: calc(var(--search-height) / var(--search-padding-divisor));
+    border: 0;
+    border-radius: var(--sphere-radius-sm) var(--sphere-radius-sm) 0 0;
+    background-color: var(--sphere-color-dropdown-bg);
+    outline: none;
+}
+
+.searchInput::placeholder {
+    user-select: none;
+    color: var(--sphere-color-input-placeholder);
+    opacity: 1;
+}
+
+.searchInput::-webkit-search-decoration,
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-results-button,
+.searchInput::-webkit-search-results-decoration {
+    appearance: none;
+}
+
+/* Mantine ActionsList.styles.js. */
+.actions {
+    padding: calc(var(--sphere-space-xs) / 2);
+    border-top: 1px solid var(--sphere-color-dropdown-border);
+}
+
+/* Mantine DefaultAction.styles.js: an UnstyledButton. */
+.action {
+    /* Mantine pads the action 10px 12px. */
+    --action-padding-y: 10px;
+    --action-padding-x: 12px;
+
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-md);
+    /* Mantine's normalize.css gives every button this line height. */
+    --button-line-height: 1.15;
+
+    line-height: var(--button-line-height);
+    cursor: pointer;
+    text-align: left;
+    color: var(--sphere-color-text);
+    text-decoration: none;
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: var(--action-padding-y) var(--action-padding-x);
+    border-radius: var(--sphere-radius-sm);
+}
+
+.action[data-highlighted] {
+    background-color: var(--sphere-color-item-hover-bg);
+}
+
+/* Mantine Group, noWrap, spacing md. */
+.group {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: var(--sphere-space-md);
+}
+
+.group > * {
+    box-sizing: border-box;
+    flex-grow: 0;
+}
+
+.actionIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sphere-color-text-dimmed);
+}
+
+/* Mantine Text, size md (title) and xs dimmed (description). */
+.title {
+    -webkit-tap-highlight-color: transparent;
+    font-size: var(--sphere-font-size-md);
+    line-height: var(--sphere-line-height-body);
+}
+
+.description {
+    -webkit-tap-highlight-color: transparent;
+    font-size: var(--sphere-font-size-xs);
+    line-height: var(--sphere-line-height-body);
+    color: var(--sphere-color-text-dimmed);
+}
+
+/* Mantine Text: dimmed, centred, size lg, padding md top and bottom. */
+.nothingFound {
+    -webkit-tap-highlight-color: transparent;
+    font-size: var(--sphere-font-size-lg);
+    line-height: var(--sphere-line-height-body);
+    color: var(--sphere-color-text-dimmed);
+    text-align: center;
+    padding-top: var(--sphere-space-md);
+    padding-bottom: var(--sphere-space-md);
+}

@@ -218,7 +218,7 @@ describe("MapContextMenu", () => {
     it("keeps the Search item disabled", () => {
         render(<MapContextMenu id="map" copyLocationValue={([lng, lat]) => `${lng},${lat}`} />)
         openMenu()
-        expect(screen.getByRole("menuitem", { name: /Search/ }).hasAttribute("disabled")).toBe(true)
+        expect(screen.getByRole("menuitem", { name: /Search/ }).getAttribute("aria-disabled")).toBe("true")
         expect(screen.getByText("⌘K")).toBeDefined()
     })
 })

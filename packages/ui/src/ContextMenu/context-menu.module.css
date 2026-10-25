@@ -1,0 +1,73 @@
+/* Mantine 5 Menu: Popover dropdown (shadow md, 1px border, radius sm) with the Menu override
+   padding 4px, width 200px, positioned right-start with a 10px offset. */
+.positioner {
+    z-index: var(--sphere-z-index-popover);
+}
+
+.dropdown {
+    --menu-width: 200px;
+    --menu-padding: 4px;
+
+    box-sizing: border-box;
+    width: var(--menu-width);
+    padding: var(--menu-padding);
+    background-color: var(--sphere-color-dropdown-bg);
+    border: 1px solid var(--sphere-color-dropdown-border);
+    border-radius: var(--sphere-radius-sm);
+    box-shadow: var(--sphere-shadow-md);
+    outline: 0;
+}
+
+/* Mantine 5 MenuItem.styles.js: a button, font size sm, padding xs sm. */
+.item {
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-sm);
+    /* Mantine's normalize.css gives every button this line height. */
+    --button-line-height: 1.15;
+
+    line-height: var(--button-line-height);
+    border: 0;
+    background-color: transparent;
+    outline: 0;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    box-sizing: border-box;
+    padding: var(--sphere-space-xs) var(--sphere-space-sm);
+    cursor: pointer;
+    border-radius: var(--sphere-radius-sm);
+    color: var(--sphere-color-text);
+    display: flex;
+    align-items: center;
+}
+
+.item[data-highlighted] {
+    background-color: var(--sphere-color-menu-item-hover-bg);
+}
+
+.item[data-disabled] {
+    color: var(--sphere-color-menu-item-disabled-text);
+    pointer-events: none;
+    user-select: none;
+}
+
+.itemLabel {
+    flex: 1;
+}
+
+.itemIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: var(--sphere-space-xs);
+}
+
+/* Mantine 5 MenuLabel.styles.js. */
+.label {
+    color: var(--sphere-color-text-dimmed);
+    font-weight: var(--sphere-font-weight-medium);
+    font-size: var(--sphere-font-size-xs);
+    padding: calc(var(--sphere-space-xs) / 2) var(--sphere-space-sm);
+    cursor: default;
+}

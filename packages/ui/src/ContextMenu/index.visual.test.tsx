@@ -8,6 +8,7 @@ const noop = () => {}
 const ICON_SIZE = 14
 const MENU_POSITION: [number, number] = [200, 120]
 const NEAR_EDGE_POSITION: [number, number] = [780, 580]
+const NEAR_EDGE_ALLOWED_MISMATCH = 0.0005
 
 function Items(): ReactNode {
     return (
@@ -58,5 +59,9 @@ visualCases("ContextMenu", {
         ),
         interact: waitForMenu,
         target: "page",
+        // The shift near the window edge is fractional (the menu height is fractional). Mantine's
+        // floating-ui keeps the fraction; Base UI rounds the popup to a whole pixel, so a few
+        // glyphs (the shortcut and the trash icon) anti-alias differently. About 90 of 480000 pixels.
+        allowedMismatchedPixelRatio: NEAR_EDGE_ALLOWED_MISMATCH,
     },
 })

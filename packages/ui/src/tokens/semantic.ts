@@ -58,6 +58,10 @@ export type SemanticColor =
     | "tab-text"
     | "tab-active-bg"
     | "overlay"
+    | "menu-item-hover-bg"
+    | "menu-item-disabled-text"
+    | "input-icon"
+    | "palette-overlay"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -83,6 +87,8 @@ const HUE_RING_ALPHA = 0.1
 const HUE_GLOW_ALPHA = 0.15
 const MODAL_OVERLAY_LIGHT_ALPHA = 0.75
 const MODAL_OVERLAY_DARK_ALPHA = 0.85
+const MENU_ITEM_DARK_HOVER_ALPHA = 0.35
+const PALETTE_OVERLAY_ALPHA = 0.25
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -169,5 +175,15 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     overlay: {
         light: withAlpha(palette.black, MODAL_OVERLAY_LIGHT_ALPHA),
         dark: withAlpha(palette.dark[9], MODAL_OVERLAY_DARK_ALPHA),
+    },
+    // Mantine 5 MenuItem.styles.js: [data-hovered] (gray[1] / dark[3] at .35) and :disabled (gray[5] / dark[3]).
+    "menu-item-hover-bg": { light: palette.gray[1], dark: withAlpha(palette.dark[3], MENU_ITEM_DARK_HOVER_ALPHA) },
+    "menu-item-disabled-text": { light: palette.gray[5], dark: palette.dark[3] },
+    // Mantine 5 Input.styles.js icon (not invalid): gray[5] / dark[2].
+    "input-icon": { light: palette.gray[5], dark: palette.dark[2] },
+    // Mantine 5 Spotlight.js overlay: overlayColor #000 at overlayOpacity .25, both schemes.
+    "palette-overlay": {
+        light: withAlpha(palette.black, PALETTE_OVERLAY_ALPHA),
+        dark: withAlpha(palette.black, PALETTE_OVERLAY_ALPHA),
     },
 }

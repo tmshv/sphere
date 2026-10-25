@@ -1,6 +1,14 @@
-import { Menu } from "@mantine/core"
-import type { ReactNode } from "react"
+import { Menu } from "@base-ui/react/menu"
+import { type ReactNode, useMemo } from "react"
 import { Text } from "../Text"
+import s from "./context-menu.module.css"
+
+// Mantine 5 Menu: the dropdown sits 10px to the right of the point.
+const MENU_OFFSET_PX = 10
+// Mantine 5 shifts and flips (floating-ui) with no padding: the menu may touch the window edge.
+const COLLISION_PADDING_PX = 0
+// Flip to the other side, then shift along the edge instead of flipping the alignment.
+const COLLISION_AVOIDANCE = { side: "flip", align: "shift", fallbackAxisSide: "none" } as const
 
 export type ContextMenuProps = {
     opened: boolean
@@ -9,29 +17,39 @@ export type ContextMenuProps = {
     children: React.ReactNode
 }
 
-export function ContextMenu({ opened, position, onClose, children }: ContextMenuProps) {
-    return (
-        <Menu
-            shadow="md"
-            width={200}
-            opened={opened}
-            position={"right-start"}
-            offset={10}
-            closeOnClickOutside={true}
-            onClose={onClose}
-        >
-            <Menu.Target>
-                <div
-                    style={{
-                        position: "fixed",
-                        left: position[0],
-                        top: position[1],
-                    }}
-                />
-            </Menu.Target>
+// The menu is anchored to a zero-size box at the point, like Mantine's fixed target div.
+function pointAnchor([x, y]: [number, number]) {
+    return {
+        getBoundingClientRect: () => DOMRect.fromRect({ x, y, width: 0, height: 0 }),
+    }
+}
 
-            <Menu.Dropdown>{children}</Menu.Dropdown>
-        </Menu>
+export function ContextMenu({ opened, position, onClose, children }: ContextMenuProps) {
+    const [x, y] = position
+    const anchor = useMemo(() => pointAnchor([x, y]), [x, y])
+
+    function handleOpenChange(open: boolean) {
+        if (!open) {
+            onClose()
+        }
+    }
+
+    return (
+        <Menu.Root open={opened} onOpenChange={handleOpenChange} modal={false}>
+            <Menu.Portal>
+                <Menu.Positioner
+                    className={s.positioner}
+                    anchor={anchor}
+                    side="right"
+                    align="start"
+                    sideOffset={MENU_OFFSET_PX}
+                    collisionPadding={COLLISION_PADDING_PX}
+                    collisionAvoidance={COLLISION_AVOIDANCE}
+                >
+                    <Menu.Popup className={s.dropdown}>{children}</Menu.Popup>
+                </Menu.Positioner>
+            </Menu.Portal>
+        </Menu.Root>
     )
 }
 
@@ -45,13 +63,14 @@ export type ContextMenuItemProps = {
 
 export function ContextMenuItem({ icon, shortcut, disabled = false, onClick, children }: ContextMenuItemProps) {
     return (
-        <Menu.Item
-            icon={icon}
-            disabled={disabled}
-            onClick={() => onClick?.()}
-            rightSection={shortcut === undefined ? undefined : <Text tone={"dimmed"}>{shortcut}</Text>}
-        >
-            {children}
+        <Menu.Item className={s.item} disabled={disabled} onClick={() => onClick?.()}>
+            {icon ? <div className={s.itemIcon}>{icon}</div> : null}
+            <div className={s.itemLabel}>{children}</div>
+            {shortcut === undefined ? null : (
+                <div>
+                    <Text tone={"dimmed"}>{shortcut}</Text>
+                </div>
+            )}
         </Menu.Item>
     )
 }
@@ -61,5 +80,5 @@ export type ContextMenuLabelProps = {
 }
 
 export function ContextMenuLabel({ children }: ContextMenuLabelProps) {
-    return <Menu.Label>{children}</Menu.Label>
+    return <div className={s.label}>{children}</div>
 }
