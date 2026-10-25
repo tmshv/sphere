@@ -1,4 +1,4 @@
-/* Mantine 5 Badge.styles.js for sizes xs/sm and variants light/filled. */
+/* Mantine 5 Badge.styles.js for sizes xs/sm and variants light/filled/outline (outline in the dark colour). */
 /* Height, font size and padding come from the size class. */
 .badge {
     --badge-letter-spacing: 0.25px;
@@ -39,6 +39,10 @@
     --badge-padding-space: var(--sphere-space-sm);
 }
 
+.radiusXs {
+    border-radius: var(--sphere-radius-xs);
+}
+
 .radiusSm {
     border-radius: var(--sphere-radius-sm);
 }
@@ -55,6 +59,12 @@
 .filled {
     background: var(--sphere-color-badge-filled-bg);
     color: var(--sphere-color-badge-filled-text);
+}
+
+.outline {
+    background: transparent;
+    color: var(--sphere-color-badge-outline-dark);
+    border-color: var(--sphere-color-badge-outline-dark);
 }
 
 .inner {

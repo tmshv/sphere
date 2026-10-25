@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
-import { render, screen } from "../test-utils"
+import { declaredStyle, render, screen } from "../test-utils"
 import { Badge, Skeleton, Tooltip, unstyledButton } from "."
 
 const OPEN_DELAY_MS = 150
@@ -27,6 +27,19 @@ describe("Badge", () => {
         expect(root?.className).toContain("filled")
         expect(root?.className).toContain("radiusXl")
         expect(root).toHaveClass("extra")
+    })
+
+    it("declares the xs radius and the outline colours from tokens", () => {
+        render(
+            <Badge size="sm" variant="outline" radius="xs">
+                link
+            </Badge>,
+        )
+        const root = screen.getByText("link").parentElement
+        if (!root) throw new Error("badge root missing")
+        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-xs)")
+        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-badge-outline-dark)")
+        expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-badge-outline-dark)")
     })
 })
 

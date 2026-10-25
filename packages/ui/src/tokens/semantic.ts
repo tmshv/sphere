@@ -15,6 +15,7 @@ export type SemanticColor =
     | "badge-light-text"
     | "badge-filled-bg"
     | "badge-filled-text"
+    | "badge-outline-dark"
     | "skeleton-cover"
     | "skeleton-bg"
     | "tooltip-bg"
@@ -88,6 +89,9 @@ export type SemanticColor =
     | "outline-item-active-hover-bg"
     | "marker-surface"
     | "marker-shadow"
+    | "table-border"
+    | "table-resizer"
+    | "chart-bar"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -136,6 +140,8 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Mantine 5 Badge, variant "filled", primary colour.
     "badge-filled-bg": { light: palette.blue[6], dark: palette.blue[8] },
     "badge-filled-text": { light: palette.white, dark: palette.white },
+    // Mantine 5 fn.variant "outline", colour dark: border and text are dark[6] (light) / dark[5] (dark).
+    "badge-outline-dark": { light: palette.dark[6], dark: palette.dark[5] },
     // Mantine 5 Skeleton.styles.js: ::before cover, ::after shimmer fill.
     "skeleton-cover": { light: palette.white, dark: palette.dark[7] },
     "skeleton-bg": { light: palette.gray[3], dark: palette.dark[4] },
@@ -257,4 +263,11 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Sphere ImageMarker: white fill and 3px border, shadow rgba(0, 0, 30, 0.25), the same in both schemes.
     "marker-surface": { light: palette.white, dark: palette.white },
     "marker-shadow": { light: "rgba(0, 0, 30, 0.25)", dark: "rgba(0, 0, 30, 0.25)" },
+    // Sphere PropertiesTable: gray[1] cell borders in both schemes (theme.colors.gray[1] is not scheme-aware).
+    "table-border": { light: palette.gray[1], dark: palette.gray[1] },
+    // Sphere PropertiesTable resizer: `background: theme.primaryColor` is the string "blue", which CSS reads
+    // as the keyword (pure #0000ff), not the palette blue. Kept as rendered.
+    "table-resizer": { light: "blue", dark: "blue" },
+    // Sphere PropertiesTable histogram: rgb(34, 139, 230), palette blue[6], in both schemes.
+    "chart-bar": { light: palette.blue[6], dark: palette.blue[6] },
 }

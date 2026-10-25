@@ -37,4 +37,18 @@ visualCases("InternalBadge", {
             </Badge>
         ),
     },
+    "xs-light-xs": {
+        render: () => (
+            <Badge size="xs" variant="light" radius="xs">
+                int
+            </Badge>
+        ),
+    },
+    "sm-outline-sm": {
+        render: () => (
+            <Badge size="sm" variant="outline" radius="sm">
+                example.com/a.png
+            </Badge>
+        ),
+    },
 })
