@@ -12,6 +12,11 @@ describe("hex", () => {
         expect(hexToHsv("#1a1b1e")).toEqual({ h: 225, s: 13, v: 12 })
     })
 
+    it("wraps a negative hue sector into 300-360 degrees", () => {
+        // Red is the maximum and blue exceeds green, so the sector is negative before wrapping.
+        expect(hexToHsv("#ff0080")).toEqual({ h: 330, s: 100, v: 100 })
+    })
+
     it("treats an invalid colour as black", () => {
         expect(hexToHsv("nope")).toEqual({ h: 0, s: 0, v: 0 })
         expect(isHex("#12345")).toBe(false)

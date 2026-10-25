@@ -14,13 +14,30 @@
 }
 
 .picker {
+    /* Thumb.styles.js THUMB_SIZES.xs. */
     --thumb-size: 8px;
+    /* Thumb.styles.js: border: 2px solid. */
+    --thumb-border-width: 2px;
     /* Half a thumb plus a pixel: how far the painted area reaches past the moving box. */
     --area-reach: 5px;
+    /* ColorSlider.styles.js: thumb size + 2. */
     --slider-height: 10px;
+    /* Sphere's override of Saturation height (Saturation.styles.js xs is 100). */
     --saturation-height: 130px;
+    /* ColorPicker body padding-top 2 + Sphere's slider margin-top spacing.sm (12) - 1 (painted-area offset). */
     --hue-gap: 13px;
+    /* ColorPicker.styles.js wrapper: padding 1. */
     --picker-padding: 1px;
+    /* ColorSlider.styles.js: borderRadius 1000, a pill. */
+    --pill-radius: 1000px;
+    /* fn.focusStyles: 2px ring, 2px offset. */
+    --focus-width: 2px;
+    --focus-offset: 2px;
+    /* HueSlider.js ring and glow sizes. */
+    --hue-ring-width: 1px;
+    --hue-glow-blur: 4px;
+    /* Thumb.styles.js boxShadow blur. */
+    --thumb-shadow-blur: 1px;
 
     width: 100%;
     box-sizing: border-box;
@@ -41,6 +58,7 @@
     border: 0;
     border-radius: var(--sphere-radius-sm);
     box-shadow: none;
+    /* Black and white gradient stops are colour math, not theme colours. */
     background-image: linear-gradient(0deg, #000, transparent), linear-gradient(90deg, #fff, transparent);
 }
 
@@ -48,7 +66,7 @@
     flex: none;
     height: var(--slider-height);
     margin: var(--hue-gap) calc(var(--picker-padding) * -1) 0;
-    border-radius: 1000px;
+    border-radius: var(--pill-radius);
     background: linear-gradient(
         to right,
         hsl(0, 100%, 50%),
@@ -60,8 +78,8 @@
         hsl(360, 100%, 50%)
     );
     box-shadow:
-        rgba(0, 0, 0, 0.1) 0 0 0 1px inset,
-        rgba(0, 0, 0, 0.15) 0 0 4px inset;
+        var(--sphere-color-hue-ring) 0 0 0 var(--hue-ring-width) inset,
+        var(--sphere-color-hue-glow) 0 0 var(--hue-glow-blur) inset;
 }
 
 .picker :global(.react-colorful__saturation .react-colorful__interactive) {
@@ -80,10 +98,10 @@
     box-sizing: border-box;
     width: var(--thumb-size);
     height: var(--thumb-size);
-    border: 2px solid var(--sphere-color-color-thumb-border);
+    border: var(--thumb-border-width) solid var(--sphere-color-color-thumb-border);
     border-radius: var(--thumb-size);
     background-color: transparent;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 var(--thumb-shadow-blur) var(--sphere-color-color-thumb-shadow);
 }
 
 /* Mantine shows a ring on the thumb for keyboard focus and does not scale it. */
@@ -92,6 +110,6 @@
 }
 
 .picker :global(.react-colorful__interactive:focus-visible) :global(.react-colorful__pointer) {
-    outline: 2px solid var(--sphere-color-focus-ring);
-    outline-offset: 2px;
+    outline: var(--focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--focus-offset);
 }

@@ -24,7 +24,6 @@ describe("SliderField", () => {
         expect(onChange).toHaveBeenLastCalledWith(7)
 
         rerender(<SliderField label="Radius" value={10} min={1} max={10} step={2} onChange={onChange} />)
-        fireEvent.keyDown(screen.getByRole("slider"), { key: "ArrowRight" })
         // At max there is nothing to report: Base UI stays silent where Mantine repeated the value.
         onChange.mockClear()
         fireEvent.keyDown(screen.getByRole("slider"), { key: "ArrowRight" })

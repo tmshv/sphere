@@ -1,6 +1,18 @@
 /* Mantine 5 Slider at size xs, radius xl: SliderRoot, Track and Thumb styles. */
 .control {
+    /* SliderRoot.styles.js sizes.xs: track height and half the thumb. */
     --slider-size: 4px;
+    /* Thumb.styles.js: border: var(--slider-thumb-border-width) solid. */
+    --slider-thumb-border-width: 4px;
+    /* Thumb.styles.js: borderRadius 1e3, a pill. */
+    --slider-pill-radius: 1000px;
+    /* Thumb.styles.js dragging: scale(var(--slider-thumb-drag-scale)). */
+    --slider-thumb-drag-scale: 1.05;
+    /* Thumb.styles.js label: top -36. */
+    --slider-label-offset: -36px;
+    /* fn.focusStyles: 2px ring, 2px offset. */
+    --slider-focus-width: 2px;
+    --slider-focus-offset: 2px;
 
     -webkit-tap-highlight-color: transparent;
     outline: 0;
@@ -51,10 +63,10 @@
     height: calc(var(--slider-size) * 2);
     width: calc(var(--slider-size) * 2);
     background-color: var(--sphere-color-slider-thumb-bg);
-    border: 4px solid var(--sphere-color-slider-thumb-border);
+    border: var(--slider-thumb-border-width) solid var(--sphere-color-slider-thumb-border);
     color: var(--sphere-color-slider-thumb-border);
     cursor: pointer;
-    border-radius: 1000px;
+    border-radius: var(--slider-pill-radius);
     transition-duration: var(--sphere-duration-fast);
     transition-property: box-shadow, transform;
     transition-timing-function: ease;
@@ -66,14 +78,14 @@
 
 .thumb[data-dragging] {
     /* Base UI centres the thumb with the translate property, so only the scale is set here. */
-    transform: scale(1.05);
+    transform: scale(var(--slider-thumb-drag-scale));
     box-shadow: var(--sphere-shadow-sm);
 }
 
 /* Mantine's fn.focusStyles on the thumb: a ring on keyboard focus only. */
 .thumb:has(:focus-visible) {
-    outline: 2px solid var(--sphere-color-focus-ring);
-    outline-offset: 2px;
+    outline: var(--slider-focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--slider-focus-offset);
 }
 
 .thumb:has(:focus:not(:focus-visible)) {
@@ -88,7 +100,7 @@
 .label {
     display: none;
     position: absolute;
-    top: -36px;
+    top: var(--slider-label-offset);
     background-color: var(--sphere-color-slider-label-bg);
     font-size: var(--sphere-font-size-xs);
     color: var(--sphere-color-slider-label-text);

@@ -50,6 +50,9 @@ export type SemanticColor =
     | "slider-label-bg"
     | "slider-label-text"
     | "color-thumb-border"
+    | "color-thumb-shadow"
+    | "hue-ring"
+    | "hue-glow"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -70,6 +73,9 @@ function withAlpha(hex: string, alpha: number): string {
 
 const BADGE_LIGHT_DARK_ALPHA = 0.2
 const ICON_BUTTON_DARK_HOVER_ALPHA = 0.2
+const COLOR_THUMB_SHADOW_ALPHA = 0.6
+const HUE_RING_ALPHA = 0.1
+const HUE_GLOW_ALPHA = 0.15
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -138,4 +144,12 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     "slider-label-text": { light: palette.white, dark: palette.white },
     // Mantine 5 ColorPicker Thumb.styles.js: 2px white border.
     "color-thumb-border": { light: palette.white, dark: palette.white },
+    // Mantine 5 ColorPicker Thumb.styles.js: boxShadow 0 0 1px rgba(0, 0, 0, .6).
+    "color-thumb-shadow": {
+        light: withAlpha(palette.black, COLOR_THUMB_SHADOW_ALPHA),
+        dark: withAlpha(palette.black, COLOR_THUMB_SHADOW_ALPHA),
+    },
+    // Mantine 5 HueSlider.js: the two inset shadows over the hue spectrum (1px ring, 4px glow).
+    "hue-ring": { light: withAlpha(palette.black, HUE_RING_ALPHA), dark: withAlpha(palette.black, HUE_RING_ALPHA) },
+    "hue-glow": { light: withAlpha(palette.black, HUE_GLOW_ALPHA), dark: withAlpha(palette.black, HUE_GLOW_ALPHA) },
 }

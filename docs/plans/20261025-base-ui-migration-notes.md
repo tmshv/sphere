@@ -61,3 +61,4 @@
 - SliderField: Base UI renders a native `<input type="range">` inside the thumb, so tests read `min`, `max` and value from it instead of `aria-valuemin`, `aria-valuemax` and `aria-valuenow`. It is visually hidden, so the thumb-hover visual case hovers the visible thumb element.
 - SliderField: pressing ArrowRight at max no longer calls `onChange(max)` again. Base UI reports changes only, where Mantine repeated the clamped value.
 - ColorField: `react-colorful` handles arrow keys through `keyCode`, so tests that fire key events on its sliders must pass `keyCode`.
+- Colour math is exempt from the token rule, as functional rather than design: the saturation area's black and white gradient stops and the hue spectrum `hsl()` stops stay literal in `ColorField/color-field.module.css`. Theme colours (thumb shadow, hue ring and glow) are tokens, and Mantine size-table geometry is a named local custom property with a comment citing its source.
