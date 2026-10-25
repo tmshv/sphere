@@ -1,0 +1,69 @@
+/* Offsets: sm = 12px, xl = 28px, bottom gap = sm. */
+.container {
+    --top-left-offset: calc(var(--sphere-space-sm) + var(--sphere-space-xl));
+    --top-right-offset: var(--sphere-space-sm);
+    --bottom-gap: var(--sphere-space-sm);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: var(--sphere-z-index-app);
+}
+
+/* Positioning wrappers must stay transparent to the mouse: they can be
+   wider or taller than their content and would otherwise swallow clicks
+   meant for the map underneath. Only the content itself is interactive. */
+.inner {
+    position: absolute;
+    pointer-events: none;
+}
+
+.inner > * {
+    pointer-events: auto;
+}
+
+/* Scrollable regions are bounded with max-height instead of an anchored
+   bottom edge, so the wrapper shrinks to its content and leaves the rest
+   of the map clickable. */
+.topLeft {
+    top: var(--top-left-offset);
+    left: var(--sphere-space-md);
+    max-height: calc(100% - (var(--top-left-offset) + var(--bottom-gap)));
+    display: flex;
+    flex-direction: column;
+}
+
+.left {
+    top: 50%;
+    left: var(--sphere-space-md);
+    transform: translateY(-50%);
+}
+
+.right {
+    top: 50%;
+    right: var(--sphere-space-md);
+    transform: translateY(-50%);
+}
+
+.topRight {
+    top: var(--top-right-offset);
+    right: var(--sphere-space-sm);
+    max-height: calc(100% - (var(--top-right-offset) + var(--bottom-gap)));
+    display: flex;
+    flex-direction: column;
+}
+
+.top {
+    top: var(--sphere-space-md);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.bottom {
+    bottom: var(--sphere-space-md);
+    left: 50%;
+    transform: translateX(-50%);
+}

@@ -62,6 +62,10 @@ export type SemanticColor =
     | "menu-item-disabled-text"
     | "input-icon"
     | "palette-overlay"
+    | "separator"
+    | "split-focus"
+    | "section-header-bg"
+    | "section-header-text"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -186,4 +190,11 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
         light: withAlpha(palette.black, PALETTE_OVERLAY_ALPHA),
         dark: withAlpha(palette.black, PALETTE_OVERLAY_ALPHA),
     },
+    // Sphere Split: allotment --separator-border (gray[3] / gray[8]); also the SectionStack header's top border.
+    separator: { light: palette.gray[3], dark: palette.gray[8] },
+    // Sphere Split: allotment --focus-border, blue[7] in both schemes.
+    "split-focus": { light: palette.blue[7], dark: palette.blue[7] },
+    // Sphere SectionStack header: white / gray[9] fill, gray[9] / dark[0] text.
+    "section-header-bg": { light: palette.white, dark: palette.gray[9] },
+    "section-header-text": { light: palette.gray[9], dark: palette.dark[0] },
 }

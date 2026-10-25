@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { describe, expect, it } from "vitest"
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen } from "../test-utils"
 import { SectionStack, type SectionLayout } from "."
 
 function Stack({ initial }: { initial: SectionLayout[] }) {
@@ -152,6 +152,7 @@ describe("SectionStack", () => {
         // edge, putting the overlay scrollbar macOS draws over the text.
         expect(paddingPx(style.paddingLeft)).toBe(0)
         expect(paddingPx(style.paddingRight)).toBe(0)
-        expect(paddingPx(style.paddingTop)).toBeGreaterThan(0)
+        // A spacing token, which happy-dom leaves unresolved.
+        expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-sm)")
     })
 })

@@ -1,0 +1,55 @@
+.root {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.header {
+    /* Matches SECTION_HEADER_HEIGHT in index.tsx. */
+    --header-height: 30px;
+    /* Chevron rotation transition (Sphere-specific, not a Mantine value). */
+    --chevron-duration: 150ms;
+
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--sphere-space-xs);
+    height: var(--header-height);
+    padding-left: var(--sphere-space-sm);
+    padding-right: var(--sphere-space-sm);
+    font-size: var(--sphere-font-size-sm);
+    color: var(--sphere-color-section-header-text);
+    background-color: var(--sphere-color-section-header-bg);
+    border-top: 1px solid var(--sphere-color-separator);
+}
+
+.chevron {
+    flex-shrink: 0;
+    transition: transform var(--chevron-duration) ease;
+}
+
+.chevronOpen {
+    transform: rotate(90deg);
+}
+
+/* A section pads above and below its content but not either side: a child
+   that scrolls has to reach the section's own edge, or the overlay
+   scrollbar macOS draws there lands on top of the text. The inset either
+   side is the child's to apply, inside whatever it scrolls: PanelBody
+   does exactly that. */
+.body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: var(--sphere-space-sm);
+    padding-bottom: var(--sphere-space-sm);
+}

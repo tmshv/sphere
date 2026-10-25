@@ -1,7 +1,7 @@
-import { createStyles } from "@mantine/core"
 import type { CSSProperties, ReactNode } from "react"
 import { ALIGN_ITEMS, type Align } from "./align"
 import { GAP_PX, type Gap } from "./gap"
+import s from "./row.module.css"
 
 export type Justify = "start" | "end" | "between"
 
@@ -10,18 +10,6 @@ const JUSTIFY_CONTENT: Record<Justify, string> = {
     end: "flex-end",
     between: "space-between",
 }
-
-const useStyle = createStyles(() => ({
-    // Every child takes an equal share of the row, and may shrink below its
-    // content width so a narrow row can't push it past the edge.
-    grow: {
-        "& > *": {
-            flexGrow: 1,
-            flexBasis: 0,
-            minWidth: 0,
-        },
-    },
-}))
 
 export type RowProps = {
     gap?: Gap
@@ -35,7 +23,6 @@ export type RowProps = {
 }
 
 export function Row({ gap, align, justify, grow = false, className, style, children }: RowProps) {
-    const { classes, cx } = useStyle()
     const layout: CSSProperties = {
         display: "flex",
         flexDirection: "row",
@@ -45,7 +32,10 @@ export function Row({ gap, align, justify, grow = false, className, style, child
     }
 
     return (
-        <div className={cx(grow && classes.grow, className)} style={{ ...layout, ...style }}>
+        <div
+            className={[grow ? s.grow : undefined, className].filter(Boolean).join(" ") || undefined}
+            style={{ ...layout, ...style }}
+        >
             {children}
         </div>
     )

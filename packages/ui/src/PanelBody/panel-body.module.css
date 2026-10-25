@@ -1,0 +1,29 @@
+/* A panel body is split in two: a header that always stays put (controls
+   belong there) and the body below it, which scrolls when the panel runs out
+   of room. Both need the parent to give the panel a bounded height. */
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sphere-space-md);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* The panel owns the inset either side of its content, rather than taking it
+   from whatever holds it. That lets the scrolling part reach the panel's own
+   edge, so the overlay scrollbar macOS draws there rides over the inset
+   instead of over the text. */
+.header {
+    flex-shrink: 0;
+    padding-left: var(--sphere-space-sm);
+    padding-right: var(--sphere-space-sm);
+}
+
+.body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-left: var(--sphere-space-sm);
+    padding-right: var(--sphere-space-sm);
+}

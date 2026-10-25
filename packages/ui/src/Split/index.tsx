@@ -1,22 +1,9 @@
-import { createStyles } from "@mantine/core"
 import { Allotment, type AllotmentHandle, LayoutPriority } from "allotment"
 import { forwardRef } from "react"
 import "allotment/dist/style.css"
+import s from "./split.module.css"
 
 export { LayoutPriority }
-
-// allotment is themed entirely through five custom properties it declares on
-// :root. Only the two colours need to follow the Mantine colour scheme; the
-// default --sash-size of 8px is already a larger grab area than the 4px
-// handle it replaces, so it is left alone.
-const useStyles = createStyles(theme => ({
-    root: {
-        width: "100%",
-        height: "100%",
-        "--separator-border": theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3],
-        "--focus-border": theme.colors.blue[7],
-    },
-}))
 
 export type SplitViewHandle = AllotmentHandle
 
@@ -35,10 +22,8 @@ export const SplitView = forwardRef<SplitViewHandle, SplitViewProps>(function Sp
     { children, className, ...props },
     ref,
 ) {
-    const { classes: s, cx } = useStyles()
-
     return (
-        <Allotment ref={ref} className={cx(s.root, className)} {...props}>
+        <Allotment ref={ref} className={className ? `${s.root} ${className}` : s.root} {...props}>
             {children}
         </Allotment>
     )

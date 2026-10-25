@@ -1,0 +1,10 @@
+/* allotment is themed entirely through five custom properties it declares on
+   :root. Only the two colours need to follow the colour scheme; the default
+   --sash-size of 8px is already a larger grab area than the 4px handle it
+   replaces, so it is left alone. */
+.root {
+    width: 100%;
+    height: 100%;
+    --separator-border: var(--sphere-color-separator);
+    --focus-border: var(--sphere-color-split-focus);
+}

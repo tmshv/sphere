@@ -8,6 +8,8 @@ export default defineConfig({
         include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
         exclude: ["src/**/*.visual.test.tsx", "**/node_modules/**"],
         globals: true,
+        // Layout tests read computed style, so CSS Modules must be injected.
+        css: { include: /\.module\.css$/ },
         environment: "happy-dom",
         setupFiles: ["./src/setupTests.ts"],
     },
