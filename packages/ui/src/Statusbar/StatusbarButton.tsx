@@ -1,23 +1,8 @@
-import { ActionIcon, createStyles } from "@mantine/core"
+import { Button as BaseButton } from "@base-ui/react/button"
 import type { ReactNode } from "react"
-
-// The statusbar used to sit in its own light-scheme MantineProvider. Its icons
-// keep the colours and press feel of that scheme in both themes, so they stay
-// legible on the always-dark bar.
-const LIGHT_SCHEME = "light"
-const ACCENT_COLOR = "yellow"
-const PRESS_STYLE = { transform: "translateY(1px)" }
-
-const useStyle = createStyles(theme => ({
-    icon: {
-        "&:hover": {
-            backgroundColor: theme.colors.gray[8],
-        },
-    },
-    fill: {
-        backgroundColor: theme.colors.gray[8],
-    },
-}))
+import iconButton from "../Button/icon-button.module.css"
+import { unstyledButton } from "../internal"
+import s from "./statusbar-button.module.css"
 
 export type StatusbarButtonLook = "accent" | "fill"
 
@@ -40,32 +25,27 @@ export function StatusbarButton({
     active,
     activeLook = "accent",
 }: StatusbarButtonProps) {
-    const { classes, cx } = useStyle()
     const isFilled = active === true && activeLook === "fill"
     const isAccent = active === true && activeLook === "accent"
+    const classes = [
+        unstyledButton,
+        iconButton.iconButton,
+        iconButton.sizeSm,
+        s.button,
+        isAccent && s.accent,
+        isFilled && s.fill,
+    ]
 
     return (
-        <ActionIcon
-            size={"xs"}
-            radius={"sm"}
-            className={cx(classes.icon, isFilled && classes.fill)}
-            color={isAccent ? ACCENT_COLOR : undefined}
+        <BaseButton
+            className={classes.filter(Boolean).join(" ")}
             aria-label={label}
             aria-pressed={active}
             title={label}
             disabled={disabled}
             onClick={() => onClick()}
-            sx={theme => ({
-                color: theme.colors[isAccent ? ACCENT_COLOR : "gray"][theme.fn.primaryShade(LIGHT_SCHEME)],
-                "&:active": PRESS_STYLE,
-                "&[data-disabled]": {
-                    backgroundColor: "#00000000",
-                    color: theme.colors.gray[8],
-                    border: "none",
-                },
-            })}
         >
             {icon}
-        </ActionIcon>
+        </BaseButton>
     )
 }

@@ -1,0 +1,31 @@
+/* The statusbar sat in its own light-scheme provider: these icons keep that scheme's colours in both themes. */
+.button {
+    color: var(--sphere-color-statusbar-icon);
+}
+
+.accent {
+    color: var(--sphere-color-statusbar-icon-accent);
+}
+
+.button:hover {
+    background-color: var(--sphere-color-statusbar-icon-hover-bg);
+}
+
+.fill {
+    background-color: var(--sphere-color-statusbar-icon-hover-bg);
+}
+
+/* Mantine 5 ActionIcon `&:active` (theme.activeStyles), also the statusbar's PRESS_STYLE. */
+.button:active {
+    transform: translateY(1px);
+}
+
+.button:disabled {
+    background-color: transparent;
+    color: var(--sphere-color-statusbar-icon-disabled);
+    border: none;
+}
+
+.button:disabled:active {
+    transform: none;
+}

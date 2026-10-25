@@ -1,0 +1,30 @@
+.bar {
+    display: flex;
+    flex-direction: row;
+    gap: var(--sphere-space-xs);
+}
+
+.spacer {
+    flex: 1;
+}
+
+/* Wins over the shared unstyled button's text colour whatever order the stylesheets load in. */
+.bar .action {
+    color: var(--sphere-color-icon-button-text);
+}
+
+/* Mantine 5 ActionIcon `&:active` (theme.activeStyles). */
+.action:active {
+    transform: translateY(1px);
+}
+
+/* The bar's own disabled look, over the icon button's: half opacity, no fill, no border. */
+.bar .action:disabled {
+    opacity: 0.5;
+    background-color: transparent;
+    border: none;
+    cursor: not-allowed;
+    pointer-events: none;
+    color: var(--sphere-color-icon-button-disabled-text);
+    transform: none;
+}

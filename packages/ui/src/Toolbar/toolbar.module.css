@@ -1,0 +1,49 @@
+/* Mantine 5 Navbar (HorizontalSection.styles.js) in a static, unbordered-by-default box, plus Sphere's own
+   border override. Navbar's `height` and `width` lose to the nav class (height 100%, width auto). */
+.nav {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--sphere-font-family-sans);
+    background-color: var(--sphere-color-body);
+    width: auto;
+    height: 100%;
+    padding: var(--sphere-space-sm);
+    border: 1px solid var(--sphere-color-toolbar-border);
+    border-radius: var(--sphere-radius-md);
+}
+
+/* Mantine 5 Stack: justify center, gap sm. */
+.stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--sphere-space-sm);
+}
+
+.horizontal {
+    flex-direction: row;
+}
+
+.link {
+    /* Sphere link size. */
+    --toolbar-link-size: 38px;
+
+    width: var(--toolbar-link-size);
+    height: var(--toolbar-link-size);
+    border-radius: var(--sphere-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sphere-color-toolbar-link-text);
+}
+
+.link:hover {
+    background-color: var(--sphere-color-toolbar-link-hover-bg);
+}
+
+.active,
+.active:hover {
+    background-color: var(--sphere-color-toolbar-active-bg);
+    color: var(--sphere-color-toolbar-active-text);
+}

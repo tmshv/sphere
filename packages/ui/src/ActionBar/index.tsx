@@ -1,9 +1,11 @@
-import { ActionIcon, Flex, Space } from "@mantine/core"
+import { Button as BaseButton } from "@base-ui/react/button"
 import type { TablerIconProps } from "@tabler/icons"
 import type { CSSProperties } from "react"
+import iconButton from "../Button/icon-button.module.css"
 import { GAP_PX } from "../Layout"
+import { unstyledButton } from "../internal"
+import s from "./action-bar.module.css"
 
-const SPACER_STYLE: CSSProperties = { flex: 1 }
 const PADDED_STYLE: CSSProperties = { paddingLeft: GAP_PX.sm, paddingRight: GAP_PX.sm }
 const ICON_SIZE_PX = 16
 
@@ -26,36 +28,33 @@ export type ActionBarProps = {
 
 export function ActionBar({ items, onClick, padded = false }: ActionBarProps) {
     return (
-        <Flex direction={"row"} gap={"xs"} style={padded ? PADDED_STYLE : undefined}>
+        <div className={s.bar} style={padded ? PADDED_STYLE : undefined}>
             {items.map((item, i) => {
                 if (!item) {
-                    return <Space key={`separator-before-${items[i + 1]?.name ?? "end"}`} style={SPACER_STYLE} />
+                    return <div key={`separator-before-${items[i + 1]?.name ?? "end"}`} className={s.spacer} />
                 }
                 const { name, label, icon: Icon, color, disabled = false } = item
 
                 return (
-                    <ActionIcon
+                    <BaseButton
                         key={name}
-                        size={"md"}
+                        className={[
+                            unstyledButton,
+                            iconButton.iconButton,
+                            iconButton.sizeMd,
+                            iconButton.subtle,
+                            s.action,
+                        ].join(" ")}
                         aria-label={label}
                         disabled={disabled}
-                        sx={{
-                            "&[data-disabled]": {
-                                opacity: 0.5,
-                                backgroundColor: "#00000000",
-                                border: "none",
-                                cursor: "not-allowed",
-                                pointerEvents: "none",
-                            },
-                        }}
                         onClick={() => {
                             onClick(name)
                         }}
                     >
                         <Icon size={ICON_SIZE_PX} color={color} />
-                    </ActionIcon>
+                    </BaseButton>
                 )
             })}
-        </Flex>
+        </div>
     )
 }

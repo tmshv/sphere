@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { GAP_PX } from "../Layout"
 import { ActionBar } from "."
@@ -58,5 +58,10 @@ describe("ActionBar", () => {
             paddingLeft: `${GAP_PX.sm}px`,
             paddingRight: `${GAP_PX.sm}px`,
         })
+    })
+
+    it("dims a disabled item with half opacity", () => {
+        render(<ActionBar items={[makeItem("action", true)]} onClick={vi.fn()} />)
+        expect(declaredStyle(screen.getByRole("button"), "opacity")).toBe("0.5")
     })
 })

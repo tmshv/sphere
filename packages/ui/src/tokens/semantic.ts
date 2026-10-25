@@ -66,6 +66,17 @@ export type SemanticColor =
     | "split-focus"
     | "section-header-bg"
     | "section-header-text"
+    | "statusbar-bg"
+    | "statusbar-text"
+    | "statusbar-icon"
+    | "statusbar-icon-accent"
+    | "statusbar-icon-hover-bg"
+    | "statusbar-icon-disabled"
+    | "toolbar-border"
+    | "toolbar-link-text"
+    | "toolbar-link-hover-bg"
+    | "toolbar-active-bg"
+    | "toolbar-active-text"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -93,6 +104,7 @@ const MODAL_OVERLAY_LIGHT_ALPHA = 0.75
 const MODAL_OVERLAY_DARK_ALPHA = 0.85
 const MENU_ITEM_DARK_HOVER_ALPHA = 0.35
 const PALETTE_OVERLAY_ALPHA = 0.25
+const TOOLBAR_ACTIVE_DARK_ALPHA = 0.2
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -197,4 +209,20 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Sphere SectionStack header: white / gray[9] fill, gray[9] / dark[0] text.
     "section-header-bg": { light: palette.white, dark: palette.gray[9] },
     "section-header-text": { light: palette.gray[9], dark: palette.dark[0] },
+    // Sphere Statusbar: gray[1] text; icons keep the light-scheme look (gray[6] / yellow[6]) in both themes,
+    // gray[8] for hover, filled and disabled.
+    // `backgroundColor: theme.colors.dark` is an array; emotion writes one declaration per entry and the last, dark[9], wins.
+    "statusbar-bg": { light: palette.dark[9], dark: palette.dark[9] },
+    "statusbar-text": { light: palette.gray[1], dark: palette.gray[1] },
+    "statusbar-icon": { light: palette.gray[6], dark: palette.gray[6] },
+    "statusbar-icon-accent": { light: palette.yellow[6], dark: palette.yellow[6] },
+    "statusbar-icon-hover-bg": { light: palette.gray[8], dark: palette.gray[8] },
+    "statusbar-icon-disabled": { light: palette.gray[8], dark: palette.gray[8] },
+    // Sphere Toolbar: the literal #f0f0f0 / #0f0f0f border, gray[7] / dark[0] link text, gray[0] / dark[5] hover.
+    "toolbar-border": { light: "#f0f0f0", dark: "#0f0f0f" },
+    "toolbar-link-text": { light: palette.gray[7], dark: palette.dark[0] },
+    "toolbar-link-hover-bg": { light: palette.gray[0], dark: palette.dark[5] },
+    // Mantine 5 fn.variant light, primary colour (the same values as the light Badge).
+    "toolbar-active-bg": { light: palette.blue[0], dark: withAlpha(palette.blue[8], TOOLBAR_ACTIVE_DARK_ALPHA) },
+    "toolbar-active-text": { light: palette.blue[6], dark: palette.blue[2] },
 }
