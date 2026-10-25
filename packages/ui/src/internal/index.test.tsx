@@ -81,6 +81,21 @@ describe("Tooltip", () => {
         expect(await screen.findByText("Copy")).toBeInTheDocument()
     })
 
+    it("exposes the popup with role tooltip", async () => {
+        const user = userEvent.setup()
+        render(
+            <Tooltip label="Copy" delay={0}>
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        await user.hover(screen.getByRole("button", { name: "Target" }))
+
+        expect(await screen.findByRole("tooltip")).toHaveTextContent("Copy")
+        // Base UI sets no aria-describedby on the trigger, as Mantine 5 did not either.
+        expect(screen.getByRole("button", { name: "Target" })).not.toHaveAttribute("aria-describedby")
+    })
+
     it("stays closed when disabled", async () => {
         const user = userEvent.setup()
         render(

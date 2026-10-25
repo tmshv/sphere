@@ -52,7 +52,7 @@ export function Tooltip({
                     sideOffset={OFFSET_PX + (arrow ? ARROW_OFFSET_PX : 0)}
                     collisionPadding={COLLISION_PADDING_PX}
                 >
-                    <BaseTooltip.Popup className={s.tooltip} style={style}>
+                    <BaseTooltip.Popup className={s.tooltip} style={style} role="tooltip">
                         {label}
                         {arrow ? <BaseTooltip.Arrow className={s.arrow} /> : null}
                     </BaseTooltip.Popup>

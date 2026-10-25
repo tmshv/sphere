@@ -23,6 +23,23 @@ const VARIANT_CLASS: Record<BadgeVariant, string> = {
     outline: s.outline,
 }
 
+// Only what a tooltip trigger merges in: no style, so size and variant stay the one way to look different.
+type TriggerProps = Pick<
+    HTMLAttributes<HTMLDivElement>,
+    | "id"
+    | "aria-describedby"
+    | "onBlur"
+    | "onClick"
+    | "onFocus"
+    | "onMouseEnter"
+    | "onMouseLeave"
+    | "onMouseMove"
+    | "onPointerDown"
+    | "onPointerEnter"
+    | "onPointerLeave"
+    | "onPointerMove"
+>
+
 export type BadgeProps = {
     size: BadgeSize
     variant: BadgeVariant
@@ -30,7 +47,7 @@ export type BadgeProps = {
     className?: string
     title?: string
     children: ReactNode
-} & Omit<HTMLAttributes<HTMLDivElement>, "className" | "title" | "children">
+} & TriggerProps
 
 // Forwards its ref and the props a tooltip trigger hands down, as Mantine's Badge did.
 export const Badge = forwardRef<HTMLDivElement, BadgeProps>(function Badge(

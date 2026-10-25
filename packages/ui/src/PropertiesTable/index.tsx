@@ -54,7 +54,6 @@ const PAGER_ICON_SIZE = 14
 const CHART_SIZE = 50
 const URL_TOOLTIP_DELAY_MS = 500
 const DATE_FORMAT = "yyyy-MM-dd hh:mm:ss"
-const SORT_KEY = "Enter"
 const CHART_COLOR = "currentColor"
 
 const ATTRIBUTE_FILTER_OPTIONS: SelectOption[] = [
@@ -294,11 +293,12 @@ export function PropertesTable({
                                     >
                                         <div
                                             className={s.headerCell}
-                                            onClick={header.column.getToggleSortingHandler()}
-                                            onKeyDown={event => {
-                                                if (event.key === SORT_KEY) {
-                                                    header.column.getToggleSortingHandler()?.(event)
-                                                }
+                                            role="presentation"
+                                            onClick={event => {
+                                                // The photo toggle sits inside the header: it must not sort.
+                                                if (event.target instanceof Element && event.target.closest("button"))
+                                                    return
+                                                header.column.getToggleSortingHandler()?.(event)
                                             }}
                                         >
                                             <SortIcon sorted={header.column.getIsSorted()} />

@@ -90,7 +90,8 @@ describe("PropertesTable", () => {
 
     it("pages forward and backward", () => {
         const { onPageChange } = renderTable({ pageIndex: 1, pageCount: 3 })
-        const [prev, next] = screen.getAllByRole("button").slice(-2)
+        const prev = screen.getByRole("button", { name: "Previous page" })
+        const next = screen.getByRole("button", { name: "Next page" })
         fireEvent.click(prev)
         expect(onPageChange).toHaveBeenCalledWith(0)
         fireEvent.click(next)
@@ -99,7 +100,8 @@ describe("PropertesTable", () => {
 
     it("disables previous on the first page and next on the last", () => {
         renderTable({ pageIndex: 0, pageCount: 1 })
-        const [prev, next] = screen.getAllByRole("button").slice(-2)
+        const prev = screen.getByRole("button", { name: "Previous page" })
+        const next = screen.getByRole("button", { name: "Next page" })
         expect(prev).toBeDisabled()
         expect(next).toBeDisabled()
     })
@@ -125,7 +127,7 @@ describe("PropertesTable", () => {
         renderTable()
         expect(screen.getAllByText("example.com/a.png")).toHaveLength(2)
         expect(screen.queryByRole("img")).not.toBeInTheDocument()
-        const [toggle] = screen.getAllByRole("button")
+        const toggle = screen.getByRole("button", { name: "Show images" })
         fireEvent.click(toggle)
         const images = screen.getAllByRole("img")
         expect(images).toHaveLength(2)
@@ -137,6 +139,18 @@ describe("PropertesTable", () => {
         renderTable()
         const [badge] = screen.getAllByText("example.com/a.png")
         await user.hover(badge)
-        expect(await screen.findByText(PHOTO_URL, {}, { timeout: TOOLTIP_WAIT_MS })).toBeInTheDocument()
+        expect(await screen.findByRole("tooltip", {}, { timeout: TOOLTIP_WAIT_MS })).toHaveTextContent(PHOTO_URL)
+    })
+
+    it("does not sort when the photo toggle is clicked or activated with Enter", async () => {
+        const user = userEvent.setup()
+        const { onSortingChange } = renderTable()
+        const toggle = screen.getByRole("button", { name: "Show images" })
+        await user.click(toggle)
+        expect(screen.getByRole("button", { name: "Show links" })).toBeInTheDocument()
+        screen.getByRole("button", { name: "Show links" }).focus()
+        await user.keyboard("{Enter}")
+        expect(screen.getByRole("button", { name: "Show images" })).toBeInTheDocument()
+        expect(onSortingChange).not.toHaveBeenCalled()
     })
 })

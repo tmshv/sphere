@@ -81,8 +81,7 @@ visualCases("PropertiesTable", {
         render: () => <Table />,
         interact: async () => {
             await userEvent.hover(page.getByText("example.com/a.png").first())
-            // Base UI's tooltip popup has no role="tooltip"; find it by its label.
-            await expect.element(page.getByText("https://example.com/a.png", { exact: true })).toBeVisible()
+            await expect.element(page.getByRole("tooltip")).toBeVisible()
         },
         target: "page",
         allowedMismatchedPixelRatio: TOOLTIP_SUBPIXEL_RATIO,
