@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { type HTMLAttributes, type ReactNode, forwardRef } from "react"
 import s from "./Badge.module.css"
 
 export type BadgeSize = "xs" | "sm"
@@ -30,13 +30,17 @@ export type BadgeProps = {
     className?: string
     title?: string
     children: ReactNode
-}
+} & Omit<HTMLAttributes<HTMLDivElement>, "className" | "title" | "children">
 
-export function Badge({ size, variant, radius, className, title, children }: BadgeProps) {
+// Forwards its ref and the props a tooltip trigger hands down, as Mantine's Badge did.
+export const Badge = forwardRef<HTMLDivElement, BadgeProps>(function Badge(
+    { size, variant, radius, className, title, children, ...rest },
+    ref,
+) {
     const classes = [s.badge, SIZE_CLASS[size], RADIUS_CLASS[radius], VARIANT_CLASS[variant], className]
     return (
-        <div className={classes.filter(Boolean).join(" ")} title={title}>
+        <div {...rest} ref={ref} className={classes.filter(Boolean).join(" ")} title={title}>
             <span className={s.inner}>{children}</span>
         </div>
     )
-}
+})

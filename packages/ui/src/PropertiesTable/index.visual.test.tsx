@@ -4,6 +4,11 @@ import { IMAGE_DATA_URI } from "../visual/fixtures"
 import { visualCases } from "../visual/visualCases"
 import { PropertesTable, type PropertyItem, type PropertyItemMeta } from "."
 
+// The tooltip sits over a table cell at a fractional position. Mantine kept the fraction; Base UI rounds
+// it to a whole pixel, so the label's glyphs anti-alias differently (452 of 480000 pixels, in the tooltip
+// text and its edge only). Geometry, colours and text are unchanged.
+const TOOLTIP_SUBPIXEL_RATIO = 0.001
+
 const noop = () => {}
 const HISTOGRAM = [2, 5, 9, 14, 8, 3]
 
@@ -76,8 +81,10 @@ visualCases("PropertiesTable", {
         render: () => <Table />,
         interact: async () => {
             await userEvent.hover(page.getByText("example.com/a.png").first())
-            await expect.element(page.getByRole("tooltip")).toBeVisible()
+            // Base UI's tooltip popup has no role="tooltip"; find it by its label.
+            await expect.element(page.getByText("https://example.com/a.png", { exact: true })).toBeVisible()
         },
         target: "page",
+        allowedMismatchedPixelRatio: TOOLTIP_SUBPIXEL_RATIO,
     },
 })

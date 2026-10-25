@@ -1,4 +1,5 @@
 import type { ColumnDef, SortingState } from "@tanstack/react-table"
+import userEvent from "@testing-library/user-event"
 import { fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
@@ -16,6 +17,7 @@ const META: Record<string, PropertyItemMeta> = {
     photo: { type: "url" },
 }
 
+const TOOLTIP_WAIT_MS = 2000
 const PHOTO_URL = "https://example.com/a.png"
 
 const DATA: PropertyItem[] = [
@@ -128,5 +130,13 @@ describe("PropertesTable", () => {
         const images = screen.getAllByRole("img")
         expect(images).toHaveLength(2)
         expect(images[0]).toHaveAttribute("src", PHOTO_URL)
+    })
+
+    it("shows the full link in a tooltip when a link badge is hovered", async () => {
+        const user = userEvent.setup()
+        renderTable()
+        const [badge] = screen.getAllByText("example.com/a.png")
+        await user.hover(badge)
+        expect(await screen.findByText(PHOTO_URL, {}, { timeout: TOOLTIP_WAIT_MS })).toBeInTheDocument()
     })
 })

@@ -1,16 +1,4 @@
-import type { SelectOption } from "../Select"
-import { Statusbar, StatusbarSelect } from "../Statusbar"
-import {
-    ActionIcon,
-    Badge,
-    Box,
-    Flex,
-    Image,
-    MantineProvider,
-    type MantineTheme,
-    Tooltip,
-    createStyles,
-} from "@mantine/core"
+import { Button as BaseButton } from "@base-ui/react/button"
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@tabler/icons"
 import {
     type CellContext,
@@ -22,8 +10,13 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { useState } from "react"
+import { type ReactNode, useState } from "react"
+import iconButton from "../Button/icon-button.module.css"
+import { Badge, Tooltip, unstyledButton } from "../internal"
+import type { SelectOption } from "../Select"
+import { Statusbar, StatusbarSelect } from "../Statusbar"
 import { BarChart } from "./BarChart"
+import s from "./properties-table.module.css"
 
 type StringPropertyMeta = {
     type: "string"
@@ -56,73 +49,13 @@ export type PropertyItemMeta =
 
 export type PropertyItem = Record<string, unknown>
 
-const useStyle = createStyles(theme => ({
-    table: {
-        borderCollapse: "collapse",
-        border: `1px solid ${theme.colors.gray[1]}`,
-    },
-    thead: {
-        position: "sticky",
-        top: 0,
-    },
-    tr: {
-        margin: 0,
-    },
-    th: {
-        position: "relative",
-        border: `1px solid ${theme.colors.gray[1]}`,
-
-        cursor: "default",
-        userSelect: "none",
-
-        // height: 30,
-        padding: 0,
-    },
-    td: {
-        border: `1px solid ${theme.colors.gray[1]}`,
-        verticalAlign: "top",
-        padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
-    },
-    resizer: {
-        position: "absolute",
-        right: -3,
-        top: theme.spacing.xs,
-        height: `calc(100% - ${theme.spacing.xs}px * 2)`,
-        width: 6,
-        cursor: "col-resize",
-        borderRadius: theme.radius.sm,
-        zIndex: 1,
-        background: theme.primaryColor,
-        opacity: 0,
-        "&:hover": {
-            opacity: 0.5,
-        },
-    },
-    resizing: {
-        opacity: 0.5,
-    },
-    mixedItem: {
-        marginRight: theme.spacing.xs,
-    },
-    icon: {
-        "&:hover": {
-            backgroundColor: theme.colors.gray[8],
-        },
-    },
-    widget: {
-        fontFamily: "monospace",
-        userSelect: "none",
-        cursor: "default",
-        backgroundColor: theme.colors.dark,
-        color: theme.white,
-    },
-    widgetSelect: {
-        cursor: "pointer",
-        "&:hover": {
-            backgroundColor: theme.colors.gray[8],
-        },
-    },
-}))
+const ICON_SIZE = 16
+const PAGER_ICON_SIZE = 14
+const CHART_SIZE = 50
+const URL_TOOLTIP_DELAY_MS = 500
+const DATE_FORMAT = "yyyy-MM-dd hh:mm:ss"
+const SORT_KEY = "Enter"
+const CHART_COLOR = "currentColor"
 
 const ATTRIBUTE_FILTER_OPTIONS: SelectOption[] = [
     { value: "all", label: "All" },
@@ -145,6 +78,167 @@ type PropertyTableProps = {
     onSortingChange: OnChangeFn<SortingState>
 }
 
+function classNames(...names: (string | false | undefined)[]): string {
+    return names.filter(Boolean).join(" ")
+}
+
+function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
+    if (sorted === "asc") return <IconArrowUp size={ICON_SIZE} />
+    if (sorted === "desc") return <IconArrowDown size={ICON_SIZE} />
+    return null
+}
+
+function ValueImage({ src, alt }: { src: string; alt: string }) {
+    return (
+        <div className={s.image}>
+            <figure className={s.figure}>
+                <div className={s.imageWrapper}>
+                    <img className={s.img} src={src} alt={alt} />
+                </div>
+            </figure>
+        </div>
+    )
+}
+
+type PhotoToggleProps = {
+    shown: boolean
+    onToggle: () => void
+}
+
+function PhotoToggle({ shown, onToggle }: PhotoToggleProps) {
+    const classes = classNames(unstyledButton, iconButton.iconButton, iconButton.sizeSm, iconButton.subtle)
+    return (
+        <BaseButton className={classes} aria-label={shown ? "Show links" : "Show images"} onClick={() => onToggle()}>
+            {shown ? <IconPhoto size={ICON_SIZE} /> : <IconPhotoOff size={ICON_SIZE} />}
+        </BaseButton>
+    )
+}
+
+type PagerButtonProps = {
+    label: string
+    disabled: boolean
+    onClick: () => void
+    children: ReactNode
+}
+
+// Mantine ActionIcon, gray subtle, size xs, with the footer's nested-provider defaults.
+function PagerButton({ label, disabled, onClick, children }: PagerButtonProps) {
+    const classes = classNames(unstyledButton, iconButton.iconButton, iconButton.sizeSm, iconButton.subtle, s.pager)
+    return (
+        <BaseButton className={classes} aria-label={label} disabled={disabled} onClick={() => onClick()}>
+            {children}
+        </BaseButton>
+    )
+}
+
+function Histogram({ hist }: { hist?: number[] }) {
+    if (!hist) return null
+    return <BarChart width={CHART_SIZE} height={CHART_SIZE} data={hist} color={CHART_COLOR} className={s.chart} />
+}
+
+function Summary({ type }: { type: PropertyItemMeta }) {
+    switch (type.type) {
+        case "string": {
+            return (
+                <div className={s.stringSummary}>
+                    <Badge size="xs" radius="sm" variant="light">
+                        unique={type.unique}
+                    </Badge>
+                </div>
+            )
+        }
+        case "int":
+        case "float": {
+            return (
+                <div className={s.numberSummary}>
+                    <Histogram hist={type.hist} />
+                    <div className={s.minMax}>
+                        <Badge size="xs" radius="sm" variant="light">
+                            min={type.min}
+                        </Badge>
+                        <Badge size="xs" radius="sm" variant="light">
+                            max={type.max}
+                        </Badge>
+                    </div>
+                </div>
+            )
+        }
+        default: {
+            return null
+        }
+    }
+}
+
+type LinkProps = {
+    value: string
+}
+
+function UrlBadge({ value }: LinkProps) {
+    const url = new URL(value)
+    return (
+        <Tooltip label={value} delay={URL_TOOLTIP_DELAY_MS}>
+            <Badge size="sm" radius="sm" variant="outline">
+                {url.hostname}
+                {url.pathname}
+            </Badge>
+        </Tooltip>
+    )
+}
+
+function DateValue({ raw }: { raw: unknown }) {
+    if (raw == null) return null
+    const label = String(raw)
+    const d = new Date(typeof raw === "number" ? raw : label)
+    if (Number.isNaN(d.getTime())) return <span>{label}</span>
+    return (
+        <Tooltip label={label} delay={URL_TOOLTIP_DELAY_MS}>
+            <span>{format(d, DATE_FORMAT)}</span>
+        </Tooltip>
+    )
+}
+
+function MixedValue({ value }: { value: unknown }) {
+    if (!Array.isArray(value)) return null
+    return (
+        <>
+            {value.map(x => (
+                <Badge key={String(x)} className={s.mixedItem} size="sm" radius="sm" variant="outline">
+                    {String(x)}
+                </Badge>
+            ))}
+        </>
+    )
+}
+
+type CellProps = {
+    type: PropertyItemMeta["type"]
+    info: CellContext<PropertyItem, unknown>
+    showPhoto: boolean
+}
+
+function CellValue({ type, info, showPhoto }: CellProps) {
+    const value = info.getValue()
+    switch (type) {
+        case "url": {
+            const text = String(value ?? "")
+            return showPhoto ? <ValueImage src={text} alt={info.column.id} /> : <UrlBadge value={text} />
+        }
+        case "mixed": {
+            return <MixedValue value={value} />
+        }
+        case "date": {
+            return <DateValue raw={value} />
+        }
+        case "int":
+        case "float": {
+            return <span className={s.number}>{String(value ?? "")}</span>
+        }
+        default: {
+            return String(value ?? "")
+        }
+    }
+}
+
 export function PropertesTable({
     data,
     columns,
@@ -160,7 +254,6 @@ export function PropertesTable({
     onAttributeFilterChange,
     onSortingChange,
 }: PropertyTableProps) {
-    const { classes: s, cx } = useStyle()
     const [photos, setPhotos] = useState<Record<string, boolean>>({})
     const table = useReactTable({
         data,
@@ -178,8 +271,8 @@ export function PropertesTable({
     })
 
     return (
-        <Flex direction={"column"} style={{ flex: 1, overflow: "hidden" }}>
-            <div style={{ flex: 1, overflowX: "auto", overflowY: "auto" }}>
+        <div className={s.root}>
+            <div className={s.scroll}>
                 <table
                     className={s.table}
                     style={{
@@ -199,58 +292,40 @@ export function PropertesTable({
                                             width: header.getSize(),
                                         }}
                                     >
-                                        <Flex
-                                            align={"center"}
-                                            p={"sm"}
-                                            gap={"xs"}
+                                        <div
+                                            className={s.headerCell}
                                             onClick={header.column.getToggleSortingHandler()}
+                                            onKeyDown={event => {
+                                                if (event.key === SORT_KEY) {
+                                                    header.column.getToggleSortingHandler()?.(event)
+                                                }
+                                            }}
                                         >
-                                            {{
-                                                asc: <IconArrowUp size={16} />,
-                                                desc: <IconArrowDown size={16} />,
-                                            }[header.column.getIsSorted() as string] ?? null}
+                                            <SortIcon sorted={header.column.getIsSorted()} />
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(header.column.columnDef.header, header.getContext())}
-                                            <Box style={{ flex: 1 }} />
+                                            <div className={s.spacer} />
                                             {meta[header.column.id].type !== "url" ? null : (
-                                                <ActionIcon
-                                                    size={"xs"}
-                                                    onClick={() => {
-                                                        setPhotos(photos => ({
-                                                            ...photos,
-                                                            [header.column.id]: !photos[header.column.id],
+                                                <PhotoToggle
+                                                    shown={photos[header.column.id] === true}
+                                                    onToggle={() => {
+                                                        setPhotos(current => ({
+                                                            ...current,
+                                                            [header.column.id]: !current[header.column.id],
                                                         }))
                                                     }}
-                                                >
-                                                    {photos[header.column.id] ? (
-                                                        <IconPhoto size={16} />
-                                                    ) : (
-                                                        <IconPhotoOff size={16} />
-                                                    )}
-                                                </ActionIcon>
+                                                />
                                             )}
-                                            <Badge size={"xs"} radius={"xs"}>
+                                            <Badge size="xs" radius="xs" variant="light">
                                                 {meta[header.column.id].type}
                                             </Badge>
-                                            {/* {header.column.getCanFilter() ? (
-                                            <div>
-                                                <Filter column={header.column} table={table} />
-                                            </div>
-                                        ) : null} */}
-                                        </Flex>
+                                        </div>
                                         <div
-                                            className={cx(s.resizer, {
-                                                [s.resizing]: header.column.getIsResizing(),
-                                            })}
-                                            // style={{
-                                            //     transform:
-                                            //         columnResizeMode === 'onEnd' &&
-                                            //             header.column.getIsResizing()
-                                            //             ? `translateX(${table.getState().columnSizingInfo.deltaOffset
-                                            //             }px)`
-                                            //             : '',
-                                            // }}
+                                            className={classNames(
+                                                s.resizer,
+                                                header.column.getIsResizing() && s.resizing,
+                                            )}
                                             onMouseDown={header.getResizeHandler()}
                                             onTouchStart={header.getResizeHandler()}
                                         />
@@ -260,95 +335,17 @@ export function PropertesTable({
                         ))}
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id} className={s.tr}>
-                                {headerGroup.headers.map(header => {
-                                    const t = meta[header.column.id]
-                                    let content: React.ReactNode = null
-
-                                    switch (t.type) {
-                                        case "string": {
-                                            content = (
-                                                <Flex align={"center"} direction={"row-reverse"} p={"sm"} gap={"xs"}>
-                                                    <Badge size={"xs"} radius={"sm"}>
-                                                        unique={t.unique}
-                                                    </Badge>
-                                                </Flex>
-                                            )
-                                            break
-                                        }
-                                        case "int": {
-                                            content = (
-                                                <Flex direction={"row"} p={"sm"} gap={"xs"} justify={"space-between"}>
-                                                    {!t.hist ? null : (
-                                                        <BarChart
-                                                            width={50}
-                                                            height={50}
-                                                            // min={t.min}
-                                                            // max={t.max}
-                                                            data={t.hist}
-                                                            color={"rgb(34, 139, 230)"}
-                                                        />
-                                                    )}
-                                                    <Flex gap={"xs"} direction={"column"}>
-                                                        <Badge size={"xs"} radius={"sm"}>
-                                                            min={t.min}
-                                                        </Badge>
-                                                        <Badge size={"xs"} radius={"sm"}>
-                                                            max={t.max}
-                                                        </Badge>
-                                                    </Flex>
-                                                </Flex>
-                                            )
-                                            break
-                                        }
-                                        case "float": {
-                                            content = (
-                                                <Flex direction={"row"} p={"sm"} gap={"xs"} justify={"space-between"}>
-                                                    {!t.hist ? null : (
-                                                        <BarChart
-                                                            width={50}
-                                                            height={50}
-                                                            // min={t.min}
-                                                            // max={t.max}
-                                                            data={t.hist}
-                                                            color={"rgb(34, 139, 230)"}
-                                                        />
-                                                    )}
-                                                    <Flex gap={"xs"} direction={"column"}>
-                                                        <Badge size={"xs"} radius={"sm"}>
-                                                            min={t.min}
-                                                        </Badge>
-                                                        <Badge size={"xs"} radius={"sm"}>
-                                                            max={t.max}
-                                                        </Badge>
-                                                    </Flex>
-                                                </Flex>
-                                            )
-                                            break
-                                        }
-                                        default: {
-                                            break
-                                        }
-                                    }
-
-                                    return (
-                                        <th
-                                            key={header.id}
-                                            className={s.th}
-                                            style={{
-                                                width: header.getSize(),
-                                            }}
-                                        >
-                                            {content}
-                                            {/* <Flex
-                                            align={'center'}
-                                            p={'sm'}
-                                            gap={'xs'}
-                                        >
-                                            <Badge>string</Badge>
-                                        </Flex> */}
-                                        </th>
-                                    )
-                                })}
+                                {headerGroup.headers.map(header => (
+                                    <th
+                                        key={header.id}
+                                        className={s.th}
+                                        style={{
+                                            width: header.getSize(),
+                                        }}
+                                    >
+                                        <Summary type={meta[header.column.id]} />
+                                    </th>
+                                ))}
                             </tr>
                         ))}
                     </thead>
@@ -356,126 +353,21 @@ export function PropertesTable({
                     <tbody>
                         {table.getRowModel().rows.map(row => (
                             <tr key={row.id} className={s.tr}>
-                                {row.getVisibleCells().map(cell => {
-                                    let render = (info: CellContext<PropertyItem, unknown>): React.ReactNode =>
-                                        String(info.getValue() ?? "")
-
-                                    const type = meta[cell.column.id].type
-                                    switch (type) {
-                                        case "url": {
-                                            render = info => {
-                                                const value = String(info.getValue() ?? "")
-                                                if (photos[info.column.id]) {
-                                                    return <Image src={value} width={50} height={50} />
-                                                }
-                                                const url = new URL(value)
-                                                return (
-                                                    <Tooltip label={value} openDelay={500}>
-                                                        <Badge
-                                                            size={"sm"}
-                                                            radius={"sm"}
-                                                            variant={"outline"}
-                                                            color={"dark"}
-                                                        >
-                                                            {url.hostname}
-                                                            {url.pathname}
-                                                        </Badge>
-                                                    </Tooltip>
-                                                )
-                                            }
-                                            break
-                                        }
-                                        case "mixed": {
-                                            render = info => {
-                                                const value = info.getValue()
-                                                if (Array.isArray(value)) {
-                                                    return (
-                                                        <>
-                                                            {value.map(x => (
-                                                                <Badge
-                                                                    key={String(x)}
-                                                                    className={s.mixedItem}
-                                                                    size={"sm"}
-                                                                    radius={"sm"}
-                                                                    variant="outline"
-                                                                    color={"dark"}
-                                                                >
-                                                                    {String(x)}
-                                                                </Badge>
-                                                            ))}
-                                                        </>
-                                                    )
-                                                }
-                                                return null
-                                            }
-                                            break
-                                        }
-                                        case "date": {
-                                            render = info => {
-                                                const raw = info.getValue()
-                                                if (raw == null) return null
-                                                const label = String(raw)
-                                                const d = new Date(typeof raw === "number" ? raw : label)
-                                                if (Number.isNaN(d.getTime())) return <span>{label}</span>
-                                                return (
-                                                    <Tooltip label={label} openDelay={500}>
-                                                        <span>{format(d, "yyyy-MM-dd hh:mm:ss")}</span>
-                                                    </Tooltip>
-                                                )
-                                            }
-                                            break
-                                        }
-                                        case "int": {
-                                            render = info => {
-                                                const value = String(info.getValue() ?? "")
-                                                return (
-                                                    <span
-                                                        style={{
-                                                            textAlign: "right",
-                                                            display: "inline-block",
-                                                            width: "100%",
-                                                        }}
-                                                    >
-                                                        {value}
-                                                    </span>
-                                                )
-                                            }
-                                            break
-                                        }
-                                        case "float": {
-                                            render = info => {
-                                                const value = String(info.getValue() ?? "")
-                                                return (
-                                                    <span
-                                                        style={{
-                                                            textAlign: "right",
-                                                            display: "inline-block",
-                                                            width: "100%",
-                                                        }}
-                                                    >
-                                                        {value}
-                                                    </span>
-                                                )
-                                            }
-                                            break
-                                        }
-                                        default: {
-                                            break
-                                        }
-                                    }
-
-                                    return (
-                                        <td
-                                            key={cell.id}
-                                            className={s.td}
-                                            style={{
-                                                width: cell.column.getSize(),
-                                            }}
-                                        >
-                                            {flexRender(render, cell.getContext())}
-                                        </td>
-                                    )
-                                })}
+                                {row.getVisibleCells().map(cell => (
+                                    <td
+                                        key={cell.id}
+                                        className={s.td}
+                                        style={{
+                                            width: cell.column.getSize(),
+                                        }}
+                                    >
+                                        <CellValue
+                                            type={meta[cell.column.id].type}
+                                            info={cell.getContext()}
+                                            showPhoto={photos[cell.column.id] === true}
+                                        />
+                                    </td>
+                                ))}
                             </tr>
                         ))}
                     </tbody>
@@ -497,7 +389,7 @@ export function PropertesTable({
 
             <Statusbar>
                 <StatusbarSelect
-                    className={cx(s.widget, s.widgetSelect)}
+                    className={s.select}
                     value={attributeFilter}
                     options={ATTRIBUTE_FILTER_OPTIONS}
                     onChange={v => {
@@ -507,46 +399,33 @@ export function PropertesTable({
                     }}
                 />
 
-                <Box style={{ flex: 1 }} />
+                <div className={s.spacer} />
 
                 <StatusbarSelect
-                    className={cx(s.widget, s.widgetSelect)}
+                    className={s.select}
                     value={String(pageSize)}
                     options={pageSizeOptions}
                     onChange={v => onPageSizeChange(Number(v))}
                 />
 
-                <MantineProvider
-                    theme={{
-                        components: {
-                            ActionIcon: {
-                                defaultProps: (theme: MantineTheme) => ({
-                                    size: "xs",
-                                    radius: "sm",
-                                    className: s.icon,
-                                    sx: {
-                                        "&[data-disabled]": {
-                                            backgroundColor: "#00000000",
-                                            color: theme.colors.gray[8],
-                                            border: "none",
-                                        },
-                                    },
-                                }),
-                            },
-                        },
-                    }}
+                <PagerButton
+                    label="Previous page"
+                    disabled={pageIndex === 0}
+                    onClick={() => onPageChange(pageIndex - 1)}
                 >
-                    <ActionIcon disabled={pageIndex === 0} onClick={() => onPageChange(pageIndex - 1)}>
-                        <IconChevronLeft size={14} />
-                    </ActionIcon>
-                    <Badge className={s.widget} radius="sm" size="sm" variant="light">
-                        {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
-                    </Badge>
-                    <ActionIcon disabled={pageIndex >= pageCount - 1} onClick={() => onPageChange(pageIndex + 1)}>
-                        <IconChevronRight size={14} />
-                    </ActionIcon>
-                </MantineProvider>
+                    <IconChevronLeft size={PAGER_ICON_SIZE} />
+                </PagerButton>
+                <Badge className={s.widget} radius="sm" size="sm" variant="light">
+                    {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
+                </Badge>
+                <PagerButton
+                    label="Next page"
+                    disabled={pageIndex >= pageCount - 1}
+                    onClick={() => onPageChange(pageIndex + 1)}
+                >
+                    <IconChevronRight size={PAGER_ICON_SIZE} />
+                </PagerButton>
             </Statusbar>
-        </Flex>
+        </div>
     )
 }

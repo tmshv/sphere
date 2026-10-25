@@ -1,0 +1,181 @@
+/* Ported from PropertiesTable's createStyles and its Flex / Box / Image props (Mantine 5.10.5). */
+/* Flex direction column, flex 1, overflow hidden. */
+.root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.table {
+    border-collapse: collapse;
+    border: 1px solid var(--sphere-color-table-border);
+}
+
+/* A no-op on a table row; kept as it was written. */
+.tr {
+    margin: 0;
+}
+
+.th {
+    position: relative;
+    border: 1px solid var(--sphere-color-table-border);
+    cursor: default;
+    user-select: none;
+    padding: 0;
+}
+
+.td {
+    border: 1px solid var(--sphere-color-table-border);
+    vertical-align: top;
+    padding: var(--sphere-space-xs) var(--sphere-space-sm);
+}
+
+/* Flex align center, p sm, gap xs. */
+.headerCell {
+    display: flex;
+    align-items: center;
+    padding: var(--sphere-space-sm);
+    gap: var(--sphere-space-xs);
+}
+
+.spacer {
+    flex: 1;
+}
+
+/* Flex row-reverse, align center, p sm, gap xs. */
+.stringSummary {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    padding: var(--sphere-space-sm);
+    gap: var(--sphere-space-xs);
+}
+
+/* Flex row, justify space-between, p sm, gap xs. */
+.numberSummary {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: var(--sphere-space-sm);
+    gap: var(--sphere-space-xs);
+}
+
+.minMax {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sphere-space-xs);
+}
+
+.chart {
+    color: var(--sphere-color-chart-bar);
+}
+
+.resizer {
+    /* Mantine table geometry: a 6px grip centred on the column edge. */
+    --resizer-width: 6px;
+    --resizer-edge-offset: -3px;
+    --resizer-idle-opacity: 0;
+    --resizer-active-opacity: 0.5;
+
+    position: absolute;
+    right: var(--resizer-edge-offset);
+    top: var(--sphere-space-xs);
+    height: calc(100% - var(--sphere-space-xs) * 2);
+    width: var(--resizer-width);
+    cursor: col-resize;
+    border-radius: var(--sphere-radius-sm);
+    z-index: 1;
+    background: var(--sphere-color-table-resizer);
+    opacity: var(--resizer-idle-opacity);
+}
+
+.resizer:hover {
+    opacity: var(--resizer-active-opacity);
+}
+
+.resizing {
+    opacity: var(--resizer-active-opacity);
+}
+
+.mixedItem {
+    margin-right: var(--sphere-space-xs);
+}
+
+.number {
+    text-align: right;
+    display: inline-block;
+    width: 100%;
+}
+
+/* Mantine 5 Image (Image.js, Image.styles.js) with width 50, height 50, fit cover, radius 0:
+   a root box, a figure, a relative wrapper and the image. */
+.image {
+    /* The image's width and height props. */
+    --table-image-size: 50px;
+
+    width: var(--table-image-size);
+}
+
+.figure {
+    margin: 0;
+}
+
+.imageWrapper {
+    position: relative;
+}
+
+.img {
+    display: block;
+    width: var(--table-image-size);
+    height: var(--table-image-size);
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+}
+
+/* The footer widgets. Each rule overrides the internal Badge, StatusbarSelect or icon button module,
+   so it is doubled or tripled to win by specificity, never by stylesheet order (R10). */
+/* `backgroundColor: theme.colors.dark` is an array; emotion wrote every entry and the last (dark[9]) won. */
+.widget.widget {
+    font-family: monospace;
+    user-select: none;
+    cursor: default;
+    background: var(--sphere-color-statusbar-bg);
+    color: var(--sphere-color-on-accent);
+}
+
+.select.select {
+    cursor: pointer;
+    font-family: monospace;
+    user-select: none;
+    background-color: var(--sphere-color-statusbar-bg);
+    color: var(--sphere-color-on-accent);
+}
+
+.select.select:hover {
+    background-color: var(--sphere-color-statusbar-icon-hover-bg);
+}
+
+/* ActionIcon defaults from the nested MantineProvider: hover fill gray[8]; disabled fill clear,
+   gray[8] icon, no border. Tripled to beat .iconButton.iconButton:disabled (0,3,0) and the subtle hover. */
+/* The footer sat in its own light-scheme provider: the icons keep that scheme's colour in both themes. */
+.pager.pager.pager {
+    color: var(--sphere-color-statusbar-icon);
+}
+
+.pager.pager.pager:hover {
+    background-color: var(--sphere-color-statusbar-icon-hover-bg);
+}
+
+.pager.pager.pager:disabled {
+    background-color: transparent;
+    color: var(--sphere-color-statusbar-icon-disabled);
+    border: none;
+}
