@@ -45,3 +45,19 @@
 - Select: a Base UI `Select` is a button trigger (`role="combobox"`), not an input. Tests read its text content; the searchable variant is a `Combobox` input and keeps `toHaveValue`.
 - Tooltip: Base UI also opens a tooltip on keyboard focus; Mantine opened on hover only (`events.focus: false`). The `arrow` prop mirrors Mantine's `withArrow` for `PropertiesViewer/CopyButton`.
 - Tooltip: Mantine positions the tooltip at fractional pixels, Base UI rounds to whole pixels. The box is identical and only the glyph anti-aliasing differs (about 100 pixels), so the Tooltip visual cases allow a 0.05% pixel mismatch, with a comment in the test.
+
+## SliderField and ColorField (Task 6)
+
+### No visual difference (preserved as rendered)
+
+- SliderField: the value label shows while the pointer is over the 4px track (Mantine's track `mouseenter`), while dragging, and on keyboard focus only. Hovering the 8px-high slider row outside the track shows nothing, as before. The 8px thumb has a 4px border, so it renders as a solid disc (accent in light, white in dark).
+- SliderField: the filled bar starts 4px left of the track and ends under the thumb centre, as Mantine's bar does (`left: -4px`, `width: calc(value% + 4px)`).
+- ColorField: Mantine paints the colour area 5px past the box the thumb moves in (overlays at `inset: -5px`) and offsets the picker by its 1px padding. The new picker keeps this geometry, with the library's measured element inset by 5px inside the painted area.
+- ColorField: the hue gradient keeps Mantine's `hsl(170, ...)` stop (not 180) and its inset box-shadow.
+- ColorField: hue, saturation and value are whole numbers and the hex is built from them, so the reported hex matches Mantine's. This needs `HsvColorPicker` plus small converters (`ColorField/hex.ts`), not `HexColorPicker`, whose HSV state is not rounded.
+
+### Differences in behaviour, not in pixels
+
+- SliderField: Base UI renders a native `<input type="range">` inside the thumb, so tests read `min`, `max` and value from it instead of `aria-valuemin`, `aria-valuemax` and `aria-valuenow`. It is visually hidden, so the thumb-hover visual case hovers the visible thumb element.
+- SliderField: pressing ArrowRight at max no longer calls `onChange(max)` again. Base UI reports changes only, where Mantine repeated the clamped value.
+- ColorField: `react-colorful` handles arrow keys through `keyCode`, so tests that fire key events on its sliders must pass `keyCode`.

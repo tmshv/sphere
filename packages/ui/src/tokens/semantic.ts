@@ -44,6 +44,12 @@ export type SemanticColor =
     | "segmented-active-bg"
     | "segmented-active-text"
     | "segmented-divider"
+    | "slider-track"
+    | "slider-thumb-bg"
+    | "slider-thumb-border"
+    | "slider-label-bg"
+    | "slider-label-text"
+    | "color-thumb-border"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -122,4 +128,14 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     "segmented-active-bg": { light: palette.white, dark: palette.dark[5] },
     "segmented-active-text": { light: palette.black, dark: palette.white },
     "segmented-divider": { light: palette.gray[3], dark: palette.dark[4] },
+    // Mantine 5 Track.styles.js: the unfilled track (gray[2] / dark[4]); the filled bar uses accent.
+    "slider-track": { light: palette.gray[2], dark: palette.dark[4] },
+    // Mantine 5 Slider Thumb.styles.js: white thumb with an accent border, swapped in dark.
+    "slider-thumb-bg": { light: palette.white, dark: palette.blue[8] },
+    "slider-thumb-border": { light: palette.blue[6], dark: palette.white },
+    // Mantine 5 Slider Thumb.styles.js label: gray[9] / dark[4] with white text.
+    "slider-label-bg": { light: palette.gray[9], dark: palette.dark[4] },
+    "slider-label-text": { light: palette.white, dark: palette.white },
+    // Mantine 5 ColorPicker Thumb.styles.js: 2px white border.
+    "color-thumb-border": { light: palette.white, dark: palette.white },
 }
