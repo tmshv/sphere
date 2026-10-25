@@ -1,26 +1,12 @@
-import type { CSSProperties, ReactNode } from "react"
+import type { ReactNode } from "react"
 import { Row } from "../Layout"
-import { NO_SELECT, SELECTABLE } from "../selection"
-import { Text } from "../Text"
-import { TRUNCATE } from "../Text/truncate"
+import { noSelectClass, selectableClass, textClassName, truncateClass } from "../Text/text-class"
+import s from "./info-row.module.css"
 
-// A row pairs something long with something short: a caption with a value, or a
-// column value with how often it occurs. Only the long side ellipsizes.
-// Letting both shrink divides the overflow between them in proportion to their
-// length, which takes a couple of pixels off the short side — enough to hide a
-// four-digit count behind its own ellipsis.
-const GIVES_WAY: CSSProperties = {
-    // Without this a flex child refuses to shrink below its text.
-    minWidth: 0,
-}
-const STAYS_WHOLE: CSSProperties = {
-    flexShrink: 0,
-}
-
-const CAPTION_STYLE: CSSProperties = { ...TRUNCATE, ...NO_SELECT, ...STAYS_WHOLE }
-const DATA_LABEL_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, ...GIVES_WAY }
-const DATA_VALUE_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, ...GIVES_WAY }
-const COUNT_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, ...STAYS_WHOLE }
+const CAPTION_CLASS = textClassName({ tone: "dimmed", extra: [truncateClass, noSelectClass, s.staysWhole] })
+const DATA_LABEL_CLASS = textClassName({ tone: "dimmed", extra: [truncateClass, selectableClass, s.givesWay] })
+const DATA_VALUE_CLASS = textClassName({ extra: [truncateClass, selectableClass, s.givesWay] })
+const COUNT_CLASS = textClassName({ extra: [truncateClass, selectableClass, s.staysWhole] })
 
 export type InfoRowProps = {
     label: string
@@ -36,10 +22,8 @@ export type InfoRowProps = {
 export function InfoRow({ label, value, labelIsData = false }: InfoRowProps) {
     return (
         <Row justify="between" gap="xs" align="center">
-            <Text tone="dimmed" style={labelIsData ? DATA_LABEL_STYLE : CAPTION_STYLE}>
-                {label}
-            </Text>
-            <Text style={labelIsData ? COUNT_STYLE : DATA_VALUE_STYLE}>{value}</Text>
+            <div className={labelIsData ? DATA_LABEL_CLASS : CAPTION_CLASS}>{label}</div>
+            <div className={labelIsData ? COUNT_CLASS : DATA_VALUE_CLASS}>{value}</div>
         </Row>
     )
 }

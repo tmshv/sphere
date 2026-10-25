@@ -13,6 +13,10 @@
     /* fn.focusStyles: 2px ring, 2px offset. */
     --slider-focus-width: 2px;
     --slider-focus-offset: 2px;
+    /* Mantine 5 Slider Track, Bar and Thumb styles: track 0, bar 1, thumb 3. */
+    --slider-track-z-index: 0;
+    --slider-bar-z-index: 1;
+    --slider-thumb-z-index: 3;
 
     -webkit-tap-highlight-color: transparent;
     outline: 0;
@@ -41,12 +45,12 @@
     right: calc(var(--slider-size) * -1);
     left: calc(var(--slider-size) * -1);
     background-color: var(--sphere-color-slider-track);
-    z-index: 0;
+    z-index: var(--slider-track-z-index);
 }
 
 .bar {
     position: absolute;
-    z-index: 1;
+    z-index: var(--slider-bar-z-index);
     top: 0;
     bottom: 0;
     left: calc(var(--slider-size) * -1);
@@ -70,7 +74,7 @@
     transition-duration: var(--sphere-duration-fast);
     transition-property: box-shadow, transform;
     transition-timing-function: ease;
-    z-index: 3;
+    z-index: var(--slider-thumb-z-index);
     user-select: none;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;

@@ -1,20 +1,8 @@
 import type { CSSProperties, ReactNode } from "react"
 import s from "./text.module.css"
+import { type TextTone, type TextWeight, textClassName } from "./text-class"
 
-export type TextTone = "default" | "dimmed" | "warning"
-export type TextWeight = "normal" | "medium" | "semibold"
-
-const TONE_CLASS: Record<TextTone, string | undefined> = {
-    default: undefined,
-    dimmed: s.dimmed,
-    warning: s.warning,
-}
-
-const WEIGHT_CLASS: Record<TextWeight, string> = {
-    normal: s.weightNormal,
-    medium: s.weightMedium,
-    semibold: s.weightSemibold,
-}
+export type { TextTone, TextWeight }
 
 export type TextProps = {
     tone?: TextTone
@@ -25,9 +13,8 @@ export type TextProps = {
 }
 
 export function Text({ tone = "default", weight, uppercase = false, style, children }: TextProps) {
-    const classes = [s.text, TONE_CLASS[tone], weight && WEIGHT_CLASS[weight], uppercase && s.uppercase]
     return (
-        <div className={classes.filter(Boolean).join(" ")} style={style}>
+        <div className={textClassName({ tone, weight, uppercase })} style={style}>
             {children}
         </div>
     )

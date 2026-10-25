@@ -34,6 +34,11 @@
 
 .tab {
     --tab-height: 30px;
+    /* Mantine 5 fn.focusStyles: 2px ring, 2px offset. */
+    --tab-focus-width: 2px;
+    --tab-focus-offset: 2px;
+    /* Tab.styles.js: a disabled tab is half opaque. */
+    --tab-disabled-opacity: 0.5;
 
     -webkit-tap-highlight-color: transparent;
     background-color: var(--sphere-color-tab-bg);
@@ -47,8 +52,8 @@
 }
 
 .tab:focus-visible {
-    outline: 2px solid var(--sphere-color-focus-ring);
-    outline-offset: 2px;
+    outline: var(--tab-focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--tab-focus-offset);
 }
 
 .tab:focus:not(:focus-visible) {
@@ -56,7 +61,7 @@
 }
 
 .tab[data-disabled] {
-    opacity: 0.5;
+    opacity: var(--tab-disabled-opacity);
     cursor: not-allowed;
 }
 

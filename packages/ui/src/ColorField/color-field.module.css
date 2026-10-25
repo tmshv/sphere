@@ -57,6 +57,7 @@
     margin: calc(var(--picker-padding) * -1) calc(var(--picker-padding) * -1) 0;
     border: 0;
     border-radius: var(--sphere-radius-sm);
+    /* react-colorful draws an inset hairline on the area; Mantine's saturation has none. */
     box-shadow: none;
     /* Black and white gradient stops are colour math, not theme colours. */
     background-image: linear-gradient(0deg, #000, transparent), linear-gradient(90deg, #fff, transparent);

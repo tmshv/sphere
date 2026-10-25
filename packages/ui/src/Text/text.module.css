@@ -40,3 +40,19 @@
     line-height: var(--sphere-line-height-heading);
     margin: 0;
 }
+
+/* Mantine 5 Text `truncate`. */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Chrome versus data: the class twins of NO_SELECT and SELECTABLE in ../selection. */
+.noSelect {
+    user-select: none;
+}
+
+.selectable {
+    user-select: text;
+}

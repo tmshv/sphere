@@ -3,6 +3,14 @@
    indicator and the colour transitions are not reproduced. */
 .root {
     --segmented-padding: 4px;
+    /* SegmentedControl.styles.js: each control sits above the sliding indicator (zIndex 2). */
+    --segmented-control-z-index: 2;
+    /* Mantine 5 fn.focusStyles: 2px ring, 2px offset (SegmentedControl.styles.js label). */
+    --segmented-focus-width: 2px;
+    --segmented-focus-offset: 2px;
+    /* SegmentedControl.styles.js, size xs: label padding 3px 6px. */
+    --segmented-label-padding-y: 3px;
+    --segmented-label-padding-x: 6px;
 
     position: relative;
     display: inline-flex;
@@ -18,7 +26,7 @@
     position: relative;
     box-sizing: border-box;
     flex: 1;
-    z-index: 2;
+    z-index: var(--segmented-control-z-index);
 }
 
 .control:not(:first-of-type) {
@@ -55,8 +63,7 @@
     display: block;
     width: 100%;
     text-align: center;
-    /* Mantine pads size xs by 3px 6px. */
-    padding: 3px 6px;
+    padding: var(--segmented-label-padding-y) var(--segmented-label-padding-x);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -78,8 +85,8 @@
 }
 
 .label:focus-visible {
-    outline: 2px solid var(--sphere-color-focus-ring);
-    outline-offset: 2px;
+    outline: var(--segmented-focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--segmented-focus-offset);
 }
 
 .label:focus:not(:focus-visible) {

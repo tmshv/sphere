@@ -1,20 +1,17 @@
-import type { CSSProperties, ReactNode } from "react"
+import type { ReactNode } from "react"
 import type { FieldEntry } from "."
 import { Badge, Skeleton } from "../internal"
 import { Row, Stack } from "../Layout"
-import { SELECTABLE } from "../selection"
 import { Text } from "../Text"
-import { TRUNCATE } from "../Text/truncate"
+import { selectableClass, textClassName, truncateClass } from "../Text/text-class"
 import s from "./field-row.module.css"
 import { NumericSummary } from "./NumericSummary"
 import { StringSummary } from "./StringSummary"
 
 const SKELETON_HEIGHT = 28
 
-// The name is data — copyable, and the one part of the row allowed to
-// ellipsize; its type and null count are short enough to always keep.
-const NAME_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, minWidth: 0 }
-const KEEP_WHOLE: CSSProperties = { flexShrink: 0 }
+const NAME_CLASS = textClassName({ weight: "medium", extra: [truncateClass, selectableClass, s.name] })
+const KEEP_WHOLE_CLASS = textClassName({ tone: "dimmed", extra: [s.keepWhole] })
 
 export type FieldRowProps = {
     field: FieldEntry
@@ -37,16 +34,12 @@ export function FieldRow({ field }: FieldRowProps) {
     return (
         <Stack gap="xs">
             <Row gap="xs" align="center">
-                <Text weight="medium" style={NAME_STYLE}>
-                    {field.name}
-                </Text>
+                <div className={NAME_CLASS}>{field.name}</div>
                 <Badge size="xs" variant="light" radius="sm" className={s.keepWhole}>
                     {field.type}
                 </Badge>
                 {field.nullCount && field.nullCount > 0 ? (
-                    <Text tone="dimmed" style={KEEP_WHOLE}>
-                        {field.nullCount} null
-                    </Text>
+                    <div className={KEEP_WHOLE_CLASS}>{field.nullCount} null</div>
                 ) : null}
             </Row>
             {renderSummary(field)}
