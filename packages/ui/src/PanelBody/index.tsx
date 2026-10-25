@@ -33,7 +33,7 @@ export type PanelBodyProps = {
     children: React.ReactNode
 }
 
-export const PanelBody: React.FC<PanelBodyProps> = ({ header, children }) => {
+export function PanelBody({ header, children }: PanelBodyProps) {
     const { classes } = useStyles()
 
     return (

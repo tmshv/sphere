@@ -1,5 +1,5 @@
 import { Badge, Group, Skeleton, Stack, Text } from "@mantine/core"
-import type { CSSProperties, FC, ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 import type { FieldEntry } from "."
 import { SELECTABLE } from "../selection"
 import { NumericSummary } from "./NumericSummary"
@@ -33,7 +33,7 @@ function renderSummary(field: FieldEntry): ReactNode {
     }
 }
 
-export const FieldRow: FC<FieldRowProps> = ({ field }) => {
+export function FieldRow({ field }: FieldRowProps) {
     return (
         <Stack spacing={4}>
             <Group spacing={"xs"} noWrap>

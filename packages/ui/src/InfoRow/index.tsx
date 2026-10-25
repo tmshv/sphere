@@ -1,5 +1,5 @@
 import { Group, Text } from "@mantine/core"
-import type { CSSProperties, FC, ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 import { NO_SELECT, SELECTABLE } from "../selection"
 
 // A row pairs something long with something short: a caption with a value, or a
@@ -31,7 +31,7 @@ export type InfoRowProps = {
     labelIsData?: boolean
 }
 
-export const InfoRow: FC<InfoRowProps> = ({ label, value, labelIsData = false }) => {
+export function InfoRow({ label, value, labelIsData = false }: InfoRowProps) {
     return (
         <Group position={"apart"} spacing={"xs"} noWrap>
             <Text size={"xs"} color={"dimmed"} truncate style={labelIsData ? DATA_LABEL_STYLE : CAPTION_STYLE}>

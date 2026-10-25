@@ -1,7 +1,7 @@
-import { Stack, Text } from "@mantine/core"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
+import { Stack, Text } from "@sphere/ui"
 import { PanelSection } from "./parts/PanelSection"
 import { VectorLayerSection } from "./VectorLayerSection"
 
@@ -15,15 +15,9 @@ export function SourceLayerPanel() {
     const layer = source.tilejson.vector_layers?.find(item => item.id === sourceLayer)
 
     return (
-        <Stack spacing={"md"}>
+        <Stack gap={"md"}>
             <PanelSection title={"Layer"}>
-                {layer ? (
-                    <VectorLayerSection layer={layer} />
-                ) : (
-                    <Text size={"xs"} color={"dimmed"}>
-                        No metadata for this layer
-                    </Text>
-                )}
+                {layer ? <VectorLayerSection layer={layer} /> : <Text tone={"dimmed"}>No metadata for this layer</Text>}
             </PanelSection>
         </Stack>
     )

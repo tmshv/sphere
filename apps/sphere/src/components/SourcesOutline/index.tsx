@@ -1,9 +1,8 @@
 import { actions, selectors } from "@/store"
 import type { OutlineNode } from "@/store/source/outline-selectors"
 import type { Id, SourceKind } from "@/types"
-import { useMantineTheme } from "@mantine/core"
 import { canMove } from "@/lib/source-tree"
-import { Tree, type TreeItem, type TreeMove, VisibilityToggle } from "@sphere/ui"
+import { Tree, type TreeItem, type TreeMove, useAccentColor, VisibilityToggle } from "@sphere/ui"
 import {
     IconBraces,
     IconFileUnknown,
@@ -20,9 +19,6 @@ import { useCallback, useMemo } from "react"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 
 const ICON_SIZE = 16
-const ICON_COLOR = "blue"
-const ICON_SHADE_DARK = 5
-const ICON_SHADE_LIGHT = 7
 
 const ICONS: Record<SourceKind, typeof IconBraces> = {
     geojson: IconBraces,
@@ -41,8 +37,7 @@ function iconOf(kind: SourceKind | null) {
 }
 
 export function SourcesOutline() {
-    const theme = useMantineTheme()
-    const iconColor = theme.colors[ICON_COLOR][theme.colorScheme === "dark" ? ICON_SHADE_DARK : ICON_SHADE_LIGHT]
+    const iconColor = useAccentColor()
     const dispatch = useAppDispatch()
     const outline = useAppSelector(selectors.source.selectSourceOutline)
     const tree = useAppSelector(selectors.source.selectSourceTreeShape)

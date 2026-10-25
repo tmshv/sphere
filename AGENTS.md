@@ -138,14 +138,15 @@ apps/sphere  ->  @sphere/ui  ->  @sphere/utils
 ```
 
 - `@sphere/utils` (`packages/utils/`) — pure TS helpers. No React, no maplibre, no Tauri, no Redux, no domain types. Each package exposes a single barrel: `import { lerp, deduplicate } from "@sphere/utils"`. Public surface is declared in `packages/utils/src/index.ts`.
-- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. `Tree` wraps react-arborist with its own react-dnd manager on the touch (pointer-event) backend, not HTML5: Tauri's `dragDropEnabled` swallows HTML5 drag events on Windows, and a private manager keeps it isolated from other dnd providers. Both sidebar outlines render it: Sources as a nested tree, Layers as a flat list (a layer can only be dropped back into the list). `VisibilityToggle` is the outline bulb they share. No Tauri, no Redux, no maplibre. React and Mantine are peer deps. Imported via the same barrel pattern: `import { ActionBar, Sidebar } from "@sphere/ui"`. Public surface is declared in `packages/ui/src/index.ts`.
-- `apps/sphere/` — the Tauri app. May import from both packages and from `@/*` (app-local paths).
+- `@sphere/ui` (`packages/ui/`) — Mantine-based presentational components. `Tree` wraps react-arborist with its own react-dnd manager on the touch (pointer-event) backend, not HTML5: Tauri's `dragDropEnabled` swallows HTML5 drag events on Windows, and a private manager keeps it isolated from other dnd providers. Both sidebar outlines render it: Sources as a nested tree, Layers as a flat list (a layer can only be dropped back into the list). `VisibilityToggle` is the outline bulb they share. No Tauri, no Redux, no maplibre. React is a peer dep; Mantine (`@mantine/*`, `@emotion/*`) is a regular dependency, and this package is the only one that imports it. Imported via the same barrel pattern: `import { ActionBar, Sidebar } from "@sphere/ui"`. Public surface is declared in `packages/ui/src/index.ts`.
+- `apps/sphere/` — the Tauri app. May import from both packages and from `@/*` (app-local paths). Must not import `@mantine/*` or `@emotion/*`: all UI building blocks come from `@sphere/ui`. Enforced by `apps/sphere/biome.json`.
 
 Boundaries are enforced by:
 
 1. `packages/*/package.json` declaring only allowed deps.
 2. `packages/*/biome.json` using `noRestrictedImports` to forbid back-references.
 3. `packages/*/tsconfig.json` not defining `@/*`, so the app alias cannot leak in.
+4. `apps/sphere/biome.json` using `noRestrictedImports` to forbid `@mantine/*` and `@emotion/*` in the app.
 
 Violations fail `npm run typecheck` and `npm run lint`. To add code to a package, audit the new file's imports — if it imports anything restricted, it stays in the app. Never silence the lint rule — restructure instead.
 

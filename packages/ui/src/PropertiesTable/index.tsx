@@ -1,4 +1,5 @@
-import { Select, type SelectOption, Statusbar } from "../Statusbar"
+import type { SelectOption } from "../Select"
+import { Statusbar, StatusbarSelect } from "../Statusbar"
 import {
     ActionIcon,
     Badge,
@@ -144,7 +145,7 @@ type PropertyTableProps = {
     onSortingChange: OnChangeFn<SortingState>
 }
 
-export const PropertesTable: React.FC<PropertyTableProps> = ({
+export function PropertesTable({
     data,
     columns,
     meta,
@@ -158,7 +159,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
     onPageSizeChange,
     onAttributeFilterChange,
     onSortingChange,
-}) => {
+}: PropertyTableProps) {
     const { classes: s, cx } = useStyle()
     const [photos, setPhotos] = useState<Record<string, boolean>>({})
     const table = useReactTable({
@@ -495,7 +496,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
             </div>
 
             <Statusbar>
-                <Select
+                <StatusbarSelect
                     className={cx(s.widget, s.widgetSelect)}
                     value={attributeFilter}
                     options={ATTRIBUTE_FILTER_OPTIONS}
@@ -508,7 +509,7 @@ export const PropertesTable: React.FC<PropertyTableProps> = ({
 
                 <Box style={{ flex: 1 }} />
 
-                <Select
+                <StatusbarSelect
                     className={cx(s.widget, s.widgetSelect)}
                     value={String(pageSize)}
                     options={pageSizeOptions}

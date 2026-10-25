@@ -1,7 +1,6 @@
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { Input, Slider } from "@mantine/core"
-import type { FC } from "react"
+import { SliderField } from "@sphere/ui"
 
 type HeatmapControlsProps = {
     layerId: string
@@ -9,45 +8,25 @@ type HeatmapControlsProps = {
     heatmapIntensity: number
 }
 
-export const HeatmapControls: FC<HeatmapControlsProps> = ({ layerId, heatmapRadius, heatmapIntensity }) => {
+export function HeatmapControls({ layerId, heatmapRadius, heatmapIntensity }: HeatmapControlsProps) {
     const dispatch = useAppDispatch()
 
     return (
         <>
-            <Input.Wrapper label="Radius" size="xs">
-                <Slider
-                    label={"Radius"}
-                    size={"xs"}
-                    min={2}
-                    max={30}
-                    value={heatmapRadius}
-                    onChange={value => {
-                        dispatch(
-                            actions.layer.setHeatmapParameters({
-                                id: layerId,
-                                radius: value,
-                            }),
-                        )
-                    }}
-                />
-            </Input.Wrapper>
-            <Input.Wrapper label="Intensity" size="xs">
-                <Slider
-                    label={"Intensity"}
-                    size={"xs"}
-                    min={1}
-                    max={5}
-                    value={heatmapIntensity}
-                    onChange={value => {
-                        dispatch(
-                            actions.layer.setHeatmapParameters({
-                                id: layerId,
-                                intensity: value,
-                            }),
-                        )
-                    }}
-                />
-            </Input.Wrapper>
+            <SliderField
+                label="Radius"
+                min={2}
+                max={30}
+                value={heatmapRadius}
+                onChange={value => dispatch(actions.layer.setHeatmapParameters({ id: layerId, radius: value }))}
+            />
+            <SliderField
+                label="Intensity"
+                min={1}
+                max={5}
+                value={heatmapIntensity}
+                onChange={value => dispatch(actions.layer.setHeatmapParameters({ id: layerId, intensity: value }))}
+            />
         </>
     )
 }

@@ -2,10 +2,10 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { sourceKindOf } from "@/lib/source-kind"
 import { type SourceKind, type SourceMetadata, SourceType } from "@/types"
-import { ActionBar, PanelBody } from "@sphere/ui"
-import { Flex, TextInput } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Stack, TextField } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
+import type { CSSProperties } from "react"
 import { useSelector } from "react-redux"
 import { FolderPanel } from "./FolderPanel"
 import { SourceLayerPanel } from "./SourceLayerPanel"
@@ -16,6 +16,8 @@ import { KmlSourcePanel } from "./KmlSourcePanel"
 import { RasterTilesSourcePanel } from "./RasterTilesSourcePanel"
 import { ShapefileSourcePanel } from "./ShapefileSourcePanel"
 import { VectorTilesSourcePanel } from "./VectorTilesSourcePanel"
+
+const FORM_STYLE: CSSProperties = { marginBottom: GAP_PX.sm }
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
@@ -77,7 +79,7 @@ function renderPanel(kind: SourceKind | null) {
     }
 }
 
-export const SourcePanel: React.FC = () => {
+export function SourcePanel() {
     const dispatch = useAppDispatch()
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
@@ -99,7 +101,6 @@ export const SourcePanel: React.FC = () => {
 
     const controls = (
         <ActionBar
-            tooltipPosition={"top"}
             onClick={async name => {
                 switch (name) {
                     case "trash": {
@@ -182,13 +183,11 @@ export const SourcePanel: React.FC = () => {
 
     return (
         <PanelBody header={controls}>
-            <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
-                <TextInput
-                    size="xs"
+            <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
+                <TextField
                     label="Name"
                     value={node.name}
-                    onChange={event => {
-                        const value = event.target.value
+                    onChange={value => {
                         dispatch(
                             actions.source.setName({
                                 id: node.id,
@@ -199,7 +198,7 @@ export const SourcePanel: React.FC = () => {
                 />
 
                 {renderPanel(panelKind)}
-            </Flex>
+            </Stack>
         </PanelBody>
     )
 }

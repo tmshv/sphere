@@ -4,26 +4,37 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
 import type { SidebarSection } from "@/types"
-import { ActionBar, type ActionBarOnClick, SectionStack } from "@sphere/ui"
-import { Button, Group, Modal, TextInput } from "@mantine/core"
-import { useForm } from "@mantine/form"
+import { ActionBar, type ActionBarOnClick, Button, Dialog, SectionStack, TextField } from "@sphere/ui"
 import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
-import { useCallback, useState } from "react"
+import { type FormEvent, useCallback, useState } from "react"
 import { SourcePanel } from "../SourcePanel"
 import { SourcesOutline } from "../SourcesOutline"
 
-export const SourcesTab: React.FC = () => {
+export function SourcesTab() {
     const dispatch = useAppDispatch()
     // Source actions take the selected node id; which of them apply depends on the node kind
     const nodeId = useAppSelector(selectors.source.selectSelectedId)
     const { canRemove, canZoom } = useAppSelector(selectors.source.selectSelectedNodeActions)
     const sections = useAppSelector(selectSidebarSections("sources"))
     const [showModal, setShowModal] = useState(false)
-    const form = useForm({
-        initialValues: {
-            url: "",
+    const [url, setUrl] = useState<string>("")
+
+    const submitUrl = useCallback(() => {
+        if (!url.trim()) {
+            return
+        }
+
+        setShowModal(false)
+        dispatch(actions.source.addFromUrl({ url, type: SourceType.Geojson }))
+    }, [dispatch, url])
+
+    const onUrlSubmit = useCallback(
+        (event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault()
+            submitUrl()
         },
-    })
+        [submitUrl],
+    )
 
     const onSectionsChange = useCallback(
         (next: SidebarSection[]) => {
@@ -67,39 +78,19 @@ export const SourcesTab: React.FC = () => {
 
     return (
         <>
-            <Modal centered opened={showModal} onClose={() => setShowModal(false)} title="Input URL" size={"md"}>
-                <form
-                    onSubmit={form.onSubmit(values => {
-                        setShowModal(false)
-
-                        dispatch(
-                            actions.source.addFromUrl({
-                                url: values.url,
-                                type: SourceType.Geojson,
-                            }),
-                        )
-                    })}
-                >
-                    <TextInput
-                        withAsterisk
-                        label="URL"
-                        size="xs"
-                        placeholder="https://..."
-                        {...form.getInputProps("url")}
-                    />
-
-                    <Group position="right" mt="md">
-                        <Button type="submit" size={"xs"}>
-                            Submit
-                        </Button>
-                    </Group>
+            <Dialog
+                opened={showModal}
+                onClose={() => setShowModal(false)}
+                title="Input URL"
+                footer={<Button onClick={submitUrl}>Submit</Button>}
+            >
+                <form onSubmit={onUrlSubmit}>
+                    <TextField label="URL" placeholder="https://..." required value={url} onChange={setUrl} />
                 </form>
-            </Modal>
+            </Dialog>
 
             <ActionBar
-                pl={"sm"}
-                pr={"sm"}
-                tooltipPosition={"top"}
+                padded
                 onClick={onClick}
                 items={[
                     {

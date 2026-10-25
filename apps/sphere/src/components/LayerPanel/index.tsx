@@ -1,11 +1,12 @@
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
+import { isLayerType } from "@/lib/layer-type"
 import { LayerType, SourceType } from "@/types"
-import { ActionBar, PanelBody } from "@sphere/ui"
-import { Flex, Select, TextInput } from "@mantine/core"
+import { ActionBar, GAP_PX, PanelBody, Select, Stack, TextField } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCopy, IconCrosshair, IconTrash } from "@tabler/icons"
+import type { CSSProperties } from "react"
 import { useSelector } from "react-redux"
 import { ExtrusionControls } from "./ExtrusionControls"
 import { HeatmapControls } from "./HeatmapControls"
@@ -14,6 +15,8 @@ import { LineControls } from "./LineControls"
 import { PhotoControls } from "./PhotoControls"
 import { PointControls } from "./PointControls"
 import { PolygonControls } from "./PolygonControls"
+
+const FORM_STYLE: CSSProperties = { marginBottom: GAP_PX.sm }
 
 type Option = {
     value: string
@@ -173,7 +176,7 @@ function renderLayerControls(layer: LayerData) {
     }
 }
 
-export const LayerPanel: React.FC = () => {
+export function LayerPanel() {
     const dispatch = useAppDispatch()
     const sources = useSelector(sourcesSelector)
     const layer = useSelector(layerSelector)
@@ -184,7 +187,6 @@ export const LayerPanel: React.FC = () => {
 
     const controls = (
         <ActionBar
-            tooltipPosition={"top"}
             onClick={name => {
                 switch (name) {
                     case "trash": {
@@ -231,13 +233,11 @@ export const LayerPanel: React.FC = () => {
 
     return (
         <PanelBody header={controls}>
-            <Flex direction={"column"} gap={"md"} align={"stretch"} mb={"sm"}>
-                <TextInput
-                    size="xs"
+            <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
+                <TextField
                     label="Name"
                     value={name}
-                    onChange={event => {
-                        const value = event.target.value
+                    onChange={value => {
                         dispatch(
                             actions.layer.setName({
                                 id: layerId,
@@ -248,11 +248,10 @@ export const LayerPanel: React.FC = () => {
                 />
 
                 <Select
-                    size="xs"
                     label="Source"
                     placeholder="Pick one"
-                    value={sourceId}
-                    data={sources}
+                    value={sourceId ?? null}
+                    options={sources}
                     onChange={newSourceId => {
                         if (!newSourceId) {
                             return
@@ -277,11 +276,10 @@ export const LayerPanel: React.FC = () => {
 
                 {!sourceLayers?.length ? null : (
                     <Select
-                        size="xs"
                         label="Source layer"
                         placeholder="Pick one"
-                        value={sourceLayer}
-                        data={sourceLayers}
+                        value={sourceLayer ?? null}
+                        options={sourceLayers}
                         onChange={value => {
                             if (!value || !sourceId) {
                                 return
@@ -298,17 +296,16 @@ export const LayerPanel: React.FC = () => {
                 )}
 
                 <Select
-                    size="xs"
                     label="View"
                     placeholder="Pick one"
-                    value={type}
-                    data={layer.layerTypeOptions}
+                    value={type ?? null}
+                    options={layer.layerTypeOptions}
                     onChange={value => {
-                        if (value) {
+                        if (isLayerType(value)) {
                             dispatch(
                                 actions.layer.setType({
                                     id: layerId,
-                                    type: value as LayerType,
+                                    type: value,
                                 }),
                             )
                         }
@@ -316,7 +313,7 @@ export const LayerPanel: React.FC = () => {
                 />
 
                 {renderLayerControls(layer)}
-            </Flex>
+            </Stack>
         </PanelBody>
     )
 }

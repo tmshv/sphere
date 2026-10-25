@@ -1,7 +1,5 @@
-import { Text } from "@mantine/core"
-import type { FC } from "react"
 import type { TileJSON } from "@/types/tilejson"
-import { InfoRow } from "@sphere/ui"
+import { InfoRow, Text } from "@sphere/ui"
 import { PanelSection } from "./PanelSection"
 
 const DEFAULT_MIN_ZOOM = 0
@@ -11,13 +9,11 @@ export type TileJsonSectionProps = {
     tilejson: TileJSON | null
 }
 
-export const TileJsonSection: FC<TileJsonSectionProps> = ({ tilejson }) => {
+export function TileJsonSection({ tilejson }: TileJsonSectionProps) {
     if (!tilejson) {
         return (
             <PanelSection title={"Tiles"}>
-                <Text size={"xs"} color={"dimmed"}>
-                    No tile metadata
-                </Text>
+                <Text tone={"dimmed"}>No tile metadata</Text>
             </PanelSection>
         )
     }
