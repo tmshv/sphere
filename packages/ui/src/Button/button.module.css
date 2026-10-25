@@ -1,0 +1,74 @@
+/* Mantine 5 Button.styles.js: size xs, radius sm, variant filled (primary and gray). */
+.button {
+    --button-height: 30px;
+    --button-padding-x: 14px;
+
+    height: var(--button-height);
+    padding-left: var(--button-padding-x);
+    padding-right: var(--button-padding-x);
+    display: inline-block;
+    width: auto;
+    border-radius: var(--sphere-radius-sm);
+    font-weight: var(--sphere-font-weight-semibold);
+    position: relative;
+    line-height: 1;
+    font-size: var(--sphere-font-size-xs);
+    user-select: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: var(--sphere-color-on-accent);
+}
+
+.primary {
+    background-color: var(--sphere-color-accent);
+}
+
+.secondary {
+    background-color: var(--sphere-color-button-secondary-bg);
+}
+
+@media (hover: hover) {
+    .primary:hover {
+        background-color: var(--sphere-color-accent-hover);
+    }
+
+    .secondary:hover {
+        background-color: var(--sphere-color-button-secondary-hover);
+    }
+}
+
+@media (hover: none) {
+    .primary:active {
+        background-color: var(--sphere-color-accent-hover);
+    }
+
+    .secondary:active {
+        background-color: var(--sphere-color-button-secondary-hover);
+    }
+}
+
+.button:disabled,
+.button[data-disabled] {
+    border-color: transparent;
+    background-color: var(--sphere-color-button-disabled-bg);
+    color: var(--sphere-color-button-disabled-text);
+    cursor: not-allowed;
+    background-image: none;
+    pointer-events: none;
+}
+
+.inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    overflow: visible;
+}
+
+.label {
+    white-space: nowrap;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}

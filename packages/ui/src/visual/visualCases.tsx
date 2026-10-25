@@ -11,6 +11,11 @@ export type VisualCase = {
     interact?: () => Promise<void>
     /** "page" captures the whole viewport, for portalled popups. */
     target?: "subject" | "page"
+    /**
+     * Share of pixels allowed to differ, for anti-aliasing only. A case that sets it
+     * must say why next to the value; baselines are never updated to accept a difference.
+     */
+    allowedMismatchedPixelRatio?: number
 }
 
 type Theme = "light" | "dark"
@@ -103,7 +108,9 @@ export function visualCases(component: string, cases: Record<string, VisualCase>
                     freezeSvgAnimations()
                     const locator =
                         visualCase.target === "page" ? page.elementLocator(document.body) : page.getByTestId(SUBJECT_ID)
-                    await expect.element(locator).toMatchScreenshot(`${component}-${name}-${theme}`)
+                    await expect.element(locator).toMatchScreenshot(`${component}-${name}-${theme}`, {
+                        comparatorOptions: { allowedMismatchedPixelRatio: visualCase.allowedMismatchedPixelRatio },
+                    })
                 })
             }
         }

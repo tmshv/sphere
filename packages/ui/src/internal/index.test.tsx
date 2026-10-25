@@ -1,6 +1,9 @@
-import { render, screen } from "../test-utils"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
-import { Badge, Skeleton, unstyledButton } from "."
+import { render, screen } from "../test-utils"
+import { Badge, Skeleton, Tooltip, unstyledButton } from "."
+
+const OPEN_DELAY_MS = 150
 
 describe("Badge", () => {
     it("renders its text and title", () => {
@@ -47,5 +50,35 @@ describe("unstyledButton", () => {
             </button>,
         )
         expect(screen.getByRole("button", { name: "press" })).toHaveClass(unstyledButton)
+    })
+})
+
+describe("Tooltip", () => {
+    it("shows its label after the open delay", async () => {
+        const user = userEvent.setup()
+        render(
+            <Tooltip label="Copy" delay={OPEN_DELAY_MS}>
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        await user.hover(screen.getByRole("button", { name: "Target" }))
+        expect(screen.queryByText("Copy")).not.toBeInTheDocument()
+
+        expect(await screen.findByText("Copy")).toBeInTheDocument()
+    })
+
+    it("stays closed when disabled", async () => {
+        const user = userEvent.setup()
+        render(
+            <Tooltip label="Copy" delay={0} disabled>
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        await user.hover(screen.getByRole("button", { name: "Target" }))
+        await new Promise(resolve => setTimeout(resolve, OPEN_DELAY_MS))
+
+        expect(screen.queryByText("Copy")).not.toBeInTheDocument()
     })
 })

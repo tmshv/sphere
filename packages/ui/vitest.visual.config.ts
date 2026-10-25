@@ -9,6 +9,8 @@ const OPTIMIZED_DEPS = [
     "react",
     "react-dom",
     "react-dom/client",
+    "@base-ui/react/button",
+    "@base-ui/react/tooltip",
     "@mantine/core",
     "@mantine/hooks",
     "@mantine/spotlight",

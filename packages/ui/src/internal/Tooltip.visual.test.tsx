@@ -1,60 +1,67 @@
-import { Tooltip as MantineTooltip } from "@mantine/core"
 import { page, userEvent } from "vitest/browser"
 import { visualCases } from "../visual/visualCases"
+import { Tooltip } from "./Tooltip"
 
 const TARGET_LABEL = "Target"
 const PADDING = "56px 96px"
+// Mantine places the tooltip at fractional pixels (121.44px); Base UI rounds to whole pixels.
+// The box is identical and only the glyph anti-aliasing inside it differs, about 100 pixels.
+const ROUNDED_POSITION_TOLERANCE = 0.0005
 
 const target = <button type="button">{TARGET_LABEL}</button>
 
-async function hoverTarget() {
-    await userEvent.hover(page.getByRole("button", { name: TARGET_LABEL }))
-    await expect.element(page.getByRole("tooltip")).toBeVisible()
+function hoverTarget(label: string) {
+    return async () => {
+        await userEvent.hover(page.getByRole("button", { name: TARGET_LABEL }))
+        await expect.element(page.getByText(label)).toBeVisible()
+    }
 }
 
 visualCases("InternalTooltip", {
     top: {
         render: () => (
             <div style={{ padding: PADDING }}>
-                <MantineTooltip label="Copy">
-                    {target}
-                </MantineTooltip>
+                <Tooltip label="Copy">{target}</Tooltip>
             </div>
         ),
-        interact: hoverTarget,
+        interact: hoverTarget("Copy"),
         target: "page",
+        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
     "right-no-transition": {
         render: () => (
             <div style={{ padding: PADDING }}>
-                <MantineTooltip label="Reset north" position="right" transitionDuration={0}>
+                <Tooltip label="Reset north" side="right" duration={0}>
                     {target}
-                </MantineTooltip>
+                </Tooltip>
             </div>
         ),
-        interact: hoverTarget,
+        interact: hoverTarget("Reset north"),
         target: "page",
+        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
     arrow: {
         render: () => (
             <div style={{ padding: PADDING }}>
-                <MantineTooltip label="Copied!" withArrow>
+                <Tooltip label="Copied!" arrow>
                     {target}
-                </MantineTooltip>
+                </Tooltip>
             </div>
         ),
-        interact: hoverTarget,
+        interact: hoverTarget("Copied!"),
         target: "page",
+        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
     delayed: {
         render: () => (
             <div style={{ padding: PADDING }}>
-                <MantineTooltip label="https://example.com/a/long/path" openDelay={500}>
+                <Tooltip label="https://example.com/a/long/path" delay={500}>
                     {target}
-                </MantineTooltip>
+                </Tooltip>
             </div>
         ),
-        interact: hoverTarget,
+        interact: hoverTarget("https://example.com/a/long/path"),
         target: "page",
+        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
 })

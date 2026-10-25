@@ -17,6 +17,33 @@ export type SemanticColor =
     | "badge-filled-text"
     | "skeleton-cover"
     | "skeleton-bg"
+    | "tooltip-bg"
+    | "tooltip-text"
+    | "input-bg"
+    | "input-border"
+    | "input-placeholder"
+    | "label-text"
+    | "invalid"
+    | "chevron"
+    | "dropdown-bg"
+    | "dropdown-border"
+    | "item-hover-bg"
+    | "accent-hover"
+    | "on-accent"
+    | "button-secondary-bg"
+    | "button-secondary-hover"
+    | "button-disabled-bg"
+    | "button-disabled-text"
+    | "icon-button-text"
+    | "icon-button-hover-bg"
+    | "icon-button-disabled-text"
+    | "icon-button-disabled-bg"
+    | "segmented-bg"
+    | "segmented-text"
+    | "segmented-text-hover"
+    | "segmented-active-bg"
+    | "segmented-active-text"
+    | "segmented-divider"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -36,6 +63,7 @@ function withAlpha(hex: string, alpha: number): string {
 }
 
 const BADGE_LIGHT_DARK_ALPHA = 0.2
+const ICON_BUTTON_DARK_HOVER_ALPHA = 0.2
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -56,4 +84,42 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Mantine 5 Skeleton.styles.js: ::before cover, ::after shimmer fill.
     "skeleton-cover": { light: palette.white, dark: palette.dark[7] },
     "skeleton-bg": { light: palette.gray[3], dark: palette.dark[4] },
+    // Mantine 5 Tooltip.styles.js getColors, no colour prop.
+    "tooltip-bg": { light: palette.gray[9], dark: palette.dark[6] },
+    "tooltip-text": { light: palette.white, dark: palette.white },
+    // Mantine 5 Input.styles.js, variant "default".
+    "input-bg": { light: palette.white, dark: palette.dark[6] },
+    "input-border": { light: palette.gray[4], dark: palette.dark[4] },
+    // Mantine 5 fn.placeholderStyles.
+    "input-placeholder": { light: palette.gray[5], dark: palette.dark[3] },
+    // Mantine 5 InputLabel.styles.js.
+    "label-text": { light: palette.gray[9], dark: palette.dark[0] },
+    // Mantine 5 fn.variant filled red: InputError, invalid input, required asterisk.
+    invalid: { light: palette.red[6], dark: palette.red[8] },
+    // Mantine 5 Select ChevronIcon, the same grey in both schemes.
+    chevron: { light: palette.gray[6], dark: palette.gray[6] },
+    // Mantine 5 Popover.styles.js dropdown.
+    "dropdown-bg": { light: palette.white, dark: palette.dark[6] },
+    "dropdown-border": { light: palette.gray[2], dark: palette.dark[4] },
+    // Mantine 5 SelectItems.styles.js: [data-hovered] and the selected item (fn.variant filled).
+    "item-hover-bg": { light: palette.gray[1], dark: palette.dark[4] },
+    "accent-hover": { light: palette.blue[7], dark: palette.blue[9] },
+    "on-accent": { light: palette.white, dark: palette.white },
+    // Mantine 5 Button.styles.js: filled gray (secondary) and the disabled state.
+    "button-secondary-bg": { light: palette.gray[6], dark: palette.gray[8] },
+    "button-secondary-hover": { light: palette.gray[7], dark: palette.gray[9] },
+    "button-disabled-bg": { light: palette.gray[2], dark: palette.dark[4] },
+    "button-disabled-text": { light: palette.gray[5], dark: palette.dark[6] },
+    // Mantine 5 ActionIcon.styles.js, gray colour, variant "subtle" and the disabled state.
+    "icon-button-text": { light: palette.gray[6], dark: palette.gray[2] },
+    "icon-button-hover-bg": { light: palette.gray[0], dark: withAlpha(palette.gray[8], ICON_BUTTON_DARK_HOVER_ALPHA) },
+    "icon-button-disabled-text": { light: palette.gray[4], dark: palette.gray[6] },
+    "icon-button-disabled-bg": { light: palette.gray[1], dark: palette.gray[8] },
+    // Mantine 5 SegmentedControl.styles.js.
+    "segmented-bg": { light: palette.gray[1], dark: palette.dark[8] },
+    "segmented-text": { light: palette.gray[7], dark: palette.dark[1] },
+    "segmented-text-hover": { light: palette.black, dark: palette.dark[0] },
+    "segmented-active-bg": { light: palette.white, dark: palette.dark[5] },
+    "segmented-active-text": { light: palette.black, dark: palette.white },
+    "segmented-divider": { light: palette.gray[3], dark: palette.dark[4] },
 }

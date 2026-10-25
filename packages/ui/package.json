@@ -6,6 +6,7 @@
     "main": "./src/index.ts",
     "dependencies": {
         "@sphere/utils": "*",
+        "@base-ui/react": "^1.9.0",
         "@mantine/core": "^5.10.5",
         "@mantine/hooks": "^5.10.5",
         "@mantine/spotlight": "^5.10.5",
