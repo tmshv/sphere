@@ -1,4 +1,3 @@
-import { useMantineTheme } from "@mantine/core"
 import { render, renderHook, screen } from "@testing-library/react"
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest"
@@ -6,8 +5,7 @@ import { ThemeProvider } from "."
 import { useColorScheme } from "../hooks/useColorScheme"
 
 function ColorScheme() {
-    const theme = useMantineTheme()
-    return <span>{theme.colorScheme}</span>
+    return <span>{useColorScheme()}</span>
 }
 
 describe("ThemeProvider", () => {

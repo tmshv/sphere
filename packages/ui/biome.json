@@ -16,7 +16,13 @@
                             "maplibre-gl": "@sphere/ui must not depend on maplibre-gl.",
                             "@maplibre/maplibre-gl-style-spec": "@sphere/ui must not depend on maplibre.",
                             "react-map-gl": "@sphere/ui must not depend on react-map-gl."
-                        }
+                        },
+                        "patterns": [
+                            {
+                                "group": ["@mantine/**", "@emotion/**"],
+                                "message": "@sphere/ui is built on Base UI and CSS Modules. It must not import Mantine or Emotion."
+                            }
+                        ]
                     }
                 }
             }

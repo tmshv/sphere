@@ -20,8 +20,6 @@ const OPTIMIZED_DEPS = [
     "@base-ui/react/field",
     "@base-ui/react/tabs",
     "@base-ui/react/tooltip",
-    "@mantine/core",
-    "@emotion/react",
     "@tabler/icons",
     "allotment",
     "@tanstack/react-table",

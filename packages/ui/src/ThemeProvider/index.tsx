@@ -1,4 +1,3 @@
-import { MantineProvider } from "@mantine/core"
 import { useInsertionEffect, useLayoutEffect } from "react"
 import { ColorSchemeContext } from "../hooks/useColorScheme"
 import { tokensToCss } from "../tokens"
@@ -33,31 +32,5 @@ export function ThemeProvider({ children, dark }: ThemeProviderProps) {
         root.style.colorScheme = scheme
     }, [scheme])
 
-    return (
-        <ColorSchemeContext.Provider value={scheme}>
-            <MantineProvider
-                theme={{
-                    colorScheme: scheme,
-                    spacing: {
-                        xs: 4,
-                        // sm: 6,
-                        xl: 28, // height of Window Title
-                    },
-                    headings: {
-                        sizes: {
-                            h3: {
-                                fontSize: 18,
-                            },
-                        },
-                    },
-                    activeStyles: {
-                        transform: "none",
-                    },
-                    primaryColor: "blue",
-                }}
-            >
-                {children}
-            </MantineProvider>
-        </ColorSchemeContext.Provider>
-    )
+    return <ColorSchemeContext.Provider value={scheme}>{children}</ColorSchemeContext.Provider>
 }

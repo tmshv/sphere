@@ -7,10 +7,6 @@
     "dependencies": {
         "@sphere/utils": "*",
         "@base-ui/react": "^1.9.0",
-        "@mantine/core": "^5.10.5",
-        "@mantine/hooks": "^5.10.5",
-        "@mantine/spotlight": "^5.10.5",
-        "@emotion/react": "^11.14.0",
         "react-colorful": "^5.8.1"
     },
     "peerDependencies": {

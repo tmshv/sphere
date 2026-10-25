@@ -1,5 +1,4 @@
-// Raw colours copied verbatim from Mantine 5.10.5 DEFAULT_COLORS
-// (@mantine/styles/esm/theme/default-colors.js). Components never read this
+// Raw colours copied verbatim from the Mantine 5.10.5 default colours. Components never read this
 // directly; they go through the semantic colours.
 
 type Shades = readonly [string, string, string, string, string, string, string, string, string, string]
