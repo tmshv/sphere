@@ -6,7 +6,9 @@ import { PropertiesViewer } from "."
 // The copy button sits in a table cell at a fractional x. Mantine kept the tooltip's fractional position;
 // Base UI rounds it to a whole pixel, so the box edge and the "Copy" text anti-alias differently (about 60
 // pixels). Anti-aliasing only: the geometry, colours and text are unchanged.
-const SUBPIXEL_POSITION_RATIO = 0.001
+const HOVER_SUBPIXEL_RATIO = 0.0006
+// The tooltip case captures the whole 800x600 page, so the same drift is a smaller share.
+const TOOLTIP_SUBPIXEL_RATIO = 0.0002
 
 const PROPERTIES = [
     { key: "name", value: "Berlin" },
@@ -21,7 +23,7 @@ visualCases("PropertiesViewer", {
     "copy-button-hover": {
         render: () => <PropertiesViewer properties={PROPERTIES} />,
         interact: () => userEvent.hover(page.getByRole("button").first()),
-        allowedMismatchedPixelRatio: SUBPIXEL_POSITION_RATIO,
+        allowedMismatchedPixelRatio: HOVER_SUBPIXEL_RATIO,
     },
     "copy-tooltip": {
         render: () => <PropertiesViewer properties={PROPERTIES} />,
@@ -30,6 +32,6 @@ visualCases("PropertiesViewer", {
             await expect.element(page.getByText("Copy", { exact: true })).toBeVisible()
         },
         target: "page",
-        allowedMismatchedPixelRatio: SUBPIXEL_POSITION_RATIO,
+        allowedMismatchedPixelRatio: TOOLTIP_SUBPIXEL_RATIO,
     },
 })

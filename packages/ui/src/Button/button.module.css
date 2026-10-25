@@ -1,5 +1,8 @@
-/* Mantine 5 Button.styles.js: size xs, radius sm, variant filled (primary and gray). */
-.button {
+/* Mantine 5 Button.styles.js: size xs, radius sm, variant filled (primary and gray), plus the light and subtle
+   variants only ErrorFallback uses (not part of the public ButtonVariant).
+   These rules override the shared .unstyledButton (border, padding, font-size, colour, background), so each is
+   doubled to win by specificity, never by stylesheet order (R10). */
+.button.button {
     --button-height: 30px;
     --button-padding-x: 14px;
 
@@ -19,36 +22,72 @@
     color: var(--sphere-color-on-accent);
 }
 
-.primary {
+.button.primary {
     background-color: var(--sphere-color-accent);
 }
 
-.secondary {
+.button.secondary {
     background-color: var(--sphere-color-button-secondary-bg);
 }
 
 @media (hover: hover) {
-    .primary:hover {
+    .button.primary:hover {
         background-color: var(--sphere-color-accent-hover);
     }
 
-    .secondary:hover {
+    .button.secondary:hover {
         background-color: var(--sphere-color-button-secondary-hover);
     }
 }
 
 @media (hover: none) {
-    .primary:active {
+    .button.primary:active {
         background-color: var(--sphere-color-accent-hover);
     }
 
-    .secondary:active {
+    .button.secondary:active {
         background-color: var(--sphere-color-button-secondary-hover);
     }
 }
 
-.button:disabled,
-.button[data-disabled] {
+.button.light {
+    background-color: var(--sphere-color-button-light-bg);
+    color: var(--sphere-color-button-light-text);
+}
+
+.button.subtle {
+    background-color: transparent;
+    color: var(--sphere-color-button-light-text);
+}
+
+@media (hover: hover) {
+    .button.light:hover {
+        background-color: var(--sphere-color-button-light-hover);
+    }
+
+    .button.subtle:hover {
+        background-color: var(--sphere-color-button-subtle-hover);
+    }
+}
+
+@media (hover: none) {
+    .button.light:active {
+        background-color: var(--sphere-color-button-light-hover);
+    }
+
+    .button.subtle:active {
+        background-color: var(--sphere-color-button-subtle-hover);
+    }
+}
+
+/* Mantine 5 Button `&:active` (theme.activeStyles); only the light and subtle variants carry it here. */
+.button.light:active,
+.button.subtle:active {
+    transform: translateY(1px);
+}
+
+.button.button:disabled,
+.button.button[data-disabled] {
     border-color: transparent;
     background-color: var(--sphere-color-button-disabled-bg);
     color: var(--sphere-color-button-disabled-text);

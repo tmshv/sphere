@@ -1,3 +1,4 @@
+import { Button as BaseButton } from "@base-ui/react/button"
 import type { CSSProperties } from "react"
 import type { FallbackProps } from "react-error-boundary"
 import button from "../Button/button.module.css"
@@ -36,8 +37,9 @@ const VARIANT_CLASS: Record<Variant, string> = {
     fullscreen: s.fullscreen,
 }
 
-const LIGHT_CLASSES = [unstyledButton, s.action, s.light].join(" ")
-const SUBTLE_CLASSES = [unstyledButton, s.action, s.subtle].join(" ")
+// The Button's own box with the light and subtle variants, which are not part of the public ButtonVariant.
+const LIGHT_CLASSES = [unstyledButton, button.button, button.light].join(" ")
+const SUBTLE_CLASSES = [unstyledButton, button.button, button.subtle].join(" ")
 
 export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallbackProps) {
     return (
@@ -50,16 +52,16 @@ export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallb
                     {error instanceof Error ? error.message : String(error)}
                 </Text>
                 <Row gap="xs" align="center" style={ACTIONS_STYLE}>
-                    <button type="button" className={LIGHT_CLASSES} onClick={resetErrorBoundary}>
+                    <BaseButton type="button" className={LIGHT_CLASSES} onClick={resetErrorBoundary}>
                         <div className={button.inner}>
                             <span className={button.label}>Try Again</span>
                         </div>
-                    </button>
-                    <button type="button" className={SUBTLE_CLASSES} onClick={() => window.location.reload()}>
+                    </BaseButton>
+                    <BaseButton type="button" className={SUBTLE_CLASSES} onClick={() => window.location.reload()}>
                         <div className={button.inner}>
                             <span className={button.label}>Reload App</span>
                         </div>
-                    </button>
+                    </BaseButton>
                 </Row>
             </Stack>
         </div>

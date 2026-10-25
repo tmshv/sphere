@@ -8,8 +8,8 @@
     flex: 1;
 }
 
-/* Wins over the shared unstyled button's text colour whatever order the stylesheets load in. */
-.bar .action {
+/* Wins over .unstyledButton and .iconButton.subtle whatever order the stylesheets load in (doubled, R10). */
+.bar .action.action {
     color: var(--sphere-color-icon-button-text);
 }
 
@@ -19,7 +19,7 @@
 }
 
 /* The bar's own disabled look, over the icon button's: half opacity, no fill, no border. */
-.bar .action:disabled {
+.bar .action.action:disabled {
     opacity: 0.5;
     background-color: transparent;
     border: none;

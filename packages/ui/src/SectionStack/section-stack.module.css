@@ -11,7 +11,8 @@
     overflow: hidden;
 }
 
-.header {
+/* Doubled to beat the shared .unstyledButton (colour, background, border, padding, font size) by specificity (R10). */
+.header.header {
     /* Pinned to SECTION_HEADER_HEIGHT in index.tsx by a test. */
     --header-height: 30px;
     /* Chevron rotation transition (Sphere-specific, not a Mantine value). */

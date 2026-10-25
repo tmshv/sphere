@@ -4,6 +4,8 @@
     color: var(--sphere-color-statusbar-icon);
 }
 
+/* .button.accent and .button.fill tie .iconButton.subtle and .iconButton.filled (specificity 0,2,0). That is safe:
+   StatusbarButton never applies those two classes, so nothing else sets colour or background here. */
 .button.accent {
     color: var(--sphere-color-statusbar-icon-accent);
 }

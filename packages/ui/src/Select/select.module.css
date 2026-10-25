@@ -1,5 +1,6 @@
 /* Mantine 5 Select: size xs, with the popover dropdown and SelectItems styles. */
-.trigger {
+/* Doubled to beat the shared input.module.css .input (line height, overflow) by specificity (R10). */
+.trigger.trigger {
     /* A button centres its line box; the input's own centring puts the text 2px higher
        than a 28px line height would. */
     line-height: normal;
@@ -10,7 +11,7 @@
 }
 
 /* The input keeps its focus border while the dropdown is open. */
-.trigger[data-popup-open] {
+.trigger.trigger[data-popup-open] {
     border-color: var(--sphere-color-accent);
 }
 
