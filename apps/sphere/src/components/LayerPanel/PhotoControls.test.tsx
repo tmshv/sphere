@@ -22,9 +22,9 @@ describe("PhotoControls", () => {
         renderPhoto()
 
         expect(screen.getByText("Radius")).toBeInTheDocument()
-        expect(screen.getByLabelText("Image field")).toHaveValue("img")
-        expect(screen.getByLabelText("Value field")).toHaveValue("")
-        expect(screen.getByLabelText("Layout")).toHaveValue("Square")
+        expect(screen.getByLabelText("Image field")).toHaveTextContent("img")
+        expect(screen.getByLabelText("Value field")).toHaveTextContent("Pick one")
+        expect(screen.getByLabelText("Layout")).toHaveTextContent("Square")
     })
 
     it("dispatches the new cluster radius on ArrowRight", () => {
@@ -40,7 +40,7 @@ describe("PhotoControls", () => {
         const dispatched = renderPhoto()
 
         await user.click(screen.getByLabelText("Layout"))
-        await user.click(await screen.findByText("Circle"))
+        await user.click(await screen.findByRole("option", { name: "Circle" }))
 
         expect(dispatched).toContainEqual(expect.objectContaining({ payload: { id: "l1", value: "circle" } }))
     })

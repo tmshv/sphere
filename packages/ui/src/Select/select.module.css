@@ -1,0 +1,94 @@
+/* Mantine 5 Select: size xs, with the popover dropdown and SelectItems styles. */
+.trigger {
+    /* A button centres its line box; the input's own centring puts the text 2px higher
+       than a 28px line height would. */
+    line-height: normal;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* The input keeps its focus border while the dropdown is open. */
+.trigger[data-popup-open] {
+    border-color: var(--sphere-color-accent);
+}
+
+.value[data-placeholder] {
+    user-select: none;
+    color: var(--sphere-color-input-placeholder);
+}
+
+.chevron {
+    color: var(--sphere-color-chevron);
+}
+
+/* Mantine sets pointer-events: none on the Select right section. */
+.chevronSection {
+    pointer-events: none;
+}
+
+.positioner {
+    z-index: var(--sphere-z-index-popover);
+}
+
+.dropdown {
+    box-sizing: border-box;
+    width: var(--anchor-width);
+    background-color: var(--sphere-color-dropdown-bg);
+    border: 1px solid var(--sphere-color-dropdown-border);
+    border-radius: var(--sphere-radius-sm);
+    box-shadow: var(--sphere-shadow-sm);
+    padding: 0;
+    outline: 0;
+}
+
+/* Mantine shows no dropdown when the search matches nothing and no "nothing found" text is set. */
+.dropdown[data-empty] {
+    display: none;
+}
+
+.list {
+    --dropdown-max-height: 220px;
+    --dropdown-padding: 4px;
+
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: var(--dropdown-max-height);
+    overflow-y: auto;
+    padding: var(--dropdown-padding);
+    outline: 0;
+}
+
+.item {
+    /* Mantine pads by spacing[size] / 1.5 vertically and spacing[size] across. */
+    --item-padding-divisor: 1.5;
+
+    font-family: var(--sphere-font-family-sans);
+    box-sizing: border-box;
+    text-align: left;
+    width: 100%;
+    padding: calc(var(--sphere-space-xs) / var(--item-padding-divisor)) var(--sphere-space-xs);
+    cursor: pointer;
+    font-size: var(--sphere-font-size-xs);
+    color: var(--sphere-color-text);
+    border-radius: var(--sphere-radius-sm);
+    outline: 0;
+}
+
+.item[data-highlighted] {
+    background-color: var(--sphere-color-item-hover-bg);
+}
+
+.item[data-selected] {
+    background-color: var(--sphere-color-accent);
+    color: var(--sphere-color-on-accent);
+}
+
+@media (hover: hover) {
+    .item[data-selected]:hover {
+        background-color: var(--sphere-color-accent-hover);
+    }
+}

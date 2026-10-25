@@ -11,7 +11,7 @@ const LABELLED_OPTIONS = [
 ]
 
 async function openSelect() {
-    await userEvent.click(page.getByRole("searchbox").or(page.getByRole("textbox")).first())
+    await userEvent.click(page.getByRole("combobox"))
     await expect.element(page.getByRole("option", { name: "Apple" })).toBeVisible()
 }
 
@@ -36,7 +36,7 @@ visualCases("Select", {
     "searchable-filtered": {
         render: () => <Select label="Column" value={null} options={OPTIONS} onChange={noop} searchable />,
         interact: async () => {
-            await userEvent.click(page.getByRole("searchbox").or(page.getByRole("textbox")).first())
+            await userEvent.click(page.getByRole("combobox"))
             await userEvent.keyboard("an")
             await expect.element(page.getByRole("option", { name: "Banana" })).toBeVisible()
         },
