@@ -106,9 +106,7 @@ fn info_target_for(data: &SourceData) -> InfoTarget {
         SourceData::Gpx(gpx) => InfoTarget::Gpx(Gpx {
             path: gpx.path.clone(),
         }),
-        SourceData::Kml(kml) => InfoTarget::Kml(Kml {
-            path: kml.path.clone(),
-        }),
+        SourceData::Kml(kml) => InfoTarget::Kml(kml.clone()),
         SourceData::Geojson(g) => InfoTarget::Plain(Some(g.path.clone())),
         SourceData::GeojsonSeq(g) => InfoTarget::Plain(Some(g.path.clone())),
         _ => InfoTarget::Plain(None),
@@ -412,6 +410,7 @@ mod tests {
     fn details_and_file_reads_kml_counts_and_file_info() {
         let target = InfoTarget::Kml(Kml {
             path: "../crates/libsphere/assets/kml/sample.kml".to_string(),
+            entry: None,
         });
 
         let (details, file) = details_and_file(target).unwrap();
@@ -431,6 +430,7 @@ mod tests {
     fn details_and_file_reads_kmz_counts_and_archive_size() {
         let target = InfoTarget::Kml(Kml {
             path: "../crates/libsphere/assets/kml/sample.kmz".to_string(),
+            entry: None,
         });
 
         let (details, file) = details_and_file(target).unwrap();
@@ -451,11 +451,24 @@ mod tests {
     fn info_target_keeps_the_kml_path() {
         let data = SourceData::Kml(Kml {
             path: "/tmp/a.kml".to_string(),
+            entry: None,
         });
 
         match info_target_for(&data) {
             InfoTarget::Kml(kml) => assert_eq!(kml.path, "/tmp/a.kml"),
             _ => panic!("expected a kml target"),
         }
+    }
+
+    #[test]
+    fn info_target_keeps_the_kmz_entry() {
+        let data = SourceData::Kml(Kml {
+            path: "../crates/libsphere/assets/kml/multi.kmz".to_string(),
+            entry: Some("files/Reef trip.kml".to_string()),
+        });
+
+        let (details, _) = details_and_file(info_target_for(&data)).unwrap();
+
+        assert!(matches!(details, FormatDetails::Kml { placemarks: 2, .. }));
     }
 }

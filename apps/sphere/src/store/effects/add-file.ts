@@ -5,6 +5,7 @@ import { readTextFile } from "@tauri-apps/plugin-fs"
 import { isStyle } from "../../lib/style"
 import { actions as mapStyle } from "../mapStyle"
 import { actions as source } from "../source"
+import addKmz from "./add-kmz"
 
 const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
     let ext = await extname(path)
@@ -18,6 +19,10 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             if (isStyle(data)) {
                 thunkAPI.dispatch(mapStyle.setMapStyle(data))
             }
+            break
+        }
+        case "kmz": {
+            thunkAPI.dispatch(addKmz(path))
             break
         }
         case "mbtiles": {

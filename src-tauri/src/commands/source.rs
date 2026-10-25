@@ -106,6 +106,13 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
     }
 }
 
+/// KML documents inside a KMZ archive at `path`, each loadable with `?entry=<name>`.
+/// Empty for a plain KML file.
+#[tauri::command]
+pub async fn kml_list_documents(path: String) -> Result<Vec<String>, String> {
+    libsphere::kml::list_documents(&path).map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 pub async fn source_get(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
@@ -823,6 +830,37 @@ mod tests {
         assert_eq!(result.source_type, "kml");
         assert_eq!(result.name, "sample");
         assert_eq!(parsed["features"].as_array().map(Vec::len), Some(5));
+    }
+
+    #[tokio::test]
+    async fn kml_list_documents_names_every_document_of_a_kmz() {
+        let documents = kml_list_documents("../crates/libsphere/assets/kml/multi.kmz".to_string())
+            .await
+            .unwrap();
+
+        assert_eq!(documents, vec!["doc.kml", "files/My Places.kml", "files/Reef trip.kml"]);
+    }
+
+    #[tokio::test]
+    async fn kml_list_documents_reports_a_missing_file() {
+        let err = kml_list_documents("/nonexistent/backup.kmz".to_string()).await.unwrap_err();
+
+        assert!(err.contains("/nonexistent/backup.kmz"), "{err}");
+    }
+
+    #[tokio::test]
+    async fn kmz_document_source_add_loads_only_that_document() {
+        let app = test_app();
+        let path = std::fs::canonicalize("../crates/libsphere/assets/kml/multi.kmz").unwrap();
+        let mut url = Url::from_file_path(path).unwrap();
+        url.query_pairs_mut().append_pair("entry", "files/Reef trip.kml");
+
+        let result = source_add(url.as_str(), app.state()).await.unwrap();
+        let geojson = source_get(result.id, app.state()).await.unwrap();
+        let parsed: Value = serde_json::from_str(&geojson).unwrap();
+
+        assert_eq!(result.name, "Reef trip");
+        assert_eq!(parsed["features"].as_array().map(Vec::len), Some(2));
     }
 
     #[tokio::test]

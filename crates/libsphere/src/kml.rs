@@ -20,9 +20,12 @@ use crate::error::{Result, SphereError, WithPath};
 use crate::schema::{infer_source_schema, SourceSchema};
 use crate::Bounds;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Kml {
     pub path: String,
+    /// The document to read when `path` is a KMZ archive holding several;
+    /// `None` reads the first one.
+    pub entry: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -122,29 +125,67 @@ const NOT_UTF8: &str = "KML file is not valid UTF-8";
 const ZIP_SIGNATURE: &[u8] = b"PK\x03\x04";
 /// Error detail for a KMZ archive that holds no KML document.
 const NO_KML_IN_KMZ: &str = "KMZ archive contains no .kml file";
+/// Error detail for an `entry` asked of a file that is not a zip archive.
+const NOT_KMZ: &str = "KML file is not a KMZ archive";
 
-/// The first `.kml` entry of a KMZ archive, which Google Earth reads as the
-/// document. Other entries (icons, overlay images) are not used.
-fn unzip_document(bytes: Vec<u8>) -> std::result::Result<Vec<u8>, String> {
-    let invalid = |e: ZipError| format!("invalid KMZ archive: {e}");
-    let mut archive = ZipArchive::new(Cursor::new(bytes)).map_err(invalid)?;
-    for index in 0..archive.len() {
-        let mut entry = archive.by_index(index).map_err(invalid)?;
-        let is_kml = entry
-            .name()
-            .map_err(invalid)?
-            .to_lowercase()
-            .ends_with(".kml");
-        if !entry.is_file() || !is_kml {
-            continue;
+type Archive = ZipArchive<Cursor<Vec<u8>>>;
+
+fn invalid_archive(e: ZipError) -> String {
+    format!("invalid KMZ archive: {e}")
+}
+
+fn open_archive(bytes: Vec<u8>) -> std::result::Result<Archive, String> {
+    ZipArchive::new(Cursor::new(bytes)).map_err(invalid_archive)
+}
+
+/// Names of the `.kml` entries of an archive, in archive order. Other entries
+/// (icons, overlay images) are not documents.
+fn kml_entries(archive: &Archive) -> std::result::Result<Vec<String>, String> {
+    let mut entries = Vec::new();
+    for name in archive.file_names() {
+        let name = name.map_err(invalid_archive)?;
+        if name.to_lowercase().ends_with(".kml") {
+            entries.push(name.into_owned());
         }
-        let mut document = Vec::new();
-        entry
-            .read_to_end(&mut document)
-            .map_err(|e| invalid(e.into()))?;
-        return Ok(document);
     }
-    Err(NO_KML_IN_KMZ.to_string())
+    Ok(entries)
+}
+
+/// One document of a KMZ archive: the named entry, or else the first `.kml`
+/// entry, which Google Earth reads as the root document.
+fn unzip_document(bytes: Vec<u8>, entry: Option<&str>) -> std::result::Result<Vec<u8>, String> {
+    let mut archive = open_archive(bytes)?;
+    let entries = kml_entries(&archive)?;
+    let name = match entry {
+        Some(name) if entries.iter().any(|e| e == name) => name.to_string(),
+        Some(name) => return Err(format!("KMZ archive has no {name}")),
+        None => entries
+            .into_iter()
+            .next()
+            .ok_or_else(|| NO_KML_IN_KMZ.to_string())?,
+    };
+    let mut document = Vec::new();
+    archive
+        .by_name(&name)
+        .map_err(invalid_archive)?
+        .read_to_end(&mut document)
+        .map_err(|e| invalid_archive(e.into()))?;
+    Ok(document)
+}
+
+/// The KML documents of a KMZ archive, by entry name in archive order. A plain
+/// KML file has none: it is its own single document.
+pub fn list_documents(path: &str) -> Result<Vec<String>> {
+    let bytes = std::fs::read(path).with_path(path)?;
+    if !bytes.starts_with(ZIP_SIGNATURE) {
+        return Ok(Vec::new());
+    }
+    open_archive(bytes)
+        .and_then(|archive| kml_entries(&archive))
+        .map_err(|detail| SphereError::Kml {
+            path: path.to_string(),
+            detail,
+        })
 }
 
 /// Geometry elements the pre-pass drops when they carry no coordinates.
@@ -380,7 +421,9 @@ impl Kml {
         let mut bytes = std::fs::read(&self.path).with_path(&self.path)?;
         // KMZ is told apart by content, not extension, so a mislabelled file still opens.
         if bytes.starts_with(ZIP_SIGNATURE) {
-            bytes = unzip_document(bytes).map_err(to_error)?;
+            bytes = unzip_document(bytes, self.entry.as_deref()).map_err(to_error)?;
+        } else if self.entry.is_some() {
+            return Err(to_error(NOT_KMZ.to_string()));
         }
         let text = String::from_utf8(bytes).map_err(|_| to_error(NOT_UTF8.to_string()))?;
         let normalised = normalise(&text).map_err(to_error)?;
@@ -477,9 +520,13 @@ mod tests {
     const ORGANIC_MAPS: &str = "../../samples/organicmaps-spb.kml";
 
     fn load(path: &str) -> Vec<Feature> {
-        let source = Kml {
+        features_of(&Kml {
             path: path.to_string(),
-        };
+            entry: None,
+        })
+    }
+
+    fn features_of(source: &Kml) -> Vec<Feature> {
         let text = source.to_geojson().unwrap();
         match text.parse::<GeoJson>().unwrap() {
             GeoJson::FeatureCollection(fc) => fc.features,
@@ -574,6 +621,7 @@ mod tests {
     fn info_counts_placemarks_folders_and_skipped() {
         let info = Kml {
             path: SAMPLE.to_string(),
+            entry: None,
         }
         .info()
         .unwrap();
@@ -586,6 +634,7 @@ mod tests {
     fn get_bounds_covers_every_feature() {
         let source = Kml {
             path: SAMPLE.to_string(),
+            entry: None,
         };
         assert_eq!(source.get_bounds(), Some((29.0, 59.0, 32.0, 62.0)));
     }
@@ -595,6 +644,7 @@ mod tests {
         let path = "./assets/kml/empty.kml";
         let source = Kml {
             path: path.to_string(),
+            entry: None,
         };
         assert_eq!(source.get_bounds(), None);
         assert_eq!(load(path).len(), 0);
@@ -626,6 +676,7 @@ mod tests {
     fn organic_maps_export_schema_lists_every_property() {
         let source = Kml {
             path: ORGANIC_MAPS.to_string(),
+            entry: None,
         };
         let schema = source.get_schema().unwrap();
         let mut columns: Vec<&str> = schema.columns.keys().map(String::as_str).collect();
@@ -641,6 +692,7 @@ mod tests {
     fn to_geojson_returns_an_error_for_malformed_xml() {
         let source = Kml {
             path: "./assets/kml/broken.kml".to_string(),
+            entry: None,
         };
         match source.to_geojson() {
             Err(SphereError::Kml { path, .. }) => assert!(path.ends_with("broken.kml")),
@@ -655,6 +707,7 @@ mod tests {
     fn info_of(path: &str) -> KmlInfo {
         Kml {
             path: path.to_string(),
+            entry: None,
         }
         .info()
         .unwrap()
@@ -753,7 +806,11 @@ mod tests {
         bytes.extend_from_slice(b"</name></Placemark></Document></kml>");
         std::fs::write(&path, bytes).unwrap();
         let path = path.to_string_lossy().to_string();
-        let result = Kml { path: path.clone() }.to_geojson();
+        let result = Kml {
+            path: path.clone(),
+            entry: None,
+        }
+        .to_geojson();
         std::fs::remove_file(&path).unwrap();
         match result {
             Err(SphereError::Kml { path: p, detail }) => {
@@ -785,6 +842,7 @@ mod tests {
     fn kmz_bounds_cover_every_feature() {
         let source = Kml {
             path: SAMPLE_KMZ.to_string(),
+            entry: None,
         };
         assert_eq!(source.get_bounds(), Some((29.0, 59.0, 32.0, 62.0)));
     }
@@ -792,6 +850,7 @@ mod tests {
     fn kml_error(path: &str) -> String {
         match (Kml {
             path: path.to_string(),
+            entry: None,
         })
         .to_geojson()
         {
@@ -801,6 +860,83 @@ mod tests {
             }
             other => panic!("expected Kml error, got {other:?}"),
         }
+    }
+
+    /// Laid out like an Organic Maps backup: `doc.kml` only links to the other
+    /// two documents, `files/My Places.kml` is `sample.kml` and
+    /// `files/Reef trip.kml` is `sea-floor.kml`.
+    const MULTI_KMZ: &str = "./assets/kml/multi.kmz";
+
+    fn document(path: &str, entry: &str) -> Kml {
+        Kml {
+            path: path.to_string(),
+            entry: Some(entry.to_string()),
+        }
+    }
+
+    #[test]
+    fn list_documents_names_every_kml_entry_in_archive_order() {
+        assert_eq!(
+            list_documents(MULTI_KMZ).unwrap(),
+            vec!["doc.kml", "files/My Places.kml", "files/Reef trip.kml"]
+        );
+    }
+
+    #[test]
+    fn list_documents_skips_entries_that_are_not_kml() {
+        assert_eq!(
+            list_documents(SAMPLE_KMZ).unwrap(),
+            vec!["doc.kml", "files/extra.kml"]
+        );
+    }
+
+    #[test]
+    fn list_documents_is_empty_for_a_plain_kml_file() {
+        assert!(list_documents(SAMPLE).unwrap().is_empty());
+    }
+
+    #[test]
+    fn entry_reads_that_document_of_the_archive() {
+        let reef = document(MULTI_KMZ, "files/Reef trip.kml");
+        assert_eq!(
+            names(&features_of(&reef)),
+            names(&load("./assets/kml/sea-floor.kml"))
+        );
+        let places = document(MULTI_KMZ, "files/My Places.kml");
+        assert_eq!(names(&features_of(&places)), names(&load(SAMPLE)));
+    }
+
+    #[test]
+    fn links_only_document_has_no_placemarks() {
+        let doc = document(MULTI_KMZ, "doc.kml");
+        assert!(features_of(&doc).is_empty());
+        assert_eq!(doc.info().unwrap().placemarks, 0);
+    }
+
+    fn error_of(source: &Kml) -> String {
+        match source.to_geojson() {
+            Err(SphereError::Kml { path, detail }) => {
+                assert_eq!(path, source.path);
+                detail
+            }
+            other => panic!("expected Kml error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn missing_entry_is_a_kml_error() {
+        assert_eq!(
+            error_of(&document(MULTI_KMZ, "files/Nope.kml")),
+            "KMZ archive has no files/Nope.kml"
+        );
+    }
+
+    #[test]
+    fn entry_of_a_plain_kml_file_is_a_kml_error() {
+        assert_eq!(
+            error_of(&document(SAMPLE, "doc.kml")),
+            "KML file is not a KMZ archive"
+        );
     }
 
     #[test]
@@ -821,6 +957,7 @@ mod tests {
     fn to_geojson_returns_an_error_for_non_kml_xml() {
         let source = Kml {
             path: "./assets/kml/not-kml.xml".to_string(),
+            entry: None,
         };
         match source.to_geojson() {
             Err(SphereError::Kml { path, .. }) => assert!(path.ends_with("not-kml.xml")),
