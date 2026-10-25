@@ -1,8 +1,6 @@
-import { Tabs as MantineTabs } from "@mantine/core"
-import type { ReactNode } from "react"
-import { GAP_PX } from "../Layout"
-
-const TAB_HEIGHT_PX = 30
+import { Tabs as BaseTabs } from "@base-ui/react/tabs"
+import type { ComponentProps, ReactNode } from "react"
+import s from "./tabs.module.css"
 
 export type TabItem = {
     value: string
@@ -18,109 +16,84 @@ export type TabsProps = {
     items: ReadonlyArray<TabItem>
 }
 
+type ListKeyDownEvent = Parameters<NonNullable<ComponentProps<typeof BaseTabs.List>["onKeyDown"]>>[0]
+
+const ENABLED_TAB_SELECTOR = '[role="tab"]:not([aria-disabled="true"])'
+const LAST_STEP = -1
+
+type NavigationKey = "ArrowLeft" | "ArrowRight" | "Home" | "End"
+
+// How far each key moves from the focused tab; Home and End jump to an end.
+const STEP: Record<NavigationKey, number | "first" | "last"> = {
+    ArrowLeft: LAST_STEP,
+    ArrowRight: 1,
+    Home: "first",
+    End: "last",
+}
+
+function isNavigationKey(key: string): key is NavigationKey {
+    return key in STEP
+}
+
+// Base UI keeps disabled tabs in the arrow-key order; Mantine skipped them, so the list
+// does its own roving over the enabled tabs.
+function nextEnabledTab(
+    tabs: ReadonlyArray<HTMLElement>,
+    current: number,
+    key: NavigationKey,
+): HTMLElement | undefined {
+    const step = STEP[key]
+    if (step === "first") {
+        return tabs.at(0)
+    }
+    if (step === "last") {
+        return tabs.at(-1)
+    }
+    return tabs.at((current + step + tabs.length) % tabs.length)
+}
+
 export function Tabs({ value, onChange, items }: TabsProps) {
-    function handleTabChange(next: string | null) {
-        if (next === null) {
+    function handleValueChange(next: unknown) {
+        if (typeof next === "string") {
+            onChange(next)
+        }
+    }
+
+    function handleKeyDown(event: ListKeyDownEvent) {
+        if (!isNavigationKey(event.key)) {
             return
         }
-        onChange(next)
+        const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(ENABLED_TAB_SELECTOR))
+        const target = nextEnabledTab(
+            tabs,
+            tabs.findIndex(tab => tab === document.activeElement),
+            event.key,
+        )
+        if (!target) {
+            return
+        }
+        event.preventDefault()
+        event.preventBaseUIHandler?.()
+        target.focus()
     }
 
     return (
-        <MantineTabs
-            unstyled
-            keepMounted={false}
-            value={value}
-            onTabChange={handleTabChange}
-            styles={theme => ({
-                // The tabs own the whole sidebar height: the list keeps its
-                // natural height and the active panel takes the rest, so the
-                // panel content scrolls inside the sidebar instead of running
-                // past its bottom edge.
-                root: {
-                    width: "100%",
-                    height: "100%",
-                    minHeight: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-                },
-                panel: {
-                    flex: "1 1 0",
-                    minHeight: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-
-                    // Toolbars and headers keep their height; the one child
-                    // that scrolls (SectionStack) opts out via its own
-                    // createStyles class.
-                    "& > *": {
-                        flexShrink: 0,
-                    },
-                },
-                tab: {
-                    ...theme.fn.focusStyles(),
-                    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
-                    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[9],
-                    border: `1px solid ${theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[4]}`,
-                    height: TAB_HEIGHT_PX,
-                    cursor: "pointer",
-                    fontSize: theme.fontSizes.sm,
-                    display: "flex",
-                    alignItems: "center",
-
-                    "&:disabled": {
-                        opacity: 0.5,
-                        cursor: "not-allowed",
-                    },
-
-                    "&:not(:first-of-type)": {
-                        borderLeft: 0,
-                    },
-
-                    "&:first-of-type": {
-                        borderTopLeftRadius: theme.radius.sm,
-                        borderBottomLeftRadius: theme.radius.sm,
-                    },
-
-                    "&:last-of-type": {
-                        borderTopRightRadius: theme.radius.sm,
-                        borderBottomRightRadius: theme.radius.sm,
-                    },
-
-                    "&[data-active]": {
-                        backgroundColor: theme.colors.blue[7],
-                        borderColor: theme.colors.blue[7],
-                        color: theme.white,
-                    },
-                },
-
-                tabIcon: {
-                    marginRight: theme.spacing.xs,
-                    display: "flex",
-                    alignItems: "center",
-                },
-
-                tabsList: {
-                    display: "flex",
-                    flexShrink: 0,
-                },
-            })}
-        >
-            <MantineTabs.List p={GAP_PX.sm}>
+        <BaseTabs.Root className={s.root} value={value} onValueChange={handleValueChange}>
+            {/* Mantine activates a tab as soon as arrow keys focus it. */}
+            <BaseTabs.List className={s.list} activateOnFocus onKeyDown={handleKeyDown}>
                 {items.map(item => (
-                    <MantineTabs.Tab key={item.value} value={item.value} icon={item.icon} disabled={item.disabled}>
-                        {item.label}
-                    </MantineTabs.Tab>
+                    <BaseTabs.Tab key={item.value} className={s.tab} value={item.value} disabled={item.disabled}>
+                        {item.icon ? <div className={s.icon}>{item.icon}</div> : null}
+                        <div>{item.label}</div>
+                    </BaseTabs.Tab>
                 ))}
-            </MantineTabs.List>
+            </BaseTabs.List>
 
             {items.map(item => (
-                <MantineTabs.Panel key={item.value} value={item.value}>
+                <BaseTabs.Panel key={item.value} className={s.panel} value={item.value}>
                     {item.content}
-                </MantineTabs.Panel>
+                </BaseTabs.Panel>
             ))}
-        </MantineTabs>
+        </BaseTabs.Root>
     )
 }

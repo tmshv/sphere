@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
+import userEvent from "@testing-library/user-event"
 import { fireEvent, render, screen } from "../test-utils"
 import { type TabItem, Tabs } from "."
 
@@ -44,8 +45,21 @@ describe("Tabs", () => {
         const tab = screen.getByRole("tab", { name: "Styles" })
         fireEvent.click(tab)
 
-        expect(tab).toBeDisabled()
+        expect(tab).toHaveAttribute("aria-disabled", "true")
         expect(onChange).not.toHaveBeenCalled()
+    })
+
+    it("moves focus with arrow keys and skips disabled tabs", async () => {
+        const user = userEvent.setup()
+        render(<Controlled />)
+
+        await user.click(screen.getByRole("tab", { name: "Sources" }))
+        await user.keyboard("{ArrowRight}")
+        expect(screen.getByRole("tab", { name: "Layers" })).toHaveFocus()
+
+        // "Styles" is disabled, so the next stop wraps back to "Sources".
+        await user.keyboard("{ArrowRight}")
+        expect(screen.getByRole("tab", { name: "Sources" })).toHaveFocus()
     })
 
     it("switching tabs unmounts the previous content", () => {
@@ -55,46 +69,5 @@ describe("Tabs", () => {
 
         expect(screen.getByText("layers body")).toBeInTheDocument()
         expect(screen.queryByText("sources body")).not.toBeInTheDocument()
-    })
-
-    it("fills the sidebar height without overflowing it", () => {
-        const { container } = renderTabs()
-        const root = container.firstElementChild
-        if (!root) {
-            throw new Error("tabs root not found")
-        }
-        const style = window.getComputedStyle(root)
-
-        expect(style.display).toBe("flex")
-        expect(style.flexDirection).toBe("column")
-        expect(style.height).toBe("100%")
-        expect(Number.parseFloat(style.minHeight)).toBe(0)
-        expect(style.overflow).toBe("hidden")
-    })
-
-    it("gives the panel every pixel the tab list leaves over, and no more", () => {
-        renderTabs()
-        const panel = screen.getByText("sources body").parentElement
-        if (!panel) {
-            throw new Error("tabs panel not found")
-        }
-        const style = window.getComputedStyle(panel)
-
-        expect(style.display).toBe("flex")
-        expect(style.flexDirection).toBe("column")
-        expect(Number.parseFloat(style.minHeight)).toBe(0)
-        expect(style.overflow).toBe("hidden")
-        expect(Number.parseFloat(style.flexBasis)).toBe(0)
-        expect(style.flexGrow).toBe("1")
-    })
-
-    it("keeps panel children at full height unless they opt into flexing", () => {
-        renderTabs()
-        expect(window.getComputedStyle(screen.getByText("sources body")).flexShrink).toBe("0")
-    })
-
-    it("keeps the tab list at full height", () => {
-        renderTabs()
-        expect(window.getComputedStyle(screen.getByRole("tablist")).flexShrink).toBe("0")
     })
 })

@@ -53,6 +53,11 @@ export type SemanticColor =
     | "color-thumb-shadow"
     | "hue-ring"
     | "hue-glow"
+    | "tab-bg"
+    | "tab-border"
+    | "tab-text"
+    | "tab-active-bg"
+    | "overlay"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -76,6 +81,8 @@ const ICON_BUTTON_DARK_HOVER_ALPHA = 0.2
 const COLOR_THUMB_SHADOW_ALPHA = 0.6
 const HUE_RING_ALPHA = 0.1
 const HUE_GLOW_ALPHA = 0.15
+const MODAL_OVERLAY_LIGHT_ALPHA = 0.75
+const MODAL_OVERLAY_DARK_ALPHA = 0.85
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -152,4 +159,15 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Mantine 5 HueSlider.js: the two inset shadows over the hue spectrum (1px ring, 4px glow).
     "hue-ring": { light: withAlpha(palette.black, HUE_RING_ALPHA), dark: withAlpha(palette.black, HUE_RING_ALPHA) },
     "hue-glow": { light: withAlpha(palette.black, HUE_GLOW_ALPHA), dark: withAlpha(palette.black, HUE_GLOW_ALPHA) },
+    // Sphere Tabs (moved from LeftSidebar): white or dark[6] fill, gray[4] or dark[6] border, gray[9] or dark[0] text.
+    "tab-bg": { light: palette.white, dark: palette.dark[6] },
+    "tab-border": { light: palette.gray[4], dark: palette.dark[6] },
+    "tab-text": { light: palette.gray[9], dark: palette.dark[0] },
+    // Sphere Tabs, active tab: blue[7] fill and border in both schemes (text is on-accent).
+    "tab-active-bg": { light: palette.blue[7], dark: palette.blue[7] },
+    // Mantine 5 Modal overlay: black at 0.75 (light), dark[9] at 0.85 (dark).
+    overlay: {
+        light: withAlpha(palette.black, MODAL_OVERLAY_LIGHT_ALPHA),
+        dark: withAlpha(palette.dark[9], MODAL_OVERLAY_DARK_ALPHA),
+    },
 }

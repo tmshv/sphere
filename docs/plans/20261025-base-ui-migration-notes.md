@@ -62,3 +62,6 @@
 - SliderField: pressing ArrowRight at max no longer calls `onChange(max)` again. Base UI reports changes only, where Mantine repeated the clamped value.
 - ColorField: `react-colorful` handles arrow keys through `keyCode`, so tests that fire key events on its sliders must pass `keyCode`.
 - Colour math is exempt from the token rule, as functional rather than design: the saturation area's black and white gradient stops and the hue spectrum `hsl()` stops stay literal in `ColorField/color-field.module.css`. Theme colours (thumb shadow, hue ring and glow) are tokens, and Mantine size-table geometry is a named local custom property with a comment citing its source.
+- Tabs: Mantine `unstyled` dropped UnstyledButton's `padding: 0`, so every tab renders with the browser's default button padding (1px 6px). Kept as rendered; the CSS Module sets no padding on `.tab`.
+- Tabs: Base UI keeps disabled tabs in the arrow-key order (`aria-disabled`, no `disabled` attribute), where Mantine skipped them. The list handles Arrow/Home/End itself over the enabled tabs, and `activateOnFocus` keeps Mantine's select-on-arrow behaviour.
+- Dialog: Mantine's close button had no accessible name; the Base UI one is labelled "Close". Mantine's Modal `size` is fixed at `md` (440px) and `centered`; the overlay fade is half the 250ms `pop` duration.
