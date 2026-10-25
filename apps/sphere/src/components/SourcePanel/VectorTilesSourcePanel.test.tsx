@@ -1,5 +1,5 @@
 import { render, screen } from "@/test-utils"
-import { makeMvtSource } from "@/testutils"
+import { makeMvtSource, makeSourceState } from "@/testutils"
 import type { TileJSON } from "@/types/tilejson"
 import { configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
@@ -21,7 +21,7 @@ function renderPanel(overrides: Partial<TileJSON>) {
     const source = makeMvtSource("s1", { tilejson })
     const store = configureStore({
         reducer: {
-            source: () => ({ selectedId: "s1", items: { s1: source }, allIds: ["s1"] }),
+            source: () => makeSourceState([source], { selectedIds: ["s1"] }),
         },
     })
     return render(

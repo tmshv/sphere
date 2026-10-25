@@ -1,6 +1,6 @@
 import type { FormatDetails, SourceInfo } from "@/lib/source-reader"
 import { render, screen } from "@/test-utils"
-import { makeGeojsonSource } from "@/testutils"
+import { makeGeojsonSource, makeSourceState } from "@/testutils"
 import { configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
 import { describe, expect, it } from "vitest"
@@ -37,7 +37,7 @@ const source = makeGeojsonSource("s1", { format: "shapefile", location: "/path/t
 function renderPanel(details: FormatDetails) {
     const store = configureStore({
         reducer: {
-            source: () => ({ selectedId: "s1", items: { s1: source }, allIds: ["s1"] }),
+            source: () => makeSourceState([source], { selectedIds: ["s1"] }),
             sourceInfo: () => ({ info: { s1: { file: null, schema, details } }, stats: {} }),
         },
     })

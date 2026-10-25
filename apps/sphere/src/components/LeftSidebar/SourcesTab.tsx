@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import logger from "@/logger"
 import { SourceType } from "@/types"
 import type { SidebarSection } from "@/types"
-import { ActionBar, type ActionBarOnClick, Button, Dialog, PanelBody, SectionStack, TextField } from "@sphere/ui"
+import { ActionBar, type ActionBarOnClick, Button, Dialog, SectionStack, TextField } from "@sphere/ui"
 import { IconCrosshair, IconFile, IconLink, IconPlus, IconTrash } from "@tabler/icons"
 import { type FormEvent, useCallback, useState } from "react"
 import { SourcePanel } from "../SourcePanel"
@@ -12,7 +12,9 @@ import { SourcesOutline } from "../SourcesOutline"
 
 export function SourcesTab() {
     const dispatch = useAppDispatch()
-    const sourceId = useAppSelector(selectors.source.selectSelectedId)
+    // Source actions take the selected node id; which of them apply depends on the node kind
+    const nodeId = useAppSelector(selectors.source.selectSelectedId)
+    const { canRemove, canZoom } = useAppSelector(selectors.source.selectSelectedNodeActions)
     const sections = useAppSelector(selectSidebarSections("sources"))
     const [showModal, setShowModal] = useState(false)
     const [url, setUrl] = useState<string>("")
@@ -45,11 +47,11 @@ export function SourcesTab() {
         name => {
             switch (name) {
                 case "trash": {
-                    if (sourceId) dispatch(actions.source.removeSource(sourceId))
+                    if (nodeId && canRemove) dispatch(actions.source.removeSource(nodeId))
                     break
                 }
                 case "zoom": {
-                    if (sourceId) dispatch(actions.source.zoomTo(sourceId))
+                    if (nodeId && canZoom) dispatch(actions.source.zoomTo(nodeId))
                     break
                 }
                 case "add-from-url": {
@@ -71,7 +73,7 @@ export function SourcesTab() {
                 }
             }
         },
-        [dispatch, sourceId],
+        [dispatch, nodeId, canRemove, canZoom],
     )
 
     return (
@@ -94,14 +96,14 @@ export function SourcesTab() {
                     {
                         name: "trash",
                         label: "Delete source",
-                        disabled: !sourceId,
+                        disabled: !canRemove,
                         icon: IconTrash,
                         color: "red",
                     },
                     {
                         name: "zoom",
                         label: "Zoom to source",
-                        disabled: !sourceId,
+                        disabled: !canZoom,
                         icon: IconCrosshair,
                     },
                     null,
@@ -125,9 +127,8 @@ export function SourcesTab() {
 
             <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
                 <SectionStack.Section name={"outline"} title={"Outline"}>
-                    <PanelBody>
-                        <SourcesOutline />
-                    </PanelBody>
+                    {/* No PanelBody: the tree rows carry the inset themselves so a selected row spans the full width */}
+                    <SourcesOutline />
                 </SectionStack.Section>
 
                 <SectionStack.Section name={"source-properties"} title={"Source"}>

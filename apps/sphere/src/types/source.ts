@@ -54,7 +54,6 @@ export type Source = (
 ) & {
     id: Id
     name: string
-    fractionIndex: number
     error?: string
 }
 

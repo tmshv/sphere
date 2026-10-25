@@ -1,5 +1,6 @@
 import { createAction } from "@reduxjs/toolkit"
 import type { RootState } from "."
+import { selectSelectedSourceId } from "./source/tree-selectors"
 
 /**
  * A click on a native menu item. The payload is the item id defined by the
@@ -19,7 +20,7 @@ export type MenuContext = {
 }
 
 export const selectMenuContext = (state: RootState): MenuContext => ({
-    hasSource: Boolean(state.source.selectedId),
+    hasSource: Boolean(selectSelectedSourceId(state)),
     hasLayer: Boolean(state.layer.selectedId),
     hasSelection: state.selection.count > 0 && Boolean(state.selection.sourceId),
 })

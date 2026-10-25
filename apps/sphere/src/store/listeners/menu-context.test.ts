@@ -1,3 +1,4 @@
+import type { TileJSON } from "@/types/tilejson"
 import { configureStore } from "@reduxjs/toolkit"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
@@ -15,6 +16,45 @@ import menuContext from "./menu-context"
 
 const LAYER_ID = "layer-1"
 const SOURCE_ID = "source-1"
+
+const MVT_ID = "mvt-1"
+const ROADS_NODE_ID = `${MVT_ID}/roads`
+const FOLDER_ID = "folder-1"
+
+const meta = {
+    columns: {},
+    pointsCount: 0,
+    multiPointsCount: 0,
+    linesCount: 0,
+    multiLinesCount: 0,
+    polygonsCount: 0,
+    multiPolygonsCount: 0,
+    collectionsCount: 0,
+    nullGeometryCount: 0,
+    featuresCount: 0,
+}
+
+const tilejson: TileJSON = {
+    tilejson: "3.0.0",
+    tiles: [],
+    vector_layers: [],
+    attribution: null,
+    description: null,
+    legend: null,
+    template: null,
+    name: null,
+}
+
+const addSource = sourceActions.addInMemorySource({ id: SOURCE_ID, name: "Source", location: "sphere://source", meta })
+const addVectorMvt = sourceActions.addMVTSource({
+    id: MVT_ID,
+    name: "Tiles",
+    location: "tiles.mbtiles",
+    tilejson,
+    format: "pbf",
+    sourceLayers: [{ id: "roads", name: "Roads" }],
+})
+const addFolder = sourceActions.addFolder({ id: FOLDER_ID, name: "Folder" })
 
 function makeStore() {
     return configureStore({
@@ -38,6 +78,9 @@ describe("menu-context listener", () => {
     beforeEach(() => {
         vi.clearAllMocks()
         store = makeStore()
+        store.dispatch(addSource)
+        store.dispatch(addVectorMvt)
+        store.dispatch(addFolder)
     })
 
     test("reports a selected source", async () => {
@@ -47,6 +90,22 @@ describe("menu-context listener", () => {
         expect(invoke).toHaveBeenCalledWith("menu_set_context", {
             context: { hasSource: true, hasLayer: false, hasSelection: false },
         })
+    })
+
+    test("reports a selected source-layer node as a source", async () => {
+        store.dispatch(sourceActions.select(ROADS_NODE_ID))
+        await flush()
+
+        expect(lastContext()).toEqual({
+            context: { hasSource: true, hasLayer: false, hasSelection: false },
+        })
+    })
+
+    test("does not report a selected folder as a source", async () => {
+        store.dispatch(sourceActions.select(FOLDER_ID))
+        await flush()
+
+        expect(invoke).not.toHaveBeenCalled()
     })
 
     test("reports a selected layer", async () => {

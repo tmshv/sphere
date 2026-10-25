@@ -23,10 +23,10 @@ import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
 
 const selectLayers = createSelector(
-    [selectors.draw.isDrawing, selectors.preview.sourceId, selectors.layer.items, selectors.layer.allIds],
-    (drawing, previewSourceId, items, allIds) => {
+    [selectors.draw.isDrawing, selectors.preview.active, selectors.layer.items, selectors.layer.allIds],
+    (drawing, previewActive, items, allIds) => {
         // Do not show layers in draw mode or when a source is actively previewed
-        if (drawing || previewSourceId) {
+        if (drawing || previewActive) {
             return []
         }
         return allIds
@@ -67,7 +67,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(selectors.source.allIds)
     const layers = useAppSelector(selectLayers)
-    const previewSourceId = useAppSelector(selectors.preview.sourceId)
+    const previewActive = useAppSelector(selectors.preview.active)
 
     return (
         <>
@@ -75,7 +75,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
-            {!drawing && previewSourceId && <SourcePreviewLayer mapId={mapId} delay={50} />}
+            {!drawing && previewActive && <SourcePreviewLayer mapId={mapId} delay={50} />}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
                     <FilteredLayerSource layerId={id} />

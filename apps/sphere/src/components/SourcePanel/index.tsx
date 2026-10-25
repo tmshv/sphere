@@ -1,12 +1,14 @@
 import { actions, selectors } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
-import { isRasterTileFormat } from "@/lib/tilejson"
-import { type SourceMetadata, SourceType } from "@/types"
+import { sourceKindOf } from "@/lib/source-kind"
+import { type SourceKind, type SourceMetadata, SourceType } from "@/types"
 import { ActionBar, GAP_PX, PanelBody, Stack, TextField } from "@sphere/ui"
 import { createSelector } from "@reduxjs/toolkit"
 import { IconCrosshair, IconPencil, IconReload, IconStack, IconTable, IconTrash } from "@tabler/icons"
 import type { CSSProperties } from "react"
 import { useSelector } from "react-redux"
+import { FolderPanel } from "./FolderPanel"
+import { SourceLayerPanel } from "./SourceLayerPanel"
 import { CsvSourcePanel } from "./CsvSourcePanel"
 import { GeojsonSourcePanel } from "./GeojsonSourcePanel"
 import { GpxSourcePanel } from "./GpxSourcePanel"
@@ -19,31 +21,13 @@ const FORM_STYLE: CSSProperties = { marginBottom: GAP_PX.sm }
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
-export type PanelKind = "geojson" | "csv" | "shapefile" | "gpx" | "kml" | "vector-tiles" | "raster-tiles"
-
 export const selectPanelKind = createSelector(
-    [selectors.source.selectCurrentSourceItem],
-    (source): PanelKind | null => {
-        if (!source) {
-            return null
-        }
-        switch (source.type) {
-            case SourceType.Geojson:
-                return source.format
-            case SourceType.FeatureCollection:
-                return "geojson"
-            case SourceType.MVT:
-                return isRasterTileFormat(source.format) ? "raster-tiles" : "vector-tiles"
-            case SourceType.Raster:
-                return "raster-tiles"
-            default:
-                return null
-        }
-    },
+    [selectors.source.selectSelectedNode, selectors.source.selectCurrentSourceItem],
+    sourceKindOf,
 )
 
 export const selector = createSelector(
-    [selectors.source.selectSelectedId, selectors.source.selectCurrentSourceItem],
+    [selectors.source.selectSelectedSourceId, selectors.source.selectCurrentSourceItem],
     (id, source) => {
         if (!id || !source) {
             return null
@@ -70,7 +54,7 @@ export const selector = createSelector(
     },
 )
 
-function renderPanel(kind: PanelKind | null) {
+function renderPanel(kind: SourceKind | null) {
     switch (kind) {
         case "geojson":
             return <GeojsonSourcePanel />
@@ -86,6 +70,10 @@ function renderPanel(kind: PanelKind | null) {
             return <VectorTilesSourcePanel />
         case "raster-tiles":
             return <RasterTilesSourcePanel />
+        case "source-layer":
+            return <SourceLayerPanel />
+        case "folder":
+            return <FolderPanel />
         default:
             return null
     }
@@ -96,33 +84,44 @@ export function SourcePanel() {
     const drawing = useSelector(selectors.draw.isDrawing)
     const source = useSelector(selector)
     const panelKind = useSelector(selectPanelKind)
+    const node = useSelector(selectors.source.selectSelectedNode)
+    // Source actions take the selected node id; a child resolves to its parent's data here
+    const nodeId = useSelector(selectors.source.selectSelectedId)
+    const nodeActions = useSelector(selectors.source.selectSelectedNodeActions)
 
-    if (!source) {
+    if (!node) {
         return null
     }
+    // A folder has no data source behind it, only a node
+    if (!source && node.kind !== "folder") {
+        return null
+    }
+    const editable = source?.editable ?? false
+    const reloadDisabled = source?.reloadDisabled ?? true
 
     const controls = (
         <ActionBar
             onClick={async name => {
                 switch (name) {
                     case "trash": {
-                        dispatch(actions.source.removeSource(source.id))
+                        if (nodeId && nodeActions.canRemove) dispatch(actions.source.removeSource(nodeId))
                         break
                     }
                     case "zoom": {
-                        dispatch(actions.source.zoomTo(source.id))
+                        if (nodeId && nodeActions.canZoom) dispatch(actions.source.zoomTo(nodeId))
                         break
                     }
                     case "show-properties": {
-                        dispatch(actions.source.showProperties({ id: source.id }))
+                        if (source && nodeActions.canShowProperties)
+                            dispatch(actions.source.showProperties({ id: source.id }))
                         break
                     }
                     case "add-to-layer": {
-                        dispatch(actions.layer.addBlankLayer(source.id))
+                        if (nodeId && nodeActions.canAddLayer) dispatch(actions.layer.addBlankLayer(nodeId))
                         break
                     }
                     case "edit": {
-                        if (!source.editable) break
+                        if (!source || !editable) break
                         if (drawing) {
                             dispatch(actions.tools.reset())
                         } else {
@@ -131,7 +130,7 @@ export function SourcePanel() {
                         break
                     }
                     case "reload": {
-                        dispatch(actions.source.reload(source.id))
+                        if (source) dispatch(actions.source.reload(source.id))
                         break
                     }
                     default: {
@@ -145,34 +144,38 @@ export function SourcePanel() {
                     label: "Delete source",
                     icon: IconTrash,
                     color: "red",
+                    disabled: !nodeActions.canRemove,
                 },
                 null,
                 {
                     name: "show-properties",
                     label: "Show properties",
                     icon: IconTable,
+                    disabled: !nodeActions.canShowProperties,
                 },
                 {
                     name: "add-to-layer",
                     label: "Add to layer",
                     icon: IconStack,
+                    disabled: !nodeActions.canAddLayer,
                 },
                 {
                     name: "edit",
                     label: "Switch to edit mode",
                     icon: IconPencil,
-                    disabled: !source.editable,
+                    disabled: !editable,
                 },
                 {
                     name: "zoom",
                     label: "Zoom to source",
                     icon: IconCrosshair,
+                    disabled: !nodeActions.canZoom,
                 },
                 {
                     name: "reload",
                     label: "Reload",
                     icon: IconReload,
-                    disabled: source.reloadDisabled,
+                    disabled: reloadDisabled,
                 },
             ]}
         />
@@ -183,11 +186,11 @@ export function SourcePanel() {
             <Stack gap={"md"} align={"stretch"} style={FORM_STYLE}>
                 <TextField
                     label="Name"
-                    value={source.name}
+                    value={node.name}
                     onChange={value => {
                         dispatch(
                             actions.source.setName({
-                                id: source.id,
+                                id: node.id,
                                 value,
                             }),
                         )

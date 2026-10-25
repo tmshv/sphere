@@ -1,5 +1,5 @@
 import { FEATURE_HIGHLIGHT_COLOR } from "@/const"
-import { combineFilters, sourceLayerProp, visibility } from "@/lib/maplibre"
+import { combineFilters, polygonLayerIds, sourceLayerProp, visibility } from "@/lib/maplibre"
 import type { FillLayerSpecification, FilterSpecification, LineLayerSpecification } from "maplibre-gl"
 import { useMemo } from "react"
 import { Layer } from "react-map-gl/maplibre"
@@ -14,6 +14,8 @@ export type SpherePolygonLayerProps = {
     color: string
     visible: boolean
     filter?: FilterSpecification
+    // Layer to draw below; absent means on top
+    beforeId?: string
 }
 
 export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
@@ -23,6 +25,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
     color,
     visible,
     filter,
+    beforeId,
 }) => {
     const [fill, outline0, outline1] = useMemo(() => {
         const fill: FillPaint = {
@@ -43,10 +46,13 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
         return [fill, outline0, outline1]
     }, [color])
 
+    const [fillId, outline0Id, outline1Id] = polygonLayerIds(layerId)
+
     return (
         <>
             <Layer
-                id={`${layerId}`}
+                id={fillId}
+                beforeId={beforeId}
                 source={sourceId}
                 type={"fill"}
                 paint={fill}
@@ -60,7 +66,8 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
-                id={`${layerId}-outline-0`}
+                id={outline0Id}
+                beforeId={beforeId}
                 source={sourceId}
                 type={"line"}
                 paint={outline0}
@@ -76,7 +83,8 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 {...sourceLayerProp(sourceLayer)}
             />
             <Layer
-                id={`${layerId}-outline-1`}
+                id={outline1Id}
+                beforeId={beforeId}
                 source={sourceId}
                 type={"line"}
                 paint={outline1}
