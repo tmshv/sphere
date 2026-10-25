@@ -6,10 +6,18 @@ export type HotkeyBinding = [string, (event: KeyboardEvent) => void]
 // Mantine 5.10 default: keystrokes typed into these elements are never hotkeys.
 const IGNORED_TAGS: ReadonlyArray<string> = ["INPUT", "TEXTAREA", "SELECT"]
 
+// Mantine's Select and SegmentedControl were inputs, so keystrokes in them were ignored too. Their Base UI
+// replacements are a button (role=combobox) and a span (role=radio); the same keystrokes stay ignored.
+const IGNORED_ROLE_SELECTOR = "[role=combobox], [role=radio]"
+
 function shouldFire(event: KeyboardEvent): boolean {
     const { target } = event
     if (target instanceof HTMLElement) {
-        return !target.isContentEditable && !IGNORED_TAGS.includes(target.tagName)
+        return (
+            !target.isContentEditable &&
+            !IGNORED_TAGS.includes(target.tagName) &&
+            target.closest(IGNORED_ROLE_SELECTOR) === null
+        )
     }
     return true
 }

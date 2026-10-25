@@ -17,7 +17,8 @@
     line-height: 1;
     font-size: var(--sphere-font-size-xs);
     user-select: none;
-    cursor: pointer;
+    /* Mantine set pointer, but the app's global `button:hover { cursor: default }` beat it; this rule is doubled, so it must say default. */
+    cursor: default;
     border: 1px solid transparent;
     color: var(--sphere-color-on-accent);
 }
@@ -78,12 +79,6 @@
     .button.subtle:active {
         background-color: var(--sphere-color-button-subtle-hover);
     }
-}
-
-/* Mantine 5 Button `&:active` (theme.activeStyles); only the light and subtle variants carry it here. */
-.button.light:active,
-.button.subtle:active {
-    transform: translateY(1px);
 }
 
 .button.button:disabled,

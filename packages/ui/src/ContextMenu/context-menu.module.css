@@ -35,7 +35,8 @@
     text-decoration: none;
     box-sizing: border-box;
     padding: var(--sphere-space-xs) var(--sphere-space-sm);
-    cursor: pointer;
+    /* Mantine's MenuItem was a button, so the app's `button:hover { cursor: default }` won over its pointer. */
+    cursor: default;
     border-radius: var(--sphere-radius-sm);
     color: var(--sphere-color-text);
     display: flex;

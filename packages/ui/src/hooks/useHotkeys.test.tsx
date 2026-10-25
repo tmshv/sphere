@@ -1,5 +1,6 @@
-import { fireEvent, render } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
+import { SegmentedControl, Select } from "../Select"
 import { parseHotkey } from "./parseHotkey"
 import { useHotkeys } from "./useHotkeys"
 
@@ -72,6 +73,20 @@ describe("useHotkeys", () => {
         expect(handler).not.toHaveBeenCalled()
         fireEvent.keyDown(view.getByRole("button", { name: "plain" }), { key: "v", ctrlKey: true })
         expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it("ignores events from Select and SegmentedControl, which Mantine rendered as inputs", () => {
+        const handler = vi.fn()
+        render(
+            <>
+                <Probe handler={handler} />
+                <Select label="Mode" value="a" options={[{ value: "a", label: "A" }]} onChange={vi.fn()} />
+                <SegmentedControl label="Tool" value="a" options={[{ value: "a", label: "A" }]} onChange={vi.fn()} />
+            </>,
+        )
+        fireEvent.keyDown(screen.getByLabelText("Mode"), { key: "v", ctrlKey: true })
+        fireEvent.keyDown(screen.getByRole("radio", { name: "A" }), { key: "v", ctrlKey: true })
+        expect(handler).not.toHaveBeenCalled()
     })
 
     it("ignores events from contentEditable elements", () => {

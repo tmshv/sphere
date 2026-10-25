@@ -148,7 +148,8 @@
     --button-line-height: 1.15;
 
     line-height: var(--button-line-height);
-    cursor: pointer;
+    /* Mantine's Spotlight action was a button, so the app's `button:hover { cursor: default }` won over its pointer. */
+    cursor: default;
     text-align: left;
     color: var(--sphere-color-text);
     text-decoration: none;

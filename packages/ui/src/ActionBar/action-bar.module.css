@@ -1,4 +1,7 @@
 .bar {
+    /* Sphere ActionBar: a disabled action is half opaque. */
+    --action-disabled-opacity: 0.5;
+
     display: flex;
     flex-direction: row;
     gap: var(--sphere-space-xs);
@@ -13,18 +16,18 @@
     color: var(--sphere-color-icon-button-text);
 }
 
-/* Mantine 5 ActionIcon `&:active` (theme.activeStyles). */
-.action:active {
-    transform: translateY(1px);
-}
-
 /* The bar's own disabled look, over the icon button's: half opacity, no fill, no border. */
 .bar .action.action:disabled {
-    opacity: 0.5;
+    opacity: var(--action-disabled-opacity);
     background-color: transparent;
     border: none;
     cursor: not-allowed;
     pointer-events: none;
     color: var(--sphere-color-icon-button-disabled-text);
-    transform: none;
+}
+
+/* Insets the bar horizontally by the standard gap. */
+.padded {
+    padding-left: var(--sphere-space-sm);
+    padding-right: var(--sphere-space-sm);
 }

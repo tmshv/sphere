@@ -1,12 +1,9 @@
 import { Button as BaseButton } from "@base-ui/react/button"
 import type { TablerIconProps } from "@tabler/icons"
-import type { CSSProperties } from "react"
 import iconButton from "../Button/icon-button.module.css"
-import { GAP_PX } from "../Layout"
 import { unstyledButton } from "../internal"
 import s from "./action-bar.module.css"
 
-const PADDED_STYLE: CSSProperties = { paddingLeft: GAP_PX.sm, paddingRight: GAP_PX.sm }
 const ICON_SIZE_PX = 16
 
 export type ActionBarItem = {
@@ -28,7 +25,7 @@ export type ActionBarProps = {
 
 export function ActionBar({ items, onClick, padded = false }: ActionBarProps) {
     return (
-        <div className={s.bar} style={padded ? PADDED_STYLE : undefined}>
+        <div className={padded ? `${s.bar} ${s.padded}` : s.bar}>
             {items.map((item, i) => {
                 if (!item) {
                     return <div key={`separator-before-${items[i + 1]?.name ?? "end"}`} className={s.spacer} />

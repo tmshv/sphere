@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, pressedStyle, render, screen } from "../test-utils"
 import { Button, IconButton } from "."
 
 describe("Button", () => {
@@ -74,5 +74,17 @@ describe("IconButton", () => {
         expect(button).toBeDisabled()
         fireEvent.click(button)
         expect(onClick).not.toHaveBeenCalled()
+    })
+})
+
+describe("Button press and cursor parity", () => {
+    it("shows the arrow cursor, as the app's global button:hover rule did", () => {
+        render(<Button>Save</Button>)
+        expect(declaredStyle(screen.getByRole("button"), "cursor")).toBe("default")
+    })
+
+    it("has no press transform, as Sphere's theme set activeStyles to none", () => {
+        render(<Button>Save</Button>)
+        expect(pressedStyle(screen.getByRole("button"), "transform")).toBe("")
     })
 })
