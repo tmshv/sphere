@@ -111,6 +111,24 @@ describe("ContextMenuItem", () => {
     })
 })
 
+describe("ContextMenu keyboard", () => {
+    it("skips a disabled item with ArrowDown and ArrowUp, as Mantine did", async () => {
+        renderMenu(
+            <>
+                <ContextMenuItem>First</ContextMenuItem>
+                <ContextMenuItem disabled>Second</ContextMenuItem>
+                <ContextMenuItem>Third</ContextMenuItem>
+            </>,
+        )
+        await userEvent.keyboard("{ArrowDown}")
+        expect(screen.getByRole("menuitem", { name: "First" })).toHaveFocus()
+        await userEvent.keyboard("{ArrowDown}")
+        expect(screen.getByRole("menuitem", { name: "Third" })).toHaveFocus()
+        await userEvent.keyboard("{ArrowUp}")
+        expect(screen.getByRole("menuitem", { name: "First" })).toHaveFocus()
+    })
+})
+
 describe("ContextMenuLabel", () => {
     it("renders its text", () => {
         renderMenu(<ContextMenuLabel>Map</ContextMenuLabel>)

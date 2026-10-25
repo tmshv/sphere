@@ -42,10 +42,6 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
     // ignored inside inputs, textareas and selects, default action prevented.
     useHotkeys([[shortcut, () => setOpened(true)]])
 
-    function handleOpenChange(open: boolean) {
-        setOpened(open)
-    }
-
     function handleOpenComplete(open: boolean) {
         if (!open) {
             setQuery("")
@@ -65,7 +61,7 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
 
     return (
         <>
-            <Dialog.Root open={opened} onOpenChange={handleOpenChange} onOpenChangeComplete={handleOpenComplete}>
+            <Dialog.Root open={opened} onOpenChange={setOpened} onOpenChangeComplete={handleOpenComplete}>
                 <Dialog.Portal>
                     <Dialog.Backdrop className={s.backdrop} />
                     <Dialog.Viewport className={s.viewport}>

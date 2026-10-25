@@ -33,7 +33,11 @@ export function matchesHotkey(hotkey: Hotkey, event: KeyboardEvent): boolean {
     if (hotkey.alt !== event.altKey || hotkey.shift !== event.shiftKey) {
         return false
     }
-    if (hotkey.mod ? !event.ctrlKey && !event.metaKey : event.ctrlKey || event.metaKey) {
+    const commandHeld = event.ctrlKey || event.metaKey
+    if (hotkey.mod && !commandHeld) {
+        return false
+    }
+    if (!hotkey.mod && commandHeld) {
         return false
     }
     if (hotkey.key === undefined) {

@@ -134,4 +134,38 @@ describe("CommandPalette", () => {
         expect(second).toHaveBeenCalledTimes(1)
         expect(first).not.toHaveBeenCalled()
     })
+
+    it("does nothing on Enter while nothing is highlighted", async () => {
+        const onTrigger = vi.fn()
+        const other = vi.fn()
+        render(palette(onTrigger, other))
+        openPalette()
+        await screen.findByPlaceholderText(PLACEHOLDER)
+        await userEvent.keyboard("{Enter}")
+        expect(onTrigger).not.toHaveBeenCalled()
+        expect(other).not.toHaveBeenCalled()
+        expect(screen.getByPlaceholderText(PLACEHOLDER)).toBeInTheDocument()
+    })
+
+    it("selects the last item on ArrowUp from nothing and wraps in both directions", async () => {
+        render(palette())
+        openPalette()
+        await screen.findByPlaceholderText(PLACEHOLDER)
+        const highlighted = () => screen.getAllByRole("option").findIndex(o => o.hasAttribute("data-highlighted"))
+        await userEvent.keyboard("{ArrowUp}")
+        expect(highlighted()).toBe(2)
+        await userEvent.keyboard("{ArrowDown}")
+        expect(highlighted()).toBe(0)
+        await userEvent.keyboard("{ArrowUp}")
+        expect(highlighted()).toBe(2)
+    })
+
+    it("closes on the first Escape even with a query", async () => {
+        render(palette())
+        openPalette()
+        const input = await screen.findByPlaceholderText(PLACEHOLDER)
+        await userEvent.type(input, "zen")
+        await userEvent.keyboard("{Escape}")
+        await waitFor(() => expect(screen.queryByPlaceholderText(PLACEHOLDER)).toBeNull())
+    })
 })

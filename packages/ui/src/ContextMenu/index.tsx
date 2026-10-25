@@ -62,8 +62,8 @@ export type ContextMenuItemProps = {
 }
 
 export function ContextMenuItem({ icon, shortcut, disabled = false, onClick, children }: ContextMenuItemProps) {
-    return (
-        <Menu.Item className={s.item} disabled={disabled} onClick={() => onClick?.()}>
+    const content = (
+        <>
             {icon ? <div className={s.itemIcon}>{icon}</div> : null}
             <div className={s.itemLabel}>{children}</div>
             {shortcut === undefined ? null : (
@@ -71,6 +71,22 @@ export function ContextMenuItem({ icon, shortcut, disabled = false, onClick, chi
                     <Text tone={"dimmed"}>{shortcut}</Text>
                 </div>
             )}
+        </>
+    )
+
+    // Mantine's arrow keys skip disabled items, but Base UI keeps them focusable. A disabled
+    // item is therefore a plain element outside the menu's keyboard list.
+    if (disabled) {
+        return (
+            <div className={s.item} role="menuitem" tabIndex={-1} aria-disabled="true" data-disabled="">
+                {content}
+            </div>
+        )
+    }
+
+    return (
+        <Menu.Item className={s.item} onClick={() => onClick?.()}>
+            {content}
         </Menu.Item>
     )
 }
