@@ -12,7 +12,7 @@
 }
 
 .header {
-    /* Matches SECTION_HEADER_HEIGHT in index.tsx. */
+    /* Pinned to SECTION_HEADER_HEIGHT in index.tsx by a test. */
     --header-height: 30px;
     /* Chevron rotation transition (Sphere-specific, not a Mantine value). */
     --chevron-duration: 150ms;

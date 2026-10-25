@@ -15,7 +15,8 @@ export { customRender as render }
 
 // getComputedStyle in happy-dom drops declarations whose value is a var(),
 // such as spacing tokens. This reads the value as written in the matching
-// stylesheet rule instead.
+// stylesheet rule instead. It takes the last matching rule in document order
+// and ignores specificity and media queries.
 export function declaredStyle(element: Element, property: string): string {
     const values = [...document.styleSheets]
         .flatMap(sheet => [...sheet.cssRules])

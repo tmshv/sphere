@@ -6,6 +6,7 @@ import { restoreSize } from "../Split/sizes"
 import { defaultSizesOf, isSpacerVisible, mergeSections, resolveSections, SPACER_MIN_SIZE } from "./layout"
 import s from "./section-stack.module.css"
 
+// Also declared as --header-height in section-stack.module.css; a test pins them together.
 export const SECTION_HEADER_HEIGHT = 30
 const DEFAULT_MIN_CONTENT_SIZE = 120
 const CHEVRON_SIZE = 14

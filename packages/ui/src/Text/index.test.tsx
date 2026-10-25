@@ -19,8 +19,8 @@ describe("Text", () => {
                 Title
             </Text>,
         )
-        // The unit environment applies no CSS; the rendered look is owned by the
-        // visual baselines (Text/index.visual.test.tsx).
+        // CSS Module rules are injected here but var() tokens are not resolved, so the
+        // rendered look is owned by the visual baselines (Text/index.visual.test.tsx).
         const classes = screen.getByText("Title").className
         expect(classes).toContain("weightSemibold")
         expect(classes).toContain("uppercase")

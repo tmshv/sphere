@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { describe, expect, it } from "vitest"
 import { declaredStyle, fireEvent, render, screen } from "../test-utils"
-import { SectionStack, type SectionLayout } from "."
+import { SECTION_HEADER_HEIGHT, SectionStack, type SectionLayout } from "."
 
 function Stack({ initial }: { initial: SectionLayout[] }) {
     const [sections, setSections] = useState(initial)
@@ -154,5 +154,20 @@ describe("SectionStack", () => {
         expect(paddingPx(style.paddingRight)).toBe(0)
         // A spacing token, which happy-dom leaves unresolved.
         expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-sm)")
+    })
+})
+
+describe("SectionStack header height", () => {
+    it("declares in CSS the same height as SECTION_HEADER_HEIGHT", () => {
+        render(
+            <SectionStack sections={[{ name: "outline", open: true, size: null }]} onSectionsChange={() => undefined}>
+                <SectionStack.Section name={"outline"} title={"Outline"}>
+                    <div>outline body</div>
+                </SectionStack.Section>
+            </SectionStack>,
+        )
+        const header = screen.getByRole("button", { name: /Outline/ })
+
+        expect(declaredStyle(header, "--header-height")).toBe(`${SECTION_HEADER_HEIGHT}px`)
     })
 })
