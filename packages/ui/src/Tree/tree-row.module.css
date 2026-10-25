@@ -1,0 +1,77 @@
+/* Ported from the Mantine 5 createStyles block that TreeRow had before the Base UI migration. */
+
+/* The whole row is the highlight, so a selected row reads as one band from edge to edge */
+.row {
+    height: 100%;
+    cursor: default;
+    /* Rows are dragged with mouse events (touch backend), which the webview would otherwise
+       read as a text selection across the labels */
+    user-select: none;
+    -webkit-user-select: none;
+    color: var(--sphere-color-tree-row-text);
+    font-size: var(--sphere-font-size-xs);
+}
+
+.row:hover {
+    background-color: var(--sphere-color-tree-row-hover-bg);
+}
+
+/* A soft tint rather than the filled accent: the row stays readable and the bulb stays visible */
+.row.selected {
+    background-color: var(--sphere-color-tree-row-selected-bg);
+}
+
+.row.selected:hover {
+    background-color: var(--sphere-color-tree-row-selected-hover-bg);
+}
+
+/* Same inset as a SectionStack header */
+.content {
+    display: flex;
+    align-items: center;
+    gap: var(--sphere-space-xs);
+    height: 100%;
+    padding-left: var(--sphere-space-sm);
+    padding-right: var(--sphere-space-xs);
+}
+
+/* Doubled: on the expand button it overrides the shared .unstyledButton colour (R10) */
+.chevron.chevron {
+    /* Same chevron as a SectionStack header, so the tree's first level lines up under it */
+    --chevron-size: 14px;
+
+    flex-shrink: 0;
+    display: flex;
+    width: var(--chevron-size);
+    color: inherit;
+}
+
+.chevronIcon {
+    /* Mantine 5 TreeRow: transform 150ms ease */
+    --chevron-turn-duration: 150ms;
+
+    transition: transform var(--chevron-turn-duration) ease;
+}
+
+.chevronOpen {
+    transform: rotate(90deg);
+}
+
+/* Mantine 5 Center w={30} h={30} */
+.icon {
+    --icon-box-size: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-box-size);
+    height: var(--icon-box-size);
+}
+
+.label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

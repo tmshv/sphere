@@ -1,11 +1,14 @@
-import { ActionIcon } from "@mantine/core"
 import { IconBulb, IconBulbOff } from "@tabler/icons"
+import iconButton from "../Button/icon-button.module.css"
+import { unstyledButton } from "../internal"
+import s from "./visibility-toggle.module.css"
 
 export const HIDE_LABEL = "Hide"
 export const SHOW_LABEL = "Show"
 
 const ICON_SIZE = 16
-const BUTTON_HEIGHT = 30
+
+const CLASS_NAME = [unstyledButton, iconButton.iconButton, iconButton.sizeMd, s.toggle].join(" ")
 
 export type VisibilityToggleProps = {
     visible: boolean
@@ -17,15 +20,13 @@ export type VisibilityToggleProps = {
 /** The bulb that shows or hides an outline row. Transparent, so it has no hover background. */
 export function VisibilityToggle({ visible, color, onChange }: VisibilityToggleProps) {
     return (
-        <ActionIcon
-            variant={"transparent"}
-            size={"md"}
-            radius={"sm"}
-            h={BUTTON_HEIGHT}
+        <button
+            type="button"
+            className={CLASS_NAME}
             aria-label={visible ? HIDE_LABEL : SHOW_LABEL}
             onClick={() => onChange(!visible)}
         >
             {visible ? <IconBulb size={ICON_SIZE} color={color} /> : <IconBulbOff size={ICON_SIZE} />}
-        </ActionIcon>
+        </button>
     )
 }

@@ -82,11 +82,10 @@ export type SemanticColor =
     | "button-light-text"
     | "button-light-hover"
     | "button-subtle-hover"
-    | "outline-item-text"
-    | "outline-item-bg"
-    | "outline-item-hover-bg"
-    | "outline-item-active-bg"
-    | "outline-item-active-hover-bg"
+    | "tree-row-text"
+    | "tree-row-hover-bg"
+    | "tree-row-selected-bg"
+    | "tree-row-selected-hover-bg"
     | "marker-surface"
     | "marker-shadow"
     | "table-border"
@@ -123,6 +122,9 @@ const TOOLBAR_ACTIVE_DARK_ALPHA = 0.2
 const BUTTON_LIGHT_DARK_ALPHA = 0.2
 const BUTTON_LIGHT_HOVER_LIGHT_ALPHA = 0.65
 const BUTTON_LIGHT_HOVER_DARK_ALPHA = 0.25
+const TREE_ROW_SELECTED_DARK_ALPHA = 0.2
+const TREE_ROW_SELECTED_HOVER_LIGHT_ALPHA = 0.65
+const TREE_ROW_SELECTED_HOVER_DARK_ALPHA = 0.25
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -253,13 +255,15 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
         dark: withAlpha(palette.blue[7], BUTTON_LIGHT_HOVER_DARK_ALPHA),
     },
     "button-subtle-hover": { light: palette.blue[0], dark: withAlpha(palette.blue[8], BUTTON_LIGHT_DARK_ALPHA) },
-    // Sphere OutlineItem: black / white text on white / dark[7], gray[0] / dark[6] hover.
-    "outline-item-text": { light: palette.black, dark: palette.white },
-    "outline-item-bg": { light: palette.white, dark: palette.dark[7] },
-    "outline-item-hover-bg": { light: palette.gray[0], dark: palette.dark[6] },
-    // Sphere OutlineItem, active: blue[7] fill, blue[6] on hover, in both schemes (text is on-accent).
-    "outline-item-active-bg": { light: palette.blue[7], dark: palette.blue[7] },
-    "outline-item-active-hover-bg": { light: palette.blue[6], dark: palette.blue[6] },
+    // Sphere TreeRow: black / white text, gray[0] / dark[6] hover.
+    "tree-row-text": { light: palette.black, dark: palette.white },
+    "tree-row-hover-bg": { light: palette.gray[0], dark: palette.dark[6] },
+    // Sphere TreeRow, selected: Mantine 5 variant("light", blue) background and hover.
+    "tree-row-selected-bg": { light: palette.blue[0], dark: withAlpha(palette.blue[8], TREE_ROW_SELECTED_DARK_ALPHA) },
+    "tree-row-selected-hover-bg": {
+        light: withAlpha(palette.blue[1], TREE_ROW_SELECTED_HOVER_LIGHT_ALPHA),
+        dark: withAlpha(palette.blue[7], TREE_ROW_SELECTED_HOVER_DARK_ALPHA),
+    },
     // Sphere ImageMarker: white fill and 3px border, shadow rgba(0, 0, 30, 0.25), the same in both schemes.
     "marker-surface": { light: palette.white, dark: palette.white },
     "marker-shadow": { light: "rgba(0, 0, 30, 0.25)", dark: "rgba(0, 0, 30, 0.25)" },

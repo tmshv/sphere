@@ -1,0 +1,11 @@
+/* Mantine 5 ActionIcon variant "transparent", size md, radius sm, h={30}: the shared icon-button box
+   with no background, no hover fill and no border (the variant's border resolved to an invalid
+   value, so UnstyledButton's border: 0 showed). Tripled to beat the doubled .iconButton rules (R10). */
+.toggle.toggle.toggle {
+    --toggle-height: 30px;
+
+    height: var(--toggle-height);
+    border: 0;
+    background-color: transparent;
+    color: var(--sphere-color-icon-button-text);
+}
