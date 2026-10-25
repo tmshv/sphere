@@ -8,7 +8,7 @@ const openFiles = createAsyncThunk("openFiles", async (_, thunkAPI) => {
         filters: [
             {
                 name: "Geospatial file",
-                extensions: ["csv", "geojson", "geojsonl", "json", "gpx", "kml", "mbtiles", "shp"],
+                extensions: ["csv", "geojson", "geojsonl", "json", "gpx", "kml", "kmz", "mbtiles", "shp"],
             },
         ],
     })

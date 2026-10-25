@@ -810,6 +810,22 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn kmz_source_add_loads_the_kml_inside() {
+        let app = test_app();
+        let path = std::fs::canonicalize("../crates/libsphere/assets/kml/sample.kmz").unwrap();
+
+        let result = source_add(&format!("file://{}", path.display()), app.state())
+            .await
+            .unwrap();
+        let geojson = source_get(result.id, app.state()).await.unwrap();
+        let parsed: Value = serde_json::from_str(&geojson).unwrap();
+
+        assert_eq!(result.source_type, "kml");
+        assert_eq!(result.name, "sample");
+        assert_eq!(parsed["features"].as_array().map(Vec::len), Some(5));
+    }
+
+    #[tokio::test]
     async fn kml_properties_reach_source_get() {
         let app = test_app();
         let id = source_add(&organic_maps_url(), app.state()).await.unwrap().id;

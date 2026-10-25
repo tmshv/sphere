@@ -155,7 +155,7 @@ impl Source {
                 let source = Gpx { path: source_path };
                 Ok((SourceData::Gpx(source), file_url))
             }
-            "kml" => {
+            "kml" | "kmz" => {
                 let source = Kml { path: source_path };
                 Ok((SourceData::Kml(source), file_url))
             }
@@ -455,6 +455,36 @@ mod tests {
         )
         .unwrap();
         assert!(matches!(data, SourceData::Kml(_)));
+    }
+
+    #[test]
+    fn create_data_maps_kmz_extension_to_kml_source() {
+        let uri = SphereUri::parse("sphere://source?url=file:///tmp/sample.kmz").unwrap();
+        let (data, _) = Source::create_data(
+            &"id".to_string(),
+            Path::new("./assets/kml/sample.kmz"),
+            &uri,
+        )
+        .unwrap();
+        assert!(matches!(data, SourceData::Kml(_)));
+    }
+
+    #[test]
+    fn kmz_source_to_feature_collection_assigns_ids() {
+        let source = Source {
+            id: "id".into(),
+            name: "sample".into(),
+            location: String::new(),
+            data: SourceData::Kml(Kml {
+                path: "./assets/kml/sample.kmz".into(),
+            }),
+        };
+        let fc = source.to_feature_collection().unwrap();
+        assert_eq!(fc.features.len(), 5);
+        assert!(fc
+            .features
+            .iter()
+            .all(|f| matches!(&f.id, Some(Id::Number(_)))));
     }
 
     #[test]

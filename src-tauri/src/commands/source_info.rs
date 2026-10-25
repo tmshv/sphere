@@ -428,6 +428,26 @@ mod tests {
     }
 
     #[test]
+    fn details_and_file_reads_kmz_counts_and_archive_size() {
+        let target = InfoTarget::Kml(Kml {
+            path: "../crates/libsphere/assets/kml/sample.kmz".to_string(),
+        });
+
+        let (details, file) = details_and_file(target).unwrap();
+
+        assert!(matches!(
+            details,
+            FormatDetails::Kml {
+                placemarks: 6,
+                folders: 3,
+                skipped_placemarks: 1,
+            }
+        ));
+        let archive = std::fs::metadata("../crates/libsphere/assets/kml/sample.kmz").unwrap();
+        assert_eq!(file.map(|f| f.size_bytes), Some(archive.len()));
+    }
+
+    #[test]
     fn info_target_keeps_the_kml_path() {
         let data = SourceData::Kml(Kml {
             path: "/tmp/a.kml".to_string(),

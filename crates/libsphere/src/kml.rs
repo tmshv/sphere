@@ -12,6 +12,9 @@ use quick_xml::Reader as XmlReader;
 use quick_xml::Writer as XmlWriter;
 use serde_json::Map;
 use std::collections::HashMap;
+use std::io::{Cursor, Read};
+use zip::result::ZipError;
+use zip::ZipArchive;
 
 use crate::error::{Result, SphereError, WithPath};
 use crate::schema::{infer_source_schema, SourceSchema};
@@ -114,6 +117,35 @@ fn collapse(members: Vec<Geometry<f64>>) -> Option<Geometry<f64>> {
 
 /// Error detail for files that are not UTF-8 (UTF-16 or legacy code pages).
 const NOT_UTF8: &str = "KML file is not valid UTF-8";
+
+/// Local file header signature that every zip archive, and so every KMZ, starts with.
+const ZIP_SIGNATURE: &[u8] = b"PK\x03\x04";
+/// Error detail for a KMZ archive that holds no KML document.
+const NO_KML_IN_KMZ: &str = "KMZ archive contains no .kml file";
+
+/// The first `.kml` entry of a KMZ archive, which Google Earth reads as the
+/// document. Other entries (icons, overlay images) are not used.
+fn unzip_document(bytes: Vec<u8>) -> std::result::Result<Vec<u8>, String> {
+    let invalid = |e: ZipError| format!("invalid KMZ archive: {e}");
+    let mut archive = ZipArchive::new(Cursor::new(bytes)).map_err(invalid)?;
+    for index in 0..archive.len() {
+        let mut entry = archive.by_index(index).map_err(invalid)?;
+        let is_kml = entry
+            .name()
+            .map_err(invalid)?
+            .to_lowercase()
+            .ends_with(".kml");
+        if !entry.is_file() || !is_kml {
+            continue;
+        }
+        let mut document = Vec::new();
+        entry
+            .read_to_end(&mut document)
+            .map_err(|e| invalid(e.into()))?;
+        return Ok(document);
+    }
+    Err(NO_KML_IN_KMZ.to_string())
+}
 
 /// Geometry elements the pre-pass drops when they carry no coordinates.
 const GEOMETRY_ELEMENTS: [&[u8]; 4] = [b"Point", b"LineString", b"LinearRing", b"Polygon"];
@@ -345,7 +377,11 @@ impl Kml {
         };
         // Read bytes so that I/O failures stay `Io` and a bad encoding is
         // reported as a KML problem instead of a misleading I/O error.
-        let bytes = std::fs::read(&self.path).with_path(&self.path)?;
+        let mut bytes = std::fs::read(&self.path).with_path(&self.path)?;
+        // KMZ is told apart by content, not extension, so a mislabelled file still opens.
+        if bytes.starts_with(ZIP_SIGNATURE) {
+            bytes = unzip_document(bytes).map_err(to_error)?;
+        }
         let text = String::from_utf8(bytes).map_err(|_| to_error(NOT_UTF8.to_string()))?;
         let normalised = normalise(&text).map_err(to_error)?;
         // Backstop: the pre-pass removes every input known to panic kml 0.15,
@@ -726,6 +762,59 @@ mod tests {
             }
             other => panic!("expected Kml error, got {other:?}"),
         }
+    }
+
+    /// `doc.kml` is `sample.kml`; a text file comes before it in the archive and
+    /// `files/extra.kml` (a copy of `empty.kml`) comes after it.
+    const SAMPLE_KMZ: &str = "./assets/kml/sample.kmz";
+
+    #[test]
+    fn kmz_reads_the_first_kml_entry_of_the_archive() {
+        assert_eq!(names(&load(SAMPLE_KMZ)), names(&load(SAMPLE)));
+    }
+
+    #[test]
+    fn kmz_info_matches_the_kml_inside() {
+        let info = info_of(SAMPLE_KMZ);
+        assert_eq!(info.placemarks, 6);
+        assert_eq!(info.folders, 3);
+        assert_eq!(info.skipped_placemarks, 1);
+    }
+
+    #[test]
+    fn kmz_bounds_cover_every_feature() {
+        let source = Kml {
+            path: SAMPLE_KMZ.to_string(),
+        };
+        assert_eq!(source.get_bounds(), Some((29.0, 59.0, 32.0, 62.0)));
+    }
+
+    fn kml_error(path: &str) -> String {
+        match (Kml {
+            path: path.to_string(),
+        })
+        .to_geojson()
+        {
+            Err(SphereError::Kml { path: p, detail }) => {
+                assert_eq!(p, path);
+                detail
+            }
+            other => panic!("expected Kml error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn kmz_without_a_kml_entry_is_a_kml_error() {
+        assert_eq!(
+            kml_error("./assets/kml/no-kml.kmz"),
+            "KMZ archive contains no .kml file"
+        );
+    }
+
+    #[test]
+    fn truncated_kmz_is_a_kml_error() {
+        let detail = kml_error("./assets/kml/broken.kmz");
+        assert!(detail.starts_with("invalid KMZ archive"), "{detail}");
     }
 
     #[test]
