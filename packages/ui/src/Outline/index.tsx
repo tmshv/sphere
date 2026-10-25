@@ -1,7 +1,7 @@
-import { Flex } from "@mantine/core"
 import { Fragment } from "react"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
+import { Stack } from "../Layout"
 import { Card } from "./Card"
 
 // export type OutlineOnMove = (dragIndex: number, hoverIndex: number) => void
@@ -22,17 +22,17 @@ export type OutlineProps<T extends OutlineItemBase> = {
 export function Outline<T extends OutlineItemBase>({ items, onMove, renderItem, draggable = false }: OutlineProps<T>) {
     if (!draggable) {
         return (
-            <Flex direction={"column"} gap="xs">
+            <Stack gap="xs">
                 {items.map((item, _i) => (
                     <Fragment key={item.id}>{renderItem(item)}</Fragment>
                 ))}
-            </Flex>
+            </Stack>
         )
     }
 
     return (
         <DndProvider backend={HTML5Backend} key={1}>
-            <Flex direction={"column"} gap="xs">
+            <Stack gap="xs">
                 {items.map((item, i) => (
                     <Card
                         key={item.id}
@@ -47,7 +47,7 @@ export function Outline<T extends OutlineItemBase>({ items, onMove, renderItem, 
                         {renderItem(item)}
                     </Card>
                 ))}
-            </Flex>
+            </Stack>
         </DndProvider>
     )
 }

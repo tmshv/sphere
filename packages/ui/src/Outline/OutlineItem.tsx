@@ -1,36 +1,7 @@
-import { Center, Flex, UnstyledButton, createStyles } from "@mantine/core"
 import type { MouseEventHandler, ReactNode } from "react"
-
-const useStyle = createStyles(theme => ({
-    button: {
-        flex: 1,
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-        overflow: "hidden",
-
-        borderRadius: theme.radius.sm,
-        paddingLeft: theme.spacing.sm,
-        paddingRight: theme.spacing.xs,
-
-        color: theme.colorScheme === "dark" ? theme.white : theme.black,
-        backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-
-        // fontSize: theme.fontSizes.sm,
-        fontSize: theme.fontSizes.xs,
-
-        "&:hover": {
-            backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-        },
-    },
-    active: {
-        backgroundColor: theme.colors.blue[7],
-        color: theme.white,
-
-        "&:hover": {
-            backgroundColor: theme.colors.blue[6],
-        },
-    },
-}))
+import { unstyledButton } from "../internal"
+import { Row } from "../Layout"
+import s from "./outline-item.module.css"
 
 export type OutlineItemProps = {
     label: string
@@ -41,18 +12,14 @@ export type OutlineItemProps = {
 }
 
 export function OutlineItem({ label, active, icon, extra, onClick }: OutlineItemProps) {
-    const { classes: s, cx } = useStyle()
+    const classes = [unstyledButton, s.button, active && s.active]
     return (
-        <Flex justify={"space-between"} gap={"xs"}>
-            {!icon ? null : (
-                <Center w={30} h={30}>
-                    {icon}
-                </Center>
-            )}
-            <UnstyledButton className={cx(s.button, { [s.active]: active })} onClick={onClick}>
+        <Row justify="between" gap="xs">
+            {!icon ? null : <div className={s.icon}>{icon}</div>}
+            <button type="button" className={classes.filter(Boolean).join(" ")} onClick={onClick}>
                 {label}
-            </UnstyledButton>
+            </button>
             {extra}
-        </Flex>
+        </Row>
     )
 }

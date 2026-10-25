@@ -1,30 +1,25 @@
 import { isUrl } from "@sphere/utils"
-import { Image, createStyles } from "@mantine/core"
 import { CopyButton } from "./CopyButton"
-
-const useStyles = createStyles(theme => ({
-    table: {
-        minWidth: 300,
-        width: "100%",
-        paddingBottom: theme.spacing.sm,
-        fontSize: 12,
-    },
-    key: {
-        display: "flex",
-    },
-    value: {
-        maxWidth: 200,
-    },
-}))
+import s from "./properties-viewer.module.css"
 
 export type PropertiesViewerProps = {
     properties: { key: string; value: string }[]
     checkUrls?: boolean
 }
 
-export function PropertiesViewer({ properties, checkUrls = false }: PropertiesViewerProps) {
-    const { classes: s } = useStyles()
+function ValueImage({ src, alt }: { src: string; alt: string }) {
+    return (
+        <div className={s.image}>
+            <figure className={s.figure}>
+                <div className={s.imageWrapper}>
+                    <img className={s.img} src={src} alt={alt} />
+                </div>
+            </figure>
+        </div>
+    )
+}
 
+export function PropertiesViewer({ properties, checkUrls = false }: PropertiesViewerProps) {
     return (
         <table className={s.table}>
             <tbody>
@@ -32,11 +27,7 @@ export function PropertiesViewer({ properties, checkUrls = false }: PropertiesVi
                     <tr key={key}>
                         <td className={s.key}>{key}</td>
                         <td className={s.value}>
-                            {checkUrls && isUrl(value) ? (
-                                <Image src={value} width={120} height={120} />
-                            ) : (
-                                <span>{value}</span>
-                            )}
+                            {checkUrls && isUrl(value) ? <ValueImage src={value} alt={key} /> : <span>{value}</span>}
                         </td>
                         <td>
                             <CopyButton value={value} />

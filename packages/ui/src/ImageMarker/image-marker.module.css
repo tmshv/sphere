@@ -1,0 +1,22 @@
+/* Width and height come from the size prop. */
+.icon {
+    /* Sphere marker geometry. */
+    --marker-border-width: 3px;
+    --marker-shadow-blur: 5px;
+    --marker-square-radius: 3px;
+
+    display: block;
+    position: relative;
+    background-color: var(--sphere-color-marker-surface);
+    background-size: cover;
+    border: solid var(--marker-border-width) var(--sphere-color-marker-surface);
+    box-shadow: 0 0 var(--marker-shadow-blur) var(--sphere-color-marker-shadow);
+}
+
+.square {
+    border-radius: var(--marker-square-radius);
+}
+
+.circle {
+    border-radius: 50%;
+}

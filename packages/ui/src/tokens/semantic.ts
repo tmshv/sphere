@@ -77,6 +77,17 @@ export type SemanticColor =
     | "toolbar-link-hover-bg"
     | "toolbar-active-bg"
     | "toolbar-active-text"
+    | "button-light-bg"
+    | "button-light-text"
+    | "button-light-hover"
+    | "button-subtle-hover"
+    | "outline-item-text"
+    | "outline-item-bg"
+    | "outline-item-hover-bg"
+    | "outline-item-active-bg"
+    | "outline-item-active-hover-bg"
+    | "marker-surface"
+    | "marker-shadow"
 
 export type SemanticValue = Record<ColorScheme, string>
 
@@ -105,6 +116,9 @@ const MODAL_OVERLAY_DARK_ALPHA = 0.85
 const MENU_ITEM_DARK_HOVER_ALPHA = 0.35
 const PALETTE_OVERLAY_ALPHA = 0.25
 const TOOLBAR_ACTIVE_DARK_ALPHA = 0.2
+const BUTTON_LIGHT_DARK_ALPHA = 0.2
+const BUTTON_LIGHT_HOVER_LIGHT_ALPHA = 0.65
+const BUTTON_LIGHT_HOVER_DARK_ALPHA = 0.25
 
 // Colours by role. Each entry points into the palette for both schemes.
 export const semantic: Record<SemanticColor, SemanticValue> = {
@@ -225,4 +239,22 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Mantine 5 fn.variant light, primary colour (the same values as the light Badge).
     "toolbar-active-bg": { light: palette.blue[0], dark: withAlpha(palette.blue[8], TOOLBAR_ACTIVE_DARK_ALPHA) },
     "toolbar-active-text": { light: palette.blue[6], dark: palette.blue[2] },
+    // Mantine 5 fn.variant "light" and "subtle", primary colour: Button size xs in the error fallback.
+    "button-light-bg": { light: palette.blue[0], dark: withAlpha(palette.blue[8], BUTTON_LIGHT_DARK_ALPHA) },
+    "button-light-text": { light: palette.blue[6], dark: palette.blue[2] },
+    "button-light-hover": {
+        light: withAlpha(palette.blue[1], BUTTON_LIGHT_HOVER_LIGHT_ALPHA),
+        dark: withAlpha(palette.blue[7], BUTTON_LIGHT_HOVER_DARK_ALPHA),
+    },
+    "button-subtle-hover": { light: palette.blue[0], dark: withAlpha(palette.blue[8], BUTTON_LIGHT_DARK_ALPHA) },
+    // Sphere OutlineItem: black / white text on white / dark[7], gray[0] / dark[6] hover.
+    "outline-item-text": { light: palette.black, dark: palette.white },
+    "outline-item-bg": { light: palette.white, dark: palette.dark[7] },
+    "outline-item-hover-bg": { light: palette.gray[0], dark: palette.dark[6] },
+    // Sphere OutlineItem, active: blue[7] fill, blue[6] on hover, in both schemes (text is on-accent).
+    "outline-item-active-bg": { light: palette.blue[7], dark: palette.blue[7] },
+    "outline-item-active-hover-bg": { light: palette.blue[6], dark: palette.blue[6] },
+    // Sphere ImageMarker: white fill and 3px border, shadow rgba(0, 0, 30, 0.25), the same in both schemes.
+    "marker-surface": { light: palette.white, dark: palette.white },
+    "marker-shadow": { light: "rgba(0, 0, 30, 0.25)", dark: "rgba(0, 0, 30, 0.25)" },
 }

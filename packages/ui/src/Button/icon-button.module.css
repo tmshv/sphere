@@ -1,5 +1,7 @@
 /* Mantine 5 ActionIcon.styles.js: colour gray, radius sm, variants subtle and filled. */
-.iconButton {
+/* These rules override the shared .unstyledButton (border, padding, colour, background), so each is
+   doubled to win by specificity, never by stylesheet order (R10). */
+.iconButton.iconButton {
     position: relative;
     border: 1px solid transparent;
     border-radius: var(--sphere-radius-sm);
@@ -22,38 +24,38 @@
     --icon-button-size: 28px;
 }
 
-.subtle {
+.iconButton.subtle {
     background-color: transparent;
     color: var(--sphere-color-icon-button-text);
 }
 
-.filled {
+.iconButton.filled {
     background-color: var(--sphere-color-button-secondary-bg);
     color: var(--sphere-color-on-accent);
 }
 
 @media (hover: hover) {
-    .subtle:hover {
+    .iconButton.subtle:hover {
         background-color: var(--sphere-color-icon-button-hover-bg);
     }
 
-    .filled:hover {
+    .iconButton.filled:hover {
         background-color: var(--sphere-color-button-secondary-hover);
     }
 }
 
 @media (hover: none) {
-    .subtle:active {
+    .iconButton.subtle:active {
         background-color: var(--sphere-color-icon-button-hover-bg);
     }
 
-    .filled:active {
+    .iconButton.filled:active {
         background-color: var(--sphere-color-button-secondary-hover);
     }
 }
 
-.iconButton:disabled,
-.iconButton[data-disabled] {
+.iconButton.iconButton:disabled,
+.iconButton.iconButton[data-disabled] {
     color: var(--sphere-color-icon-button-disabled-text);
     cursor: not-allowed;
     background-color: var(--sphere-color-icon-button-disabled-bg);

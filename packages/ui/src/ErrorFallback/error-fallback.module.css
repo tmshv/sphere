@@ -1,0 +1,87 @@
+.root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar {
+    padding: var(--sphere-space-sm);
+}
+
+.fullscreen {
+    padding: var(--sphere-space-xl);
+}
+
+.message {
+    /* Sphere: the fullscreen message stops at 420px, the sidebar one fills its column. */
+    --error-message-max-width: 420px;
+}
+
+.sidebar .message {
+    max-width: 100%;
+}
+
+.fullscreen .message {
+    max-width: var(--error-message-max-width);
+}
+
+/* The two actions are Mantine 5 Button size xs, radius sm, with the "light" and "subtle" colours
+   (fn.variant, primary colour) that the rebuilt Button does not offer. The box repeats Button's
+   (Button/button.module.css); only its .inner and .label are shared. Every rule overrides
+   .unstyledButton, so it is doubled (R10). */
+.action.action {
+    /* Mantine Button size xs. */
+    --action-height: 30px;
+    --action-padding-x: 14px;
+
+    height: var(--action-height);
+    padding-left: var(--action-padding-x);
+    padding-right: var(--action-padding-x);
+    display: inline-block;
+    width: auto;
+    border-radius: var(--sphere-radius-sm);
+    font-weight: var(--sphere-font-weight-semibold);
+    position: relative;
+    line-height: 1;
+    font-size: var(--sphere-font-size-xs);
+    user-select: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.light.light {
+    background-color: var(--sphere-color-button-light-bg);
+    color: var(--sphere-color-button-light-text);
+}
+
+.subtle.subtle {
+    background-color: transparent;
+    color: var(--sphere-color-button-light-text);
+}
+
+@media (hover: hover) {
+    .light.light:hover {
+        background-color: var(--sphere-color-button-light-hover);
+    }
+
+    .subtle.subtle:hover {
+        background-color: var(--sphere-color-button-subtle-hover);
+    }
+}
+
+@media (hover: none) {
+    .light.light:active {
+        background-color: var(--sphere-color-button-light-hover);
+    }
+
+    .subtle.subtle:active {
+        background-color: var(--sphere-color-button-subtle-hover);
+    }
+}
+
+/* Mantine 5 Button `&:active` (theme.activeStyles). */
+.action.action:active {
+    transform: translateY(1px);
+}

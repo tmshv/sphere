@@ -1,6 +1,8 @@
-import { Group, Text } from "@mantine/core"
 import type { CSSProperties, ReactNode } from "react"
+import { Row } from "../Layout"
 import { NO_SELECT, SELECTABLE } from "../selection"
+import { Text } from "../Text"
+import { TRUNCATE } from "../Text/truncate"
 
 // A row pairs something long with something short: a caption with a value, or a
 // column value with how often it occurs. Only the long side ellipsizes.
@@ -15,10 +17,10 @@ const STAYS_WHOLE: CSSProperties = {
     flexShrink: 0,
 }
 
-const CAPTION_STYLE: CSSProperties = { ...NO_SELECT, ...STAYS_WHOLE }
-const DATA_LABEL_STYLE: CSSProperties = { ...SELECTABLE, ...GIVES_WAY }
-const DATA_VALUE_STYLE: CSSProperties = { ...SELECTABLE, ...GIVES_WAY }
-const COUNT_STYLE: CSSProperties = { ...SELECTABLE, ...STAYS_WHOLE }
+const CAPTION_STYLE: CSSProperties = { ...TRUNCATE, ...NO_SELECT, ...STAYS_WHOLE }
+const DATA_LABEL_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, ...GIVES_WAY }
+const DATA_VALUE_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, ...GIVES_WAY }
+const COUNT_STYLE: CSSProperties = { ...TRUNCATE, ...SELECTABLE, ...STAYS_WHOLE }
 
 export type InfoRowProps = {
     label: string
@@ -33,13 +35,11 @@ export type InfoRowProps = {
 
 export function InfoRow({ label, value, labelIsData = false }: InfoRowProps) {
     return (
-        <Group position={"apart"} spacing={"xs"} noWrap>
-            <Text size={"xs"} color={"dimmed"} truncate style={labelIsData ? DATA_LABEL_STYLE : CAPTION_STYLE}>
+        <Row justify="between" gap="xs" align="center">
+            <Text tone="dimmed" style={labelIsData ? DATA_LABEL_STYLE : CAPTION_STYLE}>
                 {label}
             </Text>
-            <Text size={"xs"} truncate style={labelIsData ? COUNT_STYLE : DATA_VALUE_STYLE}>
-                {value}
-            </Text>
-        </Group>
+            <Text style={labelIsData ? COUNT_STYLE : DATA_VALUE_STYLE}>{value}</Text>
+        </Row>
     )
 }

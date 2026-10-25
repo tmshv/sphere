@@ -1,0 +1,5 @@
+/* Chrome, not data: dragging across the list should not pick it up. -webkit- for WebKit, as Mantine's emotion prefixed it. */
+.root {
+    -webkit-user-select: none;
+    user-select: none;
+}

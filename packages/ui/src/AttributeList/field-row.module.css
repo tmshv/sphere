@@ -1,0 +1,4 @@
+/* The type badge is short enough to always keep whole. The Badge sets no flex-shrink, so this needs no extra specificity. */
+.keepWhole {
+    flex-shrink: 0;
+}

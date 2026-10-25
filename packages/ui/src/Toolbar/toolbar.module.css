@@ -25,7 +25,8 @@
     flex-direction: row;
 }
 
-.link {
+/* The link rules override the shared .unstyledButton colour, so they are doubled (R10). */
+.link.link {
     /* Sphere link size. */
     --toolbar-link-size: 38px;
 
@@ -38,12 +39,12 @@
     color: var(--sphere-color-toolbar-link-text);
 }
 
-.link:hover {
+.link.link:hover {
     background-color: var(--sphere-color-toolbar-link-hover-bg);
 }
 
-.active,
-.active:hover {
+.link.link.active,
+.link.link.active:hover {
     background-color: var(--sphere-color-toolbar-active-bg);
     color: var(--sphere-color-toolbar-active-text);
 }

@@ -1,0 +1,38 @@
+/* Sphere OutlineItem. Each rule below overrides the shared .unstyledButton, so it is
+   doubled (.button.button) to win by specificity, never by stylesheet order (R10). */
+.icon {
+    /* Mantine Center w={30} h={30}. */
+    --outline-icon-size: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--outline-icon-size);
+    height: var(--outline-icon-size);
+}
+
+.button.button {
+    flex: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border-radius: var(--sphere-radius-sm);
+    padding-left: var(--sphere-space-sm);
+    padding-right: var(--sphere-space-xs);
+    color: var(--sphere-color-outline-item-text);
+    background-color: var(--sphere-color-outline-item-bg);
+    font-size: var(--sphere-font-size-xs);
+}
+
+.button.button:hover {
+    background-color: var(--sphere-color-outline-item-hover-bg);
+}
+
+.button.button.active {
+    background-color: var(--sphere-color-outline-item-active-bg);
+    color: var(--sphere-color-on-accent);
+}
+
+.button.button.active:hover {
+    background-color: var(--sphere-color-outline-item-active-hover-bg);
+}

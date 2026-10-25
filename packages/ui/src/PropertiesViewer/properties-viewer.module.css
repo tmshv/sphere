@@ -1,0 +1,58 @@
+.table {
+    /* Sphere viewer minimum width. */
+    --viewer-min-width: 300px;
+    /* The value column stops here; longer text wraps and images keep their own size. */
+    --viewer-value-max-width: 200px;
+
+    min-width: var(--viewer-min-width);
+    width: 100%;
+    padding-bottom: var(--sphere-space-sm);
+    font-size: var(--sphere-font-size-xs);
+}
+
+.key {
+    display: flex;
+}
+
+.value {
+    max-width: var(--viewer-value-max-width);
+}
+
+/* Mantine 5 Image (Image.js, Image.styles.js) with width 120, height 120, fit cover, radius 0:
+   a root box, a figure, a relative wrapper and the image. */
+.image {
+    /* The image's width and height props. */
+    --viewer-image-size: 120px;
+
+    width: var(--viewer-image-size);
+}
+
+.figure {
+    margin: 0;
+}
+
+.imageWrapper {
+    position: relative;
+}
+
+.img {
+    display: block;
+    width: var(--viewer-image-size);
+    height: var(--viewer-image-size);
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+}
+
+/* The copy button shows on row hover through its own :hover, and stays lit while "Copied" shows. */
+.copy {
+    opacity: 0;
+}
+
+.copy:hover {
+    opacity: 1;
+}
+
+.copied {
+    opacity: 1;
+}

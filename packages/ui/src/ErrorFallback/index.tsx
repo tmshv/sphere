@@ -1,5 +1,10 @@
-import { Button, Group, Stack, Text, createStyles } from "@mantine/core"
+import type { CSSProperties } from "react"
 import type { FallbackProps } from "react-error-boundary"
+import button from "../Button/button.module.css"
+import { unstyledButton } from "../internal"
+import { Row, Stack } from "../Layout"
+import { Text } from "../Text"
+import s from "./error-fallback.module.css"
 
 type Variant = "fullscreen" | "sidebar"
 
@@ -7,40 +12,55 @@ type ErrorFallbackProps = FallbackProps & {
     variant: Variant
 }
 
-const useStyles = createStyles((theme, { variant }: { variant: Variant }) => ({
-    root: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: variant === "sidebar" ? theme.spacing.sm : theme.spacing.xl,
-    },
-    message: {
-        maxWidth: variant === "sidebar" ? "100%" : 420,
-    },
-}))
+const MESSAGE_LINES = 3
+
+const TITLE_STYLE: Record<Variant, CSSProperties> = {
+    sidebar: { fontSize: "var(--sphere-font-size-sm)" },
+    fullscreen: { fontSize: "var(--sphere-font-size-lg)" },
+}
+
+// Mantine 5 Text `lineClamp`.
+const MESSAGE_STYLE: CSSProperties = {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    WebkitLineClamp: MESSAGE_LINES,
+    WebkitBoxOrient: "vertical",
+}
+
+// Mantine 5 Group wraps unless told not to.
+const ACTIONS_STYLE: CSSProperties = { flexWrap: "wrap" }
+
+const VARIANT_CLASS: Record<Variant, string> = {
+    sidebar: s.sidebar,
+    fullscreen: s.fullscreen,
+}
+
+const LIGHT_CLASSES = [unstyledButton, s.action, s.light].join(" ")
+const SUBTLE_CLASSES = [unstyledButton, s.action, s.subtle].join(" ")
 
 export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallbackProps) {
-    const { classes } = useStyles({ variant })
-
     return (
-        <div className={classes.root}>
-            <Stack spacing="sm" className={classes.message}>
-                <Text weight={600} size={variant === "sidebar" ? "sm" : "lg"}>
+        <div className={`${s.root} ${VARIANT_CLASS[variant]}`}>
+            <Stack gap="sm" className={s.message}>
+                <Text weight="semibold" style={TITLE_STYLE[variant]}>
                     Something went wrong
                 </Text>
-                <Text size="xs" color="dimmed" lineClamp={3}>
+                <Text tone="dimmed" style={MESSAGE_STYLE}>
                     {error instanceof Error ? error.message : String(error)}
                 </Text>
-                <Group spacing="xs">
-                    <Button size="xs" variant="light" onClick={resetErrorBoundary}>
-                        Try Again
-                    </Button>
-                    <Button size="xs" variant="subtle" onClick={() => window.location.reload()}>
-                        Reload App
-                    </Button>
-                </Group>
+                <Row gap="xs" align="center" style={ACTIONS_STYLE}>
+                    <button type="button" className={LIGHT_CLASSES} onClick={resetErrorBoundary}>
+                        <div className={button.inner}>
+                            <span className={button.label}>Try Again</span>
+                        </div>
+                    </button>
+                    <button type="button" className={SUBTLE_CLASSES} onClick={() => window.location.reload()}>
+                        <div className={button.inner}>
+                            <span className={button.label}>Reload App</span>
+                        </div>
+                    </button>
+                </Row>
             </Stack>
         </div>
     )
