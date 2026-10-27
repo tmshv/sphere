@@ -101,10 +101,10 @@ describe("Spotlight", () => {
         expect(mockDispatch).toHaveBeenCalledWith({ type: "source/addBasemap", payload: "sentinel2-2016" })
     })
 
-    it("no longer offers map style commands", async () => {
+    it("no longer offers map style commands or view presets", async () => {
         openPalette()
         await screen.findByText("Toggle Zen")
-        for (const title of ["OSM", "Vector", "Satellite"]) {
+        for (const title of ["OSM", "Vector", "Satellite", "Earth", "Simple"]) {
             expect(screen.queryByText(title)).toBeNull()
         }
     })

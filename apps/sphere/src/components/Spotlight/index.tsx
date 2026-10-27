@@ -61,26 +61,6 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
             },
         },
         {
-            id: "earth",
-            title: "Earth",
-            description: "Set Earth map view",
-            onTrigger: () => {
-                dispatch(actions.terrain.show())
-                dispatch(actions.sky.show())
-                dispatch(actions.projection.setGlobe())
-            },
-        },
-        {
-            id: "simple",
-            title: "Simple",
-            description: "Set simple map view",
-            onTrigger: () => {
-                dispatch(actions.terrain.hide())
-                dispatch(actions.sky.hide())
-                dispatch(actions.projection.setFlat())
-            },
-        },
-        {
             id: "sky",
             title: "Sky",
             description: "Toggle sky",
