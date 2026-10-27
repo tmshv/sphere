@@ -4,7 +4,7 @@ import App from "@/components/App"
 import logger from "@/logger"
 import { SphereThemeProvider } from "@/components/SphereThemeProvider"
 import { setupMaplibre } from "@/maplibre"
-import { store } from "@/store"
+import { actions, store } from "@/store"
 import { handleDragDrop, handleHotkey, handleMenu, handleTheme, handleVersion } from "@/tauri"
 import { setupKeyboard } from "@/store/keyboard"
 import { RootErrorFallback } from "@sphere/ui"
@@ -21,6 +21,8 @@ async function main() {
     await handleVersion()
     await handleHotkey()
     setupKeyboard(store)
+    // A new project starts with an OpenStreetMap basemap the user can hide or delete like any source
+    store.dispatch(actions.source.addBasemap("osm"))
 
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <React.StrictMode>

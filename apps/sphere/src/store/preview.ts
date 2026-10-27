@@ -81,7 +81,7 @@ function sourceNodeSpecs(nodeId: Id, src: Source | undefined): PreviewLayerSpec[
     if (src.type === SourceType.Geojson || src.type === SourceType.FeatureCollection) {
         return geometrySpecs(nodeId, nodeId)
     }
-    if (src.type === SourceType.MVT && isRasterTileFormat(src.format)) {
+    if (src.type === SourceType.Raster || (src.type === SourceType.MVT && isRasterTileFormat(src.format))) {
         return [{ kind: "Raster", nodeId, layerId: `preview-${nodeId}-raster`, sourceId: nodeId }]
     }
     return []

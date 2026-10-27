@@ -3,11 +3,11 @@ import { assertUnreachable } from "@/lib"
 import logger from "@/logger"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
-import type { Source as SourceEntry } from "@/types/source"
+import type { RasterSource, Source as SourceEntry } from "@/types/source"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { invoke } from "@tauri-apps/api/core"
 import { memo, useEffect, useState } from "react"
-import { Source } from "react-map-gl/maplibre"
+import { Source, type SourceProps } from "react-map-gl/maplibre"
 
 export type SphereSourceProps = {
     id: string
@@ -24,6 +24,16 @@ export function selectSourceVersion(source: SourceEntry | undefined): number | n
         return source.version
     }
     return null
+}
+
+// A web raster is served straight from its XYZ tiles; any other raster comes from its TileJSON URL
+export function rasterSourceProps(source: RasterSource): SourceProps {
+    const { tiles, location } = source
+    if (!tiles) {
+        return { type: "raster", url: location }
+    }
+    const { urls, tileSize, maxzoom, attribution } = tiles
+    return { type: "raster", tiles: urls, tileSize, maxzoom, attribution }
 }
 
 export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
@@ -62,7 +72,7 @@ export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {
             return <Source id={id} type="vector" url={`sphere://${id}/tilejson`} />
         }
         case SourceType.Raster: {
-            return <Source id={id} type="raster" url={source.location} />
+            return <Source id={id} {...rasterSourceProps(source)} />
         }
         default: {
             assertUnreachable(type)

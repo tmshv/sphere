@@ -89,6 +89,26 @@ describe("Spotlight", () => {
         expect(mockDispatch).toHaveBeenCalledWith({ type: "app/toggleZenMode" })
     })
 
+    it("adds an OpenStreetMap basemap when chosen", async () => {
+        openPalette()
+        fireEvent.click(await screen.findByText("Add OpenStreetMap"))
+        expect(mockDispatch).toHaveBeenCalledWith({ type: "source/addBasemap", payload: "osm" })
+    })
+
+    it("adds a Sentinel-2 satellite basemap when chosen", async () => {
+        openPalette()
+        fireEvent.click(await screen.findByText("Add Sentinel-2 satellite"))
+        expect(mockDispatch).toHaveBeenCalledWith({ type: "source/addBasemap", payload: "sentinel2-2016" })
+    })
+
+    it("no longer offers map style commands", async () => {
+        openPalette()
+        await screen.findByText("Toggle Zen")
+        for (const title of ["OSM", "Vector", "Satellite"]) {
+            expect(screen.queryByText(title)).toBeNull()
+        }
+    })
+
     it("copies the selection as GeoJSON when chosen", async () => {
         mockCopyGeojson.mockResolvedValue(undefined)
         openPalette()

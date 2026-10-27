@@ -12,7 +12,6 @@ import { selectShowAttribution } from "@/store/app"
 import { useAppSelector } from "@/store/hooks"
 import { selectSkySpecification } from "@/store/sky"
 import { selectTerrainSpecification } from "@/store/terrain"
-import { createSelector } from "@reduxjs/toolkit"
 import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
@@ -21,25 +20,6 @@ import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
-
-const selectLayers = createSelector(
-    [selectors.draw.isDrawing, selectors.preview.active, selectors.layer.items, selectors.layer.allIds],
-    (drawing, previewActive, items, allIds) => {
-        // Do not show layers in draw mode or when a source is actively previewed
-        if (drawing || previewActive) {
-            return []
-        }
-        return allIds
-            .map(id => {
-                const layer = items[id]
-                return {
-                    id: layer.id,
-                    index: layer.fractionIndex,
-                }
-            })
-            .sort((a, b) => a.index - b.index)
-    },
-)
 
 export type MapBodyProps = {
     mapId: string
@@ -66,7 +46,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     const drawing = useAppSelector(selectors.draw.isDrawing)
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(selectors.source.allIds)
-    const layers = useAppSelector(selectLayers)
+    const layers = useAppSelector(selectors.layer.mapLayers)
     const previewActive = useAppSelector(selectors.preview.active)
 
     return (

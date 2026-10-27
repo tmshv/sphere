@@ -1,9 +1,9 @@
-import { STYLE_OSM } from "@/const"
 import { makeGeojsonSource, makeMvtSource, makeSourceState } from "@/testutils"
+import { LayerType, SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import type { RootState } from "./index"
 import { selectPopupEntries, selectPopupVisible } from "./properties"
-import { selectChangeProjectionAvailable, selectMapStyle, selectors } from "./selectors"
+import { selectChangeProjectionAvailable, selectMapLayers, selectMapStyle, selectors } from "./selectors"
 
 const makeRootState = (overrides: Record<string, unknown> = {}) =>
     ({
@@ -40,9 +40,39 @@ describe("selectMapStyle", () => {
         expect(selectMapStyle(state)).toBe("custom-style")
     })
 
-    test("returns STYLE_OSM when drawing", () => {
+    test("keeps the state mapStyle when drawing", () => {
         const state = makeRootState({ draw: { sourceId: "s1" }, mapStyle: { value: "custom-style" } })
-        expect(selectMapStyle(state)).toBe(STYLE_OSM)
+        expect(selectMapStyle(state)).toBe("custom-style")
+    })
+})
+
+describe("selectMapLayers", () => {
+    const layerState = {
+        items: {
+            top: { id: "top", fractionIndex: 0.9, type: LayerType.Point },
+            base: { id: "base", fractionIndex: -1, type: LayerType.Raster },
+            mid: { id: "mid", fractionIndex: 0.5 },
+        },
+        allIds: ["top", "base", "mid"],
+    }
+
+    test("lists every layer by fraction index", () => {
+        const state = makeRootState({ app: { activeSidebarTab: "layers" }, layer: layerState })
+        expect(selectMapLayers(state).map(layer => layer.id)).toEqual(["base", "mid", "top"])
+    })
+
+    test("keeps only raster layers while drawing", () => {
+        const state = makeRootState({
+            app: { activeSidebarTab: "layers" },
+            draw: { sourceId: "s1" },
+            layer: layerState,
+        })
+        expect(selectMapLayers(state).map(layer => layer.id)).toEqual(["base"])
+    })
+
+    test("is empty while a source preview is active", () => {
+        const state = makeRootState({ source: makeSourceState([makeGeojsonSource("a")]), layer: layerState })
+        expect(selectMapLayers(state)).toEqual([])
     })
 })
 
@@ -109,6 +139,14 @@ describe("selectPreviewLayerSpecs", () => {
         const state = makeRootState({ source: makeSourceState([makeMvtSource("r1", { format: "png" })]) })
         expect(selectors.preview.layerSpecs(state)).toEqual([
             { kind: "Raster", layerId: "preview-r1-raster", sourceId: "r1", nodeId: "r1" },
+        ])
+    })
+
+    test("web raster source gives one raster spec", () => {
+        const raster = { id: "w1", name: "Web", type: SourceType.Raster, location: "", editable: false, pending: false }
+        const state = makeRootState({ source: makeSourceState([raster]) })
+        expect(selectors.preview.layerSpecs(state)).toEqual([
+            { kind: "Raster", layerId: "preview-w1-raster", sourceId: "w1", nodeId: "w1" },
         ])
     })
 

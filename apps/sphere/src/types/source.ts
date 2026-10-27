@@ -22,9 +22,19 @@ export type VectorSource = {
     pending: false
 }
 
+// An XYZ tile template set served straight from the web, without TileJSON
+export type RasterTiles = {
+    urls: string[]
+    tileSize: number
+    maxzoom: number
+    attribution: string
+}
+
 export type RasterSource = {
     type: SourceType.Raster
     location: string
+    // Absent when `location` is a TileJSON URL
+    tiles?: RasterTiles
     editable: false
     pending: false
 }

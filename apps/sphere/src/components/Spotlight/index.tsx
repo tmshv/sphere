@@ -29,11 +29,19 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
 
     const commands: Command[] = [
         {
-            id: "osm",
-            title: "OSM",
-            description: "Set OSM map style",
+            id: "add-osm",
+            title: "Add OpenStreetMap",
+            description: "Add OpenStreetMap raster source with a layer",
             onTrigger: () => {
-                dispatch(actions.mapStyle.setOsm())
+                dispatch(actions.source.addBasemap("osm"))
+            },
+        },
+        {
+            id: "add-satellite",
+            title: "Add Sentinel-2 satellite",
+            description: "Add Sentinel-2 cloudless 2016 satellite source with a layer",
+            onTrigger: () => {
+                dispatch(actions.source.addBasemap("sentinel2-2016"))
             },
         },
         {
@@ -60,7 +68,6 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
                 dispatch(actions.terrain.show())
                 dispatch(actions.sky.show())
                 dispatch(actions.projection.setGlobe())
-                dispatch(actions.mapStyle.setSatellite())
             },
         },
         {
@@ -71,7 +78,6 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
                 dispatch(actions.terrain.hide())
                 dispatch(actions.sky.hide())
                 dispatch(actions.projection.setFlat())
-                dispatch(actions.mapStyle.setVector())
             },
         },
         {
@@ -88,22 +94,6 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
             description: "Toggle terrain",
             onTrigger: () => {
                 dispatch(actions.terrain.toggle())
-            },
-        },
-        {
-            id: "vector",
-            title: "Vector",
-            description: "Set vector map style",
-            onTrigger: () => {
-                dispatch(actions.mapStyle.setVector())
-            },
-        },
-        {
-            id: "satellite",
-            title: "Satellite",
-            description: "Set satellite map style",
-            onTrigger: () => {
-                dispatch(actions.mapStyle.setSatellite())
             },
         },
         {
