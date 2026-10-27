@@ -86,7 +86,7 @@ export default function useFeatureState(ref: MapRef | undefined) {
     const layerItems = useAppSelector(state => state.layer.items)
     const sourceItems = useAppSelector(state => state.source.items)
 
-    const sourceIdRef = useRef<string | undefined>()
+    const sourceIdRef = useRef<string | undefined>(undefined)
     const sourceLayersRef = useRef<string[]>([])
 
     // Keep sourceId and sourceLayers refs in sync

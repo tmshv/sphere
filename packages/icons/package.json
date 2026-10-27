@@ -14,9 +14,9 @@
         "@tabler/icons-react": "^3.49.0"
     },
     "peerDependencies": {
-        "react": "^18.3.0"
+        "react": "^19.3.0"
     },
     "devDependencies": {
-        "react-dom": "^18.3.0"
+        "react-dom": "^19.3.0"
     }
 }
