@@ -1,4 +1,4 @@
-import { IconMap } from "@tabler/icons-react"
+import { IconMap } from "@sphere/icons"
 import { page, userEvent } from "vitest/browser"
 import { visualCases } from "../visual/visualCases"
 import { type Command, CommandPalette } from "."

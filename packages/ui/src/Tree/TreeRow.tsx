@@ -1,4 +1,4 @@
-import { IconChevronRight } from "@tabler/icons-react"
+import { IconChevronRight } from "@sphere/icons"
 import type { MouseEvent } from "react"
 import type { NodeRendererProps } from "react-arborist"
 import { unstyledButton } from "../internal"

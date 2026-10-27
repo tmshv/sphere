@@ -19,7 +19,8 @@
         "baseUrl": ".",
         "paths": {
             "@sphere/utils": ["./packages/utils/src"],
-            "@sphere/ui":    ["./packages/ui/src"]
+            "@sphere/ui":    ["./packages/ui/src"],
+            "@sphere/icons": ["./packages/icons/src"]
         }
     }
 }

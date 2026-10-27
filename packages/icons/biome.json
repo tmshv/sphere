@@ -1,0 +1,27 @@
+{
+    "root": false,
+    "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
+    "extends": ["../../biome.json"],
+    "linter": {
+        "rules": {
+            "style": {
+                "noRestrictedImports": {
+                    "level": "error",
+                    "options": {
+                        "paths": {
+                            "@/*": "Packages must not import from the app alias (@/…).",
+                            "@sphere/ui": "@sphere/icons must not depend on @sphere/ui.",
+                            "@tauri-apps/api": "@sphere/icons must not depend on Tauri.",
+                            "@reduxjs/toolkit": "@sphere/icons must not depend on Redux.",
+                            "react-redux": "@sphere/icons must not depend on Redux.",
+                            "maplibre-gl": "@sphere/icons must not depend on maplibre-gl."
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "files": {
+        "includes": ["**/src/**/*.ts", "**/src/**/*.tsx"]
+    }
+}

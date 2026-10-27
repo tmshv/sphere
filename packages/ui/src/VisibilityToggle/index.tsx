@@ -1,4 +1,4 @@
-import { IconBulb, IconBulbOff } from "@tabler/icons-react"
+import { IconBulb, IconBulbOff } from "@sphere/icons"
 import iconButton from "../Button/icon-button.module.css"
 import { unstyledButton } from "../internal"
 import s from "./visibility-toggle.module.css"

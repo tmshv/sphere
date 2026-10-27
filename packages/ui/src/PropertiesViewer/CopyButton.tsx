@@ -1,4 +1,4 @@
-import { IconCheck, IconCopy } from "@tabler/icons-react"
+import { IconCheck, IconCopy } from "@sphere/icons"
 import { useEffect, useRef, useState } from "react"
 import iconButton from "../Button/icon-button.module.css"
 import { Tooltip, unstyledButton } from "../internal"

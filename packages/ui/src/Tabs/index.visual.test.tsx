@@ -1,4 +1,4 @@
-import { IconDatabase, IconStack } from "@tabler/icons-react"
+import { IconDatabase, IconStack } from "@sphere/icons"
 import { flushSync } from "react-dom"
 import { createRoot } from "react-dom/client"
 import { afterEach, describe, expect, test } from "vitest"

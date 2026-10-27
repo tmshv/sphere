@@ -1,4 +1,4 @@
-import { IconX } from "@tabler/icons-react"
+import { IconX } from "@sphere/icons"
 import { page } from "vitest/browser"
 import { focusWithKeyboard, visualCases } from "../visual/visualCases"
 import { TextField } from "."

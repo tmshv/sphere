@@ -1,5 +1,5 @@
 import { Surface, Tabs, type TabItem } from "@sphere/ui"
-import { IconDatabase, IconSquaresFilled, IconStack } from "@tabler/icons-react"
+import { IconDatabase, IconSquaresFilled, IconStack } from "@sphere/icons"
 import type { CSSProperties } from "react"
 import { actions } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"

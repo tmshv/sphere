@@ -21,6 +21,10 @@
                             {
                                 "group": ["@mantine/**", "@emotion/**"],
                                 "message": "@sphere/ui is built on Base UI and CSS Modules. It must not import Mantine or Emotion."
+                            },
+                            {
+                                "group": ["@tabler/**"],
+                                "message": "Import icons from @sphere/icons, not from the vendor icon set."
                             }
                         ]
                     }

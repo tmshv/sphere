@@ -4,7 +4,8 @@
         "baseUrl": ".",
 
         "paths": {
-            "@sphere/utils": ["../utils/src"]
+            "@sphere/utils": ["../utils/src"],
+            "@sphere/icons": ["../icons/src"]
         }
     },
     "include": ["src"]
