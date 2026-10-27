@@ -19,7 +19,6 @@ import {
     IconMountainOff,
     IconNorthStar,
     IconPointer,
-    IconSatellite,
     IconWorld,
     IconWorldOff,
 } from "@tabler/icons"
@@ -81,10 +80,6 @@ export function MapStatusbar({ id }: MapStatusbarProps) {
 
     const resetNorth = useCallback(() => {
         dispatch(actions.map.resetNorth({ mapId: MAP_ID }))
-    }, [dispatch])
-
-    const setSatellite = useCallback(() => {
-        dispatch(actions.mapStyle.setSatellite())
     }, [dispatch])
 
     const toggleTerrain = useCallback(() => {
@@ -153,12 +148,6 @@ export function MapStatusbar({ id }: MapStatusbarProps) {
                 onClick={printViewport}
             />
             <StatusbarButton icon={<IconNorthStar size={ICON_SIZE_PX} />} label="Reset north" onClick={resetNorth} />
-            <StatusbarButton
-                icon={<IconSatellite size={ICON_SIZE_PX} />}
-                label="Satellite"
-                disabled
-                onClick={setSatellite}
-            />
             <StatusbarButton
                 icon={terrain ? <IconMountain size={ICON_SIZE_PX} /> : <IconMountainOff size={ICON_SIZE_PX} />}
                 label="Terrain"

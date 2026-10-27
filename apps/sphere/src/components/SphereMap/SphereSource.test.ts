@@ -1,8 +1,8 @@
 import { EMPTY_SOURCE_METADATA } from "@/lib/source-metadata"
 import { SourceType } from "@/types"
-import type { Source } from "@/types/source"
+import type { RasterSource, Source } from "@/types/source"
 import { describe, expect, test } from "vitest"
-import { selectSourceVersion } from "./SphereSource"
+import { rasterSourceProps, selectSourceVersion } from "./SphereSource"
 
 const geojsonSource: Source = {
     id: "s1",
@@ -35,7 +35,7 @@ const pendingSource: Source = {
     pending: true,
 }
 
-const rasterSource: Source = {
+const rasterSource: RasterSource & { id: string; name: string } = {
     id: "s4",
     name: "Source s4",
     type: SourceType.Raster,
@@ -63,5 +63,25 @@ describe("selectSourceVersion", () => {
 
     test("returns null when the source is absent", () => {
         expect(selectSourceVersion(undefined)).toBeNull()
+    })
+})
+
+describe("rasterSourceProps", () => {
+    test("points a TileJSON raster at its location", () => {
+        expect(rasterSourceProps({ ...rasterSource, location: "https://tiles.example/tile.json" })).toEqual({
+            type: "raster",
+            url: "https://tiles.example/tile.json",
+        })
+    })
+
+    test("serves a web raster straight from its XYZ tiles", () => {
+        const tiles = { urls: ["https://t.example/{z}/{x}/{y}.png"], tileSize: 256, maxzoom: 19, attribution: "A" }
+        expect(rasterSourceProps({ ...rasterSource, tiles })).toEqual({
+            type: "raster",
+            tiles: tiles.urls,
+            tileSize: 256,
+            maxzoom: 19,
+            attribution: "A",
+        })
     })
 })

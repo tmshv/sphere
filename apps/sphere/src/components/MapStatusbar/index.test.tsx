@@ -72,9 +72,9 @@ describe("MapStatusbar", () => {
         expect(screen.getByRole("button", { name: "Select" })).toHaveAttribute("aria-pressed", "true")
     })
 
-    it("disables Satellite and Terrain", () => {
+    it("disables Terrain and has no Satellite button", () => {
         renderStatusbar()
-        expect(screen.getByRole("button", { name: "Satellite" })).toBeDisabled()
+        expect(screen.queryByRole("button", { name: "Satellite" })).toBeNull()
         expect(screen.getByRole("button", { name: "Terrain" })).toBeDisabled()
     })
 })

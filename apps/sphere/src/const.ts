@@ -1,28 +1,38 @@
+import type { Basemap, BasemapId } from "@/types/basemap"
 import type { StyleSpecification } from "maplibre-gl"
 
 export const MAP_ID = "spheremap"
-export const STYLE_VECTOR = "mapbox://styles/mapbox/streets-v9"
-export const STYLE_SATELLITE = "mapbox://styles/mapbox/satellite-streets-v12"
-export const STYLE_OSM: StyleSpecification = {
-    name: "osm",
+// Basemaps are user sources, so the base style draws nothing
+export const EMPTY_STYLE: StyleSpecification = {
     version: 8,
-    sources: {
-        "osm-raster-tiles": {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-            tileSize: 256,
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+    sources: {},
+    layers: [],
+}
+const RASTER_TILE_SIZE = 256
+export const BASEMAPS: Record<BasemapId, Basemap> = {
+    osm: {
+        name: "OpenStreetMap",
+        location: "https://www.openstreetmap.org",
+        tiles: {
+            urls: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            tileSize: RASTER_TILE_SIZE,
+            maxzoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         },
     },
-    layers: [
-        {
-            id: "osm-raster-layer",
-            type: "raster",
-            source: "osm-raster-tiles",
-            minzoom: 0,
-            maxzoom: 22,
+    // The 2016 edition is the only Sentinel-2 cloudless year under CC BY 4.0; later ones are non-commercial
+    "sentinel2-2016": {
+        name: "Sentinel-2 cloudless 2016",
+        location: "https://s2maps.eu",
+        tiles: {
+            urls: ["https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg"],
+            tileSize: RASTER_TILE_SIZE,
+            // Native 10 m resolution; deeper zooms are upscaled by MapLibre
+            maxzoom: 14,
+            attribution:
+                '<a href="https://s2maps.eu">Sentinel-2 cloudless</a> by <a href="https://eox.at">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016)',
         },
-    ],
+    },
 }
 export const EMPTY_GEOJSON = {
     type: "FeatureCollection",

@@ -1,6 +1,7 @@
 import { canMove, collectSubtree, createSourceNodes, moveNodes } from "@/lib/source-tree"
 import { type Id, type SourceFormat, type SourceMetadata, type SourceNodes, SourceType } from "@/types"
-import type { Source } from "@/types/source"
+import type { BasemapId } from "@/types/basemap"
+import type { RasterTiles, Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSelector, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
@@ -195,14 +196,16 @@ export const sourceSlice = createSlice({
                 id: Id
                 name: string
                 location: string
+                tiles?: RasterTiles
                 sourceLayers?: { name: string; id: string }[]
             }>,
         ) => {
-            const { id: sourceId, name, location } = action.payload
+            const { id: sourceId, name, location, tiles } = action.payload
             upsertSource(state, {
                 id: sourceId,
                 name,
                 location,
+                tiles,
                 type: SourceType.Raster,
                 pending: false,
                 editable: false,
@@ -294,10 +297,13 @@ export const sourceSlice = createSlice({
 })
 
 export const zoomTo = createAction<string>("source/zoomTo")
+// Adds a web basemap as a raster source with a layer of its own; handled by the `add-basemap` listener
+export const addBasemap = createAction<BasemapId>("source/addBasemap")
 
 export const actions = {
     ...sourceSlice.actions,
     zoomTo,
+    addBasemap,
     addFromUrl,
     addFromClipboard,
     showProperties,

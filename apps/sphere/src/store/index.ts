@@ -51,6 +51,7 @@ export const store = configureStore({
         return getDefaultMiddleWare().prepend(
             mapListener.middleware,
             listeners.addBlankLayer.middleware,
+            listeners.addBasemap.middleware,
             listeners.forceResizeMap.middleware,
             listeners.clearSelection.middleware,
             listeners.clearSelectionOnNodeChange.middleware,

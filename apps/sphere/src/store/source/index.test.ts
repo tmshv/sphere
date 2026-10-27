@@ -153,6 +153,12 @@ describe("sourceSlice reducer", () => {
         expect(state.nodes.s3?.kind).toBe("source")
     })
 
+    test("addRasterSource keeps XYZ tiles of a web raster", () => {
+        const tiles = { urls: ["https://t.example/{z}/{x}/{y}.png"], tileSize: 256, maxzoom: 19, attribution: "A" }
+        const state = run(addRasterSource({ id: "b1", name: "Web", location: "https://t.example", tiles }))
+        expect(state.items.b1).toMatchObject({ type: SourceType.Raster, tiles })
+    })
+
     test("addInMemorySource adds to items and allIds, sets version 0 and pending false", () => {
         const fcMeta = { ...meta, pointsCount: 1, featuresCount: 1 }
         const state = run(addInMemorySource({ id: "s4", name: "FC Source", location: "sphere://s4", meta: fcMeta }))

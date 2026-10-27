@@ -1,4 +1,4 @@
-import { STYLE_OSM } from "@/const"
+import { LayerType } from "@/types"
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
 import { appSlice as app } from "./app"
@@ -40,14 +40,23 @@ export const selectChangeProjectionAvailable = (state: RootState) => {
     return !draw.selectors.isDrawing(state)
 }
 // Other code such as selectors can use the imported `RootState` type
-export const selectMapStyle = (state: RootState) => {
-    const drawing = draw.selectors.isDrawing(state)
-    if (drawing) {
-        return STYLE_OSM
-    }
+export const selectMapStyle = (state: RootState) => state.mapStyle.value
 
-    return state.mapStyle.value
-}
+// User layers on the map, bottom to top. Draw mode keeps only raster layers so a basemap stays under the
+// drawing; an active source preview replaces them all
+export const selectMapLayers = createSelector(
+    [draw.selectors.isDrawing, selectPreviewActive, layer.selectors.items, layer.selectors.allIds],
+    (drawing, previewActive, items, allIds) => {
+        if (!drawing && previewActive) {
+            return []
+        }
+        return allIds
+            .flatMap(id => items[id] ?? [])
+            .filter(item => !drawing || item.type === LayerType.Raster)
+            .map(item => ({ id: item.id, index: item.fractionIndex }))
+            .sort((a, b) => a.index - b.index)
+    },
+)
 
 const showTileBoundaries = (state: RootState) => {
     return state.tileBoundaries.value
@@ -85,6 +94,7 @@ export const selectors = {
     layer: {
         ...layer.selectors,
         visibleIds,
+        mapLayers: selectMapLayers,
     },
     selection: selection.selectors,
     settings: settings.selectors,
