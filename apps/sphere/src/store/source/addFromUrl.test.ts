@@ -47,6 +47,28 @@ describe("addFromUrl", () => {
         expect(added?.payload).toMatchObject({ id: "s1", format: "csv" })
     })
 
+    test("adds the source under the given parent", async () => {
+        mockInvoke.mockImplementation((cmd: string) => {
+            if (cmd === "source_add") {
+                return Promise.resolve({
+                    id: "doc1",
+                    name: "My Places",
+                    location: "file:///data/backup.kmz",
+                    source_type: "kml",
+                })
+            }
+            return Promise.resolve(schema)
+        })
+        const { store, dispatched } = makeCaptureStore()
+
+        await store.dispatch(
+            addFromUrl({ url: "file:///data/backup.kmz?entry=a.kml", type: SourceType.Geojson, parentId: "kmz" }),
+        )
+
+        const added = dispatched.find(a => a.type === "source/addGeojsonSource")
+        expect(added?.payload).toMatchObject({ id: "doc1", parentId: "kmz" })
+    })
+
     test("falls back to geojson for an unrecognized source_type", async () => {
         mockInvoke.mockImplementation((cmd: string) => {
             if (cmd === "source_add") {

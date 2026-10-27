@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend) using MapLibre GL for map rendering. It supports loading GeoJSON, Shapefile, CSV, GPX, KML, and MBTiles formats.
+Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend) using MapLibre GL for map rendering. It supports loading GeoJSON, Shapefile, CSV, GPX, KML, KMZ, and MBTiles formats.
 
 ## Git Conventions
 
@@ -180,6 +180,8 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
 
 **CSV source URI params**: When loading CSV files, the `sphere://source` URI accepts query parameters: `?x=<field>&y=<field>` for lon/lat column names (defaults: `lng`/`lat`), `?wkt=<field>` for a WKT geometry column. When a source is stored, features are assigned integer IDs starting from 1 (after the max existing numeric ID). Original string IDs are preserved in `properties["$id"]`.
 
+**KMZ source URI params**: `?entry=<path in archive>` picks one KML document of a KMZ (default: the first `.kml` entry); the source is named after that document. `addKmz` (`store/effects/add-kmz.ts`) turns a KMZ with several documents into a `folder` root named after the file, with one child `source` per document in archive order; a single-document KMZ is a plain source.
+
 **Event System**: Tauri events handle:
 - Theme changes (system dark/light mode)
 - Drag-and-drop file handling
@@ -205,6 +207,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | Command                    | Signature / description |
 |----------------------------|-------------------------|
 | `source_add`               | Load a source from a URL/path: `(source_url) -> SourceAddResult` |
+| `kml_list_documents`       | List the KML documents in a KMZ archive, in archive order (empty for plain KML): `(path) -> Vec<String>` |
 | `source_get`               | Get source as GeoJSON string: `(id) -> String` |
 | `source_get_slice`         | Get a subset of features by ID list as GeoJSON: `(id, ids: Vec<i64>) -> String` |
 | `source_get_selected`      | Get currently-selected features as GeoJSON (reads selection state): `(id) -> String` |

@@ -38,6 +38,7 @@ async fn main() {
             commands::source::mbtiles_get_tile,
             commands::source::mbtiles_get_metadata,
             commands::source::source_add,
+            commands::source::kml_list_documents,
             commands::source::source_get,
             commands::source::source_get_slice,
             commands::source::source_get_selected,

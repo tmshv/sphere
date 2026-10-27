@@ -3,7 +3,7 @@ import { EMPTY_SOURCE_METADATA, sourceMetadataFromSchema } from "@/lib/source-me
 import { DEFAULT_SOURCE_FORMAT, isSourceFormat } from "@/lib/source-format"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
-import { SourceType } from "@/types"
+import { type Id, SourceType } from "@/types"
 import { isRasterTileFormat } from "@/lib/tilejson"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { invoke } from "@tauri-apps/api/core"
@@ -19,9 +19,11 @@ type NewSource = {
 export type AddFromUrlOptions = {
     url: string
     type: SourceType.Geojson | SourceType.MVT | SourceType.Raster
+    // Places a feature source under this tree node, e.g. a KMZ document under its archive
+    parentId?: Id
 }
 
-const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFromUrlOptions, thunkAPI) => {
+const action = createAsyncThunk("source/addFromUrl", async ({ url, type, parentId }: AddFromUrlOptions, thunkAPI) => {
     try {
         // const id = nextId("source")
         const s = await invoke<NewSource>("source_add", {
@@ -90,6 +92,7 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type }: AddFr
                         location,
                         meta,
                         format,
+                        parentId,
                     }),
                 )
                 break

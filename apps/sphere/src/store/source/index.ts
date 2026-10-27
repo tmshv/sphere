@@ -36,7 +36,8 @@ const initialState: SourceState = {
     selectedIds: [],
 }
 
-function upsertSource(state: SourceState, source: Source) {
+// `parentId` places a new source under that node; a source already in the tree keeps its place
+function upsertSource(state: SourceState, source: Source, parentId?: Id) {
     const { id } = source
     state.items[id] = source
     if (!state.allIds.includes(id)) {
@@ -65,8 +66,18 @@ function upsertSource(state: SourceState, source: Source) {
             state.nodes[child.id] = { ...child, visible: previousVisible.get(child.id) ?? child.visible }
         }
     } else {
-        state.nodes[id] = root
-        state.rootIds.splice(NEW_NODE_INDEX, 0, id)
+        const parent = parentId === undefined ? undefined : state.nodes[parentId]
+        if (parent) {
+            // A child is a piece of its parent's file, so children keep the file's order
+            state.nodes[id] = { ...root, parentId: parent.id }
+            if (parent.children.length === 0 && !state.expandedIds.includes(parent.id)) {
+                state.expandedIds.push(parent.id)
+            }
+            parent.children.push(id)
+        } else {
+            state.nodes[id] = root
+            state.rootIds.splice(NEW_NODE_INDEX, 0, id)
+        }
         for (const child of children) {
             state.nodes[child.id] = child
         }
@@ -134,20 +145,25 @@ export const sourceSlice = createSlice({
                 location: string
                 meta: SourceMetadata
                 format: SourceFormat
+                parentId?: Id
             }>,
         ) => {
-            const { id, name, location, meta, format } = action.payload
-            upsertSource(state, {
-                id,
-                name,
-                location,
-                type: SourceType.Geojson,
-                format,
-                version: 0,
-                pending: false,
-                editable: false,
-                meta,
-            })
+            const { id, name, location, meta, format, parentId } = action.payload
+            upsertSource(
+                state,
+                {
+                    id,
+                    name,
+                    location,
+                    type: SourceType.Geojson,
+                    format,
+                    version: 0,
+                    pending: false,
+                    editable: false,
+                    meta,
+                },
+                parentId,
+            )
         },
         addMVTSource: (
             state,

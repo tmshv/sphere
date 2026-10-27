@@ -107,7 +107,12 @@ impl Source {
         let sphere_uri = SphereUri::parse(source_url.as_str())
             .map_err(|e| e.to_string())?;
         let (data, location) = Source::create_data(&id, path, &sphere_uri)?;
-        let name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("unknown").to_string();
+        // A document picked out of an archive is named after itself, not the archive
+        let named = match &data {
+            SourceData::Kml(Kml { entry: Some(entry), .. }) => Path::new(entry),
+            _ => path,
+        };
+        let name = named.file_stem().and_then(|s| s.to_str()).unwrap_or("unknown").to_string();
 
         Ok(Source {
             id,
@@ -155,8 +160,8 @@ impl Source {
                 let source = Gpx { path: source_path };
                 Ok((SourceData::Gpx(source), file_url))
             }
-            "kml" => {
-                let source = Kml { path: source_path };
+            "kml" | "kmz" => {
+                let source = Kml { path: source_path, entry: uri.query_param("entry") };
                 Ok((SourceData::Kml(source), file_url))
             }
             _ => Err(format!("Cannot handle extension {}", ext)),
@@ -458,6 +463,75 @@ mod tests {
     }
 
     #[test]
+    fn create_data_maps_kmz_extension_to_kml_source() {
+        let uri = SphereUri::parse("sphere://source?url=file:///tmp/sample.kmz").unwrap();
+        let (data, _) = Source::create_data(
+            &"id".to_string(),
+            Path::new("./assets/kml/sample.kmz"),
+            &uri,
+        )
+        .unwrap();
+        assert!(matches!(data, SourceData::Kml(_)));
+    }
+
+    #[test]
+    fn create_data_passes_the_entry_param_to_the_kml_source() {
+        let uri =
+            SphereUri::parse("file:///tmp/multi.kmz?entry=files%2FReef%20trip.kml").unwrap();
+        let (data, _) = Source::create_data(
+            &"id".to_string(),
+            Path::new("./assets/kml/multi.kmz"),
+            &uri,
+        )
+        .unwrap();
+        match data {
+            SourceData::Kml(kml) => assert_eq!(kml.entry.as_deref(), Some("files/Reef trip.kml")),
+            _ => panic!("expected a Kml source"),
+        }
+    }
+
+    fn multi_kmz_url(entry: &str) -> Url {
+        let path = std::fs::canonicalize("./assets/kml/multi.kmz").unwrap();
+        let mut url = Url::from_file_path(path).unwrap();
+        url.query_pairs_mut().append_pair("entry", entry);
+        url
+    }
+
+    #[test]
+    fn kmz_document_source_is_named_after_the_document() {
+        let source = Source::from_url(multi_kmz_url("files/Reef trip.kml")).unwrap();
+        assert_eq!(source.name, "Reef trip");
+    }
+
+    #[test]
+    fn each_kmz_document_is_its_own_source() {
+        let reef = Source::from_url(multi_kmz_url("files/Reef trip.kml")).unwrap();
+        let places = Source::from_url(multi_kmz_url("files/My Places.kml")).unwrap();
+        assert_ne!(reef.id, places.id);
+        assert_eq!(reef.to_feature_collection().unwrap().features.len(), 2);
+        assert_eq!(places.to_feature_collection().unwrap().features.len(), 5);
+    }
+
+    #[test]
+    fn kmz_source_to_feature_collection_assigns_ids() {
+        let source = Source {
+            id: "id".into(),
+            name: "sample".into(),
+            location: String::new(),
+            data: SourceData::Kml(Kml {
+                path: "./assets/kml/sample.kmz".into(),
+                entry: None,
+            }),
+        };
+        let fc = source.to_feature_collection().unwrap();
+        assert_eq!(fc.features.len(), 5);
+        assert!(fc
+            .features
+            .iter()
+            .all(|f| matches!(&f.id, Some(Id::Number(_)))));
+    }
+
+    #[test]
     fn create_data_matches_extensions_case_insensitively() {
         let uri = SphereUri::parse("sphere://source?url=file:///nonexistent/Sample.KML").unwrap();
         let (data, _) = Source::create_data(
@@ -477,6 +551,7 @@ mod tests {
             location: String::new(),
             data: SourceData::Kml(Kml {
                 path: "./assets/kml/sample.kml".into(),
+                entry: None,
             }),
         };
         let fc = source.to_feature_collection().unwrap();

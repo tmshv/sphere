@@ -18,6 +18,10 @@ vi.mock("../source", () => ({
     },
 }))
 
+vi.mock("./add-kmz", () => ({
+    default: vi.fn((path: string) => ({ type: "addKmz", payload: path })),
+}))
+
 vi.mock("../mapStyle", () => ({
     actions: {
         setMapStyle: vi.fn().mockImplementation((payload: unknown) => ({
@@ -32,6 +36,7 @@ import { readTextFile } from "@tauri-apps/plugin-fs"
 import { actions as mapStyleActions } from "../mapStyle"
 import { actions as sourceActions } from "../source"
 import addFile from "./add-file"
+import addKmz from "./add-kmz"
 
 const mockExtname = vi.mocked(extname)
 const mockReadTextFile = vi.mocked(readTextFile)
@@ -107,6 +112,16 @@ describe("addFile thunk", () => {
             url: "file:///data/shape.shp",
             type: SourceType.Geojson,
         })
+    })
+
+    test.each(["kmz", "KMZ"])("%s ext hands the archive to addKmz", async ext => {
+        mockExtname.mockResolvedValue(ext)
+
+        await addFile("/data/backup.kmz")(store.dispatch, store.getState, undefined)
+
+        expect(vi.mocked(addKmz)).toHaveBeenCalledWith("/data/backup.kmz")
+        expect(dispatchSpy).toHaveBeenCalledWith({ type: "addKmz", payload: "/data/backup.kmz" })
+        expect(mockAddFromUrl).not.toHaveBeenCalled()
     })
 
     test("csv ext dispatches addFromUrl with Geojson type", async () => {

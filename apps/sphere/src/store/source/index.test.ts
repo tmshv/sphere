@@ -434,6 +434,48 @@ describe("sourceSlice reducer", () => {
         expect(state).toEqual(before)
     })
 
+    function addChildGeojson(id: string, parentId: string) {
+        return addGeojsonSource({ id, name: id, location: "f.kmz", format: "kml", meta, parentId })
+    }
+
+    test("addGeojsonSource under a parent adds a child source after its siblings", () => {
+        const state = run(addFolder({ id: "f", name: "F" }), addChildGeojson("a", "f"), addChildGeojson("b", "f"))
+        expect(state.rootIds).toEqual(["f"])
+        expect(state.nodes.f?.children).toEqual(["a", "b"])
+        expect(state.nodes.a).toEqual({
+            id: "a",
+            name: "a",
+            parentId: "f",
+            kind: "source",
+            visible: true,
+            children: [],
+        })
+        expect(state.items.a?.type).toBe(SourceType.Geojson)
+        expect(state.allIds).toEqual(["a", "b"])
+    })
+
+    test("a parent is expanded when it gains its first child", () => {
+        const state = run(addFolder({ id: "f", name: "F" }), addChildGeojson("a", "f"))
+        expect(state.expandedIds).toEqual(["f"])
+    })
+
+    test("re-adding a child keeps the user's collapsed parent collapsed", () => {
+        const state = run(
+            addFolder({ id: "f", name: "F" }),
+            addChildGeojson("a", "f"),
+            setExpanded({ id: "f", value: false }),
+            addChildGeojson("a", "f"),
+        )
+        expect(state.expandedIds).toEqual([])
+        expect(state.nodes.f?.children).toEqual(["a"])
+    })
+
+    test("addGeojsonSource under an unknown parent adds a root source", () => {
+        const state = run(addChildGeojson("a", "nope"))
+        expect(state.rootIds).toEqual(["a"])
+        expect(state.nodes.a?.parentId).toBeUndefined()
+    })
+
     test("reset clears tree state", () => {
         const state = run(addMvt("m", "pbf", roadsAndWater), select("m"), reset())
         expect(state).toEqual(reducer(undefined, { type: "@@INIT" }))
