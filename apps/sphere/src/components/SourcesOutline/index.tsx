@@ -14,7 +14,7 @@ import {
     IconTable,
     IconVector,
     IconWorld,
-} from "@tabler/icons"
+} from "@tabler/icons-react"
 import { useCallback, useMemo } from "react"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 

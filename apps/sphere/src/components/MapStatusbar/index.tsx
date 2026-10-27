@@ -22,7 +22,7 @@ import {
     IconSatellite,
     IconWorld,
     IconWorldOff,
-} from "@tabler/icons"
+} from "@tabler/icons-react"
 import { type CSSProperties, useCallback } from "react"
 import { useMap } from "react-map-gl/maplibre"
 

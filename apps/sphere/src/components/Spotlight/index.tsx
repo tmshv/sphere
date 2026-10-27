@@ -1,5 +1,5 @@
 import { CommandPalette, type Command } from "@sphere/ui"
-import { IconClipboard, IconCopy, IconZoomReset } from "@tabler/icons"
+import { IconClipboard, IconCopy, IconZoomReset } from "@tabler/icons-react"
 import { writeText } from "@tauri-apps/plugin-clipboard-manager"
 import { useMap } from "react-map-gl/maplibre"
 import { fireAndLog } from "../../lib/fire-and-log"

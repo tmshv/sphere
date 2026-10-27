@@ -1,4 +1,4 @@
-import { IconPlus } from "@tabler/icons"
+import { IconPlus } from "@tabler/icons-react"
 import { page, userEvent } from "vitest/browser"
 import { focusWithKeyboard, visualCases } from "../visual/visualCases"
 import { Button } from "./Button"

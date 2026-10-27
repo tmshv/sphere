@@ -6,7 +6,7 @@ import {
     IconHome2,
     IconUser,
     type TablerIcon,
-} from "@tabler/icons"
+} from "@tabler/icons-react"
 import { useState } from "react"
 import { Tooltip, unstyledButton } from "../internal"
 import s from "./toolbar.module.css"

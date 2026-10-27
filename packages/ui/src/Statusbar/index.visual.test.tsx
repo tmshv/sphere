@@ -1,4 +1,4 @@
-import { IconMap, IconRuler } from "@tabler/icons"
+import { IconMap, IconRuler } from "@tabler/icons-react"
 import { page, userEvent } from "vitest/browser"
 import type { ReactNode } from "react"
 import { visualCases } from "../visual/visualCases"

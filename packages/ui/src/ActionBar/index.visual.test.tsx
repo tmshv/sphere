@@ -1,4 +1,4 @@
-import { IconCopy, IconPlus, IconTrash } from "@tabler/icons"
+import { IconCopy, IconPlus, IconTrash } from "@tabler/icons-react"
 import { page, userEvent } from "vitest/browser"
 import { visualCases } from "../visual/visualCases"
 import { ActionBar } from "."
