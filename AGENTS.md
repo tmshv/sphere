@@ -161,7 +161,7 @@ To bump the app's version, run `npm version patch -w @sphere/app` from the repo 
 
 ## Key Dependencies
 
-- **Frontend**: React 18, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Base UI (`@base-ui/react`), Tabler icons (`@tabler/icons-react` 3, wrapped by `@sphere/icons`), Turf.js, react-arborist 4 (tree in `@sphere/ui`, driven by `react-dnd-touch-backend`)
+- **Frontend**: React 19, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Base UI (`@base-ui/react`), Tabler icons (`@tabler/icons-react` 3, wrapped by `@sphere/icons`), Turf.js, react-arborist 4 (tree in `@sphere/ui`, driven by `react-dnd-touch-backend`)
 - **Backend**: Tauri 2.9, rusqlite (bundled SQLite), geo/geojson/geozero/wkt crates
 
 ## Runtime Requirements
