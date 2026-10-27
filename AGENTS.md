@@ -136,11 +136,13 @@ The frontend is an npm workspaces monorepo. Packages depend only downward:
 
 ```
 apps/sphere  ->  @sphere/ui  ->  @sphere/utils
+                             ->  @sphere/icons
 ```
 
 - `@sphere/utils` (`packages/utils/`) — pure TS helpers. No React, no maplibre, no Tauri, no Redux, no domain types. Each package exposes a single barrel: `import { lerp, deduplicate } from "@sphere/utils"`. Public surface is declared in `packages/utils/src/index.ts`.
+- `@sphere/icons` (`packages/icons/`) — the only source of icons for the app and `@sphere/ui`: `import { IconCopy } from "@sphere/icons"`. `packages/icons/src/tabler.ts` re-exports, under their `IconSomething` names, exactly the vendor icons Sphere uses, plus the shared `IconComponent` and `IconProps` types for components that take an icon as a prop. To use a new icon, add it to that list. Custom icons will live here too and must take the same props, so callers cannot tell them from vendor icons. React is a peer dep; no other `@sphere/*` package.
 - `@sphere/ui` (`packages/ui/`) — presentational components built on Base UI (`@base-ui/react`) and CSS Modules, styled with design tokens in `packages/ui/src/tokens/`. `Tree` wraps react-arborist with its own react-dnd manager on the touch (pointer-event) backend, not HTML5: Tauri's `dragDropEnabled` swallows HTML5 drag events on Windows, and a private manager keeps it isolated from other dnd providers. Both sidebar outlines render it: Sources as a nested tree, Layers as a flat list (a layer can only be dropped back into the list). `VisibilityToggle` is the outline bulb they share. No Tauri, no Redux, no maplibre. React is a peer dep; Mantine and Emotion are not used anywhere. Imported via the same barrel pattern: `import { ActionBar, Sidebar } from "@sphere/ui"`. Public surface is declared in `packages/ui/src/index.ts`.
-- `apps/sphere/` — the Tauri app. May import from both packages and from `@/*` (app-local paths). Must not import `@mantine/*` or `@emotion/*`: all UI building blocks come from `@sphere/ui`. Enforced by `apps/sphere/biome.json` (and `packages/ui/biome.json` for the package itself).
+- `apps/sphere/` — the Tauri app. May import from all three packages and from `@/*` (app-local paths). Must not import `@mantine/*` or `@emotion/*`: all UI building blocks come from `@sphere/ui`. Must not import `@tabler/*`: all icons come from `@sphere/icons`. Enforced by `apps/sphere/biome.json` (and `packages/ui/biome.json` for the package itself).
 
 **Visual tests**: `npm run test:visual -w @sphere/ui` runs screenshot tests of every `@sphere/ui` component in WebKit. Baselines are `webkit-darwin` only, so run it locally on macOS; it is not expected to pass on Linux CI. Never update a baseline (`-u`) to accept a real visual change; fix the component so the existing baseline passes. Update baselines only for an intended design change.
 
@@ -149,17 +151,17 @@ Boundaries are enforced by:
 1. `packages/*/package.json` declaring only allowed deps.
 2. `packages/*/biome.json` using `noRestrictedImports` to forbid back-references.
 3. `packages/*/tsconfig.json` not defining `@/*`, so the app alias cannot leak in.
-4. `apps/sphere/biome.json` using `noRestrictedImports` to forbid `@mantine/*` and `@emotion/*` in the app, and `packages/ui/biome.json` does the same inside the UI package.
+4. `apps/sphere/biome.json` using `noRestrictedImports` to forbid `@mantine/*`, `@emotion/*` and `@tabler/*` in the app, and `packages/ui/biome.json` does the same inside the UI package.
 
 Violations fail `npm run typecheck` and `npm run lint`. To add code to a package, audit the new file's imports — if it imports anything restricted, it stays in the app. Never silence the lint rule — restructure instead.
 
 To bump the app's version, run `npm version patch -w @sphere/app` from the repo root. That updates `apps/sphere/package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, and `src-tauri/Cargo.lock` atomically via `scripts/version.js`.
 
-`@sphere/ui` and `@sphere/utils` are private workspace packages consumed via workspace links — they are never published and their versions are never read at runtime. They stay pinned at `0.0.0` on purpose. Do not bump them, and do not extend `scripts/version.js` to touch them.
+`@sphere/ui`, `@sphere/utils` and `@sphere/icons` are private workspace packages consumed via workspace links — they are never published and their versions are never read at runtime. They stay pinned at `0.0.0` on purpose. Do not bump them, and do not extend `scripts/version.js` to touch them.
 
 ## Key Dependencies
 
-- **Frontend**: React 18, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Base UI (`@base-ui/react`), Turf.js, react-arborist 4 (tree in `@sphere/ui`, driven by `react-dnd-touch-backend`)
+- **Frontend**: React 18, Redux Toolkit, react-map-gl 8, MapLibre GL 5, Base UI (`@base-ui/react`), Tabler icons (`@tabler/icons-react` 3, wrapped by `@sphere/icons`), Turf.js, react-arborist 4 (tree in `@sphere/ui`, driven by `react-dnd-touch-backend`)
 - **Backend**: Tauri 2.9, rusqlite (bundled SQLite), geo/geojson/geozero/wkt crates
 
 ## Runtime Requirements

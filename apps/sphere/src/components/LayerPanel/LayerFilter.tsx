@@ -2,7 +2,7 @@ import { isValidFilterExpression } from "@/lib/maplibre"
 import { actions } from "@/store"
 import { useAppDispatch } from "@/store/hooks"
 import { IconButton, TextField } from "@sphere/ui"
-import { IconX } from "@tabler/icons"
+import { IconX } from "@sphere/icons"
 import type { FilterSpecification } from "maplibre-gl"
 import { useState } from "react"
 

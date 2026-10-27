@@ -11,6 +11,7 @@
                         "paths": {
                             "@/*": "Packages must not import from the app alias (@/...).",
                             "@sphere/ui": "@sphere/utils must not depend on @sphere/ui.",
+                            "@sphere/icons": "@sphere/utils must not depend on @sphere/icons.",
                             "react": "@sphere/utils is React-free by design.",
                             "react-dom": "@sphere/utils is React-free by design.",
                             "maplibre-gl": "@sphere/utils must not depend on maplibre-gl.",

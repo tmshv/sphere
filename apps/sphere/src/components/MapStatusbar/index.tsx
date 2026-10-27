@@ -21,7 +21,7 @@ import {
     IconPointer,
     IconWorld,
     IconWorldOff,
-} from "@tabler/icons"
+} from "@sphere/icons"
 import { type CSSProperties, useCallback } from "react"
 import { useMap } from "react-map-gl/maplibre"
 

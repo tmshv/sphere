@@ -105,7 +105,7 @@ describe("SourcesOutline", () => {
         renderOutline({ extraSources: [makeCsvSource(CSV_ID)] })
 
         const hasIcon = (id: string, name: string) =>
-            row(id).querySelector("svg")?.classList.contains(`icon-tabler-${name}`) ?? false
+            row(id).querySelector("svg")?.classList.contains(`tabler-icon-${name}`) ?? false
         expect(hasIcon(MVT_ID, "stack-2")).toBe(true)
         expect(hasIcon(ROADS_NODE_ID, "vector")).toBe(true)
         expect(hasIcon(GEOJSON_ID, "braces")).toBe(true)

@@ -1,4 +1,4 @@
-import { IconChevronRight } from "@tabler/icons"
+import { IconChevronRight } from "@sphere/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
 import { unstyledButton } from "../internal"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"

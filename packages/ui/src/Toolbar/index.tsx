@@ -5,8 +5,8 @@ import {
     IconGauge,
     IconHome2,
     IconUser,
-    type TablerIcon,
-} from "@tabler/icons"
+    type IconComponent,
+} from "@sphere/icons"
 import { useState } from "react"
 import { Tooltip, unstyledButton } from "../internal"
 import s from "./toolbar.module.css"
@@ -15,7 +15,7 @@ const ICON_STROKE = 1.5
 const INITIAL_ACTIVE_INDEX = 2
 
 export type NavbarLinkProps = {
-    icon: TablerIcon
+    icon: IconComponent
     label: string
     active?: boolean
     onClick?(): void

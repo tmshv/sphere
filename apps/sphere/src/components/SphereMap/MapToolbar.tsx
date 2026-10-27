@@ -3,10 +3,10 @@ import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { DEFAULT_MAP_TOOL, type MapTool } from "@/lib/map-tools"
 import { IconButton, Row } from "@sphere/ui"
-import { IconHandStop, IconInfoCircle, IconPointer } from "@tabler/icons"
+import { type IconComponent, IconHandStop, IconInfoCircle, IconPointer } from "@sphere/icons"
 import { useEffect } from "react"
 
-type ToolSpec = { tool: MapTool; title: string; Icon: typeof IconHandStop }
+type ToolSpec = { tool: MapTool; title: string; Icon: IconComponent }
 
 const TOOLS: ToolSpec[] = [
     { tool: "navigation", title: "Navigation", Icon: IconHandStop },

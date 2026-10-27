@@ -1,4 +1,4 @@
-import { IconPlus } from "@tabler/icons"
+import { IconPlus } from "@sphere/icons"
 import { createColumnHelper } from "@tanstack/react-table"
 import type { ReactNode } from "react"
 import { flushSync } from "react-dom"

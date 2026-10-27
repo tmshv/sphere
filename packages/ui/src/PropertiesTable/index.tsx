@@ -1,5 +1,5 @@
 import { Button as BaseButton } from "@base-ui/react/button"
-import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@tabler/icons"
+import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@sphere/icons"
 import {
     type CellContext,
     type ColumnDef,

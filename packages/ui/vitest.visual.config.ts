@@ -21,7 +21,7 @@ const OPTIMIZED_DEPS = [
     "@base-ui/react/field",
     "@base-ui/react/tabs",
     "@base-ui/react/tooltip",
-    "@tabler/icons",
+    "@tabler/icons-react",
     "allotment",
     "@tanstack/react-table",
     "react-dnd",

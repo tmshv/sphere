@@ -12,6 +12,10 @@
                             {
                                 "group": ["@mantine/**", "@emotion/**"],
                                 "message": "The app must not import Mantine. Use components from @sphere/ui."
+                            },
+                            {
+                                "group": ["@tabler/**"],
+                                "message": "Import icons from @sphere/icons, not from the vendor icon set."
                             }
                         ]
                     }

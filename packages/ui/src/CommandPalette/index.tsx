@@ -1,6 +1,6 @@
 import { Autocomplete } from "@base-ui/react/autocomplete"
 import { Dialog } from "@base-ui/react/dialog"
-import { IconSearch } from "@tabler/icons"
+import { IconSearch } from "@sphere/icons"
 import { type ReactNode, useRef, useState } from "react"
 import { useHotkeys } from "../hooks"
 import s from "./command-palette.module.css"

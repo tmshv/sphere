@@ -5,6 +5,7 @@
     "type": "module",
     "main": "./src/index.ts",
     "dependencies": {
+        "@sphere/icons": "*",
         "@sphere/utils": "*",
         "@base-ui/react": "^1.9.0",
         "react-colorful": "^5.8.1"
@@ -13,7 +14,6 @@
         "allotment": "^1.20.5",
         "react": "^18.3.0",
         "react-dom": "^18.3.0",
-        "@tabler/icons": "^1.119.0",
         "@visx/group": "^3.12.0",
         "@visx/scale": "^3.12.0",
         "@visx/shape": "^3.12.0",

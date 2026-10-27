@@ -5,7 +5,7 @@
 
         "paths": {
             "@sphere/utils": ["../utils/src"],
-            "@tabler/icons": ["../../node_modules/@tabler/icons/icons-react"]
+            "@sphere/icons": ["../icons/src"]
         }
     },
     "include": ["src"]

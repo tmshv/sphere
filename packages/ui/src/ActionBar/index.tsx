@@ -1,5 +1,5 @@
 import { Button as BaseButton } from "@base-ui/react/button"
-import type { TablerIconProps } from "@tabler/icons"
+import type { IconComponent, IconProps } from "@sphere/icons"
 import iconButton from "../Button/icon-button.module.css"
 import { unstyledButton } from "../internal"
 import s from "./action-bar.module.css"
@@ -9,8 +9,8 @@ const ICON_SIZE_PX = 16
 export type ActionBarItem = {
     name: string
     label: string
-    icon: React.FC<TablerIconProps>
-    color?: TablerIconProps["color"]
+    icon: IconComponent
+    color?: IconProps["color"]
     disabled?: boolean
 }
 

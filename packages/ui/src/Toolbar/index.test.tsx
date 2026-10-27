@@ -1,4 +1,4 @@
-import { IconHome2 } from "@tabler/icons"
+import { IconHome2 } from "@sphere/icons"
 import { fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
