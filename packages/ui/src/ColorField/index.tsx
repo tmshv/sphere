@@ -1,11 +1,10 @@
-import { Badge, ColorPicker, Input } from "@mantine/core"
-
-const FIELD_SIZE = "xs"
-const BADGE_RADIUS = "sm"
-const BADGE_MARGIN_LEFT = "xs"
-const PICKER_FORMAT = "hex"
-const PICKER_WIDTH = "100%"
-const SATURATION_HEIGHT_PX = 130
+import { Field } from "@base-ui/react/field"
+import { useState } from "react"
+import { HsvColorPicker } from "react-colorful"
+import { Badge } from "../internal"
+import input from "../internal/input.module.css"
+import s from "./color-field.module.css"
+import { hexToHsv, hsvToHex, isHex } from "./hex"
 
 export type ColorFieldProps = {
     label: string
@@ -14,29 +13,35 @@ export type ColorFieldProps = {
 }
 
 export function ColorField({ label, value, onChange }: ColorFieldProps) {
+    // Like Mantine, the picker keeps its own whole-number HSV, so the hue survives
+    // greys and the reported hex is always built from the same numbers the thumbs show.
+    const [hsv, setHsv] = useState(() => hexToHsv(value))
+    const [syncedValue, setSyncedValue] = useState(value)
+
+    if (value !== syncedValue) {
+        setSyncedValue(value)
+        if (isHex(value) && value.toLowerCase() !== hsvToHex(hsv)) {
+            setHsv(hexToHsv(value))
+        }
+    }
+
     return (
-        <Input.Wrapper
-            label={
-                <>
-                    {label}
-                    <Badge ml={BADGE_MARGIN_LEFT} size={FIELD_SIZE} radius={BADGE_RADIUS}>
-                        {value}
-                    </Badge>
-                </>
-            }
-            size={FIELD_SIZE}
-        >
-            <ColorPicker
-                format={PICKER_FORMAT}
-                size={FIELD_SIZE}
-                value={value}
-                styles={theme => ({
-                    wrapper: { width: PICKER_WIDTH },
-                    saturation: { height: SATURATION_HEIGHT_PX },
-                    slider: { marginTop: theme.spacing.sm },
-                })}
-                onChange={onChange}
-            />
-        </Input.Wrapper>
+        <Field.Root className={input.root}>
+            <Field.Label className={input.label}>
+                {label}
+                <Badge className={s.badge} size="xs" variant="light" radius="sm">
+                    {value}
+                </Badge>
+            </Field.Label>
+            <div className={s.picker}>
+                <HsvColorPicker
+                    color={hsv}
+                    onChange={next => {
+                        setHsv(next)
+                        onChange(hsvToHex(next))
+                    }}
+                />
+            </div>
+        </Field.Root>
     )
 }

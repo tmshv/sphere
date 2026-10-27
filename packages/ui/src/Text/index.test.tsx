@@ -8,17 +8,23 @@ describe("Text", () => {
         expect(screen.getByText("Some words")).toBeInTheDocument()
     })
 
-    it("applies weight, uppercase and style", () => {
+    it("passes the style prop through", () => {
+        render(<Text style={{ userSelect: "none" }}>Title</Text>)
+        expect(screen.getByText("Title")).toHaveStyle({ userSelect: "none" })
+    })
+
+    it("attaches weight, uppercase and tone styling", () => {
         render(
-            <Text weight={"semibold"} uppercase style={{ userSelect: "none" }}>
+            <Text weight={"semibold"} uppercase tone={"dimmed"}>
                 Title
             </Text>,
         )
-        expect(screen.getByText("Title")).toHaveStyle({
-            fontWeight: "600",
-            textTransform: "uppercase",
-            userSelect: "none",
-        })
+        // CSS Module rules are injected here but var() tokens are not resolved, so the
+        // rendered look is owned by the visual baselines (Text/index.visual.test.tsx).
+        const classes = screen.getByText("Title").className
+        expect(classes).toContain("weightSemibold")
+        expect(classes).toContain("uppercase")
+        expect(classes).toContain("dimmed")
     })
 })
 

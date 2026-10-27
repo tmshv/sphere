@@ -1,5 +1,5 @@
-import { Flex, createStyles } from "@mantine/core"
 import { LayoutPriority, SplitPane, SplitView } from "../Split"
+import s from "./app-layout.module.css"
 
 export type SidebarSize = {
     preferred: number
@@ -13,17 +13,6 @@ export const DEFAULT_SIDEBAR_SIZE: SidebarSize = {
     min: 265,
     max: 500,
 }
-
-const useStyles = createStyles(() => ({
-    container: {
-        width: "100%",
-        height: "100%",
-    },
-    main: {
-        flex: 1,
-        overflow: "hidden",
-    },
-}))
 
 export type AppLayoutProps = {
     children: React.ReactNode
@@ -42,10 +31,8 @@ export function AppLayout({
     leftSidebarSize = DEFAULT_SIDEBAR_SIZE,
     rightSidebarSize = DEFAULT_SIDEBAR_SIZE,
 }: AppLayoutProps) {
-    const { classes: s } = useStyles()
-
     return (
-        <Flex direction={"column"} className={s.container}>
+        <div className={s.container}>
             <SplitView className={s.main} proportionalLayout={false}>
                 <SplitPane
                     visible={leftSidebar != null}
@@ -73,6 +60,6 @@ export function AppLayout({
             </SplitView>
 
             {footer}
-        </Flex>
+        </div>
     )
 }

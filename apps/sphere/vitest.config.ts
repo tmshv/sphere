@@ -20,6 +20,8 @@ export default defineConfig({
             "**/.worktrees/**",
         ],
         globals: true,
+        // Layout tests read computed style, so CSS Modules must be injected.
+        css: { include: /\.module\.css$/ },
         environment: "happy-dom",
         setupFiles: ["./src/setupTests.ts"],
         coverage: {

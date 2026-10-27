@@ -1,0 +1,92 @@
+/* Sphere tab styles (moved from LeftSidebar) on Mantine 5 Tabs `unstyled`: no Mantine tab
+   CSS applies, so the button keeps its user-agent padding. */
+
+/* The tabs own the whole sidebar height: the list keeps its natural height and the
+   active panel takes the rest, so the panel content scrolls inside the sidebar. */
+.root {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.list {
+    display: flex;
+    flex-shrink: 0;
+    padding: var(--sphere-space-sm);
+}
+
+.panel {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Toolbars and headers keep their height; the one child that scrolls (SectionStack)
+   opts out via its own class. */
+.panel > * {
+    flex-shrink: 0;
+}
+
+.tab {
+    --tab-height: 30px;
+    /* Mantine 5 fn.focusStyles: 2px ring, 2px offset. */
+    --tab-focus-width: 2px;
+    --tab-focus-offset: 2px;
+    /* Tab.styles.js: a disabled tab is half opaque. */
+    --tab-disabled-opacity: 0.5;
+
+    -webkit-tap-highlight-color: transparent;
+    background-color: var(--sphere-color-tab-bg);
+    color: var(--sphere-color-tab-text);
+    border: 1px solid var(--sphere-color-tab-border);
+    height: var(--tab-height);
+    cursor: pointer;
+    font-size: var(--sphere-font-size-sm);
+    display: flex;
+    align-items: center;
+}
+
+.tab:focus-visible {
+    outline: var(--tab-focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--tab-focus-offset);
+}
+
+.tab:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.tab[data-disabled] {
+    opacity: var(--tab-disabled-opacity);
+    cursor: not-allowed;
+}
+
+.tab:not(:first-of-type) {
+    border-left: 0;
+}
+
+.tab:first-of-type {
+    border-top-left-radius: var(--sphere-radius-sm);
+    border-bottom-left-radius: var(--sphere-radius-sm);
+}
+
+.tab:last-of-type {
+    border-top-right-radius: var(--sphere-radius-sm);
+    border-bottom-right-radius: var(--sphere-radius-sm);
+}
+
+.tab[data-active] {
+    background-color: var(--sphere-color-tab-active-bg);
+    border-color: var(--sphere-color-tab-active-bg);
+    color: var(--sphere-color-on-accent);
+}
+
+.icon {
+    margin-right: var(--sphere-space-xs);
+    display: flex;
+    align-items: center;
+}

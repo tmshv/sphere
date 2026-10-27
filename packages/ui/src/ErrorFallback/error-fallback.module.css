@@ -1,0 +1,52 @@
+.root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar {
+    padding: var(--sphere-space-sm);
+}
+
+.fullscreen {
+    padding: var(--sphere-space-xl);
+}
+
+.message {
+    /* Sphere: the fullscreen message stops at 420px, the sidebar one fills its column. */
+    --error-message-max-width: 420px;
+}
+
+.sidebar .message {
+    max-width: 100%;
+}
+
+.fullscreen .message {
+    max-width: var(--error-message-max-width);
+}
+
+.titleSidebar {
+    font-size: var(--sphere-font-size-sm);
+}
+
+.titleFullscreen {
+    font-size: var(--sphere-font-size-lg);
+}
+
+/* Mantine 5 Text `lineClamp` of 3 lines. */
+.messageText {
+    --message-line-clamp: 3;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: var(--message-line-clamp);
+    -webkit-box-orient: vertical;
+}
+
+/* Mantine 5 Group wraps unless told not to. */
+.actions {
+    flex-wrap: wrap;
+}

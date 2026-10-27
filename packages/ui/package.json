@@ -6,10 +6,8 @@
     "main": "./src/index.ts",
     "dependencies": {
         "@sphere/utils": "*",
-        "@mantine/core": "^5.10.5",
-        "@mantine/hooks": "^5.10.5",
-        "@mantine/spotlight": "^5.10.5",
-        "@emotion/react": "^11.14.0"
+        "@base-ui/react": "^1.9.0",
+        "react-colorful": "^5.8.1"
     },
     "peerDependencies": {
         "allotment": "^1.20.5",
@@ -31,6 +29,11 @@
         "typecheck": "tsc --noEmit",
         "test": "vitest run",
         "lint": "biome lint src/",
-        "lint:fix": "biome lint --write src/"
+        "lint:fix": "biome lint --write src/",
+        "test:visual": "vitest run -c vitest.visual.config.ts"
+    },
+    "devDependencies": {
+        "@vitest/browser-playwright": "4.1.4",
+        "playwright": "1.64.0"
     }
 }

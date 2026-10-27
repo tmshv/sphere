@@ -1,0 +1,115 @@
+.backdrop,
+.viewport {
+    --dialog-duration: 250ms;
+    /* Mantine Transition `pop` (transitions.js popIn.out). */
+    --dialog-pop-out: scale(0.9) translateY(10px);
+}
+
+/* Mantine 5 Modal.styles.js: centered, size md (440px), padding lg, shadow lg, radius sm,
+   overlay black .75 / dark[9] .85, `pop` transition over 250ms (the overlay fades in 125ms). */
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--sphere-z-index-modal);
+    background-color: var(--sphere-color-overlay);
+    transition: opacity calc(var(--dialog-duration) / 2) ease;
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+    opacity: 0;
+}
+
+/* Mantine `inner`: scrolls when the modal is taller than the window. */
+.viewport {
+    --dialog-width: 440px;
+    /* Mantine Modal.styles.js header: marginRight -9, so the close glyph's padding aligns with the body edge. */
+    --dialog-header-bleed: -9px;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--sphere-z-index-modal);
+    overflow-y: auto;
+    padding: calc(var(--sphere-space-xl) * 2) var(--sphere-space-md);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    display: block;
+    position: relative;
+    width: var(--dialog-width);
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: var(--sphere-space-lg);
+    outline: 0;
+    background-color: var(--sphere-color-body);
+    color: var(--sphere-color-text);
+    border-radius: var(--sphere-radius-sm);
+    box-shadow: var(--sphere-shadow-lg);
+    font-family: var(--sphere-font-family-sans);
+    line-height: var(--sphere-line-height-body);
+    -webkit-tap-highlight-color: transparent;
+    transform-origin: center center;
+    transition: transform var(--dialog-duration), opacity var(--dialog-duration);
+}
+
+/* Mantine "pop" transition. */
+.popup[data-starting-style],
+.popup[data-ending-style] {
+    opacity: 0;
+    transform: var(--dialog-pop-out);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sphere-space-md);
+    margin-right: var(--dialog-header-bleed);
+}
+
+.title {
+    margin: 0;
+    margin-right: var(--sphere-space-md);
+    text-overflow: ellipsis;
+    display: block;
+    word-break: break-word;
+    font-family: var(--sphere-font-family-sans);
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: var(--sphere-line-height-body);
+}
+
+.body {
+    word-break: break-word;
+}
+
+.footer {
+    display: flex;
+    flex-direction: row;
+    gap: var(--sphere-space-xs);
+    justify-content: flex-end;
+    margin-top: var(--sphere-space-md);
+}
+
+/* Mantine CloseButton: ActionIcon gray, subtle, size md, with the 16px close glyph. Tripled: it must beat .iconButton.iconButton (0,2,0), which also sets height and width (R10). */
+.close.close.close {
+    --close-size: 28px;
+    --close-icon-size: 16px;
+
+    height: var(--close-size);
+    width: var(--close-size);
+}
+
+.closeIcon {
+    width: var(--close-icon-size);
+    height: var(--close-icon-size);
+}

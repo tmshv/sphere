@@ -1,32 +1,4 @@
-import { Flex, createStyles } from "@mantine/core"
-
-// A panel body is split in two: a header that always stays put — controls
-// belong there — and the body below it, which scrolls when the panel runs out
-// of room. Both need the parent to give the panel a bounded height.
-const CONTAINER_STYLE: React.CSSProperties = {
-    flex: "1 1 auto",
-    minHeight: 0,
-    overflow: "hidden",
-}
-
-// The panel owns the inset either side of its content, rather than taking it
-// from whatever holds it. That lets the scrolling part reach the panel's own
-// edge, so the overlay scrollbar macOS draws there rides over the inset instead
-// of over the text — a column of counts, right-aligned, used to sit under it.
-const useStyles = createStyles(theme => ({
-    header: {
-        flexShrink: 0,
-        paddingLeft: theme.spacing.sm,
-        paddingRight: theme.spacing.sm,
-    },
-    body: {
-        flex: "1 1 auto",
-        minHeight: 0,
-        overflowY: "auto",
-        paddingLeft: theme.spacing.sm,
-        paddingRight: theme.spacing.sm,
-    },
-}))
+import s from "./panel-body.module.css"
 
 export type PanelBodyProps = {
     header?: React.ReactNode
@@ -34,12 +6,10 @@ export type PanelBodyProps = {
 }
 
 export function PanelBody({ header, children }: PanelBodyProps) {
-    const { classes } = useStyles()
-
     return (
-        <Flex direction={"column"} gap={"md"} style={CONTAINER_STYLE}>
-            {!header ? null : <div className={classes.header}>{header}</div>}
-            <div className={classes.body}>{children}</div>
-        </Flex>
+        <div className={s.container}>
+            {!header ? null : <div className={s.header}>{header}</div>}
+            <div className={s.body}>{children}</div>
+        </div>
     )
 }

@@ -1,4 +1,6 @@
-import { Stack, Text, createStyles } from "@mantine/core"
+import { Stack } from "../Layout"
+import { Text } from "../Text"
+import s from "./attribute-list.module.css"
 import { FieldRow } from "./FieldRow"
 
 /**
@@ -25,24 +27,16 @@ export type AttributeListProps = {
     fields: FieldEntry[]
 }
 
-const useStyle = createStyles(() => ({
-    root: {
-        userSelect: "none",
-    },
-}))
-
 export function AttributeList({ fields }: AttributeListProps) {
-    const { classes } = useStyle()
-
     if (fields.length === 0) {
         return (
-            <Text className={classes.root} size={"xs"} color={"dimmed"}>
-                No attributes
-            </Text>
+            <div className={s.root}>
+                <Text tone="dimmed">No attributes</Text>
+            </div>
         )
     }
     return (
-        <Stack className={classes.root} spacing={"sm"}>
+        <Stack className={s.root} gap="sm">
             {fields.map(field => (
                 <FieldRow key={field.name} field={field} />
             ))}

@@ -1,0 +1,13 @@
+/* A row pairs something long with something short: a caption with a value, or a
+   column value with how often it occurs. Only the long side ellipsizes.
+   Letting both shrink divides the overflow between them in proportion to their
+   length, which takes a couple of pixels off the short side, enough to hide a
+   four-digit count behind its own ellipsis. */
+.givesWay {
+    /* Without this a flex child refuses to shrink below its text. */
+    min-width: 0;
+}
+
+.staysWhole {
+    flex-shrink: 0;
+}

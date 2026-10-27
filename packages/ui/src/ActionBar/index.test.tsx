@@ -1,6 +1,5 @@
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, pressedStyle, render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
-import { GAP_PX } from "../Layout"
 import { ActionBar } from "."
 import type { ActionBarItem } from "."
 
@@ -54,9 +53,23 @@ describe("ActionBar", () => {
 
     it("insets the bar when padded", () => {
         const { container } = render(<ActionBar items={[makeItem("a")]} onClick={vi.fn()} padded />)
-        expect(container.firstElementChild).toHaveStyle({
-            paddingLeft: `${GAP_PX.sm}px`,
-            paddingRight: `${GAP_PX.sm}px`,
-        })
+        const bar = container.firstElementChild
+        if (!bar) {
+            throw new Error("ActionBar rendered nothing")
+        }
+        expect(declaredStyle(bar, "padding-left")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(bar, "padding-right")).toBe("var(--sphere-space-sm)")
+    })
+
+    it("dims a disabled item with half opacity", () => {
+        render(<ActionBar items={[makeItem("action", true)]} onClick={vi.fn()} />)
+        expect(declaredStyle(screen.getByRole("button"), "opacity")).toBe("var(--action-disabled-opacity)")
+    })
+})
+
+describe("ActionBar press parity", () => {
+    it("has no press transform, as Sphere's theme set activeStyles to none", () => {
+        render(<ActionBar items={[makeItem("a")]} onClick={vi.fn()} />)
+        expect(pressedStyle(screen.getByRole("button"), "transform")).toBe("")
     })
 })

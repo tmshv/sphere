@@ -1,0 +1,7 @@
+/* Every child takes an equal share of the row, and may shrink below its
+   content width so a narrow row can't push it past the edge. */
+.grow > * {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 0;
+}

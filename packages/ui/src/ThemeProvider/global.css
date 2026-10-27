@@ -1,0 +1,248 @@
+/* Equal to Mantine 5.10.5 withNormalizeCSS + withGlobalStyles.
+   Specificity matches Mantine's selectors, so the app's own :root and body
+   rules lose or win exactly as they did against Mantine. */
+
+/* A cascade layer, so component and app CSS always beat these rules whatever order the stylesheets load in
+   (production chunk order differs from dev). This mirrors Mantine's `prepend: true` Emotion insertion, which
+   put its global styles before everything else. Unlayered rules win over any layered rule. */
+@layer sphere-base {
+    /* GlobalStyles.js */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: var(--sphere-font-family-sans);
+        background-color: var(--sphere-color-body);
+        color: var(--sphere-color-text);
+        line-height: var(--sphere-line-height-body);
+        font-size: var(--sphere-font-size-md);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* NormalizeCSS.js */
+    html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    article,
+    aside,
+    footer,
+    header,
+    nav,
+    section,
+    figcaption,
+    figure,
+    main {
+        display: block;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+    }
+
+    pre {
+        font-family: monospace, monospace;
+        font-size: 1em;
+    }
+
+    a {
+        background: transparent;
+        text-decoration-skip: objects;
+    }
+
+    a:active,
+    a:hover {
+        outline-width: 0;
+    }
+
+    abbr[title] {
+        border-bottom: none;
+        text-decoration: underline;
+    }
+
+    b,
+    strong {
+        font-weight: bolder;
+    }
+
+    /* "kbp" is Mantine's typo for kbd; kept so the selector matches the same elements. */
+    code,
+    kbp,
+    samp {
+        font-family: monospace, monospace;
+        font-size: 1em;
+    }
+
+    dfn {
+        font-style: italic;
+    }
+
+    mark {
+        background-color: #ff0;
+        color: #000;
+    }
+
+    small {
+        font-size: 80%;
+    }
+
+    sub,
+    sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+    }
+
+    sup {
+        top: -0.5em;
+    }
+
+    sub {
+        bottom: -0.25em;
+    }
+
+    audio,
+    video {
+        display: inline-block;
+    }
+
+    audio:not([controls]) {
+        display: none;
+        height: 0;
+    }
+
+    img {
+        border-style: none;
+        vertical-align: middle;
+    }
+
+    svg:not(:root) {
+        overflow: hidden;
+    }
+
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+        font-family: sans-serif;
+        font-size: 100%;
+        line-height: 1.15;
+        margin: 0;
+    }
+
+    button,
+    input {
+        overflow: visible;
+    }
+
+    button,
+    select {
+        text-transform: none;
+    }
+
+    button,
+    [type="reset"],
+    [type="submit"] {
+        -webkit-appearance: button;
+        appearance: button;
+    }
+
+    button::-moz-focus-inner,
+    [type="button"]::-moz-focus-inner,
+    [type="reset"]::-moz-focus-inner,
+    [type="submit"]::-moz-focus-inner {
+        border-style: none;
+        padding: 0;
+    }
+
+    button:-moz-focusring,
+    [type="button"]:-moz-focusring,
+    [type="reset"]:-moz-focusring,
+    [type="submit"]:-moz-focusring {
+        outline: 1px dotted ButtonText;
+    }
+
+    legend {
+        box-sizing: border-box;
+        color: inherit;
+        display: table;
+        max-width: 100%;
+        padding: 0;
+        white-space: normal;
+    }
+
+    progress {
+        display: inline-block;
+        vertical-align: baseline;
+    }
+
+    textarea {
+        overflow: auto;
+    }
+
+    [type="checkbox"],
+    [type="radio"] {
+        box-sizing: border-box;
+        padding: 0;
+    }
+
+    [type="number"]::-webkit-inner-spin-button,
+    [type="number"]::-webkit-outer-spin-button {
+        height: auto;
+    }
+
+    [type="search"] {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    [type="search"]::-webkit-search-cancel-button,
+    [type="search"]::-webkit-search-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    ::-webkit-file-upload-button {
+        -webkit-appearance: button;
+        appearance: button;
+        font: inherit;
+    }
+
+    details,
+    menu {
+        display: block;
+    }
+
+    summary {
+        display: list-item;
+    }
+
+    canvas {
+        display: inline-block;
+    }
+
+    template {
+        display: none;
+    }
+
+    [hidden] {
+        display: none;
+    }
+}

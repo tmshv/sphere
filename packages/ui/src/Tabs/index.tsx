@@ -1,8 +1,6 @@
-import { Tabs as MantineTabs } from "@mantine/core"
-import type { ReactNode } from "react"
-import { GAP_PX } from "../Layout"
-
-const TAB_HEIGHT_PX = 30
+import { Tabs as BaseTabs } from "@base-ui/react/tabs"
+import type { ComponentProps, ReactNode } from "react"
+import s from "./tabs.module.css"
 
 export type TabItem = {
     value: string
@@ -18,109 +16,94 @@ export type TabsProps = {
     items: ReadonlyArray<TabItem>
 }
 
+type ListKeyDownEvent = Parameters<NonNullable<ComponentProps<typeof BaseTabs.List>["onKeyDown"]>>[0]
+
+const ENABLED_TAB_SELECTOR = '[role="tab"]:not([aria-disabled="true"])'
+
+type NavigationKey = "ArrowLeft" | "ArrowRight" | "Home" | "End"
+
+const NAVIGATION_KEYS: ReadonlySet<string> = new Set<NavigationKey>(["ArrowLeft", "ArrowRight", "Home", "End"])
+
+function isNavigationKey(key: string): key is NavigationKey {
+    return NAVIGATION_KEYS.has(key)
+}
+
+// Index of the tab holding the event target, or -1 when focus is elsewhere (the list itself).
+function indexOfTabContaining(tabs: ReadonlyArray<HTMLElement>, target: EventTarget): number {
+    if (!(target instanceof Node)) {
+        return -1
+    }
+    return tabs.findIndex(tab => tab.contains(target))
+}
+
+// Neighbour of `current` in a ring of `count` tabs. From outside the tabs (-1), forward
+// lands on the first tab and backward on the last.
+function ringNeighbour(current: number, count: number, direction: 1 | -1): number {
+    if (current < 0) {
+        return direction === 1 ? 0 : count - 1
+    }
+    return (current + direction + count) % count
+}
+
+// Base UI exposes no way to skip disabled tabs: TabsList passes `disabledIndices: EMPTY_ARRAY`
+// to its composite (base-ui tabs/list/TabsList.js), so arrows would land on disabled tabs.
+// Mantine skipped them, so the list roves over the enabled tabs itself. Do not remove this
+// unless Base UI gains a skip-disabled option.
+function nextEnabledTab(
+    tabs: ReadonlyArray<HTMLElement>,
+    current: number,
+    key: NavigationKey,
+): HTMLElement | undefined {
+    switch (key) {
+        case "Home":
+            return tabs.at(0)
+        case "End":
+            return tabs.at(-1)
+        case "ArrowRight":
+            return tabs.at(ringNeighbour(current, tabs.length, 1))
+        case "ArrowLeft":
+            return tabs.at(ringNeighbour(current, tabs.length, -1))
+    }
+}
+
 export function Tabs({ value, onChange, items }: TabsProps) {
-    function handleTabChange(next: string | null) {
-        if (next === null) {
+    function handleValueChange(next: unknown) {
+        if (typeof next === "string") {
+            onChange(next)
+        }
+    }
+
+    function handleKeyDown(event: ListKeyDownEvent) {
+        if (!isNavigationKey(event.key)) {
             return
         }
-        onChange(next)
+        const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(ENABLED_TAB_SELECTOR))
+        const target = nextEnabledTab(tabs, indexOfTabContaining(tabs, event.target), event.key)
+        if (!target) {
+            return
+        }
+        event.preventDefault()
+        event.preventBaseUIHandler?.()
+        target.focus()
     }
 
     return (
-        <MantineTabs
-            unstyled
-            keepMounted={false}
-            value={value}
-            onTabChange={handleTabChange}
-            styles={theme => ({
-                // The tabs own the whole sidebar height: the list keeps its
-                // natural height and the active panel takes the rest, so the
-                // panel content scrolls inside the sidebar instead of running
-                // past its bottom edge.
-                root: {
-                    width: "100%",
-                    height: "100%",
-                    minHeight: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-                },
-                panel: {
-                    flex: "1 1 0",
-                    minHeight: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-
-                    // Toolbars and headers keep their height; the one child
-                    // that scrolls (SectionStack) opts out via its own
-                    // createStyles class.
-                    "& > *": {
-                        flexShrink: 0,
-                    },
-                },
-                tab: {
-                    ...theme.fn.focusStyles(),
-                    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
-                    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[9],
-                    border: `1px solid ${theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[4]}`,
-                    height: TAB_HEIGHT_PX,
-                    cursor: "pointer",
-                    fontSize: theme.fontSizes.sm,
-                    display: "flex",
-                    alignItems: "center",
-
-                    "&:disabled": {
-                        opacity: 0.5,
-                        cursor: "not-allowed",
-                    },
-
-                    "&:not(:first-of-type)": {
-                        borderLeft: 0,
-                    },
-
-                    "&:first-of-type": {
-                        borderTopLeftRadius: theme.radius.sm,
-                        borderBottomLeftRadius: theme.radius.sm,
-                    },
-
-                    "&:last-of-type": {
-                        borderTopRightRadius: theme.radius.sm,
-                        borderBottomRightRadius: theme.radius.sm,
-                    },
-
-                    "&[data-active]": {
-                        backgroundColor: theme.colors.blue[7],
-                        borderColor: theme.colors.blue[7],
-                        color: theme.white,
-                    },
-                },
-
-                tabIcon: {
-                    marginRight: theme.spacing.xs,
-                    display: "flex",
-                    alignItems: "center",
-                },
-
-                tabsList: {
-                    display: "flex",
-                    flexShrink: 0,
-                },
-            })}
-        >
-            <MantineTabs.List p={GAP_PX.sm}>
+        <BaseTabs.Root className={s.root} value={value} onValueChange={handleValueChange}>
+            {/* Mantine activates a tab as soon as arrow keys focus it. */}
+            <BaseTabs.List className={s.list} activateOnFocus onKeyDown={handleKeyDown}>
                 {items.map(item => (
-                    <MantineTabs.Tab key={item.value} value={item.value} icon={item.icon} disabled={item.disabled}>
-                        {item.label}
-                    </MantineTabs.Tab>
+                    <BaseTabs.Tab key={item.value} className={s.tab} value={item.value} disabled={item.disabled}>
+                        {item.icon ? <div className={s.icon}>{item.icon}</div> : null}
+                        <div>{item.label}</div>
+                    </BaseTabs.Tab>
                 ))}
-            </MantineTabs.List>
+            </BaseTabs.List>
 
             {items.map(item => (
-                <MantineTabs.Panel key={item.value} value={item.value}>
+                <BaseTabs.Panel key={item.value} className={s.panel} value={item.value}>
                     {item.content}
-                </MantineTabs.Panel>
+                </BaseTabs.Panel>
             ))}
-        </MantineTabs>
+        </BaseTabs.Root>
     )
 }

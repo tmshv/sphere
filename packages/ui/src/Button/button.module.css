@@ -1,0 +1,108 @@
+/* Mantine 5 Button.styles.js: size xs, radius sm, variant filled (primary and gray), plus the light and subtle
+   variants only ErrorFallback uses (not part of the public ButtonVariant).
+   These rules override the shared .unstyledButton (border, padding, font-size, colour, background), so each is
+   doubled to win by specificity, never by stylesheet order (R10). */
+.button.button {
+    --button-height: 30px;
+    --button-padding-x: 14px;
+
+    height: var(--button-height);
+    padding-left: var(--button-padding-x);
+    padding-right: var(--button-padding-x);
+    display: inline-block;
+    width: auto;
+    border-radius: var(--sphere-radius-sm);
+    font-weight: var(--sphere-font-weight-semibold);
+    position: relative;
+    line-height: 1;
+    font-size: var(--sphere-font-size-xs);
+    user-select: none;
+    /* Mantine set pointer, but the app's global `button:hover { cursor: default }` beat it; this rule is doubled, so it must say default. */
+    cursor: default;
+    border: 1px solid transparent;
+    color: var(--sphere-color-on-accent);
+}
+
+.button.primary {
+    background-color: var(--sphere-color-accent);
+}
+
+.button.secondary {
+    background-color: var(--sphere-color-button-secondary-bg);
+}
+
+@media (hover: hover) {
+    .button.primary:hover {
+        background-color: var(--sphere-color-accent-hover);
+    }
+
+    .button.secondary:hover {
+        background-color: var(--sphere-color-button-secondary-hover);
+    }
+}
+
+@media (hover: none) {
+    .button.primary:active {
+        background-color: var(--sphere-color-accent-hover);
+    }
+
+    .button.secondary:active {
+        background-color: var(--sphere-color-button-secondary-hover);
+    }
+}
+
+.button.light {
+    background-color: var(--sphere-color-button-light-bg);
+    color: var(--sphere-color-button-light-text);
+}
+
+.button.subtle {
+    background-color: transparent;
+    color: var(--sphere-color-button-light-text);
+}
+
+@media (hover: hover) {
+    .button.light:hover {
+        background-color: var(--sphere-color-button-light-hover);
+    }
+
+    .button.subtle:hover {
+        background-color: var(--sphere-color-button-subtle-hover);
+    }
+}
+
+@media (hover: none) {
+    .button.light:active {
+        background-color: var(--sphere-color-button-light-hover);
+    }
+
+    .button.subtle:active {
+        background-color: var(--sphere-color-button-subtle-hover);
+    }
+}
+
+.button.button:disabled,
+.button.button[data-disabled] {
+    border-color: transparent;
+    background-color: var(--sphere-color-button-disabled-bg);
+    color: var(--sphere-color-button-disabled-text);
+    cursor: not-allowed;
+    background-image: none;
+    pointer-events: none;
+}
+
+.inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    overflow: visible;
+}
+
+.label {
+    white-space: nowrap;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}

@@ -1,0 +1,123 @@
+/* Mantine 5 Slider at size xs, radius xl: SliderRoot, Track and Thumb styles. */
+.control {
+    /* SliderRoot.styles.js sizes.xs: track height and half the thumb. */
+    --slider-size: 4px;
+    /* Thumb.styles.js: border: var(--slider-thumb-border-width) solid. */
+    --slider-thumb-border-width: 4px;
+    /* Thumb.styles.js: borderRadius 1e3, a pill. */
+    --slider-pill-radius: 1000px;
+    /* Thumb.styles.js dragging: scale(var(--slider-thumb-drag-scale)). */
+    --slider-thumb-drag-scale: 1.05;
+    /* Thumb.styles.js label: top -36. */
+    --slider-label-offset: -36px;
+    /* fn.focusStyles: 2px ring, 2px offset. */
+    --slider-focus-width: 2px;
+    --slider-focus-offset: 2px;
+    /* Mantine 5 Slider Track, Bar and Thumb styles: track 0, bar 1, thumb 3. */
+    --slider-track-z-index: 0;
+    --slider-bar-z-index: 1;
+    --slider-thumb-z-index: 3;
+
+    -webkit-tap-highlight-color: transparent;
+    outline: 0;
+    height: calc(var(--slider-size) * 2);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.track {
+    position: relative;
+    height: var(--slider-size);
+    width: 100%;
+    margin-right: var(--slider-size);
+    margin-left: var(--slider-size);
+}
+
+/* The track background reaches one slider size past both ends of the track. */
+.track::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: var(--sphere-radius-xl);
+    right: calc(var(--slider-size) * -1);
+    left: calc(var(--slider-size) * -1);
+    background-color: var(--sphere-color-slider-track);
+    z-index: var(--slider-track-z-index);
+}
+
+.bar {
+    position: absolute;
+    z-index: var(--slider-bar-z-index);
+    top: 0;
+    bottom: 0;
+    left: calc(var(--slider-size) * -1);
+    background-color: var(--sphere-color-accent);
+    border-radius: var(--sphere-radius-xl);
+}
+
+.thumb {
+    box-sizing: border-box;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--slider-size) * 2);
+    width: calc(var(--slider-size) * 2);
+    background-color: var(--sphere-color-slider-thumb-bg);
+    border: var(--slider-thumb-border-width) solid var(--sphere-color-slider-thumb-border);
+    color: var(--sphere-color-slider-thumb-border);
+    cursor: pointer;
+    border-radius: var(--slider-pill-radius);
+    transition-duration: var(--sphere-duration-fast);
+    transition-property: box-shadow, transform;
+    transition-timing-function: ease;
+    z-index: var(--slider-thumb-z-index);
+    user-select: none;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.thumb[data-dragging] {
+    /* Base UI centres the thumb with the translate property, so only the scale is set here. */
+    transform: scale(var(--slider-thumb-drag-scale));
+    box-shadow: var(--sphere-shadow-sm);
+}
+
+/* Mantine's fn.focusStyles on the thumb: a ring on keyboard focus only. */
+.thumb:has(:focus-visible) {
+    outline: var(--slider-focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--slider-focus-offset);
+}
+
+.thumb:has(:focus:not(:focus-visible)) {
+    outline: none;
+}
+
+.thumb input {
+    pointer-events: none;
+}
+
+/* The value label: shown while hovering the track, dragging, or keyboard focus. */
+.label {
+    display: none;
+    position: absolute;
+    top: var(--slider-label-offset);
+    background-color: var(--sphere-color-slider-label-bg);
+    font-size: var(--sphere-font-size-xs);
+    color: var(--sphere-color-slider-label-text);
+    padding: calc(var(--sphere-space-xs) / 2);
+    border-radius: var(--sphere-radius-sm);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    touch-action: none;
+}
+
+.track:hover .label,
+.thumb[data-dragging] .label,
+.thumb:has(:focus-visible) .label {
+    display: block;
+}

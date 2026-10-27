@@ -1,0 +1,94 @@
+/* Mantine 5 SegmentedControl.styles.js: size xs, no colour. The active background is
+   drawn on the control itself, as Mantine does before its first animation; the sliding
+   indicator and the colour transitions are not reproduced. */
+.root {
+    --segmented-padding: 4px;
+    /* SegmentedControl.styles.js: each control sits above the sliding indicator (zIndex 2). */
+    --segmented-control-z-index: 2;
+    /* Mantine 5 fn.focusStyles: 2px ring, 2px offset (SegmentedControl.styles.js label). */
+    --segmented-focus-width: 2px;
+    --segmented-focus-offset: 2px;
+    /* SegmentedControl.styles.js, size xs: label padding 3px 6px. */
+    --segmented-label-padding-y: 3px;
+    --segmented-label-padding-x: 6px;
+
+    position: relative;
+    display: inline-flex;
+    width: auto;
+    flex-direction: row;
+    background-color: var(--sphere-color-segmented-bg);
+    border-radius: var(--sphere-radius-sm);
+    overflow: hidden;
+    padding: var(--segmented-padding);
+}
+
+.control {
+    position: relative;
+    box-sizing: border-box;
+    flex: 1;
+    z-index: var(--segmented-control-z-index);
+}
+
+.control:not(:first-of-type) {
+    border-style: solid;
+    border-width: 0 0 0 1px;
+    border-color: var(--sphere-color-segmented-divider);
+}
+
+.controlActive {
+    border-left-color: transparent !important;
+    border-radius: var(--sphere-radius-sm);
+    box-shadow: var(--sphere-shadow-xs);
+    background-color: var(--sphere-color-segmented-active-bg);
+}
+
+/* Mantine drops the shadow in the dark scheme. */
+:root[data-theme="dark"] .controlActive {
+    box-shadow: none;
+}
+
+.controlActive + .control {
+    border-left-color: transparent !important;
+}
+
+.label {
+    /* Mantine 5 fn.focusStyles on the label. */
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--sphere-font-family-sans);
+    border-radius: var(--sphere-radius-sm);
+    font-weight: var(--sphere-font-weight-medium);
+    font-size: var(--sphere-font-size-xs);
+    line-height: inherit;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: var(--segmented-label-padding-y) var(--segmented-label-padding-x);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    color: var(--sphere-color-segmented-text);
+    border: 0;
+    margin: 0;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.label:hover {
+    color: var(--sphere-color-segmented-text-hover);
+}
+
+.label[data-checked],
+.label[data-checked]:hover {
+    color: var(--sphere-color-segmented-active-text);
+}
+
+.label:focus-visible {
+    outline: var(--segmented-focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--segmented-focus-offset);
+}
+
+.label:focus:not(:focus-visible) {
+    outline: none;
+}

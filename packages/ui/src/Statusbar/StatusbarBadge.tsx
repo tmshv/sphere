@@ -1,41 +1,6 @@
-import { Badge, createStyles } from "@mantine/core"
 import type { ReactNode } from "react"
-
-// Fixed widths keep a changing readout (zoom, coordinates) from shoving its
-// neighbours around.
-const WIDTH_SHORT_PX = 90
-const WIDTH_LONG_PX = 101
-
-const useStyle = createStyles(theme => ({
-    widget: {
-        fontFamily: "monospace",
-        userSelect: "none",
-        cursor: "default",
-
-        justifyContent: "start",
-
-        // For pixel perfect vertical alignment.
-        // Works together with Statusbar height 27 px
-        position: "relative",
-        top: 1,
-
-        backgroundColor: theme.colors.dark,
-        color: theme.white,
-    },
-
-    error: {
-        backgroundColor: theme.colors.red[8],
-        color: theme.white,
-    },
-
-    short: {
-        width: WIDTH_SHORT_PX,
-    },
-
-    long: {
-        width: WIDTH_LONG_PX,
-    },
-}))
+import { Badge } from "../internal"
+import s from "./statusbar-badge.module.css"
 
 export type StatusbarBadgeWidth = "auto" | "short" | "long"
 export type StatusbarBadgeTone = "default" | "error"
@@ -48,20 +13,15 @@ export type StatusbarBadgeProps = {
 }
 
 export function StatusbarBadge({ children, title, width = "auto", tone = "default" }: StatusbarBadgeProps) {
-    const { classes, cx } = useStyle()
     const isError = tone === "error"
+    const classes = [s.widget, width === "short" && s.short, width === "long" && s.long, isError && s.error]
 
     return (
         <Badge
-            className={cx(
-                classes.widget,
-                width === "short" && classes.short,
-                width === "long" && classes.long,
-                isError && classes.error,
-            )}
+            className={classes.filter(Boolean).join(" ")}
             title={title}
-            radius={"sm"}
-            size={"sm"}
+            radius="sm"
+            size="sm"
             variant={isError ? "filled" : "light"}
         >
             {children}

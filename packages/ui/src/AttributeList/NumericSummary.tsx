@@ -1,4 +1,4 @@
-import { Stack } from "@mantine/core"
+import { Stack } from "../Layout"
 import { BarChart } from "../PropertiesTable/BarChart"
 import type { FieldSummary } from "."
 import { InfoRow } from "../InfoRow"
@@ -13,7 +13,7 @@ export type NumericSummaryProps = {
 
 export function NumericSummary({ summary }: NumericSummaryProps) {
     return (
-        <Stack spacing={2}>
+        <Stack gap="xxs">
             <BarChart
                 data={summary.histogram}
                 width={HISTOGRAM_WIDTH}

@@ -1,5 +1,10 @@
-import { Button, Group, Stack, Text, createStyles } from "@mantine/core"
+import { Button as BaseButton } from "@base-ui/react/button"
 import type { FallbackProps } from "react-error-boundary"
+import button from "../Button/button.module.css"
+import { unstyledButton } from "../internal"
+import { Row, Stack } from "../Layout"
+import { textClassName } from "../Text/text-class"
+import s from "./error-fallback.module.css"
 
 type Variant = "fullscreen" | "sidebar"
 
@@ -7,40 +12,40 @@ type ErrorFallbackProps = FallbackProps & {
     variant: Variant
 }
 
-const useStyles = createStyles((theme, { variant }: { variant: Variant }) => ({
-    root: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: variant === "sidebar" ? theme.spacing.sm : theme.spacing.xl,
-    },
-    message: {
-        maxWidth: variant === "sidebar" ? "100%" : 420,
-    },
-}))
+const TITLE_CLASS: Record<Variant, string> = {
+    sidebar: textClassName({ weight: "semibold", extra: [s.titleSidebar] }),
+    fullscreen: textClassName({ weight: "semibold", extra: [s.titleFullscreen] }),
+}
+
+const MESSAGE_CLASS = textClassName({ tone: "dimmed", extra: [s.messageText] })
+
+const VARIANT_CLASS: Record<Variant, string> = {
+    sidebar: s.sidebar,
+    fullscreen: s.fullscreen,
+}
+
+// The Button's own box with the light and subtle variants, which are not part of the public ButtonVariant.
+const LIGHT_CLASSES = [unstyledButton, button.button, button.light].join(" ")
+const SUBTLE_CLASSES = [unstyledButton, button.button, button.subtle].join(" ")
 
 export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallbackProps) {
-    const { classes } = useStyles({ variant })
-
     return (
-        <div className={classes.root}>
-            <Stack spacing="sm" className={classes.message}>
-                <Text weight={600} size={variant === "sidebar" ? "sm" : "lg"}>
-                    Something went wrong
-                </Text>
-                <Text size="xs" color="dimmed" lineClamp={3}>
-                    {error instanceof Error ? error.message : String(error)}
-                </Text>
-                <Group spacing="xs">
-                    <Button size="xs" variant="light" onClick={resetErrorBoundary}>
-                        Try Again
-                    </Button>
-                    <Button size="xs" variant="subtle" onClick={() => window.location.reload()}>
-                        Reload App
-                    </Button>
-                </Group>
+        <div className={`${s.root} ${VARIANT_CLASS[variant]}`}>
+            <Stack gap="sm" className={s.message}>
+                <div className={TITLE_CLASS[variant]}>Something went wrong</div>
+                <div className={MESSAGE_CLASS}>{error instanceof Error ? error.message : String(error)}</div>
+                <Row gap="xs" align="center" className={s.actions}>
+                    <BaseButton type="button" className={LIGHT_CLASSES} onClick={resetErrorBoundary}>
+                        <div className={button.inner}>
+                            <span className={button.label}>Try Again</span>
+                        </div>
+                    </BaseButton>
+                    <BaseButton type="button" className={SUBTLE_CLASSES} onClick={() => window.location.reload()}>
+                        <div className={button.inner}>
+                            <span className={button.label}>Reload App</span>
+                        </div>
+                    </BaseButton>
+                </Row>
             </Stack>
         </div>
     )

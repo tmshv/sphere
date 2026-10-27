@@ -1,10 +1,12 @@
-import { UnstyledButton, createStyles } from "@mantine/core"
 import { IconChevronRight } from "@tabler/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
+import { unstyledButton } from "../internal"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"
 import { restoreSize } from "../Split/sizes"
 import { defaultSizesOf, isSpacerVisible, mergeSections, resolveSections, SPACER_MIN_SIZE } from "./layout"
+import s from "./section-stack.module.css"
 
+// Also declared as --header-height in section-stack.module.css; a test pins them together.
 export const SECTION_HEADER_HEIGHT = 30
 const DEFAULT_MIN_CONTENT_SIZE = 120
 const CHEVRON_SIZE = 14
@@ -26,55 +28,6 @@ export function Section({ children }: SectionProps) {
 function isSection(node: React.ReactNode): node is React.ReactElement<SectionProps> {
     return isValidElement<SectionProps>(node) && node.type === Section
 }
-
-const useStyles = createStyles(theme => ({
-    root: {
-        flex: "1 1 0",
-        minHeight: 0,
-    },
-    section: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        minHeight: 0,
-        overflow: "hidden",
-    },
-    header: {
-        flexShrink: 0,
-        display: "flex",
-        alignItems: "center",
-        gap: theme.spacing.xs,
-        height: SECTION_HEADER_HEIGHT,
-        paddingLeft: theme.spacing.sm,
-        paddingRight: theme.spacing.sm,
-        fontSize: theme.fontSizes.sm,
-        color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[9],
-        backgroundColor: theme.colorScheme === "dark" ? theme.colors.gray[9] : theme.white,
-        borderTop: `1px solid ${theme.colorScheme === "dark" ? theme.colors.gray[8] : theme.colors.gray[3]}`,
-        ...theme.fn.focusStyles(),
-    },
-    chevron: {
-        flexShrink: 0,
-        transition: "transform 150ms ease",
-    },
-    chevronOpen: {
-        transform: "rotate(90deg)",
-    },
-    // A section pads above and below its content but not either side: a child
-    // that scrolls has to reach the section's own edge, or the overlay
-    // scrollbar macOS draws there lands on top of the text. The inset either
-    // side is the child's to apply, inside whatever it scrolls — PanelBody
-    // does exactly that.
-    body: {
-        flex: "1 1 auto",
-        minHeight: 0,
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        paddingTop: theme.spacing.sm,
-        paddingBottom: theme.spacing.sm,
-    },
-}))
 
 export type SectionLayout = {
     name: string
@@ -102,7 +55,6 @@ function layoutOf(resolved: SectionLayout[], name: string): SectionLayout {
 }
 
 function SectionStackRoot({ sections: rows, onSectionsChange, children }: SectionStackProps) {
-    const { classes: s, cx } = useStyles()
     const baseId = useId()
     const handle = useRef<SplitViewHandle>(null)
     const sizes = useRef<number[]>([])
@@ -236,18 +188,19 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                         maxSize={open ? Number.POSITIVE_INFINITY : SECTION_HEADER_HEIGHT}
                     >
                         <div className={s.section}>
-                            <UnstyledButton
-                                className={s.header}
+                            <button
+                                type={"button"}
+                                className={`${unstyledButton} ${s.header}`}
                                 onClick={() => toggle(section)}
                                 aria-expanded={open}
                                 aria-controls={open ? bodyId : undefined}
                             >
                                 <IconChevronRight
-                                    className={cx(s.chevron, { [s.chevronOpen]: open })}
+                                    className={open ? `${s.chevron} ${s.chevronOpen}` : s.chevron}
                                     size={CHEVRON_SIZE}
                                 />
                                 <span>{section.props.title}</span>
-                            </UnstyledButton>
+                            </button>
 
                             {!open ? null : (
                                 <div id={bodyId} className={s.body}>

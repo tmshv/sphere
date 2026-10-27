@@ -12,9 +12,10 @@ export type BarsProps = {
     width: number
     height: number
     color: string
+    className?: string
 }
 
-export function BarChart({ data, min, max, width, height, color }: BarsProps) {
+export function BarChart({ data, min, max, width, height, color, className }: BarsProps) {
     const radius = 3
     // bounds
     const xMax = width
@@ -45,7 +46,7 @@ export function BarChart({ data, min, max, width, height, color }: BarsProps) {
     )
 
     return width < 10 ? null : (
-        <svg width={width} height={height} aria-hidden="true">
+        <svg width={width} height={height} aria-hidden="true" className={className}>
             <rect width={width} height={height} fill={color} opacity={0.25} rx={radius} />
 
             <Group top={verticalMargin / 2}>

@@ -1,0 +1,116 @@
+/*
+ * Mantine 5 ColorPicker at size xs, drawn with react-colorful's markup.
+ *
+ * react-colorful injects its own stylesheet into <head> on first render, after this one.
+ * Every rule here is scoped under .picker, so it has more specificity than the library's
+ * single-class rules and wins whatever the order.
+ *
+ * Mantine paints the colour area 5px (half a thumb plus a pixel) past the box the thumb
+ * moves in. So the library's saturation and hue elements are the painted area, and the
+ * interactive child, which the library measures, is inset by those 5px.
+ */
+.badge {
+    margin-left: var(--sphere-space-xs);
+}
+
+.picker {
+    /* Thumb.styles.js THUMB_SIZES.xs. */
+    --thumb-size: 8px;
+    /* Thumb.styles.js: border: 2px solid. */
+    --thumb-border-width: 2px;
+    /* Half a thumb plus a pixel: how far the painted area reaches past the moving box. */
+    --area-reach: 5px;
+    /* ColorSlider.styles.js: thumb size + 2. */
+    --slider-height: 10px;
+    /* Sphere's override of Saturation height (Saturation.styles.js xs is 100). */
+    --saturation-height: 130px;
+    /* ColorPicker body padding-top 2 + Sphere's slider margin-top spacing.sm (12) - 1 (painted-area offset). */
+    --hue-gap: 13px;
+    /* ColorPicker.styles.js wrapper: padding 1. */
+    --picker-padding: 1px;
+    /* ColorSlider.styles.js: borderRadius 1000, a pill. */
+    --pill-radius: 1000px;
+    /* fn.focusStyles: 2px ring, 2px offset. */
+    --focus-width: 2px;
+    --focus-offset: 2px;
+    /* HueSlider.js ring and glow sizes. */
+    --hue-ring-width: 1px;
+    --hue-glow-blur: 4px;
+    /* Thumb.styles.js boxShadow blur. */
+    --thumb-shadow-blur: 1px;
+
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--picker-padding);
+}
+
+.picker :global(.react-colorful) {
+    width: 100%;
+    height: auto;
+    padding: 0;
+    cursor: default;
+}
+
+.picker :global(.react-colorful__saturation) {
+    flex: none;
+    height: calc(var(--saturation-height) + 2 * var(--area-reach));
+    margin: calc(var(--picker-padding) * -1) calc(var(--picker-padding) * -1) 0;
+    border: 0;
+    border-radius: var(--sphere-radius-sm);
+    /* react-colorful draws an inset hairline on the area; Mantine's saturation has none. */
+    box-shadow: none;
+    /* Black and white gradient stops are colour math, not theme colours. */
+    background-image: linear-gradient(0deg, #000, transparent), linear-gradient(90deg, #fff, transparent);
+}
+
+.picker :global(.react-colorful__hue) {
+    flex: none;
+    height: var(--slider-height);
+    margin: var(--hue-gap) calc(var(--picker-padding) * -1) 0;
+    border-radius: var(--pill-radius);
+    background: linear-gradient(
+        to right,
+        hsl(0, 100%, 50%),
+        hsl(60, 100%, 50%),
+        hsl(120, 100%, 50%),
+        hsl(170, 100%, 50%),
+        hsl(240, 100%, 50%),
+        hsl(300, 100%, 50%),
+        hsl(360, 100%, 50%)
+    );
+    box-shadow:
+        var(--sphere-color-hue-ring) 0 0 0 var(--hue-ring-width) inset,
+        var(--sphere-color-hue-glow) 0 0 var(--hue-glow-blur) inset;
+}
+
+.picker :global(.react-colorful__saturation .react-colorful__interactive) {
+    inset: var(--area-reach);
+    border-radius: 0;
+}
+
+.picker :global(.react-colorful__hue .react-colorful__interactive) {
+    inset: 0 var(--area-reach);
+    border-radius: 0;
+}
+
+/* Mantine Thumb.styles.js. */
+.picker :global(.react-colorful__pointer) {
+    overflow: hidden;
+    box-sizing: border-box;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border: var(--thumb-border-width) solid var(--sphere-color-color-thumb-border);
+    border-radius: var(--thumb-size);
+    background-color: transparent;
+    box-shadow: 0 0 var(--thumb-shadow-blur) var(--sphere-color-color-thumb-shadow);
+}
+
+/* Mantine shows a ring on the thumb for keyboard focus and does not scale it. */
+.picker :global(.react-colorful__interactive:focus) :global(.react-colorful__pointer) {
+    transform: translate(-50%, -50%);
+}
+
+.picker :global(.react-colorful__interactive:focus-visible) :global(.react-colorful__pointer) {
+    outline: var(--focus-width) solid var(--sphere-color-focus-ring);
+    outline-offset: var(--focus-offset);
+}

@@ -1,0 +1,19 @@
+.select {
+    --statusbar-select-font-size: 10px;
+    --statusbar-select-line-height: 16px;
+    --statusbar-select-letter-spacing: 0.25px;
+
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    font-family: monospace;
+    font-size: var(--statusbar-select-font-size);
+    line-height: var(--statusbar-select-line-height);
+    text-transform: uppercase;
+    font-weight: var(--sphere-font-weight-bold);
+    letter-spacing: var(--statusbar-select-letter-spacing);
+    cursor: pointer;
+    outline: none;
+    border-radius: var(--sphere-radius-sm);
+    padding: 0 var(--sphere-space-xs);
+}

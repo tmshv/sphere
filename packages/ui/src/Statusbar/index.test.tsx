@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { Statusbar, StatusbarBadge, StatusbarButton } from "."
@@ -64,31 +64,33 @@ describe("StatusbarBadge", () => {
         expect(screen.getByTitle("Longitude")).toHaveTextContent("lng=0")
     })
 
-    it("is 90px wide when short", () => {
+    it("is the short width when short", () => {
         render(
             <StatusbarBadge width="short" title="Pitch">
                 pitch=0
             </StatusbarBadge>,
         )
-        expect(screen.getByTitle("Pitch")).toHaveStyle({ width: "90px" })
+        expect(declaredStyle(screen.getByTitle("Pitch"), "width")).toBe("var(--statusbar-badge-width-short)")
     })
 
-    it("is 101px wide when long", () => {
+    it("is the long width when long", () => {
         render(
             <StatusbarBadge width="long" title="Lng">
                 lng=0
             </StatusbarBadge>,
         )
-        expect(screen.getByTitle("Lng")).toHaveStyle({ width: "101px" })
+        expect(declaredStyle(screen.getByTitle("Lng"), "width")).toBe("var(--statusbar-badge-width-long)")
     })
 
     it("has no fixed width by default", () => {
         render(<StatusbarBadge title="Auto">auto</StatusbarBadge>)
-        expect(screen.getByTitle("Auto")).not.toHaveStyle({ width: "90px" })
+        expect(declaredStyle(screen.getByTitle("Auto"), "width")).toBe("auto")
     })
 
     it("renders the error tone", () => {
         render(<StatusbarBadge tone="error">boom</StatusbarBadge>)
-        expect(screen.getByText("boom")).toBeInTheDocument()
+        const badge = screen.getByText("boom").parentElement
+        expect(badge).not.toBeNull()
+        if (badge) expect(declaredStyle(badge, "background")).toBe("var(--sphere-color-danger)")
     })
 })

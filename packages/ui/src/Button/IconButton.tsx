@@ -1,12 +1,14 @@
-import { ActionIcon, type MantineSize } from "@mantine/core"
+import { Button as BaseButton } from "@base-ui/react/button"
 import type { ReactNode } from "react"
+import { unstyledButton } from "../internal"
+import s from "./icon-button.module.css"
 
 export type IconButtonSize = "sm" | "md"
 export type IconButtonAppearance = "subtle" | "solid"
 
-const ACTION_ICON_SIZE: Record<IconButtonSize, MantineSize> = {
-    sm: "xs",
-    md: "md",
+const SIZE_CLASS: Record<IconButtonSize, string> = {
+    sm: s.sizeSm,
+    md: s.sizeMd,
 }
 
 export type IconButtonProps = {
@@ -29,11 +31,11 @@ export function IconButton({
     appearance = "subtle",
 }: IconButtonProps) {
     const filled = appearance === "solid" && active === true
+    const classes = [unstyledButton, s.iconButton, SIZE_CLASS[size], filled ? s.filled : s.subtle]
 
     return (
-        <ActionIcon
-            size={ACTION_ICON_SIZE[size]}
-            variant={filled ? "filled" : "subtle"}
+        <BaseButton
+            className={classes.join(" ")}
             aria-label={label}
             aria-pressed={active}
             title={label}
@@ -41,6 +43,6 @@ export function IconButton({
             onClick={() => onClick()}
         >
             {icon}
-        </ActionIcon>
+        </BaseButton>
     )
 }

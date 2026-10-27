@@ -1,8 +1,7 @@
-import { SegmentedControl as MantineSegmentedControl } from "@mantine/core"
+import { Radio } from "@base-ui/react/radio"
+import { RadioGroup } from "@base-ui/react/radio-group"
+import s from "./segmented-control.module.css"
 import type { SelectOption } from "./Select"
-
-const CONTROL_SIZE = "xs"
-const RADIO_GROUP_ROLE = "radiogroup"
 
 export type SegmentedControlProps = {
     options: ReadonlyArray<SelectOption>
@@ -13,14 +12,22 @@ export type SegmentedControlProps = {
 }
 
 export function SegmentedControl({ options, value, onChange, label }: SegmentedControlProps) {
+    if (options.length === 0) {
+        return null
+    }
+
     return (
-        <MantineSegmentedControl
-            size={CONTROL_SIZE}
-            data={[...options]}
-            value={value}
-            onChange={onChange}
-            role={RADIO_GROUP_ROLE}
-            aria-label={label}
-        />
+        <RadioGroup className={s.root} aria-label={label} value={value} onValueChange={next => onChange(next)}>
+            {options.map(option => {
+                const active = option.value === value
+                return (
+                    <div key={option.value} className={active ? `${s.control} ${s.controlActive}` : s.control}>
+                        <Radio.Root value={option.value} className={s.label}>
+                            {option.label}
+                        </Radio.Root>
+                    </div>
+                )
+            })}
+        </RadioGroup>
     )
 }

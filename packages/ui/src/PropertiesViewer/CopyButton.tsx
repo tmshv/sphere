@@ -1,38 +1,59 @@
-import { ActionIcon, Tooltip, createStyles } from "@mantine/core"
 import { IconCheck, IconCopy } from "@tabler/icons"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import iconButton from "../Button/icon-button.module.css"
+import { Tooltip, unstyledButton } from "../internal"
+import s from "./properties-viewer.module.css"
 
-const useStyles = createStyles({
-    btn: {
-        opacity: 0,
-        "&:hover": {
-            opacity: 1,
-        },
-    },
-    copied: {
-        opacity: 1,
-    },
-})
+const ICON_SIZE = 12
+const FEEDBACK_MS = 1500
+
+type CopyStatus = "idle" | "copied" | "failed"
+
+const LABEL: Record<CopyStatus, string> = {
+    idle: "Copy",
+    copied: "Copied!",
+    failed: "Copy failed",
+}
 
 type CopyButtonProps = {
     value: string
 }
 
 export function CopyButton({ value }: CopyButtonProps) {
-    const { classes: s } = useStyles()
-    const [copied, setCopied] = useState(false)
+    const [status, setStatus] = useState<CopyStatus>("idle")
+    const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(value)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
+    useEffect(() => () => clearTimeout(timer.current), [])
+
+    const show = (next: CopyStatus) => {
+        clearTimeout(timer.current)
+        setStatus(next)
+        timer.current = setTimeout(() => setStatus("idle"), FEEDBACK_MS)
     }
 
+    // "Copied" appears only once the clipboard accepted the text; a refusal shows in the tooltip.
+    const handleCopy = () => {
+        navigator.clipboard
+            .writeText(value)
+            .then(() => show("copied"))
+            .catch(() => show("failed"))
+    }
+
+    const copied = status === "copied"
+    const label = LABEL[status]
+    const classes = [
+        unstyledButton,
+        iconButton.iconButton,
+        iconButton.sizeSm,
+        iconButton.subtle,
+        copied ? s.copied : s.copy,
+    ]
+
     return (
-        <Tooltip label={copied ? "Copied!" : "Copy"} withArrow>
-            <ActionIcon className={copied ? s.copied : s.btn} size="xs" onClick={handleCopy}>
-                {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
-            </ActionIcon>
+        <Tooltip label={label} arrow>
+            <button type="button" aria-label={label} className={classes.join(" ")} onClick={handleCopy}>
+                {copied ? <IconCheck size={ICON_SIZE} /> : <IconCopy size={ICON_SIZE} />}
+            </button>
         </Tooltip>
     )
 }

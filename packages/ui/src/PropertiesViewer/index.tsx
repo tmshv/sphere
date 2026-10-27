@@ -1,21 +1,7 @@
 import { isUrl } from "@sphere/utils"
-import { Image, createStyles } from "@mantine/core"
+import { ValueImage } from "../internal"
 import { CopyButton } from "./CopyButton"
-
-const useStyles = createStyles(theme => ({
-    table: {
-        minWidth: 300,
-        width: "100%",
-        paddingBottom: theme.spacing.sm,
-        fontSize: 12,
-    },
-    key: {
-        display: "flex",
-    },
-    value: {
-        maxWidth: 200,
-    },
-}))
+import s from "./properties-viewer.module.css"
 
 export type PropertiesViewerProps = {
     properties: { key: string; value: string }[]
@@ -23,8 +9,6 @@ export type PropertiesViewerProps = {
 }
 
 export function PropertiesViewer({ properties, checkUrls = false }: PropertiesViewerProps) {
-    const { classes: s } = useStyles()
-
     return (
         <table className={s.table}>
             <tbody>
@@ -33,7 +17,7 @@ export function PropertiesViewer({ properties, checkUrls = false }: PropertiesVi
                         <td className={s.key}>{key}</td>
                         <td className={s.value}>
                             {checkUrls && isUrl(value) ? (
-                                <Image src={value} width={120} height={120} />
+                                <ValueImage src={value} alt={key} size="large" />
                             ) : (
                                 <span>{value}</span>
                             )}

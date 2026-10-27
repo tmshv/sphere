@@ -1,22 +1,8 @@
-import { Text as MantineText, Title } from "@mantine/core"
 import type { CSSProperties, ReactNode } from "react"
+import s from "./text.module.css"
+import { type TextTone, type TextWeight, textClassName } from "./text-class"
 
-export type TextTone = "default" | "dimmed" | "warning"
-export type TextWeight = "normal" | "medium" | "semibold"
-
-const TONE_COLOR: Record<TextTone, string | undefined> = {
-    default: undefined,
-    dimmed: "dimmed",
-    warning: "orange",
-}
-
-const WEIGHT: Record<TextWeight, number> = {
-    normal: 400,
-    medium: 500,
-    semibold: 600,
-}
-
-const HEADING_ORDER = 3
+export type { TextTone, TextWeight }
 
 export type TextProps = {
     tone?: TextTone
@@ -28,15 +14,9 @@ export type TextProps = {
 
 export function Text({ tone = "default", weight, uppercase = false, style, children }: TextProps) {
     return (
-        <MantineText
-            size={"xs"}
-            color={TONE_COLOR[tone]}
-            weight={weight ? WEIGHT[weight] : undefined}
-            transform={uppercase ? "uppercase" : undefined}
-            style={style}
-        >
+        <div className={textClassName({ tone, weight, uppercase })} style={style}>
             {children}
-        </MantineText>
+        </div>
     )
 }
 
@@ -45,5 +25,5 @@ export type HeadingProps = {
 }
 
 export function Heading({ children }: HeadingProps) {
-    return <Title order={HEADING_ORDER}>{children}</Title>
+    return <h3 className={s.heading}>{children}</h3>
 }

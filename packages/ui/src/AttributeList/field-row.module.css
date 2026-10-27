@@ -1,0 +1,10 @@
+/* The type badge is short enough to always keep whole. The Badge sets no flex-shrink, so this needs no extra specificity. */
+.keepWhole {
+    flex-shrink: 0;
+}
+
+/* The name is data: copyable, and the one part of the row allowed to ellipsize.
+   Its type and null count are short enough to always keep. */
+.name {
+    min-width: 0;
+}

@@ -1,0 +1,35 @@
+/* Every rule overrides the shared .unstyledButton and .iconButton, so it is doubled (R10): specificity, never stylesheet order. */
+/* The statusbar sat in its own light-scheme provider: these icons keep that scheme's colours in both themes. */
+.button.button {
+    color: var(--sphere-color-statusbar-icon);
+}
+
+/* .button.accent and .button.fill tie .iconButton.subtle and .iconButton.filled (specificity 0,2,0). That is safe:
+   StatusbarButton never applies those two classes, so nothing else sets colour or background here. */
+.button.accent {
+    color: var(--sphere-color-statusbar-icon-accent);
+}
+
+.button.button:hover {
+    background-color: var(--sphere-color-statusbar-icon-hover-bg);
+}
+
+.button.fill {
+    background-color: var(--sphere-color-statusbar-icon-hover-bg);
+}
+
+/* Mantine 5 ActionIcon `&:active` (theme.activeStyles), also the statusbar's PRESS_STYLE. */
+.button.button:active {
+    transform: translateY(1px);
+}
+
+/* Tripled: it must also beat the .iconButton.iconButton:disabled rule of the icon button module. */
+.button.button.button:disabled {
+    background-color: transparent;
+    color: var(--sphere-color-statusbar-icon-disabled);
+    border: none;
+}
+
+.button.button.button:disabled:active {
+    transform: none;
+}

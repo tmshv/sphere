@@ -47,7 +47,7 @@ function rowContaining(first: Element, second: Element) {
 
 async function chooseOption(user: ReturnType<typeof userEvent.setup>, label: string, option: string) {
     await user.click(screen.getByLabelText(label))
-    await user.click(await screen.findByText(option))
+    await user.click(await screen.findByRole("option", { name: option }))
 }
 
 describe("CsvGeometryConfig", () => {

@@ -1,0 +1,74 @@
+/* Mantine 5 Badge.styles.js for sizes xs/sm and variants light/filled/outline (outline in the dark colour). */
+/* Height, font size and padding come from the size class. */
+.badge {
+    --badge-letter-spacing: 0.25px;
+    /* Mantine pads by spacing[size] / 1.5. */
+    --badge-padding-divisor: 1.5;
+    --badge-border-width: 1px;
+
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--badge-font-size);
+    height: var(--badge-height);
+    line-height: calc(var(--badge-height) - 2 * var(--badge-border-width));
+    text-decoration: none;
+    padding: 0 calc(var(--badge-padding-space) / var(--badge-padding-divisor));
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    text-transform: uppercase;
+    font-weight: var(--sphere-font-weight-bold);
+    letter-spacing: var(--badge-letter-spacing);
+    cursor: inherit;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border: var(--badge-border-width) solid transparent;
+}
+
+.sizeXs {
+    --badge-height: 16px;
+    --badge-font-size: 9px;
+    --badge-padding-space: var(--sphere-space-xs);
+}
+
+.sizeSm {
+    --badge-height: 18px;
+    --badge-font-size: 10px;
+    --badge-padding-space: var(--sphere-space-sm);
+}
+
+.radiusXs {
+    border-radius: var(--sphere-radius-xs);
+}
+
+.radiusSm {
+    border-radius: var(--sphere-radius-sm);
+}
+
+.radiusXl {
+    border-radius: var(--sphere-radius-xl);
+}
+
+.light {
+    background: var(--sphere-color-badge-light-bg);
+    color: var(--sphere-color-badge-light-text);
+}
+
+.filled {
+    background: var(--sphere-color-badge-filled-bg);
+    color: var(--sphere-color-badge-filled-text);
+}
+
+.outline {
+    background: transparent;
+    color: var(--sphere-color-badge-outline-dark);
+    border-color: var(--sphere-color-badge-outline-dark);
+}
+
+.inner {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

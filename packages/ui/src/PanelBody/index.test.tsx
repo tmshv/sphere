@@ -1,6 +1,8 @@
-import { render, screen } from "../test-utils"
+import { declaredStyle, render, screen } from "../test-utils"
 import { describe, expect, it } from "vitest"
 import { PanelBody } from "."
+
+const INSET = "var(--sphere-space-sm)"
 
 function styleOf(element: Element) {
     return window.getComputedStyle(element)
@@ -69,10 +71,11 @@ describe("PanelBody", () => {
 
         // Padding outside the scrolling element would leave the overlay
         // scrollbar macOS draws sitting on top of the text rather than the gap.
-        expect(Number.parseFloat(styleOf(body).paddingRight)).toBeGreaterThan(0)
-        expect(Number.parseFloat(styleOf(body).paddingLeft)).toBeGreaterThan(0)
+        // The inset is a spacing token, which happy-dom leaves unresolved.
+        expect(declaredStyle(body, "padding-right")).toBe(INSET)
+        expect(declaredStyle(body, "padding-left")).toBe(INSET)
         // The header does not scroll, but it has to line up with the body.
-        expect(styleOf(header).paddingLeft).toBe(styleOf(body).paddingLeft)
+        expect(declaredStyle(header, "padding-left")).toBe(declaredStyle(body, "padding-left"))
     })
 
     it("fills its parent without overflowing it", () => {

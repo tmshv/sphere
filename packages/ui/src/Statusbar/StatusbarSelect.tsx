@@ -1,4 +1,5 @@
 import type { SelectOption } from "../Select"
+import s from "./statusbar-select.module.css"
 
 export type StatusbarSelectProps = {
     value: string
@@ -12,22 +13,7 @@ export function StatusbarSelect({ value, options, className, onChange }: Statusb
         <select
             value={value}
             onChange={e => onChange(e.target.value)}
-            className={className}
-            style={{
-                appearance: "none",
-                WebkitAppearance: "none",
-                border: "none",
-                fontFamily: "monospace",
-                fontSize: 10,
-                lineHeight: "16px",
-                textTransform: "uppercase",
-                fontWeight: 700,
-                letterSpacing: "0.25px",
-                cursor: "pointer",
-                outline: "none",
-                borderRadius: 4,
-                padding: "0 4px",
-            }}
+            className={[s.select, className].filter(Boolean).join(" ")}
         >
             {options.map(option => (
                 <option key={option.value} value={option.value}>

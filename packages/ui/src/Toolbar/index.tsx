@@ -1,4 +1,3 @@
-import { Navbar, Stack, Tooltip, UnstyledButton, createStyles } from "@mantine/core"
 import {
     IconCalendarStats,
     IconDeviceDesktopAnalytics,
@@ -9,48 +8,11 @@ import {
     type TablerIcon,
 } from "@tabler/icons"
 import { useState } from "react"
+import { Tooltip, unstyledButton } from "../internal"
+import s from "./toolbar.module.css"
 
-const useStyles = createStyles(theme => {
-    const dark = theme.colorScheme === "dark"
-
-    return {
-        nav: {
-            width: "auto",
-            height: "100%",
-            // borderRightColor: dark
-            //     ? "#0f0f0f"
-            //     : "#f0f0f0",
-            // border: "none",
-            border: dark ? "1px solid #0f0f0f" : "1px solid #f0f0f0",
-            borderRadius: theme.radius.md,
-        },
-        horizontal: {
-            flexDirection: "row",
-        },
-
-        link: {
-            width: 38,
-            height: 38,
-
-            borderRadius: theme.radius.md,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: dark ? theme.colors.dark[0] : theme.colors.gray[7],
-
-            "&:hover": {
-                backgroundColor: dark ? theme.colors.dark[5] : theme.colors.gray[0],
-            },
-        },
-
-        active: {
-            "&, &:hover": {
-                backgroundColor: theme.fn.variant({ variant: "light", color: theme.primaryColor }).background,
-                color: theme.fn.variant({ variant: "light", color: theme.primaryColor }).color,
-            },
-        },
-    }
-})
+const ICON_STROKE = 1.5
+const INITIAL_ACTIVE_INDEX = 2
 
 export type NavbarLinkProps = {
     icon: TablerIcon
@@ -60,13 +22,13 @@ export type NavbarLinkProps = {
 }
 
 export function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
-    const { classes: s, cx } = useStyles()
+    const classes = [unstyledButton, s.link, active && s.active]
 
     return (
-        <Tooltip label={label} position="right" transitionDuration={0}>
-            <UnstyledButton onClick={onClick} className={cx(s.link, { [s.active]: active })}>
-                <Icon stroke={1.5} />
-            </UnstyledButton>
+        <Tooltip label={label} side="right" duration={0}>
+            <button type="button" onClick={onClick} className={classes.filter(Boolean).join(" ")}>
+                <Icon stroke={ICON_STROKE} />
+            </button>
         </Tooltip>
     )
 }
@@ -85,23 +47,15 @@ export type ToolbarProps = {
 }
 
 export function Toolbar({ horizontal = false }: ToolbarProps) {
-    const [active, setActive] = useState(2)
-    const { classes: s, cx } = useStyles()
+    const [active, setActive] = useState(INITIAL_ACTIVE_INDEX)
 
     const links = mockdata.map((link, index) => (
         <NavbarLink {...link} key={link.label} active={index === active} onClick={() => setActive(index)} />
     ))
 
     return (
-        <Navbar
-            // pl="sm"
-            // pr="sm"
-            p="sm"
-            className={s.nav}
-        >
-            <Stack justify="center" spacing={"sm"} className={cx({ [s.horizontal]: horizontal })}>
-                {links}
-            </Stack>
-        </Navbar>
+        <nav className={s.nav}>
+            <div className={[s.stack, horizontal && s.horizontal].filter(Boolean).join(" ")}>{links}</div>
+        </nav>
     )
 }

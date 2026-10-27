@@ -1,0 +1,51 @@
+/* Mantine 5 Tooltip.styles.js: default colour, size sm, radius sm, plus the 4px arrow. */
+.positioner {
+    z-index: var(--sphere-z-index-popover);
+}
+
+.tooltip {
+    --tooltip-arrow-size: 4px;
+
+    position: relative;
+    font-family: var(--sphere-font-family-sans);
+    background-color: var(--sphere-color-tooltip-bg);
+    color: var(--sphere-color-tooltip-text);
+    line-height: var(--sphere-line-height-body);
+    font-size: var(--sphere-font-size-sm);
+    border-radius: var(--sphere-radius-sm);
+    padding: calc(var(--sphere-space-xs) / 2) var(--sphere-space-xs);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity var(--tooltip-duration) ease;
+}
+
+.tooltip[data-starting-style],
+.tooltip[data-ending-style] {
+    opacity: 0;
+}
+
+.arrow {
+    width: var(--tooltip-arrow-size);
+    height: var(--tooltip-arrow-size);
+    background-color: inherit;
+    border: 0;
+    z-index: 1;
+    transform: rotate(45deg);
+}
+
+.arrow[data-side="top"] {
+    bottom: calc(var(--tooltip-arrow-size) / -2);
+}
+
+.arrow[data-side="bottom"] {
+    top: calc(var(--tooltip-arrow-size) / -2);
+}
+
+.arrow[data-side="left"] {
+    right: calc(var(--tooltip-arrow-size) / -2);
+}
+
+.arrow[data-side="right"] {
+    left: calc(var(--tooltip-arrow-size) / -2);
+}

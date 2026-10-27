@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest"
-import { render, screen } from "../test-utils"
+import { declaredStyle, render, screen } from "../test-utils"
 import { Overlay } from "."
 
 function getRegion(testId: string) {
@@ -43,12 +43,13 @@ describe("Overlay", () => {
     })
 
     it.each([
-        "topLeft",
-        "topRight",
-    ] as const)("%s region is bounded by max-height, not stretched to full height", region => {
+        ["topLeft", "calc(100% - (var(--top-left-offset) + var(--bottom-gap)))"],
+        ["topRight", "calc(100% - (var(--top-right-offset) + var(--bottom-gap)))"],
+    ] as const)("%s region is bounded by max-height, not stretched to full height", (region, maxHeight) => {
         render(<Overlay {...{ [region]: <div data-testid="content">content</div> }} />)
-        const style = window.getComputedStyle(getRegion("content"))
-        expect(["", "auto"]).toContain(style.bottom)
-        expect(style.maxHeight).not.toBe("none")
+        const wrapper = getRegion("content")
+        // The values hold var() tokens, which happy-dom drops from computed style.
+        expect(declaredStyle(wrapper, "max-height")).toBe(maxHeight)
+        expect(declaredStyle(wrapper, "bottom")).toBe("")
     })
 })
