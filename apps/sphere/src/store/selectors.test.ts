@@ -74,6 +74,14 @@ describe("selectMapLayers", () => {
         const state = makeRootState({ source: makeSourceState([makeGeojsonSource("a")]), layer: layerState })
         expect(selectMapLayers(state)).toEqual([])
     })
+
+    test("is empty on Sources tab when every source is hidden", () => {
+        const state = makeRootState({
+            source: makeSourceState([makeGeojsonSource("a")], { hiddenIds: ["a"] }),
+            layer: layerState,
+        })
+        expect(selectMapLayers(state)).toEqual([])
+    })
 })
 
 describe("selectChangeProjectionAvailable", () => {
@@ -209,13 +217,13 @@ describe("selectPreviewActive", () => {
         expect(selectors.preview.active(state)).toBe(false)
     })
 
-    test("false when nothing is visible", () => {
+    test("true on Sources tab when nothing is visible", () => {
         const state = makeRootState({ source: makeSourceState([makeGeojsonSource("a")], { hiddenIds: ["a"] }) })
-        expect(selectors.preview.active(state)).toBe(false)
+        expect(selectors.preview.active(state)).toBe(true)
     })
 
-    test("false without sources", () => {
-        expect(selectors.preview.active(makeRootState())).toBe(false)
+    test("true on Sources tab without sources", () => {
+        expect(selectors.preview.active(makeRootState())).toBe(true)
     })
 })
 
