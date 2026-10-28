@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@sphere/ui"
-import { type RenderOptions, render } from "@testing-library/react"
+import { type RenderOptions, render, screen } from "@testing-library/react"
 import type React from "react"
 
 function AllProviders({ children }: { children: React.ReactNode }) {
@@ -28,4 +28,24 @@ export function scrollParentOf(element: Element): HTMLElement | null {
         node = node.parentElement
     }
     return null
+}
+
+/**
+ * The body of the sidebar section whose header is labelled `title`, found through the header's
+ * `aria-controls`. Throws when the section is closed or missing.
+ */
+export function sectionBodyOf(title: RegExp): HTMLElement {
+    const header = screen.getByRole("button", { name: title })
+    const bodyId = header.getAttribute("aria-controls")
+    const body = bodyId === null ? null : document.getElementById(bodyId)
+    if (!body) {
+        throw new Error(`no open section body for ${title}`)
+    }
+    return body
+}
+
+/** The computed top and bottom padding of `element`, in pixels. */
+export function verticalPaddingOf(element: Element): [number, number] {
+    const style = window.getComputedStyle(element)
+    return [Number.parseFloat(style.paddingTop), Number.parseFloat(style.paddingBottom)]
 }

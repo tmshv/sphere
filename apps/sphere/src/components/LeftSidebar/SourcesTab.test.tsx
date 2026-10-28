@@ -1,7 +1,7 @@
 import { makeMvtSource, makeSourceState } from "@/testutils"
 import { actions } from "@/store"
 import appReducer, { appSlice } from "@/store/app"
-import { fireEvent, render, screen, scrollParentOf } from "@/test-utils"
+import { fireEvent, render, screen, scrollParentOf, sectionBodyOf, verticalPaddingOf } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import userEvent from "@testing-library/user-event"
@@ -81,6 +81,13 @@ function actionAt(index: number) {
 }
 
 describe("SourcesTab", () => {
+    it("runs the outline to the section edges and keeps the source panel padded", () => {
+        renderTab()
+
+        expect(verticalPaddingOf(sectionBodyOf(/Outline/))).toEqual([0, 0])
+        expect(verticalPaddingOf(sectionBodyOf(/^Source$/))).not.toEqual([0, 0])
+    })
+
     it("scrolls the outline instead of pushing the source panel off the sidebar", () => {
         renderTab()
         const item = screen.getByText("Roads")

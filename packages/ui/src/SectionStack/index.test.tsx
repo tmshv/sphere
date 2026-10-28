@@ -155,6 +155,37 @@ describe("SectionStack", () => {
         // A spacing token, which happy-dom leaves unresolved.
         expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-sm)")
     })
+
+    it("drops the vertical padding of a flush section body and keeps it for the others", () => {
+        render(
+            <SectionStack
+                sections={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: true, size: null },
+                ]}
+                onSectionsChange={() => undefined}
+            >
+                <SectionStack.Section name={"outline"} title={"Outline"} flush>
+                    <div>outline body</div>
+                </SectionStack.Section>
+                <SectionStack.Section name={"details"} title={"Details"}>
+                    <div>details body</div>
+                </SectionStack.Section>
+            </SectionStack>,
+        )
+        const flushBody = screen.getByText("outline body").parentElement
+        const paddedBody = screen.getByText("details body").parentElement
+        if (!flushBody || !paddedBody) {
+            throw new Error("section body not found")
+        }
+
+        const flushStyle = window.getComputedStyle(flushBody)
+
+        expect(paddingPx(flushStyle.paddingTop)).toBe(0)
+        expect(paddingPx(flushStyle.paddingBottom)).toBe(0)
+        expect(declaredStyle(paddedBody, "padding-top")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(paddedBody, "padding-bottom")).toBe("var(--sphere-space-sm)")
+    })
 })
 
 describe("SectionStack header height", () => {
