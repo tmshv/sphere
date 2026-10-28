@@ -1,6 +1,6 @@
 import { makeSourceState } from "@/testutils"
 import appReducer, { appSlice } from "@/store/app"
-import { fireEvent, render, screen, scrollParentOf } from "@/test-utils"
+import { fireEvent, render, screen, scrollParentOf, sectionBodyOf, verticalPaddingOf } from "@/test-utils"
 import { LayerType } from "@/types"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
@@ -47,6 +47,13 @@ function renderTab() {
 }
 
 describe("LayersTab", () => {
+    it("runs the outline to the section edges and keeps the layer panel padded", () => {
+        renderTab()
+
+        expect(verticalPaddingOf(sectionBodyOf(/Outline/))).toEqual([0, 0])
+        expect(verticalPaddingOf(sectionBodyOf(/^Layer$/))).not.toEqual([0, 0])
+    })
+
     it("scrolls the outline instead of pushing the layer panel off the sidebar", () => {
         renderTab()
         const item = screen.getByText("Roads layer")

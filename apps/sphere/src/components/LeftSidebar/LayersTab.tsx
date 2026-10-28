@@ -59,8 +59,8 @@ export function LayersTab() {
             />
 
             <SectionStack sections={sections} onSectionsChange={onSectionsChange}>
-                <SectionStack.Section name={"outline"} title={"Outline"}>
-                    {/* No PanelBody: the tree rows carry the inset themselves so a selected row spans the full width */}
+                <SectionStack.Section name={"outline"} title={"Outline"} flush>
+                    {/* No PanelBody and flush: the tree rows carry the inset themselves, so a selected row spans the full width and rows scroll out at the section edges */}
                     <LayersOutline />
                 </SectionStack.Section>
 

@@ -15,6 +15,9 @@ export type SectionProps = {
     name: string
     title: string
     minContentSize?: number
+    // Drops the body's vertical padding, for a child that scrolls edge to
+    // edge and carries its own inset, such as an outline tree.
+    flush?: boolean
     children: React.ReactNode
 }
 
@@ -203,7 +206,7 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                             </button>
 
                             {!open ? null : (
-                                <div id={bodyId} className={s.body}>
+                                <div id={bodyId} className={section.props.flush ? `${s.body} ${s.flush}` : s.body}>
                                     {section.props.children}
                                 </div>
                             )}

@@ -54,3 +54,11 @@
     padding-top: var(--sphere-space-sm);
     padding-bottom: var(--sphere-space-sm);
 }
+
+/* A flush section skips the padding above and below as well, for a child
+   that scrolls and insets its own rows: an outline tree lets rows run to the
+   section's edges instead of vanishing short of them. */
+.flush {
+    padding-top: 0;
+    padding-bottom: 0;
+}
