@@ -145,7 +145,8 @@ export const selectPreviewDrawOrder = createSelector([selectPreviewLayerSpecs], 
     specs.flatMap(specMapLayerIds),
 )
 
-export const selectPreviewActive = createSelector([selectPreviewLayerSpecs], (specs): boolean => specs.length > 0)
+// The Sources tab always previews the tree, so a hidden node is hidden on the map, never replaced by user layers
+export const selectPreviewActive = (state: RootState): boolean => selectActiveSidebarTab(state) === "sources"
 
 export const selectPreviewLayerIds = createSelector(
     [selectPreviewLayerSpecs, selectNodes, selectSelectedNode, selectSelectedInteractive],
