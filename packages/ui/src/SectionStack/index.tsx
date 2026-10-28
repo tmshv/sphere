@@ -80,38 +80,39 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
     // render. It reads them from this ref, which is assigned on each render,
     // and keys off `rows` instead — the only input that actually changes
     // when a section opens or closes.
-    const latest = useRef({ renderedSections, minSizeOf })
-    latest.current = { renderedSections, minSizeOf }
+    const latest = useRef({ renderedSections, minSizeOf, rows, onSectionsChange })
+    latest.current = { renderedSections, minSizeOf, rows, onSectionsChange }
 
-    const onSplitChange = useCallback(
-        (next: number[]) => {
-            sizes.current = next
+    // allotment reports the sizes caused by a toggle from a layout effect,
+    // before its own effect has swapped in the new onChange. So this handler
+    // runs one render late and must read rows from the ref: from a closure it
+    // would see the section still open and store it back as open.
+    const onSplitChange = useCallback((next: number[]) => {
+        sizes.current = next
 
-            const { renderedSections: currentSections } = latest.current
-            const currentResolved = resolveSections(
-                rows,
-                currentSections.map(section => section.props.name),
-            )
+        const { renderedSections: currentSections, rows: currentRows, onSectionsChange: notify } = latest.current
+        const currentResolved = resolveSections(
+            currentRows,
+            currentSections.map(section => section.props.name),
+        )
 
-            const changedLayouts = currentResolved.flatMap((layout, index) => {
-                if (!layout.open) {
-                    return []
-                }
-
-                const height = next.at(index)
-                if (height === undefined || height === layout.size) {
-                    return []
-                }
-
-                return [{ ...layout, size: height }]
-            })
-
-            if (changedLayouts.length > 0) {
-                onSectionsChange(mergeSections(rows, changedLayouts))
+        const changedLayouts = currentResolved.flatMap((layout, index) => {
+            if (!layout.open) {
+                return []
             }
-        },
-        [rows, onSectionsChange],
-    )
+
+            const height = next.at(index)
+            if (height === undefined || height === layout.size) {
+                return []
+            }
+
+            return [{ ...layout, size: height }]
+        })
+
+        if (changedLayouts.length > 0) {
+            notify(mergeSections(currentRows, changedLayouts))
+        }
+    }, [])
 
     // A reopened pane only grows to its minimum, so the size it had before it
     // was closed is reapplied once the new minimums have been laid out.
