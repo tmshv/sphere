@@ -23,6 +23,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
     const stack = useAppSelector(selectors.preview.layerStack)
     const drawOrder = useAppSelector(selectors.preview.drawOrder)
     const layerIds = useAppSelector(selectors.preview.layerIds)
+    const outline = useAppSelector(selectors.settings.selectPreviewOutline)
 
     const mapTool = useAppSelector(selectMapTool)
     const effectiveLayerIds = isHoverPopupEnabled(mapTool) ? layerIds : EMPTY
@@ -45,6 +46,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                                 visible={true}
                                 beforeId={beforeId}
                                 options={spec.options}
+                                outline={outline}
                             />
                         )
                     case "LineString":
@@ -58,6 +60,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                                 visible={true}
                                 beforeId={beforeId}
                                 thick={spec.thick}
+                                outline={outline}
                             />
                         )
                     case "Polygon":
@@ -70,6 +73,7 @@ export function SourcePreviewLayer({ mapId, delay }: SourcePreviewLayerProps) {
                                 color={spec.color}
                                 visible={true}
                                 beforeId={beforeId}
+                                outline={outline}
                             />
                         )
                     case "Raster":

@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react"
 import type { LayerProps } from "react-map-gl/maplibre"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { layerVisibility } from "@/testutils"
 import { SphereLineStringLayer } from "./ShpereLineStringLayer"
 
 const rendered: LayerProps[] = []
@@ -46,5 +47,29 @@ describe("SphereLineStringLayer", () => {
 
         expect(rendered.length).toBeGreaterThan(0)
         expect(rendered.map(props => props.beforeId)).toEqual(rendered.map(() => "above"))
+    })
+
+    it("shows the white casing by default", () => {
+        render(<SphereLineStringLayer layerId="roads" sourceId="s" color="red" visible={true} thick={false} />)
+
+        expect(rendered.map(layerVisibility)).toEqual(["visible", "visible"])
+    })
+
+    it("hides only the white casing when the outline is off", () => {
+        render(
+            <SphereLineStringLayer
+                layerId="roads"
+                sourceId="s"
+                color="red"
+                visible={true}
+                thick={false}
+                outline={false}
+            />,
+        )
+
+        expect(rendered.map(props => [props.id, layerVisibility(props)])).toEqual([
+            ["roads-outline", "none"],
+            ["roads", "visible"],
+        ])
     })
 })

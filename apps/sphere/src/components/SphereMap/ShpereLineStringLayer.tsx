@@ -13,6 +13,8 @@ export type SphereLineStringLayerProps = {
     color: string
     visible: boolean
     thick: boolean
+    // Draw the white casing under the line
+    outline?: boolean
     filter?: FilterSpecification
     // Layer to draw below; absent means on top
     beforeId?: string
@@ -25,11 +27,12 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
     color,
     visible,
     thick,
+    outline = true,
     filter,
     beforeId,
 }) => {
-    const [outline, line] = useMemo(() => {
-        const outline: LinePaint = {
+    const [casing, line] = useMemo(() => {
+        const casing: LinePaint = {
             "line-color": "white",
             "line-width": thick ? 4 : 3,
         }
@@ -38,7 +41,7 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
             "line-width": thick ? 2 : 1,
         }
 
-        return [outline, line]
+        return [casing, line]
     }, [color, thick])
 
     const [outlineId, lineId] = lineStringLayerIds(layerId)
@@ -50,11 +53,11 @@ export const SphereLineStringLayer: React.FC<SphereLineStringLayerProps> = ({
                 beforeId={beforeId}
                 source={sourceId}
                 type={"line"}
-                paint={outline}
+                paint={casing}
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visibility(visible),
+                    visibility: visibility(visible && outline),
                 }}
                 filter={combineFilters(
                     ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]],

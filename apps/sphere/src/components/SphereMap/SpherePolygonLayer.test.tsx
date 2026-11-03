@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react"
 import type { LayerProps } from "react-map-gl/maplibre"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { layerVisibility } from "@/testutils"
 import { SpherePolygonLayer } from "./SpherePolygonLayer"
 
 const rendered: LayerProps[] = []
@@ -28,5 +29,21 @@ describe("SpherePolygonLayer", () => {
 
         expect(rendered.length).toBeGreaterThan(0)
         expect(rendered.map(props => props.beforeId)).toEqual(rendered.map(() => "above"))
+    })
+
+    it("shows the white outline by default", () => {
+        render(<SpherePolygonLayer layerId="parks" sourceId="s" color="red" visible={true} />)
+
+        expect(rendered.map(layerVisibility)).toEqual(["visible", "visible", "visible"])
+    })
+
+    it("hides only the white outline when the outline is off", () => {
+        render(<SpherePolygonLayer layerId="parks" sourceId="s" color="red" visible={true} outline={false} />)
+
+        expect(rendered.map(props => [props.id, layerVisibility(props)])).toEqual([
+            ["parks", "visible"],
+            ["parks-outline-0", "none"],
+            ["parks-outline-1", "visible"],
+        ])
     })
 })

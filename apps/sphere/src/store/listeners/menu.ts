@@ -63,6 +63,10 @@ listener.startListening({
                 dispatch(actions.tileBoundaries.toggle())
                 return
 
+            case "view.toggle-geometry-outline":
+                dispatch(actions.settings.togglePreviewOutline())
+                return
+
             case "source.show-properties":
                 if (!sourceId || !nodeActions.canShowProperties) return
                 dispatch(actions.source.showProperties({ id: sourceId }))

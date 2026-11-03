@@ -89,6 +89,13 @@ describe("Spotlight", () => {
         expect(mockDispatch).toHaveBeenCalledWith({ type: "app/toggleZenMode" })
     })
 
+    it("toggles the geometry outline when chosen", async () => {
+        openPalette()
+        fireEvent.change(await screen.findByPlaceholderText("Search..."), { target: { value: "outline" } })
+        fireEvent.click(screen.getByText("Toggle Geometry Outline"))
+        expect(mockDispatch).toHaveBeenCalledWith({ type: "settings/togglePreviewOutline" })
+    })
+
     it("adds an OpenStreetMap basemap when chosen", async () => {
         openPalette()
         fireEvent.click(await screen.findByText("Add OpenStreetMap"))

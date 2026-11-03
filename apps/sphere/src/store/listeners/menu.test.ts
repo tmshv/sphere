@@ -27,6 +27,7 @@ vi.mock("@tauri-apps/plugin-clipboard-manager", () => ({
 import app from "../app"
 import layer, { actions as layerActions } from "../layer"
 import selection, { copySelection, selectionSlice } from "../selection"
+import settings from "../settings"
 import sky from "../sky"
 import sourceReducer, { actions as sourceActions } from "../source"
 import terrain from "../terrain"
@@ -85,7 +86,7 @@ const capture: Middleware = () => next => action => {
 
 function makeStore() {
     return configureStore({
-        reducer: { app, source: sourceReducer, layer, selection, terrain, sky, tileBoundaries },
+        reducer: { app, source: sourceReducer, layer, selection, terrain, sky, tileBoundaries, settings },
         middleware: gDM => gDM().prepend(menu.middleware).concat(capture),
     })
 }
@@ -128,6 +129,12 @@ describe("menu listener", () => {
         store.dispatch(menuTrigger("view.toggle-tile-boundaries"))
 
         expect(store.getState().tileBoundaries.value).toBe(true)
+    })
+
+    test("toggles the geometry outline", () => {
+        store.dispatch(menuTrigger("view.toggle-geometry-outline"))
+
+        expect(store.getState().settings.previewOutline).toBe(false)
     })
 
     test("zooms to the selected source", () => {

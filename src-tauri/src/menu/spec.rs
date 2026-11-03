@@ -179,6 +179,7 @@ const VIEW: Submenu = Submenu {
         custom("view.toggle-terrain", "Toggle Terrain"),
         custom("view.toggle-sky", "Toggle Sky"),
         custom("view.toggle-tile-boundaries", "Toggle Tile Boundaries"),
+        custom("view.toggle-geometry-outline", "Toggle Geometry Outline"),
         SEPARATOR,
         predefined(Predefined::Fullscreen),
     ],

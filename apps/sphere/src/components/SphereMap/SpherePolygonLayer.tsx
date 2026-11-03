@@ -13,6 +13,8 @@ export type SpherePolygonLayerProps = {
     sourceLayer?: string
     color: string
     visible: boolean
+    // Draw the white outline inside the polygon edge
+    outline?: boolean
     filter?: FilterSpecification
     // Layer to draw below; absent means on top
     beforeId?: string
@@ -24,6 +26,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
     sourceLayer,
     color,
     visible,
+    outline = true,
     filter,
     beforeId,
 }) => {
@@ -74,7 +77,7 @@ export const SpherePolygonLayer: React.FC<SpherePolygonLayerProps> = ({
                 layout={{
                     "line-cap": "round",
                     "line-join": "round",
-                    visibility: visibility(visible),
+                    visibility: visibility(visible && outline),
                 }}
                 filter={combineFilters(
                     ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]],

@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react"
 import type { LayerProps } from "react-map-gl/maplibre"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { layerPaint } from "@/testutils"
 import { PointLayer } from "./PointLayer"
 
 const rendered: LayerProps[] = []
@@ -28,5 +29,17 @@ describe("PointLayer", () => {
 
         expect(rendered.length).toBeGreaterThan(0)
         expect(rendered.map(props => props.beforeId)).toEqual(rendered.map(() => "above"))
+    })
+
+    it("strokes the circle by default", () => {
+        render(<PointLayer layerId="pts" sourceId="s" color="red" visible={true} />)
+
+        expect(layerPaint(rendered.at(0))).toMatchObject({ "circle-stroke-width": 1 })
+    })
+
+    it("drops the circle stroke when the outline is off", () => {
+        render(<PointLayer layerId="pts" sourceId="s" color="red" visible={true} outline={false} />)
+
+        expect(layerPaint(rendered.at(0))).toMatchObject({ "circle-stroke-width": 0 })
     })
 })
