@@ -144,6 +144,14 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
             }, "Failed to toggle tile boundaries"),
         },
         {
+            id: "toggle-geometry-outline",
+            title: "Toggle Geometry Outline",
+            description: "Draw or hide the white outline around geometries on the Sources tab",
+            onTrigger: () => {
+                dispatch(actions.settings.togglePreviewOutline())
+            },
+        },
+        {
             id: "paste-geojson",
             title: "Paste GeoJSON",
             description: "Create source from GeoJSON in clipboard",

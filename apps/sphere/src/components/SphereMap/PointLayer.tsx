@@ -6,12 +6,17 @@ import { Layer } from "react-map-gl/maplibre"
 
 type CirclePaint = CircleLayerSpecification["paint"]
 
+const STROKE_WIDTH = 1
+const NO_STROKE_WIDTH = 0
+
 export type PointLayerProps = {
     layerId: string
     sourceId: string
     sourceLayer?: string
     color: string
     visible: boolean
+    // Draw the white stroke around the circle
+    outline?: boolean
     filter?: FilterSpecification
     // Layer to draw below; absent means on top
     beforeId?: string
@@ -28,6 +33,7 @@ export const PointLayer: React.FC<PointLayerProps> = ({
     color,
     options,
     visible,
+    outline = true,
     filter,
     beforeId,
 }) => {
@@ -37,10 +43,10 @@ export const PointLayer: React.FC<PointLayerProps> = ({
             "circle-color": ["case", ["boolean", ["feature-state", "selected"], false], FEATURE_HIGHLIGHT_COLOR, color],
             "circle-radius": radius,
             "circle-stroke-color": "white",
-            "circle-stroke-width": 1,
+            "circle-stroke-width": outline ? STROKE_WIDTH : NO_STROKE_WIDTH,
         }
         return circle
-    }, [color, options])
+    }, [color, options, outline])
 
     return (
         <Layer

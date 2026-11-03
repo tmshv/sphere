@@ -1,6 +1,7 @@
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { createSourceNodes } from "@/lib/source-tree"
 import { type Id, type SourceNode, type SourceTreeInput, SourceType } from "@/types"
+import type { LayerProps } from "react-map-gl/maplibre"
 
 export type CapturedAction = { type: string; payload?: unknown }
 
@@ -132,4 +133,16 @@ export function makeSourceState<T extends SourceTreeInput>(sources: T[], options
         expandedIds: built.filter(({ children }) => children.length > 0).map(({ root }) => root.id),
         selectedIds: options.selectedIds ?? [],
     }
+}
+
+/** The `visibility` layout value of a rendered `<Layer>`; custom layers have none */
+export function layerVisibility(props: LayerProps): unknown {
+    if (!("layout" in props)) return undefined
+    return props.layout?.visibility
+}
+
+/** The paint of a rendered `<Layer>`; custom layers have none */
+export function layerPaint(props: LayerProps | undefined): object | undefined {
+    if (props === undefined || !("paint" in props)) return undefined
+    return props.paint
 }

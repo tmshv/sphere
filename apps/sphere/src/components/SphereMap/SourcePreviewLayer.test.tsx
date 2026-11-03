@@ -1,6 +1,7 @@
 import appReducer from "@/store/app"
+import settingsReducer, { settingsSlice } from "@/store/settings"
 import sourceReducer, { sourceSlice } from "@/store/source"
-import { makeGeojsonSource, makeSourceState } from "@/testutils"
+import { layerPaint, layerVisibility, makeGeojsonSource, makeSourceState } from "@/testutils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import { act, render } from "@testing-library/react"
@@ -52,7 +53,7 @@ function geojson(id: string): Source {
 
 function renderPreview() {
     const store = configureStore({
-        reducer: { app: appReducer, source: sourceReducer },
+        reducer: { app: appReducer, source: sourceReducer, settings: settingsReducer },
         preloadedState: { source: makeSourceState([geojson("a"), geojson("b")]) },
     })
     render(
@@ -61,6 +62,10 @@ function renderPreview() {
         </Provider>,
     )
     return store
+}
+
+function visibilityOf(props: LayerProps | undefined) {
+    return props === undefined ? undefined : layerVisibility(props)
 }
 
 function beforeIds() {
@@ -116,5 +121,20 @@ describe("SourcePreviewLayer", () => {
         })
 
         expect(map.moveLayer).toHaveBeenCalled()
+    })
+
+    it("hides the white outlines when the outline setting is turned off", () => {
+        const store = renderPreview()
+        const outlineIds = ["preview-a-line-outline", "preview-a-polygon-outline-0"]
+        expect(outlineIds.map(id => visibilityOf(layers.get(id)))).toEqual(["visible", "visible"])
+        expect(layerPaint(layers.get("preview-a-point"))).toMatchObject({ "circle-stroke-width": 1 })
+
+        act(() => {
+            store.dispatch(settingsSlice.actions.togglePreviewOutline())
+        })
+
+        expect(outlineIds.map(id => visibilityOf(layers.get(id)))).toEqual(["none", "none"])
+        expect(visibilityOf(layers.get("preview-a-line"))).toBe("visible")
+        expect(layerPaint(layers.get("preview-a-point"))).toMatchObject({ "circle-stroke-width": 0 })
     })
 })

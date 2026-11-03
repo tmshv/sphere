@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest"
 import reducer, { settingsSlice } from "./settings"
 
-const { setCopyWrapAsFeatureCollection, setCopyWktSeparator } = settingsSlice.actions
-const { selectCopyWrapAsFeatureCollection, selectCopyWktSeparator } = settingsSlice.selectors
+const { setCopyWrapAsFeatureCollection, setCopyWktSeparator, togglePreviewOutline } = settingsSlice.actions
+const { selectCopyWrapAsFeatureCollection, selectCopyWktSeparator, selectPreviewOutline } = settingsSlice.selectors
 
 import type { RootState } from "./index"
 
@@ -26,10 +26,21 @@ describe("settingsSlice reducer", () => {
 
     test("setCopyWrapAsFeatureCollection sets value to true", () => {
         const state = reducer(
-            { copyWrapAsFeatureCollection: false, copyWktSeparator: "\n" },
+            { copyWrapAsFeatureCollection: false, copyWktSeparator: "\n", previewOutline: true },
             setCopyWrapAsFeatureCollection(true),
         )
         expect(state.copyWrapAsFeatureCollection).toBe(true)
+    })
+
+    test("initial state draws the preview outline", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(state.previewOutline).toBe(true)
+    })
+
+    test("togglePreviewOutline turns the outline off and back on", () => {
+        const off = reducer(undefined, togglePreviewOutline())
+        expect(off.previewOutline).toBe(false)
+        expect(reducer(off, togglePreviewOutline()).previewOutline).toBe(true)
     })
 
     test("setCopyWktSeparator sets value", () => {
@@ -59,5 +70,10 @@ describe("settingsSlice selectors", () => {
         expect(
             selectCopyWktSeparator(makeRootState({ copyWrapAsFeatureCollection: true, copyWktSeparator: ", " })),
         ).toBe(", ")
+    })
+
+    test("selectPreviewOutline returns value", () => {
+        expect(selectPreviewOutline(makeRootState({ previewOutline: true }))).toBe(true)
+        expect(selectPreviewOutline(makeRootState({ previewOutline: false }))).toBe(false)
     })
 })
