@@ -36,7 +36,8 @@ export const BASEMAPS: Record<BasemapId, Basemap> = {
     },
 }
 const TERRAIN_TILE_SIZE = 512
-// Mapterhorn does not publish a max zoom in its TileJSON; unconfirmed
+// Mapterhorn publishes no max zoom, so 12 is a safe cap: beyond it MapLibre overzooms the z12 tiles, while a
+// cap above the deepest level Mapterhorn has would request tiles that do not exist
 const MAPTERHORN_MAXZOOM = 12
 export const TERRAIN_PROVIDERS: Record<TerrainProviderId, TerrainProvider> = {
     mapterhorn: {
