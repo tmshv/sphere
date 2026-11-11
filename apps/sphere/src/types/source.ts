@@ -1,4 +1,5 @@
 import type { Id, SourceFormat, SourceMetadata, SourceType } from "@/types"
+import type { DemEncoding } from "@/types/terrain"
 import type { TileJSON } from "@/types/tilejson"
 
 export type GeojsonSource = {
@@ -35,6 +36,8 @@ export type RasterSource = {
     location: string
     // Absent when `location` is a TileJSON URL
     tiles?: RasterTiles
+    // Set when the tiles are elevation data; absent for imagery
+    dem?: DemEncoding
     editable: false
     pending: false
 }

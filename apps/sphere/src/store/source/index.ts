@@ -2,6 +2,7 @@ import { canMove, collectSubtree, createSourceNodes, moveNodes } from "@/lib/sou
 import { type Id, type SourceFormat, type SourceMetadata, type SourceNodes, SourceType } from "@/types"
 import type { BasemapId } from "@/types/basemap"
 import type { RasterTiles, Source } from "@/types/source"
+import type { DemEncoding } from "@/types/terrain"
 import type { TileJSON } from "@/types/tilejson"
 import { createAction, createSelector, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
@@ -197,15 +198,17 @@ export const sourceSlice = createSlice({
                 name: string
                 location: string
                 tiles?: RasterTiles
+                dem?: DemEncoding
                 sourceLayers?: { name: string; id: string }[]
             }>,
         ) => {
-            const { id: sourceId, name, location, tiles } = action.payload
+            const { id: sourceId, name, location, tiles, dem } = action.payload
             upsertSource(state, {
                 id: sourceId,
                 name,
                 location,
                 tiles,
+                dem,
                 type: SourceType.Raster,
                 pending: false,
                 editable: false,
