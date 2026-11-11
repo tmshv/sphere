@@ -179,11 +179,11 @@ To bump the app's version, run `npm version patch -w @sphere/app` from the repo 
 
 **Custom Protocols**: The app registers a `sphere://` MapLibre protocol for accessing sources by ID:
 
-| URL                                     | Purpose            |
-|-----------------------------------------|--------------------|
-| `sphere://{id}`                         | Source GeoJSON data |
-| `sphere://{id}/tilejson`                | TileJSON metadata  |
-| `sphere://{id}/tile?z={z}&x={x}&y={y}` | Tile bytes         |
+| URL                                    | Purpose             |
+|----------------------------------------|---------------------|
+| `sphere://{id}`                        | Source GeoJSON data |
+| `sphere://{id}/tilejson`               | TileJSON metadata   |
+| `sphere://{id}/tile?z={z}&x={x}&y={y}` | Tile bytes          |
 
 The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `MbtilesReader`, everything else to `SourceReader`. The source ID is extracted from `url.host`.
 
@@ -213,39 +213,39 @@ Frontend wiring: `store/menu.ts` (the `menu/trigger` action and `selectMenuConte
 
 Available Tauri commands (invoked from frontend via `invoke()`):
 
-| Command                    | Signature / description |
-|----------------------------|-------------------------|
-| `source_add`               | Load a source from a URL/path: `(source_url) -> SourceAddResult` |
-| `kml_list_documents`       | List the KML documents in a KMZ archive, in archive order (empty for plain KML): `(path) -> Vec<String>` |
-| `source_get`               | Get source as GeoJSON string: `(id) -> String` |
-| `source_get_slice`         | Get a subset of features by ID list as GeoJSON: `(id, ids: Vec<i64>) -> String` |
-| `source_get_selected`      | Get currently-selected features as GeoJSON (reads selection state): `(id) -> String` |
-| `source_get_schema`        | Get property schema: `(id) -> { columns, points_count, lines_count, polygons_count }` |
-| `source_bounds`            | Get geographic bounds [west, south, east, north]: `(id) -> (f64,f64,f64,f64)` |
-| `source_get_filtered`      | Get GeoJSON filtered by a MapLibre expression: `(id, filter_json?) -> String` |
-| `source_query_page`        | Paginated attribute query with optional filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult` |
-| `source_get_column_stats`  | Histogram + min/max/mean/unique for one column: `(id, column, ids?: Vec<i64>) -> ColumnStats` |
-| `source_query_rect`        | Rect spatial query: `(id, bbox: [f64;4], mode: "include"\|"intersect") -> Vec<i64>` |
-| `source_add_data`          | Create an in-memory source from a FeatureCollection: `(name, data) -> SourceAddResult` |
-| `source_replace`           | Replace all features of an in-memory source: `(id, data) -> ()` |
-| `source_patch`             | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()` |
-| `mbtiles_get_tile`         | Get a single tile from MBTiles: `(id, z, x, y) -> Vec<u8>` |
-| `mbtiles_get_metadata`     | Get MBTiles metadata/TileJSON: `(id) -> String` |
-| `selection_set`            | Replace selection with the given IDs: `(ids: Vec<i64>) -> SelectionDelta` |
-| `selection_preview`        | Preview selection (transient overlay): `(ids: Vec<i64>) -> SelectionDelta` |
-| `selection_add`            | Add IDs to the selection: `(ids: Vec<i64>) -> SelectionDelta` |
-| `selection_remove`         | Remove IDs from the selection: `(ids: Vec<i64>) -> SelectionDelta` |
-| `selection_apply`          | Commit the previewed selection: `() -> SelectionDelta` |
-| `selection_clear`          | Clear selection, generation, and feature cache: `() -> SelectionDelta` |
-| `selection_count`          | Count selected features: `() -> usize` |
-| `selection_get_ids`        | Get IDs of currently selected features: `() -> Vec<i64>` |
-| `selection_query_page`     | Paginated attribute query over the selection: `(source_id, offset, limit, sort_column?, sort_asc?) -> PageResult` |
+| Command                    | Signature / description                                                                                                                                                            |
+|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `source_add`               | Load a source from a URL/path: `(source_url) -> SourceAddResult`                                                                                                                   |
+| `kml_list_documents`       | List the KML documents in a KMZ archive, in archive order (empty for plain KML): `(path) -> Vec<String>`                                                                           |
+| `source_get`               | Get source as GeoJSON string: `(id) -> String`                                                                                                                                     |
+| `source_get_slice`         | Get a subset of features by ID list as GeoJSON: `(id, ids: Vec<i64>) -> String`                                                                                                    |
+| `source_get_selected`      | Get currently-selected features as GeoJSON (reads selection state): `(id) -> String`                                                                                               |
+| `source_get_schema`        | Get property schema: `(id) -> { columns, points_count, lines_count, polygons_count }`                                                                                              |
+| `source_bounds`            | Get geographic bounds [west, south, east, north]: `(id) -> (f64,f64,f64,f64)`                                                                                                      |
+| `source_get_filtered`      | Get GeoJSON filtered by a MapLibre expression: `(id, filter_json?) -> String`                                                                                                      |
+| `source_query_page`        | Paginated attribute query with optional filter: `(id, offset, limit, sort_column?, sort_asc?, filter_json?) -> PageResult`                                                         |
+| `source_get_column_stats`  | Histogram + min/max/mean/unique for one column: `(id, column, ids?: Vec<i64>) -> ColumnStats`                                                                                      |
+| `source_query_rect`        | Rect spatial query: `(id, bbox: [f64;4], mode: "include"\|"intersect") -> Vec<i64>`                                                                                                |
+| `source_add_data`          | Create an in-memory source from a FeatureCollection: `(name, data) -> SourceAddResult`                                                                                             |
+| `source_replace`           | Replace all features of an in-memory source: `(id, data) -> ()`                                                                                                                    |
+| `source_patch`             | Incrementally mutate an in-memory source: `(id, patch: { added, updated, deleted_ids }) -> ()`                                                                                     |
+| `mbtiles_get_tile`         | Get a single tile from MBTiles: `(id, z, x, y) -> Vec<u8>`                                                                                                                         |
+| `mbtiles_get_metadata`     | Get MBTiles metadata/TileJSON: `(id) -> String`                                                                                                                                    |
+| `selection_set`            | Replace selection with the given IDs: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                          |
+| `selection_preview`        | Preview selection (transient overlay): `(ids: Vec<i64>) -> SelectionDelta`                                                                                                         |
+| `selection_add`            | Add IDs to the selection: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                                      |
+| `selection_remove`         | Remove IDs from the selection: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                                 |
+| `selection_apply`          | Commit the previewed selection: `() -> SelectionDelta`                                                                                                                             |
+| `selection_clear`          | Clear selection, generation, and feature cache: `() -> SelectionDelta`                                                                                                             |
+| `selection_count`          | Count selected features: `() -> usize`                                                                                                                                             |
+| `selection_get_ids`        | Get IDs of currently selected features: `() -> Vec<i64>`                                                                                                                           |
+| `selection_query_page`     | Paginated attribute query over the selection: `(source_id, offset, limit, sort_column?, sort_asc?) -> PageResult`                                                                  |
 | `selection_rect`           | Rect-query a source and apply to selection in one call: `(source_id, bbox: [f64;4], mode: "include"\|"intersect", op: "set"\|"preview"\|"add", generation: u64) -> SelectionDelta` |
-| `selection_rect_features`  | Rect-query supplied features and apply to selection: `(features_json, bbox: [f64;4], mode, op, generation: u64) -> SelectionDelta` |
-| `selection_cache_features` | Cache features server-side for later rect queries: `(features_json) -> ()` |
-| `selection_copy_geojson`   | Copy selected features as GeoJSON: `(source_id, wrap_fc: bool) -> String` |
-| `selection_copy_wkt`       | Copy selected features as WKT: `(source_id, separator: String) -> String` |
-| `menu_set_context`         | Enable/disable context-dependent native menu items: `(context: { hasSource, hasLayer, hasSelection, hasTerrainSource }) -> ()` |
+| `selection_rect_features`  | Rect-query supplied features and apply to selection: `(features_json, bbox: [f64;4], mode, op, generation: u64) -> SelectionDelta`                                                 |
+| `selection_cache_features` | Cache features server-side for later rect queries: `(features_json) -> ()`                                                                                                         |
+| `selection_copy_geojson`   | Copy selected features as GeoJSON: `(source_id, wrap_fc: bool) -> String`                                                                                                          |
+| `selection_copy_wkt`       | Copy selected features as WKT: `(source_id, separator: String) -> String`                                                                                                          |
+| `menu_set_context`         | Enable/disable context-dependent native menu items: `(context: { hasSource, hasLayer, hasSelection, hasTerrainSource }) -> ()`                                                     |
 
 ## State Management Principles
 
