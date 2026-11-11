@@ -1,6 +1,7 @@
-import { demEncodingOf, hillshadeDemSourceId, terrainDemSourceId } from "@/lib/terrain"
+import { TERRAIN_EXAGGERATION, demEncodingOf, hillshadeDemSourceId, terrainDemSourceId } from "@/lib/terrain"
 import type { Id } from "@/types"
 import type { TerrainCandidate } from "@/types/terrain"
+import type { SelectOption } from "@sphere/ui"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSelector, createSlice } from "@reduxjs/toolkit"
 import type { TerrainSpecification } from "maplibre-gl"
@@ -17,7 +18,7 @@ type TerrainState = {
 const initialState: TerrainState = {
     show: false,
     hillshade: false,
-    exaggeration: 1.5,
+    exaggeration: TERRAIN_EXAGGERATION.default,
 }
 
 export const terrainSlice = createSlice({
@@ -68,6 +69,10 @@ export const selectTerrainCandidates = createSelector(
             const encoding = demEncodingOf(source)
             return source && encoding ? [{ id, name: source.name, encoding }] : []
         }),
+)
+
+export const selectTerrainSourceOptions = createSelector([selectTerrainCandidates], (candidates): SelectOption[] =>
+    candidates.map(({ id, name }) => ({ value: id, label: name })),
 )
 
 export const selectHasTerrainSource = (state: RootState) => selectTerrainCandidates(state).length > 0

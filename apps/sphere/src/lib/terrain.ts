@@ -16,7 +16,7 @@ const RASTER_LAYER_TYPE = "raster"
 
 export const HILLSHADE_LAYER_ID = "sphere-hillshade"
 
-export const TERRAIN_EXAGGERATION = { min: 0, max: 3, step: 0.1 }
+export const TERRAIN_EXAGGERATION = { min: 0, max: 3, step: 0.1, default: 1.5 }
 
 // The elevation encoding of a source, or null when the source is not elevation data
 export function demEncodingOf(source: Source | undefined): DemEncoding | null {
