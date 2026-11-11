@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { configureStore, type Middleware } from "@reduxjs/toolkit"
 import type { TileJSON } from "@/types/tilejson"
 import { describe, expect, test } from "vitest"
 import sourceReducer, { sourceSlice } from "../source"
@@ -6,9 +6,11 @@ import terrainReducer, { terrainSlice } from "../terrain"
 import listener from "./resolve-terrain-source"
 
 function makeStore() {
+    // The listener is typed by the full RootState, but it reads only the source and terrain slices
+    const listenerMiddleware: Middleware = listener.middleware
     return configureStore({
         reducer: { source: sourceReducer, terrain: terrainReducer },
-        middleware: getDefault => getDefault().prepend(listener.middleware),
+        middleware: getDefault => getDefault().prepend(listenerMiddleware),
     })
 }
 

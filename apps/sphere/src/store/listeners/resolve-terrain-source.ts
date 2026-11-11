@@ -3,7 +3,7 @@ import type { RootState } from ".."
 import { actions } from "../actions"
 import { selectTerrainCandidates } from "../terrain"
 
-const listener = createListenerMiddleware()
+const listener = createListenerMiddleware<RootState>()
 
 // The id the terrain should point at, or undefined when there is no elevation source
 function expectedSourceId(state: RootState) {
@@ -22,9 +22,9 @@ function isStale(state: RootState) {
 }
 
 listener.startListening({
-    predicate: (_, currentState) => isStale(currentState as RootState),
+    predicate: (_, currentState) => isStale(currentState),
     effect: (_, listenerApi) => {
-        listenerApi.dispatch(actions.terrain.setSource(expectedSourceId(listenerApi.getState() as RootState)))
+        listenerApi.dispatch(actions.terrain.setSource(expectedSourceId(listenerApi.getState())))
     },
 })
 
