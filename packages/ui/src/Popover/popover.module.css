@@ -1,0 +1,24 @@
+/* The popup surface mirrors the ContextMenu dropdown: dropdown colours, 1px border, radius sm, shadow md. */
+.positioner {
+    z-index: var(--sphere-z-index-popover);
+}
+
+.popup {
+    --popover-width: 240px;
+    --popover-padding: var(--sphere-space-sm);
+
+    box-sizing: border-box;
+    width: var(--popover-width);
+    padding: var(--popover-padding);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sphere-space-sm);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-xs);
+    color: var(--sphere-color-text);
+    background-color: var(--sphere-color-dropdown-bg);
+    border: 1px solid var(--sphere-color-dropdown-border);
+    border-radius: var(--sphere-radius-sm);
+    box-shadow: var(--sphere-shadow-md);
+    outline: 0;
+}

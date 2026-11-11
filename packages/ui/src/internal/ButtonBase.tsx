@@ -1,5 +1,5 @@
 import { Button as BaseButton } from "@base-ui/react/button"
-import type { ReactNode } from "react"
+import type { MouseEvent, ReactNode, Ref } from "react"
 import s from "./button-base.module.css"
 
 /** push: a bordered push button with text. glyph: a borderless glyph. bordered-glyph: a glyph in a push-button
@@ -29,6 +29,9 @@ export type ButtonBaseProps = {
      * custom properties (the statusbar). Never a colour declaration of its own. */
     className?: string
     onClick?: () => void
+    /** Right click. The handler decides whether to suppress the native context menu. */
+    onContextMenu?: (event: MouseEvent<HTMLButtonElement>) => void
+    ref?: Ref<HTMLButtonElement>
     children: ReactNode
 }
 
@@ -46,12 +49,15 @@ export function ButtonBase({
     type = "button",
     className,
     onClick,
+    onContextMenu,
+    ref,
     children,
 }: ButtonBaseProps) {
     const classes = className === undefined ? s.root : `${s.root} ${className}`
 
     return (
         <BaseButton
+            ref={ref}
             className={classes}
             type={type}
             disabled={disabled}
@@ -65,6 +71,7 @@ export function ButtonBase({
             data-tone={tone}
             data-active={active === true ? "" : undefined}
             onClick={() => onClick?.()}
+            onContextMenu={onContextMenu}
         >
             {children}
         </BaseButton>

@@ -1,5 +1,6 @@
 import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
+import { createRef } from "react"
 import { describe, expect, it, vi } from "vitest"
 import { Statusbar, StatusbarBadge, StatusbarButton } from "."
 
@@ -102,6 +103,29 @@ describe("StatusbarButton", () => {
         for (const button of screen.getAllByRole("button")) {
             expectDesktopInteraction(button)
         }
+    })
+})
+
+describe("StatusbarButton context menu", () => {
+    it("calls onContextMenu on right click and prevents the default menu", () => {
+        const onContextMenu = vi.fn()
+        render(<StatusbarButton icon={ICON} label="Go" onClick={vi.fn()} onContextMenu={onContextMenu} />)
+        const notPrevented = fireEvent.contextMenu(screen.getByRole("button", { name: "Go" }))
+        expect(onContextMenu).toHaveBeenCalledTimes(1)
+        expect(notPrevented).toBe(false)
+    })
+
+    it("does not call onContextMenu when disabled", () => {
+        const onContextMenu = vi.fn()
+        render(<StatusbarButton icon={ICON} label="Go" disabled onClick={vi.fn()} onContextMenu={onContextMenu} />)
+        fireEvent.contextMenu(screen.getByRole("button", { name: "Go" }))
+        expect(onContextMenu).not.toHaveBeenCalled()
+    })
+
+    it("forwards ref to the button", () => {
+        const ref = createRef<HTMLButtonElement>()
+        render(<StatusbarButton ref={ref} icon={ICON} label="Go" onClick={vi.fn()} />)
+        expect(ref.current).toBe(screen.getByRole("button", { name: "Go" }))
     })
 })
 

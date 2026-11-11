@@ -1,0 +1,53 @@
+.root {
+    display: flex;
+}
+
+.label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sphere-space-xs);
+}
+
+.track {
+    --switch-width: 28px;
+    --switch-height: 16px;
+    --switch-padding: 2px;
+    --switch-thumb-size: calc(var(--switch-height) - 2 * var(--switch-padding));
+
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: var(--switch-width);
+    height: var(--switch-height);
+    margin: 0;
+    padding: var(--switch-padding);
+    border: 0;
+    border-radius: var(--sphere-radius-xl);
+    background-color: var(--sphere-color-slider-track);
+    cursor: default;
+    outline: 0;
+    transition: background-color var(--sphere-duration-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.track[data-checked] {
+    background-color: var(--sphere-color-accent);
+}
+
+.track:focus-visible {
+    outline: 2px solid var(--sphere-color-accent);
+    outline-offset: 2px;
+}
+
+.thumb {
+    width: var(--switch-thumb-size);
+    height: var(--switch-thumb-size);
+    border-radius: var(--sphere-radius-xl);
+    background-color: var(--sphere-color-slider-thumb-bg);
+    transition: transform var(--sphere-duration-fast) ease;
+}
+
+.thumb[data-checked] {
+    transform: translateX(calc(var(--switch-width) - var(--switch-height)));
+}
