@@ -25,6 +25,7 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
     const selectionSourceId = useAppSelector(selectors.selection.sourceId)
     const selectionCount = useAppSelector(selectors.selection.count)
     const copyWrapFc = useAppSelector(selectors.settings.selectCopyWrapAsFeatureCollection)
+    const hasTerrainSource = useAppSelector(selectors.terrain.hasSource)
     const copyWktSeparator = useAppSelector(selectors.settings.selectCopyWktSeparator)
 
     const commands: Command[] = [
@@ -76,14 +77,18 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
                 dispatch(actions.sky.toggle())
             },
         },
-        {
-            id: "terrain",
-            title: "Terrain",
-            description: "Toggle terrain",
-            onTrigger: () => {
-                dispatch(actions.terrain.toggle())
-            },
-        },
+        ...(hasTerrainSource
+            ? [
+                  {
+                      id: "terrain",
+                      title: "Terrain",
+                      description: "Toggle terrain",
+                      onTrigger: () => {
+                          dispatch(actions.terrain.toggle())
+                      },
+                  },
+              ]
+            : []),
         {
             id: "globe",
             title: "Globe",

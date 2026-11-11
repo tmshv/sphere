@@ -81,7 +81,7 @@ The following code smells are strictly forbidden:
 - `error` - Transient error state surfaced in the UI; populated by the `fail` listener, cleared by `clearError`
 - `properties` - Feature property display state (hover/inspect entries shown in the properties panel)
 - `sky` - Map sky layer toggle/config
-- `terrain` - 3D terrain toggle/config
+- `terrain` - 3D terrain and hillshade. State: `show`, `hillshade`, `exaggeration` (0-3, default 1.5), `sourceId`. Candidates (`selectTerrainCandidates`) are every raster MBTiles source (assumed Terrarium) and every web `Raster` source with a `dem` encoding (`terrarium`/`mapbox`), regardless of Sources-tree visibility; `selectHasTerrainSource` is true when any exists. The `resolve-terrain-source` listener keeps `sourceId` on a current candidate (the newest when the stored one is gone) and only ever changes `sourceId`, never `show`/`hillshade`/`exaggeration`. The Mapterhorn preset is added by `source.addTerrainProvider` (`add-terrain-provider` listener, Spotlight "Add Mapterhorn terrain"); its only auto-enable rule is that when it is the first elevation source it also turns terrain and hillshade on (`enableFor`). Draw mode suspends terrain only (hillshade stays). `TerrainSources` (in `SphereMap`) mounts `terrain-dem-<id>` / `hillshade-dem-<id>` `raster-dem` sources and the `sphere-hillshade` layer, which `useHillshadePlacement` keeps above the topmost raster layer. The Terrain status bar button (`TerrainButton`) toggles terrain, is disabled without a candidate, and its right-click popup picks the source, exaggeration and hillshade
 - `tileBoundaries` - Tile-grid debug overlay toggle
 
 > Note: `map` is **not** a Redux slice — it is a `createAction`/`createListenerMiddleware` module (`store/map.ts`) wired into the store's middleware, not the reducer. Map viewport changes flow through that listener, not a slice reducer.
@@ -203,7 +203,7 @@ The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/
 
 **Native Menu** (`src-tauri/src/menu/`): `spec.rs` holds the whole menu tree as pure data (`menu_spec()`) and is unit-tested for id uniqueness, namespacing, and accelerator collisions; `mod.rs` builds the Tauri menu from that spec and forwards clicks as the `menu` event. `build` has no unit test because `muda` refuses to create menu items off the main thread. Toggle items are plain text items, not check items — the backend cannot know Redux state, and a stale checkmark would fake it.
 
-Each custom item declares a `Requires` (`Always` / `Source` / `Layer` / `Selection`). Items with an unmet requirement are built disabled and re-enabled by `menu_set_context`, so the menu never offers an action that would do nothing. The frontend sends only state facts (`hasSource`, `hasLayer`, `hasSelection`); the spec stays the single place that knows which items each fact governs.
+Each custom item declares a `Requires` (`Always` / `Source` / `Layer` / `Selection` / `TerrainSource`). Items with an unmet requirement are built disabled and re-enabled by `menu_set_context`, so the menu never offers an action that would do nothing. The frontend sends only state facts (`hasSource`, `hasLayer`, `hasSelection`, `hasTerrainSource`); the spec stays the single place that knows which items each fact governs.
 
 Frontend wiring: `store/menu.ts` (the `menu/trigger` action and `selectMenuContext`), `store/listeners/menu.ts` (id → real actions), `store/listeners/menu-context.ts` (watches the derived context via a `predicate` and invokes `menu_set_context`), and `handleMenu()` in `tauri.ts`. To add a menu item: add it to the Rust spec, then add its id to the switch in `listeners/menu.ts`.
 
@@ -245,7 +245,7 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `selection_cache_features` | Cache features server-side for later rect queries: `(features_json) -> ()` |
 | `selection_copy_geojson`   | Copy selected features as GeoJSON: `(source_id, wrap_fc: bool) -> String` |
 | `selection_copy_wkt`       | Copy selected features as WKT: `(source_id, separator: String) -> String` |
-| `menu_set_context`         | Enable/disable context-dependent native menu items: `(context: { hasSource, hasLayer, hasSelection }) -> ()` |
+| `menu_set_context`         | Enable/disable context-dependent native menu items: `(context: { hasSource, hasLayer, hasSelection, hasTerrainSource }) -> ()` |
 
 ## State Management Principles
 
