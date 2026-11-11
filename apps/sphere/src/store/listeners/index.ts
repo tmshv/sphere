@@ -1,5 +1,6 @@
 export { default as addBlankLayer } from "./add-blank-layer"
 export { default as addBasemap } from "./add-basemap"
+export { default as addTerrainProvider } from "./add-terrain-provider"
 export { default as duplicateLayer } from "./duplicate-layer"
 export { default as forceResizeMap } from "./force-resize"
 export { default as fail } from "./fail"

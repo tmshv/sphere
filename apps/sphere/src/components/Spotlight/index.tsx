@@ -45,6 +45,14 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
             },
         },
         {
+            id: "add-mapterhorn",
+            title: "Add Mapterhorn terrain",
+            description: "Add Mapterhorn elevation source",
+            onTrigger: () => {
+                dispatch(actions.source.addTerrainProvider("mapterhorn"))
+            },
+        },
+        {
             id: "toggle-dark-theme",
             title: "Toggle Dark Theme",
             description: "Set Dark or Light theme",
