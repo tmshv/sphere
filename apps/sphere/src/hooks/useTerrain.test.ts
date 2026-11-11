@@ -4,16 +4,32 @@ import type { MapRef } from "react-map-gl/maplibre"
 import { describe, expect, it, vi } from "vitest"
 import useTerrain from "./useTerrain"
 
-// A map whose terrain and sources behave like MapLibre's: setTerrain throws for a source that is not on the map
+type MockStyle = { _loaded: boolean }
+
+// A map whose terrain, sources and style behave like MapLibre's: setTerrain throws for a source that is not on
+// the map and while the style is missing or still loading, and removeSource fires `sourcedata` synchronously
 function makeMap(sourceIds: string[]) {
     const sources = new Set(sourceIds)
     const listeners = new Map<string, Set<() => void>>()
     let terrain: TerrainSpecification | null = null
+    // Every terrain source passed to setTerrain while that source was not on the map
+    const missingSources: string[] = []
+    let style: MockStyle | undefined = { _loaded: true }
     const map = {
+        get style() {
+            return style
+        },
         getSource: vi.fn((id: string) => (sources.has(id) ? { id } : undefined)),
         getTerrain: vi.fn(() => terrain),
         setTerrain: vi.fn((options: TerrainSpecification | null) => {
+            if (!style) {
+                throw new TypeError("Cannot read properties of undefined (reading '_checkLoaded')")
+            }
+            if (!style._loaded) {
+                throw new Error("Style is not done loading.")
+            }
             if (options && !sources.has(options.source)) {
+                missingSources.push(options.source)
                 throw new Error(`cannot load terrain, because there exists no source with ID: ${options.source}`)
             }
             terrain = options
@@ -24,16 +40,34 @@ function makeMap(sourceIds: string[]) {
             return { unsubscribe: () => ofType.delete(listener) }
         }),
     }
-    function addSource(id: string) {
-        sources.add(id)
+    function fireSourceData() {
         for (const listener of listeners.get("sourcedata") ?? []) {
             listener()
         }
     }
+    function addSource(id: string) {
+        sources.add(id)
+        fireSourceData()
+    }
     function removeSource(id: string) {
         sources.delete(id)
+        fireSourceData()
     }
-    return { map, addSource, removeSource, listeners }
+    // `map.remove()` deletes the style but leaves the terrain set
+    function removeStyle() {
+        style = undefined
+    }
+    // `setStyle` swaps in a style that is not loaded yet and has none of the old sources; the terrain stays
+    // set until the new style loads, which resets it
+    function reloadStyle() {
+        style = { _loaded: false }
+        sources.clear()
+    }
+    function finishStyleLoad() {
+        style = { _loaded: true }
+        terrain = null
+    }
+    return { map, addSource, removeSource, removeStyle, reloadStyle, finishStyleLoad, listeners, missingSources }
 }
 
 function makeRef(map: ReturnType<typeof makeMap>["map"]) {
@@ -45,7 +79,7 @@ const terrainB: TerrainSpecification = { source: "terrain-dem-b", exaggeration: 
 
 describe("useTerrain", () => {
     it("does nothing without a map", () => {
-        renderHook(() => useTerrain(undefined, terrainA))
+        expect(() => renderHook(() => useTerrain(undefined, terrainA)).unmount()).not.toThrow()
     })
 
     it("sets the terrain when its source is on the map", () => {
@@ -132,5 +166,47 @@ describe("useTerrain", () => {
 
         expect(map.getTerrain()).toBeNull()
         expect([...listeners.values()].every(ofType => ofType.size === 0)).toBe(true)
+    })
+
+    it("clears the terrain as soon as its source is removed, before the new options arrive", () => {
+        const { map, removeSource, missingSources } = makeMap(["terrain-dem-a", "terrain-dem-b"])
+        const ref = makeRef(map)
+        const { rerender } = renderHook(({ options }) => useTerrain(ref, options), {
+            initialProps: { options: terrainA },
+        })
+        removeSource("terrain-dem-a")
+
+        expect(map.getTerrain()).toBeNull()
+
+        rerender({ options: terrainB })
+
+        expect(map.getTerrain()).toEqual(terrainB)
+        expect(missingSources).toEqual([])
+    })
+
+    it("leaves the terrain alone on unmount once the map has removed its style", () => {
+        const { map, removeStyle } = makeMap(["terrain-dem-a"])
+        const { unmount } = renderHook(() => useTerrain(makeRef(map), terrainA))
+        removeStyle()
+
+        expect(() => unmount()).not.toThrow()
+        expect(map.setTerrain).toHaveBeenCalledTimes(1)
+    })
+
+    it("does not clear the terrain while a new style is loading", () => {
+        const { map, reloadStyle, finishStyleLoad, addSource } = makeMap(["terrain-dem-a"])
+        const ref = makeRef(map)
+        const { rerender } = renderHook(({ options }) => useTerrain(ref, options), {
+            initialProps: { options: terrainA },
+        })
+        reloadStyle()
+
+        expect(() => rerender({ options: { ...terrainA } })).not.toThrow()
+        expect(map.setTerrain).not.toHaveBeenCalledWith(null)
+
+        finishStyleLoad()
+        addSource("terrain-dem-a")
+
+        expect(map.getTerrain()).toEqual(terrainA)
     })
 })

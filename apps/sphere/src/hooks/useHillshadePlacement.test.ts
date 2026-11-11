@@ -46,7 +46,7 @@ const parks: MockLayer = { id: "parks", type: "fill" }
 
 describe("useHillshadePlacement", () => {
     it("does nothing without a map", () => {
-        renderHook(() => useHillshadePlacement(undefined))
+        expect(() => renderHook(() => useHillshadePlacement(undefined)).unmount()).not.toThrow()
     })
 
     it("moves the hillshade directly above the topmost raster", () => {
