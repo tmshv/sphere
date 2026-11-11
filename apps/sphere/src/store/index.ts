@@ -75,6 +75,7 @@ export const store = configureStore({
             listeners.copySelection.middleware,
             listeners.loadSourceInfo.middleware,
             listeners.applyCsvGeometry.middleware,
+            listeners.resolveTerrainSource.middleware,
         )
     },
 })
