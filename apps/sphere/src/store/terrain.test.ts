@@ -99,6 +99,22 @@ describe("selectTerrainSpecification", () => {
         const terrain = reducer(undefined, pick("a"))
         expect(selectTerrainSpecification(makeState(sources, { terrain, drawing: true }))).toBeNull()
     })
+
+    test("is null without a terrain source", () => {
+        const terrain = reducer(undefined, pick("a"))
+        expect(selectTerrainSpecification(makeState([raster("osm")], { terrain }))).toBeNull()
+    })
+
+    test("returns the same object while its inputs are unchanged", () => {
+        const terrain = reducer(undefined, pick("a"))
+        const state = makeState(sources, { terrain })
+        const first = selectTerrainSpecification(state)
+
+        expect(first).not.toBeNull()
+        expect(selectTerrainSpecification(state)).toBe(first)
+        // An unrelated change, like a hover or a viewport update, makes a new root state
+        expect(selectTerrainSpecification({ ...state })).toBe(first)
+    })
 })
 
 describe("terrain reducers", () => {

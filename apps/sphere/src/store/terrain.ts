@@ -83,16 +83,16 @@ export const selectTerrainSource = createSelector(
         candidates.find(candidate => candidate.id === sourceId) ?? candidates.at(-1) ?? null,
 )
 
-export function selectTerrainSpecification(state: RootState): TerrainSpecification | null {
-    const source = selectTerrainSource(state)
-    if (!state.terrain.show || draw.selectors.isDrawing(state) || !source) {
-        return null
-    }
-    return {
-        source: terrainDemSourceId(source.id),
-        exaggeration: state.terrain.exaggeration,
-    }
-}
+// Memoized: MapBody reads it on every dispatch, and a fresh object would re-render the map and resubscribe useTerrain
+export const selectTerrainSpecification = createSelector(
+    [selectIsShowTerrain, draw.selectors.isDrawing, selectTerrainSource, selectTerrainExaggeration],
+    (show, drawing, source, exaggeration): TerrainSpecification | null => {
+        if (!show || drawing || !source) {
+            return null
+        }
+        return { source: terrainDemSourceId(source.id), exaggeration }
+    },
+)
 
 export function selectHillshadeSourceId(state: RootState): string | null {
     const source = selectTerrainSource(state)
