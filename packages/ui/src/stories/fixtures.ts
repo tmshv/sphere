@@ -35,6 +35,7 @@ import type { SegmentedControlOption, SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
 import type { TreeItem } from "../Tree"
 import { IconToggle } from "../Button"
+import { KbdShortcut } from "../Kbd"
 import { duration } from "../tokens"
 import { ICON_SIZE } from "./layout"
 
@@ -244,9 +245,14 @@ export const PALETTE_HINT = `Press Ctrl+${PALETTE_KEY.toUpperCase()} to open the
 export const PALETTE_NO_MATCH_QUERY = "zzzz"
 export const BUTTON_TYPES: ReadonlyArray<"button" | "submit"> = ["button", "submit"]
 
+// Menu shortcuts are drawn as key caps.
+function shortcut(keys: ReadonlyArray<string>): ReactNode {
+    return createElement(KbdShortcut, { keys })
+}
+
 export const CONTEXT_MENU_ITEMS = {
-    zoom: { label: "Zoom to source", shortcut: "Z", icon: glyph(IconZoomReset) },
-    edit: { label: "Edit features", shortcut: "E", icon: glyph(IconPencil) },
+    zoom: { label: "Zoom to source", shortcut: shortcut(["⌘", "Z"]), icon: glyph(IconZoomReset) },
+    edit: { label: "Edit features", shortcut: shortcut(["⌘", "E"]), icon: glyph(IconPencil) },
     remove: { label: "Remove source", icon: glyph(IconTrash) },
     rename: { label: "Rename" },
     copy: { label: "Copy as GeoJSON" },

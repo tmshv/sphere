@@ -55,7 +55,8 @@ export function ContextMenu({ opened, position, onClose, children }: ContextMenu
 
 export type ContextMenuItemProps = {
     icon?: ReactNode
-    shortcut?: string
+    /** Right-aligned after the label: text ("⌘K") or a KbdShortcut. */
+    shortcut?: ReactNode
     disabled?: boolean
     onClick?: () => void
     children: ReactNode

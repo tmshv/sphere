@@ -1,4 +1,4 @@
-/* A centred macOS window: window background, 6px radius, the window shadow, 20px padding, a 14px bold title and a
+/* A centred macOS window: window background, 6px radius, the window shadow, 12px padding (the sidebar inset), a 14px bold title and a
    14px body, buttons bottom-right. It fades in and out over duration-fast with no scale or translate. */
 .backdrop,
 .viewport {
@@ -30,7 +30,7 @@
     width: var(--dialog-width);
     max-width: 100%;
     margin-block: auto;
-    padding: var(--sphere-space-20);
+    padding: var(--sphere-space-12);
     outline: 0;
     background-color: var(--sphere-color-window);
     color: var(--sphere-color-label);
@@ -52,8 +52,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--sphere-space-16);
-    margin-bottom: var(--sphere-space-16);
+    gap: var(--sphere-space-12);
+    margin-bottom: var(--sphere-space-12);
 }
 
 .title {
@@ -71,7 +71,7 @@
 .footer {
     display: flex;
     flex-direction: row;
-    gap: var(--sphere-space-12);
+    gap: var(--sphere-space-8);
     justify-content: flex-end;
-    margin-top: var(--sphere-space-20);
+    margin-top: var(--sphere-space-12);
 }

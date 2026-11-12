@@ -2,6 +2,12 @@
    background with a hairline border and the popup shadow, 6px above and below the items and nothing at the sides,
    so the highlighted item runs edge to edge. Menus appear instantly and fade out over duration-fast. */
 .surface {
+    /* The space between the menu edge and the check/icon column, the column itself, and where text starts after
+       both. Items and group labels read them, so every label lines up whether or not its item has an icon. */
+    --menu-inset: var(--sphere-space-8);
+    --menu-icon-column: var(--sphere-space-24);
+    --menu-text-inset: calc(var(--menu-inset) + var(--menu-icon-column));
+
     box-sizing: border-box;
     padding: var(--sphere-space-6) 0;
     outline: 0;
@@ -24,7 +30,8 @@
     opacity: 0;
 }
 
-/* A menu-item-height row: the left padding is the check/icon column, the shortcut sits right in the secondary colour. The
+/* A menu-item-height row: the left padding is an inset plus the check/icon column, the shortcut sits right in the
+   secondary colour. The
    highlight follows the pointer and the keyboard alike ([data-highlighted]); there is no hover style. */
 .item {
     /* The shortcut never takes more than this share of the row, so a long one truncates too. */
@@ -37,7 +44,9 @@
     gap: var(--sphere-space-20);
     width: 100%;
     height: var(--sphere-menu-item-height);
-    padding: 0 var(--sphere-space-20) 0 var(--sphere-space-24);
+    padding-block: 0;
+    padding-right: var(--sphere-space-20);
+    padding-left: var(--menu-text-inset);
     border: 0;
     outline: 0;
     background-color: transparent;
@@ -81,17 +90,17 @@
     color: inherit;
 }
 
-/* The check and the icon sit centred in the 24px left padding column, so items with and without one line up. */
+/* The check and the icon sit centred in the 24px column after the inset, so items with and without one line up. */
 .itemIcon,
 .itemCheck {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
+    left: var(--menu-inset);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--sphere-space-24);
+    width: var(--menu-icon-column);
     line-height: 0;
 }
 
@@ -112,7 +121,9 @@
     display: flex;
     align-items: center;
     height: var(--sphere-menu-item-height);
-    padding: 0 var(--sphere-space-20) 0 var(--sphere-space-24);
+    padding-block: 0;
+    padding-right: var(--sphere-space-20);
+    padding-left: var(--menu-text-inset);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
