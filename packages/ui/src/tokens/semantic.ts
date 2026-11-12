@@ -45,8 +45,10 @@ const ACCENT_PRESSED_SHADE = 0.2
 // How far the dark accent is tinted towards white for a toggled-on glyph, so it keeps 3:1 (WCAG 1.4.11) on the dark
 // window and on the dark control body; the light accent already does.
 const ACCENT_GLYPH_DARK_TINT = 0.35
-// The focus ring is a translucent glow of the accent; it is not text, so it need not meet text contrast.
-const FOCUS_RING_ALPHA = 0.5
+// The focus ring is an opaque accent tinted towards white: light enough to stand apart from an accent button body, dark
+// enough (light theme) or light enough (dark theme) to keep 3:1 (WCAG 1.4.11) on window, sidebar and content.
+const FOCUS_RING_LIGHT_TINT = 0.15
+const FOCUS_RING_DARK_TINT = 0.35
 // The hairline under a push button.
 const CONTROL_SHADOW_LIGHT_ALPHA = 0.15
 const CONTROL_SHADOW_DARK_ALPHA = 0.4
@@ -60,10 +62,6 @@ function both(value: string): SemanticValue {
 
 function shade(color: SemanticValue, amount: number): SemanticValue {
     return { light: mix(color.light, BLACK, amount), dark: mix(color.dark, BLACK, amount) }
-}
-
-function translucent(color: SemanticValue, alpha: number): SemanticValue {
-    return { light: withAlpha(color.light, alpha), dark: withAlpha(color.dark, alpha) }
 }
 
 const label: SemanticValue = { light: BLACK, dark: gray[2] }
@@ -99,7 +97,10 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     "on-accent": both(WHITE),
     selection: shade(accent, SELECTION_SHADE),
     "selection-inactive": { light: gray[3], dark: gray[8] },
-    "focus-ring": translucent(accent, FOCUS_RING_ALPHA),
+    "focus-ring": {
+        light: mix(accent.light, WHITE, FOCUS_RING_LIGHT_TINT),
+        dark: mix(accent.dark, WHITE, FOCUS_RING_DARK_TINT),
+    },
     danger: palette.red,
     warning: palette.orange,
     ok: palette.green,

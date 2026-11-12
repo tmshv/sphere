@@ -37,7 +37,8 @@ const PAIRS: ReadonlyArray<Pair> = [
 
 // A toggled-on glyph sits on a surface, or inside a bordered button on its rest or pressed body.
 const GLYPH_SURFACES: ReadonlyArray<SemanticColor> = [...LABEL_SURFACES, "control", "control-pressed"]
-const NON_TEXT_PAIRS: ReadonlyArray<Pair> = on("accent-glyph", GLYPH_SURFACES)
+// The focus ring is the only sign of keyboard focus on a borderless control, so it must stand out from the surface.
+const NON_TEXT_PAIRS: ReadonlyArray<Pair> = [...on("accent-glyph", GLYPH_SURFACES), ...on("focus-ring", LABEL_SURFACES)]
 
 describe("contrastRatio", () => {
     it("is 21 for black on white and 1 for a colour on itself", () => {
