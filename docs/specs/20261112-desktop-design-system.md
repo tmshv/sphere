@@ -17,7 +17,13 @@ rows and section headers, 24px menu items, field and button text inset 10px and
 statusbar keeps Sphere's own look (a near-black strip with bold uppercase
 monospace readouts) in both themes. The sidebar tab list aligns left. The
 interaction model (no hover, colour-only press, focus ring, arrow cursor) is
-unchanged. The sections below are updated to these values.
+unchanged. A second round then dropped the 3px radius (tooltips and badges use
+the control radius), gave text fields and the colour well the control radius,
+made the selection a light blue that looks the same with or without focus,
+brought back the chevron in trees and section headers, set labels in the
+regular weight, gave menus more padding, replaced `VisibilityToggle` with the
+generic `IconToggle` (the bulb now lives in the app) and added `Kbd`. The
+sections below are updated to these values.
 
 ## Problem
 
@@ -158,9 +164,9 @@ value:
 
 | Element                                           | Radius |
 | ------------------------------------------------- | ------ |
-| Text field, colour well, table, list, tree, panel | 0      |
+| Table, list, tree, panel                          | 0      |
 | Push button, pop-up button, segmented control     | 4px    |
-| Tooltip, badge                                    | 3px    |
+| Text field, colour well, key cap, tooltip, badge  | 4px    |
 | Menu, select list, popover, command palette       | 5px    |
 | Dialog                                            | 6px    |
 | Search field (command palette input)              | pill   |
@@ -179,7 +185,7 @@ than padding.
 | Role                                            | Size | Weight   |
 | ----------------------------------------------- | ---- | -------- |
 | Statusbar, captions, badges                     | 10px | regular  |
-| Section headers (uppercase), field labels, help | 12px | semibold |
+| Section headers (uppercase), field labels, help | 12px | regular  |
 | Sidebar rows, panel body, table cells, inputs   | 12px | regular  |
 | Buttons, segments, tabs                         | 12px | regular  |
 | Menus, tooltips, dialog body                    | 14px | regular  |
@@ -194,11 +200,10 @@ inset 12px.
 
 ### Selection
 
-Lists and trees use source-list selection: the selected row is filled
-edge to edge with `selection` and its text and glyphs turn `on-accent` while
-the list has focus (`:focus-within`); when focus is elsewhere it falls back to
-`selection-inactive` with normal text. Glyphs given an explicit colour (the
-bulb's layer colour) keep it. No hover tint.
+Lists, trees and menus mark the active item with `selection`, a light blue
+filled edge to edge, under the plain `label` text. It looks the same whether
+or not the list has focus, so the active item never flickers between two
+looks. Icons and glyphs keep their own colours on it. No hover tint.
 
 ### Focus
 
@@ -217,11 +222,12 @@ Menus and tooltips appear instantly and fade out over `duration-fast`
 ### Popups and windows
 
 - **Menu surface** (`ContextMenu`, `Select` list, `CommandPalette`): `popup`
-  background, hairline `popup-border`, `popup` shadow, 5px radius, 4px
+  background, hairline `popup-border`, `popup` shadow, 5px radius, 6px
   vertical padding and none horizontal. Items are 14px, 24px tall, padded
-  20px left (the check/icon column) and 16px right, shortcut right-aligned in
-  the secondary colour. The highlighted item is `selection` with `on-accent`
-  text, edge to edge. Separators are a 1px `separator` line with 5px above
+  24px left (the check/icon column, so items with and without an icon line
+  up) and 20px right, shortcut right-aligned in the secondary colour. The
+  highlighted item is the light blue `selection` with `label` text, edge to
+  edge. Separators are a 1px `separator` line with 5px above
   and below. Group labels are 12px secondary.
 - **Context menu** opens with its top-left corner at the pointer (0 offset),
   flips and shifts at the window edges with a 4px margin, width fits its
@@ -230,7 +236,7 @@ Menus and tooltips appear instantly and fade out over `duration-fast`
   title 14px bold, body 14px, buttons bottom-right with the primary button
   last. No dimming scrim (the backdrop stays transparent and still blocks
   clicks), no scale animation.
-- **Tooltip**: `tooltip` background, hairline border, 3px radius, 12px text,
+- **Tooltip**: `tooltip` background, hairline border, 4px radius, 12px text,
   no arrow, 700ms delay.
 
 ### Colour
@@ -288,8 +294,8 @@ role or palette value, never as a new literal. The set, at least:
 | `accent`                    | primary button, toggled-on glyph, slider fill    |
 | `accent-pressed`            | primary button while pressed                     |
 | `on-accent`                 | text and glyphs on accent or selection           |
-| `selection`                 | selected row / highlighted menu item, focused    |
-| `selection-inactive`        | selected row when its list is not focused        |
+| `selection`                 | light blue selected row / highlighted menu item  |
+| `selection-inactive`        | the skeleton placeholder fill                    |
 | `focus-ring`                | keyboard focus glow                              |
 | `danger`, `warning`, `ok`   | status text and fills                            |
 | `scrim`                     | the transparent dialog backdrop (kept a token)   |
@@ -301,7 +307,7 @@ role or palette value, never as a new literal. The set, at least:
 
 - `space`: 2, 4, 6, 8, 10, 12, 14, 16, 20 (names `xxs`…`xl` or numeric,
   builder's call, applied consistently).
-- `radius`: `none` 0, `tooltip` 3, `control` 4, `popup` 5, `window` 6,
+- `radius`: `none` 0, `control` 4, `popup` 5, `window` 6,
   `pill` 999.
 - `fontSize`: `mini` 10, `small` 12, `body` 12, `regular` 14 (see Density
   and type). Heading sizes beyond 14px only if a component needs one.
@@ -342,8 +348,8 @@ component built on it:
 | `Button`                                  | primitive, `push`, variants `primary` / `secondary` |
 | `IconButton`                              | primitive, `glyph` or bordered, sizes `sm` / `md`   |
 | `ActionBar` actions                       | `IconButton` (glyph, md)                            |
-| `VisibilityToggle`                        | `IconButton` (glyph, md)                            |
-| `StatusbarButton`                         | `IconButton` (glyph, sm)                            |
+| `IconToggle`                              | primitive, `glyph`, two icon/label states           |
+| `StatusbarButton`                         | primitive, `glyph`, `sm`, recoloured for the strip  |
 | `PropertiesTable` pager                   | `IconButton` (glyph, sm)                            |
 | `Dialog` close                            | `IconButton` (glyph, md)                            |
 | `SectionStack` header, chevrons in `Tree` | primitive (reset only), no press colour             |
@@ -367,8 +373,14 @@ the grey glyph.
   with the glyph, for toolbars over the map.
 - **ActionBar**: a row of glyph buttons with a 2px gap, disabled actions use
   the shared disabled opacity.
-- **VisibilityToggle**: glyph button; hidden state uses the tertiary label
-  colour for the bulb-off glyph.
+- **IconToggle**: a glyph button with two states (`value`), each with its own
+  icon and label (`on`, `off`); the off glyph is dimmed to the tertiary label
+  colour, an icon with its own colour keeps it. It is not a pressed toggle: it
+  never turns accent. The app's outline bulb (`VisibilityToggle` in
+  `apps/sphere`) is an `IconToggle` with the bulb icons and Hide / Show.
+- **Kbd**: a key cap (control body, hairline border, control shadow, 4px
+  radius, 12px secondary text, 18px tall); `KbdShortcut` puts the caps of a
+  combination side by side inside one `<kbd>`.
 - **Tabs**: an NSTabView-style segmented control, aligned left above the
   panel, 30px tall, 12px text; the selected tab is `accent` with `on-accent` text,
   unselected tabs are the bordered control body. No hover.
@@ -377,9 +389,10 @@ the grey glyph.
 - **Select**: a pop-up button (bordered body, value left, a double chevron
   glyph right). Its list uses the shared menu surface with a checkmark on the
   current value. Search behaviour unchanged.
-- **TextField**: square (radius 0) field, `content` background,
+- **TextField**: field with the control radius (4px), `content` background,
   `control-border` hairline, 30px, 12px text, focus ring while focused.
-- **ColorField**: a colour well (square swatch in a bordered frame) plus the
+- **ColorField**: a colour well (a swatch in a bordered frame with the
+  control radius) plus the
   hex field; picker popup uses the popup surface.
 - **SliderField**: 4px track (`control-border`-coloured, accent fill), 16px
   white circular knob with hairline border and `control` shadow; no hover or
@@ -392,10 +405,10 @@ the grey glyph.
 - **Dialog**: see Popups and windows.
 - **Tooltip** (internal): see Popups and windows.
 - **Tree / TreeRow**: 30px rows, 12px text, source-list selection, no hover.
-  The chevron is a disclosure triangle (a custom filled-triangle glyph added
-  to `@sphere/icons` as `IconDisclosure`, same props as vendor icons).
-- **SectionStack**: headers are 30px, 12px semibold uppercase secondary text
-  with a disclosure triangle, no background fill, a `separator` line above.
+  The disclosure is a 14px chevron (`IconChevronRight`) that turns down when
+  open, as before the redesign.
+- **SectionStack**: headers are 30px, 12px regular uppercase secondary text
+  with the same chevron as the tree, no background fill, a `separator` line above.
 - **Sidebar**: `sidebar` background. Keeps its top inset for the traffic
   lights.
 - **Statusbar** and its parts keep Sphere's own look in both themes: a 28px
@@ -409,7 +422,7 @@ the grey glyph.
   the readout type and a small chevron. These roles have the same value in
   both themes and are in `tokens/contrast.test.ts`.
 - **PropertiesTable**: `content` background, `separator` grid lines, header
-  row in the window colour with 12px semibold labels, column resizer is an
+  row in the window colour with 12px semibold column labels, column resizer is an
   invisible grip with a resize cursor. Footer follows the statusbar look.
 - **PropertiesViewer, AttributeList, InfoRow, PanelBody, Surface, Text,
   Layout, Overlay, Spinner, ErrorFallback, ImageMarker, Badge, Skeleton,
@@ -464,13 +477,13 @@ The sidebar is organised as:
 
 ```
 Foundations/   Principles (MDX), Colors, Typography, Spacing, Radius, Shadows
-Controls/      Button, IconButton, ActionBar, VisibilityToggle, SegmentedControl,
+Controls/      Button, IconButton, IconToggle, ActionBar, SegmentedControl,
                Tabs, Select, TextField, ColorField, SliderField
 Menus/         ContextMenu, CommandPalette, Tooltip
 Containers/    Dialog, Sidebar, SectionStack, PanelBody, Surface, Split,
                Overlay, AppLayout, Layout (Row, Stack)
 Data/          Tree, PropertiesTable, PropertiesViewer, AttributeList, InfoRow,
-               Text, Spinner, ImageMarker, ErrorFallback
+               Text, Kbd, Spinner, ImageMarker, ErrorFallback
 Statusbar/     Statusbar, StatusbarButton, StatusbarBadge, StatusbarSelect
 Compositions/  Main window, Sources sidebar, Layer inspector, Properties window,
                Context menu on tree, Dialog over window, Command palette
@@ -551,8 +564,9 @@ were decided in the spec rather than asked:
 
 - El Capitan principles applied to both themes; dark theme modelled on later
   macOS dark mode, since El Capitan had none.
-- Text fields are square (El Capitan), search field is a pill.
-- Source-list selection is a solid accent fill, not a tint.
+- Text fields share the control radius, search field is a pill.
+- Selection is a light blue tint under plain text, the same with or without
+  focus.
 - No dimming scrim behind dialogs.
 - The slider's floating value bubble is replaced by an inline value.
 - The demo `Toolbar` / `NavbarLink` is deleted.
