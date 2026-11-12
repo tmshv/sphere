@@ -1,0 +1,64 @@
+import { Meta } from "@storybook/addon-docs/blocks"
+
+<Meta title="Foundations/Principles" />
+
+# Design principles
+
+Summary of the rules every Sphere component follows. The full text is in
+`docs/specs/20261112-desktop-design-system.md`.
+
+## Controls look pressable without hover
+
+A desktop control shows it is clickable by how it looks at rest. Bordered
+controls have a light body and a hairline border; borderless glyph buttons use
+the secondary label colour. Press changes colour only, and a toggled-on control
+is visible at rest. Disabled controls drop to the disabled opacity.
+
+## Hover
+
+No control has a hover effect. Only what reacts on macOS reacts here: the
+highlighted item in an open menu follows the pointer, resize handles show a
+resize cursor, and tooltips appear after a delay.
+
+## Cursor
+
+`cursor: default` on every control, row and label, `text` in editable text, and
+resize cursors on handles. Never `pointer`, never `not-allowed`.
+
+## Corners
+
+Radii are small and depend on the element: square for fields, tables and
+panels, 4px for buttons, 3px for tooltips and badges, 5px for menus and
+popovers, 6px for dialogs. Selection highlights have no radius.
+
+## Density and type
+
+Compact density on a 4px grid with the system font stack at desktop sizes
+(10 to 13px). Controls have fixed heights: 22px for `md`, 18px for `sm`.
+
+## Selection
+
+Lists and trees use source-list selection: the selected row is filled edge to
+edge and its text turns `on-accent` while the list has focus, then falls back to
+an inactive fill. Explicitly coloured glyphs keep their colour. No hover tint.
+
+## Focus
+
+Keyboard focus draws a 3px `focus-ring` glow that follows the control radius.
+Text fields show it whenever focused.
+
+## Motion
+
+Menus and tooltips appear instantly and fade out quickly. Dialogs fade in and
+out with no scale or translate. `prefers-reduced-motion` turns transitions off.
+
+## Popups and windows
+
+Menus, dialogs and tooltips share the popup surface: hairline border, popup
+shadow, small radius. Dialogs have no scrim; the context menu opens at the
+pointer.
+
+## Colour
+
+Neutral greys, one accent, semantic status colours. Colour is for state and
+data, not decoration. The statusbar and footers follow the theme.
