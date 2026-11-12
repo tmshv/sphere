@@ -104,6 +104,7 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
                                                     key={command.id}
                                                     value={command}
                                                     className={menu.item}
+                                                    title={command.description}
                                                     onClick={() => run(command)}
                                                 >
                                                     {command.icon ? (

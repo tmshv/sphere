@@ -97,6 +97,14 @@ describe("CommandPalette", () => {
         expect(onTrigger).toHaveBeenCalledTimes(1)
     })
 
+    it("names each item with its full description, which the shortcut column may truncate", async () => {
+        render(palette())
+        openPalette()
+
+        expect(await screen.findByRole("option", { name: /Toggle Zen/ })).toHaveAttribute("title", "Fullscreen mode")
+        expect(screen.getByRole("option", { name: /Globe/ })).not.toHaveAttribute("title")
+    })
+
     it("runs onTrigger on click and closes", async () => {
         const onTrigger = vi.fn()
         render(palette(onTrigger))
