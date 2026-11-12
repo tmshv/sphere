@@ -1,4 +1,4 @@
-import { DEFAULT_MAP_TOOL, type MapTool, isMapTool } from "@/lib/map-tools"
+import { DEFAULT_MAP_TOOL, isMapTool } from "@/lib/map-tools"
 import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
