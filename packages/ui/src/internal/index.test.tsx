@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 import { declaredStyle, render, screen } from "../test-utils"
-import { Badge, Skeleton, Tooltip, unstyledButton } from "."
+import { Badge, Skeleton, Tooltip } from "."
 
 const OPEN_DELAY_MS = 150
 
@@ -52,17 +52,6 @@ describe("Skeleton", () => {
     it("fills the width by default", () => {
         const { container } = render(<Skeleton height={16} />)
         expect(container.firstElementChild).toHaveStyle({ width: "100%" })
-    })
-})
-
-describe("unstyledButton", () => {
-    it("is a class name usable on a button", () => {
-        render(
-            <button type="button" className={unstyledButton}>
-                press
-            </button>,
-        )
-        expect(screen.getByRole("button", { name: "press" })).toHaveClass(unstyledButton)
     })
 })
 

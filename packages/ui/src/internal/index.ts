@@ -1,5 +1,7 @@
-import s from "./unstyled-button.module.css"
+import inputClasses from "./input.module.css"
 
+export { ButtonBase } from "./ButtonBase"
+export type { ButtonBaseProps, ButtonShape, ButtonSize, ButtonTone } from "./ButtonBase"
 export { Badge } from "./Badge"
 export type { BadgeProps, BadgeRadius, BadgeSize, BadgeVariant } from "./Badge"
 export { Tooltip } from "./Tooltip"
@@ -9,4 +11,6 @@ export type { SkeletonProps } from "./Skeleton"
 export { ValueImage } from "./ValueImage"
 export type { ValueImageProps, ValueImageSize } from "./ValueImage"
 
-export const unstyledButton = s.unstyledButton
+// The shared field look (root, label, wrapper, input, right section) for TextField, Select, ColorField and
+// SliderField.
+export const input = inputClasses

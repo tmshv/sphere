@@ -5,6 +5,8 @@ import { type SemanticColor, semantic } from "./semantic"
 
 // WCAG 2 AA for body text.
 const AA_TEXT = 4.5
+// WCAG 2.1 SC 1.4.11 for graphical objects, such as a toggled-on glyph whose colour is its only state indicator.
+const AA_NON_TEXT = 3
 const MAX_RATIO = 21
 const MIN_RATIO = 1
 const RATIO_DIGITS = 2
@@ -33,6 +35,8 @@ const PAIRS: ReadonlyArray<Pair> = [
     ...on("on-accent", ACCENT_SURFACES),
 ]
 
+const NON_TEXT_PAIRS: ReadonlyArray<Pair> = on("accent-glyph", LABEL_SURFACES)
+
 describe("contrastRatio", () => {
     it("is 21 for black on white and 1 for a colour on itself", () => {
         expect(contrastRatio(BLACK, WHITE)).toBeCloseTo(MAX_RATIO, RATIO_DIGITS)
@@ -59,6 +63,17 @@ describe("semantic text contrast", () => {
             it(`${foreground} on ${background} meets AA in ${scheme}`, () => {
                 const ratio = contrastRatio(semantic[foreground][scheme], semantic[background][scheme])
                 expect(ratio).toBeGreaterThanOrEqual(AA_TEXT)
+            })
+        }
+    }
+})
+
+describe("semantic non-text contrast", () => {
+    for (const scheme of SCHEMES) {
+        for (const { foreground, background } of NON_TEXT_PAIRS) {
+            it(`${foreground} on ${background} meets 3:1 in ${scheme}`, () => {
+                const ratio = contrastRatio(semantic[foreground][scheme], semantic[background][scheme])
+                expect(ratio).toBeGreaterThanOrEqual(AA_NON_TEXT)
             })
         }
     }

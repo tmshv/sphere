@@ -15,7 +15,7 @@
 
 .table {
     border-collapse: collapse;
-    border: 1px solid var(--sphere-color-table-border);
+    border: 1px solid var(--sphere-color-separator);
 }
 
 /* A no-op on a table row; kept as it was written. */
@@ -25,24 +25,24 @@
 
 .th {
     position: relative;
-    border: 1px solid var(--sphere-color-table-border);
+    border: 1px solid var(--sphere-color-separator);
     cursor: default;
     user-select: none;
     padding: 0;
 }
 
 .td {
-    border: 1px solid var(--sphere-color-table-border);
+    border: 1px solid var(--sphere-color-separator);
     vertical-align: top;
-    padding: var(--sphere-space-xs) var(--sphere-space-sm);
+    padding: var(--sphere-space-4) var(--sphere-space-12);
 }
 
 /* Flex align center, p sm, gap xs. */
 .headerCell {
     display: flex;
     align-items: center;
-    padding: var(--sphere-space-sm);
-    gap: var(--sphere-space-xs);
+    padding: var(--sphere-space-12);
+    gap: var(--sphere-space-4);
 }
 
 .spacer {
@@ -54,8 +54,8 @@
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
-    padding: var(--sphere-space-sm);
-    gap: var(--sphere-space-xs);
+    padding: var(--sphere-space-12);
+    gap: var(--sphere-space-4);
 }
 
 /* Flex row, justify space-between, p sm, gap xs. */
@@ -63,14 +63,14 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: var(--sphere-space-sm);
-    gap: var(--sphere-space-xs);
+    padding: var(--sphere-space-12);
+    gap: var(--sphere-space-4);
 }
 
 .minMax {
     display: flex;
     flex-direction: column;
-    gap: var(--sphere-space-xs);
+    gap: var(--sphere-space-4);
 }
 
 .chart {
@@ -86,13 +86,13 @@
 
     position: absolute;
     right: var(--resizer-edge-offset);
-    top: var(--sphere-space-xs);
-    height: calc(100% - var(--sphere-space-xs) * 2);
+    top: var(--sphere-space-4);
+    height: calc(100% - var(--sphere-space-4) * 2);
     width: var(--resizer-width);
     cursor: col-resize;
-    border-radius: var(--sphere-radius-sm);
+    border-radius: var(--sphere-radius-control);
     z-index: 1;
-    background: var(--sphere-color-table-resizer);
+    background: var(--sphere-color-accent);
     opacity: var(--resizer-idle-opacity);
 }
 
@@ -105,7 +105,7 @@
 }
 
 .mixedItem {
-    margin-right: var(--sphere-space-xs);
+    margin-right: var(--sphere-space-4);
 }
 
 .number {
@@ -114,48 +114,10 @@
     width: 100%;
 }
 
-/* The footer widgets. Each rule overrides the internal Badge, StatusbarSelect or icon button module,
-   so it is doubled or tripled to win by specificity, never by stylesheet order (R10). */
-/* `backgroundColor: theme.colors.dark` is an array; emotion wrote every entry and the last (dark[9]) won. */
-.widget.widget {
-    font-family: monospace;
+/* The footer page counter: plain text with fixed-width digits, so the pager does not shift as pages change. */
+.pageCount {
+    font-variant-numeric: tabular-nums;
     user-select: none;
-    cursor: default;
-    background: var(--sphere-color-statusbar-bg);
-    color: var(--sphere-color-on-accent);
-}
-
-.select.select {
-    cursor: pointer;
-    font-family: monospace;
-    user-select: none;
-    background-color: var(--sphere-color-statusbar-bg);
-    color: var(--sphere-color-on-accent);
-}
-
-.select.select:hover {
-    background-color: var(--sphere-color-statusbar-icon-hover-bg);
-}
-
-/* ActionIcon defaults from the nested MantineProvider: hover fill gray[8]; disabled fill clear,
-   gray[8] icon, no border. Tripled to beat .iconButton.iconButton:disabled (0,3,0) and the subtle hover. */
-/* The footer sat in its own light-scheme provider: the icons keep that scheme's colour in both themes. */
-.pager.pager.pager {
-    color: var(--sphere-color-statusbar-icon);
-}
-
-.pager.pager.pager:hover {
-    background-color: var(--sphere-color-statusbar-icon-hover-bg);
-}
-
-.pager.pager.pager:disabled {
-    background-color: transparent;
-    color: var(--sphere-color-statusbar-icon-disabled);
-    border: none;
-}
-
-/* The footer sat in a nested MantineProvider, which does not inherit Sphere's `activeStyles: none`,
-   so Mantine's default ActionIcon press applied. A disabled pager never receives the press. */
-.pager.pager.pager:active:not(:disabled) {
-    transform: translateY(1px);
+    -webkit-user-select: none;
+    white-space: nowrap;
 }

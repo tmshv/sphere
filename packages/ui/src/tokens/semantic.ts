@@ -20,6 +20,7 @@ export type SemanticColor =
     | "glyph-pressed"
     | "accent"
     | "accent-pressed"
+    | "accent-glyph"
     | "on-accent"
     | "selection"
     | "selection-inactive"
@@ -41,6 +42,9 @@ const BLACK = gray[12]
 // How far the selection and the pressed accent are shaded from the accent towards black.
 const SELECTION_SHADE = 0.1
 const ACCENT_PRESSED_SHADE = 0.2
+// How far the dark accent is tinted towards white for a toggled-on glyph, so it keeps 3:1 (WCAG 1.4.11) on the dark
+// window; the light accent already does.
+const ACCENT_GLYPH_DARK_TINT = 0.2
 // The focus ring is a translucent glow of the accent; it is not text, so it need not meet text contrast.
 const FOCUS_RING_ALPHA = 0.5
 // The hairline under a push button.
@@ -89,6 +93,7 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     "glyph-pressed": label,
     accent,
     "accent-pressed": shade(accent, ACCENT_PRESSED_SHADE),
+    "accent-glyph": { light: accent.light, dark: mix(accent.dark, WHITE, ACCENT_GLYPH_DARK_TINT) },
     "on-accent": both(WHITE),
     selection: shade(accent, SELECTION_SHADE),
     "selection-inactive": { light: gray[3], dark: gray[8] },

@@ -1,7 +1,7 @@
 import { Field } from "@base-ui/react/field"
 import { Slider } from "@base-ui/react/slider"
 import type { CSSProperties } from "react"
-import input from "../internal/input.module.css"
+import { input } from "../internal"
 import s from "./slider.module.css"
 
 const PERCENT = 100

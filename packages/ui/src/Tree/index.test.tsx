@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "../test-utils"
+import { expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { Tree } from "."
 import type { TreeItem } from "./type"
@@ -75,6 +75,11 @@ describe("Tree", () => {
         expect(onToggle).toHaveBeenCalledWith("a", true)
         expect(onSelect).not.toHaveBeenCalled()
         expect(screen.getByText("Alpha One")).toBeInTheDocument()
+    })
+
+    it("gives the chevron the desktop interaction model", () => {
+        renderTree([])
+        expectDesktopInteraction(screen.getByRole("button", { name: "Expand" }))
     })
 
     it("renders extra content and does not select when it is clicked", () => {

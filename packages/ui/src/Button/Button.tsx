@@ -1,14 +1,7 @@
-import { Button as BaseButton } from "@base-ui/react/button"
 import type { ReactNode } from "react"
-import { unstyledButton } from "../internal"
-import s from "./button.module.css"
+import { ButtonBase } from "../internal"
 
 export type ButtonVariant = "primary" | "secondary"
-
-const VARIANT_CLASS: Record<ButtonVariant, string> = {
-    primary: s.primary,
-    secondary: s.secondary,
-}
 
 export type ButtonProps = {
     variant?: ButtonVariant
@@ -18,14 +11,11 @@ export type ButtonProps = {
     children: ReactNode
 }
 
+/** A 22px push button: `primary` is the accent default button, `secondary` the bordered control body. */
 export function Button({ variant = "primary", type = "button", disabled, onClick, children }: ButtonProps) {
-    const classes = [unstyledButton, s.button, VARIANT_CLASS[variant]]
-
     return (
-        <BaseButton className={classes.join(" ")} type={type} disabled={disabled} onClick={() => onClick?.()}>
-            <div className={s.inner}>
-                <span className={s.label}>{children}</span>
-            </div>
-        </BaseButton>
+        <ButtonBase shape="push" tone={variant} type={type} disabled={disabled} onClick={onClick}>
+            {children}
+        </ButtonBase>
     )
 }

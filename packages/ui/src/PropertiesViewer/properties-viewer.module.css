@@ -6,8 +6,8 @@
 
     min-width: var(--viewer-min-width);
     width: 100%;
-    padding-bottom: var(--sphere-space-sm);
-    font-size: var(--sphere-font-size-xs);
+    padding-bottom: var(--sphere-space-12);
+    font-size: var(--sphere-font-size-body);
 }
 
 .key {
@@ -18,15 +18,19 @@
     max-width: var(--viewer-value-max-width);
 }
 
-/* The copy button shows on row hover through its own :hover, and stays lit while "Copied" shows. */
+/* The copy button is revealed by its row: on row hover, while it has keyboard focus, and while "Copied" shows.
+   The button itself has no hover style. */
 .copy {
+    display: inline-flex;
     opacity: 0;
 }
 
-.copy:hover {
+.row:hover .copy,
+.copy:focus-within {
     opacity: 1;
 }
 
 .copied {
+    display: inline-flex;
     opacity: 1;
 }

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, render, screen, waitFor } from "../test-utils"
+import { expectDesktopInteraction, fireEvent, render, screen, waitFor } from "../test-utils"
 import { Dialog } from "."
 
 const TAB_PRESSES = 4
@@ -107,5 +107,14 @@ describe("Dialog focus and dismissal", () => {
         await user.click(await screen.findByRole("button", { name: "Close" }))
 
         expect(onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it("gives the close button the desktop interaction model", () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+        expectDesktopInteraction(screen.getByRole("button", { name: "Close" }))
     })
 })

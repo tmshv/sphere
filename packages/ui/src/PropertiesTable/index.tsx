@@ -1,4 +1,3 @@
-import { Button as BaseButton } from "@base-ui/react/button"
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@sphere/icons"
 import {
     type CellContext,
@@ -10,9 +9,9 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { type ReactNode, useState } from "react"
-import iconButton from "../Button/icon-button.module.css"
-import { Badge, Tooltip, unstyledButton, ValueImage } from "../internal"
+import { useState } from "react"
+import { IconButton } from "../Button"
+import { Badge, Tooltip, ValueImage } from "../internal"
 import type { SelectOption } from "../Select"
 import { Statusbar, StatusbarSelect } from "../Statusbar"
 import { BarChart } from "./BarChart"
@@ -93,28 +92,13 @@ type PhotoToggleProps = {
 }
 
 function PhotoToggle({ shown, onToggle }: PhotoToggleProps) {
-    const classes = classNames(unstyledButton, iconButton.iconButton, iconButton.sizeSm, iconButton.subtle)
     return (
-        <BaseButton className={classes} aria-label={shown ? "Show links" : "Show images"} onClick={() => onToggle()}>
-            {shown ? <IconPhoto size={ICON_SIZE} /> : <IconPhotoOff size={ICON_SIZE} />}
-        </BaseButton>
-    )
-}
-
-type PagerButtonProps = {
-    label: string
-    disabled: boolean
-    onClick: () => void
-    children: ReactNode
-}
-
-// Mantine ActionIcon, gray subtle, size xs, with the footer's nested-provider defaults.
-function PagerButton({ label, disabled, onClick, children }: PagerButtonProps) {
-    const classes = classNames(unstyledButton, iconButton.iconButton, iconButton.sizeSm, iconButton.subtle, s.pager)
-    return (
-        <BaseButton className={classes} aria-label={label} disabled={disabled} onClick={() => onClick()}>
-            {children}
-        </BaseButton>
+        <IconButton
+            size="sm"
+            icon={shown ? <IconPhoto size={ICON_SIZE} /> : <IconPhotoOff size={ICON_SIZE} />}
+            label={shown ? "Show links" : "Show images"}
+            onClick={onToggle}
+        />
     )
 }
 
@@ -377,7 +361,6 @@ export function PropertesTable({
 
             <Statusbar>
                 <StatusbarSelect
-                    className={s.select}
                     value={attributeFilter}
                     options={ATTRIBUTE_FILTER_OPTIONS}
                     onChange={v => {
@@ -390,29 +373,28 @@ export function PropertesTable({
                 <div className={s.spacer} />
 
                 <StatusbarSelect
-                    className={s.select}
                     value={String(pageSize)}
                     options={pageSizeOptions}
                     onChange={v => onPageSizeChange(Number(v))}
                 />
 
-                <PagerButton
+                <IconButton
+                    size="sm"
+                    icon={<IconChevronLeft size={PAGER_ICON_SIZE} />}
                     label="Previous page"
                     disabled={pageIndex === 0}
                     onClick={() => onPageChange(pageIndex - 1)}
-                >
-                    <IconChevronLeft size={PAGER_ICON_SIZE} />
-                </PagerButton>
-                <Badge className={s.widget} radius="sm" size="sm" variant="light">
+                />
+                <span className={s.pageCount}>
                     {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
-                </Badge>
-                <PagerButton
+                </span>
+                <IconButton
+                    size="sm"
+                    icon={<IconChevronRight size={PAGER_ICON_SIZE} />}
                     label="Next page"
                     disabled={pageIndex >= pageCount - 1}
                     onClick={() => onPageChange(pageIndex + 1)}
-                >
-                    <IconChevronRight size={PAGER_ICON_SIZE} />
-                </PagerButton>
+                />
             </Statusbar>
         </div>
     )

@@ -1,10 +1,10 @@
 import { IconCheck, IconCopy } from "@sphere/icons"
 import { useEffect, useRef, useState } from "react"
-import iconButton from "../Button/icon-button.module.css"
-import { Tooltip, unstyledButton } from "../internal"
+import { IconButton } from "../Button"
+import { Tooltip } from "../internal"
 import s from "./properties-viewer.module.css"
 
-const ICON_SIZE = 12
+const ICON_SIZE = 14
 const FEEDBACK_MS = 1500
 
 type CopyStatus = "idle" | "copied" | "failed"
@@ -41,19 +41,19 @@ export function CopyButton({ value }: CopyButtonProps) {
 
     const copied = status === "copied"
     const label = LABEL[status]
-    const classes = [
-        unstyledButton,
-        iconButton.iconButton,
-        iconButton.sizeSm,
-        iconButton.subtle,
-        copied ? s.copied : s.copy,
-    ]
 
+    // The wrapper is the tooltip trigger and carries the reveal: it shows on row hover or keyboard focus, and
+    // stays lit while "Copied" shows. The button itself has no hover style.
     return (
         <Tooltip label={label} arrow>
-            <button type="button" aria-label={label} className={classes.join(" ")} onClick={handleCopy}>
-                {copied ? <IconCheck size={ICON_SIZE} /> : <IconCopy size={ICON_SIZE} />}
-            </button>
+            <span className={copied ? s.copied : s.copy}>
+                <IconButton
+                    size="sm"
+                    icon={copied ? <IconCheck size={ICON_SIZE} /> : <IconCopy size={ICON_SIZE} />}
+                    label={label}
+                    onClick={handleCopy}
+                />
+            </span>
         </Tooltip>
     )
 }

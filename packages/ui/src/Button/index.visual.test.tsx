@@ -26,8 +26,11 @@ const icon = <IconPlus size={ICON_SIZE} />
 visualCases("IconButton", {
     sm: { render: () => <IconButton icon={icon} label="Add" onClick={noop} size="sm" /> },
     md: { render: () => <IconButton icon={icon} label="Add" onClick={noop} size="md" /> },
-    "solid-active": {
-        render: () => <IconButton icon={icon} label="Add" onClick={noop} active appearance="solid" />,
+    active: { render: () => <IconButton icon={icon} label="Add" onClick={noop} active /> },
+    bordered: { render: () => <IconButton icon={icon} label="Add" onClick={noop} variant="bordered" /> },
+    "bordered-active": {
+        render: () => <IconButton icon={icon} label="Add" onClick={noop} active variant="bordered" />,
     },
+    "disabled-active": { render: () => <IconButton icon={icon} label="Add" onClick={noop} disabled active /> },
     disabled: { render: () => <IconButton icon={icon} label="Add" onClick={noop} disabled /> },
 })

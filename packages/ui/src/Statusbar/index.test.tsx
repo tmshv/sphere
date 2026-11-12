@@ -1,4 +1,4 @@
-import { declaredStyle, fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { Statusbar, StatusbarBadge, StatusbarButton } from "."
@@ -50,6 +50,26 @@ describe("StatusbarButton", () => {
         expect(button).toBeDisabled()
         fireEvent.click(button)
         expect(onClick).not.toHaveBeenCalled()
+    })
+
+    it("is a small glyph button", () => {
+        render(<StatusbarButton icon={ICON} label="Go" onClick={vi.fn()} />)
+        const button = screen.getByRole("button", { name: "Go" })
+        expect(button).toHaveAttribute("data-shape", "glyph")
+        expect(button).toHaveAttribute("data-size", "sm")
+    })
+
+    it("has the desktop interaction model at rest, toggled on and disabled", () => {
+        render(
+            <>
+                <StatusbarButton icon={ICON} label="Rest" onClick={vi.fn()} />
+                <StatusbarButton icon={ICON} label="On" active onClick={vi.fn()} />
+                <StatusbarButton icon={ICON} label="Off" disabled onClick={vi.fn()} />
+            </>,
+        )
+        for (const button of screen.getAllByRole("button")) {
+            expectDesktopInteraction(button)
+        }
     })
 })
 

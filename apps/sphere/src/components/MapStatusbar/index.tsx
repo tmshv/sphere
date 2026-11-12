@@ -100,7 +100,6 @@ export function MapStatusbar({ id }: MapStatusbarProps) {
                 icon={<IconLayoutSidebar size={ICON_SIZE_PX} />}
                 label="Toggle sidebar"
                 active={sidebar}
-                activeLook="fill"
                 onClick={toggleSidebar}
             />
 

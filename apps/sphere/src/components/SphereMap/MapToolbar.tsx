@@ -53,7 +53,7 @@ export default function MapToolbar() {
             {TOOLS.map(({ tool, title, Icon }) => (
                 <IconButton
                     key={tool}
-                    appearance="solid"
+                    variant="bordered"
                     active={mapTool === tool}
                     label={title}
                     icon={<Icon size={16} />}

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { act, fireEvent, render, screen } from "../test-utils"
+import { act, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { CopyButton } from "./CopyButton"
 
 const FEEDBACK_MS = 1500
@@ -45,18 +45,26 @@ describe("CopyButton", () => {
         expect(screen.getByRole("button", { name: "Copied!" })).toBeInTheDocument()
     })
 
-    it("reverts to initial class after 1500ms", async () => {
+    it("stays revealed while Copied shows and hides again after 1500ms", async () => {
         render(<CopyButton value="hello" />)
-        const button = screen.getByRole("button")
-        const initialClass = button.className
+        const reveal = screen.getByRole("button").parentElement
+        if (!reveal) {
+            throw new Error("CopyButton rendered no wrapper")
+        }
+        const initialClass = reveal.className
 
         await click()
-        expect(button.className).not.toBe(initialClass)
+        expect(reveal.className).not.toBe(initialClass)
 
         act(() => {
             vi.advanceTimersByTime(FEEDBACK_MS)
         })
-        expect(button.className).toBe(initialClass)
+        expect(reveal.className).toBe(initialClass)
+    })
+
+    it("has the desktop interaction model", () => {
+        render(<CopyButton value="hello" />)
+        expectDesktopInteraction(screen.getByRole("button"))
     })
 
     it("never claims Copied when the clipboard refuses", async () => {

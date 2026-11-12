@@ -1,14 +1,14 @@
-import { Button as BaseButton } from "@base-ui/react/button"
 import type { ReactNode } from "react"
-import { unstyledButton } from "../internal"
-import s from "./icon-button.module.css"
+import { ButtonBase, type ButtonShape } from "../internal"
 
 export type IconButtonSize = "sm" | "md"
-export type IconButtonAppearance = "subtle" | "solid"
+/** glyph: a borderless glyph, as in sidebar action bars. bordered: a square push-button body, for toolbars over
+ * the map. */
+export type IconButtonVariant = "glyph" | "bordered"
 
-const SIZE_CLASS: Record<IconButtonSize, string> = {
-    sm: s.sizeSm,
-    md: s.sizeMd,
+const SHAPE: Record<IconButtonVariant, ButtonShape> = {
+    glyph: "glyph",
+    bordered: "bordered-glyph",
 }
 
 export type IconButtonProps = {
@@ -16,9 +16,10 @@ export type IconButtonProps = {
     label: string
     onClick: () => void
     disabled?: boolean
+    /** Toggled on (`aria-pressed`); leave undefined for a button that is not a toggle. */
     active?: boolean
     size?: IconButtonSize
-    appearance?: IconButtonAppearance
+    variant?: IconButtonVariant
 }
 
 export function IconButton({
@@ -28,21 +29,18 @@ export function IconButton({
     disabled,
     active,
     size = "md",
-    appearance = "subtle",
+    variant = "glyph",
 }: IconButtonProps) {
-    const filled = appearance === "solid" && active === true
-    const classes = [unstyledButton, s.iconButton, SIZE_CLASS[size], filled ? s.filled : s.subtle]
-
     return (
-        <BaseButton
-            className={classes.join(" ")}
-            aria-label={label}
-            aria-pressed={active}
-            title={label}
+        <ButtonBase
+            shape={SHAPE[variant]}
+            size={size}
+            label={label}
+            active={active}
             disabled={disabled}
-            onClick={() => onClick()}
+            onClick={onClick}
         >
             {icon}
-        </BaseButton>
+        </ButtonBase>
     )
 }

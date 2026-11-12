@@ -13,7 +13,7 @@ export function PropertiesViewer({ properties, checkUrls = false }: PropertiesVi
         <table className={s.table}>
             <tbody>
                 {properties.map(({ key, value }) => (
-                    <tr key={key}>
+                    <tr key={key} className={s.row}>
                         <td className={s.key}>{key}</td>
                         <td className={s.value}>
                             {checkUrls && isUrl(value) ? (

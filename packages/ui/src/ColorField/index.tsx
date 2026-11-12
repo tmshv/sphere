@@ -1,8 +1,7 @@
 import { Field } from "@base-ui/react/field"
 import { useState } from "react"
 import { HsvColorPicker } from "react-colorful"
-import { Badge } from "../internal"
-import input from "../internal/input.module.css"
+import { Badge, input } from "../internal"
 import s from "./color-field.module.css"
 import { hexToHsv, hsvToHex, isHex } from "./hex"
 

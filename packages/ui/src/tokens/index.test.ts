@@ -43,6 +43,7 @@ const ROLES: ReadonlyArray<SemanticColor> = [
     "glyph-pressed",
     "accent",
     "accent-pressed",
+    "accent-glyph",
     "on-accent",
     "selection",
     "selection-inactive",

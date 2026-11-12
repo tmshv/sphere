@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 import { DEFAULT_GLYPH, ICON_GLYPHS } from "../stories/fixtures"
 import { galleryStyle } from "../stories/layout"
-import { IconButton, type IconButtonAppearance, type IconButtonSize } from "./IconButton"
+import { IconButton, type IconButtonSize, type IconButtonVariant } from "./IconButton"
 
 const SIZES: ReadonlyArray<IconButtonSize> = ["sm", "md"]
-const APPEARANCES: ReadonlyArray<IconButtonAppearance> = ["subtle", "solid"]
+const VARIANTS: ReadonlyArray<IconButtonVariant> = ["glyph", "bordered"]
 type GalleryState = { name: string; active: boolean; disabled: boolean }
 const STATES: ReadonlyArray<GalleryState> = [
     { name: "rest", active: false, disabled: false },
@@ -23,14 +23,14 @@ const meta = {
         label: "Add source",
         onClick: fn(),
         size: "md",
-        appearance: "subtle",
+        variant: "glyph",
         active: false,
         disabled: false,
     },
     argTypes: {
         icon: { control: "select", options: Object.keys(ICON_GLYPHS), mapping: ICON_GLYPHS },
         size: { control: "radio", options: SIZES },
-        appearance: { control: "radio", options: APPEARANCES },
+        variant: { control: "radio", options: VARIANTS },
     },
 } satisfies Meta<typeof IconButton>
 
@@ -40,24 +40,30 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
-export const Active: Story = { args: { active: true, appearance: "solid" } }
+export const Active: Story = { args: { active: true } }
+
+export const Bordered: Story = { args: { variant: "bordered" } }
+
+export const BorderedActive: Story = { args: { variant: "bordered", active: true } }
+
+export const DisabledActive: Story = { args: { disabled: true, active: true } }
 
 export const Disabled: Story = { args: { disabled: true } }
 
 export const Gallery: Story = {
     render: args => (
         <div style={galleryStyle}>
-            {SIZES.flatMap(size =>
-                APPEARANCES.flatMap(appearance =>
+            {VARIANTS.flatMap(variant =>
+                SIZES.flatMap(size =>
                     STATES.map(state => (
                         <IconButton
-                            key={`${size}-${appearance}-${state.name}`}
+                            key={`${variant}-${size}-${state.name}`}
                             {...args}
                             size={size}
-                            appearance={appearance}
+                            variant={variant}
                             active={state.active}
                             disabled={state.disabled}
-                            label={`${size} ${appearance} ${state.name}`}
+                            label={`${variant} ${size} ${state.name}`}
                         />
                     )),
                 ),

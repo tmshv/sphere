@@ -1,6 +1,6 @@
 import { Field } from "@base-ui/react/field"
 import type { CSSProperties, ReactNode } from "react"
-import input from "../internal/input.module.css"
+import { input } from "../internal"
 
 const NO_AUTOCORRECT = "off"
 const NO_AUTOCAPITALIZE = "none"

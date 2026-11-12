@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { describe, expect, it } from "vitest"
-import { declaredStyle, fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { SECTION_HEADER_HEIGHT, SectionStack, type SectionLayout } from "."
 
 function Stack({ initial }: { initial: SectionLayout[] }) {
@@ -153,7 +153,7 @@ describe("SectionStack", () => {
         expect(paddingPx(style.paddingLeft)).toBe(0)
         expect(paddingPx(style.paddingRight)).toBe(0)
         // A spacing token, which happy-dom leaves unresolved.
-        expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-12)")
     })
 
     it("drops the vertical padding of a flush section body and keeps it for the others", () => {
@@ -183,8 +183,8 @@ describe("SectionStack", () => {
 
         expect(paddingPx(flushStyle.paddingTop)).toBe(0)
         expect(paddingPx(flushStyle.paddingBottom)).toBe(0)
-        expect(declaredStyle(paddedBody, "padding-top")).toBe("var(--sphere-space-sm)")
-        expect(declaredStyle(paddedBody, "padding-bottom")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(paddedBody, "padding-top")).toBe("var(--sphere-space-12)")
+        expect(declaredStyle(paddedBody, "padding-bottom")).toBe("var(--sphere-space-12)")
     })
 })
 
@@ -200,5 +200,12 @@ describe("SectionStack header height", () => {
         const header = screen.getByRole("button", { name: /Outline/ })
 
         expect(declaredStyle(header, "--header-height")).toBe(`${SECTION_HEADER_HEIGHT}px`)
+    })
+})
+
+describe("SectionStack header interaction", () => {
+    it("gives the header the desktop interaction model", () => {
+        render(<Stack initial={[{ name: "outline", open: true, size: null }]} />)
+        expectDesktopInteraction(screen.getByRole("button", { name: /Outline/ }))
     })
 })

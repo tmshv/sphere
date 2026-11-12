@@ -1,7 +1,7 @@
 import { Combobox } from "@base-ui/react/combobox"
 import { Select as BaseSelect } from "@base-ui/react/select"
 import { type CSSProperties, useId } from "react"
-import input from "../internal/input.module.css"
+import { input } from "../internal"
 import { ChevronIcon } from "./ChevronIcon"
 import s from "./select.module.css"
 

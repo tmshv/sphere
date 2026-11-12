@@ -8,49 +8,41 @@
        read as a text selection across the labels */
     user-select: none;
     -webkit-user-select: none;
-    color: var(--sphere-color-tree-row-text);
-    font-size: var(--sphere-font-size-xs);
+    color: var(--sphere-color-label);
+    font-size: var(--sphere-font-size-body);
 }
 
-.row:hover {
-    background-color: var(--sphere-color-tree-row-hover-bg);
-}
-
-/* A soft tint rather than the filled accent: the row stays readable and the bulb stays visible */
+/* A soft fill rather than the accent: the row stays readable and the bulb stays visible. No hover tint. */
 .row.selected {
-    background-color: var(--sphere-color-tree-row-selected-bg);
-}
-
-.row.selected:hover {
-    background-color: var(--sphere-color-tree-row-selected-hover-bg);
+    background-color: var(--sphere-color-selection-inactive);
 }
 
 /* Same inset as a SectionStack header */
 .content {
     display: flex;
     align-items: center;
-    gap: var(--sphere-space-xs);
+    gap: var(--sphere-space-4);
     height: 100%;
-    padding-left: var(--sphere-space-sm);
-    padding-right: var(--sphere-space-xs);
+    padding-left: var(--sphere-space-12);
+    padding-right: var(--sphere-space-4);
 }
 
-/* Doubled: on the expand button it overrides the shared .unstyledButton colour (R10) */
-.chevron.chevron {
+.chevron {
     /* Same chevron as a SectionStack header, so the tree's first level lines up under it */
     --chevron-size: 14px;
 
     flex-shrink: 0;
     display: flex;
     width: var(--chevron-size);
-    color: inherit;
+}
+
+/* The expand button fills its slot; ButtonBase owns how it behaves. */
+.chevronButton {
+    display: flex;
 }
 
 .chevronIcon {
-    /* Mantine 5 TreeRow: transform 150ms ease */
-    --chevron-turn-duration: 150ms;
-
-    transition: transform var(--chevron-turn-duration) ease;
+    transition: transform var(--sphere-duration-fast) ease;
 }
 
 .chevronOpen {

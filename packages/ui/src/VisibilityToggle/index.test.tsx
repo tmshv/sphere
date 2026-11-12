@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { HIDE_LABEL, SHOW_LABEL, VisibilityToggle } from "."
 
@@ -19,5 +19,25 @@ describe("VisibilityToggle", () => {
         fireEvent.click(screen.getByRole("button", { name: SHOW_LABEL }))
 
         expect(onChange).toHaveBeenCalledWith(true)
+    })
+
+    it("has the desktop interaction model when visible and when hidden", () => {
+        render(
+            <>
+                <VisibilityToggle visible onChange={vi.fn()} />
+                <VisibilityToggle visible={false} onChange={vi.fn()} />
+            </>,
+        )
+        expectDesktopInteraction(screen.getByRole("button", { name: HIDE_LABEL }))
+        expectDesktopInteraction(screen.getByRole("button", { name: SHOW_LABEL }))
+    })
+
+    it("draws the unlit bulb in the tertiary label colour", () => {
+        render(<VisibilityToggle visible={false} onChange={vi.fn()} />)
+        const glyph = screen.getByRole("button", { name: SHOW_LABEL }).querySelector("svg")
+        if (!glyph) {
+            throw new Error("VisibilityToggle rendered no glyph")
+        }
+        expect(declaredStyle(glyph, "color")).toBe("var(--sphere-color-label-tertiary)")
     })
 })

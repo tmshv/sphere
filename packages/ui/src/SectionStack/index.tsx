@@ -1,6 +1,6 @@
 import { IconChevronRight } from "@sphere/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
-import { unstyledButton } from "../internal"
+import { ButtonBase } from "../internal"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"
 import { restoreSize } from "../Split/sizes"
 import { defaultSizesOf, isSpacerVisible, mergeSections, resolveSections, SPACER_MIN_SIZE } from "./layout"
@@ -192,19 +192,21 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                         maxSize={open ? Number.POSITIVE_INFINITY : SECTION_HEADER_HEIGHT}
                     >
                         <div className={s.section}>
-                            <button
-                                type={"button"}
-                                className={`${unstyledButton} ${s.header}`}
-                                onClick={() => toggle(section)}
-                                aria-expanded={open}
-                                aria-controls={open ? bodyId : undefined}
-                            >
-                                <IconChevronRight
-                                    className={open ? `${s.chevron} ${s.chevronOpen}` : s.chevron}
-                                    size={CHEVRON_SIZE}
-                                />
-                                <span>{section.props.title}</span>
-                            </button>
+                            <div className={s.header}>
+                                <ButtonBase
+                                    shape="plain"
+                                    className={s.toggle}
+                                    onClick={() => toggle(section)}
+                                    expanded={open}
+                                    controls={open ? bodyId : undefined}
+                                >
+                                    <IconChevronRight
+                                        className={open ? `${s.chevron} ${s.chevronOpen}` : s.chevron}
+                                        size={CHEVRON_SIZE}
+                                    />
+                                    <span>{section.props.title}</span>
+                                </ButtonBase>
+                            </div>
 
                             {!open ? null : (
                                 <div id={bodyId} className={section.props.flush ? `${s.body} ${s.flush}` : s.body}>

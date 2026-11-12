@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { declaredStyle, fireEvent, pressedStyle, render, screen } from "../test-utils"
+import { expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { Button, IconButton } from "."
 
 describe("Button", () => {
@@ -77,14 +77,59 @@ describe("IconButton", () => {
     })
 })
 
-describe("Button press and cursor parity", () => {
-    it("shows the arrow cursor, as the app's global button:hover rule did", () => {
+describe("Button desktop interaction", () => {
+    it("has the desktop interaction model in the primary variant", () => {
         render(<Button>Save</Button>)
-        expect(declaredStyle(screen.getByRole("button"), "cursor")).toBe("default")
+        expectDesktopInteraction(screen.getByRole("button"))
     })
 
-    it("has no press transform, as Sphere's theme set activeStyles to none", () => {
-        render(<Button>Save</Button>)
-        expect(pressedStyle(screen.getByRole("button"), "transform")).toBe("")
+    it("has the desktop interaction model in the secondary variant", () => {
+        render(<Button variant="secondary">Cancel</Button>)
+        expectDesktopInteraction(screen.getByRole("button"))
+    })
+
+    it("is a push button toned by its variant", () => {
+        render(
+            <>
+                <Button>Save</Button>
+                <Button variant="secondary">Cancel</Button>
+            </>,
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute("data-shape", "push")
+        expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute("data-tone", "primary")
+        expect(screen.getByRole("button", { name: "Cancel" })).toHaveAttribute("data-tone", "secondary")
+    })
+})
+
+describe("IconButton variant", () => {
+    it("is a borderless glyph by default", () => {
+        render(<IconButton icon={<svg />} label="Tool" onClick={vi.fn()} />)
+        expect(screen.getByRole("button", { name: "Tool" })).toHaveAttribute("data-shape", "glyph")
+    })
+
+    it("is a bordered glyph with variant=bordered", () => {
+        render(<IconButton icon={<svg />} label="Tool" onClick={vi.fn()} variant="bordered" />)
+        expect(screen.getByRole("button", { name: "Tool" })).toHaveAttribute("data-shape", "bordered-glyph")
+    })
+
+    it("passes its size through, md by default", () => {
+        render(
+            <>
+                <IconButton icon={<svg />} label="Small" onClick={vi.fn()} size="sm" />
+                <IconButton icon={<svg />} label="Medium" onClick={vi.fn()} />
+            </>,
+        )
+        expect(screen.getByRole("button", { name: "Small" })).toHaveAttribute("data-size", "sm")
+        expect(screen.getByRole("button", { name: "Medium" })).toHaveAttribute("data-size", "md")
+    })
+
+    it("has the desktop interaction model as a glyph", () => {
+        render(<IconButton icon={<svg />} label="Tool" onClick={vi.fn()} />)
+        expectDesktopInteraction(screen.getByRole("button"))
+    })
+
+    it("has the desktop interaction model when bordered", () => {
+        render(<IconButton icon={<svg />} label="Tool" onClick={vi.fn()} variant="bordered" />)
+        expectDesktopInteraction(screen.getByRole("button"))
     })
 })
