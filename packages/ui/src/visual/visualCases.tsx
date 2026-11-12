@@ -48,6 +48,30 @@ function installDeterminismStyle() {
     document.head.append(style)
 }
 
+// Runs a capture, then its cleanup whether the capture passed or not. A cleanup that fails never hides the capture's own
+// failure: both are reported together.
+async function withCleanup(run: () => Promise<void>, cleanup: (() => Promise<void>) | undefined) {
+    let failed = false
+    let failure: unknown
+    try {
+        await run()
+    } catch (error) {
+        failed = true
+        failure = error
+    }
+    try {
+        await cleanup?.()
+    } catch (cleanupError) {
+        if (failed) {
+            throw new AggregateError([failure, cleanupError], "The capture and its cleanup both failed")
+        }
+        throw cleanupError
+    }
+    if (failed) {
+        throw failure
+    }
+}
+
 let currentRoot: Root | null = null
 let currentHost: HTMLElement | null = null
 
@@ -106,7 +130,7 @@ export function visualCases(component: string, cases: Record<string, VisualCase>
                 test(`${name} (${theme})`, async () => {
                     mount(visualCase.render(), theme === "dark")
                     await expect.element(page.getByTestId(SUBJECT_ID)).toBeVisible()
-                    try {
+                    await withCleanup(async () => {
                         await visualCase.interact?.()
                         freezeSvgAnimations()
                         const locator =
@@ -116,9 +140,7 @@ export function visualCases(component: string, cases: Record<string, VisualCase>
                         await expect.element(locator).toMatchScreenshot(`${component}-${name}-${theme}`, {
                             comparatorOptions: { allowedMismatchedPixelRatio: visualCase.allowedMismatchedPixelRatio },
                         })
-                    } finally {
-                        await visualCase.cleanup?.()
-                    }
+                    }, visualCase.cleanup)
                 })
             }
         }

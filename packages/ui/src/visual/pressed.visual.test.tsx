@@ -4,12 +4,13 @@ import type { ReactNode } from "react"
 import { flushSync } from "react-dom"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, describe, expect, test } from "vitest"
-import { commands, type Locator, page, userEvent } from "vitest/browser"
+import { type Locator, page, userEvent } from "vitest/browser"
 import { ActionBar } from "../ActionBar"
 import { Button } from "../Button"
 import { ErrorFallback } from "../ErrorFallback"
 import { PropertesTable, type PropertyItem } from "../PropertiesTable"
 import { ThemeProvider } from "../ThemeProvider"
+import { pressAndHold as holdPress, releasePress } from "./visualCases"
 
 // Pressed-state pins: a press changes colour only, nothing translates or scales. They assert the computed
 // transform in a real browser, with the press asserted to be live (`:active`) before the transform is read.
@@ -37,22 +38,19 @@ function mount(node: ReactNode) {
     })
 }
 
-// Moves off the target before letting go, so releasing never completes a click (Reload App reloads the page).
+// Lets go only of a press this file holds; releasePress moves off first, so Reload App is never clicked.
 async function release() {
     if (!held) {
         return
     }
     held = false
-    await userEvent.unhover(page.elementLocator(document.body))
-    await commands.mouseUp()
+    await releasePress()
 }
 
 async function pressAndHold(target: Locator): Promise<HTMLElement> {
     await expect.element(target).toBeVisible()
-    await userEvent.hover(target)
     held = true
-    await commands.mouseDown()
-    await expect.poll(() => target.element().matches(":active")).toBe(true)
+    await holdPress(target)
     const element = target.element()
     if (!(element instanceof HTMLElement)) {
         throw new Error("The pressed target is not an HTML element")
