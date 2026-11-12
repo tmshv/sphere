@@ -22,7 +22,9 @@ the control radius), gave text fields and the colour well the control radius,
 made the selection a light blue that looks the same with or without focus,
 brought back the chevron in trees and section headers, set labels in the
 regular weight, gave menus more padding, replaced `VisibilityToggle` with the
-generic `IconToggle` (the bulb now lives in the app) and added `Kbd`. The
+generic `IconToggle` (the bulb now lives in the app) and added `Kbd`. A third
+round inset the menu's icon column 8px from the edge, let menu shortcuts be
+`KbdShortcut` key caps, and cut dialog padding to the 12px sidebar inset. The
 sections below are updated to these values.
 
 ## Problem
@@ -224,15 +226,16 @@ Menus and tooltips appear instantly and fade out over `duration-fast`
 - **Menu surface** (`ContextMenu`, `Select` list, `CommandPalette`): `popup`
   background, hairline `popup-border`, `popup` shadow, 5px radius, 6px
   vertical padding and none horizontal. Items are 14px, 24px tall, padded
-  24px left (the check/icon column, so items with and without an icon line
-  up) and 20px right, shortcut right-aligned in the secondary colour. The
+  32px left (an 8px inset, then the 24px check/icon column, so items with and
+  without an icon line up) and 20px right, shortcut right-aligned: text in the
+  secondary colour, or a `KbdShortcut`. The
   highlighted item is the light blue `selection` with `label` text, edge to
   edge. Separators are a 1px `separator` line with 5px above
   and below. Group labels are 12px secondary.
 - **Context menu** opens with its top-left corner at the pointer (0 offset),
   flips and shifts at the window edges with a 4px margin, width fits its
   content with a 160px minimum.
-- **Dialog**: `window` background, 6px radius, `window` shadow, 20px padding,
+- **Dialog**: `window` background, 6px radius, `window` shadow, 12px padding,
   title 14px bold, body 14px, buttons bottom-right with the primary button
   last. No dimming scrim (the backdrop stays transparent and still blocks
   clicks), no scale animation.
