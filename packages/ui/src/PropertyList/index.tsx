@@ -8,6 +8,8 @@ import s from "./property-list.module.css"
 import { type CopyResult, useCopy } from "./useCopy"
 
 const GLYPH_SIZE = 14
+// A menu item icon, as in every other menu.
+const MENU_ICON_SIZE = 16
 
 export const COPY_LABEL = "Copy"
 export const COPIED_LABEL = "Copied!"
@@ -108,7 +110,10 @@ export function PropertyList({ items, copyable = true, checkUrls = false }: Prop
             </dl>
             {!menu ? null : (
                 <ContextMenu opened position={menu.position} onClose={() => setMenu(null)}>
-                    <ContextMenuItem onClick={() => copyFromMenu(String(menu.item.value))}>
+                    <ContextMenuItem
+                        icon={<IconCopy size={MENU_ICON_SIZE} />}
+                        onClick={() => copyFromMenu(String(menu.item.value))}
+                    >
                         {COPY_VALUE_LABEL}
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => copyFromMenu(menu.item.name)}>{COPY_NAME_LABEL}</ContextMenuItem>

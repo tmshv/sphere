@@ -165,6 +165,16 @@ describe("PropertyList", () => {
         expect(screen.queryByRole("menuitem", { name: label })).not.toBeInTheDocument()
     })
 
+    it("marks Copy Value, the main item, with the copy icon and leaves the others plain", async () => {
+        render(<PropertyList items={ITEMS} />)
+
+        await run(() => fireEvent.contextMenu(screen.getByText("Berlin")))
+
+        expect(screen.getByRole("menuitem", { name: COPY_VALUE_LABEL }).querySelector("svg")).not.toBeNull()
+        expect(screen.getByRole("menuitem", { name: COPY_NAME_LABEL }).querySelector("svg")).toBeNull()
+        expect(screen.getByRole("menuitem", { name: COPY_PAIR_LABEL }).querySelector("svg")).toBeNull()
+    })
+
     it("opens the menu from the name too", async () => {
         render(<PropertyList items={ITEMS} />)
 

@@ -153,7 +153,7 @@ are the ones that do on macOS:
 - tooltips appear after a delay (`--sphere-duration-tooltip-delay`, 700ms);
 - the copy glyph of a `PropertyList` row is revealed while the pointer is
   over its row (and while it has keyboard focus or shows a copy result); the
-  glyph itself has no hover style. This is the one hover reveal, on trial.
+  glyph itself has no hover style. This is the one hover reveal.
 
 ### Cursor
 
@@ -441,9 +441,9 @@ the grey glyph.
   Each row is a subgrid spanning both columns, so it has a box of its own.
   `copyable` (default on) adds a copy glyph closing every row, revealed on
   row hover, which turns into a check with a "Copied!" tooltip, and a
-  right-click menu: Copy Value, Copy Name, Copy Name and Value
-  (`name: value`). `checkUrls` shows a URL value as its image. It replaces
-  `PropertiesViewer` and `InfoRow`.
+  right-click menu: Copy Value (with the copy icon), Copy Name, Copy Name and
+  Value (`name: value`). `checkUrls` shows a URL value as its image. It
+  replaces `PropertiesViewer` and `InfoRow`.
 - **AttributeList, PanelBody, Surface, Text,
   Layout, Overlay, Spinner, ErrorFallback, ImageMarker, Badge, Skeleton,
   Split, AppLayout**: retoken onto the new roles and scales; no structural
