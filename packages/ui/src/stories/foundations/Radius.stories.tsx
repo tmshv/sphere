@@ -1,21 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { radius } from "../../tokens"
-import { Section } from "./Swatch"
-
-const BOX_SIZE = 64
+import { Section } from "./Section"
+import { OUTLINE, SAMPLE_BOX_SIZE, wrapStyle } from "./styles"
 
 function Radius() {
     return (
         <Section>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+            <div style={wrapStyle}>
                 {Object.entries(radius).map(([name, size]) => (
                     <div key={name} style={{ textAlign: "center" }}>
                         <div
                             style={{
-                                width: BOX_SIZE,
-                                height: BOX_SIZE,
+                                width: SAMPLE_BOX_SIZE,
+                                height: SAMPLE_BOX_SIZE,
                                 borderRadius: size,
-                                border: "2px solid currentColor",
+                                border: OUTLINE,
                                 boxSizing: "border-box",
                             }}
                         />

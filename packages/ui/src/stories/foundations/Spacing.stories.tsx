@@ -1,15 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { space } from "../../tokens"
-import { Section } from "./Swatch"
-
-const BAR_HEIGHT = 16
+import { Section } from "./Section"
+import { BAR_HEIGHT, labelStyle, rowStyle } from "./styles"
 
 function Spacing() {
     return (
         <Section>
             {Object.entries(space).map(([name, size]) => (
-                <div key={name} style={{ display: "flex", gap: 12, alignItems: "center", padding: "4px 0" }}>
-                    <code style={{ width: 100 }}>
+                <div key={name} style={rowStyle}>
+                    <code style={labelStyle}>
                         {name} {size}px
                     </code>
                     <div style={{ width: size, height: BAR_HEIGHT, background: "currentColor" }} />

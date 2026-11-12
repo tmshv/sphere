@@ -1,26 +1,25 @@
-import type { CSSProperties, ReactNode } from "react"
-
-const SWATCH_SIZE = 40
-const SWATCH_GAP = 12
-const SWATCH_BORDER = "1px solid rgba(128, 128, 128, 0.4)"
-
-const rowStyle: CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: SWATCH_GAP,
-    padding: "4px 0",
-}
+import type { CSSProperties } from "react"
+import {
+    DIMMED_OPACITY,
+    HAIRLINE,
+    NAME_WEIGHT,
+    NAME_WIDTH,
+    rowStyle,
+    SWATCH_RADIUS,
+    SWATCH_SIZE,
+    VALUE_FONT_SIZE,
+} from "./styles"
 
 const chipStyle: CSSProperties = {
     width: SWATCH_SIZE,
     height: SWATCH_SIZE,
-    border: SWATCH_BORDER,
-    borderRadius: 4,
+    border: HAIRLINE,
+    borderRadius: SWATCH_RADIUS,
     boxSizing: "border-box",
 }
 
-const nameStyle: CSSProperties = { width: 200, fontWeight: 600 }
-const valueStyle: CSSProperties = { fontFamily: "monospace", fontSize: 11, opacity: 0.7 }
+const nameStyle: CSSProperties = { width: NAME_WIDTH, fontWeight: NAME_WEIGHT }
+const valueStyle: CSSProperties = { fontFamily: "monospace", fontSize: VALUE_FONT_SIZE, opacity: DIMMED_OPACITY }
 
 export type SwatchProps = {
     name: string
@@ -39,14 +38,4 @@ export function Swatch({ name, light, dark }: SwatchProps) {
             <div style={valueStyle}>{dark}</div>
         </div>
     )
-}
-
-export type SectionProps = {
-    children: ReactNode
-}
-
-const sectionStyle: CSSProperties = { padding: 16 }
-
-export function Section({ children }: SectionProps) {
-    return <div style={sectionStyle}>{children}</div>
 }

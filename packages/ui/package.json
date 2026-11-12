@@ -1,44 +1,44 @@
 {
-  "name": "@sphere/ui",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "main": "./src/index.ts",
-  "dependencies": {
-    "@sphere/icons": "*",
-    "@sphere/utils": "*",
-    "@base-ui/react": "^1.9.0",
-    "react-colorful": "^5.8.1"
-  },
-  "peerDependencies": {
-    "allotment": "^1.20.5",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "@visx/group": "^4.0.0",
-    "@visx/scale": "^4.0.0",
-    "@visx/shape": "^4.0.0",
-    "@tanstack/react-table": "^8.21.0",
-    "date-fns": "^4.1.0",
-    "dnd-core": "^16.0.1",
-    "react-arborist": "4.0.0",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
-    "react-dnd-touch-backend": "16.0.1"
-  },
-  "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "lint": "biome lint src/ .storybook/",
-    "lint:fix": "biome lint --write src/ .storybook/",
-    "test:visual": "vitest run -c vitest.visual.config.ts",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build -o storybook-static"
-  },
-  "devDependencies": {
-    "@vitest/browser-playwright": "4.1.4",
-    "playwright": "1.64.0",
-    "@storybook/addon-docs": "10.6.5",
-    "@storybook/react-vite": "10.6.5",
-    "storybook": "10.6.5"
-  }
+    "name": "@sphere/ui",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./src/index.ts",
+    "dependencies": {
+        "@sphere/icons": "*",
+        "@sphere/utils": "*",
+        "@base-ui/react": "^1.9.0",
+        "react-colorful": "^5.8.1"
+    },
+    "peerDependencies": {
+        "allotment": "^1.20.5",
+        "react": "^19.3.0",
+        "react-dom": "^19.3.0",
+        "@visx/group": "^4.0.0",
+        "@visx/scale": "^4.0.0",
+        "@visx/shape": "^4.0.0",
+        "@tanstack/react-table": "^8.21.0",
+        "date-fns": "^4.1.0",
+        "dnd-core": "^16.0.1",
+        "react-arborist": "4.0.0",
+        "react-dnd": "^16.0.1",
+        "react-dnd-html5-backend": "^16.0.1",
+        "react-dnd-touch-backend": "16.0.1"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "lint": "biome lint src/ .storybook/",
+        "lint:fix": "biome lint --write src/ .storybook/",
+        "test:visual": "vitest run -c vitest.visual.config.ts",
+        "storybook": "storybook dev -p 6006",
+        "build-storybook": "storybook build -o storybook-static"
+    },
+    "devDependencies": {
+        "@storybook/addon-docs": "10.6.5",
+        "@storybook/react-vite": "10.6.5",
+        "@vitest/browser-playwright": "4.1.4",
+        "playwright": "1.64.0",
+        "storybook": "10.6.5"
+    }
 }

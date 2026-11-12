@@ -1,48 +1,50 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import type { CSSProperties } from "react"
 import { fontFamily, fontSize, fontWeight, lineHeight } from "../../tokens"
-import { Section } from "./Swatch"
+import { Section } from "./Section"
+import { baselineRowStyle, labelStyle, SAMPLE_MAX_WIDTH } from "./styles"
 
 const SAMPLE = "The quick brown fox jumps over the lazy dog"
+
+type RampProps = {
+    title: string
+    entries: [string, string | number][]
+    style: (value: string | number) => CSSProperties
+    sample?: string
+}
+
+function Ramp({ title, entries, style, sample = SAMPLE }: RampProps) {
+    return (
+        <>
+            <h3>{title}</h3>
+            {entries.map(([name, value]) => (
+                <div key={name} style={baselineRowStyle}>
+                    <code style={labelStyle}>
+                        {name} {value}
+                    </code>
+                    <span style={style(value)}>{sample}</span>
+                </div>
+            ))}
+        </>
+    )
+}
 
 function Typography() {
     return (
         <Section>
-            <h3>Size</h3>
-            {Object.entries(fontSize).map(([name, size]) => (
-                <div key={name} style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-                    <code style={{ width: 80 }}>
-                        {name} {size}
-                    </code>
-                    <span style={{ fontSize: size }}>{SAMPLE}</span>
-                </div>
-            ))}
-            <h3>Weight</h3>
-            {Object.entries(fontWeight).map(([name, weight]) => (
-                <div key={name} style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-                    <code style={{ width: 80 }}>
-                        {name} {weight}
-                    </code>
-                    <span style={{ fontWeight: weight }}>{SAMPLE}</span>
-                </div>
-            ))}
-            <h3>Family</h3>
-            {Object.entries(fontFamily).map(([name, family]) => (
-                <div key={name} style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-                    <code style={{ width: 80 }}>{name}</code>
-                    <span style={{ fontFamily: family }}>{SAMPLE}</span>
-                </div>
-            ))}
-            <h3>Line height</h3>
-            {Object.entries(lineHeight).map(([name, height]) => (
-                <div key={name} style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-                    <code style={{ width: 80 }}>
-                        {name} {height}
-                    </code>
-                    <span style={{ lineHeight: height, maxWidth: 320 }}>
-                        {SAMPLE}. {SAMPLE}.
-                    </span>
-                </div>
-            ))}
+            <Ramp title="Size" entries={Object.entries(fontSize)} style={value => ({ fontSize: value })} />
+            <Ramp title="Weight" entries={Object.entries(fontWeight)} style={value => ({ fontWeight: value })} />
+            <Ramp
+                title="Family"
+                entries={Object.entries(fontFamily)}
+                style={value => ({ fontFamily: String(value) })}
+            />
+            <Ramp
+                title="Line height"
+                entries={Object.entries(lineHeight)}
+                style={value => ({ lineHeight: value, maxWidth: SAMPLE_MAX_WIDTH })}
+                sample={`${SAMPLE}. ${SAMPLE}.`}
+            />
         </Section>
     )
 }
@@ -57,4 +59,4 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Ramp: Story = {}
+export const Scale: Story = {}

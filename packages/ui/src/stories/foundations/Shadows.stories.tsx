@@ -1,22 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { shadow } from "../../tokens"
-import { Section } from "./Swatch"
-
-const BOX_SIZE = 96
+import { Section } from "./Section"
+import { PAGE_PADDING, SHADOW_BOX_SIZE, SHADOW_GRID_GAP, SHADOW_LABEL_GAP } from "./styles"
 
 function Shadows() {
     return (
         <Section>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 32, padding: 16 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: SHADOW_GRID_GAP, padding: PAGE_PADDING }}>
                 {Object.entries(shadow).map(([name, value]) => (
                     <div key={name} style={{ textAlign: "center" }}>
                         <div
                             style={{
-                                width: BOX_SIZE,
-                                height: BOX_SIZE,
+                                width: SHADOW_BOX_SIZE,
+                                height: SHADOW_BOX_SIZE,
                                 boxShadow: value,
                                 background: "Canvas",
-                                marginBottom: 8,
+                                marginBottom: SHADOW_LABEL_GAP,
                             }}
                         />
                         <code>{name}</code>

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { semantic } from "../../tokens"
-import { Section, Swatch } from "./Swatch"
+import { Section } from "./Section"
+import { Swatch } from "./Swatch"
 
 function Colors() {
     return (
