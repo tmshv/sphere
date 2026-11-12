@@ -5,6 +5,7 @@ import {
     expectDesktopInteraction,
     fireEvent,
     hoverStyle,
+    pressedStyle,
     render,
     screen,
     stateStyle,
@@ -224,6 +225,16 @@ describe("SegmentedControl", () => {
         expect(selected).toHaveAttribute("data-checked")
         expect(stateStyle(selected, "background-color", "[data-checked]")).toBe("var(--sphere-color-accent)")
         expect(stateStyle(selected, "color", "[data-checked]")).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("an unselected segment darkens to the pressed body while held; the selected one does not", () => {
+        render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+
+        expect(pressedStyle(screen.getByRole("radio", { name: "Beta" }), "background-color")).toBe(
+            "var(--sphere-color-control-pressed)",
+        )
+        expect(pressedStyle(screen.getByRole("radio", { name: "Alpha" }), "background-color")).toBe("")
+        expect(pressedStyle(screen.getByRole("radio", { name: "Beta" }), "transform")).toBe("")
     })
 
     it("sm is shorter than the default md", () => {

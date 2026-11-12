@@ -1,6 +1,6 @@
 import { IconLine, IconPoint, IconPolygon } from "@sphere/icons"
 import { page, userEvent } from "vitest/browser"
-import { visualCases } from "../visual/visualCases"
+import { pressAndHold, releasePress, visualCases } from "../visual/visualCases"
 import { SegmentedControl } from "./SegmentedControl"
 import { Select } from "./Select"
 
@@ -78,5 +78,10 @@ visualCases("SegmentedControl", {
     },
     "icon-only": {
         render: () => <SegmentedControl label="Geometry" options={ICON_SEGMENTS} value="line" onChange={noop} />,
+    },
+    pressed: {
+        render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="point" onChange={noop} />,
+        interact: () => pressAndHold(page.getByText("WKT")),
+        cleanup: releasePress,
     },
 })

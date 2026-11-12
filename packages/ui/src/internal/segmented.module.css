@@ -1,6 +1,7 @@
 /* The segmented look shared by SegmentedControl and Tabs (an NSTabView-style row): a 22px bordered control body,
-   segments separated by the hairline, rounded only on the outer ends. Icons keep the size their caller gives them. The selected segment is accent with
-   on-accent text. No hover style; the arrow cursor; focus draws the focus-ring glow. */
+   segments separated by the hairline, rounded only on the outer ends. Icons keep the size their caller gives them.
+   The selected segment is accent with on-accent text. No hover style; the arrow cursor; an unselected segment
+   darkens while pressed, as a push button does; focus draws the focus-ring glow. */
 .group {
     display: inline-flex;
     align-items: stretch;
@@ -60,6 +61,11 @@
 
 .segment[data-disabled] {
     opacity: var(--sphere-opacity-disabled);
+}
+
+/* Press darkens an unselected, enabled segment to the pressed body; the selected one is already accent. */
+.segment:active:not([data-checked]):not([data-active]):not([data-disabled]) {
+    background-color: var(--sphere-color-control-pressed);
 }
 
 /* Selected: Base UI marks a checked radio data-checked and the active tab data-active. */

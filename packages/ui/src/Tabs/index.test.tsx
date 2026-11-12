@@ -1,7 +1,15 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen, stateStyle } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    pressedStyle,
+    render,
+    screen,
+    stateStyle,
+} from "../test-utils"
 import { type TabItem, Tabs } from "."
 
 const ITEMS: ReadonlyArray<TabItem> = [
@@ -107,5 +115,15 @@ describe("Tabs", () => {
         expect(stateStyle(selected, "background-color", "[data-active]")).toBe("var(--sphere-color-accent)")
         expect(stateStyle(selected, "color", "[data-active]")).toBe("var(--sphere-color-on-accent)")
         expect(declaredStyle(screen.getByRole("tablist"), "justify-content")).toBe("center")
+    })
+
+    it("an unselected tab darkens to the pressed body while held; the selected and disabled ones do not", () => {
+        renderTabs()
+
+        expect(pressedStyle(screen.getByRole("tab", { name: "Layers" }), "background-color")).toBe(
+            "var(--sphere-color-control-pressed)",
+        )
+        expect(pressedStyle(screen.getByRole("tab", { name: "Sources" }), "background-color")).toBe("")
+        expect(pressedStyle(screen.getByRole("tab", { name: "Styles" }), "background-color")).toBe("")
     })
 })
