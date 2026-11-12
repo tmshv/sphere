@@ -2,6 +2,7 @@ import { IconFolder, IconMap } from "@sphere/icons"
 import { page } from "vitest/browser"
 import { focusWithKeyboard, visualCases } from "../visual/visualCases"
 import { VisibilityToggle } from "../VisibilityToggle"
+import { semantic } from "../tokens"
 import { Tree, type TreeItem } from "."
 import { COLLAPSE_LABEL } from "./TreeRow"
 
@@ -12,10 +13,12 @@ const FOLDER_ID = "cadastre"
 const SELECTED_ID = "parcels"
 const FRAME_STYLE = { height: "100%", display: "flex" }
 
-const mapIcon = <IconMap size={ICON_SIZE} />
+// Row icons carry an explicit accent colour, as the app's source-kind icons do.
+const ICON_COLOR = semantic["accent-glyph"].light
+const mapIcon = <IconMap size={ICON_SIZE} color={ICON_COLOR} />
 
-// The selected row carries a layer-coloured bulb, which keeps its colour on the accent fill while the row's
-// other glyphs and text turn on-accent. A lit plain bulb and an unlit one sit on the rows below for comparison.
+// The selected row carries a layer-coloured bulb, which keeps its colour on the accent fill while the row's text and
+// icon (accent-coloured or not) turn on-accent. A lit plain bulb and an unlit one sit on the rows below for comparison.
 const ITEMS: TreeItem[] = [
     {
         id: FOLDER_ID,

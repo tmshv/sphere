@@ -49,6 +49,14 @@
     background-color: var(--sphere-color-selection);
 }
 
+/* A row icon is decoration, so it turns on-accent with the text even when it was given its own colour (a source-kind
+   icon in the accent); the stroke property outranks the svg's stroke attribute. Only the extra slot (the bulb) keeps
+   an explicit colour. */
+.tree:focus-within .row.selected .icon svg {
+    color: var(--sphere-color-on-accent);
+    stroke: var(--sphere-color-on-accent);
+}
+
 /* Same inset as a SectionStack header */
 .content {
     display: flex;

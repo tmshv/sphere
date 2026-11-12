@@ -53,6 +53,22 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
         }
     }, [items, expandedIds])
 
+    // react-arborist focuses its own focused node (else the first row) when the tree gains focus, and the controlled
+    // selection never moves it. Keep its focus on the selected row, so tabbing in lands there, as in a source list.
+    useLayoutEffect(() => {
+        const tree = treeRef.current
+        if (!tree || selectedId === undefined || tree.focusedNode?.id === selectedId) {
+            return
+        }
+        // Moving react-arborist's focus also marks the tree focused, which would pull DOM focus onto the row; when the
+        // tree did not have focus, it is handed back.
+        const hadFocus = tree.hasFocus
+        tree.focus(selectedId, { scroll: false })
+        if (!hadFocus) {
+            tree.onBlur()
+        }
+    }, [selectedId])
+
     const toMove = (move: ArboristMove) => toTreeMove(move, childIds(items, move.parentId ?? undefined))
 
     const handleSelect = (nodes: NodeApi<TreeItem>[]) => {

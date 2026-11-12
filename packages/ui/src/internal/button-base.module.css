@@ -39,9 +39,9 @@
     box-shadow: 0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
-/* plain fills a strip edge to edge (a section header), where a glow outside would be clipped by the container;
-   its ring is drawn inside instead. */
-.root[data-shape="plain"]:focus-visible {
+/* strip fills a strip edge to edge (a section header), where a glow outside would be clipped by the container; its
+   ring is drawn inside instead. A small plain control keeps the glow outside. */
+.root[data-shape="strip"]:focus-visible {
     box-shadow: inset 0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring);
 }
 

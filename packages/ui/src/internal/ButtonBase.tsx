@@ -3,8 +3,9 @@ import type { ReactNode } from "react"
 import s from "./button-base.module.css"
 
 /** push: a bordered push button with text. glyph: a borderless glyph. bordered-glyph: a glyph in a push-button
- * body. plain: the reset alone, for a row-like control that draws itself. */
-export type ButtonShape = "push" | "glyph" | "bordered-glyph" | "plain"
+ * body. plain: the reset alone, for a small control that draws itself (a disclosure chevron). strip: plain, for a
+ * control that fills a strip edge to edge (a section header), with its focus ring drawn inside. */
+export type ButtonShape = "push" | "glyph" | "bordered-glyph" | "plain" | "strip"
 export type ButtonTone = "primary" | "secondary"
 export type ButtonSize = "sm" | "md"
 

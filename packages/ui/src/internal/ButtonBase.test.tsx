@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { declaredStyle, expectDesktopInteraction, fireEvent, focusVisibleStyle, render, screen } from "../test-utils"
 import { ButtonBase, type ButtonShape } from "./ButtonBase"
 
-const SHAPES: ReadonlyArray<ButtonShape> = ["push", "glyph", "bordered-glyph", "plain"]
+const SHAPES: ReadonlyArray<ButtonShape> = ["push", "glyph", "bordered-glyph", "plain", "strip"]
 const LABEL = "Measure"
 const TEXT = "Save"
 const CONTROLLED_ID = "section-body"
@@ -202,8 +202,13 @@ describe("ButtonBase", () => {
         expect(focusVisibleStyle(button, "outline-style")).toBe("none")
     })
 
-    it("draws the plain shape's focus ring inside, so a strip that fills a clipping container keeps it", () => {
+    it("draws the plain shape's focus ring outside, as a glow around a small control", () => {
         render(<ButtonBase shape="plain">{TEXT}</ButtonBase>)
+        expect(focusVisibleStyle(screen.getByRole("button"), "box-shadow")).toBe(FOCUS_RING)
+    })
+
+    it("draws the strip shape's focus ring inside, so a strip that fills a clipping container keeps it", () => {
+        render(<ButtonBase shape="strip">{TEXT}</ButtonBase>)
         expect(focusVisibleStyle(screen.getByRole("button"), "box-shadow")).toBe(`inset ${FOCUS_RING}`)
     })
 

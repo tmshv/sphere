@@ -194,7 +194,7 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                         <div className={s.section}>
                             <div className={s.header}>
                                 <ButtonBase
-                                    shape="plain"
+                                    shape="strip"
                                     className={s.toggle}
                                     onClick={() => toggle(section)}
                                     expanded={open}

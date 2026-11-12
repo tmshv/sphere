@@ -485,9 +485,10 @@ Compositions/  Main window, Sources sidebar, Layer inspector, Properties window,
 A unit test (`packages/ui/src/stories/coverage.test.ts`) reads
 `packages/ui/src/index.ts`, resolves every exported component folder, and
 fails if the folder has no `index.stories.tsx`. Folders that export no
-component (`hooks`, `selection`, `tokens`, `ThemeProvider`) are listed as
-exempt in the test with the reason. This is how "every component opens in
-Storybook" stays true.
+component (`hooks`, `selection`, `ThemeProvider`) are listed as exempt in
+the test with the reason; the test also fails if an exemption names a folder
+the barrel does not export. `tokens` is not exported, so it needs none.
+This is how "every component opens in Storybook" stays true.
 
 ## Testing
 

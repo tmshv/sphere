@@ -67,6 +67,19 @@ describe("SectionStack", () => {
         expect(screen.getByRole("button", { name: /Details/ })).toHaveAttribute("aria-expanded", "false")
     })
 
+    it("renders each header as an edge-to-edge strip button, so its focus ring is drawn inside", () => {
+        render(
+            <Stack
+                initial={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: false, size: null },
+                ]}
+            />,
+        )
+
+        expect(screen.getByRole("button", { name: /Outline/ })).toHaveAttribute("data-shape", "strip")
+    })
+
     it("calls onSectionsChange with only the clicked section's open flipped", () => {
         const calls: SectionLayout[][] = []
         const initial: SectionLayout[] = [
