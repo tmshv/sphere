@@ -151,8 +151,9 @@ are the ones that do on macOS:
   follows the pointer (that is keyboard-style highlight, not hover styling);
 - resize handles show a resize cursor;
 - tooltips appear after a delay (`--sphere-duration-tooltip-delay`, 700ms);
-- nothing is revealed on hover: the copy glyph of a `PropertyList` row is
-  always shown.
+- the copy glyph of a `PropertyList` row is revealed while the pointer is
+  over its row (and while it has keyboard focus or shows a copy result); the
+  glyph itself has no hover style. This is the one hover reveal, on trial.
 
 ### Cursor
 
@@ -437,8 +438,9 @@ the grey glyph.
   secondary colour, the name column as wide as the longest name up to 45%,
   every value starting on the same column after it. Long names and values
   wrap, never ellipsize. Lines are 18px, the small glyph button's height.
-  `copyable` (default on) adds a copy glyph closing every row, always
-  shown, which turns into a check with a "Copied!" tooltip, and a
+  Each row is a subgrid spanning both columns, so it has a box of its own.
+  `copyable` (default on) adds a copy glyph closing every row, revealed on
+  row hover, which turns into a check with a "Copied!" tooltip, and a
   right-click menu: Copy Value, Copy Name, Copy Name and Value
   (`name: value`). `checkUrls` shows a URL value as its image. It replaces
   `PropertiesViewer` and `InfoRow`.

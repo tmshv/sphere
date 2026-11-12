@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { act, declaredStyle, expectDesktopInteraction, fireEvent, render, screen, within } from "../test-utils"
+import {
+    act,
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    render,
+    screen,
+    stateStyle,
+    within,
+} from "../test-utils"
 import {
     COPIED_LABEL,
     COPY_FAILED_LABEL,
@@ -68,7 +77,8 @@ describe("PropertyList", () => {
         expect(declaredStyle(list, "grid-template-columns")).toBe(
             "fit-content(var(--property-name-max-width)) minmax(0, 1fr)",
         )
-        expect(declaredStyle(rowOf("name"), "display")).toBe("contents")
+        expect(declaredStyle(rowOf("name"), "grid-template-columns")).toBe("subgrid")
+        expect(declaredStyle(rowOf("name"), "grid-column")).toBe("1 / -1")
     })
 
     it("sets names left-aligned in the secondary colour and lets long names and values wrap", () => {
@@ -82,14 +92,39 @@ describe("PropertyList", () => {
         expect(declaredStyle(value, "overflow-wrap")).toBe("anywhere")
     })
 
-    it("shows a copy glyph on every row at rest, with the desktop interaction model", () => {
+    it("has a copy glyph on every row, with the desktop interaction model on the button itself", () => {
         render(<PropertyList items={ITEMS} />)
         const glyphs = screen.getAllByRole("button", { name: COPY_LABEL })
 
         expect(glyphs).toHaveLength(ITEMS.length)
         for (const glyph of glyphs) {
             expectDesktopInteraction(glyph)
-            expect(declaredStyle(glyph.parentElement ?? glyph, "opacity")).toBe("")
+        }
+    })
+
+    it("hides the glyph at rest and reveals it on row hover and keyboard focus", () => {
+        render(<PropertyList items={ITEMS} />)
+        const reveal = within(rowOf("name")).getByRole("button").parentElement
+        if (!reveal) {
+            throw new Error("glyph wrapper not found")
+        }
+
+        expect(declaredStyle(reveal, "opacity")).toBe("0")
+        expect(stateStyle(reveal, "opacity", ":hover")).toBe("1")
+        expect(stateStyle(reveal, "opacity", ":focus-within")).toBe("1")
+    })
+
+    it("keeps the glyph of the row just copied shown while the result shows", async () => {
+        render(<PropertyList items={ITEMS} />)
+
+        await run(() => fireEvent.click(within(rowOf("name")).getByRole("button")))
+
+        const copied = within(rowOf("name")).getByRole("button").parentElement
+        const other = within(rowOf("population")).getByRole("button").parentElement
+        expect(copied).toHaveAttribute("data-shown")
+        expect(other).not.toHaveAttribute("data-shown")
+        if (copied) {
+            expect(declaredStyle(copied, "opacity")).toBe("1")
         }
     })
 

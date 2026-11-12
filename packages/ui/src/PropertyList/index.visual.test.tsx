@@ -37,6 +37,14 @@ visualCases("PropertyList", {
             </Framed>
         ),
     },
+    "row-hovered": {
+        render: () => (
+            <Framed>
+                <PropertyList items={PROPERTIES} />
+            </Framed>
+        ),
+        interact: () => userEvent.hover(page.getByText("population")),
+    },
     "copy-tooltip": {
         render: () => (
             <Framed>

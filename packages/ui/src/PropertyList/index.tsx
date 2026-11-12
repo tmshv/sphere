@@ -71,6 +71,7 @@ export function PropertyList({ items, copyable = true, checkUrls = false }: Prop
                     const text = String(item.value)
                     const label = glyphLabel(item.name, result)
                     const copied = label === COPIED_LABEL
+                    const shown = result?.name === item.name
 
                     return (
                         <div key={item.name} className={s.row} onContextMenu={event => openMenu(event, item)}>
@@ -83,7 +84,7 @@ export function PropertyList({ items, copyable = true, checkUrls = false }: Prop
                                 )}
                                 {!copyable ? null : (
                                     <Tooltip label={label}>
-                                        <span className={s.copy}>
+                                        <span className={s.copy} data-shown={shown ? "" : undefined}>
                                             <IconButton
                                                 size="sm"
                                                 icon={

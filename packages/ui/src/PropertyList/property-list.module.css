@@ -15,9 +15,12 @@
     cursor: default;
 }
 
-/* A row is only a grouping for the dt/dd pair and the right-click target; its cells sit on the list's grid. */
+/* A row spans both columns and lines its cells up on the list's grid (subgrid). It has a box of its own, the gap
+   between name and value included, so hovering anywhere on it reveals its copy glyph without flicker. */
 .row {
-    display: contents;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
 }
 
 .name {
@@ -46,9 +49,18 @@
     -webkit-user-select: text;
 }
 
-/* The copy glyph closes every row at the right edge, so the glyphs form a column too. */
+/* The copy glyph closes every row at the right edge, so the glyphs form a column too. It is revealed by its row:
+   while the pointer is over the row, while the glyph has keyboard focus, and while a copy result shows. The button
+   itself has no hover style. */
 .copy {
     display: inline-flex;
     flex-shrink: 0;
     margin-inline-start: auto;
+    opacity: 0;
+}
+
+.row:hover .copy,
+.copy:focus-within,
+.copy[data-shown] {
+    opacity: 1;
 }
