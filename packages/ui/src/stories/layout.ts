@@ -74,3 +74,67 @@ export const boxStyle: CSSProperties = {
 export const tallBoxStyle: CSSProperties = { ...boxStyle, height: BOX_TALL_SIZE }
 export const overlayFrameStyle: CSSProperties = { ...overlayStyle, position: "relative" }
 export const STATUSBAR_ICON_SIZE = 14
+
+// Compositions: a fixed window frame so screens look like an app window.
+export const WINDOW_WIDTH = 1200
+export const WINDOW_HEIGHT = 760
+export const WINDOW_SIDEBAR_SIZE = { preferred: 300, min: 265, max: 500 }
+export const MAP_TOOLBAR_BOTTOM = 12
+export const MAP_HATCH_SIZE = 12
+export const MAP_HATCH_LINE = 1
+export const MAP_CAPTION_SIZE = 13
+export const MAP_CAPTION_PADDING = "2px 8px"
+export const MAP_CAPTION_RADIUS = 4
+export const MENU_ROW_OFFSET = 24
+export const MENU_ANCHOR_ROW_TEXT = "Cadastral parcels"
+export const TREE_ROW_SELECTOR = '[role="treeitem"]'
+
+export const windowFrameStyle: CSSProperties = {
+    position: "relative",
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    overflow: "hidden",
+    background: "var(--sphere-color-window)",
+    color: "var(--sphere-color-label)",
+    fontFamily: "var(--sphere-font-family-sans)",
+}
+export const mapToolbarStyle: CSSProperties = {
+    position: "absolute",
+    bottom: MAP_TOOLBAR_BOTTOM,
+    left: "50%",
+    transform: "translateX(-50%)",
+}
+export const statusbarSpacerStyle: CSSProperties = { flex: 1 }
+export const mapPlaceholderStyle: CSSProperties = {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "var(--sphere-color-content)",
+    backgroundImage: `repeating-linear-gradient(135deg, transparent 0 ${MAP_HATCH_SIZE - MAP_HATCH_LINE}px, var(--sphere-color-separator) ${MAP_HATCH_SIZE - MAP_HATCH_LINE}px ${MAP_HATCH_SIZE}px)`,
+}
+export const mapCaptionStyle: CSSProperties = {
+    padding: MAP_CAPTION_PADDING,
+    borderRadius: MAP_CAPTION_RADIUS,
+    background: "var(--sphere-color-content)",
+    color: "var(--sphere-color-label-secondary)",
+    fontSize: MAP_CAPTION_SIZE,
+}
+export const inspectorStyle: CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: PANE_PADDING,
+    padding: PANE_PADDING,
+}
+export const frameFillStyle: CSSProperties = { width: "100%", height: "100%", display: "flex", flexDirection: "column" }
+export const mapAreaStyle: CSSProperties = { position: "relative", width: "100%", height: "100%" }
+export const SIDEBAR_COLUMN_WIDTH = 300
+export const sidebarColumnStyle: CSSProperties = { width: SIDEBAR_COLUMN_WIDTH, height: WINDOW_HEIGHT }
+export const inspectorFrameStyle: CSSProperties = {
+    width: SIDEBAR_COLUMN_WIDTH,
+    background: "var(--sphere-color-sidebar)",
+    border: "1px solid var(--sphere-color-separator)",
+}
+export const propertiesWindowStyle: CSSProperties = { ...windowFrameStyle, display: "flex", flexDirection: "column" }

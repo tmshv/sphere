@@ -1,4 +1,3 @@
-import type { SortingState } from "@tanstack/react-table"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 import { fn } from "storybook/test"
@@ -12,31 +11,12 @@ import {
     PROPERTY_PAGE_SIZE_OPTIONS,
     PROPERTY_ROWS,
     PROPERTY_SORT,
+    sortPropertyRows,
 } from "../stories/fixtures"
 import { tableStyle } from "../stories/layout"
-import { PropertesTable, type PropertyItem } from "."
-
-const ASCENDING = 1
-const DESCENDING = -1
+import { PropertesTable } from "."
 
 type TableProps = React.ComponentProps<typeof PropertesTable>
-
-function sortRows(rows: ReadonlyArray<PropertyItem>, sorting: SortingState): PropertyItem[] {
-    const sort = sorting.at(0)
-    if (sort === undefined) {
-        return [...rows]
-    }
-
-    const direction = sort.desc ? DESCENDING : ASCENDING
-    return [...rows].sort((a, b) => {
-        const left = a[sort.id]
-        const right = b[sort.id]
-        if (typeof left === "number" && typeof right === "number") {
-            return (left - right) * direction
-        }
-        return String(left).localeCompare(String(right)) * direction
-    })
-}
 
 function PropertiesTableDemo({
     pageIndex: initialPage,
@@ -55,7 +35,7 @@ function PropertiesTableDemo({
     const [attributeFilter, setAttributeFilter] = useState(initialFilter)
 
     const start = pageIndex * pageSize
-    const data = sortRows(PROPERTY_ROWS, sorting).slice(start, start + pageSize)
+    const data = sortPropertyRows(PROPERTY_ROWS, sorting).slice(start, start + pageSize)
     const pageCount = Math.ceil(PROPERTY_ROWS.length / pageSize)
 
     return (

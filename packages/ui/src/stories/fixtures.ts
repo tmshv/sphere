@@ -1,17 +1,26 @@
 import {
     IconBulb,
-    type IconComponent,
+    IconCrosshair,
+    IconDatabase,
+    IconFile,
     IconFolder,
+    IconHandStop,
+    IconInfoCircle,
+    IconLayoutSidebar,
     IconLine,
+    IconLink,
     IconMap,
+    IconNorthStar,
     IconPencil,
     IconPlus,
     IconPoint,
+    IconPointer,
     IconPolygon,
     IconSearch,
     IconStack,
     IconTrash,
     IconZoomReset,
+    type IconComponent,
 } from "@sphere/icons"
 import type { ColumnDef, SortingState } from "@tanstack/react-table"
 import { createElement, type ReactNode } from "react"
@@ -32,7 +41,7 @@ export const LAYER_COLOR = "#e8590c"
 
 // Shared GIS fixture data for component stories. Later tasks extend this file instead of defining their own.
 
-function glyph(Icon: IconComponent): ReactNode {
+export function glyph(Icon: IconComponent): ReactNode {
     return createElement(Icon, { size: ICON_SIZE })
 }
 
@@ -361,3 +370,88 @@ export const STATUSBAR_SELECT_OPTIONS: ReadonlyArray<SelectOption> = [
 export const STATUSBAR_BADGE_TEXT = "EPSG:3857"
 export const STATUSBAR_ERROR_TEXT = "Offline"
 export const STATUSBAR_BADGE_TITLE = "Coordinate reference system"
+
+const SORT_ASCENDING = 1
+const SORT_DESCENDING = -1
+
+export function sortPropertyRows(rows: ReadonlyArray<PropertyItem>, sorting: SortingState): PropertyItem[] {
+    const sort = sorting.at(0)
+    if (sort === undefined) {
+        return [...rows]
+    }
+
+    const direction = sort.desc ? SORT_DESCENDING : SORT_ASCENDING
+    return [...rows].sort((a, b) => {
+        const left = a[sort.id]
+        const right = b[sort.id]
+        if (typeof left === "number" && typeof right === "number") {
+            return (left - right) * direction
+        }
+        return String(left).localeCompare(String(right)) * direction
+    })
+}
+
+// Compositions: the main window as the app composes it.
+export const MAP_CAPTION = "Map"
+export const MAP_TOOL_LABEL = "Map tool"
+export const MAP_TOOL_DEFAULT = "navigation"
+export const MAP_TOOL_OPTIONS: ReadonlyArray<SegmentedControlOption> = [
+    { value: MAP_TOOL_DEFAULT, label: "Navigation", icon: glyph(IconHandStop) },
+    { value: "select", label: "Select", icon: glyph(IconPointer) },
+    { value: "info", label: "Info", icon: glyph(IconInfoCircle) },
+]
+
+export const SIDEBAR_TAB_SOURCES = "sources"
+export const SIDEBAR_TAB_LAYERS = "layers"
+export const SIDEBAR_TAB_STYLES = "styles"
+export const SIDEBAR_TABS: ReadonlyArray<Pick<TabItem, "value" | "label" | "icon" | "disabled">> = [
+    { value: SIDEBAR_TAB_SOURCES, label: "Sources", icon: glyph(IconDatabase) },
+    { value: SIDEBAR_TAB_LAYERS, label: "Layers", icon: glyph(IconStack) },
+    { value: SIDEBAR_TAB_STYLES, label: "Styles", icon: glyph(IconSearch), disabled: true },
+]
+
+export const SOURCES_ACTION_REMOVE = "remove"
+export const SOURCES_ACTION_ZOOM = "zoom"
+export const SOURCES_ACTIONS: Array<ActionBarItem | null> = [
+    { name: SOURCES_ACTION_REMOVE, label: "Delete source", icon: IconTrash, color: "red" },
+    { name: SOURCES_ACTION_ZOOM, label: "Zoom to source", icon: IconCrosshair },
+    null,
+    { name: "add-from-url", label: "Add from URL", icon: IconLink },
+    { name: "open-file", label: "Open file", icon: IconFile },
+    { name: "new", label: "New source", icon: IconPlus },
+]
+
+export const OUTLINE_SECTION = "outline"
+export const INSPECTOR_SECTION = "inspector"
+export const OUTLINE_SECTION_TITLE = "Outline"
+export const INSPECTOR_SECTION_TITLE = "Layer"
+export const SECTION_OUTLINE_MIN_SIZE = 120
+export const SECTION_INSPECTOR_MIN_SIZE = 160
+
+export type LayerFixture = { id: string; label: string; color: string; visible: boolean }
+export const LAYER_FIXTURES: ReadonlyArray<LayerFixture> = [
+    { id: "layer-parcels", label: "Parcels", color: LAYER_COLOR, visible: true },
+    { id: "layer-roads", label: "Roads", color: "#1971c2", visible: true },
+    { id: "layer-water", label: "Water bodies", color: "#74c0fc", visible: false },
+]
+
+export const BLEND_LABEL = "Blend mode"
+export const BLEND_DEFAULT = "normal"
+export const BLEND_OPTIONS: ReadonlyArray<SelectOption> = [
+    { value: BLEND_DEFAULT, label: "Normal" },
+    { value: "multiply", label: "Multiply" },
+    { value: "screen", label: "Screen" },
+]
+
+export const STATUSBAR_SIDEBAR_LABEL = "Toggle sidebar"
+export const STATUSBAR_SIDEBAR_GLYPH = glyph(IconLayoutSidebar)
+export const STATUSBAR_NORTH_LABEL = "Reset north"
+export const STATUSBAR_NORTH_GLYPH = glyph(IconNorthStar)
+export const STATUSBAR_VERSION = "Sphere 0.42.0"
+export const STATUSBAR_COORDINATE_BADGES: ReadonlyArray<{ text: string; title: string }> = [
+    { text: "zoom=11.250", title: "Zoom" },
+    { text: "lng=37.61764", title: "Longitude" },
+    { text: "lat=55.75583", title: "Latitude" },
+]
+
+export const COMPOSITION_DIALOG_FIELD_VALUE = "https://example.com/parcels.geojson"
