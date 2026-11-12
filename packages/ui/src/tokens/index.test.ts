@@ -173,6 +173,7 @@ describe("tokensToCss", () => {
         expect(css).toContain("--sphere-control-height-md:22px")
         expect(css).toContain("--sphere-row-height:22px")
         expect(css).toContain("--sphere-menu-item-height:20px")
+        expect(css).toContain("--sphere-titlebar-height:28px")
         expect(css).toContain("--sphere-duration-fast:120ms")
         expect(css).toContain("--sphere-duration-tooltip-delay:700ms")
         expect(css).toContain("--sphere-opacity-disabled:0.35")

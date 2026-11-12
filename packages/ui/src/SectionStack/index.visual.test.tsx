@@ -4,7 +4,7 @@ import { SectionStack, type SectionLayout } from "."
 const noop = () => {}
 const BODY_STYLE = { fontSize: 12, padding: "0 12px" }
 // Rows filled edge to edge, so the screenshot shows the flush body has no gap above the first one.
-const ROW_STYLE = { ...BODY_STYLE, lineHeight: "24px", backgroundColor: "var(--sphere-color-tree-row-selected-bg)" }
+const ROW_STYLE = { ...BODY_STYLE, lineHeight: "24px", backgroundColor: "var(--sphere-color-selection)" }
 const FLUSH_ROWS = ["first row", "second row"]
 
 function Stack({ sections }: { sections: SectionLayout[] }) {

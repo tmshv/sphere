@@ -4,6 +4,7 @@ import { type NodeApi, type TreeApi, Tree as ArboristTree } from "react-arborist
 import { TouchBackend } from "react-dnd-touch-backend"
 import { childIds, branchIds, openState } from "./items"
 import { type ArboristMove, toTreeMove } from "./move"
+import { rowHeight } from "../tokens"
 import { TreeRow } from "./TreeRow"
 import s from "./tree-row.module.css"
 import type { TreeItem, TreeMove } from "./type"
@@ -21,7 +22,6 @@ export type TreeProps = {
     canDrop?: (move: TreeMove) => boolean
 }
 
-const ROW_HEIGHT = 22
 const INDENT = 16
 /** Pointer travel before a press on a row becomes a drag, so jitter while clicking the chevron or an extra does not start one. */
 const DRAG_SLOP_PX = 4
@@ -109,7 +109,7 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
                 dndManager={dndManager}
                 width={width}
                 height={height}
-                rowHeight={ROW_HEIGHT}
+                rowHeight={rowHeight}
                 indent={INDENT}
             >
                 {TreeRow}

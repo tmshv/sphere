@@ -69,7 +69,7 @@ export const rowStackStyle: CSSProperties = { width: ROW_STACK_WIDTH }
 export const boxStyle: CSSProperties = {
     width: BOX_SIZE,
     height: BOX_SIZE,
-    background: "var(--sphere-color-tree-row-selected-bg)",
+    background: "var(--sphere-color-selection)",
 }
 export const tallBoxStyle: CSSProperties = { ...boxStyle, height: BOX_TALL_SIZE }
 export const overlayFrameStyle: CSSProperties = { ...overlayStyle, position: "relative" }

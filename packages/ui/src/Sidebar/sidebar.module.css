@@ -4,5 +4,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    /* The window draws its traffic lights in an overlay title bar; content starts below it. */
+    padding-top: var(--sphere-titlebar-height);
     background-color: var(--sphere-color-sidebar);
 }

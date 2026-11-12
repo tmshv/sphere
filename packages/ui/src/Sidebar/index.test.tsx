@@ -29,3 +29,19 @@ describe("Sidebar look", () => {
         expect(declaredStyle(container, "background-color")).toBe("var(--sphere-color-sidebar)")
     })
 })
+
+describe("Sidebar title bar inset", () => {
+    it("starts its content below the overlay title bar", () => {
+        render(
+            <Sidebar>
+                <div>panel</div>
+            </Sidebar>,
+        )
+        const container = screen.getByText("panel").parentElement
+        if (!container) {
+            throw new Error("sidebar not found")
+        }
+
+        expect(declaredStyle(container, "padding-top")).toBe("var(--sphere-titlebar-height)")
+    })
+})

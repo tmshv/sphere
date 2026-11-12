@@ -25,6 +25,8 @@ export const fontWeight = { regular: 400, semibold: 600, bold: 700 } as const
 export const controlHeight = { sm: 18, md: 22 } as const
 export const rowHeight = 22
 export const menuItemHeight = 20
+// The macOS overlay title bar the window draws its traffic lights in; sidebar content starts below it.
+export const titlebarHeight = 28
 
 const HAIRLINE = 0.5
 const POPUP_OFFSET = 4
