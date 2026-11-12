@@ -2,6 +2,7 @@ import { useState } from "react"
 import { describe, expect, it } from "vitest"
 import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { SECTION_HEADER_HEIGHT, SectionStack, type SectionLayout } from "."
+import { rowHeight } from "../tokens"
 
 function Stack({ initial }: { initial: SectionLayout[] }) {
     const [sections, setSections] = useState(initial)
@@ -202,7 +203,7 @@ describe("SectionStack", () => {
 })
 
 describe("SectionStack header height", () => {
-    it("declares in CSS the same height as SECTION_HEADER_HEIGHT", () => {
+    it("is one row tall, in CSS and in SECTION_HEADER_HEIGHT", () => {
         render(
             <SectionStack sections={[{ name: "outline", open: true, size: null }]} onSectionsChange={() => undefined}>
                 <SectionStack.Section name={"outline"} title={"Outline"}>
@@ -212,7 +213,8 @@ describe("SectionStack header height", () => {
         )
         const header = screen.getByRole("button", { name: /Outline/ })
 
-        expect(declaredStyle(header, "--header-height")).toBe(`${SECTION_HEADER_HEIGHT}px`)
+        expect(declaredStyle(header, "height")).toBe("var(--sphere-row-height)")
+        expect(SECTION_HEADER_HEIGHT).toBe(rowHeight)
     })
 })
 
@@ -232,12 +234,13 @@ describe("SectionStack header look", () => {
             throw new Error("header not found")
         }
 
-        expect(declaredStyle(toggle, "--header-height")).toBe(`${SECTION_HEADER_HEIGHT}px`)
+        expect(declaredStyle(toggle, "height")).toBe("var(--sphere-row-height)")
         expect(declaredStyle(header, "color")).toBe("var(--sphere-color-label-secondary)")
         expect(declaredStyle(header, "font-size")).toBe("var(--sphere-font-size-small)")
         expect(declaredStyle(header, "font-weight")).toBe("var(--sphere-font-weight-semibold)")
         expect(declaredStyle(header, "text-transform")).toBe("uppercase")
-        expect(declaredStyle(header, "letter-spacing")).toBe("0.02em")
+        expect(declaredStyle(header, "letter-spacing")).toBe("var(--caps-tracking)")
+        expect(declaredStyle(header, "--caps-tracking")).toBe("0.02em")
         expect(declaredStyle(header, "box-shadow")).toBe("inset 0 1px 0 var(--sphere-color-separator)")
     })
 })

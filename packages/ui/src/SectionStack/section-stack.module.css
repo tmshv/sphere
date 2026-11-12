@@ -14,26 +14,27 @@
 /* The header strip: its text colour and the separator line above, drawn inside so the strip stays exactly the
    toggle's height. The toggle button inside inherits the colour. */
 .header {
+    /* Uppercase labels are tracked out a little, as macOS does for section headers. */
+    --caps-tracking: 0.02em;
+
     flex-shrink: 0;
     display: flex;
     color: var(--sphere-color-label-secondary);
     font-size: var(--sphere-font-size-small);
     font-weight: var(--sphere-font-weight-semibold);
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: var(--caps-tracking);
     box-shadow: inset 0 1px 0 var(--sphere-color-separator);
 }
 
 /* The toggle fills the header; ButtonBase owns how it behaves. */
 .toggle {
-    /* Pinned to SECTION_HEADER_HEIGHT in index.tsx by a test. */
-    --header-height: 22px;
-
     flex: 1;
     display: flex;
     align-items: center;
     gap: var(--sphere-space-4);
-    height: var(--header-height);
+    /* One outline row; SECTION_HEADER_HEIGHT in index.tsx reads the same token. */
+    height: var(--sphere-row-height);
     padding-left: var(--sphere-space-12);
     padding-right: var(--sphere-space-12);
 }

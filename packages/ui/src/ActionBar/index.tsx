@@ -1,5 +1,6 @@
 import type { IconComponent, IconProps } from "@sphere/icons"
 import { IconButton } from "../Button"
+import { cx } from "../internal"
 import s from "./action-bar.module.css"
 
 const ICON_SIZE_PX = 16
@@ -23,7 +24,7 @@ export type ActionBarProps = {
 
 export function ActionBar({ items, onClick, padded = false }: ActionBarProps) {
     return (
-        <div className={padded ? `${s.bar} ${s.padded}` : s.bar}>
+        <div className={cx(s.bar, padded && s.padded)}>
             {items.map((item, i) => {
                 if (!item) {
                     return <div key={`separator-before-${items.at(i + 1)?.name ?? "end"}`} className={s.spacer} />
