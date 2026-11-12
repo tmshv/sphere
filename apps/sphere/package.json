@@ -19,9 +19,9 @@
         "tauri": "tauri"
     },
     "dependencies": {
-        "@hyvilo/maplibre-gl-draw": "^1.0.0",
         "@maplibre/maplibre-gl-style-spec": "^26.2.1",
         "@reduxjs/toolkit": "^2.8.0",
+        "@sphere/draw": "*",
         "@tanstack/react-table": "^8.21.0",
         "@tauri-apps/api": "^2.6.0",
         "@tauri-apps/plugin-clipboard-manager": "^2.3.0",
