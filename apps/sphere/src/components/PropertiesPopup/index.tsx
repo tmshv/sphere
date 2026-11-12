@@ -1,6 +1,6 @@
 import { selectors } from "@/store/selectors"
 import { useAppSelector } from "@/store/hooks"
-import { Heading, Overlay, PropertiesViewer, Surface } from "@sphere/ui"
+import { Heading, Overlay, PropertyList, Surface } from "@sphere/ui"
 
 // The panel is sized by its content and capped by the overlay region, so it
 // never covers the map with an invisible full-height block.
@@ -30,7 +30,7 @@ export default function PropertiesPopup() {
                     <Heading>Properties</Heading>
                     <div style={BODY_STYLE}>
                         {entries.map(x => (
-                            <PropertiesViewer key={x.id} properties={x.items} />
+                            <PropertyList key={x.id} items={x.items} />
                         ))}
                     </div>
                 </Surface>

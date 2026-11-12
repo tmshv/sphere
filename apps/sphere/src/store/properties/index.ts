@@ -46,7 +46,7 @@ function projectEntries(entries: PropertiesEntry[]) {
             .map(key => {
                 const raw = entry.values[key]
                 const value = typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw ?? "")
-                return { key, value }
+                return { name: key, value }
             })
         return { id: entry.id, items }
     })

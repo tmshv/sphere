@@ -31,6 +31,7 @@ import type { FieldEntry } from "../AttributeList"
 import type { Command } from "../CommandPalette"
 import type { OverlayProps } from "../Overlay"
 import type { PropertyItem, PropertyItemMeta } from "../PropertiesTable"
+import type { PropertyListItem } from "../PropertyList"
 import type { SegmentedControlOption, SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
 import type { TreeItem } from "../Tree"
@@ -307,18 +308,27 @@ export const PROPERTY_SORT: SortingState = [{ id: "area", desc: true }]
 export const PROPERTY_FILTER_ALL = "all"
 export const PROPERTY_FILTER_SELECTION = "selection"
 
-export const VIEWER_PROPERTIES: ReadonlyArray<{ key: string; value: string }> = [
-    { key: "cadastral_number", value: "77:01:0004012:15" },
-    { key: "landuse", value: "residential" },
-    { key: "area", value: "1250.5" },
+export const FEATURE_PROPERTIES: ReadonlyArray<PropertyListItem> = [
+    { name: "cadastral_number", value: "77:01:0004012:15" },
+    { name: "landuse", value: "residential" },
+    { name: "area", value: 1250.5 },
+    { name: "owner_note", value: "Shared ownership, two parcels merged in 2019 after the boundary survey" },
 ]
 
 const PHOTO_SVG =
     "<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect width='64' height='64' fill='#74c0fc'/><circle cx='32' cy='32' r='16' fill='#2f9e44'/></svg>"
 export const PHOTO_URL = `data:image/svg+xml,${encodeURIComponent(PHOTO_SVG)}`
-export const VIEWER_PROPERTIES_WITH_PHOTO: ReadonlyArray<{ key: string; value: string }> = [
-    ...VIEWER_PROPERTIES,
-    { key: "photo", value: PHOTO_URL },
+export const FEATURE_PROPERTIES_WITH_PHOTO: ReadonlyArray<PropertyListItem> = [
+    ...FEATURE_PROPERTIES,
+    { name: "photo", value: PHOTO_URL },
+]
+
+// Source details as the source panel shows them: short captions with counts and dates.
+export const SOURCE_DETAILS: ReadonlyArray<PropertyListItem> = [
+    { name: "Size", value: "2.4 MB" },
+    { name: "Modified", value: "12 Nov 2024 10:00" },
+    { name: "Features", value: 12480 },
+    { name: "Polygons", value: "12480 (31 multi)" },
 ]
 
 export const ATTRIBUTE_FIELDS: ReadonlyArray<FieldEntry> = [
@@ -344,11 +354,6 @@ export const ATTRIBUTE_FIELDS: ReadonlyArray<FieldEntry> = [
     { name: "notes", type: "string", summary: { kind: "loading" } },
     { name: "owner", type: "string", summary: { kind: "error" } },
 ]
-
-export const INFO_ROW_LABEL = "Features"
-export const INFO_ROW_VALUE = "12 480"
-export const INFO_ROW_DATA_LABEL = "landuse"
-export const INFO_ROW_DATA_VALUE = "residential"
 
 export const SURFACE_TEXT = "Surface content"
 export const PANEL_HEADER = "Attributes"

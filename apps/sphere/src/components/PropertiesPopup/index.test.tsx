@@ -35,6 +35,11 @@ describe("PropertiesPopup", () => {
         expect(screen.getByText("Alpha")).toBeInTheDocument()
     })
 
+    it("offers to copy every property", () => {
+        renderPopup([{ id: 1, values: { name: "Alpha", population: 3 } }])
+        expect(screen.getAllByRole("button", { name: "Copy" })).toHaveLength(2)
+    })
+
     it("puts the visible panel directly in the overlay region, with no transparent block around it", () => {
         renderPopup(entries)
         const panel = screen.getByText("Properties").parentElement

@@ -44,7 +44,7 @@ export const IMAGE_MARKER_SIZE = 40
 export const BOX_SIZE = 40
 export const BOX_TALL_SIZE = 72
 export const ROW_STACK_WIDTH = 320
-export const INFO_ROW_WIDTH = 280
+export const PROPERTY_LIST_WIDTH = 280
 export const ATTRIBUTE_LIST_WIDTH = 280
 
 export const paneStyle: CSSProperties = { padding: PANE_PADDING, fontSize: ICON_SIZE }
@@ -67,7 +67,7 @@ export const panelFrameStyle: CSSProperties = {
     display: "flex",
     flexDirection: "column",
 }
-export const infoRowStyle: CSSProperties = { width: INFO_ROW_WIDTH }
+export const propertyListStyle: CSSProperties = { width: PROPERTY_LIST_WIDTH }
 export const attributeListStyle: CSSProperties = { width: ATTRIBUTE_LIST_WIDTH }
 export const rowStackStyle: CSSProperties = { width: ROW_STACK_WIDTH }
 export const boxStyle: CSSProperties = {

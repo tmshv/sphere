@@ -1,6 +1,6 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { InfoRow, Stack } from "@sphere/ui"
+import { PropertyList, Stack } from "@sphere/ui"
 import { PanelSection } from "./parts/PanelSection"
 
 export function FolderPanel() {
@@ -13,7 +13,7 @@ export function FolderPanel() {
     return (
         <Stack gap={"md"}>
             <PanelSection title={"Folder"}>
-                <InfoRow label={"Items"} value={String(node.children.length)} />
+                <PropertyList items={[{ name: "Items", value: node.children.length }]} />
             </PanelSection>
         </Stack>
     )

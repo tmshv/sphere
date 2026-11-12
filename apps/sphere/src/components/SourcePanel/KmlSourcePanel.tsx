@@ -1,6 +1,6 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { AttributeList, InfoRow, Stack, Text } from "@sphere/ui"
+import { AttributeList, PropertyList, Stack, Text } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
 import { PanelSection } from "./parts/PanelSection"
@@ -27,9 +27,13 @@ export function KmlSourcePanel() {
             <FileSection file={info?.file} />
 
             <PanelSection title={"KML contents"}>
-                <InfoRow label={"Placemarks"} value={details.placemarks} />
-                <InfoRow label={"Folders"} value={details.folders} />
-                <InfoRow label={"Skipped placemarks"} value={details.skipped_placemarks} />
+                <PropertyList
+                    items={[
+                        { name: "Placemarks", value: details.placemarks },
+                        { name: "Folders", value: details.folders },
+                        { name: "Skipped placemarks", value: details.skipped_placemarks },
+                    ]}
+                />
                 {details.skipped_placemarks > 0 ? (
                     <Text tone={"warning"}>{skippedNote(details.skipped_placemarks)}</Text>
                 ) : null}

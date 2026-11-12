@@ -1,12 +1,15 @@
 import { actions } from "@/store"
 import { makeMvtSource, makeSourceState } from "@/testutils"
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen, within } from "@/test-utils"
 import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import { type Middleware, configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
 import { describe, expect, it } from "vitest"
 import { SourcePanel } from "."
+
+// The actions the source panel's header offers.
+const SOURCE_ACTIONS = ["Delete source", "Show properties", "Add to layer", "Zoom to source", "Reload"]
 
 const source: Source = {
     id: "s1",
@@ -68,8 +71,11 @@ describe("SourcePanel", () => {
         const { container } = renderPanel()
         const { header, body } = partsOf(container)
 
-        expect(header.querySelectorAll("button").length).toBeGreaterThan(0)
-        expect(body.querySelectorAll("button")).toHaveLength(0)
+        // The body has buttons of its own (the copy glyphs of the details), but none of the source actions.
+        for (const action of SOURCE_ACTIONS) {
+            expect(within(header).getByRole("button", { name: action })).toBeInTheDocument()
+            expect(within(body).queryByRole("button", { name: action })).not.toBeInTheDocument()
+        }
         expect(window.getComputedStyle(header).flexShrink).toBe("0")
         expect(window.getComputedStyle(header).overflowY).not.toBe("auto")
     })
