@@ -1,10 +1,8 @@
 import { type ReactNode, useState } from "react"
 import { AppLayout } from "../../AppLayout"
-import { SegmentedControl } from "../../Select"
 import { Statusbar, StatusbarBadge, StatusbarButton, StatusbarSelect } from "../../Statusbar"
 import {
     MAP_TOOL_DEFAULT,
-    MAP_TOOL_LABEL,
     MAP_TOOL_OPTIONS,
     STATUSBAR_BADGE_TEXT,
     STATUSBAR_BADGE_TITLE,
@@ -16,7 +14,7 @@ import {
     STATUSBAR_SIDEBAR_LABEL,
     STATUSBAR_VERSION,
 } from "../fixtures"
-import { mapAreaStyle, mapToolbarStyle, statusbarSpacerStyle, WINDOW_SIDEBAR_SIZE, windowFrameStyle } from "../layout"
+import { mapAreaStyle, statusbarSpacerStyle, WINDOW_SIDEBAR_SIZE, windowFrameStyle } from "../layout"
 import { MapPlaceholder } from "./MapPlaceholder"
 import { SidebarContent } from "./SidebarContent"
 
@@ -26,7 +24,7 @@ type AppWindowProps = {
     sidebar?: boolean
 }
 
-/** The main window: sidebar, map placeholder with the map tool over it, and the statusbar. */
+/** The main window: sidebar, map placeholder and the statusbar with the map tools. */
 export function AppWindow({ children, sidebar = true }: AppWindowProps) {
     const [sidebarOpen, setSidebarOpen] = useState(sidebar)
     const [tool, setTool] = useState(MAP_TOOL_DEFAULT)
@@ -71,15 +69,6 @@ export function AppWindow({ children, sidebar = true }: AppWindowProps) {
             >
                 <div style={mapAreaStyle}>
                     <MapPlaceholder />
-                    <div style={mapToolbarStyle}>
-                        <SegmentedControl
-                            label={MAP_TOOL_LABEL}
-                            size="sm"
-                            options={MAP_TOOL_OPTIONS}
-                            value={tool}
-                            onChange={setTool}
-                        />
-                    </div>
                 </div>
             </AppLayout>
             {children}

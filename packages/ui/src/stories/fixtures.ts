@@ -393,7 +393,6 @@ export function sortPropertyRows(rows: ReadonlyArray<PropertyItem>, sorting: Sor
 
 // Compositions: the main window as the app composes it.
 export const MAP_CAPTION = "Map"
-export const MAP_TOOL_LABEL = "Map tool"
 export const MAP_TOOL_DEFAULT = "navigation"
 export const MAP_TOOL_OPTIONS: ReadonlyArray<SegmentedControlOption> = [
     { value: MAP_TOOL_DEFAULT, label: "Navigation", icon: glyph(IconHandStop) },

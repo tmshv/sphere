@@ -79,7 +79,6 @@ export const STATUSBAR_ICON_SIZE = 14
 export const WINDOW_WIDTH = 1200
 export const WINDOW_HEIGHT = 760
 export const WINDOW_SIDEBAR_SIZE = { preferred: 300, min: 265, max: 500 }
-export const MAP_TOOLBAR_BOTTOM = 12
 export const MAP_HATCH_SIZE = 12
 export const MAP_HATCH_LINE = 1
 export const MAP_CAPTION_SIZE = 13
@@ -97,12 +96,6 @@ export const windowFrameStyle: CSSProperties = {
     background: "var(--sphere-color-window)",
     color: "var(--sphere-color-label)",
     fontFamily: "var(--sphere-font-family-sans)",
-}
-export const mapToolbarStyle: CSSProperties = {
-    position: "absolute",
-    bottom: MAP_TOOLBAR_BOTTOM,
-    left: "50%",
-    transform: "translateX(-50%)",
 }
 export const statusbarSpacerStyle: CSSProperties = { flex: 1 }
 export const mapPlaceholderStyle: CSSProperties = {
