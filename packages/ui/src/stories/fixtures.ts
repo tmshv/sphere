@@ -19,6 +19,7 @@ import { fn } from "storybook/test"
 import type { ActionBarItem } from "../ActionBar"
 import type { FieldEntry } from "../AttributeList"
 import type { Command } from "../CommandPalette"
+import type { OverlayProps } from "../Overlay"
 import type { PropertyItem, PropertyItemMeta } from "../PropertiesTable"
 import type { SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
@@ -286,7 +287,14 @@ export const SURFACE_TEXT = "Surface content"
 export const PANEL_HEADER = "Attributes"
 export const PANEL_LINES: ReadonlyArray<string> = SOURCE_NAMES
 export const SIDEBAR_TEXT = "Sidebar content"
-export const OVERLAY_SLOTS = ["topLeft", "topRight", "left", "right", "top", "bottom"] as const
+export const OVERLAY_SLOTS = {
+    topLeft: "Top left",
+    topRight: "Top right",
+    left: "Left",
+    right: "Right",
+    top: "Top",
+    bottom: "Bottom",
+} satisfies Record<keyof OverlayProps, string>
 export const APP_LAYOUT_MAIN = "Main"
 export const APP_LAYOUT_LEFT = "Left sidebar"
 export const APP_LAYOUT_RIGHT = "Right sidebar"
@@ -305,6 +313,8 @@ export const SPLIT_RIGHT = "Right"
 
 export const ERROR_MESSAGE = "Failed to read source: unexpected end of file"
 export const ROW_ITEMS: ReadonlyArray<string> = ["One", "Two", "Three"]
+// The middle item is taller than the others, so the align options visibly differ.
+export const ROW_TALL_ITEM_INDEX = 1
 
 export const STATUSBAR_BUTTON_LABEL = "Measure"
 export const STATUSBAR_SELECT_OPTIONS: ReadonlyArray<SelectOption> = [

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 import { fn } from "storybook/test"
 import { SECTION_NAMES, SECTION_TITLES, SOURCE_NAMES } from "../stories/fixtures"
-import { paneStyle, sectionStackStyle } from "../stories/layout"
+import { paneStyle, SECTION_MIN_CONTENT_SIZE, sectionStackStyle } from "../stories/layout"
 import { SectionStack, type SectionLayout, type SectionStackProps } from "."
 
 function initialLayout(open: boolean): SectionLayout[] {
@@ -35,7 +35,12 @@ const meta = {
         sections: initialLayout(true),
         onSectionsChange: fn(),
         children: SECTION_NAMES.map(name => (
-            <SectionStack.Section key={name} name={name} title={SECTION_TITLES[name]} minContentSize={40}>
+            <SectionStack.Section
+                key={name}
+                name={name}
+                title={SECTION_TITLES[name]}
+                minContentSize={SECTION_MIN_CONTENT_SIZE}
+            >
                 <div style={paneStyle}>{SOURCE_NAMES.join(", ")}</div>
             </SectionStack.Section>
         )),

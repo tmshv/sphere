@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { ROW_ITEMS } from "../stories/fixtures"
+import { ROW_ITEMS, ROW_TALL_ITEM_INDEX } from "../stories/fixtures"
 import { boxStyle, rowStackStyle, tallBoxStyle } from "../stories/layout"
 import type { Align, Gap } from "."
 import { type Justify, Row } from "./Row"
@@ -20,7 +20,7 @@ const meta = {
         className: undefined,
         style: rowStackStyle,
         children: ROW_ITEMS.map((item, index) => (
-            <div key={item} style={index === 1 ? tallBoxStyle : boxStyle}>
+            <div key={item} style={index === ROW_TALL_ITEM_INDEX ? tallBoxStyle : boxStyle}>
                 {item}
             </div>
         )),

@@ -8,14 +8,7 @@ const meta = {
     component: Overlay,
     tags: ["autodocs"],
     parameters: { layout: "fullscreen" },
-    args: {
-        topLeft: OVERLAY_SLOTS[0],
-        topRight: OVERLAY_SLOTS[1],
-        left: OVERLAY_SLOTS[2],
-        right: OVERLAY_SLOTS[3],
-        top: OVERLAY_SLOTS[4],
-        bottom: OVERLAY_SLOTS[5],
-    },
+    args: { ...OVERLAY_SLOTS },
     decorators: [
         Story => (
             <div style={overlayFrameStyle}>

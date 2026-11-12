@@ -27,6 +27,7 @@ export const TABLE_HEIGHT = 240
 export const TABLE_WIDTH = 640
 export const SECTION_STACK_HEIGHT = 420
 export const SECTION_STACK_WIDTH = 280
+export const SECTION_MIN_CONTENT_SIZE = 40
 export const SPLIT_HEIGHT = 200
 export const SPLIT_WIDTH = 480
 export const SPLIT_DEFAULT_SIZES = [160, 320]
