@@ -11,8 +11,9 @@ visualCases("Button", {
     primary: { render: () => <Button>Primary</Button> },
     secondary: { render: () => <Button variant="secondary">Secondary</Button> },
     disabled: { render: () => <Button disabled>Disabled</Button> },
+    // Renders exactly what primary renders: the pointer over a button must change nothing.
     hover: {
-        render: () => <Button>Hover</Button>,
+        render: () => <Button>Primary</Button>,
         interact: () => userEvent.hover(page.getByRole("button")),
     },
     "focus-visible": {

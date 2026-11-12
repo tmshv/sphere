@@ -72,6 +72,7 @@ visualCases("SegmentedControl", {
     "second-active": {
         render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="wkt" onChange={noop} />,
     },
+    // Renders exactly what first-active renders: the pointer over a segment must change nothing.
     hover: {
         render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="point" onChange={noop} />,
         interact: () => userEvent.hover(page.getByText("WKT")),
