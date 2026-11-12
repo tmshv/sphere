@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { GAP_PX, Row, Stack } from "."
 
 describe("GAP_PX", () => {
-    it("maps gap tokens to today's pixels", () => {
+    it("maps gap names onto the space scale", () => {
         expect(GAP_PX).toEqual({ xxs: 2, xs: 4, sm: 12, md: 16 })
     })
 })

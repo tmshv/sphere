@@ -1,9 +1,8 @@
-import { Button as BaseButton } from "@base-ui/react/button"
 import type { ReactNode } from "react"
-import iconButton from "../Button/icon-button.module.css"
-import { unstyledButton } from "../internal"
+import { ButtonBase, cx } from "../internal"
 import s from "./statusbar-button.module.css"
 
+/** How a toggled-on button shows: a yellow glyph, or a grey body behind the glyph. */
 export type StatusbarButtonLook = "accent" | "fill"
 
 export type StatusbarButtonProps = {
@@ -12,11 +11,13 @@ export type StatusbarButtonProps = {
     label: string
     onClick: () => void
     disabled?: boolean
+    /** Toggled on (`aria-pressed`); leave undefined for a button that is not a toggle. */
     active?: boolean
-    /** How an active button stands out: a yellow icon, or a filled background. */
+    /** How a toggled-on button shows (default `accent`). */
     activeLook?: StatusbarButtonLook
 }
 
+/** A small glyph button for the statusbar. */
 export function StatusbarButton({
     icon,
     label,
@@ -25,27 +26,17 @@ export function StatusbarButton({
     active,
     activeLook = "accent",
 }: StatusbarButtonProps) {
-    const isFilled = active === true && activeLook === "fill"
-    const isAccent = active === true && activeLook === "accent"
-    const classes = [
-        unstyledButton,
-        iconButton.iconButton,
-        iconButton.sizeSm,
-        s.button,
-        isAccent && s.accent,
-        isFilled && s.fill,
-    ]
-
     return (
-        <BaseButton
-            className={classes.filter(Boolean).join(" ")}
-            aria-label={label}
-            aria-pressed={active}
-            title={label}
+        <ButtonBase
+            shape="glyph"
+            size="sm"
+            label={label}
+            active={active}
             disabled={disabled}
-            onClick={() => onClick()}
+            className={cx(s.button, activeLook === "fill" && s.fill)}
+            onClick={onClick}
         >
             {icon}
-        </BaseButton>
+        </ButtonBase>
     )
 }

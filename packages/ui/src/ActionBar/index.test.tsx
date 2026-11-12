@@ -1,17 +1,14 @@
-import { declaredStyle, fireEvent, pressedStyle, render, screen } from "../test-utils"
+import { IconPlus } from "@sphere/icons"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { ActionBar } from "."
 import type { ActionBarItem } from "."
-
-const MockIcon = ({ size }: { size?: number; color?: string }) => (
-    <svg data-testid="mock-icon" width={size} height={size} />
-)
 
 function makeItem(name: string, disabled?: boolean): ActionBarItem {
     return {
         name,
         label: `Label for ${name}`,
-        icon: MockIcon as unknown as ActionBarItem["icon"],
+        icon: IconPlus,
         disabled,
     }
 }
@@ -26,10 +23,9 @@ describe("ActionBar", () => {
     it("clicking an icon calls onClick with the item name", () => {
         const onClick = vi.fn()
         render(<ActionBar items={[makeItem("save"), makeItem("delete")]} onClick={onClick} />)
-        const buttons = screen.getAllByRole("button")
-        fireEvent.click(buttons[0])
+        fireEvent.click(screen.getByRole("button", { name: "Label for save" }))
         expect(onClick).toHaveBeenCalledWith("save")
-        fireEvent.click(buttons[1])
+        fireEvent.click(screen.getByRole("button", { name: "Label for delete" }))
         expect(onClick).toHaveBeenCalledWith("delete")
     })
 
@@ -57,19 +53,21 @@ describe("ActionBar", () => {
         if (!bar) {
             throw new Error("ActionBar rendered nothing")
         }
-        expect(declaredStyle(bar, "padding-left")).toBe("var(--sphere-space-sm)")
-        expect(declaredStyle(bar, "padding-right")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(bar, "padding-left")).toBe("var(--sphere-space-12)")
+        expect(declaredStyle(bar, "padding-right")).toBe("var(--sphere-space-12)")
     })
 
-    it("dims a disabled item with half opacity", () => {
+    it("dims a disabled item with the shared disabled opacity", () => {
         render(<ActionBar items={[makeItem("action", true)]} onClick={vi.fn()} />)
-        expect(declaredStyle(screen.getByRole("button"), "opacity")).toBe("var(--action-disabled-opacity)")
+        expect(declaredStyle(screen.getByRole("button"), "opacity")).toBe("var(--sphere-opacity-disabled)")
     })
 })
 
-describe("ActionBar press parity", () => {
-    it("has no press transform, as Sphere's theme set activeStyles to none", () => {
-        render(<ActionBar items={[makeItem("a")]} onClick={vi.fn()} />)
-        expect(pressedStyle(screen.getByRole("button"), "transform")).toBe("")
+describe("ActionBar desktop interaction", () => {
+    it("has the desktop interaction model on every action", () => {
+        render(<ActionBar items={[makeItem("a"), makeItem("b", true)]} onClick={vi.fn()} />)
+        for (const button of screen.getAllByRole("button")) {
+            expectDesktopInteraction(button)
+        }
     })
 })

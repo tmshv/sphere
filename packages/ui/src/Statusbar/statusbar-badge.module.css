@@ -1,34 +1,48 @@
-/* Ported from MapStatusbar's createStyles. `backgroundColor: theme.colors.dark` is an array; emotion
-   emitted every entry and the last (dark[9]) won, so the default badge is dark. */
-/* Every rule overrides the internal Badge's classes, so it is doubled (R10). */
-.widget.widget {
-    --statusbar-badge-nudge: 1px;
+/* A readout in the statusbar: 10px bold uppercase monospace in a small pill. The default pill is the strip colour,
+   so it reads as plain text; an error pill is red. */
+.widget {
+    --statusbar-badge-height: 18px;
+    --statusbar-badge-letter-spacing: 0.25px;
     /* Fixed widths keep a changing readout from shoving its neighbours around. */
     --statusbar-badge-width-short: 90px;
     --statusbar-badge-width-long: 101px;
 
-    font-family: monospace;
-    user-select: none;
-    cursor: default;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
     justify-content: flex-start;
-
-    /* For pixel perfect vertical alignment. Works together with Statusbar height 28px. */
-    position: relative;
-    top: var(--statusbar-badge-nudge);
-
-    background: var(--sphere-color-statusbar-bg);
-    color: var(--sphere-color-on-accent);
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
+    height: var(--statusbar-badge-height);
+    padding: 0 var(--sphere-space-8);
+    border-radius: var(--sphere-radius-control);
+    background-color: var(--sphere-color-statusbar);
+    color: var(--sphere-color-statusbar-text);
+    font-family: var(--sphere-font-family-mono);
+    font-size: var(--sphere-font-size-mini);
+    font-weight: var(--sphere-font-weight-bold);
+    line-height: var(--sphere-line-height-tight);
+    letter-spacing: var(--statusbar-badge-letter-spacing);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
 }
 
-.error.error {
-    background: var(--sphere-color-danger);
-    color: var(--sphere-color-on-accent);
+.error {
+    flex-shrink: 1;
+    min-width: 0;
+    background-color: var(--sphere-color-statusbar-error);
 }
 
-.short.short {
+.short {
     width: var(--statusbar-badge-width-short);
 }
 
-.long.long {
+.long {
     width: var(--statusbar-badge-width-long);
 }

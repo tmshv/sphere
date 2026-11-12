@@ -127,12 +127,13 @@ describe("AttributeList", () => {
     it("lets the data inside it be selected even so", () => {
         render(<AttributeList fields={[numericField, stringField]} />)
 
-        // A column name, a statistic and a frequent value are all worth
-        // copying; the captions around them are not.
+        // A column name, a statistic with its name and a frequent value are all
+        // worth copying; the captions around them ("unique") inherit the list's
+        // user-select: none, checked above.
         expect(getComputedStyle(screen.getByText("elevation")).userSelect).toBe("text")
         expect(getComputedStyle(screen.getByText("1843")).userSelect).toBe("text")
         expect(getComputedStyle(screen.getByText("Moscow")).userSelect).toBe("text")
-        expect(getComputedStyle(screen.getByText("max")).userSelect).toBe("none")
+        expect(getComputedStyle(screen.getByText("max")).userSelect).toBe("text")
     })
 
     it("ellipsizes a long field name instead of pushing its type off the row", () => {

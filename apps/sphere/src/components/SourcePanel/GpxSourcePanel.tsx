@@ -1,6 +1,6 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { AttributeList, InfoRow, Stack, Text } from "@sphere/ui"
+import { AttributeList, PropertyList, Stack, Text } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
 import { PanelSection } from "./parts/PanelSection"
@@ -22,10 +22,14 @@ export function GpxSourcePanel() {
             <FileSection file={info?.file} />
 
             <PanelSection title={"GPX contents"}>
-                <InfoRow label={"Waypoints"} value={details.waypoints} />
-                <InfoRow label={"Tracks"} value={details.tracks} />
-                <InfoRow label={"Routes"} value={details.routes} />
-                <InfoRow label={"Track points"} value={details.track_points} />
+                <PropertyList
+                    items={[
+                        { name: "Waypoints", value: details.waypoints },
+                        { name: "Tracks", value: details.tracks },
+                        { name: "Routes", value: details.routes },
+                        { name: "Track points", value: details.track_points },
+                    ]}
+                />
                 {hasUnrenderedContent ? (
                     <Text tone={"warning"}>
                         GPX rendering only supports tracks — waypoints and routes are not drawn on the map.

@@ -2,7 +2,8 @@ import { actions, selectors } from "@/store"
 import type { OutlineNode } from "@/store/source/outline-selectors"
 import type { Id, SourceKind } from "@/types"
 import { canMove } from "@/lib/source-tree"
-import { Tree, type TreeItem, type TreeMove, useAccentColor, VisibilityToggle } from "@sphere/ui"
+import { Tree, type TreeItem, type TreeMove, useAccentColor } from "@sphere/ui"
+import { VisibilityToggle } from "@/components/VisibilityToggle"
 import {
     IconBraces,
     IconFileUnknown,

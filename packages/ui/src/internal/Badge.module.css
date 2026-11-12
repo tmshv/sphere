@@ -1,70 +1,54 @@
-/* Mantine 5 Badge.styles.js for sizes xs/sm and variants light/filled/outline (outline in the dark colour). */
-/* Height, font size and padding come from the size class. */
+/* A small type or value tag in 10px regular text that keeps the case of its data (URL paths, values). Height,
+   font size and padding come from the size class; the radius is the tooltip one. */
 .badge {
-    --badge-letter-spacing: 0.25px;
-    /* Mantine pads by spacing[size] / 1.5. */
-    --badge-padding-divisor: 1.5;
     --badge-border-width: 1px;
 
     -webkit-tap-highlight-color: transparent;
     font-family: var(--sphere-font-family-sans);
     font-size: var(--badge-font-size);
+    font-weight: var(--sphere-font-weight-regular);
     height: var(--badge-height);
     line-height: calc(var(--badge-height) - 2 * var(--badge-border-width));
     text-decoration: none;
-    padding: 0 calc(var(--badge-padding-space) / var(--badge-padding-divisor));
+    padding: 0 var(--badge-padding);
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: auto;
-    text-transform: uppercase;
-    font-weight: var(--sphere-font-weight-bold);
-    letter-spacing: var(--badge-letter-spacing);
     cursor: inherit;
     text-overflow: ellipsis;
     overflow: hidden;
     border: var(--badge-border-width) solid transparent;
+    border-radius: var(--sphere-radius-control);
 }
 
 .sizeXs {
     --badge-height: 16px;
-    --badge-font-size: 9px;
-    --badge-padding-space: var(--sphere-space-xs);
+    --badge-font-size: var(--sphere-font-size-mini);
+    --badge-padding: var(--sphere-space-4);
 }
 
 .sizeSm {
     --badge-height: 18px;
-    --badge-font-size: 10px;
-    --badge-padding-space: var(--sphere-space-sm);
-}
-
-.radiusXs {
-    border-radius: var(--sphere-radius-xs);
-}
-
-.radiusSm {
-    border-radius: var(--sphere-radius-sm);
-}
-
-.radiusXl {
-    border-radius: var(--sphere-radius-xl);
+    --badge-font-size: var(--sphere-font-size-mini);
+    --badge-padding: var(--sphere-space-6);
 }
 
 .light {
-    background: var(--sphere-color-badge-light-bg);
-    color: var(--sphere-color-badge-light-text);
+    background: var(--sphere-color-badge);
+    color: var(--sphere-color-label);
 }
 
 .filled {
-    background: var(--sphere-color-badge-filled-bg);
-    color: var(--sphere-color-badge-filled-text);
+    background: var(--sphere-color-accent);
+    color: var(--sphere-color-on-accent);
 }
 
 .outline {
     background: transparent;
-    color: var(--sphere-color-badge-outline-dark);
-    border-color: var(--sphere-color-badge-outline-dark);
+    color: var(--sphere-color-label-secondary);
+    border-color: var(--sphere-color-separator);
 }
 
 .inner {

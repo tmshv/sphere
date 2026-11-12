@@ -1,6 +1,21 @@
-/* Ported from the Mantine 5 createStyles block that TreeRow had before the Base UI migration. */
+/* Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block. */
+.tree {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 100%;
+}
 
-/* The whole row is the highlight, so a selected row reads as one band from edge to edge */
+/* react-arborist moves focus onto the row (treeitem) the keyboard is on. The browser's outline gives way to the focus
+   ring, drawn inside the row because rows run edge to edge of a list that clips them, and above the selection fill. */
+.item {
+    outline: none;
+}
+
+.item:focus-visible .row {
+    box-shadow: inset 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+/* The whole row is the highlight, so a selected row reads as one band from edge to edge. No hover tint. */
 .row {
     height: 100%;
     cursor: default;
@@ -8,64 +23,56 @@
        read as a text selection across the labels */
     user-select: none;
     -webkit-user-select: none;
-    color: var(--sphere-color-tree-row-text);
-    font-size: var(--sphere-font-size-xs);
+    color: var(--sphere-color-label);
+    font-size: var(--sphere-font-size-body);
 }
 
-.row:hover {
-    background-color: var(--sphere-color-tree-row-hover-bg);
-}
-
-/* A soft tint rather than the filled accent: the row stays readable and the bulb stays visible */
+/* The selected row is a light blue band under the plain label colour, the same whether or not the tree has focus,
+   so the active item always reads the same. Icons and glyphs keep their own colours. */
 .row.selected {
-    background-color: var(--sphere-color-tree-row-selected-bg);
-}
-
-.row.selected:hover {
-    background-color: var(--sphere-color-tree-row-selected-hover-bg);
+    background-color: var(--sphere-color-selection);
+    color: var(--sphere-color-label);
 }
 
 /* Same inset as a SectionStack header */
 .content {
     display: flex;
     align-items: center;
-    gap: var(--sphere-space-xs);
+    gap: var(--sphere-space-4);
     height: 100%;
-    padding-left: var(--sphere-space-sm);
-    padding-right: var(--sphere-space-xs);
+    padding-left: var(--sphere-space-12);
+    padding-right: var(--sphere-space-4);
 }
 
-/* Doubled: on the expand button it overrides the shared .unstyledButton colour (R10) */
-.chevron.chevron {
-    /* Same chevron as a SectionStack header, so the tree's first level lines up under it */
-    --chevron-size: 14px;
+.chevron {
+    /* The chevron of a SectionStack header, so the tree's first level lines up under it */
+    --disclosure-size: 14px;
 
     flex-shrink: 0;
     display: flex;
-    width: var(--chevron-size);
-    color: inherit;
+    width: var(--disclosure-size);
+}
+
+/* The expand button fills its slot; ButtonBase owns how it behaves. */
+.chevronButton {
+    display: flex;
 }
 
 .chevronIcon {
-    /* Mantine 5 TreeRow: transform 150ms ease */
-    --chevron-turn-duration: 150ms;
-
-    transition: transform var(--chevron-turn-duration) ease;
+    color: var(--sphere-color-label-secondary);
+    transition: transform var(--sphere-duration-fast) ease;
 }
 
 .chevronOpen {
     transform: rotate(90deg);
 }
 
-/* Mantine 5 Center w={30} h={30} */
 .icon {
-    --icon-box-size: 30px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--icon-box-size);
-    height: var(--icon-box-size);
+    width: var(--sphere-row-height);
+    height: var(--sphere-row-height);
 }
 
 .label {

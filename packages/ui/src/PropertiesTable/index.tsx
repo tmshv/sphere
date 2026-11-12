@@ -1,4 +1,3 @@
-import { Button as BaseButton } from "@base-ui/react/button"
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPhoto, IconPhotoOff } from "@sphere/icons"
 import {
     type CellContext,
@@ -10,9 +9,9 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { type ReactNode, useState } from "react"
-import iconButton from "../Button/icon-button.module.css"
-import { Badge, Tooltip, unstyledButton, ValueImage } from "../internal"
+import { useState } from "react"
+import { IconButton } from "../Button"
+import { Badge, Tooltip, ValueImage } from "../internal"
 import type { SelectOption } from "../Select"
 import { Statusbar, StatusbarSelect } from "../Statusbar"
 import { BarChart } from "./BarChart"
@@ -77,10 +76,6 @@ type PropertyTableProps = {
     onSortingChange: OnChangeFn<SortingState>
 }
 
-function classNames(...names: (string | false | undefined)[]): string {
-    return names.filter(Boolean).join(" ")
-}
-
 function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
     if (sorted === "asc") return <IconArrowUp size={ICON_SIZE} />
     if (sorted === "desc") return <IconArrowDown size={ICON_SIZE} />
@@ -93,28 +88,13 @@ type PhotoToggleProps = {
 }
 
 function PhotoToggle({ shown, onToggle }: PhotoToggleProps) {
-    const classes = classNames(unstyledButton, iconButton.iconButton, iconButton.sizeSm, iconButton.subtle)
     return (
-        <BaseButton className={classes} aria-label={shown ? "Show links" : "Show images"} onClick={() => onToggle()}>
-            {shown ? <IconPhoto size={ICON_SIZE} /> : <IconPhotoOff size={ICON_SIZE} />}
-        </BaseButton>
-    )
-}
-
-type PagerButtonProps = {
-    label: string
-    disabled: boolean
-    onClick: () => void
-    children: ReactNode
-}
-
-// Mantine ActionIcon, gray subtle, size xs, with the footer's nested-provider defaults.
-function PagerButton({ label, disabled, onClick, children }: PagerButtonProps) {
-    const classes = classNames(unstyledButton, iconButton.iconButton, iconButton.sizeSm, iconButton.subtle, s.pager)
-    return (
-        <BaseButton className={classes} aria-label={label} disabled={disabled} onClick={() => onClick()}>
-            {children}
-        </BaseButton>
+        <IconButton
+            size="sm"
+            icon={shown ? <IconPhoto size={ICON_SIZE} /> : <IconPhotoOff size={ICON_SIZE} />}
+            label={shown ? "Show links" : "Show images"}
+            onClick={onToggle}
+        />
     )
 }
 
@@ -128,7 +108,7 @@ function Summary({ type }: { type: PropertyItemMeta }) {
         case "string": {
             return (
                 <div className={s.stringSummary}>
-                    <Badge size="xs" radius="sm" variant="light">
+                    <Badge size="xs" variant="light">
                         unique={type.unique}
                     </Badge>
                 </div>
@@ -140,10 +120,10 @@ function Summary({ type }: { type: PropertyItemMeta }) {
                 <div className={s.numberSummary}>
                     <Histogram hist={type.hist} />
                     <div className={s.minMax}>
-                        <Badge size="xs" radius="sm" variant="light">
+                        <Badge size="xs" variant="light">
                             min={type.min}
                         </Badge>
-                        <Badge size="xs" radius="sm" variant="light">
+                        <Badge size="xs" variant="light">
                             max={type.max}
                         </Badge>
                     </div>
@@ -164,7 +144,7 @@ function UrlBadge({ value }: LinkProps) {
     const url = new URL(value)
     return (
         <Tooltip label={value} delay={URL_TOOLTIP_DELAY_MS}>
-            <Badge size="sm" radius="sm" variant="outline">
+            <Badge size="sm" variant="outline">
                 {url.hostname}
                 {url.pathname}
             </Badge>
@@ -189,7 +169,7 @@ function MixedValue({ value }: { value: unknown }) {
     return (
         <>
             {value.map(x => (
-                <Badge key={String(x)} className={s.mixedItem} size="sm" radius="sm" variant="outline">
+                <Badge key={String(x)} className={s.mixedItem} size="sm" variant="outline">
                     {String(x)}
                 </Badge>
             ))}
@@ -305,15 +285,13 @@ export function PropertesTable({
                                                     }}
                                                 />
                                             )}
-                                            <Badge size="xs" radius="xs" variant="light">
+                                            <Badge size="xs" variant="light">
                                                 {meta[header.column.id].type}
                                             </Badge>
                                         </div>
                                         <div
-                                            className={classNames(
-                                                s.resizer,
-                                                header.column.getIsResizing() && s.resizing,
-                                            )}
+                                            className={s.resizer}
+                                            data-testid="column-resizer"
                                             onMouseDown={header.getResizeHandler()}
                                             onTouchStart={header.getResizeHandler()}
                                         />
@@ -377,7 +355,6 @@ export function PropertesTable({
 
             <Statusbar>
                 <StatusbarSelect
-                    className={s.select}
                     value={attributeFilter}
                     options={ATTRIBUTE_FILTER_OPTIONS}
                     onChange={v => {
@@ -390,29 +367,28 @@ export function PropertesTable({
                 <div className={s.spacer} />
 
                 <StatusbarSelect
-                    className={s.select}
                     value={String(pageSize)}
                     options={pageSizeOptions}
                     onChange={v => onPageSizeChange(Number(v))}
                 />
 
-                <PagerButton
+                <IconButton
+                    size="sm"
+                    icon={<IconChevronLeft size={PAGER_ICON_SIZE} />}
                     label="Previous page"
                     disabled={pageIndex === 0}
                     onClick={() => onPageChange(pageIndex - 1)}
-                >
-                    <IconChevronLeft size={PAGER_ICON_SIZE} />
-                </PagerButton>
-                <Badge className={s.widget} radius="sm" size="sm" variant="light">
+                />
+                <span className={s.pageCount}>
                     {pageCount === 0 ? 0 : pageIndex + 1} / {pageCount}
-                </Badge>
-                <PagerButton
+                </span>
+                <IconButton
+                    size="sm"
+                    icon={<IconChevronRight size={PAGER_ICON_SIZE} />}
                     label="Next page"
                     disabled={pageIndex >= pageCount - 1}
                     onClick={() => onPageChange(pageIndex + 1)}
-                >
-                    <IconChevronRight size={PAGER_ICON_SIZE} />
-                </PagerButton>
+                />
             </Statusbar>
         </div>
     )

@@ -2,11 +2,13 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "baseUrl": ".",
+        // .storybook/main.ts imports ../optimized-deps.ts with its extension, as Storybook requires.
+        "allowImportingTsExtensions": true,
 
         "paths": {
             "@sphere/utils": ["../utils/src"],
             "@sphere/icons": ["../icons/src"]
         }
     },
-    "include": ["src"]
+    "include": ["src", ".storybook"]
 }

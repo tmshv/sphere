@@ -1,5 +1,6 @@
+import { IconLine, IconPoint, IconPolygon } from "@sphere/icons"
 import { page, userEvent } from "vitest/browser"
-import { visualCases } from "../visual/visualCases"
+import { pressAndHold, releasePress, visualCases } from "../visual/visualCases"
 import { SegmentedControl } from "./SegmentedControl"
 import { Select } from "./Select"
 
@@ -57,6 +58,13 @@ const SEGMENTS = [
     { value: "wkt", label: "WKT" },
 ]
 
+const GLYPH_SIZE = 16
+const ICON_SEGMENTS = [
+    { value: "point", label: "Point", icon: <IconPoint size={GLYPH_SIZE} /> },
+    { value: "line", label: "Line", icon: <IconLine size={GLYPH_SIZE} /> },
+    { value: "polygon", label: "Polygon", icon: <IconPolygon size={GLYPH_SIZE} /> },
+]
+
 visualCases("SegmentedControl", {
     "first-active": {
         render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="point" onChange={noop} />,
@@ -64,8 +72,17 @@ visualCases("SegmentedControl", {
     "second-active": {
         render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="wkt" onChange={noop} />,
     },
+    // Renders exactly what first-active renders: the pointer over a segment must change nothing.
     hover: {
         render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="point" onChange={noop} />,
         interact: () => userEvent.hover(page.getByText("WKT")),
+    },
+    "icon-only": {
+        render: () => <SegmentedControl label="Geometry" options={ICON_SEGMENTS} value="line" onChange={noop} />,
+    },
+    pressed: {
+        render: () => <SegmentedControl label="Geometry" options={SEGMENTS} value="point" onChange={noop} />,
+        interact: () => pressAndHold(page.getByText("WKT")),
+        cleanup: releasePress,
     },
 })

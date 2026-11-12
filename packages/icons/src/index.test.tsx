@@ -17,3 +17,17 @@ describe("@sphere/icons", () => {
         expect(markup).toMatch(COLORED)
     })
 })
+
+describe("IconDisclosure", () => {
+    it("renders a filled svg of the given size", () => {
+        const markup = renderToStaticMarkup(<icons.IconDisclosure size={SIZE_PX} />)
+
+        expect(markup).toContain(`width="${SIZE_PX}"`)
+        expect(markup).toContain(`height="${SIZE_PX}"`)
+        expect(markup).toContain('fill="currentColor"')
+    })
+
+    it("passes className through", () => {
+        expect(renderToStaticMarkup(<icons.IconDisclosure className="probe" />)).toContain('class="probe"')
+    })
+})

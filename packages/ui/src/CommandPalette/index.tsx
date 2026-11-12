@@ -3,6 +3,7 @@ import { Dialog } from "@base-ui/react/dialog"
 import { IconSearch } from "@sphere/icons"
 import { type ReactNode, useRef, useState } from "react"
 import { useHotkeys } from "../hooks"
+import { cx, menu } from "../internal"
 import s from "./command-palette.module.css"
 import { filterCommands } from "./filter"
 
@@ -22,8 +23,8 @@ export type CommandPaletteProps = {
     children: ReactNode
 }
 
-const SEARCH_ICON_SIZE = 18
-// Mantine Spotlight `limit`.
+const SEARCH_ICON_SIZE = 14
+// At most this many results show at once.
 const RESULT_LIMIT = 10
 // Base UI reason for typing into the input; item presses and the like must not rewrite the query.
 const INPUT_CHANGE = "input-change"
@@ -32,14 +33,16 @@ function commandTitle(command: Command): string {
     return command.title
 }
 
+// A Spotlight-like palette: the menu surface with a pill search field over the results, which are menu items.
+// No scrim; it fades in and out.
 export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, children }: CommandPaletteProps) {
     const [opened, setOpened] = useState(false)
     const [query, setQuery] = useState("")
     const inputRef = useRef<HTMLInputElement>(null)
     const results = filterCommands(query, commands).slice(0, RESULT_LIMIT)
+    const nothingFound = results.length === 0 && query.trim().length > 0
 
-    // Mantine's SpotlightProvider registers its shortcut with the default useHotkeys options:
-    // ignored inside inputs, textareas and selects, default action prevented.
+    // The shortcut is ignored inside inputs, textareas and selects, and its default action is prevented.
     useHotkeys([[shortcut, () => setOpened(true)]])
 
     function handleOpenComplete(open: boolean) {
@@ -65,7 +68,11 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
                 <Dialog.Portal>
                     <Dialog.Backdrop className={s.backdrop} />
                     <Dialog.Viewport className={s.viewport}>
-                        <Dialog.Popup className={s.popup} aria-label={placeholder} initialFocus={inputRef}>
+                        <Dialog.Popup
+                            className={cx(menu.surface, s.popup)}
+                            aria-label={placeholder}
+                            initialFocus={inputRef}
+                        >
                             <Autocomplete.Root
                                 inline
                                 open
@@ -77,9 +84,9 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
                                 itemToStringValue={commandTitle}
                             >
                                 <div className={s.search}>
-                                    <div className={s.searchIcon}>
+                                    <span className={s.searchIcon}>
                                         <IconSearch size={SEARCH_ICON_SIZE} />
-                                    </div>
+                                    </span>
                                     <Autocomplete.Input
                                         ref={inputRef}
                                         className={s.searchInput}
@@ -89,33 +96,34 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
                                     />
                                 </div>
                                 {results.length > 0 ? (
-                                    <Autocomplete.List className={s.actions}>
-                                        {(command: Command) => (
-                                            <Autocomplete.Item
-                                                key={command.id}
-                                                value={command}
-                                                className={s.action}
-                                                onClick={() => run(command)}
-                                            >
-                                                <div className={s.group}>
+                                    <>
+                                        <div className={menu.separator} aria-hidden="true" />
+                                        <Autocomplete.List>
+                                            {(command: Command) => (
+                                                <Autocomplete.Item
+                                                    key={command.id}
+                                                    value={command}
+                                                    className={menu.item}
+                                                    title={command.description}
+                                                    onClick={() => run(command)}
+                                                >
                                                     {command.icon ? (
-                                                        <div className={s.actionIcon}>{command.icon}</div>
+                                                        <span className={menu.itemIcon}>{command.icon}</span>
                                                     ) : null}
-                                                    <div>
-                                                        <div className={s.title}>{command.title}</div>
-                                                        {command.description ? (
-                                                            <div className={s.description}>{command.description}</div>
-                                                        ) : null}
-                                                    </div>
-                                                </div>
-                                            </Autocomplete.Item>
-                                        )}
-                                    </Autocomplete.List>
+                                                    <span className={menu.itemLabel}>{command.title}</span>
+                                                    {command.description ? (
+                                                        <span className={menu.itemShortcut}>{command.description}</span>
+                                                    ) : null}
+                                                </Autocomplete.Item>
+                                            )}
+                                        </Autocomplete.List>
+                                    </>
                                 ) : null}
-                                {results.length === 0 && query.trim().length > 0 ? (
-                                    <div className={s.actions}>
+                                {nothingFound ? (
+                                    <>
+                                        <div className={menu.separator} aria-hidden="true" />
                                         <div className={s.nothingFound}>{emptyMessage}</div>
-                                    </div>
+                                    </>
                                 ) : null}
                             </Autocomplete.Root>
                         </Dialog.Popup>

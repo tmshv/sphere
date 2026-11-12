@@ -1,7 +1,7 @@
 import { IconChevronRight } from "@sphere/icons"
 import type { MouseEvent } from "react"
 import type { NodeRendererProps } from "react-arborist"
-import { unstyledButton } from "../internal"
+import { ButtonBase, cx } from "../internal"
 import s from "./tree-row.module.css"
 import type { TreeItem } from "./type"
 
@@ -14,33 +14,24 @@ function stopPropagation(event: MouseEvent) {
     event.stopPropagation()
 }
 
-function classNames(...names: Array<string | false | undefined>): string {
-    return names.filter(Boolean).join(" ")
-}
-
 export function TreeRow({ node, style, dragHandle }: NodeRendererProps<TreeItem>) {
     const { label, icon, extra, children } = node.data
     const hasChildren = (children ?? []).length > 0
 
-    const onChevronClick = (event: MouseEvent) => {
-        event.stopPropagation()
-        node.toggle()
-    }
-
     let chevron = <div className={s.chevron} />
     if (hasChildren) {
+        // The wrapper keeps a click on the chevron from also selecting the row; the button handles the keyboard.
         chevron = (
-            <button
-                type="button"
-                className={classNames(unstyledButton, s.chevron)}
-                aria-label={node.isOpen ? COLLAPSE_LABEL : EXPAND_LABEL}
-                onClick={onChevronClick}
-            >
-                <IconChevronRight
-                    size={CHEVRON_SIZE}
-                    className={classNames(s.chevronIcon, node.isOpen && s.chevronOpen)}
-                />
-            </button>
+            <div className={s.chevron} role="presentation" onClick={stopPropagation}>
+                <ButtonBase
+                    shape="plain"
+                    className={s.chevronButton}
+                    label={node.isOpen ? COLLAPSE_LABEL : EXPAND_LABEL}
+                    onClick={() => node.toggle()}
+                >
+                    <IconChevronRight size={CHEVRON_SIZE} className={cx(s.chevronIcon, node.isOpen && s.chevronOpen)} />
+                </ButtonBase>
+            </div>
         )
     }
 
@@ -48,7 +39,7 @@ export function TreeRow({ node, style, dragHandle }: NodeRendererProps<TreeItem>
         <div
             ref={dragHandle}
             style={style}
-            className={classNames(s.row, node.isSelected && s.selected)}
+            className={cx(s.row, node.isSelected && s.selected)}
             data-selected={node.isSelected || undefined}
         >
             <div className={s.content}>

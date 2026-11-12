@@ -1,13 +1,14 @@
 import { IconChevronRight } from "@sphere/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
-import { unstyledButton } from "../internal"
+import { ButtonBase, cx } from "../internal"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"
 import { restoreSize } from "../Split/sizes"
+import { rowHeight } from "../tokens"
 import { defaultSizesOf, isSpacerVisible, mergeSections, resolveSections, SPACER_MIN_SIZE } from "./layout"
 import s from "./section-stack.module.css"
 
-// Also declared as --header-height in section-stack.module.css; a test pins them together.
-export const SECTION_HEADER_HEIGHT = 30
+// One outline row, the height the header strip declares in section-stack.module.css.
+export const SECTION_HEADER_HEIGHT = rowHeight
 const DEFAULT_MIN_CONTENT_SIZE = 120
 const CHEVRON_SIZE = 14
 
@@ -192,22 +193,24 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                         maxSize={open ? Number.POSITIVE_INFINITY : SECTION_HEADER_HEIGHT}
                     >
                         <div className={s.section}>
-                            <button
-                                type={"button"}
-                                className={`${unstyledButton} ${s.header}`}
-                                onClick={() => toggle(section)}
-                                aria-expanded={open}
-                                aria-controls={open ? bodyId : undefined}
-                            >
-                                <IconChevronRight
-                                    className={open ? `${s.chevron} ${s.chevronOpen}` : s.chevron}
-                                    size={CHEVRON_SIZE}
-                                />
-                                <span>{section.props.title}</span>
-                            </button>
+                            <div className={s.header}>
+                                <ButtonBase
+                                    shape="strip"
+                                    className={s.toggle}
+                                    onClick={() => toggle(section)}
+                                    expanded={open}
+                                    controls={open ? bodyId : undefined}
+                                >
+                                    <IconChevronRight
+                                        className={cx(s.chevron, open && s.chevronOpen)}
+                                        size={CHEVRON_SIZE}
+                                    />
+                                    <span>{section.props.title}</span>
+                                </ButtonBase>
+                            </div>
 
                             {!open ? null : (
-                                <div id={bodyId} className={section.props.flush ? `${s.body} ${s.flush}` : s.body}>
+                                <div id={bodyId} className={cx(s.body, section.props.flush && s.flush)}>
                                     {section.props.children}
                                 </div>
                             )}

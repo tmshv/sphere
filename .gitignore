@@ -36,3 +36,7 @@ dist-ssr
 
 # ralphex progress logs
 .ralphex/worktrees/
+
+# Storybook
+storybook-static/
+*.storybook.log

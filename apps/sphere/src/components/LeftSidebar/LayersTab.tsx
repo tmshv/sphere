@@ -64,7 +64,8 @@ export function LayersTab() {
                     <LayersOutline />
                 </SectionStack.Section>
 
-                <SectionStack.Section name={"layer-properties"} title={"Layer"}>
+                {/* Flush: the action bar starts right under the heading, as the outline tree does; the form keeps its own space below */}
+                <SectionStack.Section name={"layer-properties"} title={"Layer"} flush>
                     <LayerPanel />
                 </SectionStack.Section>
             </SectionStack>

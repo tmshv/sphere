@@ -36,7 +36,7 @@ const buttonStyle: React.CSSProperties = {
     borderRadius: 4,
     background: "transparent",
     color: "#c9cdd1",
-    cursor: "pointer",
+    cursor: "default",
 }
 
 export function RootErrorFallback({ error, resetErrorBoundary }: FallbackProps) {

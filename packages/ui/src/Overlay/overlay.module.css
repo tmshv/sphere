@@ -1,8 +1,8 @@
-/* Offsets: sm = 12px, xl = 28px, bottom gap = sm. */
+/* Offsets: 12px, the title bar below the traffic lights for the top left, bottom gap 12px. */
 .container {
-    --top-left-offset: calc(var(--sphere-space-sm) + var(--sphere-space-xl));
-    --top-right-offset: var(--sphere-space-sm);
-    --bottom-gap: var(--sphere-space-sm);
+    --top-left-offset: calc(var(--sphere-space-12) + var(--sphere-titlebar-height));
+    --top-right-offset: var(--sphere-space-12);
+    --bottom-gap: var(--sphere-space-12);
 
     position: absolute;
     top: 0;
@@ -30,7 +30,7 @@
    of the map clickable. */
 .topLeft {
     top: var(--top-left-offset);
-    left: var(--sphere-space-md);
+    left: var(--sphere-space-16);
     max-height: calc(100% - (var(--top-left-offset) + var(--bottom-gap)));
     display: flex;
     flex-direction: column;
@@ -38,32 +38,32 @@
 
 .left {
     top: 50%;
-    left: var(--sphere-space-md);
+    left: var(--sphere-space-16);
     transform: translateY(-50%);
 }
 
 .right {
     top: 50%;
-    right: var(--sphere-space-md);
+    right: var(--sphere-space-16);
     transform: translateY(-50%);
 }
 
 .topRight {
     top: var(--top-right-offset);
-    right: var(--sphere-space-sm);
+    right: var(--sphere-space-12);
     max-height: calc(100% - (var(--top-right-offset) + var(--bottom-gap)));
     display: flex;
     flex-direction: column;
 }
 
 .top {
-    top: var(--sphere-space-md);
+    top: var(--sphere-space-16);
     left: 50%;
     transform: translateX(-50%);
 }
 
 .bottom {
-    bottom: var(--sphere-space-md);
+    bottom: var(--sphere-space-16);
     left: 50%;
     transform: translateX(-50%);
 }

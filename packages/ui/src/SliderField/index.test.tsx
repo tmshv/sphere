@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen, stateStyle } from "../test-utils"
 import { SliderField } from "."
 
 describe("SliderField", () => {
@@ -39,5 +39,33 @@ describe("SliderField", () => {
 
         fireEvent.keyDown(screen.getByRole("slider"), { key: "Home" })
         expect(onChange).toHaveBeenLastCalledWith(1)
+    })
+
+    it("shows the current value as text next to the label, with no floating bubble", () => {
+        render(<SliderField label="Radius" value={40} min={0} max={100} onChange={vi.fn()} />)
+
+        const value = screen.getByText("40")
+        expect(value).toBeVisible()
+        expect(value.parentElement).toContainElement(screen.getByText("Radius"))
+        const thumb = screen.getByRole("slider").parentElement
+        expect(thumb?.textContent).toBe("")
+    })
+
+    it("has a 16px white knob, no growth on drag and the arrow cursor", () => {
+        render(<SliderField label="Radius" value={40} min={0} max={100} onChange={vi.fn()} />)
+        const thumb = screen.getByRole("slider").parentElement
+        if (!thumb) throw new Error("thumb missing")
+
+        expect(declaredStyle(thumb, "cursor")).toBe("default")
+        expect(stateStyle(thumb, "transform", "[data-dragging]")).toBe("")
+        expect(declaredStyle(thumb, "background-color")).toBe("var(--sphere-color-knob)")
+    })
+
+    it("draws the track in the track colour, which keeps 3:1 on every surface", () => {
+        render(<SliderField label="Radius" value={40} min={0} max={100} onChange={vi.fn()} />)
+        const track = screen.getByRole("slider").parentElement?.parentElement
+        if (!track) throw new Error("track missing")
+
+        expect(declaredStyle(track, "background-color")).toBe("var(--sphere-color-track)")
     })
 })

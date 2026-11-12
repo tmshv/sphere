@@ -1,4 +1,4 @@
-import { declaredStyle, fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { Statusbar, StatusbarBadge, StatusbarButton } from "."
@@ -15,6 +15,18 @@ describe("Statusbar", () => {
         )
         expect(screen.getByText("v1.0.0")).toBeInTheDocument()
         expect(screen.getByText("3 sources")).toBeInTheDocument()
+    })
+
+    it("is the near-black strip in both themes", () => {
+        const { container } = render(<Statusbar>v1.0.0</Statusbar>)
+        const bar = container.firstElementChild
+        expect(bar).not.toBeNull()
+        if (bar === null) {
+            return
+        }
+        expect(declaredStyle(bar, "background-color")).toBe("var(--sphere-color-statusbar)")
+        expect(declaredStyle(bar, "color")).toBe("var(--sphere-color-statusbar-text)")
+        expect(declaredStyle(bar, "height")).toBe("var(--statusbar-height)")
     })
 })
 
@@ -50,6 +62,46 @@ describe("StatusbarButton", () => {
         expect(button).toBeDisabled()
         fireEvent.click(button)
         expect(onClick).not.toHaveBeenCalled()
+    })
+
+    it("is a small glyph button", () => {
+        render(<StatusbarButton icon={ICON} label="Go" onClick={vi.fn()} />)
+        const button = screen.getByRole("button", { name: "Go" })
+        expect(button).toHaveAttribute("data-shape", "glyph")
+        expect(button).toHaveAttribute("data-size", "sm")
+    })
+
+    it("recolours the glyph for the dark strip: grey at rest, yellow when on, light while pressed", () => {
+        render(<StatusbarButton icon={ICON} label="Go" onClick={vi.fn()} />)
+        const button = screen.getByRole("button", { name: "Go" })
+        expect(declaredStyle(button, "--sphere-color-label-secondary")).toBe("var(--sphere-color-statusbar-glyph)")
+        expect(declaredStyle(button, "--sphere-color-accent-glyph")).toBe("var(--sphere-color-statusbar-glyph-active)")
+        expect(declaredStyle(button, "--sphere-color-glyph-pressed")).toBe("var(--sphere-color-statusbar-text)")
+    })
+
+    it("shows a toggled-on fill button as a grey body behind the grey glyph", () => {
+        render(<StatusbarButton icon={ICON} label="Sidebar" active activeLook="fill" onClick={vi.fn()} />)
+        const button = screen.getByRole("button", { name: "Sidebar" })
+        expect(declaredStyle(button, "--button-active-fill")).toBe("var(--sphere-color-statusbar-fill)")
+        expect(declaredStyle(button, "--sphere-color-accent-glyph")).toBe("var(--sphere-color-statusbar-glyph)")
+    })
+
+    it("gives an accent toggle no body", () => {
+        render(<StatusbarButton icon={ICON} label="Tool" active onClick={vi.fn()} />)
+        expect(declaredStyle(screen.getByRole("button", { name: "Tool" }), "--button-active-fill")).toBe("")
+    })
+
+    it("has the desktop interaction model at rest, toggled on and disabled", () => {
+        render(
+            <>
+                <StatusbarButton icon={ICON} label="Rest" onClick={vi.fn()} />
+                <StatusbarButton icon={ICON} label="On" active onClick={vi.fn()} />
+                <StatusbarButton icon={ICON} label="Off" disabled onClick={vi.fn()} />
+            </>,
+        )
+        for (const button of screen.getAllByRole("button")) {
+            expectDesktopInteraction(button)
+        }
     })
 })
 
@@ -87,10 +139,20 @@ describe("StatusbarBadge", () => {
         expect(declaredStyle(screen.getByTitle("Auto"), "width")).toBe("auto")
     })
 
-    it("renders the error tone", () => {
+    it("renders the error tone as a red pill with light text", () => {
         render(<StatusbarBadge tone="error">boom</StatusbarBadge>)
-        const badge = screen.getByText("boom").parentElement
-        expect(badge).not.toBeNull()
-        if (badge) expect(declaredStyle(badge, "background")).toBe("var(--sphere-color-danger)")
+        const badge = screen.getByText("boom")
+        expect(declaredStyle(badge, "background-color")).toBe("var(--sphere-color-statusbar-error)")
+        expect(declaredStyle(badge, "color")).toBe("var(--sphere-color-statusbar-text)")
+    })
+
+    it("shows readouts in bold uppercase monospace on the strip colour", () => {
+        render(<StatusbarBadge>zoom=1.000</StatusbarBadge>)
+        const badge = screen.getByText("zoom=1.000")
+        expect(declaredStyle(badge, "font-family")).toBe("var(--sphere-font-family-mono)")
+        expect(declaredStyle(badge, "font-weight")).toBe("var(--sphere-font-weight-bold)")
+        expect(declaredStyle(badge, "text-transform")).toBe("uppercase")
+        expect(declaredStyle(badge, "background-color")).toBe("var(--sphere-color-statusbar)")
+        expect(declaredStyle(badge, "cursor")).toBe("default")
     })
 })

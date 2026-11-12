@@ -1,0 +1,35 @@
+/* A key cap: the control body with its hairline border and the push-button shadow beneath, the control radius, and
+   the key in small secondary text, centred. A shortcut is caps side by side with a hairline gap. */
+.kbd {
+    --kbd-size: var(--sphere-control-height-sm);
+
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--kbd-size);
+    height: var(--kbd-size);
+    padding: 0 var(--sphere-space-4);
+    border-width: var(--sphere-hairline);
+    border-style: solid;
+    border-color: var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-control);
+    background-color: var(--sphere-color-control);
+    box-shadow: var(--sphere-shadow-control);
+    color: var(--sphere-color-label-secondary);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-small);
+    font-weight: var(--sphere-font-weight-regular);
+    line-height: var(--sphere-line-height-tight);
+    white-space: nowrap;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sphere-space-2);
+    font: inherit;
+}

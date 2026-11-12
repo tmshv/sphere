@@ -131,7 +131,8 @@ export function SourcesTab() {
                     <SourcesOutline />
                 </SectionStack.Section>
 
-                <SectionStack.Section name={"source-properties"} title={"Source"}>
+                {/* Flush: the action bar starts right under the heading, as the outline tree does; the form keeps its own space below */}
+                <SectionStack.Section name={"source-properties"} title={"Source"} flush>
                     <SourcePanel />
                 </SectionStack.Section>
             </SectionStack>

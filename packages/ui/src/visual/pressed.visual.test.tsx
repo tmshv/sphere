@@ -4,23 +4,18 @@ import type { ReactNode } from "react"
 import { flushSync } from "react-dom"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, describe, expect, test } from "vitest"
-import { commands, type Locator, page, userEvent } from "vitest/browser"
+import { type Locator, page, userEvent } from "vitest/browser"
 import { ActionBar } from "../ActionBar"
 import { Button } from "../Button"
 import { ErrorFallback } from "../ErrorFallback"
 import { PropertesTable, type PropertyItem } from "../PropertiesTable"
 import { ThemeProvider } from "../ThemeProvider"
+import { pressAndHold as holdPress, releasePress } from "./visualCases"
 
-// Pressed-state pins (R1). They assert the computed transform in a real browser instead of comparing a
-// screenshot: WebKit sometimes drops :active while Playwright takes a screenshot, so a pressed baseline
-// is not reproducible (two consecutive captures of the same press differ by the 1px shift). The press
-// itself is asserted to be live (`:active`) before the transform is read.
-//
-// Mantine 5 reference: Sphere's theme set `activeStyles: { transform: "none" }`, so ActionBar, Button and
-// ErrorFallback never move when pressed. The PropertiesTable footer sat in a nested MantineProvider with
-// the default `translateY(1px)`, so its pager buttons do.
+// Pressed-state pins: a press changes colour only, nothing translates or scales. They assert the computed
+// transform in a real browser, with the press asserted to be live (`:active`) before the transform is read.
+// The pressed colour itself is pinned by the Button `pressed` screenshot.
 const NO_TRANSFORM = "none"
-const PRESSED_TRANSFORM = "matrix(1, 0, 0, 1, 0, 1)"
 const PAGE_COUNT = 3
 const PAGE_SIZE = 25
 
@@ -43,22 +38,19 @@ function mount(node: ReactNode) {
     })
 }
 
-// Moves off the target before letting go, so releasing never completes a click (Reload App reloads the page).
+// Lets go only of a press this file holds; releasePress moves off first, so Reload App is never clicked.
 async function release() {
     if (!held) {
         return
     }
     held = false
-    await userEvent.unhover(page.elementLocator(document.body))
-    await commands.mouseUp()
+    await releasePress()
 }
 
 async function pressAndHold(target: Locator): Promise<HTMLElement> {
     await expect.element(target).toBeVisible()
-    await userEvent.hover(target)
     held = true
-    await commands.mouseDown()
-    await expect.poll(() => target.element().matches(":active")).toBe(true)
+    await holdPress(target)
     const element = target.element()
     if (!(element instanceof HTMLElement)) {
         throw new Error("The pressed target is not an HTML element")
@@ -119,10 +111,10 @@ describe("pressed state", () => {
         expect(getComputedStyle(reload).transform).toBe(NO_TRANSFORM)
     })
 
-    test("PropertiesTable pager button moves down 1px", async () => {
+    test("PropertiesTable pager button does not move", async () => {
         mount(pager(1))
         const next = await pressAndHold(page.getByRole("button", { name: "Next page" }))
-        expect(getComputedStyle(next).transform).toBe(PRESSED_TRANSFORM)
+        expect(getComputedStyle(next).transform).toBe(NO_TRANSFORM)
     })
 
     test("a disabled pager button stays put", async () => {

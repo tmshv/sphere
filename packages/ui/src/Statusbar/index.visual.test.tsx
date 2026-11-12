@@ -17,30 +17,39 @@ function Bars({ children }: { children: ReactNode }) {
 
 const icon = <IconMap size={ICON_SIZE} />
 
+function ButtonStates() {
+    return (
+        <Statusbar>
+            <StatusbarButton icon={icon} label="Idle" onClick={noop} />
+            <StatusbarButton icon={icon} label="Active" onClick={noop} active />
+            <StatusbarButton icon={icon} label="Active fill" onClick={noop} active activeLook="fill" />
+            <StatusbarButton icon={icon} label="Disabled" onClick={noop} disabled />
+            <StatusbarButton
+                icon={<IconRuler size={ICON_SIZE} />}
+                label="Inactive pressed"
+                onClick={noop}
+                active={false}
+            />
+        </Statusbar>
+    )
+}
+
 visualCases("Statusbar", {
-    "buttons-states": {
+    default: {
         render: () => (
             <Statusbar>
-                <StatusbarButton icon={icon} label="Idle" onClick={noop} />
-                <StatusbarButton icon={icon} label="Active accent" onClick={noop} active />
-                <StatusbarButton icon={icon} label="Active fill" onClick={noop} active activeLook="fill" />
-                <StatusbarButton icon={icon} label="Disabled" onClick={noop} disabled />
-                <StatusbarButton
-                    icon={<IconRuler size={ICON_SIZE} />}
-                    label="Inactive pressed"
-                    onClick={noop}
-                    active={false}
-                />
+                <StatusbarButton icon={icon} label="Basemap" onClick={noop} />
+                <StatusbarBadge title="Zoom">z 12.4</StatusbarBadge>
+                <StatusbarBadge tone="error">1 error</StatusbarBadge>
+                <StatusbarSelect value="all" options={SELECT_OPTIONS} onChange={noop} />
             </Statusbar>
         ),
     },
+    "buttons-states": { render: () => <ButtonStates /> },
+    // Renders exactly what buttons-states renders: the pointer over a button must change nothing.
     "button-hover": {
-        render: () => (
-            <Statusbar>
-                <StatusbarButton icon={icon} label="Hover me" onClick={noop} />
-            </Statusbar>
-        ),
-        interact: () => userEvent.hover(page.getByRole("button", { name: "Hover me" })),
+        render: () => <ButtonStates />,
+        interact: () => userEvent.hover(page.getByRole("button", { name: "Idle" })),
     },
     "badge-widths": {
         render: () => (

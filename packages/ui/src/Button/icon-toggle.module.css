@@ -1,0 +1,5 @@
+/* The off state of an IconToggle draws its glyph in the tertiary label colour, dimmer than a glyph button at rest, by
+   redefining the colour role the glyph button reads. An icon given its own colour keeps it. */
+.off {
+    --sphere-color-label-secondary: var(--sphere-color-label-tertiary);
+}

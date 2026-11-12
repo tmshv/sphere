@@ -1,6 +1,6 @@
 import { createRef } from "react"
 import { describe, expect, it } from "vitest"
-import { render, screen } from "../test-utils"
+import { declaredStyle, render, screen } from "../test-utils"
 import { SplitPane, SplitView, type SplitViewHandle } from "."
 
 describe("SplitView", () => {
@@ -92,5 +92,24 @@ describe("SplitPane", () => {
             const content = screen.getByText(text)
             expect(content.parentElement?.classList.contains("split-view-view")).toBe(true)
         }
+    })
+})
+
+describe("SplitView look", () => {
+    it("draws the sash in the separator colour and a focused sash in the accent", () => {
+        const { container } = render(
+            <SplitView className={"probe"}>
+                <SplitPane>
+                    <div>only</div>
+                </SplitPane>
+            </SplitView>,
+        )
+        const root = container.querySelector(".probe")
+        if (!root) {
+            throw new Error("split root not found")
+        }
+
+        expect(declaredStyle(root, "--separator-border")).toBe("var(--sphere-color-separator)")
+        expect(declaredStyle(root, "--focus-border")).toBe("var(--sphere-color-accent)")
     })
 })

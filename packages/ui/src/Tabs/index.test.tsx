@@ -1,7 +1,15 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, render, screen } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    pressedStyle,
+    render,
+    screen,
+    stateStyle,
+} from "../test-utils"
 import { type TabItem, Tabs } from "."
 
 const ITEMS: ReadonlyArray<TabItem> = [
@@ -97,5 +105,30 @@ describe("Tabs", () => {
 
         expect(screen.getByText("layers body")).toBeInTheDocument()
         expect(screen.queryByText("sources body")).not.toBeInTheDocument()
+    })
+
+    it("tabs follow the desktop interaction model with the accent selection", () => {
+        renderTabs()
+
+        expectDesktopInteraction(screen.getByRole("tab", { name: "Layers" }))
+        const selected = screen.getByRole("tab", { name: "Sources" })
+        expect(stateStyle(selected, "background-color", "[data-active]")).toBe("var(--sphere-color-accent)")
+        expect(stateStyle(selected, "color", "[data-active]")).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("aligns the tab list to the left edge of the sidebar", () => {
+        renderTabs()
+
+        expect(declaredStyle(screen.getByRole("tablist"), "justify-content")).toBe("flex-start")
+    })
+
+    it("an unselected tab darkens to the pressed body while held; the selected and disabled ones do not", () => {
+        renderTabs()
+
+        expect(pressedStyle(screen.getByRole("tab", { name: "Layers" }), "background-color")).toBe(
+            "var(--sphere-color-control-pressed)",
+        )
+        expect(pressedStyle(screen.getByRole("tab", { name: "Sources" }), "background-color")).toBe("")
+        expect(pressedStyle(screen.getByRole("tab", { name: "Styles" }), "background-color")).toBe("")
     })
 })

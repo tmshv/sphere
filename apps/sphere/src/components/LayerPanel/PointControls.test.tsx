@@ -8,7 +8,7 @@ describe("PointControls", () => {
         renderWithRecordingStore(<PointControls layerId="l1" color="#ff0000" circleRange={[0, 5]} />)
 
         expect(screen.getByText("Color")).toBeInTheDocument()
-        expect(screen.getByText("#ff0000")).toBeInTheDocument()
+        expect(screen.getByDisplayValue("#ff0000")).toBeInTheDocument()
         expect(screen.getByText("Radius")).toBeInTheDocument()
         expect(sliderFromEnd(1)).toHaveAttribute("aria-valuenow", "5")
     })

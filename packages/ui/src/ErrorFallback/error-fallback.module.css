@@ -7,11 +7,11 @@
 }
 
 .sidebar {
-    padding: var(--sphere-space-sm);
+    padding: var(--sphere-space-12);
 }
 
 .fullscreen {
-    padding: var(--sphere-space-xl);
+    padding: var(--sphere-space-20);
 }
 
 .message {
@@ -27,15 +27,12 @@
     max-width: var(--error-message-max-width);
 }
 
-.titleSidebar {
-    font-size: var(--sphere-font-size-sm);
+/* The same title in both variants: the variant changes only the padding and the message width. */
+.title {
+    font-size: var(--sphere-font-size-regular);
 }
 
-.titleFullscreen {
-    font-size: var(--sphere-font-size-lg);
-}
-
-/* Mantine 5 Text `lineClamp` of 3 lines. */
+/* The message clamps to 3 lines. */
 .messageText {
     --message-line-clamp: 3;
 
@@ -46,7 +43,7 @@
     -webkit-box-orient: vertical;
 }
 
-/* Mantine 5 Group wraps unless told not to. */
+/* The buttons wrap when the column is narrow. */
 .actions {
     flex-wrap: wrap;
 }

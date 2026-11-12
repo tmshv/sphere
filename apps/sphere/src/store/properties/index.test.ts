@@ -24,9 +24,9 @@ describe("selectProperties", () => {
             {
                 id: 1,
                 items: [
-                    { key: "name", value: "foo" },
-                    { key: "count", value: "42" },
-                    { key: "flag", value: "true" },
+                    { name: "name", value: "foo" },
+                    { name: "count", value: "42" },
+                    { name: "flag", value: "true" },
                 ],
             },
         ])
@@ -36,13 +36,13 @@ describe("selectProperties", () => {
         const geometry = { type: "Point", coordinates: [0, 0] }
         const state = makeState([{ id: 2, values: { geometry } }])
         const result = selectProperties(state)
-        expect(result).toEqual([{ id: 2, items: [{ key: "geometry", value: JSON.stringify(geometry) }] }])
+        expect(result).toEqual([{ id: 2, items: [{ name: "geometry", value: JSON.stringify(geometry) }] }])
     })
 
     it("converts null values to empty string", () => {
         const state = makeState([{ id: 3, values: { empty: null } }])
         const result = selectProperties(state)
-        expect(result).toEqual([{ id: 3, items: [{ key: "empty", value: "" }] }])
+        expect(result).toEqual([{ id: 3, items: [{ name: "empty", value: "" }] }])
     })
 })
 
