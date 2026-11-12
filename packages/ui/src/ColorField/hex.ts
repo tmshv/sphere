@@ -1,5 +1,5 @@
-// Hex and HSV conversions with the same rounding as Mantine 5's ColorPicker:
-// hue, saturation and value are whole numbers, and the hex is built from them.
+// Hex and HSV conversions. Hue, saturation and value are whole numbers, so a hex built from them can differ from
+// the one it was parsed from; use normalizeHex to keep a typed colour exactly.
 
 export type Hsv = { h: number; s: number; v: number }
 
@@ -26,6 +26,11 @@ function expandHex(color: string): string {
         .split("")
         .map(digit => digit + digit)
         .join("")
+}
+
+/** A typed colour as lowercase "#rrggbb": "#" ensured, three digits expanded. Only for valid hex. */
+export function normalizeHex(color: string): string {
+    return `#${expandHex(color).toLowerCase()}`
 }
 
 function hueSector(r: number, g: number, b: number, max: number, delta: number): number {

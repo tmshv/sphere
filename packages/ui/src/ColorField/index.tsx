@@ -4,10 +4,11 @@ import { type CSSProperties, useState } from "react"
 import { HsvColorPicker } from "react-colorful"
 import { input, menu } from "../internal"
 import s from "./color-field.module.css"
-import { type Hsv, hexToHsv, hsvToHex, isHex } from "./hex"
+import { type Hsv, hexToHsv, hsvToHex, isHex, normalizeHex } from "./hex"
 
 // The picker opens just below the colour well.
 const POPUP_OFFSET_PX = 4
+const ENTER_KEY = "Enter"
 
 type SwatchStyle = CSSProperties & { "--swatch-color": string }
 
@@ -23,27 +24,40 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
     // reported hex is always built from the same numbers the thumbs show.
     const [hsv, setHsv] = useState(() => hexToHsv(value))
     const [syncedValue, setSyncedValue] = useState(value)
+    // The last hex this field reported, so the parent echoing it back does not reset the picker.
+    const [emitted, setEmitted] = useState(value)
     // The text being typed into the hex field; null while the field shows the value.
     const [draft, setDraft] = useState<string | null>(null)
 
     if (value !== syncedValue) {
         setSyncedValue(value)
-        if (isHex(value) && value.toLowerCase() !== hsvToHex(hsv)) {
-            setHsv(hexToHsv(value))
+        if (value.toLowerCase() !== emitted) {
+            setDraft(null)
+            if (isHex(value)) {
+                setHsv(hexToHsv(value))
+            }
         }
+    }
+
+    function emit(hex: string) {
+        setEmitted(hex)
+        onChange(hex)
     }
 
     function pick(next: Hsv) {
         setHsv(next)
         setDraft(null)
-        onChange(hsvToHex(next))
+        emit(hsvToHex(next))
     }
 
-    function type(text: string) {
-        if (isHex(text)) {
-            pick(hexToHsv(text))
+    // Typed text is reported as typed once it is committed, never rounded through the picker's HSV.
+    function commit() {
+        if (draft !== null && isHex(draft)) {
+            const hex = normalizeHex(draft)
+            setHsv(hexToHsv(hex))
+            emit(hex)
         }
-        setDraft(text)
+        setDraft(null)
     }
 
     const swatchStyle: SwatchStyle = { "--swatch-color": value }
@@ -76,8 +90,9 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
                 <Field.Control
                     className={input.input}
                     value={draft ?? value}
-                    onValueChange={type}
-                    onBlur={() => setDraft(null)}
+                    onValueChange={setDraft}
+                    onBlur={commit}
+                    onKeyDown={event => event.key === ENTER_KEY && commit()}
                     autoCorrect="off"
                     autoCapitalize="none"
                     spellCheck={false}

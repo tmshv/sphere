@@ -1,3 +1,4 @@
+import { useState } from "react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import { declaredStyle, fireEvent, render, screen } from "../test-utils"
@@ -62,16 +63,72 @@ describe("ColorField", () => {
         expect(onChange).toHaveBeenCalledWith(expect.stringMatching(HEX_PATTERN))
     })
 
-    it("reports a typed hex once it is complete", () => {
+    it("reports typed hex verbatim on blur, never rounded through HSV", () => {
         const onChange = vi.fn()
         render(<ColorField label="Color" value="#ff0000" onChange={onChange} />)
         const field = screen.getByLabelText("Color")
 
-        fireEvent.change(field, { target: { value: "#12" } })
+        fireEvent.change(field, { target: { value: "#123456" } })
         expect(onChange).not.toHaveBeenCalled()
+        fireEvent.blur(field)
 
-        fireEvent.change(field, { target: { value: "#00ff00" } })
-        expect(onChange).toHaveBeenCalledWith("#00ff00")
+        expect(onChange).toHaveBeenCalledTimes(1)
+        expect(onChange).toHaveBeenCalledWith("#123456")
+    })
+
+    it("keeps the typed hex in the field after the parent echoes it back", () => {
+        function Parent() {
+            const [value, setValue] = useState("#ff0000")
+            return <ColorField label="Color" value={value} onChange={setValue} />
+        }
+        render(<Parent />)
+        const field = screen.getByLabelText("Color")
+
+        fireEvent.change(field, { target: { value: "#336699" } })
+        fireEvent.blur(field)
+
+        expect(field).toHaveValue("#336699")
+    })
+
+    it("expands a three-digit hex to six digits", () => {
+        const onChange = vi.fn()
+        render(<ColorField label="Color" value="#ff0000" onChange={onChange} />)
+        const field = screen.getByLabelText("Color")
+
+        fireEvent.change(field, { target: { value: "#ABC" } })
+        fireEvent.keyDown(field, { key: "Enter" })
+
+        expect(onChange).toHaveBeenCalledWith("#aabbcc")
+    })
+
+    it("emits nothing while typing #abcdef character by character, then once on blur", async () => {
+        const onChange = vi.fn()
+        render(<ColorField label="Color" value="#ff0000" onChange={onChange} />)
+        const field = screen.getByLabelText("Color")
+        const user = userEvent.setup()
+
+        await user.clear(field)
+        await user.type(field, "#abcdef")
+        expect(onChange).not.toHaveBeenCalled()
+        await user.tab()
+
+        expect(onChange).toHaveBeenCalledTimes(1)
+        expect(onChange).toHaveBeenCalledWith("#abcdef")
+    })
+
+    it("reverts invalid text on blur and shows a changed value prop instead of stale text", () => {
+        const onChange = vi.fn()
+        const { rerender } = render(<ColorField label="Color" value="#ff0000" onChange={onChange} />)
+        const field = screen.getByLabelText("Color")
+
+        fireEvent.change(field, { target: { value: "#zz" } })
+        fireEvent.blur(field)
+        expect(onChange).not.toHaveBeenCalled()
+        expect(field).toHaveValue("#ff0000")
+
+        fireEvent.change(field, { target: { value: "#12" } })
+        rerender(<ColorField label="Color" value="#0000ff" onChange={onChange} />)
+        expect(field).toHaveValue("#0000ff")
     })
 
     it("resyncs the picker when the value prop changes", async () => {

@@ -1,5 +1,5 @@
 /* The segmented look shared by SegmentedControl and Tabs (an NSTabView-style row): a 22px bordered control body,
-   segments separated by the hairline, rounded only on the outer ends. The selected segment is accent with
+   segments separated by the hairline, rounded only on the outer ends. Icons keep the size their caller gives them. The selected segment is accent with
    on-accent text. No hover style; the arrow cursor; focus draws the focus-ring glow. */
 .group {
     display: inline-flex;
@@ -12,7 +12,6 @@
     --segment-border-width: 0.5px;
     /* The macOS focus ring: a glow outside the control that follows its radius. */
     --segment-focus-ring-width: 3px;
-    --segment-glyph-size: 14px;
 
     appearance: none;
     -webkit-tap-highlight-color: transparent;
@@ -57,12 +56,6 @@
 .segment:last-child {
     border-top-right-radius: var(--sphere-radius-control);
     border-bottom-right-radius: var(--sphere-radius-control);
-}
-
-.segment svg {
-    flex-shrink: 0;
-    width: var(--segment-glyph-size);
-    height: var(--segment-glyph-size);
 }
 
 .segment:focus-visible {
