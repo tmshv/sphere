@@ -39,6 +39,19 @@ describe("Dialog", () => {
         expect(screen.queryByRole("button", { name: "Submit" })).toBeNull()
     })
 
+    it("keeps a backdrop that receives pointer events, so clicks behind the dialog are blocked", () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                <p>body</p>
+            </Dialog>,
+        )
+        const backdrop = document.querySelector("[class*='backdrop']")
+        if (!backdrop) throw new Error("dialog backdrop missing")
+
+        expect(declaredStyle(backdrop, "pointer-events")).not.toBe("none")
+        expect(declaredStyle(backdrop, "position")).toBe("fixed")
+    })
+
     it("calls onClose on Escape", () => {
         const onClose = vi.fn()
         render(

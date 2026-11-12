@@ -2,7 +2,7 @@ import { Combobox } from "@base-ui/react/combobox"
 import { Select as BaseSelect } from "@base-ui/react/select"
 import { IconCheck } from "@sphere/icons"
 import { useId } from "react"
-import { input, menu } from "../internal"
+import { cx, input, menu } from "../internal"
 import { ChevronIcon } from "./ChevronIcon"
 import s from "./select.module.css"
 
@@ -28,10 +28,6 @@ export type SelectProps = {
 
 function toOption(option: string | SelectOption): SelectOption {
     return typeof option === "string" ? { value: option, label: option } : option
-}
-
-function join(classes: ReadonlyArray<string>): string {
-    return classes.join(" ")
 }
 
 export function Select({ label, value, options, onChange, placeholder, searchable }: SelectProps) {
@@ -87,7 +83,7 @@ function PlainSelect({ label, items, selected, onChange, placeholder }: InnerPro
                     sideOffset={POPUP_OFFSET_PX}
                     alignItemWithTrigger={false}
                 >
-                    <BaseSelect.Popup className={join([menu.surface, s.popup])}>
+                    <BaseSelect.Popup className={cx(menu.surface, s.popup)}>
                         <BaseSelect.List className={s.list}>
                             {items.map(item => (
                                 <BaseSelect.Item key={item.value} value={item.value} className={menu.item}>
@@ -131,15 +127,15 @@ function SearchableSelect({ label, items, selected, onChange, placeholder }: Inn
                     {label}
                 </label>
                 <div className={s.field}>
-                    <Combobox.Input id={inputId} className={join([s.trigger, s.search])} placeholder={placeholder} />
-                    <span className={join([s.glyph, s.searchGlyph])}>
+                    <Combobox.Input id={inputId} className={cx(s.trigger, s.search)} placeholder={placeholder} />
+                    <span className={cx(s.glyph, s.searchGlyph)}>
                         <ChevronIcon />
                     </span>
                 </div>
             </div>
             <Combobox.Portal>
                 <Combobox.Positioner className={s.positioner} side="bottom" align="start" sideOffset={POPUP_OFFSET_PX}>
-                    <Combobox.Popup className={join([menu.surface, s.popup])}>
+                    <Combobox.Popup className={cx(menu.surface, s.popup)}>
                         <Combobox.List className={s.list}>
                             {(item: SelectOption) => (
                                 <Combobox.Item key={item.value} value={item} className={menu.item}>

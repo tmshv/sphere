@@ -37,7 +37,9 @@
         0 0 0 var(--select-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
-.trigger:active:not(:disabled) {
+/* A pop-up button stays pressed while its menu is open. */
+.trigger:active:not(:disabled),
+.trigger[data-popup-open]:not(:disabled) {
     background-color: var(--sphere-color-control-pressed);
 }
 

@@ -1,6 +1,14 @@
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { declaredStyle, expectDesktopInteraction, fireEvent, hoverStyle, render, screen } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    hoverStyle,
+    render,
+    screen,
+    stateStyle,
+} from "../test-utils"
 import { SegmentedControl, Select } from "."
 
 // An undeclared radius, or an explicit zero.
@@ -126,6 +134,14 @@ describe("Select", () => {
         expect(declaredStyle(trigger, "border-radius")).toBe("var(--sphere-radius-control)")
         expect(declaredStyle(trigger, "height")).toBe("var(--sphere-control-height-md)")
         expectDesktopInteraction(trigger)
+    })
+
+    it("stays pressed while its menu is open", () => {
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+
+        expect(stateStyle(screen.getByLabelText("Source"), "background-color", "[data-popup-open]")).toBe(
+            "var(--sphere-color-control-pressed)",
+        )
     })
 
     it("shows the double chevron glyph on the trigger", () => {

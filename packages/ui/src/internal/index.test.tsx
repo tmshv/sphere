@@ -1,6 +1,7 @@
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
-import { declaredStyle, render, screen, startingStyle } from "../test-utils"
+import { act } from "@testing-library/react"
+import { afterEach, describe, expect, it, vi } from "vitest"
+import { declaredStyle, fireEvent, render, screen, startingStyle } from "../test-utils"
 import { Badge, Skeleton, Tooltip } from "."
 
 const OPEN_DELAY_MS = 150
@@ -100,24 +101,31 @@ describe("Tooltip", () => {
     })
 })
 
-// A moment well inside the desktop tooltip delay (700ms), and a wait well past it for the open.
+// A moment well inside the desktop tooltip delay (700ms), and the rest of it.
 const INSIDE_DESKTOP_DELAY_MS = 350
-const PAST_DESKTOP_DELAY_MS = 2000
+const PAST_DESKTOP_DELAY_MS = 400
 
 describe("Tooltip desktop look", () => {
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
     it("waits the desktop tooltip delay by default", async () => {
-        const user = userEvent.setup()
+        vi.useFakeTimers()
         render(
             <Tooltip label="Copy">
                 <button type="button">Target</button>
             </Tooltip>,
         )
 
-        await user.hover(screen.getByRole("button", { name: "Target" }))
-        await new Promise(resolve => setTimeout(resolve, INSIDE_DESKTOP_DELAY_MS))
+        fireEvent.pointerEnter(screen.getByRole("button", { name: "Target" }))
+        fireEvent.mouseEnter(screen.getByRole("button", { name: "Target" }))
+        fireEvent.mouseMove(screen.getByRole("button", { name: "Target" }))
+        await act(() => vi.advanceTimersByTimeAsync(INSIDE_DESKTOP_DELAY_MS))
         expect(screen.queryByText("Copy")).not.toBeInTheDocument()
 
-        expect(await screen.findByText("Copy", {}, { timeout: PAST_DESKTOP_DELAY_MS })).toBeInTheDocument()
+        await act(() => vi.advanceTimersByTimeAsync(PAST_DESKTOP_DELAY_MS))
+        expect(screen.getByText("Copy")).toBeInTheDocument()
     })
 
     it("is a small hairline-bordered tag with no arrow that appears instantly", async () => {

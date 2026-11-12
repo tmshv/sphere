@@ -1,6 +1,6 @@
 import { Menu } from "@base-ui/react/menu"
 import { type ReactNode, useMemo } from "react"
-import { menu } from "../internal"
+import { cx, menu } from "../internal"
 import s from "./context-menu.module.css"
 
 // The menu opens with its top-left corner at the pointer.
@@ -22,10 +22,6 @@ function pointAnchor([x, y]: [number, number]) {
     return {
         getBoundingClientRect: () => DOMRect.fromRect({ x, y, width: 0, height: 0 }),
     }
-}
-
-function join(classes: ReadonlyArray<string>): string {
-    return classes.join(" ")
 }
 
 export function ContextMenu({ opened, position, onClose, children }: ContextMenuProps) {
@@ -50,7 +46,7 @@ export function ContextMenu({ opened, position, onClose, children }: ContextMenu
                     collisionPadding={COLLISION_PADDING_PX}
                     collisionAvoidance={COLLISION_AVOIDANCE}
                 >
-                    <Menu.Popup className={join([menu.surface, s.popup])}>{children}</Menu.Popup>
+                    <Menu.Popup className={cx(menu.surface, s.popup)}>{children}</Menu.Popup>
                 </Menu.Positioner>
             </Menu.Portal>
         </Menu.Root>

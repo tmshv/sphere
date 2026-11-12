@@ -19,3 +19,5 @@ export const input = inputClasses
 // The menu surface (surface, item, itemIcon, itemLabel, itemShortcut, itemCheck, separator, label) for
 // ContextMenu, the Select list and the CommandPalette results.
 export const menu = menuClasses
+
+export { cx } from "./cx"

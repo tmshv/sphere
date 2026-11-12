@@ -3,7 +3,7 @@ import { Dialog } from "@base-ui/react/dialog"
 import { IconSearch } from "@sphere/icons"
 import { type ReactNode, useRef, useState } from "react"
 import { useHotkeys } from "../hooks"
-import { menu } from "../internal"
+import { cx, menu } from "../internal"
 import s from "./command-palette.module.css"
 import { filterCommands } from "./filter"
 
@@ -31,10 +31,6 @@ const INPUT_CHANGE = "input-change"
 
 function commandTitle(command: Command): string {
     return command.title
-}
-
-function join(classes: ReadonlyArray<string>): string {
-    return classes.join(" ")
 }
 
 // A Spotlight-like palette: the menu surface with a pill search field over the results, which are menu items.
@@ -73,7 +69,7 @@ export function CommandPalette({ commands, shortcut, placeholder, emptyMessage, 
                     <Dialog.Backdrop className={s.backdrop} />
                     <Dialog.Viewport className={s.viewport}>
                         <Dialog.Popup
-                            className={join([menu.surface, s.popup])}
+                            className={cx(menu.surface, s.popup)}
                             aria-label={placeholder}
                             initialFocus={inputRef}
                         >
