@@ -100,7 +100,7 @@ describe("Dialog focus and dismissal", () => {
 
         await user.click(opener)
         const dialog = await screen.findByRole("dialog")
-        expect(screen.getByRole("button", { name: "Close" })).toHaveFocus()
+        expect(screen.getByLabelText("field")).toHaveFocus()
         expect(dialog.contains(document.activeElement)).toBe(true)
 
         for (let i = 0; i < TAB_PRESSES; i++) {
@@ -111,6 +111,30 @@ describe("Dialog focus and dismissal", () => {
         await user.keyboard("{Escape}")
         await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
         expect(opener).toHaveFocus()
+    })
+
+    it("focuses the first form control in the body, not the close button", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL" footer={<button type="button">Submit</button>}>
+                <input aria-label="first" />
+                <input aria-label="second" />
+            </Dialog>,
+        )
+        await screen.findByRole("dialog")
+
+        await waitFor(() => expect(screen.getByLabelText("first")).toHaveFocus())
+    })
+
+    it("focuses the popup itself when the body has no control", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                <p>body</p>
+            </Dialog>,
+        )
+        const dialog = await screen.findByRole("dialog")
+
+        await waitFor(() => expect(dialog).toHaveFocus())
+        expect(screen.getByRole("button", { name: "Close" })).not.toHaveFocus()
     })
 
     it("closes on backdrop click", async () => {

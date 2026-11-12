@@ -425,6 +425,9 @@ export const OUTLINE_SECTION = "outline"
 export const INSPECTOR_SECTION = "inspector"
 export const OUTLINE_SECTION_TITLE = "Outline"
 export const INSPECTOR_SECTION_TITLE = "Layer"
+// Default heights that show the whole inspector in the 760px window.
+export const SECTION_OUTLINE_DEFAULT_SIZE = 220
+export const SECTION_INSPECTOR_DEFAULT_SIZE = 400
 export const SECTION_OUTLINE_MIN_SIZE = 120
 export const SECTION_INSPECTOR_MIN_SIZE = 160
 

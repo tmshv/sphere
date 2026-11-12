@@ -128,7 +128,6 @@ export const inspectorStyle: CSSProperties = {
     gap: PANE_PADDING,
     padding: PANE_PADDING,
 }
-export const frameFillStyle: CSSProperties = { width: "100%", height: "100%", display: "flex", flexDirection: "column" }
 export const mapAreaStyle: CSSProperties = { position: "relative", width: "100%", height: "100%" }
 export const SIDEBAR_COLUMN_WIDTH = 300
 export const sidebarColumnStyle: CSSProperties = { width: SIDEBAR_COLUMN_WIDTH, height: WINDOW_HEIGHT }

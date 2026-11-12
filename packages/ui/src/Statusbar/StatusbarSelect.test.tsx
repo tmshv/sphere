@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { StatusbarSelect } from "./StatusbarSelect"
@@ -49,5 +49,19 @@ describe("StatusbarSelect", () => {
             />,
         )
         expect(screen.getByRole("combobox")).toHaveClass("my-class")
+    })
+
+    it("shows the selected label and a chevron beside it", () => {
+        const { container } = render(<StatusbarSelect value="100" options={OPTIONS} onChange={vi.fn()} />)
+        expect(screen.getByText("100 per page", { selector: "span" })).toBeInTheDocument()
+        expect(container.querySelector("svg")).not.toBeNull()
+    })
+
+    it("lets the visible value size the control, with the native select laid transparently over it", () => {
+        render(<StatusbarSelect value="50" options={OPTIONS} onChange={vi.fn()} />)
+        const select = screen.getByRole("combobox")
+        expect(declaredStyle(select, "opacity")).toBe("0")
+        expect(declaredStyle(select, "position")).toBe("absolute")
+        expect(declaredStyle(select, "cursor")).toBe("default")
     })
 })

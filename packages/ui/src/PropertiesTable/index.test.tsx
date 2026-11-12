@@ -174,4 +174,9 @@ describe("PropertesTable", () => {
         expect(screen.getByRole("button", { name: "Show images" })).toBeInTheDocument()
         expect(onSortingChange).not.toHaveBeenCalled()
     })
+
+    it("stretches to its container", () => {
+        renderTable()
+        expect(declaredStyle(screen.getByRole("table"), "min-width")).toBe("100%")
+    })
 })

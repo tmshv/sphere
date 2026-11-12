@@ -13,7 +13,9 @@ import {
     LAYER_FIXTURES,
     OUTLINE_SECTION,
     OUTLINE_SECTION_TITLE,
+    SECTION_INSPECTOR_DEFAULT_SIZE,
     SECTION_INSPECTOR_MIN_SIZE,
+    SECTION_OUTLINE_DEFAULT_SIZE,
     SECTION_OUTLINE_MIN_SIZE,
     SIDEBAR_TAB_LAYERS,
     SIDEBAR_TAB_SOURCES,
@@ -26,8 +28,8 @@ import {
 import { LayerInspectorPanel } from "./LayerInspectorPanel"
 
 const INITIAL_SECTIONS: SectionLayout[] = [
-    { name: OUTLINE_SECTION, open: true, size: null },
-    { name: INSPECTOR_SECTION, open: true, size: null },
+    { name: OUTLINE_SECTION, open: true, size: SECTION_OUTLINE_DEFAULT_SIZE },
+    { name: INSPECTOR_SECTION, open: true, size: SECTION_INSPECTOR_DEFAULT_SIZE },
 ]
 
 /** The tree rows with a visibility bulb each; the bulb of a hidden id is unlit. */
@@ -109,7 +111,9 @@ export function SidebarContent() {
     const [tab, setTab] = useState(SIDEBAR_TAB_SOURCES)
     const [sourceId, setSourceId] = useState<string | undefined>(TREE_SELECTED_ID)
     const [layerId, setLayerId] = useState<string | undefined>(LAYER_FIRST_ID)
-    const [hidden, setHidden] = useState<string[]>([])
+    const [hidden, setHidden] = useState<string[]>(
+        LAYER_FIXTURES.filter(layer => !layer.visible).map(layer => layer.id),
+    )
 
     function toggleBulb(id: string) {
         setHidden(current => (current.includes(id) ? current.filter(item => item !== id) : [...current, id]))

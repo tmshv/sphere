@@ -7,6 +7,8 @@ const meta = {
     tags: ["autodocs"],
     parameters: { layout: "fullscreen" },
     args: { sidebar: true },
+    // The window keeps its own sidebar state, so a changed control remounts it.
+    render: args => <AppWindow key={String(args.sidebar)} {...args} />,
 } satisfies Meta<typeof AppWindow>
 
 export default meta
