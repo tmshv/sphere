@@ -76,10 +76,6 @@ type PropertyTableProps = {
     onSortingChange: OnChangeFn<SortingState>
 }
 
-function classNames(...names: (string | false | undefined)[]): string {
-    return names.filter(Boolean).join(" ")
-}
-
 function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
     if (sorted === "asc") return <IconArrowUp size={ICON_SIZE} />
     if (sorted === "desc") return <IconArrowDown size={ICON_SIZE} />
@@ -112,7 +108,7 @@ function Summary({ type }: { type: PropertyItemMeta }) {
         case "string": {
             return (
                 <div className={s.stringSummary}>
-                    <Badge size="xs" radius="sm" variant="light">
+                    <Badge size="xs" variant="light">
                         unique={type.unique}
                     </Badge>
                 </div>
@@ -124,10 +120,10 @@ function Summary({ type }: { type: PropertyItemMeta }) {
                 <div className={s.numberSummary}>
                     <Histogram hist={type.hist} />
                     <div className={s.minMax}>
-                        <Badge size="xs" radius="sm" variant="light">
+                        <Badge size="xs" variant="light">
                             min={type.min}
                         </Badge>
-                        <Badge size="xs" radius="sm" variant="light">
+                        <Badge size="xs" variant="light">
                             max={type.max}
                         </Badge>
                     </div>
@@ -148,7 +144,7 @@ function UrlBadge({ value }: LinkProps) {
     const url = new URL(value)
     return (
         <Tooltip label={value} delay={URL_TOOLTIP_DELAY_MS}>
-            <Badge size="sm" radius="sm" variant="outline">
+            <Badge size="sm" variant="outline">
                 {url.hostname}
                 {url.pathname}
             </Badge>
@@ -173,7 +169,7 @@ function MixedValue({ value }: { value: unknown }) {
     return (
         <>
             {value.map(x => (
-                <Badge key={String(x)} className={s.mixedItem} size="sm" radius="sm" variant="outline">
+                <Badge key={String(x)} className={s.mixedItem} size="sm" variant="outline">
                     {String(x)}
                 </Badge>
             ))}
@@ -289,15 +285,13 @@ export function PropertesTable({
                                                     }}
                                                 />
                                             )}
-                                            <Badge size="xs" radius="xs" variant="light">
+                                            <Badge size="xs" variant="light">
                                                 {meta[header.column.id].type}
                                             </Badge>
                                         </div>
                                         <div
-                                            className={classNames(
-                                                s.resizer,
-                                                header.column.getIsResizing() && s.resizing,
-                                            )}
+                                            className={s.resizer}
+                                            data-testid="column-resizer"
                                             onMouseDown={header.getResizeHandler()}
                                             onTouchStart={header.getResizeHandler()}
                                         />

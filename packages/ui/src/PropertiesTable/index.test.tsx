@@ -1,6 +1,6 @@
 import type { ColumnDef, SortingState } from "@tanstack/react-table"
 import userEvent from "@testing-library/user-event"
-import { expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, hoverStyle, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { PropertesTable, type PropertyItem, type PropertyItemMeta } from "."
@@ -107,6 +107,16 @@ describe("PropertesTable", () => {
     it("gives the photo toggle the desktop interaction model", () => {
         renderTable()
         expectDesktopInteraction(screen.getByRole("button", { name: "Show images" }))
+    })
+
+    it("draws the column resizer as an invisible grip with a resize cursor and no hover reveal", () => {
+        renderTable()
+        const resizer = screen.getAllByTestId("column-resizer").at(0)
+        expect(resizer).toBeDefined()
+        if (!resizer) return
+        expect(declaredStyle(resizer, "cursor")).toBe("col-resize")
+        expect(hoverStyle(resizer, "opacity")).toBe("")
+        expect(declaredStyle(resizer, "background")).toBe("transparent")
     })
 
     it("disables previous on the first page and next on the last", () => {

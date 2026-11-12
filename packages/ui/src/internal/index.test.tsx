@@ -9,7 +9,7 @@ const OPEN_DELAY_MS = 150
 describe("Badge", () => {
     it("renders its text and title", () => {
         render(
-            <Badge size="xs" variant="light" radius="sm" title="Type">
+            <Badge size="xs" variant="light" title="Type">
                 string
             </Badge>,
         )
@@ -17,30 +17,29 @@ describe("Badge", () => {
         expect(screen.getByTitle("Type")).toBeInTheDocument()
     })
 
-    it("applies size, variant, radius and extra class", () => {
+    it("applies size, variant and extra class", () => {
         render(
-            <Badge size="sm" variant="filled" radius="xl" className="extra">
+            <Badge size="sm" variant="filled" className="extra">
                 badge
             </Badge>,
         )
         const root = screen.getByText("badge").parentElement
         expect(root?.className).toContain("sizeSm")
         expect(root?.className).toContain("filled")
-        expect(root?.className).toContain("radiusXl")
         expect(root).toHaveClass("extra")
     })
 
-    it("declares the xs radius and the outline colours from tokens", () => {
+    it("declares the tooltip radius and the outline colours from tokens", () => {
         render(
-            <Badge size="sm" variant="outline" radius="xs">
+            <Badge size="sm" variant="outline">
                 link
             </Badge>,
         )
         const root = screen.getByText("link").parentElement
         if (!root) throw new Error("badge root missing")
-        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-xs)")
-        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-badge-outline-dark)")
-        expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-badge-outline-dark)")
+        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-tooltip)")
+        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-label-secondary)")
+        expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-separator)")
     })
 })
 

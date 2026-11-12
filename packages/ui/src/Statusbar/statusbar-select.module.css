@@ -1,27 +1,36 @@
-/* A borderless select that takes the statusbar's own background and text colour. */
+/* A small borderless pop-up on the statusbar: 10px secondary text and a disclosure chevron. */
 .select {
-    --statusbar-select-line-height: 16px;
-    --statusbar-select-letter-spacing: 0.25px;
+    --statusbar-select-height: var(--sphere-control-height-sm);
+    --statusbar-select-chevron-size: 3px;
+    --statusbar-select-chevron-gap: 4px;
+    --statusbar-select-chevron-inset: 7px;
     /* The macOS focus ring, as on buttons. */
     --statusbar-select-focus-ring-width: 3px;
 
     appearance: none;
     -webkit-appearance: none;
+    height: var(--statusbar-select-height);
     border: none;
     background-color: transparent;
-    color: inherit;
-    font-family: monospace;
+    background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+        calc(100% - var(--statusbar-select-chevron-inset) - var(--statusbar-select-chevron-gap)) center,
+        calc(100% - var(--statusbar-select-chevron-inset)) center;
+    background-size: var(--statusbar-select-chevron-size) var(--statusbar-select-chevron-size);
+    background-repeat: no-repeat;
+    color: var(--sphere-color-label-secondary);
+    font-family: var(--sphere-font-family-sans);
     font-size: var(--sphere-font-size-mini);
-    line-height: var(--statusbar-select-line-height);
-    text-transform: uppercase;
-    font-weight: var(--sphere-font-weight-bold);
-    letter-spacing: var(--statusbar-select-letter-spacing);
+    font-weight: var(--sphere-font-weight-regular);
+    line-height: var(--sphere-line-height-tight);
     cursor: default;
     user-select: none;
     -webkit-user-select: none;
     outline: none;
     border-radius: var(--sphere-radius-control);
-    padding: 0 var(--sphere-space-4);
+    padding: 0 calc(var(--statusbar-select-chevron-inset) + var(--statusbar-select-chevron-gap) + var(--sphere-space-8)) 0 var(--sphere-space-4);
 }
 
 .select:focus-visible {

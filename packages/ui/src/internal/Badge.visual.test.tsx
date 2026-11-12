@@ -4,49 +4,49 @@ import { visualCases } from "../visual/visualCases"
 visualCases("InternalBadge", {
     "xs-light-sm": {
         render: () => (
-            <Badge size="xs" variant="light" radius="sm">
+            <Badge size="xs" variant="light">
                 string
             </Badge>
         ),
     },
     "sm-light-sm": {
         render: () => (
-            <Badge size="sm" variant="light" radius="sm">
+            <Badge size="sm" variant="light">
                 string
             </Badge>
         ),
     },
     "sm-light-xl": {
         render: () => (
-            <Badge size="sm" variant="light" radius="xl">
+            <Badge size="sm" variant="light">
                 string
             </Badge>
         ),
     },
     "xs-filled-sm": {
         render: () => (
-            <Badge size="xs" variant="filled" radius="sm">
+            <Badge size="xs" variant="filled">
                 string
             </Badge>
         ),
     },
     "sm-filled-xl": {
         render: () => (
-            <Badge size="sm" variant="filled" radius="xl">
+            <Badge size="sm" variant="filled">
                 string
             </Badge>
         ),
     },
     "xs-light-xs": {
         render: () => (
-            <Badge size="xs" variant="light" radius="xs">
+            <Badge size="xs" variant="light">
                 int
             </Badge>
         ),
     },
     "sm-outline-sm": {
         render: () => (
-            <Badge size="sm" variant="outline" radius="sm">
+            <Badge size="sm" variant="outline">
                 example.com/a.png
             </Badge>
         ),

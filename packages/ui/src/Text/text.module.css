@@ -1,27 +1,24 @@
-/* Mantine 5 Text.styles.js with size xs. */
+/* Running text: 12px on the text line height, in the label colour of its surroundings. */
 .text {
     -webkit-tap-highlight-color: transparent;
     font-family: var(--sphere-font-family-sans);
-    font-size: var(--sphere-font-size-xs);
-    line-height: var(--sphere-line-height-body);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-text);
     color: inherit;
     text-decoration: none;
+    cursor: default;
 }
 
 .dimmed {
-    color: var(--sphere-color-text-dimmed);
+    color: var(--sphere-color-label-secondary);
 }
 
 .warning {
-    color: var(--sphere-color-warning-text);
+    color: var(--sphere-color-warning);
 }
 
 .weightNormal {
-    font-weight: var(--sphere-font-weight-normal);
-}
-
-.weightMedium {
-    font-weight: var(--sphere-font-weight-medium);
+    font-weight: var(--sphere-font-weight-regular);
 }
 
 .weightSemibold {
@@ -32,16 +29,17 @@
     text-transform: uppercase;
 }
 
-/* Mantine 5 Title.styles.js, order 3 (h3 size overridden to 18 by Sphere's theme). */
+/* A panel heading: 13px bold. */
 .heading {
     font-family: var(--sphere-font-family-sans);
     font-weight: var(--sphere-font-weight-bold);
-    font-size: var(--sphere-font-size-lg);
-    line-height: var(--sphere-line-height-heading);
+    font-size: var(--sphere-font-size-regular);
+    line-height: var(--sphere-line-height-text);
     margin: 0;
+    cursor: default;
 }
 
-/* Mantine 5 Text `truncate`. */
+/* A single line that ends in an ellipsis. */
 .truncate {
     overflow: hidden;
     text-overflow: ellipsis;

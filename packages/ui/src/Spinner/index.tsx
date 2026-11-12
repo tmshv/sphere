@@ -2,7 +2,7 @@ import s from "./spinner.module.css"
 
 const DEFAULT_LABEL = "Loading"
 
-// Mantine's Loader size "xs", in px. The SVG paths below are drawn on a 38 x 38 viewBox.
+// The spinner size in px. The SVG paths below are drawn on a 38 x 38 viewBox.
 const SIZE_PX = 18
 const VIEW_BOX = "0 0 38 38"
 
@@ -10,7 +10,7 @@ export type SpinnerProps = {
     label?: string
 }
 
-// Mantine 5 Oval loader, verbatim apart from the stroke colour (a token, in CSS).
+// An oval loader; the stroke colour is a token, in CSS.
 export function Spinner({ label = DEFAULT_LABEL }: SpinnerProps) {
     return (
         <span role={"status"} aria-label={label} className={s.spinner}>

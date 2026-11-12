@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 import { Statusbar, StatusbarBadge, StatusbarButton } from "."
 
 const ICON = <svg aria-hidden="true" />
+const TRANSPARENT = ["", "transparent"]
 
 describe("Statusbar", () => {
     it("renders children", () => {
@@ -107,10 +108,19 @@ describe("StatusbarBadge", () => {
         expect(declaredStyle(screen.getByTitle("Auto"), "width")).toBe("auto")
     })
 
-    it("renders the error tone", () => {
+    it("renders the error tone as danger text with no fill", () => {
         render(<StatusbarBadge tone="error">boom</StatusbarBadge>)
-        const badge = screen.getByText("boom").parentElement
-        expect(badge).not.toBeNull()
-        if (badge) expect(declaredStyle(badge, "background")).toBe("var(--sphere-color-danger)")
+        const badge = screen.getByText("boom")
+        expect(declaredStyle(badge, "color")).toBe("var(--sphere-color-danger)")
+        expect(TRANSPARENT).toContain(declaredStyle(badge, "background-color"))
+        expect(declaredStyle(badge, "top")).toBe("")
+    })
+
+    it("shows readouts as plain tabular numbers", () => {
+        render(<StatusbarBadge>zoom=1.000</StatusbarBadge>)
+        const badge = screen.getByText("zoom=1.000")
+        expect(declaredStyle(badge, "font-variant-numeric")).toBe("tabular-nums")
+        expect(declaredStyle(badge, "background-color")).toBe("")
+        expect(declaredStyle(badge, "cursor")).toBe("default")
     })
 })

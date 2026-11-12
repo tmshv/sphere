@@ -1,34 +1,28 @@
-/* Ported from MapStatusbar's createStyles. `backgroundColor: theme.colors.dark` is an array; emotion
-   emitted every entry and the last (dark[9]) won, so the default badge is dark. */
-/* Every rule overrides the internal Badge's classes, so it is doubled (R10). */
-.widget.widget {
-    --statusbar-badge-nudge: 1px;
+/* A readout in the statusbar: plain text with fixed-width digits, no pill. */
+.widget {
     /* Fixed widths keep a changing readout from shoving its neighbours around. */
     --statusbar-badge-width-short: 90px;
     --statusbar-badge-width-long: 101px;
 
-    font-family: monospace;
+    display: inline-block;
+    width: auto;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     user-select: none;
+    -webkit-user-select: none;
     cursor: default;
-    justify-content: flex-start;
-
-    /* For pixel perfect vertical alignment. Works together with Statusbar height 28px. */
-    position: relative;
-    top: var(--statusbar-badge-nudge);
-
-    background: var(--sphere-color-statusbar-bg);
-    color: var(--sphere-color-on-accent);
 }
 
-.error.error {
-    background: var(--sphere-color-danger);
-    color: var(--sphere-color-on-accent);
+.error {
+    color: var(--sphere-color-danger);
 }
 
-.short.short {
+.short {
     width: var(--statusbar-badge-width-short);
 }
 
-.long.long {
+.long {
     width: var(--statusbar-badge-width-long);
 }

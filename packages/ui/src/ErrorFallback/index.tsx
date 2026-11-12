@@ -1,5 +1,6 @@
 import type { FallbackProps } from "react-error-boundary"
 import { Button } from "../Button"
+import { cx } from "../internal"
 import { Row, Stack } from "../Layout"
 import { textClassName } from "../Text/text-class"
 import s from "./error-fallback.module.css"
@@ -24,7 +25,7 @@ const VARIANT_CLASS: Record<Variant, string> = {
 
 export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallbackProps) {
     return (
-        <div className={`${s.root} ${VARIANT_CLASS[variant]}`}>
+        <div className={cx(s.root, VARIANT_CLASS[variant])}>
             <Stack gap="sm" className={s.message}>
                 <div className={TITLE_CLASS[variant]}>Something went wrong</div>
                 <div className={MESSAGE_CLASS}>{error instanceof Error ? error.message : String(error)}</div>

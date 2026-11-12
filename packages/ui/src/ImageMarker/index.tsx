@@ -1,4 +1,5 @@
 import { memo } from "react"
+import { cx } from "../internal"
 import s from "./image-marker.module.css"
 
 export type ImageMarkerLayout = "circle" | "square"
@@ -29,7 +30,7 @@ export const ImageMarker = memo(function ImageMarker({
 }: ImageMarkerProps) {
     return (
         <span
-            className={`${s.icon} ${LAYOUT_CLASS[layout]}`}
+            className={cx(s.icon, LAYOUT_CLASS[layout])}
             style={{
                 ...style,
                 width: size,

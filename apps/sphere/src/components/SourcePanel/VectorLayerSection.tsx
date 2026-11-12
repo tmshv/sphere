@@ -8,7 +8,7 @@ export type VectorLayerSectionProps = {
 export function VectorLayerSection({ layer }: VectorLayerSectionProps) {
     return (
         <Stack gap={"xxs"}>
-            <Text weight={"medium"}>{layer.id}</Text>
+            <Text weight={"semibold"}>{layer.id}</Text>
             {layer.description ? <Text tone={"dimmed"}>{layer.description}</Text> : null}
             {Object.entries(layer.fields ?? {}).map(([name, fieldType]) => (
                 <InfoRow key={name} label={name} value={String(fieldType)} labelIsData />

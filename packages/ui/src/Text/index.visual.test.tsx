@@ -2,7 +2,7 @@ import { visualCases } from "../visual/visualCases"
 import { Heading, Text, type TextTone, type TextWeight } from "."
 
 const TONES: ReadonlyArray<TextTone> = ["default", "dimmed", "warning"]
-const WEIGHTS: ReadonlyArray<TextWeight> = ["normal", "medium", "semibold"]
+const WEIGHTS: ReadonlyArray<TextWeight> = ["normal", "semibold"]
 
 const toneWeightCases = Object.fromEntries(
     TONES.flatMap(tone =>
