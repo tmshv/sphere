@@ -2,8 +2,6 @@
    The native select is laid transparently over the whole control, so the value sizes it and it takes the input. */
 .root {
     --statusbar-select-height: var(--sphere-control-height-sm);
-    /* The macOS focus ring, as on buttons. */
-    --statusbar-select-focus-ring-width: 3px;
 
     position: relative;
     display: inline-flex;
@@ -23,7 +21,7 @@
 }
 
 .root:has(.select:focus-visible) {
-    box-shadow: 0 0 0 var(--statusbar-select-focus-ring-width) var(--sphere-color-focus-ring);
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .value {

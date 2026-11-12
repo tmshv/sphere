@@ -2,6 +2,10 @@ import { mix, withAlpha } from "./color"
 import { type SchemeColor, palette } from "./palette"
 
 export type SemanticColor =
+    | "track"
+    | "badge"
+    | "chart-bar"
+    | "knob"
     | "window"
     | "content"
     | "sidebar"
@@ -80,7 +84,10 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     // Pressing darkens the body in both themes; in dark it drops to the window grey, so an accent glyph on a toggled-on
     // bordered button keeps 3:1.
     "control-pressed": { light: gray[3], dark: gray[9] },
-    "control-border": { light: gray[4], dark: gray[10] },
+    // The hairline around a bordered control. Light is the El Capitan hairline; dark is one step lighter than the dark
+    // control body, so it outlines a control on window, sidebar and content and parts two segments (contrast.test.ts
+    // pins a 1.4:1 floor on all four).
+    "control-border": { light: gray[4], dark: gray[7] },
     "control-shadow": {
         light: withAlpha(BLACK, CONTROL_SHADOW_LIGHT_ALPHA),
         dark: withAlpha(BLACK, CONTROL_SHADOW_DARK_ALPHA),
@@ -97,6 +104,11 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     "on-accent": both(WHITE),
     selection: shade(accent, SELECTION_SHADE),
     "selection-inactive": { light: gray[3], dark: gray[8] },
+    // The unfilled slider track: the only sign of the range, so it keeps 3:1 (WCAG 1.4.11) on window, sidebar and
+    // content in both themes.
+    track: both(gray[6]),
+    // The fill of a light badge (a type or value tag); visible on content and on the window-coloured table header.
+    badge: { light: gray[3], dark: gray[8] },
     "focus-ring": {
         light: mix(accent.light, WHITE, FOCUS_RING_LIGHT_TINT),
         dark: mix(accent.dark, WHITE, FOCUS_RING_DARK_TINT),
@@ -107,6 +119,8 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     scrim: both(TRANSPARENT),
     // Component roles, by reference only.
     "chart-bar": accent,
+    // The white slider knob and the ring of the colour picker thumb.
+    knob: both(WHITE),
     "marker-surface": both(WHITE),
     "marker-shadow": both(withAlpha(BLACK, MARKER_SHADOW_ALPHA)),
 }

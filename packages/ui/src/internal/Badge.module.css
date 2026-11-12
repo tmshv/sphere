@@ -1,11 +1,12 @@
-/* A small type or value tag. Height, font size and padding come from the size class; the radius is the tooltip one. */
+/* A small type or value tag in 10px regular text that keeps the case of its data (URL paths, values). Height,
+   font size and padding come from the size class; the radius is the tooltip one. */
 .badge {
     --badge-border-width: 1px;
 
     -webkit-tap-highlight-color: transparent;
     font-family: var(--sphere-font-family-sans);
     font-size: var(--badge-font-size);
-    font-weight: var(--sphere-font-weight-semibold);
+    font-weight: var(--sphere-font-weight-regular);
     height: var(--badge-height);
     line-height: calc(var(--badge-height) - 2 * var(--badge-border-width));
     text-decoration: none;
@@ -15,7 +16,6 @@
     align-items: center;
     justify-content: center;
     width: auto;
-    text-transform: uppercase;
     cursor: inherit;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -36,7 +36,7 @@
 }
 
 .light {
-    background: var(--sphere-color-selection-inactive);
+    background: var(--sphere-color-badge);
     color: var(--sphere-color-label);
 }
 

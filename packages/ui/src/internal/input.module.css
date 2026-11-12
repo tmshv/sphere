@@ -30,11 +30,6 @@
 }
 
 .input {
-    /* A hairline: one device pixel on a Retina screen. */
-    --input-border-width: 0.5px;
-    /* The macOS focus ring: a glow outside the control that follows its radius. */
-    --input-focus-ring-width: 3px;
-
     appearance: none;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
@@ -43,7 +38,7 @@
     height: var(--sphere-control-height-md);
     margin: 0;
     padding: 0 var(--sphere-space-6);
-    border: var(--input-border-width) solid var(--sphere-color-control-border);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-none);
     outline: none;
     background-color: var(--sphere-color-content);
@@ -71,7 +66,7 @@
 }
 
 .input:focus {
-    box-shadow: 0 0 0 var(--input-focus-ring-width) var(--sphere-color-focus-ring);
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .input:disabled {

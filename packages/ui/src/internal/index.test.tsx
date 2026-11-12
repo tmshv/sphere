@@ -41,6 +41,31 @@ describe("Badge", () => {
         expect(declaredStyle(root, "color")).toBe("var(--sphere-color-label-secondary)")
         expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-separator)")
     })
+
+    it("is 10px regular text that keeps the case of its data", () => {
+        render(
+            <Badge size="xs" variant="light">
+                /a/Path.png
+            </Badge>,
+        )
+        const root = screen.getByText("/a/Path.png").parentElement
+        if (!root) throw new Error("badge root missing")
+        expect(declaredStyle(root, "--badge-font-size")).toBe("var(--sphere-font-size-mini)")
+        expect(declaredStyle(root, "font-weight")).toBe("var(--sphere-font-weight-regular)")
+        expect(declaredStyle(root, "text-transform")).toBe("")
+    })
+
+    it("fills the light badge with its own badge role", () => {
+        render(
+            <Badge size="xs" variant="light">
+                string
+            </Badge>,
+        )
+        const root = screen.getByText("string").parentElement
+        if (!root) throw new Error("badge root missing")
+        expect(declaredStyle(root, "background")).toBe("var(--sphere-color-badge)")
+        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-label)")
+    })
 })
 
 describe("Skeleton", () => {

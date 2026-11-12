@@ -2,9 +2,6 @@
    background with a hairline border and the popup shadow, 4px above and below the items and nothing at the sides,
    so the highlighted item runs edge to edge. Menus appear instantly and fade out over duration-fast. */
 .surface {
-    /* A hairline: one device pixel on a Retina screen. */
-    --menu-border-width: 0.5px;
-
     box-sizing: border-box;
     padding: var(--sphere-space-4) 0;
     outline: 0;
@@ -12,7 +9,7 @@
     color: var(--sphere-color-label);
     border-radius: var(--sphere-radius-popup);
     box-shadow:
-        0 0 0 var(--menu-border-width) var(--sphere-color-popup-border),
+        0 0 0 var(--sphere-hairline) var(--sphere-color-popup-border),
         var(--sphere-shadow-popup);
     font-family: var(--sphere-font-family-sans);
     font-size: var(--sphere-font-size-regular);

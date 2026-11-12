@@ -1,4 +1,4 @@
-/* A 4px track in the hairline colour with an accent fill, and a 16px white round knob with a hairline border and
+/* A 4px track in the track colour with an accent fill, and a 16px white round knob with a hairline border and
    the control shadow. Nothing changes on hover or while dragging; keyboard focus draws the focus-ring glow. The
    current value is text at the right of the label row. */
 .row {
@@ -19,10 +19,6 @@
 .control {
     --slider-track-size: 4px;
     --slider-knob-size: 16px;
-    /* A hairline: one device pixel on a Retina screen. */
-    --slider-knob-border-width: 0.5px;
-    /* The macOS focus ring: a glow outside the control that follows its radius. */
-    --slider-focus-ring-width: 3px;
     --slider-track-z-index: 0;
     --slider-bar-z-index: 1;
     --slider-thumb-z-index: 2;
@@ -43,7 +39,7 @@
     width: 100%;
     margin-inline: calc(var(--slider-knob-size) / 2);
     border-radius: var(--sphere-radius-pill);
-    background-color: var(--sphere-color-control-border);
+    background-color: var(--sphere-color-track);
     z-index: var(--slider-track-z-index);
 }
 
@@ -62,8 +58,8 @@
     position: absolute;
     height: var(--slider-knob-size);
     width: var(--slider-knob-size);
-    background-color: var(--sphere-color-marker-surface);
-    border: var(--slider-knob-border-width) solid var(--sphere-color-control-border);
+    background-color: var(--sphere-color-knob);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-pill);
     box-shadow: var(--sphere-shadow-control);
     cursor: default;
@@ -76,7 +72,7 @@
 .thumb:has(:focus-visible) {
     box-shadow:
         var(--sphere-shadow-control),
-        0 0 0 var(--slider-focus-ring-width) var(--sphere-color-focus-ring);
+        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .thumb input {

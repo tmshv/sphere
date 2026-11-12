@@ -8,11 +8,6 @@
 }
 
 .segment {
-    /* A hairline: one device pixel on a Retina screen. */
-    --segment-border-width: 0.5px;
-    /* The macOS focus ring: a glow outside the control that follows its radius. */
-    --segment-focus-ring-width: 3px;
-
     appearance: none;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
@@ -26,7 +21,7 @@
     height: var(--sphere-control-height-md);
     margin: 0;
     padding: 0 var(--sphere-space-8);
-    border: var(--segment-border-width) solid var(--sphere-color-control-border);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-none);
     outline: none;
     background-color: var(--sphere-color-control);
@@ -60,7 +55,7 @@
 
 .segment:focus-visible {
     z-index: 1;
-    box-shadow: 0 0 0 var(--segment-focus-ring-width) var(--sphere-color-focus-ring);
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .segment[data-disabled] {

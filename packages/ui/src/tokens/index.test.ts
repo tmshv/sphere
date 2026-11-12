@@ -50,7 +50,10 @@ const ROLES: ReadonlyArray<SemanticColor> = [
     "warning",
     "ok",
     "scrim",
+    "track",
+    "badge",
     "chart-bar",
+    "knob",
     "marker-surface",
     "marker-shadow",
 ]
@@ -123,6 +126,7 @@ describe("semantic colours", () => {
         expect(semantic["glyph-pressed"]).toEqual(semantic.label)
         expect(semantic["tooltip-text"]).toEqual(semantic.label)
         expect(semantic["marker-surface"]).toEqual({ light: palette.gray[0], dark: palette.gray[0] })
+        expect(semantic.knob).toEqual({ light: palette.gray[0], dark: palette.gray[0] })
     })
 })
 
@@ -176,6 +180,8 @@ describe("tokensToCss", () => {
         expect(css).toContain("--sphere-row-height:22px")
         expect(css).toContain("--sphere-menu-item-height:20px")
         expect(css).toContain("--sphere-titlebar-height:28px")
+        expect(css).toContain("--sphere-focus-ring-width:3px")
+        expect(css).toContain("--sphere-hairline:0.5px")
         expect(css).toContain("--sphere-duration-fast:120ms")
         expect(css).toContain("--sphere-duration-tooltip-delay:700ms")
         expect(css).toContain("--sphere-opacity-disabled:0.35")

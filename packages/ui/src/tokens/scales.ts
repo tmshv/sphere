@@ -28,7 +28,11 @@ export const menuItemHeight = 20
 // The macOS overlay title bar the window draws its traffic lights in; sidebar content starts below it.
 export const titlebarHeight = 28
 
-const HAIRLINE = 0.5
+// One device pixel on a Retina screen: the border of bordered controls, popups and tooltips (px).
+export const hairline = 0.5
+// The macOS focus ring: a glow this wide outside the control (or inside an edge-to-edge strip) (px).
+export const focusRingWidth = 3
+
 const POPUP_OFFSET = 4
 const POPUP_BLUR = 16
 const POPUP_ALPHA = 0.2
@@ -40,7 +44,7 @@ const SHADOW_COLOR = palette.gray[12]
 // control: the hairline under a push button, in the scheme's control-shadow colour. popup and window: soft drop
 // shadows; the popup hairline border is popup-border, drawn by the menu surface itself.
 export const shadow = {
-    control: `0 ${HAIRLINE}px 0 var(--sphere-color-control-shadow)`,
+    control: `0 ${hairline}px 0 var(--sphere-color-control-shadow)`,
     popup: `0 ${POPUP_OFFSET}px ${POPUP_BLUR}px ${withAlpha(SHADOW_COLOR, POPUP_ALPHA)}`,
     window: `0 ${WINDOW_OFFSET}px ${WINDOW_BLUR}px ${withAlpha(SHADOW_COLOR, WINDOW_ALPHA)}`,
 } as const

@@ -58,5 +58,14 @@ describe("SliderField", () => {
 
         expect(declaredStyle(thumb, "cursor")).toBe("default")
         expect(stateStyle(thumb, "transform", "[data-dragging]")).toBe("")
+        expect(declaredStyle(thumb, "background-color")).toBe("var(--sphere-color-knob)")
+    })
+
+    it("draws the track in the track colour, which keeps 3:1 on every surface", () => {
+        render(<SliderField label="Radius" value={40} min={0} max={100} onChange={vi.fn()} />)
+        const track = screen.getByRole("slider").parentElement?.parentElement
+        if (!track) throw new Error("track missing")
+
+        expect(declaredStyle(track, "background-color")).toBe("var(--sphere-color-track)")
     })
 })

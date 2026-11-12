@@ -18,11 +18,6 @@
 }
 
 .well {
-    /* A hairline: one device pixel on a Retina screen. */
-    --well-border-width: 0.5px;
-    /* The macOS focus ring: a glow outside the control that follows its radius. */
-    --well-focus-ring-width: 3px;
-
     appearance: none;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
@@ -31,7 +26,7 @@
     height: var(--sphere-control-height-md);
     margin: 0;
     padding: var(--sphere-space-2);
-    border: var(--well-border-width) solid var(--sphere-color-control-border);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-none);
     outline: none;
     background-color: var(--sphere-color-control);
@@ -42,7 +37,7 @@
 .well:focus-visible {
     box-shadow:
         var(--sphere-shadow-control),
-        0 0 0 var(--well-focus-ring-width) var(--sphere-color-focus-ring);
+        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 /* A well stays pressed while its picker is open, like a pop-up button. */
@@ -78,7 +73,6 @@
     --area-reach: calc(var(--thumb-size) / 2 + 1px);
     --slider-height: calc(var(--thumb-size) + 2px);
     --saturation-height: 120px;
-    --focus-ring-width: 3px;
     --hue-ring-width: 1px;
     --thumb-shadow-blur: 1px;
 
@@ -138,7 +132,7 @@
     box-sizing: border-box;
     width: var(--thumb-size);
     height: var(--thumb-size);
-    border: var(--thumb-border-width) solid var(--sphere-color-marker-surface);
+    border: var(--thumb-border-width) solid var(--sphere-color-knob);
     border-radius: var(--sphere-radius-pill);
     background-color: transparent;
     box-shadow: 0 0 var(--thumb-shadow-blur) var(--sphere-color-marker-shadow);
@@ -152,5 +146,5 @@
 .picker :global(.react-colorful__interactive:focus-visible) :global(.react-colorful__pointer) {
     box-shadow:
         0 0 var(--thumb-shadow-blur) var(--sphere-color-marker-shadow),
-        0 0 0 var(--focus-ring-width) var(--sphere-color-focus-ring);
+        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }

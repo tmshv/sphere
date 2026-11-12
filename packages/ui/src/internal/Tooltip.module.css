@@ -5,15 +5,12 @@
 }
 
 .tooltip {
-    /* A hairline: one device pixel on a Retina screen. */
-    --tooltip-border-width: 0.5px;
-
     box-sizing: border-box;
     padding: var(--sphere-space-2) var(--sphere-space-6);
     background-color: var(--sphere-color-tooltip);
     color: var(--sphere-color-tooltip-text);
     border-radius: var(--sphere-radius-tooltip);
-    box-shadow: 0 0 0 var(--tooltip-border-width) var(--sphere-color-popup-border);
+    box-shadow: 0 0 0 var(--sphere-hairline) var(--sphere-color-popup-border);
     font-family: var(--sphere-font-family-sans);
     font-size: var(--sphere-font-size-small);
     line-height: var(--sphere-line-height-tight);

@@ -55,11 +55,6 @@
 /* The pill search field: a text field body with the search glyph inside its left end. It shows the focus ring
    while focused, as macOS text fields do. */
 .searchInput {
-    /* A hairline: one device pixel on a Retina screen. */
-    --palette-border-width: 0.5px;
-    /* The macOS focus ring: a glow outside the control that follows its radius. */
-    --palette-focus-ring-width: 3px;
-
     appearance: none;
     box-sizing: border-box;
     display: block;
@@ -67,7 +62,7 @@
     height: var(--sphere-control-height-md);
     margin: 0;
     padding: 0 var(--sphere-space-12) 0 var(--sphere-control-height-md);
-    border: var(--palette-border-width) solid var(--sphere-color-control-border);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-pill);
     outline: none;
     background-color: var(--sphere-color-content);
@@ -79,7 +74,7 @@
 }
 
 .searchInput:focus {
-    box-shadow: 0 0 0 var(--palette-focus-ring-width) var(--sphere-color-focus-ring);
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .searchInput::placeholder {

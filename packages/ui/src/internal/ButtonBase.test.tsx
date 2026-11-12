@@ -12,7 +12,7 @@ const CONTROL_BODY = "var(--sphere-color-control)"
 const PRESSED_BODY = "var(--sphere-color-control-pressed)"
 const ZERO_SPECIFICITY = /^:where\(/
 const WHITESPACE = /\s+/g
-const FOCUS_RING = "0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring)"
+const FOCUS_RING = "0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring)"
 // Text properties a browser's own button style sets, so a header's uppercase would not reach the button inside.
 const INHERITED_TEXT = ["text-transform", "letter-spacing", "word-spacing", "text-indent"]
 

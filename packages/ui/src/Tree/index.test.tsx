@@ -169,7 +169,7 @@ const FOCUS_WITHIN = ":focus-within"
 const LAYER_RED = "#ff0000"
 const HOVER_PROPERTIES = ["background-color", "color", "box-shadow"]
 const TREE_ITEM = '[role="treeitem"]'
-const ROW_FOCUS_RING = "inset 0 0 0 var(--tree-focus-ring-width) var(--sphere-color-focus-ring)"
+const ROW_FOCUS_RING = "inset 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring)"
 const ON_ACCENT = "var(--sphere-color-on-accent)"
 const ROW_ICON_SIZE = 16
 

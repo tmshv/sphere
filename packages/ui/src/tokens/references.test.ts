@@ -8,6 +8,9 @@ const GLOBAL_CSS = join("ThemeProvider", "global.css")
 const MODULE_CSS_SUFFIX = ".module.css"
 const REFERENCE_PATTERN = /var\((--sphere-[a-z0-9-]+)/g
 const DECLARATION_PATTERN = /(--sphere-[a-z0-9-]+):/g
+// A module-local custom property for the focus ring width, or a literal half-pixel hairline.
+const LOCAL_FOCUS_RING_WIDTH = /--[a-z-]*focus-ring-width\s*:/
+const LOCAL_HAIRLINE = /\b0\.5px\b/
 
 function stylesheets(): string[] {
     const modules = readdirSync(SRC_DIR, { recursive: true, encoding: "utf8" }).filter(file =>
@@ -41,6 +44,16 @@ describe("token references", () => {
             .filter(reference => !declared.has(reference.name))
             .map(reference => `${reference.file}: ${reference.name}`)
         expect(missing).toEqual([])
+    })
+
+    it("no stylesheet re-declares the focus ring width or the hairline: they are the scale tokens", () => {
+        const local = stylesheets().flatMap(file =>
+            readFileSync(join(SRC_DIR, file), "utf8")
+                .split("\n")
+                .filter(line => LOCAL_FOCUS_RING_WIDTH.test(line) || LOCAL_HAIRLINE.test(line))
+                .map(line => `${file}: ${line.trim()}`),
+        )
+        expect(local).toEqual([])
     })
 
     it("token values that reference another token name a declared one", () => {

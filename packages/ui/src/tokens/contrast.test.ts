@@ -29,8 +29,9 @@ function on(foreground: SemanticColor, backgrounds: ReadonlyArray<SemanticColor>
     return backgrounds.map(background => ({ foreground, background }))
 }
 
+// A badge is a tag of label text on its own fill.
 const PAIRS: ReadonlyArray<Pair> = [
-    ...on("label", LABEL_SURFACES),
+    ...on("label", [...LABEL_SURFACES, "badge"]),
     ...on("label-secondary", LABEL_SURFACES),
     ...on("on-accent", ACCENT_SURFACES),
 ]
@@ -38,7 +39,19 @@ const PAIRS: ReadonlyArray<Pair> = [
 // A toggled-on glyph sits on a surface, or inside a bordered button on its rest or pressed body.
 const GLYPH_SURFACES: ReadonlyArray<SemanticColor> = [...LABEL_SURFACES, "control", "control-pressed"]
 // The focus ring is the only sign of keyboard focus on a borderless control, so it must stand out from the surface.
-const NON_TEXT_PAIRS: ReadonlyArray<Pair> = [...on("accent-glyph", GLYPH_SURFACES), ...on("focus-ring", LABEL_SURFACES)]
+// The slider track is the only sign of the range a slider covers, so it gets the full 3:1 too.
+const NON_TEXT_PAIRS: ReadonlyArray<Pair> = [
+    ...on("accent-glyph", GLYPH_SURFACES),
+    ...on("focus-ring", LABEL_SURFACES),
+    ...on("track", LABEL_SURFACES),
+]
+
+// The hairline outlines a bordered control on every surface it sits on and parts two segments on the control body.
+// It is never the only sign of the control (the body, its text and the push-button shadow are), so it gets a
+// documented floor below 3:1 that keeps it visible without drawing a heavy frame: the El Capitan hairline (light
+// gray 4) on the light window is 1.42:1.
+const CONTROL_HAIRLINE = 1.4
+const HAIRLINE_PAIRS: ReadonlyArray<Pair> = on("control-border", [...LABEL_SURFACES, "control"])
 
 describe("contrastRatio", () => {
     it("is 21 for black on white and 1 for a colour on itself", () => {
@@ -77,6 +90,17 @@ describe("semantic non-text contrast", () => {
             it(`${foreground} on ${background} meets 3:1 in ${scheme}`, () => {
                 const ratio = contrastRatio(semantic[foreground][scheme], semantic[background][scheme])
                 expect(ratio).toBeGreaterThanOrEqual(AA_NON_TEXT)
+            })
+        }
+    }
+})
+
+describe("control hairline contrast", () => {
+    for (const scheme of SCHEMES) {
+        for (const { foreground, background } of HAIRLINE_PAIRS) {
+            it(`${foreground} on ${background} keeps ${CONTROL_HAIRLINE}:1 in ${scheme}`, () => {
+                const ratio = contrastRatio(semantic[foreground][scheme], semantic[background][scheme])
+                expect(ratio).toBeGreaterThanOrEqual(CONTROL_HAIRLINE)
             })
         }
     }
