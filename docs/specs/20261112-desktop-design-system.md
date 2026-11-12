@@ -22,7 +22,8 @@ the control radius), gave text fields and the colour well the control radius,
 made the selection a light blue that looks the same with or without focus,
 brought back the chevron in trees and section headers, set labels in the
 regular weight, gave menus more padding, replaced `VisibilityToggle` with the
-generic `IconToggle` (the bulb now lives in the app) and added `Kbd`. A third
+generic `IconToggle` (the bulb now lives in the app), added `Kbd`, and merged
+`PropertiesViewer` and `InfoRow` into one `PropertyList`. A third
 round inset the menu's icon column 8px from the edge, let menu shortcuts be
 `KbdShortcut` key caps, and cut dialog padding to the 12px sidebar inset. The
 sections below are updated to these values.
@@ -150,8 +151,8 @@ are the ones that do on macOS:
   follows the pointer (that is keyboard-style highlight, not hover styling);
 - resize handles show a resize cursor;
 - tooltips appear after a delay (`--sphere-duration-tooltip-delay`, 700ms);
-- a row's reveal-on-hover affordance (the copy button in `PropertiesViewer`)
-  may still appear on row hover, but the button itself has no hover style.
+- nothing is revealed on hover: the copy glyph of a `PropertyList` row is
+  always shown.
 
 ### Cursor
 
@@ -430,7 +431,18 @@ the grey glyph.
 - **PropertiesTable**: `content` background, `separator` grid lines, header
   row in the window colour with 12px semibold column labels, column resizer is an
   invisible grip with a resize cursor. Footer follows the statusbar look.
-- **PropertiesViewer, AttributeList, InfoRow, PanelBody, Surface, Text,
+- **PropertyList**: the one component for name and value pairs: feature
+  properties in the panel over the map, source details, and the statistics
+  of an attribute. A `<dl>` on a two-column grid: names left-aligned in the
+  secondary colour, the name column as wide as the longest name up to 45%,
+  every value starting on the same column after it. Long names and values
+  wrap, never ellipsize. Lines are 18px, the small glyph button's height.
+  `copyable` (default on) adds a copy glyph closing every row, always
+  shown, which turns into a check with a "Copied!" tooltip, and a
+  right-click menu: Copy Value, Copy Name, Copy Name and Value
+  (`name: value`). `checkUrls` shows a URL value as its image. It replaces
+  `PropertiesViewer` and `InfoRow`.
+- **AttributeList, PanelBody, Surface, Text,
   Layout, Overlay, Spinner, ErrorFallback, ImageMarker, Badge, Skeleton,
   Split, AppLayout**: retoken onto the new roles and scales; no structural
   change unless a principle requires it. `Split` uses `separator` for its
@@ -488,8 +500,8 @@ Controls/      Button, IconButton, IconToggle, ActionBar, SegmentedControl,
 Menus/         ContextMenu, CommandPalette, Tooltip
 Containers/    Dialog, Sidebar, SectionStack, PanelBody, Surface, Split,
                Overlay, AppLayout, Layout (Row, Stack)
-Data/          Tree, PropertiesTable, PropertiesViewer, AttributeList, InfoRow,
-               Text, Kbd, Spinner, ImageMarker, ErrorFallback
+Data/          Tree, PropertiesTable, PropertyList, AttributeList, Text, Kbd,
+               Spinner, ImageMarker, ErrorFallback
 Statusbar/     Statusbar, StatusbarButton, StatusbarBadge, StatusbarSelect
 Compositions/  Main window, Sources sidebar, Layer inspector, Properties window,
                Context menu on tree, Dialog over window, Command palette
