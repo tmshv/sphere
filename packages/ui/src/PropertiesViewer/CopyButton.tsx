@@ -51,6 +51,7 @@ export function CopyButton({ value }: CopyButtonProps) {
                     size="sm"
                     icon={copied ? <IconCheck size={ICON_SIZE} /> : <IconCopy size={ICON_SIZE} />}
                     label={label}
+                    nativeTooltip={false}
                     onClick={handleCopy}
                 />
             </span>

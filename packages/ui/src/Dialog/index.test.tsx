@@ -60,6 +60,18 @@ function Opener() {
 }
 
 describe("Dialog focus and dismissal", () => {
+    it("returns focus to the opener when the Close button is clicked", async () => {
+        const user = userEvent.setup()
+        render(<Opener />)
+        const opener = screen.getByRole("button", { name: "Open" })
+
+        await user.click(opener)
+        await user.click(await screen.findByRole("button", { name: "Close" }))
+
+        await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
+        expect(opener).toHaveFocus()
+    })
+
     it("traps focus and returns it to the opener on close", async () => {
         const user = userEvent.setup()
         render(<Opener />)

@@ -48,6 +48,13 @@ describe("IconButton", () => {
         expect(screen.getByRole("button", { name: "Reset north" })).toHaveAttribute("title", "Reset north")
     })
 
+    it("has no title but keeps its name when nativeTooltip is false", () => {
+        render(<IconButton icon={<svg />} label="Copy" onClick={vi.fn()} nativeTooltip={false} />)
+        const button = screen.getByRole("button", { name: "Copy" })
+        expect(button).toHaveAttribute("aria-label", "Copy")
+        expect(button).not.toHaveAttribute("title")
+    })
+
     it("calls onClick", () => {
         const onClick = vi.fn()
         render(<IconButton icon={<svg />} label="Go" onClick={onClick} />)

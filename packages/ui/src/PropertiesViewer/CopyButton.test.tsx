@@ -33,6 +33,11 @@ describe("CopyButton", () => {
         expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
     })
 
+    it("leaves the tooltip to its own Tooltip, with no native title", () => {
+        render(<CopyButton value="hello" />)
+        expect(screen.getByRole("button", { name: "Copy" })).not.toHaveAttribute("title")
+    })
+
     it("calls clipboard.writeText with value on click", async () => {
         render(<CopyButton value="test-value" />)
         await click()

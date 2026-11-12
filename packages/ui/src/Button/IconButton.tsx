@@ -20,6 +20,8 @@ export type IconButtonProps = {
     active?: boolean
     size?: IconButtonSize
     variant?: IconButtonVariant
+    /** Shows label as the native `title` tooltip (default). False when wrapped in a Tooltip; the name stays. */
+    nativeTooltip?: boolean
 }
 
 export function IconButton({
@@ -30,12 +32,14 @@ export function IconButton({
     active,
     size = "md",
     variant = "glyph",
+    nativeTooltip = true,
 }: IconButtonProps) {
     return (
         <ButtonBase
             shape={SHAPE[variant]}
             size={size}
             label={label}
+            nativeTooltip={nativeTooltip}
             active={active}
             disabled={disabled}
             onClick={onClick}

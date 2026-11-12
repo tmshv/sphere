@@ -35,7 +35,9 @@ const PAIRS: ReadonlyArray<Pair> = [
     ...on("on-accent", ACCENT_SURFACES),
 ]
 
-const NON_TEXT_PAIRS: ReadonlyArray<Pair> = on("accent-glyph", LABEL_SURFACES)
+// A toggled-on glyph sits on a surface, or inside a bordered button on its rest or pressed body.
+const GLYPH_SURFACES: ReadonlyArray<SemanticColor> = [...LABEL_SURFACES, "control", "control-pressed"]
+const NON_TEXT_PAIRS: ReadonlyArray<Pair> = on("accent-glyph", GLYPH_SURFACES)
 
 describe("contrastRatio", () => {
     it("is 21 for black on white and 1 for a colour on itself", () => {

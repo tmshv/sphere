@@ -8,6 +8,9 @@ const TEXT = "Save"
 const CONTROLLED_ID = "section-body"
 const DISABLED_OPACITY = "var(--sphere-opacity-disabled)"
 const ACCENT_GLYPH = "var(--sphere-color-accent-glyph)"
+const CONTROL_BODY = "var(--sphere-color-control)"
+const PRESSED_BODY = "var(--sphere-color-control-pressed)"
+const ZERO_SPECIFICITY = /^:where\(/
 const WHITESPACE = /\s+/g
 const FOCUS_RING = "0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring)"
 
@@ -47,6 +50,16 @@ describe("ButtonBase", () => {
             </ButtonBase>,
         )
         expect(screen.getByRole("button", { name: LABEL })).toHaveAttribute("title", LABEL)
+    })
+
+    it("keeps the name but drops the title when nativeTooltip is false", () => {
+        render(
+            <ButtonBase shape="glyph" label={LABEL} nativeTooltip={false}>
+                <svg />
+            </ButtonBase>,
+        )
+        const button = screen.getByRole("button", { name: LABEL })
+        expect(button).not.toHaveAttribute("title")
     })
 
     it("sets aria-pressed only when active is defined", () => {
@@ -129,6 +142,43 @@ describe("ButtonBase", () => {
             </ButtonBase>,
         )
         expect(declaredStyle(screen.getByRole("button"), "color")).toBe(ACCENT_GLYPH)
+    })
+
+    it("reads a bordered glyph as disabled, not active, when both are set", () => {
+        render(
+            <ButtonBase shape="bordered-glyph" active disabled>
+                {TEXT}
+            </ButtonBase>,
+        )
+        const button = screen.getByRole("button")
+        expect(button).toHaveAttribute("data-active")
+        expect(declaredStyle(button, "opacity")).toBe(DISABLED_OPACITY)
+        expect(declaredStyle(button, "background-color")).toBe(CONTROL_BODY)
+        expect(declaredStyle(button, "color")).not.toBe(ACCENT_GLYPH)
+    })
+
+    it("draws a toggled-on bordered glyph on the pressed body", () => {
+        render(
+            <ButtonBase shape="bordered-glyph" active>
+                {TEXT}
+            </ButtonBase>,
+        )
+        const button = screen.getByRole("button")
+        expect(declaredStyle(button, "background-color")).toBe(PRESSED_BODY)
+        expect(declaredStyle(button, "color")).toBe(ACCENT_GLYPH)
+    })
+
+    it("resets with zero specificity, so a layout className wins in any stylesheet order", () => {
+        render(<ButtonBase shape="plain">{TEXT}</ButtonBase>)
+        const button = screen.getByRole("button")
+        const resets = [...document.styleSheets]
+            .flatMap(sheet => [...sheet.cssRules])
+            .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
+            .filter(rule => button.matches(rule.selectorText) && rule.style.getPropertyValue("padding") !== "")
+        expect(resets.length).toBeGreaterThan(0)
+        for (const rule of resets) {
+            expect(rule.selectorText).toMatch(ZERO_SPECIFICITY)
+        }
     })
 
     it("reads as disabled, not active, when both are set", () => {

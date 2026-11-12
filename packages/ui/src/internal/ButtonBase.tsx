@@ -21,6 +21,8 @@ export type ButtonBaseProps = {
     controls?: string
     /** Names the button for assistive tech and shows as its tooltip. */
     label?: string
+    /** Shows label as the native `title` tooltip (default). False for a button with its own Tooltip; the name stays. */
+    nativeTooltip?: boolean
     type?: "button" | "submit"
     /** Layout only (flex, margin); never colour. */
     className?: string
@@ -38,6 +40,7 @@ export function ButtonBase({
     expanded,
     controls,
     label,
+    nativeTooltip = true,
     type = "button",
     className,
     onClick,
@@ -51,7 +54,7 @@ export function ButtonBase({
             type={type}
             disabled={disabled}
             aria-label={label}
-            title={label}
+            title={nativeTooltip ? label : undefined}
             aria-pressed={active}
             aria-expanded={expanded}
             aria-controls={controls}

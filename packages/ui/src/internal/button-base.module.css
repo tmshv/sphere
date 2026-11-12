@@ -1,7 +1,9 @@
 /* The desktop button: no hover look, the arrow cursor, a colour-only press, the focus-ring glow, and one
    disabled opacity. Every clickable thing in the package renders through this module. Shape, size and tone are
-   data attributes, so no other module ever needs to out-rank these rules. */
-.root {
+   data attributes, so no other module ever needs to out-rank these rules. The reset has zero specificity
+   (:where), so a consumer's layout className (padding, display, height) wins whatever order the stylesheets load
+   in. */
+:where(.root) {
     /* The macOS focus ring: a glow outside the control that follows its radius. */
     --button-focus-ring-width: 3px;
     /* A hairline: one device pixel on a Retina screen. */

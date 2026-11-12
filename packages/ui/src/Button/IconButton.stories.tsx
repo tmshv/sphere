@@ -24,6 +24,7 @@ const meta = {
         onClick: fn(),
         size: "md",
         variant: "glyph",
+        nativeTooltip: true,
         active: false,
         disabled: false,
     },
