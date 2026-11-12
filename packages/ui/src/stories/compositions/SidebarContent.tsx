@@ -5,8 +5,8 @@ import { SectionStack, type SectionLayout } from "../../SectionStack"
 import { Sidebar } from "../../Sidebar"
 import { Tabs, type TabItem } from "../../Tabs"
 import { Tree, type TreeItem } from "../../Tree"
-import { VisibilityToggle } from "../../VisibilityToggle"
 import {
+    bulbToggle,
     glyph,
     INSPECTOR_SECTION,
     INSPECTOR_SECTION_TITLE,
@@ -40,12 +40,8 @@ function withBulbs(
 ): TreeItem[] {
     return items.map(item => ({
         ...item,
-        extra: (
-            <VisibilityToggle
-                visible={!hidden.includes(item.id)}
-                color={LAYER_FIXTURES.find(layer => layer.id === item.id)?.color}
-                onChange={() => toggle(item.id)}
-            />
+        extra: bulbToggle(!hidden.includes(item.id), LAYER_FIXTURES.find(layer => layer.id === item.id)?.color, () =>
+            toggle(item.id),
         ),
         children: item.children ? withBulbs(item.children, hidden, toggle) : undefined,
     }))

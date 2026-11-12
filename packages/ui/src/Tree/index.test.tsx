@@ -12,7 +12,6 @@ import { IconMap } from "@sphere/icons"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import { Tree } from "."
-import { VisibilityToggle } from "../VisibilityToggle"
 import { EXPAND_LABEL } from "./TreeRow"
 import type { TreeItem } from "./type"
 
@@ -170,7 +169,6 @@ const LAYER_RED = "#ff0000"
 const HOVER_PROPERTIES = ["background-color", "color", "box-shadow"]
 const TREE_ITEM = '[role="treeitem"]'
 const ROW_FOCUS_RING = "inset 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring)"
-const ON_ACCENT = "var(--sphere-color-on-accent)"
 const ROW_ICON_SIZE = 16
 
 function selectedRow(label: string): Element {
@@ -182,48 +180,20 @@ function selectedRow(label: string): Element {
 }
 
 describe("Tree desktop look", () => {
-    it("paints a selected row in a focused tree with the selection fill and on-accent text", () => {
+    it("paints a selected row light blue with the plain label colour", () => {
         renderControlled({ expandedIds: [], selectedId: "b" })
         const row = selectedRow("Beta")
 
-        expect(stateStyle(row, "background-color", FOCUS_WITHIN)).toBe("var(--sphere-color-selection)")
-        expect(stateStyle(row, "color", FOCUS_WITHIN)).toBe("var(--sphere-color-on-accent)")
-    })
-
-    it("falls back to the inactive selection with the plain label colour when the tree is not focused", () => {
-        renderControlled({ expandedIds: [], selectedId: "b" })
-        const row = selectedRow("Beta")
-
-        expect(declaredStyle(row, "background-color")).toBe("var(--sphere-color-selection-inactive)")
+        expect(declaredStyle(row, "background-color")).toBe("var(--sphere-color-selection)")
         expect(declaredStyle(row, "color")).toBe("var(--sphere-color-label)")
     })
 
-    it("leaves an explicitly coloured bulb alone in a focused tree", () => {
-        const colored: TreeItem[] = [
-            { id: "x", label: "Xray", extra: <VisibilityToggle visible color={LAYER_RED} onChange={vi.fn()} /> },
-        ]
-        renderControlled({ items: colored, expandedIds: [], selectedId: "x" })
-        const bulb = selectedRow("Xray").querySelector("svg")
-        if (!bulb) {
-            throw new Error("bulb not found")
-        }
+    it("looks the same whether or not the tree has focus", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
 
-        expect(bulb).toHaveAttribute("stroke", LAYER_RED)
-        expect(stateStyle(bulb, "color", FOCUS_WITHIN)).toBe("")
-        expect(stateStyle(bulb, "stroke", FOCUS_WITHIN)).toBe("")
-    })
-
-    it("recolours an uncoloured glyph on a selected row in a focused tree", () => {
-        const plain: TreeItem[] = [
-            { id: "x", label: "Xray", extra: <VisibilityToggle visible={false} onChange={vi.fn()} /> },
-        ]
-        renderControlled({ items: plain, expandedIds: [], selectedId: "x" })
-        const glyph = selectedRow("Xray").querySelector("svg")
-        if (!glyph) {
-            throw new Error("glyph not found")
-        }
-
-        expect(stateStyle(glyph, "color", FOCUS_WITHIN)).toBe("var(--sphere-color-on-accent)")
+        expect(stateStyle(row, "background-color", FOCUS_WITHIN)).toBe("")
+        expect(stateStyle(row, "color", FOCUS_WITHIN)).toBe("")
     })
 
     it("has the arrow cursor and no hover look on a row", () => {
@@ -254,7 +224,7 @@ describe("Tree desktop look", () => {
         expect(screen.getByRole("button", { name: EXPAND_LABEL })).toHaveAttribute("data-shape", "plain")
     })
 
-    it("recolours an explicitly coloured row icon to on-accent on a selected row in a focused tree", () => {
+    it("keeps an explicitly coloured row icon in its colour on a selected row", () => {
         const colored: TreeItem[] = [
             { id: "x", label: "Xray", icon: <IconMap size={ROW_ICON_SIZE} color={LAYER_RED} /> },
         ]
@@ -265,9 +235,8 @@ describe("Tree desktop look", () => {
         }
 
         expect(icon).toHaveAttribute("stroke", LAYER_RED)
-        expect(stateStyle(icon, "stroke", FOCUS_WITHIN)).toBe(ON_ACCENT)
-        expect(stateStyle(icon, "color", FOCUS_WITHIN)).toBe(ON_ACCENT)
         expect(declaredStyle(icon, "stroke")).toBe("")
+        expect(stateStyle(icon, "stroke", FOCUS_WITHIN)).toBe("")
     })
 
     it("sets row text at the body size", () => {

@@ -27,7 +27,7 @@
     margin: 0;
     padding: var(--sphere-space-2);
     border: var(--sphere-hairline) solid var(--sphere-color-control-border);
-    border-radius: var(--sphere-radius-none);
+    border-radius: var(--sphere-radius-control);
     outline: none;
     background-color: var(--sphere-color-control);
     box-shadow: var(--sphere-shadow-control);

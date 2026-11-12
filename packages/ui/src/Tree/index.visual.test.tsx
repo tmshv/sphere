@@ -1,7 +1,7 @@
-import { IconFolder, IconMap } from "@sphere/icons"
+import { IconBulb, IconBulbOff, IconFolder, IconMap } from "@sphere/icons"
 import { page } from "vitest/browser"
 import { focusWithKeyboard, visualCases } from "../visual/visualCases"
-import { VisibilityToggle } from "../VisibilityToggle"
+import { IconToggle } from "../Button"
 import { semantic } from "../tokens"
 import { Tree, type TreeItem } from "."
 import { COLLAPSE_LABEL } from "./TreeRow"
@@ -17,8 +17,19 @@ const FRAME_STYLE = { height: "100%", display: "flex" }
 const ICON_COLOR = semantic["accent-glyph"].light
 const mapIcon = <IconMap size={ICON_SIZE} color={ICON_COLOR} />
 
-// The selected row carries a layer-coloured bulb, which keeps its colour on the accent fill while the row's text and
-// icon (accent-coloured or not) turn on-accent. A lit plain bulb and an unlit one sit on the rows below for comparison.
+function bulb(visible: boolean, color?: string) {
+    return (
+        <IconToggle
+            value={visible}
+            on={{ icon: <IconBulb size={ICON_SIZE} color={color} />, label: "Hide" }}
+            off={{ icon: <IconBulbOff size={ICON_SIZE} />, label: "Show" }}
+            onChange={noop}
+        />
+    )
+}
+
+// The selected row is light blue and carries a layer-coloured bulb; every icon keeps its colour on it. A lit plain bulb
+// and an unlit one sit on the rows below for comparison.
 const ITEMS: TreeItem[] = [
     {
         id: FOLDER_ID,
@@ -29,19 +40,19 @@ const ITEMS: TreeItem[] = [
                 id: SELECTED_ID,
                 label: "Cadastral parcels",
                 icon: mapIcon,
-                extra: <VisibilityToggle visible color={LAYER_COLOR} onChange={noop} />,
+                extra: bulb(true, LAYER_COLOR),
             },
             {
                 id: "roads",
                 label: "Road network",
                 icon: mapIcon,
-                extra: <VisibilityToggle visible onChange={noop} />,
+                extra: bulb(true),
             },
             {
                 id: "buildings",
                 label: "Buildings footprints",
                 icon: mapIcon,
-                extra: <VisibilityToggle visible={false} onChange={noop} />,
+                extra: bulb(false),
             },
         ],
     },

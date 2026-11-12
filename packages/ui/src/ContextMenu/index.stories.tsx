@@ -4,7 +4,7 @@ import { CONTEXT_MENU_ITEMS, ICON_GLYPHS, LONG_MENU_ITEM, LONG_SHORTCUT, MENU_LA
 import { CONTEXT_MENU_POSITION, overlayStyle } from "../stories/layout"
 import { ContextMenu, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator } from "."
 
-const { zoom, edit, remove, rename } = CONTEXT_MENU_ITEMS
+const { zoom, edit, remove, rename, copy } = CONTEXT_MENU_ITEMS
 
 const meta = {
     title: "Menus/ContextMenu",
@@ -46,6 +46,28 @@ export const Default: Story = {
                     {remove.label}
                 </ContextMenuItem>
                 <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
+            </>
+        ),
+    },
+}
+
+/** Items with and without an icon: every label starts at the same column, the icon sits in the column before it. */
+export const MixedIcons: Story = {
+    args: {
+        children: (
+            <>
+                <ContextMenuItem icon={zoom.icon} shortcut={zoom.shortcut} onClick={fn()}>
+                    {zoom.label}
+                </ContextMenuItem>
+                <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
+                <ContextMenuItem icon={edit.icon} shortcut={edit.shortcut} onClick={fn()}>
+                    {edit.label}
+                </ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem onClick={fn()}>{copy.label}</ContextMenuItem>
+                <ContextMenuItem icon={remove.icon} onClick={fn()}>
+                    {remove.label}
+                </ContextMenuItem>
             </>
         ),
     },

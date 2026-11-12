@@ -3,10 +3,11 @@ import { palette } from "./palette"
 
 // Spacing on a 4px grid (px), with 2 and 6 for hairline-tight gaps and 10 and 14 for the text inset of fields and
 // push buttons.
-export const space = { 2: 2, 4: 4, 6: 6, 8: 8, 10: 10, 12: 12, 14: 14, 16: 16, 20: 20 } as const
+export const space = { 2: 2, 4: 4, 6: 6, 8: 8, 10: 10, 12: 12, 14: 14, 16: 16, 20: 20, 24: 24 } as const
 
-// Radii by kind of element (px): fields, tables and panels are square; pill is the command palette search field.
-export const radius = { none: 0, tooltip: 3, control: 4, popup: 5, window: 6, pill: 999 } as const
+// Radii by kind of element (px): tables and panels are square; controls (buttons, fields, selects, segments), tooltips
+// and badges share the control radius; pill is the command palette search field.
+export const radius = { none: 0, control: 4, popup: 5, window: 6, pill: 999 } as const
 
 // Text sizes (px): mini for statusbar and captions, small for section headers and field labels, body for rows,
 // cells, inputs and buttons, regular for menus, tooltips and dialogs.

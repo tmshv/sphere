@@ -29,7 +29,7 @@ describe("Badge", () => {
         expect(root).toHaveClass("extra")
     })
 
-    it("declares the tooltip radius and the outline colours from tokens", () => {
+    it("declares the control radius and the outline colours from tokens", () => {
         render(
             <Badge size="sm" variant="outline">
                 link
@@ -37,7 +37,7 @@ describe("Badge", () => {
         )
         const root = screen.getByText("link").parentElement
         if (!root) throw new Error("badge root missing")
-        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-tooltip)")
+        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-control)")
         expect(declaredStyle(root, "color")).toBe("var(--sphere-color-label-secondary)")
         expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-separator)")
     })
@@ -165,7 +165,7 @@ describe("Tooltip desktop look", () => {
 
         expect(declaredStyle(tooltip, "background-color")).toBe("var(--sphere-color-tooltip)")
         expect(declaredStyle(tooltip, "color")).toBe("var(--sphere-color-tooltip-text)")
-        expect(declaredStyle(tooltip, "border-radius")).toBe("var(--sphere-radius-tooltip)")
+        expect(declaredStyle(tooltip, "border-radius")).toBe("var(--sphere-radius-control)")
         expect(declaredStyle(tooltip, "font-size")).toBe("var(--sphere-font-size-small)")
         expect(declaredStyle(tooltip, "box-shadow")).toContain("var(--sphere-color-popup-border)")
         expect(startingStyle(tooltip, "opacity")).toBe("")

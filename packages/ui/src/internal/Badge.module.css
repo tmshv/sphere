@@ -20,7 +20,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     border: var(--badge-border-width) solid transparent;
-    border-radius: var(--sphere-radius-tooltip);
+    border-radius: var(--sphere-radius-control);
 }
 
 .sizeXs {

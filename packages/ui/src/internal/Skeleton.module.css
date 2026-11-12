@@ -7,7 +7,7 @@
     --skeleton-fade-z-index: 11;
 
     position: relative;
-    border-radius: var(--sphere-radius-tooltip);
+    border-radius: var(--sphere-radius-control);
     transform: translateZ(0);
     overflow: hidden;
 }

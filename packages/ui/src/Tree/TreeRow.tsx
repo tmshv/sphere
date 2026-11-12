@@ -1,4 +1,4 @@
-import { IconDisclosure } from "@sphere/icons"
+import { IconChevronRight } from "@sphere/icons"
 import type { MouseEvent } from "react"
 import type { NodeRendererProps } from "react-arborist"
 import { ButtonBase, cx } from "../internal"
@@ -7,8 +7,8 @@ import type { TreeItem } from "./type"
 
 export const EXPAND_LABEL = "Expand"
 export const COLLAPSE_LABEL = "Collapse"
-// Same disclosure glyph as a SectionStack header, so the tree's first level lines up under it
-const DISCLOSURE_SIZE = 10
+// Same chevron as a SectionStack header, so the tree's first level lines up under it
+const CHEVRON_SIZE = 14
 
 function stopPropagation(event: MouseEvent) {
     event.stopPropagation()
@@ -29,10 +29,7 @@ export function TreeRow({ node, style, dragHandle }: NodeRendererProps<TreeItem>
                     label={node.isOpen ? COLLAPSE_LABEL : EXPAND_LABEL}
                     onClick={() => node.toggle()}
                 >
-                    <IconDisclosure
-                        size={DISCLOSURE_SIZE}
-                        className={cx(s.chevronIcon, node.isOpen && s.chevronOpen)}
-                    />
+                    <IconChevronRight size={CHEVRON_SIZE} className={cx(s.chevronIcon, node.isOpen && s.chevronOpen)} />
                 </ButtonBase>
             </div>
         )

@@ -1,4 +1,4 @@
-/* The text field: square, `content` background, a hairline border, control-height tall with 12px text. A small semibold
+/* The text field: the control radius, as a button or a select, `content` background, a hairline border, control-height tall with 12px text. A small regular
    secondary label sits above it and a small danger message below. Focus (from the mouse too, as macOS text
    fields do) draws the focus-ring glow. */
 .root {
@@ -10,7 +10,7 @@
     display: inline-block;
     margin-bottom: var(--sphere-space-2);
     font-size: var(--sphere-font-size-small);
-    font-weight: var(--sphere-font-weight-semibold);
+    font-weight: var(--sphere-font-weight-regular);
     color: var(--sphere-color-label-secondary);
     word-break: break-word;
     cursor: default;
@@ -39,7 +39,7 @@
     margin: 0;
     padding: 0 var(--sphere-space-10);
     border: var(--sphere-hairline) solid var(--sphere-color-control-border);
-    border-radius: var(--sphere-radius-none);
+    border-radius: var(--sphere-radius-control);
     outline: none;
     background-color: var(--sphere-color-content);
     color: var(--sphere-color-label);

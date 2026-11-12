@@ -172,6 +172,17 @@ describe("Select", () => {
 })
 
 describe("SegmentedControl", () => {
+    it("rounds both outer ends even though each radio is followed by a hidden input", () => {
+        render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+        const first = screen.getByRole("radio", { name: "Alpha" })
+        const last = screen.getByRole("radio", { name: "Beta" })
+
+        expect(last.nextElementSibling?.tagName).toBe("INPUT")
+        expect(declaredStyle(first, "border-top-left-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(last, "border-top-right-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(last, "border-bottom-right-radius")).toBe("var(--sphere-radius-control)")
+    })
+
     it("moves with arrow keys and reports the value", async () => {
         const user = userEvent.setup()
         const onChange = vi.fn()

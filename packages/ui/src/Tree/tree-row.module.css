@@ -1,6 +1,4 @@
-/* Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block. It is also the
-   element whose :focus-within decides whether a selected row is drawn focused (accent fill) or inactive (grey):
-   react-arborist focuses its list inside it. */
+/* Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block. */
 .tree {
     flex: 1 1 0;
     min-height: 0;
@@ -29,30 +27,11 @@
     font-size: var(--sphere-font-size-body);
 }
 
-/* A tree that does not have focus keeps its selection in a quiet grey, with the plain label colour. */
+/* The selected row is a light blue band under the plain label colour, the same whether or not the tree has focus,
+   so the active item always reads the same. Icons and glyphs keep their own colours. */
 .row.selected {
-    background-color: var(--sphere-color-selection-inactive);
-    color: var(--sphere-color-label);
-}
-
-/* A focused tree draws the selection in the accent, with on-accent text and glyphs. An svg that carries its own
-   stroke colour (a layer-coloured bulb) is not matched, so it keeps its colour. */
-.tree:focus-within .row.selected,
-.tree:focus-within .row.selected .chevronIcon,
-.tree:focus-within .row.selected svg[stroke="currentColor"] {
-    color: var(--sphere-color-on-accent);
-}
-
-.tree:focus-within .row.selected {
     background-color: var(--sphere-color-selection);
-}
-
-/* A row icon is decoration, so it turns on-accent with the text even when it was given its own colour (a source-kind
-   icon in the accent); the stroke property outranks the svg's stroke attribute. Only the extra slot (the bulb) keeps
-   an explicit colour. */
-.tree:focus-within .row.selected .icon svg {
-    color: var(--sphere-color-on-accent);
-    stroke: var(--sphere-color-on-accent);
+    color: var(--sphere-color-label);
 }
 
 /* Same inset as a SectionStack header */
@@ -66,8 +45,8 @@
 }
 
 .chevron {
-    /* The disclosure glyph of a SectionStack header, so the tree's first level lines up under it */
-    --disclosure-size: 10px;
+    /* The chevron of a SectionStack header, so the tree's first level lines up under it */
+    --disclosure-size: 14px;
 
     flex-shrink: 0;
     display: flex;

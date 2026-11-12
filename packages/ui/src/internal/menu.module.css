@@ -1,9 +1,9 @@
 /* The macOS menu surface, shared by ContextMenu, the Select list and the CommandPalette results: a popup
-   background with a hairline border and the popup shadow, 4px above and below the items and nothing at the sides,
+   background with a hairline border and the popup shadow, 6px above and below the items and nothing at the sides,
    so the highlighted item runs edge to edge. Menus appear instantly and fade out over duration-fast. */
 .surface {
     box-sizing: border-box;
-    padding: var(--sphere-space-4) 0;
+    padding: var(--sphere-space-6) 0;
     outline: 0;
     background-color: var(--sphere-color-popup);
     color: var(--sphere-color-label);
@@ -37,7 +37,7 @@
     gap: var(--sphere-space-20);
     width: 100%;
     height: var(--sphere-menu-item-height);
-    padding: 0 var(--sphere-space-16) 0 var(--sphere-space-20);
+    padding: 0 var(--sphere-space-20) 0 var(--sphere-space-24);
     border: 0;
     outline: 0;
     background-color: transparent;
@@ -48,9 +48,10 @@
     cursor: default;
 }
 
+/* The highlight is the light blue selection under the plain label colour, as a selected tree row. */
 .item[data-highlighted] {
     background-color: var(--sphere-color-selection);
-    color: var(--sphere-color-on-accent);
+    color: var(--sphere-color-label);
 }
 
 .item[data-disabled] {
@@ -80,7 +81,7 @@
     color: inherit;
 }
 
-/* The check and the icon sit centred in the 20px left padding column. */
+/* The check and the icon sit centred in the 24px left padding column, so items with and without one line up. */
 .itemIcon,
 .itemCheck {
     position: absolute;
@@ -90,7 +91,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--sphere-space-20);
+    width: var(--sphere-space-24);
     line-height: 0;
 }
 
@@ -111,11 +112,11 @@
     display: flex;
     align-items: center;
     height: var(--sphere-menu-item-height);
-    padding: 0 var(--sphere-space-16) 0 var(--sphere-space-20);
+    padding: 0 var(--sphere-space-20) 0 var(--sphere-space-24);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     color: var(--sphere-color-label-secondary);
     font-size: var(--sphere-font-size-small);
-    font-weight: var(--sphere-font-weight-semibold);
+    font-weight: var(--sphere-font-weight-regular);
 }

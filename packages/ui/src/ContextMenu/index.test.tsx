@@ -152,14 +152,14 @@ describe("ContextMenuSeparator", () => {
 const SQUARE_CORNERS = ["", "0", "0px"]
 
 describe("ContextMenu surface", () => {
-    it("highlights an item edge to edge with square corners", async () => {
+    it("highlights an item edge to edge with square corners in the light blue selection", async () => {
         renderMenu(<ContextMenuItem>Copy</ContextMenuItem>)
         await userEvent.keyboard("{ArrowDown}")
         const item = screen.getByRole("menuitem", { name: "Copy" })
         expect(item).toHaveAttribute("data-highlighted")
         expect(SQUARE_CORNERS).toContain(declaredStyle(item, "border-radius"))
         expect(declaredStyle(item, "background-color")).toBe("var(--sphere-color-selection)")
-        expect(declaredStyle(item, "color")).toBe("var(--sphere-color-on-accent)")
+        expect(declaredStyle(item, "color")).toBe("var(--sphere-color-label)")
     })
 
     it("truncates a long label with an ellipsis instead of wrapping", () => {

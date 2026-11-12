@@ -1,4 +1,0 @@
-/* A hidden row's bulb is dimmer than the glyph colour: the tertiary label colour. The svg strokes in currentColor. */
-.off {
-    color: var(--sphere-color-label-tertiary);
-}

@@ -1,4 +1,4 @@
-import { IconDisclosure } from "@sphere/icons"
+import { IconChevronRight } from "@sphere/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
 import { ButtonBase, cx } from "../internal"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"
@@ -10,7 +10,7 @@ import s from "./section-stack.module.css"
 // One outline row, the height the header strip declares in section-stack.module.css.
 export const SECTION_HEADER_HEIGHT = rowHeight
 const DEFAULT_MIN_CONTENT_SIZE = 120
-const CHEVRON_SIZE = 10
+const CHEVRON_SIZE = 14
 
 export type SectionProps = {
     name: string
@@ -201,7 +201,7 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                                     expanded={open}
                                     controls={open ? bodyId : undefined}
                                 >
-                                    <IconDisclosure
+                                    <IconChevronRight
                                         className={cx(s.chevron, open && s.chevronOpen)}
                                         size={CHEVRON_SIZE}
                                     />

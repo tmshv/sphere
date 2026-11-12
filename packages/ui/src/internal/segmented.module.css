@@ -40,16 +40,18 @@
     height: var(--sphere-control-height-sm);
 }
 
-.segment:not(:first-child) {
+/* By type, not by child: a radio segment is followed by Base UI's hidden input, so the last segment is never the
+   group's last child. */
+.segment:not(:first-of-type) {
     border-left-width: 0;
 }
 
-.segment:first-child {
+.segment:first-of-type {
     border-top-left-radius: var(--sphere-radius-control);
     border-bottom-left-radius: var(--sphere-radius-control);
 }
 
-.segment:last-child {
+.segment:last-of-type {
     border-top-right-radius: var(--sphere-radius-control);
     border-bottom-right-radius: var(--sphere-radius-control);
 }

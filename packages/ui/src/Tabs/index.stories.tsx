@@ -2,14 +2,14 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 import { fn } from "storybook/test"
 import { LONG_TAB_ITEMS, TAB_ITEMS } from "../stories/fixtures"
-import { fieldStyle } from "../stories/layout"
+import { tabsFrameStyle } from "../stories/layout"
 import { Tabs, type TabsProps } from "."
 
 function TabsDemo({ value: initial, onChange, ...rest }: TabsProps) {
     const [value, setValue] = useState(initial)
 
     return (
-        <div style={fieldStyle}>
+        <div style={tabsFrameStyle}>
             <Tabs
                 {...rest}
                 value={value}

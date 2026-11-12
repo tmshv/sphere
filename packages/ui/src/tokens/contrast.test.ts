@@ -21,7 +21,7 @@ const MID_GREY_ON_WHITE = 4.48
 
 const SCHEMES: ReadonlyArray<ColorScheme> = ["light", "dark"]
 const LABEL_SURFACES: ReadonlyArray<SemanticColor> = ["window", "content", "sidebar"]
-const ACCENT_SURFACES: ReadonlyArray<SemanticColor> = ["accent", "selection"]
+const ACCENT_SURFACES: ReadonlyArray<SemanticColor> = ["accent"]
 
 type Pair = { foreground: SemanticColor; background: SemanticColor }
 
@@ -31,7 +31,8 @@ function on(foreground: SemanticColor, backgrounds: ReadonlyArray<SemanticColor>
 
 // A badge is a tag of label text on its own fill.
 const PAIRS: ReadonlyArray<Pair> = [
-    ...on("label", [...LABEL_SURFACES, "badge"]),
+    // The selection is a light blue under the plain label colour.
+    ...on("label", [...LABEL_SURFACES, "badge", "selection"]),
     ...on("label-secondary", LABEL_SURFACES),
     ...on("on-accent", ACCENT_SURFACES),
     // The statusbar readouts: light text on the strip, on an error pill and on a toggled-on fill; dark text in a select.
@@ -44,7 +45,8 @@ const GLYPH_SURFACES: ReadonlyArray<SemanticColor> = [...LABEL_SURFACES, "contro
 // The focus ring is the only sign of keyboard focus on a borderless control, so it must stand out from the surface.
 // The slider track is the only sign of the range a slider covers, so it gets the full 3:1 too.
 const NON_TEXT_PAIRS: ReadonlyArray<Pair> = [
-    ...on("accent-glyph", GLYPH_SURFACES),
+    // An accent row icon (a source kind) keeps its colour on a selected row.
+    ...on("accent-glyph", [...GLYPH_SURFACES, "selection"]),
     ...on("focus-ring", LABEL_SURFACES),
     ...on("track", LABEL_SURFACES),
     ...on("statusbar-glyph", ["statusbar", "statusbar-fill"]),

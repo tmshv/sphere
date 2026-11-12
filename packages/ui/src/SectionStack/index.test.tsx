@@ -226,7 +226,7 @@ describe("SectionStack header interaction", () => {
 })
 
 describe("SectionStack header look", () => {
-    it("is a 22px strip of small semibold uppercase secondary text with a separator on top", () => {
+    it("is a row-height strip of small regular uppercase secondary text with a separator on top", () => {
         render(<Stack initial={[{ name: "outline", open: true, size: null }]} />)
         const toggle = screen.getByRole("button", { name: /Outline/ })
         const header = toggle.parentElement
@@ -237,7 +237,7 @@ describe("SectionStack header look", () => {
         expect(declaredStyle(toggle, "height")).toBe("var(--sphere-row-height)")
         expect(declaredStyle(header, "color")).toBe("var(--sphere-color-label-secondary)")
         expect(declaredStyle(header, "font-size")).toBe("var(--sphere-font-size-small)")
-        expect(declaredStyle(header, "font-weight")).toBe("var(--sphere-font-weight-semibold)")
+        expect(declaredStyle(header, "font-weight")).toBe("var(--sphere-font-weight-regular)")
         expect(declaredStyle(header, "text-transform")).toBe("uppercase")
         expect(declaredStyle(header, "letter-spacing")).toBe("var(--caps-tracking)")
         expect(declaredStyle(header, "--caps-tracking")).toBe("0.02em")

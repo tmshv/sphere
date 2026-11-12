@@ -51,9 +51,12 @@ const { gray } = palette
 const WHITE = gray[0]
 const BLACK = gray[12]
 
-// How far the selection and the pressed accent are shaded from the accent towards black.
-const SELECTION_SHADE = 0.1
+// How far the pressed accent is shaded from the accent towards black.
 const ACCENT_PRESSED_SHADE = 0.2
+// The selection is a light blue: the accent tinted most of the way towards white (light) or towards the dark sidebar
+// (dark), so it marks the active item without shouting. Text on it stays the label colour.
+const SELECTION_LIGHT_TINT = 0.8
+const SELECTION_DARK_TINT = 0.6
 // How far the dark accent is tinted towards white for a toggled-on glyph, so it keeps 3:1 (WCAG 1.4.11) on the dark
 // window and on the dark control body; the light accent already does.
 const ACCENT_GLYPH_DARK_TINT = 0.35
@@ -110,7 +113,10 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     "accent-pressed": shade(accent, ACCENT_PRESSED_SHADE),
     "accent-glyph": { light: accent.light, dark: mix(accent.dark, WHITE, ACCENT_GLYPH_DARK_TINT) },
     "on-accent": both(WHITE),
-    selection: shade(accent, SELECTION_SHADE),
+    selection: {
+        light: mix(accent.light, WHITE, SELECTION_LIGHT_TINT),
+        dark: mix(accent.dark, gray[10], SELECTION_DARK_TINT),
+    },
     "selection-inactive": { light: gray[3], dark: gray[8] },
     // The unfilled slider track: the only sign of the range, so it keeps 3:1 (WCAG 1.4.11) on window, sidebar and
     // content in both themes.

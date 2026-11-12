@@ -57,11 +57,11 @@ describe("TextField", () => {
         expect(screen.getByText("extra")).toBeInTheDocument()
     })
 
-    it("is a square bordered field with the desktop height and a focus ring on any focus", () => {
+    it("is a bordered field with the control radius, the desktop height and a focus ring on any focus", () => {
         render(<TextField label="Name" value="" onChange={vi.fn()} />)
         const field = screen.getByLabelText("Name")
 
-        expect(declaredStyle(field, "border-radius")).toBe("var(--sphere-radius-none)")
+        expect(declaredStyle(field, "border-radius")).toBe("var(--sphere-radius-control)")
         expect(declaredStyle(field, "background-color")).toBe("var(--sphere-color-content)")
         expect(declaredStyle(field, "height")).toBe("var(--sphere-control-height-md)")
         expect(declaredStyle(field, "cursor")).toBe("text")

@@ -21,7 +21,7 @@
     display: flex;
     color: var(--sphere-color-label-secondary);
     font-size: var(--sphere-font-size-small);
-    font-weight: var(--sphere-font-weight-semibold);
+    font-weight: var(--sphere-font-weight-regular);
     text-transform: uppercase;
     letter-spacing: var(--caps-tracking);
     box-shadow: inset 0 1px 0 var(--sphere-color-separator);

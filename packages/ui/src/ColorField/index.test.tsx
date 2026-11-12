@@ -31,12 +31,12 @@ describe("ColorField", () => {
         expect(screen.getByLabelText("Color")).toHaveValue("#ff0000")
     })
 
-    it("shows the colour in a swatch inside a bordered square frame", () => {
+    it("shows the colour in a swatch inside a bordered frame with the control radius", () => {
         render(<ColorField label="Color" value="#ff0000" onChange={vi.fn()} />)
         const well = screen.getByRole("button", { name: "Color picker" })
 
         expect(declaredStyle(well, "background-color")).toBe("var(--sphere-color-control)")
-        expect(declaredStyle(well, "border-radius")).toBe("var(--sphere-radius-none)")
+        expect(declaredStyle(well, "border-radius")).toBe("var(--sphere-radius-control)")
         expect(declaredStyle(well, "cursor")).toBe("default")
         expect(well.firstElementChild).toHaveStyle({ "--swatch-color": "#ff0000" })
     })

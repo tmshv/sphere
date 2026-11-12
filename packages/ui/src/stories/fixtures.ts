@@ -1,5 +1,6 @@
 import {
     IconBulb,
+    IconBulbOff,
     IconCrosshair,
     IconDatabase,
     IconFile,
@@ -33,7 +34,7 @@ import type { PropertyItem, PropertyItemMeta } from "../PropertiesTable"
 import type { SegmentedControlOption, SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
 import type { TreeItem } from "../Tree"
-import { VisibilityToggle } from "../VisibilityToggle"
+import { IconToggle } from "../Button"
 import { duration } from "../tokens"
 import { ICON_SIZE } from "./layout"
 
@@ -43,6 +44,19 @@ export const LAYER_COLOR = "#e8590c"
 
 export function glyph(Icon: IconComponent): ReactNode {
     return createElement(Icon, { size: ICON_SIZE })
+}
+
+export const BULB_HIDE_LABEL = "Hide"
+export const BULB_SHOW_LABEL = "Show"
+
+// The outline bulb as the app builds it: an IconToggle whose lit bulb may carry the layer colour.
+export function bulbToggle(visible: boolean, color?: string, onChange: (visible: boolean) => void = fn()): ReactNode {
+    return createElement(IconToggle, {
+        value: visible,
+        on: { icon: createElement(IconBulb, { size: ICON_SIZE, color }), label: BULB_HIDE_LABEL },
+        off: { icon: createElement(IconBulbOff, { size: ICON_SIZE }), label: BULB_SHOW_LABEL },
+        onChange,
+    })
 }
 
 export const SOURCE_NAMES: ReadonlyArray<string> = [
@@ -172,19 +186,19 @@ export const TREE_BULB_ITEMS: ReadonlyArray<TreeItem> = [
         id: "bulb-colored",
         label: "Cadastral parcels",
         icon: glyph(IconMap),
-        extra: createElement(VisibilityToggle, { visible: true, color: LAYER_COLOR, onChange: fn() }),
+        extra: bulbToggle(true, LAYER_COLOR),
     },
     {
         id: "bulb-plain",
         label: "Road network",
         icon: glyph(IconMap),
-        extra: createElement(VisibilityToggle, { visible: true, onChange: fn() }),
+        extra: bulbToggle(true),
     },
     {
         id: "bulb-off",
         label: "Buildings footprints",
         icon: glyph(IconMap),
-        extra: createElement(VisibilityToggle, { visible: false, onChange: fn() }),
+        extra: bulbToggle(false),
     },
 ]
 export const TREE_BULB_SELECTED_ID = "bulb-colored"
@@ -235,6 +249,7 @@ export const CONTEXT_MENU_ITEMS = {
     edit: { label: "Edit features", shortcut: "E", icon: glyph(IconPencil) },
     remove: { label: "Remove source", icon: glyph(IconTrash) },
     rename: { label: "Rename" },
+    copy: { label: "Copy as GeoJSON" },
 }
 
 export const ACTION_BAR_DISABLED_ITEMS: Array<ActionBarItem | null> = ACTION_BAR_ITEMS.filter(

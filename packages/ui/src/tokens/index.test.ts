@@ -73,6 +73,7 @@ const REMOVED_NAMES = [
     "--sphere-color-accent-icon",
     "--sphere-space-sm",
     "--sphere-radius-sm",
+    "--sphere-radius-tooltip",
     "--sphere-font-size-md",
     "--sphere-duration-normal",
 ]
@@ -140,8 +141,8 @@ describe("semantic colours", () => {
 
 describe("scales", () => {
     it("match the spec", () => {
-        expect(space).toEqual({ 2: 2, 4: 4, 6: 6, 8: 8, 10: 10, 12: 12, 14: 14, 16: 16, 20: 20 })
-        expect(radius).toEqual({ none: 0, tooltip: 3, control: 4, popup: 5, window: 6, pill: 999 })
+        expect(space).toEqual({ 2: 2, 4: 4, 6: 6, 8: 8, 10: 10, 12: 12, 14: 14, 16: 16, 20: 20, 24: 24 })
+        expect(radius).toEqual({ none: 0, control: 4, popup: 5, window: 6, pill: 999 })
         expect(fontSize).toEqual({ mini: 10, small: 12, body: 12, regular: 14 })
         expect(lineHeight).toEqual({ text: 1.3, tight: 1.15 })
         expect(controlHeight).toEqual({ sm: 18, md: 30 })

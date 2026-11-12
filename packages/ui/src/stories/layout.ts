@@ -34,6 +34,8 @@ export const SPLIT_DEFAULT_SIZES = [160, 320]
 export const PANE_PADDING = 12
 export const APP_LAYOUT_HEIGHT = 320
 export const APP_LAYOUT_SIDEBAR_SIZE = { preferred: 140, min: 80, max: 220 }
+export const TABS_WIDTH = 320
+export const TABS_HEIGHT = 200
 export const SIDEBAR_HEIGHT = 200
 export const SIDEBAR_WIDTH = 240
 export const PANEL_HEIGHT = 160
@@ -57,6 +59,8 @@ export const sectionStackStyle: CSSProperties = {
 }
 export const appLayoutStyle: CSSProperties = { height: APP_LAYOUT_HEIGHT, width: "100%" }
 export const sidebarFrameStyle: CSSProperties = { width: SIDEBAR_WIDTH, height: SIDEBAR_HEIGHT }
+// Tabs own a sidebar's height: the frame gives the list room for every tab and the panel room below it.
+export const tabsFrameStyle: CSSProperties = { width: TABS_WIDTH, height: TABS_HEIGHT, display: "flex" }
 export const panelFrameStyle: CSSProperties = {
     width: PANEL_WIDTH,
     height: PANEL_HEIGHT,
