@@ -1,6 +1,6 @@
-/* The pop-up button: the push-button body (light body, hairline border, hairline shadow beneath, 4px radius) at
-   the control height, the value on the left and the double chevron on the right. Pressing darkens the body;
-   there is no hover style. */
+/* The pop-up button: the text field's frame (content background, hairline border, control radius, no shadow) at the
+   control height, so a select and a text field stacked in a form look alike; the value on the left and the double
+   chevron on the right. Pressing darkens the body; there is no hover style. */
 .trigger {
     appearance: none;
     box-sizing: border-box;
@@ -14,8 +14,7 @@
     border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-control);
     outline: none;
-    background-color: var(--sphere-color-control);
-    box-shadow: var(--sphere-shadow-control);
+    background-color: var(--sphere-color-content);
     color: var(--sphere-color-label);
     font-family: var(--sphere-font-family-sans);
     font-size: var(--sphere-font-size-body);
@@ -27,9 +26,7 @@
 }
 
 .trigger:focus-visible {
-    box-shadow:
-        var(--sphere-shadow-control),
-        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 /* A pop-up button stays pressed while its menu is open. */
@@ -79,9 +76,7 @@
 }
 
 .search:focus {
-    box-shadow:
-        var(--sphere-shadow-control),
-        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .search::placeholder {

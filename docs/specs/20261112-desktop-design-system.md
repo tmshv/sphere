@@ -389,9 +389,11 @@ the grey glyph.
   unselected tabs are the bordered control body. No hover.
 - **SegmentedControl**: the same look as Tabs, inline. Gains optional icon-only
   options (`icon` + `label` as accessible name) so the map toolbar can use it.
-- **Select**: a pop-up button (bordered body, value left, a double chevron
-  glyph right). Its list uses the shared menu surface with a checkmark on the
-  current value. Search behaviour unchanged.
+- **Select**: a pop-up button in the text field's frame (`content`
+  background, `control-border` hairline, 4px radius, no shadow), so a select
+  and a text field in one form look alike; value left, a double chevron glyph
+  right, the body darkens while pressed or open. Its list uses the shared menu
+  surface with a checkmark on the current value. Search behaviour unchanged.
 - **TextField**: field with the control radius (4px), `content` background,
   `control-border` hairline, 30px, 12px text, focus ring while focused.
 - **ColorField**: a colour well (a swatch in a bordered frame with the

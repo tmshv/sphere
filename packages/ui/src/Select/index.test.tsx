@@ -10,10 +10,14 @@ import {
     screen,
     stateStyle,
 } from "../test-utils"
+import { TextField } from "../TextField"
 import { SegmentedControl, Select } from "."
 
 // An undeclared radius, or an explicit zero.
 const SQUARE_CORNERS = ["", "0", "0px"]
+
+// What makes a field's frame: a select and a text field must agree on all of these.
+const FRAME_PROPERTIES = ["border-color", "border-radius", "background-color", "height"]
 
 const OPTIONS = [
     { value: "a", label: "Alpha" },
@@ -127,13 +131,21 @@ describe("Select", () => {
         expect(screen.getByRole("option", { name: "Alpha" }).querySelector("svg")).toBeNull()
     })
 
-    it("is a pop-up button: the bordered control body with the desktop interaction model", () => {
-        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+    it("is a pop-up button with the text field's frame and the desktop interaction model", () => {
+        render(
+            <>
+                <Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />
+                <TextField label="Name" value="" onChange={vi.fn()} />
+            </>,
+        )
         const trigger = screen.getByLabelText("Source")
+        const field = screen.getByLabelText("Name")
 
-        expect(declaredStyle(trigger, "background-color")).toBe("var(--sphere-color-control)")
-        expect(declaredStyle(trigger, "border-radius")).toBe("var(--sphere-radius-control)")
-        expect(declaredStyle(trigger, "height")).toBe("var(--sphere-control-height-md)")
+        for (const property of FRAME_PROPERTIES) {
+            expect(declaredStyle(trigger, property), property).toBe(declaredStyle(field, property))
+        }
+        expect(declaredStyle(trigger, "background-color")).toBe("var(--sphere-color-content)")
+        expect(declaredStyle(trigger, "box-shadow")).toBe("")
         expectDesktopInteraction(trigger)
     })
 
