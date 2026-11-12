@@ -16,6 +16,7 @@ export const OPTIMIZED_DEPS = [
     "@base-ui/react/radio-group",
     "@base-ui/react/field",
     "@base-ui/react/slider",
+    "@base-ui/react/switch",
     "@base-ui/react/tabs",
     "@base-ui/react/tooltip",
     "@tabler/icons-react",

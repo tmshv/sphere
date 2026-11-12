@@ -156,3 +156,14 @@ export const stateCaptionStyle: CSSProperties = {
     fontSize: "var(--sphere-font-size-mini)",
 }
 export const stateSheetsStyle: CSSProperties = { display: "flex", flexDirection: "column" }
+// A popover opens above its anchor, so the anchor sits low enough to leave room for it.
+export const POPOVER_ANCHOR_TOP = 320
+export const POPOVER_ANCHOR_LEFT = 260
+export const POPOVER_ANCHOR_SIZE = 24
+export const popoverAnchorStyle: CSSProperties = {
+    position: "absolute",
+    top: POPOVER_ANCHOR_TOP,
+    left: POPOVER_ANCHOR_LEFT,
+    width: POPOVER_ANCHOR_SIZE,
+    height: POPOVER_ANCHOR_SIZE,
+}

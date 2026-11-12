@@ -12,7 +12,7 @@ export type SwitchFieldProps = {
 export function SwitchField({ label, checked, onChange }: SwitchFieldProps) {
     return (
         <Field.Root className={`${input.root} ${s.root}`}>
-            <Field.Label className={`${input.label} ${s.label}`}>
+            <Field.Label className={s.label}>
                 <Switch.Root className={s.track} checked={checked} onCheckedChange={value => onChange(value)}>
                     <Switch.Thumb className={s.thumb} />
                 </Switch.Root>

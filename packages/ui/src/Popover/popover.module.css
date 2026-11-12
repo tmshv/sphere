@@ -1,24 +1,35 @@
-/* The popup surface mirrors the ContextMenu dropdown: dropdown colours, 1px border, radius sm, shadow md. */
+/* A settings popup on the macOS popup surface shared with menus: the popup background, a hairline border drawn as
+   a ring and the popup shadow, with the popup radius. Unlike a menu it holds controls, so it is padded on every
+   side and stacks its fields with a gap. It appears instantly and fades out over duration-fast. */
 .positioner {
     z-index: var(--sphere-z-index-popover);
 }
 
 .popup {
     --popover-width: 240px;
-    --popover-padding: var(--sphere-space-sm);
 
     box-sizing: border-box;
     width: var(--popover-width);
-    padding: var(--popover-padding);
+    padding: var(--sphere-space-12);
     display: flex;
     flex-direction: column;
-    gap: var(--sphere-space-sm);
-    font-family: var(--sphere-font-family-sans);
-    font-size: var(--sphere-font-size-xs);
-    color: var(--sphere-color-text);
-    background-color: var(--sphere-color-dropdown-bg);
-    border: 1px solid var(--sphere-color-dropdown-border);
-    border-radius: var(--sphere-radius-sm);
-    box-shadow: var(--sphere-shadow-md);
+    gap: var(--sphere-space-12);
     outline: 0;
+    background-color: var(--sphere-color-popup);
+    color: var(--sphere-color-label);
+    border-radius: var(--sphere-radius-popup);
+    box-shadow:
+        0 0 0 var(--sphere-hairline) var(--sphere-color-popup-border),
+        var(--sphere-shadow-popup);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity var(--sphere-duration-fast) ease;
+}
+
+.popup[data-ending-style] {
+    opacity: 0;
 }
