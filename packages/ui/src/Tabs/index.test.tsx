@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen, stateStyle } from "../test-utils"
 import { type TabItem, Tabs } from "."
 
 const ITEMS: ReadonlyArray<TabItem> = [
@@ -97,5 +97,15 @@ describe("Tabs", () => {
 
         expect(screen.getByText("layers body")).toBeInTheDocument()
         expect(screen.queryByText("sources body")).not.toBeInTheDocument()
+    })
+
+    it("tabs follow the desktop interaction model with the accent selection", () => {
+        renderTabs()
+
+        expectDesktopInteraction(screen.getByRole("tab", { name: "Layers" }))
+        const selected = screen.getByRole("tab", { name: "Sources" })
+        expect(stateStyle(selected, "background-color", "[data-active]")).toBe("var(--sphere-color-accent)")
+        expect(stateStyle(selected, "color", "[data-active]")).toBe("var(--sphere-color-on-accent)")
+        expect(declaredStyle(screen.getByRole("tablist"), "justify-content")).toBe("center")
     })
 })

@@ -1,5 +1,6 @@
 import { Tabs as BaseTabs } from "@base-ui/react/tabs"
 import type { ComponentProps, ReactNode } from "react"
+import { segmented } from "../internal"
 import s from "./tabs.module.css"
 
 export type TabItem = {
@@ -89,12 +90,17 @@ export function Tabs({ value, onChange, items }: TabsProps) {
 
     return (
         <BaseTabs.Root className={s.root} value={value} onValueChange={handleValueChange}>
-            {/* Mantine activates a tab as soon as arrow keys focus it. */}
+            {/* A tab activates as soon as arrow keys focus it. */}
             <BaseTabs.List className={s.list} activateOnFocus onKeyDown={handleKeyDown}>
                 {items.map(item => (
-                    <BaseTabs.Tab key={item.value} className={s.tab} value={item.value} disabled={item.disabled}>
-                        {item.icon ? <div className={s.icon}>{item.icon}</div> : null}
-                        <div>{item.label}</div>
+                    <BaseTabs.Tab
+                        key={item.value}
+                        className={segmented.segment}
+                        value={item.value}
+                        disabled={item.disabled}
+                    >
+                        {item.icon}
+                        <span className={segmented.text}>{item.label}</span>
                     </BaseTabs.Tab>
                 ))}
             </BaseTabs.List>

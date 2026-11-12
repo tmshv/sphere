@@ -21,7 +21,7 @@ import type { FieldEntry } from "../AttributeList"
 import type { Command } from "../CommandPalette"
 import type { OverlayProps } from "../Overlay"
 import type { PropertyItem, PropertyItemMeta } from "../PropertiesTable"
-import type { SelectOption } from "../Select"
+import type { SegmentedControlOption, SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
 import type { TreeItem } from "../Tree"
 import { duration } from "../tokens"
@@ -55,6 +55,13 @@ export const SEGMENT_OPTIONS: ReadonlyArray<SelectOption> = [
     { value: "point", label: "Point" },
     { value: "line", label: "Line" },
     { value: "polygon", label: "Polygon" },
+]
+
+// The same geometry choices as icon-only segments; the label is the accessible name and the tooltip.
+export const ICON_SEGMENT_OPTIONS: ReadonlyArray<SegmentedControlOption> = [
+    { value: "point", label: "Point", icon: glyph(IconPoint) },
+    { value: "line", label: "Line", icon: glyph(IconLine) },
+    { value: "polygon", label: "Polygon", icon: glyph(IconPolygon) },
 ]
 
 // Icon glyphs offered by the IconButton "icon" control.

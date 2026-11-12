@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
-import { fn } from "storybook/test"
+import { fn, userEvent, within } from "storybook/test"
 import { COLOR_LABEL, COLOR_VALUE } from "../stories/fixtures"
 import { fieldStyle } from "../stories/layout"
 import { ColorField, type ColorFieldProps } from "."
@@ -35,3 +35,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
+
+export const Open: Story = {
+    play: async ({ canvasElement }) => {
+        await userEvent.click(within(canvasElement).getByRole("button", { name: `${COLOR_LABEL} picker` }))
+    },
+}

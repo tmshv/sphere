@@ -39,3 +39,5 @@ export const Default: Story = {}
 export const LongLabel: Story = {
     args: { items: LONG_TAB_ITEMS, value: LONG_TAB_ITEMS.at(0)?.value ?? "" },
 }
+
+export const SecondSelected: Story = { args: { value: TAB_ITEMS.at(1)?.value ?? "" } }

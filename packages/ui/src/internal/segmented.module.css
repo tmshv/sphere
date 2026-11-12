@@ -1,0 +1,90 @@
+/* The segmented look shared by SegmentedControl and Tabs (an NSTabView-style row): a 22px bordered control body,
+   segments separated by the hairline, rounded only on the outer ends. The selected segment is accent with
+   on-accent text. No hover style; the arrow cursor; focus draws the focus-ring glow. */
+.group {
+    display: inline-flex;
+    align-items: stretch;
+    max-width: 100%;
+}
+
+.segment {
+    /* A hairline: one device pixel on a Retina screen. */
+    --segment-border-width: 0.5px;
+    /* The macOS focus ring: a glow outside the control that follows its radius. */
+    --segment-focus-ring-width: 3px;
+    --segment-glyph-size: 14px;
+
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    position: relative;
+    display: inline-flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sphere-space-4);
+    min-width: 0;
+    height: var(--sphere-control-height-md);
+    margin: 0;
+    padding: 0 var(--sphere-space-8);
+    border: var(--segment-border-width) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-none);
+    outline: none;
+    background-color: var(--sphere-color-control);
+    color: var(--sphere-color-label);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
+    white-space: nowrap;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.segment[data-size="sm"] {
+    height: var(--sphere-control-height-sm);
+}
+
+.segment:not(:first-child) {
+    border-left-width: 0;
+}
+
+.segment:first-child {
+    border-top-left-radius: var(--sphere-radius-control);
+    border-bottom-left-radius: var(--sphere-radius-control);
+}
+
+.segment:last-child {
+    border-top-right-radius: var(--sphere-radius-control);
+    border-bottom-right-radius: var(--sphere-radius-control);
+}
+
+.segment svg {
+    flex-shrink: 0;
+    width: var(--segment-glyph-size);
+    height: var(--segment-glyph-size);
+}
+
+.segment:focus-visible {
+    z-index: 1;
+    box-shadow: 0 0 0 var(--segment-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.segment[data-disabled] {
+    opacity: var(--sphere-opacity-disabled);
+}
+
+/* Selected: Base UI marks a checked radio data-checked and the active tab data-active. */
+.segment[data-checked],
+.segment[data-active] {
+    border-color: var(--sphere-color-accent);
+    background-color: var(--sphere-color-accent);
+    color: var(--sphere-color-on-accent);
+}
+
+/* The label of a segment truncates instead of widening the control. */
+.text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen, stateStyle } from "../test-utils"
 import { TextField } from "."
 
 describe("TextField", () => {
@@ -55,5 +55,23 @@ describe("TextField", () => {
         render(<TextField label="Name" value="" onChange={vi.fn()} rightSection={<span>extra</span>} />)
 
         expect(screen.getByText("extra")).toBeInTheDocument()
+    })
+
+    it("is a square bordered field with the desktop height and a focus ring on any focus", () => {
+        render(<TextField label="Name" value="" onChange={vi.fn()} />)
+        const field = screen.getByLabelText("Name")
+
+        expect(declaredStyle(field, "border-radius")).toBe("var(--sphere-radius-none)")
+        expect(declaredStyle(field, "background-color")).toBe("var(--sphere-color-content)")
+        expect(declaredStyle(field, "height")).toBe("var(--sphere-control-height-md)")
+        expect(declaredStyle(field, "cursor")).toBe("text")
+        expect(stateStyle(field, "box-shadow", ":focus")).toContain("var(--sphere-color-focus-ring)")
+    })
+
+    it("draws the label small and secondary, and the error in the danger colour", () => {
+        render(<TextField label="Name" value="" onChange={vi.fn()} error="Too short" />)
+
+        expect(declaredStyle(screen.getByText("Name"), "color")).toBe("var(--sphere-color-label-secondary)")
+        expect(declaredStyle(screen.getByText("Too short"), "color")).toBe("var(--sphere-color-danger)")
     })
 })

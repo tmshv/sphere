@@ -21,7 +21,7 @@ describe("ExtrusionControls", () => {
     it("shows labels, hex and current field", () => {
         renderExtrusion()
 
-        expect(screen.getByText("#0000ff")).toBeInTheDocument()
+        expect(screen.getByDisplayValue("#0000ff")).toBeInTheDocument()
         expect(screen.getByText("Height")).toBeInTheDocument()
         expect(screen.getByText("Base")).toBeInTheDocument()
         expect(screen.getByLabelText("Height field")).toHaveValue("h")

@@ -1,5 +1,6 @@
 import inputClasses from "./input.module.css"
 import menuClasses from "./menu.module.css"
+import segmentedClasses from "./segmented.module.css"
 
 export { ButtonBase } from "./ButtonBase"
 export type { ButtonBaseProps, ButtonShape, ButtonSize, ButtonTone } from "./ButtonBase"
@@ -21,3 +22,6 @@ export const input = inputClasses
 export const menu = menuClasses
 
 export { cx } from "./cx"
+
+// The segmented look (group, segment, text) for SegmentedControl and Tabs.
+export const segmented = segmentedClasses

@@ -1,47 +1,89 @@
 /*
- * Mantine 5 ColorPicker at size xs, drawn with react-colorful's markup.
+ * The colour well and the hex field, with the picker in a popup.
+ *
+ * The well is a square swatch inside a bordered control frame; the hex field is the shared text field.
  *
  * react-colorful injects its own stylesheet into <head> on first render, after this one.
- * Every rule here is scoped under .picker, so it has more specificity than the library's
+ * Every picker rule is scoped under .picker, so it has more specificity than the library's
  * single-class rules and wins whatever the order.
  *
- * Mantine paints the colour area 5px (half a thumb plus a pixel) past the box the thumb
- * moves in. So the library's saturation and hue elements are the painted area, and the
- * interactive child, which the library measures, is inset by those 5px.
+ * The colour area is painted a little past the box the thumb moves in. So the library's saturation and
+ * hue elements are the painted area, and the interactive child, which the library measures, is inset
+ * by that reach.
  */
-.badge {
-    margin-left: var(--sphere-space-xs);
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--sphere-space-4);
+}
+
+.well {
+    /* A hairline: one device pixel on a Retina screen. */
+    --well-border-width: 0.5px;
+    /* The macOS focus ring: a glow outside the control that follows its radius. */
+    --well-focus-ring-width: 3px;
+
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: var(--sphere-control-height-md);
+    height: var(--sphere-control-height-md);
+    margin: 0;
+    padding: var(--sphere-space-2);
+    border: var(--well-border-width) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-none);
+    outline: none;
+    background-color: var(--sphere-color-control);
+    box-shadow: var(--sphere-shadow-control);
+    cursor: default;
+}
+
+.well:focus-visible {
+    box-shadow:
+        var(--sphere-shadow-control),
+        0 0 0 var(--well-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+/* A well stays pressed while its picker is open, like a pop-up button. */
+.well:active,
+.well[data-popup-open] {
+    background-color: var(--sphere-color-control-pressed);
+}
+
+.swatch {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: var(--swatch-color);
+}
+
+.positioner {
+    z-index: var(--sphere-z-index-popover);
+}
+
+.pickerBody {
+    --picker-width: 180px;
+
+    box-sizing: border-box;
+    width: var(--picker-width);
+    padding: var(--sphere-space-4) var(--sphere-space-8);
 }
 
 .picker {
-    /* Thumb.styles.js THUMB_SIZES.xs. */
-    --thumb-size: 8px;
-    /* Thumb.styles.js: border: 2px solid. */
+    /* The knob of both the colour area and the hue slider. */
+    --thumb-size: 12px;
     --thumb-border-width: 2px;
     /* Half a thumb plus a pixel: how far the painted area reaches past the moving box. */
-    --area-reach: 5px;
-    /* ColorSlider.styles.js: thumb size + 2. */
-    --slider-height: 10px;
-    /* Sphere's override of Saturation height (Saturation.styles.js xs is 100). */
-    --saturation-height: 130px;
-    /* ColorPicker body padding-top 2 + Sphere's slider margin-top spacing.sm (12) - 1 (painted-area offset). */
-    --hue-gap: 13px;
-    /* ColorPicker.styles.js wrapper: padding 1. */
-    --picker-padding: 1px;
-    /* ColorSlider.styles.js: borderRadius 1000, a pill. */
-    --pill-radius: 1000px;
-    /* fn.focusStyles: 2px ring, 2px offset. */
-    --focus-width: 2px;
-    --focus-offset: 2px;
-    /* HueSlider.js ring and glow sizes. */
+    --area-reach: calc(var(--thumb-size) / 2 + 1px);
+    --slider-height: calc(var(--thumb-size) + 2px);
+    --saturation-height: 120px;
+    --focus-ring-width: 3px;
     --hue-ring-width: 1px;
-    --hue-glow-blur: 4px;
-    /* Thumb.styles.js boxShadow blur. */
     --thumb-shadow-blur: 1px;
 
     width: 100%;
     box-sizing: border-box;
-    padding: var(--picker-padding);
 }
 
 .picker :global(.react-colorful) {
@@ -54,10 +96,10 @@
 .picker :global(.react-colorful__saturation) {
     flex: none;
     height: calc(var(--saturation-height) + 2 * var(--area-reach));
-    margin: calc(var(--picker-padding) * -1) calc(var(--picker-padding) * -1) 0;
+    margin: 0;
     border: 0;
-    border-radius: var(--sphere-radius-sm);
-    /* react-colorful draws an inset hairline on the area; Mantine's saturation has none. */
+    border-radius: var(--sphere-radius-none);
+    /* react-colorful draws an inset hairline on the area; none here. */
     box-shadow: none;
     /* Black and white gradient stops are colour math, not theme colours. */
     background-image: linear-gradient(0deg, #000, transparent), linear-gradient(90deg, #fff, transparent);
@@ -66,8 +108,8 @@
 .picker :global(.react-colorful__hue) {
     flex: none;
     height: var(--slider-height);
-    margin: var(--hue-gap) calc(var(--picker-padding) * -1) 0;
-    border-radius: var(--pill-radius);
+    margin: var(--sphere-space-8) 0 0;
+    border-radius: var(--sphere-radius-pill);
     background: linear-gradient(
         to right,
         hsl(0, 100%, 50%),
@@ -78,9 +120,7 @@
         hsl(300, 100%, 50%),
         hsl(360, 100%, 50%)
     );
-    box-shadow:
-        var(--sphere-color-hue-ring) 0 0 0 var(--hue-ring-width) inset,
-        var(--sphere-color-hue-glow) 0 0 var(--hue-glow-blur) inset;
+    box-shadow: var(--sphere-color-control-border) 0 0 0 var(--hue-ring-width) inset;
 }
 
 .picker :global(.react-colorful__saturation .react-colorful__interactive) {
@@ -93,24 +133,24 @@
     border-radius: 0;
 }
 
-/* Mantine Thumb.styles.js. */
 .picker :global(.react-colorful__pointer) {
     overflow: hidden;
     box-sizing: border-box;
     width: var(--thumb-size);
     height: var(--thumb-size);
-    border: var(--thumb-border-width) solid var(--sphere-color-color-thumb-border);
-    border-radius: var(--thumb-size);
+    border: var(--thumb-border-width) solid var(--sphere-color-marker-surface);
+    border-radius: var(--sphere-radius-pill);
     background-color: transparent;
-    box-shadow: 0 0 var(--thumb-shadow-blur) var(--sphere-color-color-thumb-shadow);
+    box-shadow: 0 0 var(--thumb-shadow-blur) var(--sphere-color-marker-shadow);
 }
 
-/* Mantine shows a ring on the thumb for keyboard focus and does not scale it. */
+/* The thumb does not scale on focus; keyboard focus draws the focus-ring glow around it. */
 .picker :global(.react-colorful__interactive:focus) :global(.react-colorful__pointer) {
     transform: translate(-50%, -50%);
 }
 
 .picker :global(.react-colorful__interactive:focus-visible) :global(.react-colorful__pointer) {
-    outline: var(--focus-width) solid var(--sphere-color-focus-ring);
-    outline-offset: var(--focus-offset);
+    box-shadow:
+        0 0 var(--thumb-shadow-blur) var(--sphere-color-marker-shadow),
+        0 0 0 var(--focus-ring-width) var(--sphere-color-focus-ring);
 }

@@ -193,4 +193,48 @@ describe("SegmentedControl", () => {
 
         expect(onChange).toHaveBeenCalledWith("b")
     })
+
+    it("an option with an icon is a radio named by its label and shows no label text", () => {
+        render(
+            <SegmentedControl
+                label="Mode"
+                value="a"
+                options={[
+                    { value: "a", label: "List", icon: <svg data-testid="list-icon" /> },
+                    { value: "b", label: "Grid", icon: <svg data-testid="grid-icon" /> },
+                ]}
+                onChange={vi.fn()}
+            />,
+        )
+
+        const radio = screen.getByRole("radio", { name: "List" })
+        expect(radio).toHaveAttribute("title", "List")
+        expect(screen.getByTestId("list-icon")).toBeInTheDocument()
+        expect(screen.queryByText("List")).not.toBeInTheDocument()
+    })
+
+    it("segments follow the desktop interaction model with the accent selection", () => {
+        render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+        const selected = screen.getByRole("radio", { name: "Alpha" })
+
+        expectDesktopInteraction(screen.getByRole("radio", { name: "Beta" }))
+        expect(declaredStyle(screen.getByRole("radio", { name: "Beta" }), "background-color")).toBe(
+            "var(--sphere-color-control)",
+        )
+        expect(selected).toHaveAttribute("data-checked")
+        expect(stateStyle(selected, "background-color", "[data-checked]")).toBe("var(--sphere-color-accent)")
+        expect(stateStyle(selected, "color", "[data-checked]")).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("sm is shorter than the default md", () => {
+        const { rerender } = render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+        expect(declaredStyle(screen.getByRole("radio", { name: "Alpha" }), "height")).toBe(
+            "var(--sphere-control-height-md)",
+        )
+
+        rerender(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} size="sm" />)
+        expect(declaredStyle(screen.getByRole("radio", { name: "Alpha" }), "height")).toBe(
+            "var(--sphere-control-height-sm)",
+        )
+    })
 })
