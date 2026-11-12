@@ -2,6 +2,7 @@ import {
     declaredStyle,
     expectDesktopInteraction,
     fireEvent,
+    focusVisibleStyle,
     hoverStyle,
     render,
     screen,
@@ -164,6 +165,8 @@ describe("Tree controlled sync", () => {
 const FOCUS_WITHIN = ":focus-within"
 const LAYER_RED = "#ff0000"
 const HOVER_PROPERTIES = ["background-color", "color", "box-shadow"]
+const TREE_ITEM = '[role="treeitem"]'
+const ROW_FOCUS_RING = "inset 0 0 0 var(--tree-focus-ring-width) var(--sphere-color-focus-ring)"
 
 function selectedRow(label: string): Element {
     const row = screen.getByText(label).closest("[data-selected]")
@@ -226,6 +229,18 @@ describe("Tree desktop look", () => {
         for (const property of HOVER_PROPERTIES) {
             expect(hoverStyle(row, property), `${property} on hover`).toBe("")
         }
+    })
+
+    it("draws keyboard focus on a row as the focus ring inside it, not the browser's outline", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+        const item = row.closest(TREE_ITEM)
+        if (!item) {
+            throw new Error("tree item not found")
+        }
+
+        expect(declaredStyle(item, "outline-style")).toBe("none")
+        expect(focusVisibleStyle(row, "box-shadow")).toBe(ROW_FOCUS_RING)
     })
 
     it("sets row text at the body size", () => {

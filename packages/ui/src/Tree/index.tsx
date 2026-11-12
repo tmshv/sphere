@@ -111,6 +111,7 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
                 height={height}
                 rowHeight={rowHeight}
                 indent={INDENT}
+                rowClassName={s.item}
             >
                 {TreeRow}
             </ArboristTree>

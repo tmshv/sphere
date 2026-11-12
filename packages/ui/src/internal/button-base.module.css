@@ -21,6 +21,11 @@
     outline: none;
     background: none;
     font: inherit;
+    /* The browser's button style resets these; a container's (a section header's uppercase) must reach the label. */
+    text-transform: inherit;
+    letter-spacing: inherit;
+    word-spacing: inherit;
+    text-indent: inherit;
     color: inherit;
     text-align: inherit;
     text-decoration: none;
@@ -32,6 +37,12 @@
 .root:focus-visible {
     outline: none;
     box-shadow: 0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+/* plain fills a strip edge to edge (a section header), where a glow outside would be clipped by the container;
+   its ring is drawn inside instead. */
+.root[data-shape="plain"]:focus-visible {
+    box-shadow: inset 0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring);
 }
 
 .root:disabled {

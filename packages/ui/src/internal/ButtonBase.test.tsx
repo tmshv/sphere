@@ -13,6 +13,8 @@ const PRESSED_BODY = "var(--sphere-color-control-pressed)"
 const ZERO_SPECIFICITY = /^:where\(/
 const WHITESPACE = /\s+/g
 const FOCUS_RING = "0 0 0 var(--button-focus-ring-width) var(--sphere-color-focus-ring)"
+// Text properties a browser's own button style sets, so a header's uppercase would not reach the button inside.
+const INHERITED_TEXT = ["text-transform", "letter-spacing", "word-spacing", "text-indent"]
 
 describe("ButtonBase", () => {
     for (const shape of SHAPES) {
@@ -198,6 +200,19 @@ describe("ButtonBase", () => {
         const button = screen.getByRole("button")
         expect(focusVisibleStyle(button, "box-shadow")).toBe(FOCUS_RING)
         expect(focusVisibleStyle(button, "outline-style")).toBe("none")
+    })
+
+    it("draws the plain shape's focus ring inside, so a strip that fills a clipping container keeps it", () => {
+        render(<ButtonBase shape="plain">{TEXT}</ButtonBase>)
+        expect(focusVisibleStyle(screen.getByRole("button"), "box-shadow")).toBe(`inset ${FOCUS_RING}`)
+    })
+
+    it("inherits the text case and spacing of its container, which the browser's button style resets", () => {
+        render(<ButtonBase shape="plain">{TEXT}</ButtonBase>)
+        const button = screen.getByRole("button")
+        for (const property of INHERITED_TEXT) {
+            expect(declaredStyle(button, property), property).toBe("inherit")
+        }
     })
 
     it("keeps the push button hairline shadow under the focus ring", () => {
