@@ -166,9 +166,10 @@ value:
 
 | Element                                           | Radius |
 | ------------------------------------------------- | ------ |
-| Table, list, tree, panel                          | 0      |
+| Table, list, tree, sidebar                        | 0      |
 | Push button, pop-up button, segmented control     | 4px    |
 | Text field, colour well, key cap, tooltip, badge  | 4px    |
+| Panel over the map (`Surface`)                    | 4px    |
 | Menu, select list, popover, command palette       | 5px    |
 | Dialog                                            | 6px    |
 | Search field (command palette input)              | pill   |

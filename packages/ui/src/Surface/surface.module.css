@@ -1,4 +1,5 @@
-/* A plain content panel: square corners, content background, 12px inset. */
+/* A plain content panel (the properties panel over the map): the common control corner, content background, 12px
+   inset. */
 .surface {
     outline: 0;
     -webkit-tap-highlight-color: transparent;
@@ -7,7 +8,7 @@
     color: var(--sphere-color-label);
     background-color: var(--sphere-color-content);
     box-sizing: border-box;
-    border-radius: var(--sphere-radius-none);
+    border-radius: var(--sphere-radius-control);
     padding: var(--sphere-space-12);
     cursor: default;
 }
