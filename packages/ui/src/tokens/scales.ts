@@ -1,32 +1,52 @@
-// Values match what renders today: Mantine 5 defaults plus Sphere's
-// ThemeProvider overrides (spacing.xs = 4, spacing.xl = 28).
+import { withAlpha } from "./color"
+import { palette } from "./palette"
 
-export const space = { xxs: 2, xs: 4, sm: 12, md: 16, lg: 20, xl: 28 } as const
+// Desktop density on a 4px grid (px), with 2 and 6 for hairline-tight gaps.
+export const space = { 2: 2, 4: 4, 6: 6, 8: 8, 12: 12, 16: 16, 20: 20 } as const
 
-export const radius = { xs: 2, sm: 4, md: 8, lg: 16, xl: 32 } as const
+// Radii by kind of element (px): fields, tables and panels are square; pill is the command palette search field.
+export const radius = { none: 0, tooltip: 3, control: 4, popup: 5, window: 6, pill: 999 } as const
 
-export const fontSize = { xs: 12, sm: 14, md: 16, lg: 18, xl: 20 } as const
+// Desktop text sizes (px): mini for statusbar and captions, small for section headers and field labels, body for
+// rows, cells and inputs, regular for menus, buttons and dialogs.
+export const fontSize = { mini: 10, small: 11, body: 12, regular: 13 } as const
 
 export const fontFamily = {
-    sans: "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
 } as const
 
-// Body is Mantine's theme.lineHeight; heading is the h3 line height.
-export const lineHeight = { body: 1.55, heading: 1.4 } as const
+// Text is running text; tight is for single-line labels inside fixed-height controls.
+export const lineHeight = { text: 1.3, tight: 1.15 } as const
 
-export const fontWeight = { normal: 400, medium: 500, semibold: 600, bold: 700 } as const
+export const fontWeight = { regular: 400, semibold: 600, bold: 700 } as const
 
+// Controls are sized by fixed heights, not padding (px).
+export const controlHeight = { sm: 18, md: 22 } as const
+export const rowHeight = 22
+export const menuItemHeight = 20
+
+const HAIRLINE = 0.5
+const POPUP_OFFSET = 4
+const POPUP_BLUR = 16
+const POPUP_ALPHA = 0.2
+const WINDOW_OFFSET = 10
+const WINDOW_BLUR = 32
+const WINDOW_ALPHA = 0.3
+const SHADOW_COLOR = palette.gray[12]
+
+// control: the hairline under a push button, in the scheme's control-shadow colour. popup and window: soft drop
+// shadows; the popup hairline border is popup-border, drawn by the menu surface itself.
 export const shadow = {
-    xs: "0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)",
-    sm: "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0px 10px 15px -5px, rgba(0, 0, 0, 0.04) 0px 7px 7px -5px",
-    md: "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px",
-    lg: "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0px 28px 23px -7px, rgba(0, 0, 0, 0.04) 0px 12px 12px -7px",
-    xl: "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0px 36px 28px -7px, rgba(0, 0, 0, 0.04) 0px 17px 17px -7px",
+    control: `0 ${HAIRLINE}px 0 var(--sphere-color-control-shadow)`,
+    popup: `0 ${POPUP_OFFSET}px ${POPUP_BLUR}px ${withAlpha(SHADOW_COLOR, POPUP_ALPHA)}`,
+    window: `0 ${WINDOW_OFFSET}px ${WINDOW_BLUR}px ${withAlpha(SHADOW_COLOR, WINDOW_ALPHA)}`,
 } as const
 
-// Mantine 5 layering: app 100, modal 200, popover 300, overlay 400, max 9999.
-export const zIndex = { app: 100, modal: 200, popover: 300, overlay: 400, max: 9999 } as const
+// Milliseconds: fast for fades and disclosure rotation, tooltipDelay before a tooltip opens.
+export const duration = { fast: 120, tooltipDelay: 700 } as const
 
-// Milliseconds. Mantine 5 transitions run 100ms (controls) and 200ms (popups).
-export const duration = { fast: 100, normal: 200 } as const
+export const opacity = { disabled: 0.35 } as const
+
+// Layering: app 100, modal 200, popover 300, overlay 400, max 9999.
+export const zIndex = { app: 100, modal: 200, popover: 300, overlay: 400, max: 9999 } as const

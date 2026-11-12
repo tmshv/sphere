@@ -33,3 +33,6 @@ export const labelStyle: CSSProperties = { width: LABEL_WIDTH }
 
 export const wrapStyle: CSSProperties = { display: "flex", flexWrap: "wrap", gap: GRID_GAP }
 export const NAME_WEIGHT = 600
+export const HEIGHT_SAMPLE_WIDTH = 120
+// Motion bars are drawn at one pixel per this many milliseconds.
+export const MS_PER_PX = 2
