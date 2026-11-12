@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { expect, userEvent, within } from "storybook/test"
-import { Button } from "../Button"
-import { BUTTON_LABEL, TOOLTIP_LABEL } from "../stories/fixtures"
+import { expect, userEvent, waitFor, within } from "storybook/test"
+import {
+    BUTTON_LABEL,
+    TOOLTIP_CLOSE_DELAY_MS,
+    TOOLTIP_DELAY_MS,
+    TOOLTIP_DURATION_MS,
+    TOOLTIP_LABEL,
+} from "../stories/fixtures"
 import { tooltipTriggerStyle } from "../stories/layout"
 import { Tooltip, type TooltipSide } from "./Tooltip"
 
@@ -15,8 +20,11 @@ const meta = {
         label: TOOLTIP_LABEL,
         side: "top",
         arrow: false,
+        delay: TOOLTIP_DELAY_MS,
+        closeDelay: TOOLTIP_CLOSE_DELAY_MS,
+        duration: TOOLTIP_DURATION_MS,
         disabled: false,
-        children: <Button>{BUTTON_LABEL}</Button>,
+        children: <button type="button">{BUTTON_LABEL}</button>,
     },
     argTypes: { side: { control: "radio", options: SIDES } },
     decorators: [
@@ -36,7 +44,8 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         await userEvent.hover(within(canvasElement).getByRole("button"))
         const body = within(canvasElement.ownerDocument.body)
-        await expect(await body.findByRole("tooltip")).toBeVisible()
+        const tooltip = await body.findByRole("tooltip")
+        await waitFor(() => expect(tooltip).toBeVisible())
     },
 }
 

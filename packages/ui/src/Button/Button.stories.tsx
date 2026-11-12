@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
-import { BUTTON_LABEL } from "../stories/fixtures"
+import { BUTTON_LABEL, BUTTON_TYPES } from "../stories/fixtures"
 import { galleryStyle } from "../stories/layout"
 import { Button, type ButtonVariant } from "./Button"
 
@@ -14,7 +14,7 @@ const meta = {
     args: { children: BUTTON_LABEL, variant: "primary", type: "button", disabled: false, onClick: fn() },
     argTypes: {
         variant: { control: "radio", options: VARIANTS },
-        type: { control: "radio", options: ["button", "submit"] },
+        type: { control: "radio", options: BUTTON_TYPES },
     },
 } satisfies Meta<typeof Button>
 

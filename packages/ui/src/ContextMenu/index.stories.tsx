@@ -1,9 +1,10 @@
-import { IconPencil, IconTrash, IconZoomReset } from "@sphere/icons"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
-import { ICON_GLYPHS, LONG_MENU_ITEM, LONG_SHORTCUT, MENU_LABEL } from "../stories/fixtures"
-import { CONTEXT_MENU_POSITION, ICON_SIZE, overlayStyle } from "../stories/layout"
+import { CONTEXT_MENU_ITEMS, ICON_GLYPHS, LONG_MENU_ITEM, LONG_SHORTCUT, MENU_LABEL } from "../stories/fixtures"
+import { CONTEXT_MENU_POSITION, overlayStyle } from "../stories/layout"
 import { ContextMenu, ContextMenuItem, ContextMenuLabel } from "."
+
+const { zoom, edit, remove, rename } = CONTEXT_MENU_ITEMS
 
 const meta = {
     title: "Menus/ContextMenu",
@@ -34,16 +35,16 @@ export const Default: Story = {
         children: (
             <>
                 <ContextMenuLabel>{MENU_LABEL}</ContextMenuLabel>
-                <ContextMenuItem icon={<IconZoomReset size={ICON_SIZE} />} shortcut="Z" onClick={fn()}>
-                    Zoom to source
+                <ContextMenuItem icon={zoom.icon} shortcut={zoom.shortcut} onClick={fn()}>
+                    {zoom.label}
                 </ContextMenuItem>
-                <ContextMenuItem icon={<IconPencil size={ICON_SIZE} />} shortcut="E" onClick={fn()}>
-                    Edit features
+                <ContextMenuItem icon={edit.icon} shortcut={edit.shortcut} onClick={fn()}>
+                    {edit.label}
                 </ContextMenuItem>
-                <ContextMenuItem icon={<IconTrash size={ICON_SIZE} />} disabled>
-                    Remove source
+                <ContextMenuItem icon={remove.icon} disabled>
+                    {remove.label}
                 </ContextMenuItem>
-                <ContextMenuItem onClick={fn()}>Rename</ContextMenuItem>
+                <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
             </>
         ),
     },
@@ -57,7 +58,7 @@ export const LongLabel: Story = {
                 <ContextMenuItem icon={ICON_GLYPHS.ZoomReset} shortcut={LONG_SHORTCUT} onClick={fn()}>
                     {LONG_MENU_ITEM}
                 </ContextMenuItem>
-                <ContextMenuItem onClick={fn()}>Rename</ContextMenuItem>
+                <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
             </>
         ),
     },

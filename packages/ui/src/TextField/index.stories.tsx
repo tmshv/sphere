@@ -32,7 +32,16 @@ const meta = {
     title: "Controls/TextField",
     component: TextField,
     tags: ["autodocs"],
-    args: { label: TEXT_FIELD_LABEL, value: "", required: false, code: false, onChange: fn(), onBlur: fn() },
+    args: {
+        label: TEXT_FIELD_LABEL,
+        value: "",
+        placeholder: undefined,
+        error: undefined,
+        required: false,
+        code: false,
+        onChange: fn(),
+        onBlur: fn(),
+    },
     render: args => <TextFieldDemo {...args} />,
 } satisfies Meta<typeof TextField>
 
@@ -41,8 +50,6 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
-
-export const Empty: Story = {}
 
 export const Placeholder: Story = { args: { placeholder: TEXT_FIELD_PLACEHOLDER } }
 

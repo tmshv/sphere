@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
 import { fn } from "storybook/test"
+import { LAYER_COLOR } from "../stories/fixtures"
 import { galleryStyle } from "../stories/layout"
 import { VisibilityToggle, type VisibilityToggleProps } from "."
-
-const LAYER_COLOR = "#e8590c"
 
 function VisibilityToggleDemo({ visible: initial, onChange, ...rest }: VisibilityToggleProps) {
     const [visible, setVisible] = useState(initial)
@@ -25,7 +24,7 @@ const meta = {
     title: "Controls/VisibilityToggle",
     component: VisibilityToggle,
     tags: ["autodocs"],
-    args: { visible: true, onChange: fn() },
+    args: { visible: true, color: undefined, onChange: fn() },
     argTypes: { color: { control: "color" } },
     render: args => <VisibilityToggleDemo {...args} />,
 } satisfies Meta<typeof VisibilityToggle>
