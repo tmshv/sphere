@@ -10,7 +10,7 @@ import {
     selectTerrainSourceOptions,
 } from "@/store/terrain"
 import { IconMountain, IconMountainOff } from "@sphere/icons"
-import { Popover, RadioListField, SliderField, StatusbarButton, SwitchField } from "@sphere/ui"
+import { RadioListField, SliderField, StatusbarButton, StatusbarPopover, SwitchField } from "@sphere/ui"
 import { useRef, useState } from "react"
 
 const ICON_SIZE_PX = 16
@@ -38,7 +38,7 @@ export function TerrainButton() {
                 onClick={() => dispatch(actions.terrain.toggle())}
                 onContextMenu={() => setOpen(true)}
             />
-            <Popover open={open} anchor={anchor} onClose={() => setOpen(false)}>
+            <StatusbarPopover open={open} anchor={anchor} onClose={() => setOpen(false)}>
                 <RadioListField
                     label="Source"
                     value={source?.id}
@@ -58,7 +58,7 @@ export function TerrainButton() {
                     checked={hillshade}
                     onChange={checked => dispatch(actions.terrain.setHillshade(checked))}
                 />
-            </Popover>
+            </StatusbarPopover>
         </>
     )
 }

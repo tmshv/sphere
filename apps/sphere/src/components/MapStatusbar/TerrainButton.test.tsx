@@ -64,6 +64,12 @@ describe("TerrainButton", () => {
         expect(screen.getByText("Hillshade")).toBeInTheDocument()
     })
 
+    it("opens the popup in the statusbar's dark look whatever the app theme", async () => {
+        renderButton([rasterMbtiles("a")])
+        fireEvent.contextMenu(screen.getByRole("button", { name: "Terrain" }))
+        expect((await screen.findByText("Hillshade")).closest('[data-theme="dark"]')).not.toBeNull()
+    })
+
     it("picks a source and shows terrain", async () => {
         const store = renderButton([rasterMbtiles("a"), rasterMbtiles("b")])
         fireEvent.contextMenu(screen.getByRole("button", { name: "Terrain" }))

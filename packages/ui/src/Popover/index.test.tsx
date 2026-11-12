@@ -23,6 +23,33 @@ describe("Popover", () => {
         expect(screen.queryByText("Content")).not.toBeInTheDocument()
     })
 
+    it("renders its subtree in the dark scheme when dark", () => {
+        render(
+            <Popover open dark anchor={createRef<HTMLElement>()} onClose={vi.fn()}>
+                <span>Content</span>
+            </Popover>,
+        )
+        expect(screen.getByText("Content").closest('[data-theme="dark"]')).not.toBeNull()
+    })
+
+    it("follows the app scheme by default", () => {
+        render(
+            <Popover open anchor={createRef<HTMLElement>()} onClose={vi.fn()}>
+                <span>Content</span>
+            </Popover>,
+        )
+        expect(screen.getByText("Content").closest('[data-theme="dark"]')).toBeNull()
+    })
+
+    it("adds className to the popup", () => {
+        render(
+            <Popover open className="extra" anchor={createRef<HTMLElement>()} onClose={vi.fn()}>
+                <span>Content</span>
+            </Popover>,
+        )
+        expect(screen.getByText("Content").closest(".extra")).not.toBeNull()
+    })
+
     it("calls onClose on Escape", async () => {
         const onClose = vi.fn()
         render(

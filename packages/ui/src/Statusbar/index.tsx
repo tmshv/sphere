@@ -5,6 +5,8 @@ export { StatusbarBadge } from "./StatusbarBadge"
 export type { StatusbarBadgeProps, StatusbarBadgeTone, StatusbarBadgeWidth } from "./StatusbarBadge"
 export { StatusbarButton } from "./StatusbarButton"
 export type { StatusbarButtonLook, StatusbarButtonProps } from "./StatusbarButton"
+export { StatusbarPopover } from "./StatusbarPopover"
+export type { StatusbarPopoverProps } from "./StatusbarPopover"
 export { StatusbarSelect } from "./StatusbarSelect"
 export type { StatusbarSelectProps } from "./StatusbarSelect"
 
