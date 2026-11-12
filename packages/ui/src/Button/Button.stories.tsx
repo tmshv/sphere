@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 import { BUTTON_LABEL, BUTTON_TYPES } from "../stories/fixtures"
-import { galleryStyle } from "../stories/layout"
+import { galleryStyle, stateSheetsStyle } from "../stories/layout"
+import { StateSheet } from "../stories/StateSheet"
 import { Button, type ButtonVariant } from "./Button"
 
 const VARIANTS: ReadonlyArray<ButtonVariant> = ["primary", "secondary"]
@@ -38,6 +39,17 @@ export const Gallery: Story = {
                     </Button>
                 )),
             )}
+        </div>
+    ),
+}
+
+// Rest, keyboard focus and press side by side for each variant.
+export const States: Story = {
+    render: args => (
+        <div style={stateSheetsStyle}>
+            {VARIANTS.map(variant => (
+                <StateSheet key={variant} target="button" render={() => <Button {...args} variant={variant} />} />
+            ))}
         </div>
     ),
 }

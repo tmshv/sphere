@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest"
-import { focusVisibleStyle, hoverStyle, splitSelectorList } from "./test-utils"
+import { focusVisibleStyle, hoverStyle } from "./test-utils"
 
 function addStyles(css: string) {
     const style = document.createElement("style")
@@ -7,12 +7,6 @@ function addStyles(css: string) {
     document.head.append(style)
     return style
 }
-
-describe("splitSelectorList", () => {
-    it("splits on top-level commas only", () => {
-        expect(splitSelectorList(".a:is(.b, .c), .d[x='1,2'] ,.e")).toEqual([".a:is(.b, .c)", ".d[x='1,2']", ".e"])
-    })
-})
 
 describe("state style helpers", () => {
     afterEach(() => {

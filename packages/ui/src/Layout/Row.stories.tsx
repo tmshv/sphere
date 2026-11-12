@@ -9,7 +9,7 @@ const ALIGNS: ReadonlyArray<Align> = ["start", "center", "end", "stretch"]
 const JUSTIFIES: ReadonlyArray<Justify> = ["start", "end", "between"]
 
 const meta = {
-    title: "Layout/Row",
+    title: "Containers/Layout/Row",
     component: Row,
     tags: ["autodocs"],
     args: {

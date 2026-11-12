@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 import { DEFAULT_GLYPH, ICON_GLYPHS } from "../stories/fixtures"
-import { galleryStyle } from "../stories/layout"
+import { galleryStyle, stateSheetsStyle } from "../stories/layout"
+import { StateSheet } from "../stories/StateSheet"
 import { IconButton, type IconButtonSize, type IconButtonVariant } from "./IconButton"
 
 const SIZES: ReadonlyArray<IconButtonSize> = ["sm", "md"]
@@ -69,6 +70,17 @@ export const Gallery: Story = {
                     )),
                 ),
             )}
+        </div>
+    ),
+}
+
+// Rest, keyboard focus and press side by side for each variant.
+export const States: Story = {
+    render: args => (
+        <div style={stateSheetsStyle}>
+            {VARIANTS.map(variant => (
+                <StateSheet key={variant} target="button" render={() => <IconButton {...args} variant={variant} />} />
+            ))}
         </div>
     ),
 }

@@ -3,6 +3,7 @@ import { useState } from "react"
 import { expect, fn, userEvent, waitFor, within } from "storybook/test"
 import { LAYER_OPTIONS, SELECT_LABEL, SELECT_PLACEHOLDER } from "../stories/fixtures"
 import { fieldStyle } from "../stories/layout"
+import { StateSheet } from "../stories/StateSheet"
 import { Select, type SelectProps } from "./Select"
 
 function SelectDemo({ value: initial, onChange, ...rest }: SelectProps) {
@@ -23,6 +24,7 @@ function SelectDemo({ value: initial, onChange, ...rest }: SelectProps) {
 }
 
 const FIRST_OPTION = LAYER_OPTIONS.at(0)
+const TRIGGER = '[role="combobox"]'
 
 const meta = {
     title: "Controls/Select",
@@ -59,3 +61,18 @@ export const Open: Story = {
 }
 
 export const Searchable: Story = { args: { searchable: true } }
+
+// Rest, keyboard focus and press of the pop-up button side by side.
+export const States: Story = {
+    args: { value: FIRST_OPTION?.value ?? null },
+    render: args => (
+        <StateSheet
+            target={TRIGGER}
+            render={() => (
+                <div style={fieldStyle}>
+                    <Select {...args} />
+                </div>
+            )}
+        />
+    ),
+}

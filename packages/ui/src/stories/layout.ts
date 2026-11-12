@@ -130,3 +130,25 @@ export const inspectorFrameStyle: CSSProperties = {
     border: "1px solid var(--sphere-color-separator)",
 }
 export const propertiesWindowStyle: CSSProperties = { ...windowFrameStyle, display: "flex", flexDirection: "column" }
+
+// States sheets: one captioned cell per state, side by side.
+export const STATE_SHEET_GAP = 24
+export const STATE_CELL_GAP = 8
+export const stateSheetStyle: CSSProperties = {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "flex-end",
+    gap: STATE_SHEET_GAP,
+    padding: GALLERY_PADDING,
+}
+export const stateCellStyle: CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: STATE_CELL_GAP,
+}
+export const stateCaptionStyle: CSSProperties = {
+    color: "var(--sphere-color-label-secondary)",
+    fontSize: "var(--sphere-font-size-mini)",
+}
+export const stateSheetsStyle: CSSProperties = { display: "flex", flexDirection: "column" }

@@ -7,7 +7,7 @@ import { ErrorFallback } from "."
 const VARIANTS: ReadonlyArray<"fullscreen" | "sidebar"> = ["fullscreen", "sidebar"]
 
 const meta = {
-    title: "Containers/ErrorFallback",
+    title: "Data/ErrorFallback",
     component: ErrorFallback,
     tags: ["autodocs"],
     parameters: { layout: "fullscreen" },

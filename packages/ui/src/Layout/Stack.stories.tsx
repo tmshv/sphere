@@ -8,7 +8,7 @@ const GAPS: ReadonlyArray<Gap> = ["xxs", "xs", "sm", "md"]
 const ALIGNS: ReadonlyArray<Align> = ["start", "center", "end", "stretch"]
 
 const meta = {
-    title: "Layout/Stack",
+    title: "Containers/Layout/Stack",
     component: Stack,
     tags: ["autodocs"],
     args: {

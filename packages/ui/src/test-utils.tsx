@@ -2,6 +2,7 @@ import { type RenderOptions, render } from "@testing-library/react"
 import type React from "react"
 import { expect } from "vitest"
 import { ThemeProvider } from "./ThemeProvider"
+import { replaceState } from "./selector-list"
 
 function AllProviders({ children }: { children: React.ReactNode }) {
     return <ThemeProvider dark={false}>{children}</ThemeProvider>
@@ -42,33 +43,10 @@ function styleRules(rules: CSSRuleList): CSSStyleRule[] {
     })
 }
 
-// Splits a selector list on its top-level commas, leaving commas inside `:is(…)`, `:not(…)` and attribute brackets.
-export function splitSelectorList(selectorText: string): string[] {
-    const parts: string[] = []
-    let depth = 0
-    let start = 0
-    for (const [index, char] of [...selectorText].entries()) {
-        if (char === "(" || char === "[") {
-            depth += 1
-        } else if (char === ")" || char === "]") {
-            depth -= 1
-        } else if (char === "," && depth === 0) {
-            parts.push(selectorText.slice(start, index))
-            start = index + 1
-        }
-    }
-    parts.push(selectorText.slice(start))
-    return parts.map(part => part.trim())
-}
-
 // The selectors of a rule that style the state itself, with the state removed so they can be matched against an
-// element that is not in it. `:focus:not(:focus-visible)` styles the absence of the state, so it is skipped; the
-// check is per selector, so a mixed comma list cannot hide a real state rule.
+// element that is not in it.
 function stateSelectors(selectorText: string, pseudoClass: string): string[] {
-    return splitSelectorList(selectorText)
-        .filter(selector => selector.includes(pseudoClass))
-        .filter(selector => !selector.includes(`:not(${pseudoClass})`))
-        .map(selector => selector.replaceAll(pseudoClass, "") || "*")
+    return replaceState(selectorText, pseudoClass, "").map(selector => selector || "*")
 }
 
 // The value a property takes in the given state: it reads rules whose selector contains the pseudo-class (or state

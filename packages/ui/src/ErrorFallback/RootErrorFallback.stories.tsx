@@ -4,7 +4,7 @@ import { ERROR_MESSAGE } from "../stories/fixtures"
 import { RootErrorFallback } from "./RootErrorFallback"
 
 const meta = {
-    title: "Containers/RootErrorFallback",
+    title: "Data/RootErrorFallback",
     component: RootErrorFallback,
     tags: ["autodocs"],
     parameters: { layout: "fullscreen" },
