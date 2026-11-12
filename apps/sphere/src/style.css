@@ -22,7 +22,7 @@ button:hover {
   position: fixed;
   z-index: 1000;
   width: 100%;
-  height: 28px;
+  height: var(--sphere-titlebar-height);
 }
 
 body {

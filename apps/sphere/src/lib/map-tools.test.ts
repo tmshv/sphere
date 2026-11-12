@@ -6,6 +6,7 @@ import {
     isRectSelectEnabled,
     isHoverPopupEnabled,
     isPopupVisible,
+    isMapTool,
 } from "./map-tools"
 
 describe("map-tools capability sets", () => {
@@ -43,5 +44,17 @@ describe("map-tools capability sets", () => {
         ["info", true],
     ])("isPopupVisible(%s) = %s", (tool, expected) => {
         expect(isPopupVisible(tool)).toBe(expected)
+    })
+})
+
+describe("isMapTool", () => {
+    test.each([
+        ["navigation", true],
+        ["select", true],
+        ["info", true],
+        ["draw", false],
+        ["", false],
+    ])("isMapTool(%s) = %s", (value, expected) => {
+        expect(isMapTool(value)).toBe(expected)
     })
 })
