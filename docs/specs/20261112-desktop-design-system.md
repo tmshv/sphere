@@ -10,6 +10,15 @@ This is the "separate redesign task" that
 colour and size already flows through `packages/ui/src/tokens/`, so the look
 can now change in one place.
 
+**Revision after the first review.** The compact El Capitan sizes read too
+small, so sizes and paddings go back to what Sphere had before: 30px controls,
+rows and section headers, 24px menu items, field and button text inset 10px and
+14px, 12px panel insets, and 14px text in menus, tooltips and dialogs. The
+statusbar keeps Sphere's own look (a near-black strip with bold uppercase
+monospace readouts) in both themes. The sidebar tab list aligns left. The
+interaction model (no hover, colour-only press, focus ring, arrow cursor) is
+unchanged. The sections below are updated to these values.
+
 ## Problem
 
 The Base UI migration reproduced Mantine 5 pixel for pixel, on purpose. The
@@ -162,7 +171,7 @@ edge of the menu or list.
 
 ### Density and type
 
-Compact desktop density on a 4px grid. The system font stack
+Density on a 4px grid, at the sizes Sphere had before the redesign. The system font stack
 (`-apple-system, BlinkMacSystemFont, "Segoe UI", …`) at desktop sizes, line
 height around 1.3 for running text, controls sized by fixed heights rather
 than padding.
@@ -170,14 +179,18 @@ than padding.
 | Role                                            | Size | Weight   |
 | ----------------------------------------------- | ---- | -------- |
 | Statusbar, captions, badges                     | 10px | regular  |
-| Section headers (uppercase), field labels, help | 11px | semibold |
+| Section headers (uppercase), field labels, help | 12px | semibold |
 | Sidebar rows, panel body, table cells, inputs   | 12px | regular  |
-| Menus, buttons, dialog body                     | 13px | regular  |
-| Dialog title, panel heading                     | 13px | bold     |
+| Buttons, segments, tabs                         | 12px | regular  |
+| Menus, tooltips, dialog body                    | 14px | regular  |
+| Dialog title, panel heading                     | 14px | bold     |
 
-Control heights: `md` 22px (buttons, inputs, selects, segmented controls),
-`sm` 18px (statusbar, inline row buttons). Outline rows are 22px. Menu items
-are 20px. Glyphs are 14px in `sm`, 16px in `md`.
+Control heights: `md` 30px (buttons, inputs, selects, segmented controls,
+tabs), `sm` 18px (statusbar, inline row buttons). Outline rows and section
+headers are 30px. Menu items are 24px. Glyphs are 14px in `sm` (16px on the
+statusbar), 16px in `md`. Text fields and pop-up buttons inset their text
+10px, push buttons 14px, segments 12px; the sidebar tab list and panels are
+inset 12px.
 
 ### Selection
 
@@ -205,26 +218,27 @@ Menus and tooltips appear instantly and fade out over `duration-fast`
 
 - **Menu surface** (`ContextMenu`, `Select` list, `CommandPalette`): `popup`
   background, hairline `popup-border`, `popup` shadow, 5px radius, 4px
-  vertical padding and none horizontal. Items are 13px, 20px tall, padded
+  vertical padding and none horizontal. Items are 14px, 24px tall, padded
   20px left (the check/icon column) and 16px right, shortcut right-aligned in
   the secondary colour. The highlighted item is `selection` with `on-accent`
   text, edge to edge. Separators are a 1px `separator` line with 5px above
-  and below. Group labels are 11px secondary.
+  and below. Group labels are 12px secondary.
 - **Context menu** opens with its top-left corner at the pointer (0 offset),
   flips and shifts at the window edges with a 4px margin, width fits its
   content with a 160px minimum.
 - **Dialog**: `window` background, 6px radius, `window` shadow, 20px padding,
-  title 13px bold, body 13px, buttons bottom-right with the primary button
+  title 14px bold, body 14px, buttons bottom-right with the primary button
   last. No dimming scrim (the backdrop stays transparent and still blocks
   clicks), no scale animation.
-- **Tooltip**: `tooltip` background, hairline border, 3px radius, 11px text,
+- **Tooltip**: `tooltip` background, hairline border, 3px radius, 12px text,
   no arrow, 700ms delay.
 
 ### Colour
 
 Neutral greys, one accent (system blue), semantic status colours. Colour is
-for state and data, not decoration. The statusbar and every footer follow the
-theme instead of being black in both.
+for state and data, not decoration. Every footer follows the theme. The
+statusbar is the exception: it keeps Sphere's near-black strip in both themes
+(see Statusbar below).
 
 ## Design tokens
 
@@ -256,7 +270,7 @@ role or palette value, never as a new literal. The set, at least:
 
 | Token                       | Role                                             |
 | --------------------------- | ------------------------------------------------ |
-| `window`                    | window background, dialogs, statusbar            |
+| `window`                    | window background, dialogs                       |
 | `content`                   | tables, text fields, lists that hold data        |
 | `sidebar`                   | sidebar background                               |
 | `popup`                     | menus, select lists, popovers, command palette   |
@@ -279,19 +293,20 @@ role or palette value, never as a new literal. The set, at least:
 | `focus-ring`                | keyboard focus glow                              |
 | `danger`, `warning`, `ok`   | status text and fills                            |
 | `scrim`                     | the transparent dialog backdrop (kept a token)   |
+| `statusbar`, `statusbar-*`  | the statusbar strip, its text, glyphs and pills  |
 
 ### Scales
 
 `scales.ts` is rewritten:
 
-- `space`: 2, 4, 6, 8, 12, 16, 20 (names `xxs`…`xl` or numeric, builder's
-  call, applied consistently).
+- `space`: 2, 4, 6, 8, 10, 12, 14, 16, 20 (names `xxs`…`xl` or numeric,
+  builder's call, applied consistently).
 - `radius`: `none` 0, `tooltip` 3, `control` 4, `popup` 5, `window` 6,
   `pill` 999.
-- `fontSize`: 10, 11, 12, 13 (see Density and type). Heading sizes beyond
-  13px only if a component needs one.
+- `fontSize`: `mini` 10, `small` 12, `body` 12, `regular` 14 (see Density
+  and type). Heading sizes beyond 14px only if a component needs one.
 - `lineHeight`: `body` ~1.3, `tight` 1.15.
-- `controlHeight`: `sm` 18, `md` 22. `rowHeight`: 22. `menuItemHeight`: 20.
+- `controlHeight`: `sm` 18, `md` 30. `rowHeight`: 30. `menuItemHeight`: 24.
 - `shadow`: `control` (hairline bottom), `popup`, `window`. No others.
 - `duration`: `fast` 120ms, `tooltipDelay` 700ms.
 - `opacity`: `disabled` 0.35.
@@ -339,22 +354,23 @@ the overrides it protected.
 
 `IconButton` API: `appearance: "subtle" | "solid"` is replaced by
 `variant: "glyph" | "bordered"` (default `glyph`); `active` keeps its meaning
-(toggled on, `aria-pressed`). `StatusbarButton`'s `activeLook` goes: active
-is always the accent glyph. The app is updated accordingly.
+(toggled on, `aria-pressed`). `StatusbarButton` keeps `activeLook`: `accent`
+(default) is the yellow glyph, `fill` (the sidebar toggle) a grey body behind
+the grey glyph.
 
 ### Per component
 
-- **Button**: 22px push button, 13px text. `secondary` is the white bordered
+- **Button**: 30px push button, 12px text. `secondary` is the white bordered
   push button, `primary` the accent default button. Pressed darkens. The
   `light` and `subtle` classes used by `ErrorFallback` become `secondary`.
-- **IconButton**: see above. `bordered` is a 22px square push-button body
+- **IconButton**: see above. `bordered` is a 30px square push-button body
   with the glyph, for toolbars over the map.
 - **ActionBar**: a row of glyph buttons with a 2px gap, disabled actions use
   the shared disabled opacity.
 - **VisibilityToggle**: glyph button; hidden state uses the tertiary label
   colour for the bulb-off glyph.
-- **Tabs**: an NSTabView-style segmented control, centred above the panel,
-  22px tall, 12px text; the selected tab is `accent` with `on-accent` text,
+- **Tabs**: an NSTabView-style segmented control, aligned left above the
+  panel, 30px tall, 12px text; the selected tab is `accent` with `on-accent` text,
   unselected tabs are the bordered control body. No hover.
 - **SegmentedControl**: the same look as Tabs, inline. Gains optional icon-only
   options (`icon` + `label` as accessible name) so the map toolbar can use it.
@@ -362,7 +378,7 @@ is always the accent glyph. The app is updated accordingly.
   glyph right). Its list uses the shared menu surface with a checkmark on the
   current value. Search behaviour unchanged.
 - **TextField**: square (radius 0) field, `content` background,
-  `control-border` hairline, 22px, 12px text, focus ring while focused.
+  `control-border` hairline, 30px, 12px text, focus ring while focused.
 - **ColorField**: a colour well (square swatch in a bordered frame) plus the
   hex field; picker popup uses the popup surface.
 - **SliderField**: 4px track (`control-border`-coloured, accent fill), 16px
@@ -375,19 +391,25 @@ is always the accent glyph. The app is updated accordingly.
   results as menu items with edge-to-edge selection, no scrim, fade only.
 - **Dialog**: see Popups and windows.
 - **Tooltip** (internal): see Popups and windows.
-- **Tree / TreeRow**: 22px rows, 12px text, source-list selection, no hover.
+- **Tree / TreeRow**: 30px rows, 12px text, source-list selection, no hover.
   The chevron is a disclosure triangle (a custom filled-triangle glyph added
   to `@sphere/icons` as `IconDisclosure`, same props as vendor icons).
-- **SectionStack**: headers are 22px, 11px semibold uppercase secondary text
+- **SectionStack**: headers are 30px, 12px semibold uppercase secondary text
   with a disclosure triangle, no background fill, a `separator` line above.
 - **Sidebar**: `sidebar` background. Keeps its top inset for the traffic
   lights.
-- **Statusbar** and its parts: `window` background with a `separator` line on
-  top, 22px tall, 10px text in `label-secondary`. `StatusbarBadge` readouts
-  become plain tabular-number text (no black pill); the error badge becomes
-  `danger` text. `StatusbarSelect` becomes a small borderless pop-up.
+- **Statusbar** and its parts keep Sphere's own look in both themes: a 28px
+  near-black `statusbar` strip with 12px gaps and insets. `StatusbarBadge`
+  readouts are 10px bold uppercase monospace `statusbar-text` in an 18px pill
+  of the strip colour; the error badge is a `statusbar-error` red pill.
+  `StatusbarButton` glyphs are 16px `statusbar-glyph` grey, light while
+  pressed, `statusbar-glyph-active` yellow when toggled on, or on a
+  `statusbar-fill` body with `activeLook="fill"`; no hover, nothing moves.
+  `StatusbarSelect` is a 16px white `statusbar-field` pill with the value in
+  the readout type and a small chevron. These roles have the same value in
+  both themes and are in `tokens/contrast.test.ts`.
 - **PropertiesTable**: `content` background, `separator` grid lines, header
-  row in the window colour with 11px semibold labels, column resizer is an
+  row in the window colour with 12px semibold labels, column resizer is an
   invisible grip with a resize cursor. Footer follows the statusbar look.
 - **PropertiesViewer, AttributeList, InfoRow, PanelBody, Surface, Text,
   Layout, Overlay, Spinner, ErrorFallback, ImageMarker, Badge, Skeleton,
@@ -402,8 +424,7 @@ is always the accent glyph. The app is updated accordingly.
 - `MapToolbar` drops its inline styles and renders the tools as an icon-only
   `SegmentedControl` (or a bordered `IconButton` group, builder's call) from
   `@sphere/ui`, positioned by a small wrapper that only sets position.
-- `IconButton` call sites move from `appearance` to `variant`;
-  `StatusbarButton` call sites drop `activeLook`.
+- `IconButton` call sites move from `appearance` to `variant`.
 - Any other app code that styles around the library to look right is moved
   into the library or deleted. `RectSelectOverlay`, `Draw` and `PhotoLayer`
   inline styles that only position things may stay.
