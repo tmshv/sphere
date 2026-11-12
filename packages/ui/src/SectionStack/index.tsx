@@ -1,15 +1,15 @@
-import { IconChevronRight } from "@sphere/icons"
+import { IconDisclosure } from "@sphere/icons"
 import { Children, isValidElement, useCallback, useEffect, useId, useRef } from "react"
-import { ButtonBase } from "../internal"
+import { ButtonBase, cx } from "../internal"
 import { SplitPane, SplitView, type SplitViewHandle } from "../Split"
 import { restoreSize } from "../Split/sizes"
 import { defaultSizesOf, isSpacerVisible, mergeSections, resolveSections, SPACER_MIN_SIZE } from "./layout"
 import s from "./section-stack.module.css"
 
 // Also declared as --header-height in section-stack.module.css; a test pins them together.
-export const SECTION_HEADER_HEIGHT = 30
+export const SECTION_HEADER_HEIGHT = 22
 const DEFAULT_MIN_CONTENT_SIZE = 120
-const CHEVRON_SIZE = 14
+const CHEVRON_SIZE = 10
 
 export type SectionProps = {
     name: string
@@ -200,8 +200,8 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                                     expanded={open}
                                     controls={open ? bodyId : undefined}
                                 >
-                                    <IconChevronRight
-                                        className={open ? `${s.chevron} ${s.chevronOpen}` : s.chevron}
+                                    <IconDisclosure
+                                        className={cx(s.chevron, open && s.chevronOpen)}
                                         size={CHEVRON_SIZE}
                                     />
                                     <span>{section.props.title}</span>
@@ -209,7 +209,7 @@ function SectionStackRoot({ sections: rows, onSectionsChange, children }: Sectio
                             </div>
 
                             {!open ? null : (
-                                <div id={bodyId} className={section.props.flush ? `${s.body} ${s.flush}` : s.body}>
+                                <div id={bodyId} className={cx(s.body, section.props.flush && s.flush)}>
                                     {section.props.children}
                                 </div>
                             )}

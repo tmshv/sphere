@@ -24,8 +24,11 @@ import type { PropertyItem, PropertyItemMeta } from "../PropertiesTable"
 import type { SegmentedControlOption, SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
 import type { TreeItem } from "../Tree"
+import { VisibilityToggle } from "../VisibilityToggle"
 import { duration } from "../tokens"
 import { ICON_SIZE } from "./layout"
+
+export const LAYER_COLOR = "#e8590c"
 
 // Shared GIS fixture data for component stories. Later tasks extend this file instead of defining their own.
 
@@ -154,6 +157,29 @@ export const TREE_ITEMS: ReadonlyArray<TreeItem> = [
     },
 ]
 
+// Rows with a layer-coloured bulb, a lit uncoloured bulb and an unlit one, for the selection look.
+export const TREE_BULB_ITEMS: ReadonlyArray<TreeItem> = [
+    {
+        id: "bulb-colored",
+        label: "Cadastral parcels",
+        icon: glyph(IconMap),
+        extra: createElement(VisibilityToggle, { visible: true, color: LAYER_COLOR, onChange: fn() }),
+    },
+    {
+        id: "bulb-plain",
+        label: "Road network",
+        icon: glyph(IconMap),
+        extra: createElement(VisibilityToggle, { visible: true, onChange: fn() }),
+    },
+    {
+        id: "bulb-off",
+        label: "Buildings footprints",
+        icon: glyph(IconMap),
+        extra: createElement(VisibilityToggle, { visible: false, onChange: fn() }),
+    },
+]
+export const TREE_BULB_SELECTED_ID = "bulb-colored"
+
 export const TAB_ITEMS: ReadonlyArray<TabItem> = [
     { value: "sources", label: "Sources", icon: glyph(IconFolder), content: "Sources outline" },
     { value: "layers", label: "Layers", icon: glyph(IconStack), content: "Layers outline" },
@@ -191,7 +217,6 @@ export const LONG_SHORTCUT = "Ctrl+Shift+Alt+Option+Command+K"
 export const TOOLTIP_LABEL = "Add source"
 export const BUTTON_LABEL = "Add source"
 
-export const LAYER_COLOR = "#e8590c"
 export const PALETTE_HINT = `Press Ctrl+${PALETTE_KEY.toUpperCase()} to open the palette`
 export const PALETTE_NO_MATCH_QUERY = "zzzz"
 export const BUTTON_TYPES: ReadonlyArray<"button" | "submit"> = ["button", "submit"]

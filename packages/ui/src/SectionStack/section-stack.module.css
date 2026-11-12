@@ -16,15 +16,18 @@
 .header {
     flex-shrink: 0;
     display: flex;
-    color: var(--sphere-color-label);
-    font-size: var(--sphere-font-size-regular);
+    color: var(--sphere-color-label-secondary);
+    font-size: var(--sphere-font-size-small);
+    font-weight: var(--sphere-font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
     box-shadow: inset 0 1px 0 var(--sphere-color-separator);
 }
 
 /* The toggle fills the header; ButtonBase owns how it behaves. */
 .toggle {
     /* Pinned to SECTION_HEADER_HEIGHT in index.tsx by a test. */
-    --header-height: 30px;
+    --header-height: 22px;
 
     flex: 1;
     display: flex;
@@ -36,6 +39,7 @@
 }
 
 .chevron {
+    color: var(--sphere-color-label-secondary);
     flex-shrink: 0;
     transition: transform var(--sphere-duration-fast) ease;
 }

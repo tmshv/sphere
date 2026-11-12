@@ -1,9 +1,8 @@
-/* Mantine Flex with pt="xl" p={0}. */
 .container {
     display: flex;
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
-    padding-top: var(--sphere-space-xl);
+    background-color: var(--sphere-color-sidebar);
 }

@@ -1,6 +1,13 @@
-/* Ported from the Mantine 5 createStyles block that TreeRow had before the Base UI migration. */
+/* Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block. It is also the
+   element whose :focus-within decides whether a selected row is drawn focused (accent fill) or inactive (grey):
+   react-arborist focuses its list inside it. */
+.tree {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 100%;
+}
 
-/* The whole row is the highlight, so a selected row reads as one band from edge to edge */
+/* The whole row is the highlight, so a selected row reads as one band from edge to edge. No hover tint. */
 .row {
     height: 100%;
     cursor: default;
@@ -12,9 +19,22 @@
     font-size: var(--sphere-font-size-body);
 }
 
-/* A soft fill rather than the accent: the row stays readable and the bulb stays visible. No hover tint. */
+/* A tree that does not have focus keeps its selection in a quiet grey, with the plain label colour. */
 .row.selected {
     background-color: var(--sphere-color-selection-inactive);
+    color: var(--sphere-color-label);
+}
+
+/* A focused tree draws the selection in the accent, with on-accent text and glyphs. An svg that carries its own
+   stroke colour (a layer-coloured bulb) is not matched, so it keeps its colour. */
+.tree:focus-within .row.selected,
+.tree:focus-within .row.selected .chevronIcon,
+.tree:focus-within .row.selected svg[stroke="currentColor"] {
+    color: var(--sphere-color-on-accent);
+}
+
+.tree:focus-within .row.selected {
+    background-color: var(--sphere-color-selection);
 }
 
 /* Same inset as a SectionStack header */
@@ -28,12 +48,12 @@
 }
 
 .chevron {
-    /* Same chevron as a SectionStack header, so the tree's first level lines up under it */
-    --chevron-size: 14px;
+    /* The disclosure glyph of a SectionStack header, so the tree's first level lines up under it */
+    --disclosure-size: 10px;
 
     flex-shrink: 0;
     display: flex;
-    width: var(--chevron-size);
+    width: var(--disclosure-size);
 }
 
 /* The expand button fills its slot; ButtonBase owns how it behaves. */
@@ -42,6 +62,7 @@
 }
 
 .chevronIcon {
+    color: var(--sphere-color-label-secondary);
     transition: transform var(--sphere-duration-fast) ease;
 }
 
@@ -49,15 +70,12 @@
     transform: rotate(90deg);
 }
 
-/* Mantine 5 Center w={30} h={30} */
 .icon {
-    --icon-box-size: 30px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--icon-box-size);
-    height: var(--icon-box-size);
+    width: var(--sphere-row-height);
+    height: var(--sphere-row-height);
 }
 
 .label {

@@ -5,6 +5,7 @@ import { TouchBackend } from "react-dnd-touch-backend"
 import { childIds, branchIds, openState } from "./items"
 import { type ArboristMove, toTreeMove } from "./move"
 import { TreeRow } from "./TreeRow"
+import s from "./tree-row.module.css"
 import type { TreeItem, TreeMove } from "./type"
 import { useElementSize } from "./useElementSize"
 
@@ -20,9 +21,7 @@ export type TreeProps = {
     canDrop?: (move: TreeMove) => boolean
 }
 
-// Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block
-const CONTAINER_STYLE: React.CSSProperties = { flex: "1 1 0", minHeight: 0, height: "100%" }
-const ROW_HEIGHT = 30
+const ROW_HEIGHT = 22
 const INDENT = 16
 /** Pointer travel before a press on a row becomes a drag, so jitter while clicking the chevron or an extra does not start one. */
 const DRAG_SLOP_PX = 4
@@ -91,7 +90,7 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
     }
 
     return (
-        <div ref={ref} style={CONTAINER_STYLE}>
+        <div ref={ref} className={s.tree}>
             <ArboristTree
                 ref={treeRef}
                 data={items}

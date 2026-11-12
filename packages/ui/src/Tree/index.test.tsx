@@ -1,6 +1,15 @@
-import { expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    hoverStyle,
+    render,
+    screen,
+    stateStyle,
+} from "../test-utils"
 import { describe, expect, it, vi } from "vitest"
 import { Tree } from "."
+import { VisibilityToggle } from "../VisibilityToggle"
 import type { TreeItem } from "./type"
 
 vi.mock("./useElementSize", () => ({
@@ -149,5 +158,79 @@ describe("Tree controlled sync", () => {
         fireEvent.click(background)
         expect(onSelect).not.toHaveBeenCalled()
         expect(screen.getByText("Beta").closest("[role=treeitem]")).toHaveAttribute("aria-selected", "true")
+    })
+})
+
+const FOCUS_WITHIN = ":focus-within"
+const LAYER_RED = "#ff0000"
+const HOVER_PROPERTIES = ["background-color", "color", "box-shadow"]
+
+function selectedRow(label: string): Element {
+    const row = screen.getByText(label).closest("[data-selected]")
+    if (!row) {
+        throw new Error("selected row not found")
+    }
+    return row
+}
+
+describe("Tree desktop look", () => {
+    it("paints a selected row in a focused tree with the selection fill and on-accent text", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+
+        expect(stateStyle(row, "background-color", FOCUS_WITHIN)).toBe("var(--sphere-color-selection)")
+        expect(stateStyle(row, "color", FOCUS_WITHIN)).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("falls back to the inactive selection with the plain label colour when the tree is not focused", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+
+        expect(declaredStyle(row, "background-color")).toBe("var(--sphere-color-selection-inactive)")
+        expect(declaredStyle(row, "color")).toBe("var(--sphere-color-label)")
+    })
+
+    it("leaves an explicitly coloured bulb alone in a focused tree", () => {
+        const colored: TreeItem[] = [
+            { id: "x", label: "Xray", extra: <VisibilityToggle visible color={LAYER_RED} onChange={vi.fn()} /> },
+        ]
+        renderControlled({ items: colored, expandedIds: [], selectedId: "x" })
+        const bulb = selectedRow("Xray").querySelector("svg")
+        if (!bulb) {
+            throw new Error("bulb not found")
+        }
+
+        expect(bulb).toHaveAttribute("stroke", LAYER_RED)
+        expect(stateStyle(bulb, "color", FOCUS_WITHIN)).toBe("")
+        expect(stateStyle(bulb, "stroke", FOCUS_WITHIN)).toBe("")
+    })
+
+    it("recolours an uncoloured glyph on a selected row in a focused tree", () => {
+        const plain: TreeItem[] = [
+            { id: "x", label: "Xray", extra: <VisibilityToggle visible={false} onChange={vi.fn()} /> },
+        ]
+        renderControlled({ items: plain, expandedIds: [], selectedId: "x" })
+        const glyph = selectedRow("Xray").querySelector("svg")
+        if (!glyph) {
+            throw new Error("glyph not found")
+        }
+
+        expect(stateStyle(glyph, "color", FOCUS_WITHIN)).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("has the arrow cursor and no hover look on a row", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+
+        expect(declaredStyle(row, "cursor")).toBe("default")
+        for (const property of HOVER_PROPERTIES) {
+            expect(hoverStyle(row, property), `${property} on hover`).toBe("")
+        }
+    })
+
+    it("sets row text at the body size", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+
+        expect(declaredStyle(selectedRow("Beta"), "font-size")).toBe("var(--sphere-font-size-body)")
     })
 })

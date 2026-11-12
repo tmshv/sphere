@@ -209,3 +209,22 @@ describe("SectionStack header interaction", () => {
         expectDesktopInteraction(screen.getByRole("button", { name: /Outline/ }))
     })
 })
+
+describe("SectionStack header look", () => {
+    it("is a 22px strip of small semibold uppercase secondary text with a separator on top", () => {
+        render(<Stack initial={[{ name: "outline", open: true, size: null }]} />)
+        const toggle = screen.getByRole("button", { name: /Outline/ })
+        const header = toggle.parentElement
+        if (!header) {
+            throw new Error("header not found")
+        }
+
+        expect(declaredStyle(toggle, "--header-height")).toBe(`${SECTION_HEADER_HEIGHT}px`)
+        expect(declaredStyle(header, "color")).toBe("var(--sphere-color-label-secondary)")
+        expect(declaredStyle(header, "font-size")).toBe("var(--sphere-font-size-small)")
+        expect(declaredStyle(header, "font-weight")).toBe("var(--sphere-font-weight-semibold)")
+        expect(declaredStyle(header, "text-transform")).toBe("uppercase")
+        expect(declaredStyle(header, "letter-spacing")).toBe("0.02em")
+        expect(declaredStyle(header, "box-shadow")).toBe("inset 0 1px 0 var(--sphere-color-separator)")
+    })
+})

@@ -1,21 +1,17 @@
-import { IconChevronRight } from "@sphere/icons"
+import { IconDisclosure } from "@sphere/icons"
 import type { MouseEvent } from "react"
 import type { NodeRendererProps } from "react-arborist"
-import { ButtonBase } from "../internal"
+import { ButtonBase, cx } from "../internal"
 import s from "./tree-row.module.css"
 import type { TreeItem } from "./type"
 
 export const EXPAND_LABEL = "Expand"
 export const COLLAPSE_LABEL = "Collapse"
-// Same chevron as a SectionStack header, so the tree's first level lines up under it
-const CHEVRON_SIZE = 14
+// Same disclosure glyph as a SectionStack header, so the tree's first level lines up under it
+const DISCLOSURE_SIZE = 10
 
 function stopPropagation(event: MouseEvent) {
     event.stopPropagation()
-}
-
-function classNames(...names: Array<string | false | undefined>): string {
-    return names.filter(Boolean).join(" ")
 }
 
 export function TreeRow({ node, style, dragHandle }: NodeRendererProps<TreeItem>) {
@@ -33,9 +29,9 @@ export function TreeRow({ node, style, dragHandle }: NodeRendererProps<TreeItem>
                     label={node.isOpen ? COLLAPSE_LABEL : EXPAND_LABEL}
                     onClick={() => node.toggle()}
                 >
-                    <IconChevronRight
-                        size={CHEVRON_SIZE}
-                        className={classNames(s.chevronIcon, node.isOpen && s.chevronOpen)}
+                    <IconDisclosure
+                        size={DISCLOSURE_SIZE}
+                        className={cx(s.chevronIcon, node.isOpen && s.chevronOpen)}
                     />
                 </ButtonBase>
             </div>
@@ -46,7 +42,7 @@ export function TreeRow({ node, style, dragHandle }: NodeRendererProps<TreeItem>
         <div
             ref={dragHandle}
             style={style}
-            className={classNames(s.row, node.isSelected && s.selected)}
+            className={cx(s.row, node.isSelected && s.selected)}
             data-selected={node.isSelected || undefined}
         >
             <div className={s.content}>
