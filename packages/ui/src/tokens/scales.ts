@@ -1,15 +1,16 @@
 import { withAlpha } from "./color"
 import { palette } from "./palette"
 
-// Desktop density on a 4px grid (px), with 2 and 6 for hairline-tight gaps.
-export const space = { 2: 2, 4: 4, 6: 6, 8: 8, 12: 12, 16: 16, 20: 20 } as const
+// Spacing on a 4px grid (px), with 2 and 6 for hairline-tight gaps and 10 and 14 for the text inset of fields and
+// push buttons.
+export const space = { 2: 2, 4: 4, 6: 6, 8: 8, 10: 10, 12: 12, 14: 14, 16: 16, 20: 20 } as const
 
 // Radii by kind of element (px): fields, tables and panels are square; pill is the command palette search field.
 export const radius = { none: 0, tooltip: 3, control: 4, popup: 5, window: 6, pill: 999 } as const
 
-// Desktop text sizes (px): mini for statusbar and captions, small for section headers and field labels, body for
-// rows, cells and inputs, regular for menus, buttons and dialogs.
-export const fontSize = { mini: 10, small: 11, body: 12, regular: 13 } as const
+// Text sizes (px): mini for statusbar and captions, small for section headers and field labels, body for rows,
+// cells, inputs and buttons, regular for menus, tooltips and dialogs.
+export const fontSize = { mini: 10, small: 12, body: 12, regular: 14 } as const
 
 export const fontFamily = {
     sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
@@ -21,10 +22,11 @@ export const lineHeight = { text: 1.3, tight: 1.15 } as const
 
 export const fontWeight = { regular: 400, semibold: 600, bold: 700 } as const
 
-// Controls are sized by fixed heights, not padding (px).
-export const controlHeight = { sm: 18, md: 22 } as const
-export const rowHeight = 22
-export const menuItemHeight = 20
+// Controls are sized by fixed heights, not padding (px): md is a field, a push button, a segment or a tab; sm a small
+// glyph button. Rows (tree rows, section headers) are as tall as a field.
+export const controlHeight = { sm: 18, md: 30 } as const
+export const rowHeight = 30
+export const menuItemHeight = 24
 // The macOS overlay title bar the window draws its traffic lights in; sidebar content starts below it.
 export const titlebarHeight = 28
 

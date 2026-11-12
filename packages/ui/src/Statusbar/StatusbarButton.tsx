@@ -1,5 +1,9 @@
 import type { ReactNode } from "react"
-import { IconButton } from "../Button"
+import { ButtonBase, cx } from "../internal"
+import s from "./statusbar-button.module.css"
+
+/** How a toggled-on button shows: a yellow glyph, or a grey body behind the glyph. */
+export type StatusbarButtonLook = "accent" | "fill"
 
 export type StatusbarButtonProps = {
     icon: ReactNode
@@ -7,11 +11,32 @@ export type StatusbarButtonProps = {
     label: string
     onClick: () => void
     disabled?: boolean
-    /** Toggled on: the glyph turns accent. */
+    /** Toggled on (`aria-pressed`); leave undefined for a button that is not a toggle. */
     active?: boolean
+    /** How a toggled-on button shows (default `accent`). */
+    activeLook?: StatusbarButtonLook
 }
 
 /** A small glyph button for the statusbar. */
-export function StatusbarButton({ icon, label, onClick, disabled = false, active }: StatusbarButtonProps) {
-    return <IconButton icon={icon} label={label} onClick={onClick} disabled={disabled} active={active} size="sm" />
+export function StatusbarButton({
+    icon,
+    label,
+    onClick,
+    disabled = false,
+    active,
+    activeLook = "accent",
+}: StatusbarButtonProps) {
+    return (
+        <ButtonBase
+            shape="glyph"
+            size="sm"
+            label={label}
+            active={active}
+            disabled={disabled}
+            className={cx(s.button, activeLook === "fill" && s.fill)}
+            onClick={onClick}
+        >
+            {icon}
+        </ButtonBase>
+    )
 }

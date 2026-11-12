@@ -34,6 +34,9 @@ const PAIRS: ReadonlyArray<Pair> = [
     ...on("label", [...LABEL_SURFACES, "badge"]),
     ...on("label-secondary", LABEL_SURFACES),
     ...on("on-accent", ACCENT_SURFACES),
+    // The statusbar readouts: light text on the strip, on an error pill and on a toggled-on fill; dark text in a select.
+    ...on("statusbar-text", ["statusbar", "statusbar-error", "statusbar-fill"]),
+    ...on("statusbar-field-text", ["statusbar-field"]),
 ]
 
 // A toggled-on glyph sits on a surface, or inside a bordered button on its rest or pressed body.
@@ -44,6 +47,8 @@ const NON_TEXT_PAIRS: ReadonlyArray<Pair> = [
     ...on("accent-glyph", GLYPH_SURFACES),
     ...on("focus-ring", LABEL_SURFACES),
     ...on("track", LABEL_SURFACES),
+    ...on("statusbar-glyph", ["statusbar", "statusbar-fill"]),
+    ...on("statusbar-glyph-active", ["statusbar", "statusbar-fill"]),
 ]
 
 // The hairline outlines a bordered control on every surface it sits on and parts two segments on the control body.

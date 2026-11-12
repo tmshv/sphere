@@ -114,7 +114,12 @@ describe("Tabs", () => {
         const selected = screen.getByRole("tab", { name: "Sources" })
         expect(stateStyle(selected, "background-color", "[data-active]")).toBe("var(--sphere-color-accent)")
         expect(stateStyle(selected, "color", "[data-active]")).toBe("var(--sphere-color-on-accent)")
-        expect(declaredStyle(screen.getByRole("tablist"), "justify-content")).toBe("center")
+    })
+
+    it("aligns the tab list to the left edge of the sidebar", () => {
+        renderTabs()
+
+        expect(declaredStyle(screen.getByRole("tablist"), "justify-content")).toBe("flex-start")
     })
 
     it("an unselected tab darkens to the pressed body while held; the selected and disabled ones do not", () => {

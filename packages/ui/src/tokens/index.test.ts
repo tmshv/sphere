@@ -56,6 +56,14 @@ const ROLES: ReadonlyArray<SemanticColor> = [
     "knob",
     "marker-surface",
     "marker-shadow",
+    "statusbar",
+    "statusbar-text",
+    "statusbar-glyph",
+    "statusbar-glyph-active",
+    "statusbar-fill",
+    "statusbar-error",
+    "statusbar-field",
+    "statusbar-field-text",
 ]
 
 // Names the Mantine-era token set emitted. None may come back: every component reads the desktop roles and scales.
@@ -132,13 +140,13 @@ describe("semantic colours", () => {
 
 describe("scales", () => {
     it("match the spec", () => {
-        expect(space).toEqual({ 2: 2, 4: 4, 6: 6, 8: 8, 12: 12, 16: 16, 20: 20 })
+        expect(space).toEqual({ 2: 2, 4: 4, 6: 6, 8: 8, 10: 10, 12: 12, 14: 14, 16: 16, 20: 20 })
         expect(radius).toEqual({ none: 0, tooltip: 3, control: 4, popup: 5, window: 6, pill: 999 })
-        expect(fontSize).toEqual({ mini: 10, small: 11, body: 12, regular: 13 })
+        expect(fontSize).toEqual({ mini: 10, small: 12, body: 12, regular: 14 })
         expect(lineHeight).toEqual({ text: 1.3, tight: 1.15 })
-        expect(controlHeight).toEqual({ sm: 18, md: 22 })
-        expect(rowHeight).toBe(22)
-        expect(menuItemHeight).toBe(20)
+        expect(controlHeight).toEqual({ sm: 18, md: 30 })
+        expect(rowHeight).toBe(30)
+        expect(menuItemHeight).toBe(24)
         expect(duration).toEqual({ fast: 120, tooltipDelay: 700 })
         expect(opacity).toEqual({ disabled: 0.35 })
     })
@@ -176,9 +184,9 @@ describe("tokensToCss", () => {
         expect(css).toContain("--sphere-font-size-body:12px")
         expect(css).toContain("--sphere-line-height-text:1.3")
         expect(css).toContain("--sphere-control-height-sm:18px")
-        expect(css).toContain("--sphere-control-height-md:22px")
-        expect(css).toContain("--sphere-row-height:22px")
-        expect(css).toContain("--sphere-menu-item-height:20px")
+        expect(css).toContain("--sphere-control-height-md:30px")
+        expect(css).toContain("--sphere-row-height:30px")
+        expect(css).toContain("--sphere-menu-item-height:24px")
         expect(css).toContain("--sphere-titlebar-height:28px")
         expect(css).toContain("--sphere-focus-ring-width:3px")
         expect(css).toContain("--sphere-hairline:0.5px")

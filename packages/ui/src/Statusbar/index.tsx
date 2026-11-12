@@ -4,7 +4,7 @@ import s from "./statusbar.module.css"
 export { StatusbarBadge } from "./StatusbarBadge"
 export type { StatusbarBadgeProps, StatusbarBadgeTone, StatusbarBadgeWidth } from "./StatusbarBadge"
 export { StatusbarButton } from "./StatusbarButton"
-export type { StatusbarButtonProps } from "./StatusbarButton"
+export type { StatusbarButtonLook, StatusbarButtonProps } from "./StatusbarButton"
 export { StatusbarSelect } from "./StatusbarSelect"
 export type { StatusbarSelectProps } from "./StatusbarSelect"
 

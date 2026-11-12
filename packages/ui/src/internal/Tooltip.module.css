@@ -1,4 +1,4 @@
-/* The macOS tooltip: a small tag in the tooltip colour with a hairline border, 3px radius and 11px text, no arrow.
+/* The macOS tooltip: a small tag in the tooltip colour with a hairline border, 3px radius and small text, no arrow.
    It opens after the tooltip delay, appears instantly and fades out. */
 .positioner {
     z-index: var(--sphere-z-index-popover);

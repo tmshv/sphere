@@ -24,7 +24,7 @@
     opacity: 0;
 }
 
-/* A 20px row: the left padding is the check/icon column, the shortcut sits right in the secondary colour. The
+/* A menu-item-height row: the left padding is the check/icon column, the shortcut sits right in the secondary colour. The
    highlight follows the pointer and the keyboard alike ([data-highlighted]); there is no hover style. */
 .item {
     /* The shortcut never takes more than this share of the row, so a long one truncates too. */
@@ -105,7 +105,7 @@
     background-color: var(--sphere-color-separator);
 }
 
-/* A group label: 11px secondary text on the item grid. */
+/* A group label: small secondary text on the item grid. */
 .label {
     box-sizing: border-box;
     display: flex;

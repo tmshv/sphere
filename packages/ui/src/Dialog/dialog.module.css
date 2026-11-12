@@ -1,5 +1,5 @@
-/* A centred macOS window: window background, 6px radius, the window shadow, 20px padding, a 13px bold title and a
-   13px body, buttons bottom-right. It fades in and out over duration-fast with no scale or translate. */
+/* A centred macOS window: window background, 6px radius, the window shadow, 20px padding, a 14px bold title and a
+   14px body, buttons bottom-right. It fades in and out over duration-fast with no scale or translate. */
 .backdrop,
 .viewport {
     position: fixed;

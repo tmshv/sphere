@@ -1,6 +1,6 @@
 import { IconSelector } from "@sphere/icons"
 
-// The pop-up button's double chevron, sized for a 22px control.
+// The pop-up button's double chevron, sized for the control height.
 const GLYPH_SIZE_PX = 14
 
 export function ChevronIcon() {

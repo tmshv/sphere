@@ -57,6 +57,19 @@ describe("StatusbarSelect", () => {
         expect(container.querySelector("svg")).not.toBeNull()
     })
 
+    it("is a light pill with bold uppercase monospace text", () => {
+        render(<StatusbarSelect value="50" options={OPTIONS} onChange={vi.fn()} />)
+        const pill = screen.getByText("50 per page", { selector: "span" }).parentElement
+        expect(pill).not.toBeNull()
+        if (pill === null) {
+            return
+        }
+        expect(declaredStyle(pill, "background-color")).toBe("var(--sphere-color-statusbar-field)")
+        expect(declaredStyle(pill, "color")).toBe("var(--sphere-color-statusbar-field-text)")
+        expect(declaredStyle(pill, "font-family")).toBe("var(--sphere-font-family-mono)")
+        expect(declaredStyle(pill, "text-transform")).toBe("uppercase")
+    })
+
     it("lets the visible value size the control, with the native select laid transparently over it", () => {
         render(<StatusbarSelect value="50" options={OPTIONS} onChange={vi.fn()} />)
         const select = screen.getByRole("combobox")

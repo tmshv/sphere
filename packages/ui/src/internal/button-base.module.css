@@ -78,15 +78,15 @@
     background-color: var(--sphere-color-control-pressed);
 }
 
-/* push: a 22px button with 13px text. */
+/* push: a control-height button with body text. */
 .root[data-shape="push"] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     height: var(--sphere-control-height-md);
-    padding-inline: var(--sphere-space-12);
+    padding-inline: var(--sphere-space-14);
     color: var(--sphere-color-label);
-    font-size: var(--sphere-font-size-regular);
+    font-size: var(--sphere-font-size-body);
     line-height: var(--sphere-line-height-tight);
     white-space: nowrap;
 }
@@ -123,8 +123,10 @@
 }
 
 /* Toggled on: an accent glyph, and for bordered-glyph the pressed body. A disabled toggle reads as disabled, so
-   the active look skips it. */
+   the active look skips it. A glyph button has no body unless its surface asks for one through --button-active-fill
+   (the statusbar's sidebar toggle). */
 .root[data-shape="glyph"][data-active]:not(:disabled) {
+    background-color: var(--button-active-fill, transparent);
     color: var(--sphere-color-accent-glyph);
 }
 

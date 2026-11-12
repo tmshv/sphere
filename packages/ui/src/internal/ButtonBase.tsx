@@ -25,7 +25,8 @@ export type ButtonBaseProps = {
     /** Shows label as the native `title` tooltip (default). False for a button with its own Tooltip; the name stays. */
     nativeTooltip?: boolean
     type?: "button" | "submit"
-    /** Layout only (flex, margin); never colour. */
+    /** Layout (flex, margin), or a surface's own colours given as the colour roles this button reads, redefined as
+     * custom properties (the statusbar). Never a colour declaration of its own. */
     className?: string
     onClick?: () => void
     children: ReactNode

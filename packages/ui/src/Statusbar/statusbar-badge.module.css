@@ -1,12 +1,30 @@
-/* A readout in the statusbar: plain text with fixed-width digits, no pill. */
+/* A readout in the statusbar: 10px bold uppercase monospace in a small pill. The default pill is the strip colour,
+   so it reads as plain text; an error pill is red. */
 .widget {
+    --statusbar-badge-height: 18px;
+    --statusbar-badge-letter-spacing: 0.25px;
     /* Fixed widths keep a changing readout from shoving its neighbours around. */
     --statusbar-badge-width-short: 90px;
     --statusbar-badge-width-long: 101px;
 
-    display: inline-block;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
     width: auto;
-    font-variant-numeric: tabular-nums;
+    max-width: 100%;
+    height: var(--statusbar-badge-height);
+    padding: 0 var(--sphere-space-8);
+    border-radius: var(--sphere-radius-control);
+    background-color: var(--sphere-color-statusbar);
+    color: var(--sphere-color-statusbar-text);
+    font-family: var(--sphere-font-family-mono);
+    font-size: var(--sphere-font-size-mini);
+    font-weight: var(--sphere-font-weight-bold);
+    line-height: var(--sphere-line-height-tight);
+    letter-spacing: var(--statusbar-badge-letter-spacing);
+    text-transform: uppercase;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -16,7 +34,9 @@
 }
 
 .error {
-    color: var(--sphere-color-danger);
+    flex-shrink: 1;
+    min-width: 0;
+    background-color: var(--sphere-color-statusbar-error);
 }
 
 .short {

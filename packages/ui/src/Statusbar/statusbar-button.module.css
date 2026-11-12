@@ -1,0 +1,15 @@
+/* A glyph button on the statusbar. It is the package's glyph button (ButtonBase), recoloured for the dark strip by
+   redefining the colour roles that button reads: grey at rest, light while pressed, yellow when toggled on. A
+   `fill` toggle (the sidebar toggle) shows on as a grey body behind the grey glyph instead. The statusbar glyphs are
+   16px in the 18px box. */
+.button {
+    --button-glyph-size-sm: 16px;
+    --sphere-color-label-secondary: var(--sphere-color-statusbar-glyph);
+    --sphere-color-accent-glyph: var(--sphere-color-statusbar-glyph-active);
+    --sphere-color-glyph-pressed: var(--sphere-color-statusbar-text);
+}
+
+.fill {
+    --sphere-color-accent-glyph: var(--sphere-color-statusbar-glyph);
+    --button-active-fill: var(--sphere-color-statusbar-fill);
+}

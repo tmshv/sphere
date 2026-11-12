@@ -1,4 +1,4 @@
-/* The tabs own the whole sidebar height: the list keeps its natural height, centred above the panel, and the
+/* The tabs own the whole sidebar height: the list keeps its natural height, aligned left above the panel, and the
    active panel takes the rest, so the panel content scrolls inside the sidebar. The tabs themselves are the shared
    segmented look. */
 .root {
@@ -14,8 +14,8 @@
     display: flex;
     flex-shrink: 0;
     align-items: stretch;
-    justify-content: center;
-    padding: var(--sphere-space-8);
+    justify-content: flex-start;
+    padding: var(--sphere-space-12);
 }
 
 .panel {

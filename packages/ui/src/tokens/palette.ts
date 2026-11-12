@@ -53,3 +53,15 @@ export const palette: Palette = {
     yellow: { light: "#b25000", dark: "#ffd426" },
     green: { light: "#248a3d", dark: "#30db5b" },
 }
+
+// The statusbar keeps Sphere's own look in both themes: a near-black strip with light monospace readouts, grey
+// glyphs, a yellow glyph for the active tool and a red pill for an error. These are its colours, unchanged from
+// before the desktop redesign (Mantine dark 9, gray 1, 6 and 8, yellow 6; the error red is red 9, one step darker than before, so its text meets WCAG AA).
+export const statusbarPalette = {
+    ink: "#101113",
+    text: "#f1f3f5",
+    glyph: "#868e96",
+    glyphActive: "#fab005",
+    fill: "#343a40",
+    error: "#c92a2a",
+} as const

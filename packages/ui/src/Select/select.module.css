@@ -1,5 +1,5 @@
 /* The pop-up button: the push-button body (light body, hairline border, hairline shadow beneath, 4px radius) at
-   the 22px control height, the value on the left and the double chevron on the right. Pressing darkens the body;
+   the control height, the value on the left and the double chevron on the right. Pressing darkens the body;
    there is no hover style. */
 .trigger {
     appearance: none;
@@ -10,7 +10,7 @@
     width: 100%;
     height: var(--sphere-control-height-md);
     margin: 0;
-    padding: 0 var(--sphere-space-4) 0 var(--sphere-space-8);
+    padding: 0 var(--sphere-space-4) 0 var(--sphere-space-10);
     border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-control);
     outline: none;

@@ -29,7 +29,7 @@
     text-transform: uppercase;
 }
 
-/* A panel heading: 13px bold. */
+/* A panel heading: regular-size bold. */
 .heading {
     font-family: var(--sphere-font-family-sans);
     font-weight: var(--sphere-font-weight-bold);

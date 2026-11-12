@@ -1,4 +1,4 @@
-/* The segmented look shared by SegmentedControl and Tabs (an NSTabView-style row): a 22px bordered control body,
+/* The segmented look shared by SegmentedControl and Tabs (an NSTabView-style row): a control-height bordered control body,
    segments separated by the hairline, rounded only on the outer ends. Icons keep the size their caller gives them.
    The selected segment is accent with on-accent text. No hover style; the arrow cursor; an unselected segment
    darkens while pressed, as a push button does; focus draws the focus-ring glow. */
@@ -21,7 +21,7 @@
     min-width: 0;
     height: var(--sphere-control-height-md);
     margin: 0;
-    padding: 0 var(--sphere-space-8);
+    padding: 0 var(--sphere-space-12);
     border: var(--sphere-hairline) solid var(--sphere-color-control-border);
     border-radius: var(--sphere-radius-none);
     outline: none;

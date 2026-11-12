@@ -36,6 +36,7 @@ export function AppWindow({ children, sidebar = true }: AppWindowProps) {
                 icon={STATUSBAR_SIDEBAR_GLYPH}
                 label={STATUSBAR_SIDEBAR_LABEL}
                 active={sidebarOpen}
+                activeLook="fill"
                 onClick={() => setSidebarOpen(open => !open)}
             />
             <StatusbarBadge title={STATUSBAR_BADGE_TITLE}>{STATUSBAR_BADGE_TEXT}</StatusbarBadge>

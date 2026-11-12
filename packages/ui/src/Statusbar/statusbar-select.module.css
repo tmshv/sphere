@@ -1,20 +1,26 @@
-/* A compact borderless pop-up on the statusbar: the value in 10px secondary text with its chevron right beside it.
-   The native select is laid transparently over the whole control, so the value sizes it and it takes the input. */
+/* A compact pop-up on the statusbar: a light pill with the value in 10px bold uppercase monospace, as the
+   statusbar readouts are, and its chevron right beside it. The native select is laid transparently over the whole
+   control, so the value sizes it and it takes the input. */
 .root {
-    --statusbar-select-height: var(--sphere-control-height-sm);
+    --statusbar-select-height: 16px;
+    --statusbar-select-letter-spacing: 0.25px;
 
     position: relative;
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     gap: var(--sphere-space-2);
     height: var(--statusbar-select-height);
     padding: 0 var(--sphere-space-4);
     border-radius: var(--sphere-radius-control);
-    color: var(--sphere-color-label-secondary);
-    font-family: var(--sphere-font-family-sans);
+    background-color: var(--sphere-color-statusbar-field);
+    color: var(--sphere-color-statusbar-field-text);
+    font-family: var(--sphere-font-family-mono);
     font-size: var(--sphere-font-size-mini);
-    font-weight: var(--sphere-font-weight-regular);
+    font-weight: var(--sphere-font-weight-bold);
     line-height: var(--sphere-line-height-tight);
+    letter-spacing: var(--statusbar-select-letter-spacing);
+    text-transform: uppercase;
     cursor: default;
     user-select: none;
     -webkit-user-select: none;

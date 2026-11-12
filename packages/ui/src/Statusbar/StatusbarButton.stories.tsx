@@ -3,7 +3,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 import { STATUSBAR_BUTTON_LABEL } from "../stories/fixtures"
 import { STATUSBAR_ICON_SIZE } from "../stories/layout"
-import { Statusbar, StatusbarButton } from "."
+import { Statusbar, StatusbarButton, type StatusbarButtonLook } from "."
+
+const LOOKS: ReadonlyArray<StatusbarButtonLook> = ["accent", "fill"]
 
 const meta = {
     title: "Statusbar/StatusbarButton",
@@ -15,6 +17,10 @@ const meta = {
         onClick: fn(),
         disabled: false,
         active: false,
+        activeLook: "accent",
+    },
+    argTypes: {
+        activeLook: { control: "radio", options: LOOKS },
     },
     decorators: [
         Story => (
@@ -32,6 +38,8 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 
 export const Active: Story = { args: { active: true } }
+
+export const ActiveFill: Story = { args: { active: true, activeLook: "fill" } }
 
 export const Disabled: Story = { args: { disabled: true } }
 

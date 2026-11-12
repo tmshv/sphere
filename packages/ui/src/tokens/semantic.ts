@@ -1,5 +1,5 @@
 import { mix, withAlpha } from "./color"
-import { type SchemeColor, palette } from "./palette"
+import { type SchemeColor, palette, statusbarPalette } from "./palette"
 
 export type SemanticColor =
     | "track"
@@ -36,6 +36,14 @@ export type SemanticColor =
     | "chart-bar"
     | "marker-surface"
     | "marker-shadow"
+    | "statusbar"
+    | "statusbar-text"
+    | "statusbar-glyph"
+    | "statusbar-glyph-active"
+    | "statusbar-fill"
+    | "statusbar-error"
+    | "statusbar-field"
+    | "statusbar-field-text"
 
 export type SemanticValue = SchemeColor
 
@@ -123,4 +131,17 @@ export const semantic: Record<SemanticColor, SemanticValue> = {
     knob: both(WHITE),
     "marker-surface": both(WHITE),
     "marker-shadow": both(withAlpha(BLACK, MARKER_SHADOW_ALPHA)),
+    // The statusbar is the same near-black strip in both themes (see statusbarPalette).
+    statusbar: both(statusbarPalette.ink),
+    "statusbar-text": both(statusbarPalette.text),
+    "statusbar-glyph": both(statusbarPalette.glyph),
+    // The glyph of the active map tool.
+    "statusbar-glyph-active": both(statusbarPalette.glyphActive),
+    // The body of a toggled-on fill button (the sidebar toggle), also a glyph button's pressed body.
+    "statusbar-fill": both(statusbarPalette.fill),
+    // The pill of an error readout, with statusbar-text on it.
+    "statusbar-error": both(statusbarPalette.error),
+    // The light pill of a statusbar select, with dark text.
+    "statusbar-field": both(WHITE),
+    "statusbar-field-text": both(BLACK),
 }

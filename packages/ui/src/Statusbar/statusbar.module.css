@@ -1,18 +1,16 @@
-/* The window-coloured strip under a window: a separator line on top, 10px secondary text, one row tall. */
+/* Sphere's statusbar: a near-black strip in both themes, 28px tall, with light monospace readouts and grey glyphs.
+   It keeps the look it had before the desktop redesign; only the interaction follows the design system (no hover,
+   a colour-only press). */
 .statusbar {
-    --statusbar-padding: var(--sphere-space-8);
+    --statusbar-height: 28px;
 
     display: flex;
     align-items: center;
-    gap: var(--sphere-space-8);
+    gap: var(--sphere-space-12);
     box-sizing: border-box;
-    height: var(--sphere-row-height);
-    padding: 0 var(--statusbar-padding);
-    border-top: 1px solid var(--sphere-color-separator);
-    background-color: var(--sphere-color-window);
-    color: var(--sphere-color-label-secondary);
-    font-family: var(--sphere-font-family-sans);
-    font-size: var(--sphere-font-size-mini);
-    line-height: var(--sphere-line-height-tight);
+    height: var(--statusbar-height);
+    padding: var(--sphere-space-4) var(--sphere-space-12);
+    background-color: var(--sphere-color-statusbar);
+    color: var(--sphere-color-statusbar-text);
     cursor: default;
 }

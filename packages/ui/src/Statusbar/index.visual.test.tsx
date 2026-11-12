@@ -22,6 +22,7 @@ function ButtonStates() {
         <Statusbar>
             <StatusbarButton icon={icon} label="Idle" onClick={noop} />
             <StatusbarButton icon={icon} label="Active" onClick={noop} active />
+            <StatusbarButton icon={icon} label="Active fill" onClick={noop} active activeLook="fill" />
             <StatusbarButton icon={icon} label="Disabled" onClick={noop} disabled />
             <StatusbarButton
                 icon={<IconRuler size={ICON_SIZE} />}

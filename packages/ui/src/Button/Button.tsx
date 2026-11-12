@@ -11,7 +11,7 @@ export type ButtonProps = {
     children: ReactNode
 }
 
-/** A 22px push button: `primary` is the accent default button, `secondary` the bordered control body. */
+/** A control-height push button: `primary` is the accent default button, `secondary` the bordered control body. */
 export function Button({ variant = "primary", type = "button", disabled, onClick, children }: ButtonProps) {
     return (
         <ButtonBase shape="push" tone={variant} type={type} disabled={disabled} onClick={onClick}>
