@@ -3,9 +3,7 @@ import type { ReactNode } from "react"
 import { describe, expect, it } from "vitest"
 import { useAccentColor } from "."
 import { ThemeProvider } from "../ThemeProvider"
-
-const LIGHT_ACCENT = "#1c7ed6"
-const DARK_ACCENT = "#339af0"
+import { semantic } from "../tokens"
 
 function wrapper(dark: boolean) {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -14,10 +12,10 @@ function wrapper(dark: boolean) {
 }
 
 describe("useAccentColor", () => {
-    it("returns the light shade in light theme and the dark shade in dark theme", () => {
+    it("returns the accent glyph colour of the provider's scheme", () => {
         const light = renderHook(() => useAccentColor(), { wrapper: wrapper(false) })
         const dark = renderHook(() => useAccentColor(), { wrapper: wrapper(true) })
-        expect(light.result.current).toBe(LIGHT_ACCENT)
-        expect(dark.result.current).toBe(DARK_ACCENT)
+        expect(light.result.current).toBe(semantic["accent-glyph"].light)
+        expect(dark.result.current).toBe(semantic["accent-glyph"].dark)
     })
 })

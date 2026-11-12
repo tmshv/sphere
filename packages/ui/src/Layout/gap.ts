@@ -1,12 +1,11 @@
-import { legacyScales } from "../tokens"
+import { space } from "../tokens"
 
 export type Gap = "xxs" | "xs" | "sm" | "md"
 
-const { space } = legacyScales
-
+// The gap names Row and Stack take, on the desktop space scale (px).
 export const GAP_PX: Record<Gap, number> = {
-    xxs: space.xxs,
-    xs: space.xs,
-    sm: space.sm,
-    md: space.md,
+    xxs: space[2],
+    xs: space[4],
+    sm: space[12],
+    md: space[16],
 }

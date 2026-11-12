@@ -10,7 +10,6 @@ const STORIES_SUFFIX = ".stories.tsx"
 const EXEMPT: Record<string, string> = {
     hooks: "React hooks, no rendered output",
     selection: "Pure selection helpers, no rendered output",
-    tokens: "Design tokens are documented by the Foundations pages",
     ThemeProvider: "Applied globally by the Storybook preview decorator",
 }
 
@@ -28,5 +27,11 @@ describe("story coverage", () => {
     it("has a stories file for every exported component folder", () => {
         const missing = exportedFolders().filter(folder => !(folder in EXEMPT) && !hasStories(folder))
         expect(missing).toEqual([])
+    })
+
+    it("exempts only folders the barrel exports, so no exemption outlives its folder", () => {
+        const exported = new Set(exportedFolders())
+        const stale = Object.keys(EXEMPT).filter(folder => !exported.has(folder))
+        expect(stale).toEqual([])
     })
 })

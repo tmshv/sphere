@@ -41,7 +41,7 @@ export type BadgeProps = {
     children: ReactNode
 } & TriggerProps
 
-// Forwards its ref and the props a tooltip trigger hands down, as Mantine's Badge did.
+// Forwards its ref and the props a tooltip trigger hands down, so a Badge can be a Tooltip trigger.
 export const Badge = forwardRef<HTMLDivElement, BadgeProps>(function Badge(
     { size, variant, className, title, children, ...rest },
     ref,

@@ -27,11 +27,8 @@
     max-width: var(--error-message-max-width);
 }
 
-.titleSidebar {
-    font-size: var(--sphere-font-size-regular);
-}
-
-.titleFullscreen {
+/* The same title in both variants: the variant changes only the padding and the message width. */
+.title {
     font-size: var(--sphere-font-size-regular);
 }
 

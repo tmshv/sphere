@@ -11,10 +11,7 @@ type ErrorFallbackProps = FallbackProps & {
     variant: Variant
 }
 
-const TITLE_CLASS: Record<Variant, string> = {
-    sidebar: textClassName({ weight: "semibold", extra: [s.titleSidebar] }),
-    fullscreen: textClassName({ weight: "semibold", extra: [s.titleFullscreen] }),
-}
+const TITLE_CLASS = textClassName({ weight: "semibold", extra: [s.title] })
 
 const MESSAGE_CLASS = textClassName({ tone: "dimmed", extra: [s.messageText] })
 
@@ -27,7 +24,7 @@ export function ErrorFallback({ error, resetErrorBoundary, variant }: ErrorFallb
     return (
         <div className={cx(s.root, VARIANT_CLASS[variant])}>
             <Stack gap="sm" className={s.message}>
-                <div className={TITLE_CLASS[variant]}>Something went wrong</div>
+                <div className={TITLE_CLASS}>Something went wrong</div>
                 <div className={MESSAGE_CLASS}>{error instanceof Error ? error.message : String(error)}</div>
                 <Row gap="xs" align="center" className={s.actions}>
                     <Button variant="secondary" onClick={resetErrorBoundary}>

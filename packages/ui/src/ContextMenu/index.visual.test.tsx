@@ -66,6 +66,23 @@ visualCases("ContextMenu", {
         },
         target: "page",
     },
+    // The highlight follows the pointer and the keyboard alike. Base UI ignores the synthetic pointer moves WebKit
+    // gets from Playwright (they carry no movement), so the highlight is pinned by focusing the item, as the arrow
+    // keys do; item-hover above pins that the pointer passing over an item adds no hover style of its own.
+    "item-highlighted": {
+        render: () => (
+            <ContextMenu opened position={MENU_POSITION} onClose={noop}>
+                <Items />
+            </ContextMenu>
+        ),
+        interact: async () => {
+            await waitForMenu()
+            const copy = page.getByRole("menuitem", { name: "Copy" })
+            copy.element().focus()
+            await expect.element(copy).toHaveAttribute("data-highlighted")
+        },
+        target: "page",
+    },
     "near-edge": {
         render: () => (
             <ContextMenu opened position={NEAR_EDGE_POSITION} onClose={noop}>

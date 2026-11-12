@@ -4,8 +4,6 @@ import {
     controlHeight,
     duration,
     fontSize,
-    legacyScales,
-    legacySemantic,
     lineHeight,
     menuItemHeight,
     opacity,
@@ -57,8 +55,17 @@ const ROLES: ReadonlyArray<SemanticColor> = [
     "marker-shadow",
 ]
 
-// Legacy names spelled like a new role: the new value replaces the legacy one.
-const CLASHING_LEGACY_NAMES = ["accent", "separator", "focus-ring", "danger", "on-accent", "tooltip-text"]
+// Names the Mantine-era token set emitted. None may come back: every component reads the desktop roles and scales.
+const REMOVED_NAMES = [
+    "--sphere-color-body",
+    "--sphere-color-chevron",
+    "--sphere-color-accent-icon",
+    "--sphere-space-sm",
+    "--sphere-radius-sm",
+    "--sphere-font-size-md",
+    "--sphere-duration-normal",
+]
+const COLOR_PREFIX = "--sphere-color-"
 
 const RULE = /^(:root|:root\[data-theme="dark"\])\{(.*)\}$/
 const DECLARATION = /^--sphere-[a-z0-9]+(-[a-z0-9]+)*:\S.*$/
@@ -117,10 +124,6 @@ describe("semantic colours", () => {
         expect(semantic["tooltip-text"]).toEqual(semantic.label)
         expect(semantic["marker-surface"]).toEqual({ light: palette.gray[0], dark: palette.gray[0] })
     })
-
-    it("drops the legacy entries whose names a new role takes", () => {
-        for (const name of CLASHING_LEGACY_NAMES) expect(Object.keys(legacySemantic)).not.toContain(name)
-    })
 })
 
 describe("scales", () => {
@@ -136,9 +139,8 @@ describe("scales", () => {
         expect(opacity).toEqual({ disabled: 0.35 })
     })
 
-    it("GAP_PX is derived from the legacy space scale until Layout migrates", () => {
-        const { xxs, xs, sm, md } = legacyScales.space
-        expect(GAP_PX).toEqual({ xxs, xs, sm, md })
+    it("GAP_PX is derived from the space scale", () => {
+        expect(GAP_PX).toEqual({ xxs: space[2], xs: space[4], sm: space[12], md: space[16] })
     })
 })
 
@@ -181,13 +183,18 @@ describe("tokensToCss", () => {
         expect(css).toContain("--sphere-z-index-modal:200")
     })
 
-    it("keeps emitting legacy tokens, and the new value wins on a name clash", () => {
+    it("emits exactly one colour per role in each scheme, and the dark rule holds colours only", () => {
         const [light, dark] = rules()
-        expect(light?.declarations).toContain("--sphere-space-sm:12px")
-        expect(light?.declarations).toContain(`--sphere-color-body:${legacySemantic.body.light}`)
-        expect(dark?.declarations).toContain(`--sphere-color-body:${legacySemantic.body.dark}`)
-        expect(light?.declarations).toContain(`--sphere-color-accent:${semantic.accent.light}`)
-        expect(dark?.declarations).toContain(`--sphere-color-accent:${semantic.accent.dark}`)
-        expect(light?.declarations).toContain("--sphere-duration-normal:200ms")
+        const roleNames = ROLES.map(role => `${COLOR_PREFIX}${role}`).sort()
+        const colorNames = (rule: Rule | undefined) =>
+            (rule ? declarationNames(rule) : []).filter(name => name.startsWith(COLOR_PREFIX)).sort()
+        expect(colorNames(light)).toEqual(roleNames)
+        expect(colorNames(dark)).toEqual(roleNames)
+        expect(dark ? declarationNames(dark).sort() : []).toEqual(roleNames)
+    })
+
+    it("no longer emits the Mantine-era tokens", () => {
+        const names = rules().flatMap(declarationNames)
+        for (const name of REMOVED_NAMES) expect(names).not.toContain(name)
     })
 })

@@ -11,16 +11,10 @@ import { ErrorFallback } from "../ErrorFallback"
 import { PropertesTable, type PropertyItem } from "../PropertiesTable"
 import { ThemeProvider } from "../ThemeProvider"
 
-// Pressed-state pins (R1). They assert the computed transform in a real browser instead of comparing a
-// screenshot: WebKit sometimes drops :active while Playwright takes a screenshot, so a pressed baseline
-// is not reproducible (two consecutive captures of the same press differ by the 1px shift). The press
-// itself is asserted to be live (`:active`) before the transform is read.
-//
-// Mantine 5 reference: Sphere's theme set `activeStyles: { transform: "none" }`, so ActionBar, Button and
-// ErrorFallback never move when pressed. The PropertiesTable footer sat in a nested MantineProvider with
-// the default `translateY(1px)`, so its pager buttons do.
+// Pressed-state pins: a press changes colour only, nothing translates or scales. They assert the computed
+// transform in a real browser, with the press asserted to be live (`:active`) before the transform is read.
+// The pressed colour itself is pinned by the Button `pressed` screenshot.
 const NO_TRANSFORM = "none"
-const PRESSED_TRANSFORM = "matrix(1, 0, 0, 1, 0, 1)"
 const PAGE_COUNT = 3
 const PAGE_SIZE = 25
 
@@ -119,10 +113,10 @@ describe("pressed state", () => {
         expect(getComputedStyle(reload).transform).toBe(NO_TRANSFORM)
     })
 
-    test("PropertiesTable pager button moves down 1px", async () => {
+    test("PropertiesTable pager button does not move", async () => {
         mount(pager(1))
         const next = await pressAndHold(page.getByRole("button", { name: "Next page" }))
-        expect(getComputedStyle(next).transform).toBe(PRESSED_TRANSFORM)
+        expect(getComputedStyle(next).transform).toBe(NO_TRANSFORM)
     })
 
     test("a disabled pager button stays put", async () => {

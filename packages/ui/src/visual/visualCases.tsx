@@ -1,4 +1,4 @@
-import { type Locator, page, userEvent } from "vitest/browser"
+import { commands, type Locator, page, userEvent } from "vitest/browser"
 import { afterEach, describe, expect, test } from "vitest"
 import type { ReactNode } from "react"
 import { flushSync } from "react-dom"
@@ -9,6 +9,8 @@ export type VisualCase = {
     render: () => ReactNode
     /** Hover, focus or open a popup after the first render. */
     interact?: () => Promise<void>
+    /** Undoes what `interact` holds (a pressed mouse button) after the capture, pass or fail. */
+    cleanup?: () => Promise<void>
     /** "page" captures the whole viewport, for portalled popups. */
     target?: "subject" | "page"
     /**
@@ -104,13 +106,19 @@ export function visualCases(component: string, cases: Record<string, VisualCase>
                 test(`${name} (${theme})`, async () => {
                     mount(visualCase.render(), theme === "dark")
                     await expect.element(page.getByTestId(SUBJECT_ID)).toBeVisible()
-                    await visualCase.interact?.()
-                    freezeSvgAnimations()
-                    const locator =
-                        visualCase.target === "page" ? page.elementLocator(document.body) : page.getByTestId(SUBJECT_ID)
-                    await expect.element(locator).toMatchScreenshot(`${component}-${name}-${theme}`, {
-                        comparatorOptions: { allowedMismatchedPixelRatio: visualCase.allowedMismatchedPixelRatio },
-                    })
+                    try {
+                        await visualCase.interact?.()
+                        freezeSvgAnimations()
+                        const locator =
+                            visualCase.target === "page"
+                                ? page.elementLocator(document.body)
+                                : page.getByTestId(SUBJECT_ID)
+                        await expect.element(locator).toMatchScreenshot(`${component}-${name}-${theme}`, {
+                            comparatorOptions: { allowedMismatchedPixelRatio: visualCase.allowedMismatchedPixelRatio },
+                        })
+                    } finally {
+                        await visualCase.cleanup?.()
+                    }
                 })
             }
         }
@@ -121,9 +129,28 @@ export function visualCases(component: string, cases: Record<string, VisualCase>
  * Focuses an element the way the keyboard does, so :focus-visible styles apply.
  * WebKit never tabs onto buttons, and a bare programmatic focus() after a pointer
  * action does not match :focus-visible. A key press first makes the browser treat
- * the next focus() as keyboard-driven.
+ * the next focus() as keyboard-driven. It must not be a modifier: after a mouse press
+ * WebKit ignores Shift alone. Escape is harmless with nothing focused yet. The case
+ * fails rather than capture a baseline without the ring if the browser disagrees.
  */
 export async function focusWithKeyboard(target: Locator) {
-    await userEvent.keyboard("{Shift}")
+    await userEvent.keyboard("{Escape}")
     target.element().focus()
+    await expect.poll(() => target.element().matches(":focus-visible")).toBe(true)
+}
+
+/**
+ * Holds the primary mouse button down on a target until `releasePress`, so the case captures the pressed look
+ * (`:active`). It waits until the press is live before the capture.
+ */
+export async function pressAndHold(target: Locator) {
+    await userEvent.hover(target)
+    await commands.mouseDown()
+    await expect.poll(() => target.element().matches(":active")).toBe(true)
+}
+
+/** Moves off the pressed target before letting go, so the release never completes a click. */
+export async function releasePress() {
+    await userEvent.unhover(page.elementLocator(document.body))
+    await commands.mouseUp()
 }

@@ -18,6 +18,16 @@ function Bars({ children }: { children: ReactNode }) {
 const icon = <IconMap size={ICON_SIZE} />
 
 visualCases("Statusbar", {
+    default: {
+        render: () => (
+            <Statusbar>
+                <StatusbarButton icon={icon} label="Basemap" onClick={noop} />
+                <StatusbarBadge title="Zoom">z 12.4</StatusbarBadge>
+                <StatusbarBadge tone="error">1 error</StatusbarBadge>
+                <StatusbarSelect value="all" options={SELECT_OPTIONS} onChange={noop} />
+            </Statusbar>
+        ),
+    },
     "buttons-states": {
         render: () => (
             <Statusbar>

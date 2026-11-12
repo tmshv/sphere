@@ -4,9 +4,6 @@ import { Tooltip } from "./Tooltip"
 
 const TARGET_LABEL = "Target"
 const PADDING = "56px 96px"
-// Mantine places the tooltip at fractional pixels (121.44px); Base UI rounds to whole pixels.
-// The box is identical and only the glyph anti-aliasing inside it differs, about 100 pixels.
-const ROUNDED_POSITION_TOLERANCE = 0.0005
 
 const target = <button type="button">{TARGET_LABEL}</button>
 
@@ -26,7 +23,6 @@ visualCases("InternalTooltip", {
         ),
         interact: hoverTarget("Copy"),
         target: "page",
-        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
     "right-no-transition": {
         render: () => (
@@ -38,7 +34,6 @@ visualCases("InternalTooltip", {
         ),
         interact: hoverTarget("Reset north"),
         target: "page",
-        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
     delayed: {
         render: () => (
@@ -50,6 +45,5 @@ visualCases("InternalTooltip", {
         ),
         interact: hoverTarget("https://example.com/a/long/path"),
         target: "page",
-        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
 })
