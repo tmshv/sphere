@@ -42,12 +42,15 @@ function styleRules(rules: CSSRuleList): CSSStyleRule[] {
     })
 }
 
-// The value a property takes in the given user-action state: it reads rules whose selector contains the pseudo-class,
-// matching the element as if it were not in that state. Returns "" when no rule sets it.
+// The value a property takes in the given state: it reads rules whose selector contains the pseudo-class (or state
+// attribute), matching the element as if it were not in that state. Returns "" when no rule sets it. Rules that
+// exclude the state with `:not(…)` are skipped.
 function stateStyle(element: Element, property: string, pseudoClass: string): string {
     const values = [...document.styleSheets]
         .flatMap(sheet => styleRules(sheet.cssRules))
         .filter(rule => rule.selectorText.includes(pseudoClass))
+        // `:focus:not(:focus-visible)` styles the absence of the state, not the state.
+        .filter(rule => !rule.selectorText.includes(`:not(${pseudoClass})`))
         .filter(rule => element.matches(rule.selectorText.replaceAll(pseudoClass, "")))
         .map(rule => rule.style.getPropertyValue(property))
         .filter(value => value !== "")
@@ -72,6 +75,13 @@ export function hoverStyle(element: Element, property: string): string {
 // Like declaredStyle, for the value a property takes while the element has keyboard focus (`:focus-visible`).
 export function focusVisibleStyle(element: Element, property: string): string {
     return stateStyle(element, property, FOCUS_VISIBLE)
+}
+
+const STARTING_STYLE = "[data-starting-style]"
+
+// Like declaredStyle, for the value a property takes while a Base UI popup is entering (`[data-starting-style]`).
+export function startingStyle(element: Element, property: string): string {
+    return stateStyle(element, property, STARTING_STYLE)
 }
 
 const DESKTOP_CURSOR = "default"

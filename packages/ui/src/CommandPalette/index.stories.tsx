@@ -3,6 +3,8 @@ import { expect, userEvent, waitFor, within } from "storybook/test"
 import {
     COMMANDS,
     PALETTE_EMPTY_MESSAGE,
+    PALETTE_FILTER_MATCH,
+    PALETTE_FILTER_QUERY,
     PALETTE_HINT,
     PALETTE_NO_MATCH_QUERY,
     PALETTE_OPEN_KEYS,
@@ -36,6 +38,16 @@ export const Default: Story = {
         const body = within(canvasElement.ownerDocument.body)
         const input = await body.findByPlaceholderText(PALETTE_PLACEHOLDER)
         await waitFor(() => expect(input).toBeVisible())
+    },
+}
+
+// Typing highlights the first match edge to edge.
+export const Filtered: Story = {
+    play: async ({ canvasElement }) => {
+        await userEvent.keyboard(PALETTE_OPEN_KEYS)
+        const body = within(canvasElement.ownerDocument.body)
+        await userEvent.type(await body.findByPlaceholderText(PALETTE_PLACEHOLDER), PALETTE_FILTER_QUERY)
+        await expect(await body.findByText(PALETTE_FILTER_MATCH)).toBeVisible()
     },
 }
 

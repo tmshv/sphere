@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useState } from "react"
-import { fn } from "storybook/test"
+import { expect, fn, userEvent, waitFor, within } from "storybook/test"
 import { LAYER_OPTIONS, SELECT_LABEL, SELECT_PLACEHOLDER } from "../stories/fixtures"
 import { fieldStyle } from "../stories/layout"
 import { Select, type SelectProps } from "./Select"
@@ -21,6 +21,8 @@ function SelectDemo({ value: initial, onChange, ...rest }: SelectProps) {
         </div>
     )
 }
+
+const FIRST_OPTION = LAYER_OPTIONS.at(0)
 
 const meta = {
     title: "Controls/Select",
@@ -43,6 +45,17 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
-export const WithValue: Story = { args: { value: LAYER_OPTIONS.at(0)?.value ?? null } }
+export const WithValue: Story = { args: { value: FIRST_OPTION?.value ?? null } }
+
+// The list open on the menu surface, with the check on the current value.
+export const Open: Story = {
+    args: { value: FIRST_OPTION?.value ?? null },
+    play: async ({ canvasElement }) => {
+        await userEvent.click(within(canvasElement).getByRole("combobox"))
+        const body = within(canvasElement.ownerDocument.body)
+        const option = await body.findByRole("option", { name: FIRST_OPTION?.label ?? "" })
+        await waitFor(() => expect(option).toBeVisible())
+    },
+}
 
 export const Searchable: Story = { args: { searchable: true } }

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
 import { CONTEXT_MENU_ITEMS, ICON_GLYPHS, LONG_MENU_ITEM, LONG_SHORTCUT, MENU_LABEL } from "../stories/fixtures"
 import { CONTEXT_MENU_POSITION, overlayStyle } from "../stories/layout"
-import { ContextMenu, ContextMenuItem, ContextMenuLabel } from "."
+import { ContextMenu, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator } from "."
 
 const { zoom, edit, remove, rename } = CONTEXT_MENU_ITEMS
 
@@ -41,9 +41,23 @@ export const Default: Story = {
                 <ContextMenuItem icon={edit.icon} shortcut={edit.shortcut} onClick={fn()}>
                     {edit.label}
                 </ContextMenuItem>
+                <ContextMenuSeparator />
                 <ContextMenuItem icon={remove.icon} disabled>
                     {remove.label}
                 </ContextMenuItem>
+                <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
+            </>
+        ),
+    },
+}
+
+export const WithSeparator: Story = {
+    args: {
+        children: (
+            <>
+                <ContextMenuItem onClick={fn()}>{zoom.label}</ContextMenuItem>
+                <ContextMenuItem onClick={fn()}>{edit.label}</ContextMenuItem>
+                <ContextMenuSeparator />
                 <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
             </>
         ),
@@ -58,6 +72,7 @@ export const LongLabel: Story = {
                 <ContextMenuItem icon={ICON_GLYPHS.ZoomReset} shortcut={LONG_SHORTCUT} onClick={fn()}>
                     {LONG_MENU_ITEM}
                 </ContextMenuItem>
+                <ContextMenuSeparator />
                 <ContextMenuItem onClick={fn()}>{rename.label}</ContextMenuItem>
             </>
         ),

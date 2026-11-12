@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
-import { declaredStyle, render, screen } from "../test-utils"
+import { declaredStyle, render, screen, startingStyle } from "../test-utils"
 import { Badge, Skeleton, Tooltip } from "."
 
 const OPEN_DELAY_MS = 150
@@ -97,5 +97,46 @@ describe("Tooltip", () => {
         await new Promise(resolve => setTimeout(resolve, OPEN_DELAY_MS))
 
         expect(screen.queryByText("Copy")).not.toBeInTheDocument()
+    })
+})
+
+// A moment well inside the desktop tooltip delay (700ms), and a wait well past it for the open.
+const INSIDE_DESKTOP_DELAY_MS = 350
+const PAST_DESKTOP_DELAY_MS = 2000
+
+describe("Tooltip desktop look", () => {
+    it("waits the desktop tooltip delay by default", async () => {
+        const user = userEvent.setup()
+        render(
+            <Tooltip label="Copy">
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        await user.hover(screen.getByRole("button", { name: "Target" }))
+        await new Promise(resolve => setTimeout(resolve, INSIDE_DESKTOP_DELAY_MS))
+        expect(screen.queryByText("Copy")).not.toBeInTheDocument()
+
+        expect(await screen.findByText("Copy", {}, { timeout: PAST_DESKTOP_DELAY_MS })).toBeInTheDocument()
+    })
+
+    it("is a small hairline-bordered tag with no arrow that appears instantly", async () => {
+        const user = userEvent.setup()
+        render(
+            <Tooltip label="Copy" delay={0}>
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        await user.hover(screen.getByRole("button", { name: "Target" }))
+        const tooltip = await screen.findByRole("tooltip")
+
+        expect(declaredStyle(tooltip, "background-color")).toBe("var(--sphere-color-tooltip)")
+        expect(declaredStyle(tooltip, "color")).toBe("var(--sphere-color-tooltip-text)")
+        expect(declaredStyle(tooltip, "border-radius")).toBe("var(--sphere-radius-tooltip)")
+        expect(declaredStyle(tooltip, "font-size")).toBe("var(--sphere-font-size-small)")
+        expect(declaredStyle(tooltip, "box-shadow")).toContain("var(--sphere-color-popup-border)")
+        expect(startingStyle(tooltip, "opacity")).toBe("")
+        expect(tooltip.children).toHaveLength(0)
     })
 })

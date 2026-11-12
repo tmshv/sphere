@@ -1,0 +1,124 @@
+/* The macOS menu surface, shared by ContextMenu, the Select list and the CommandPalette results: a popup
+   background with a hairline border and the popup shadow, 4px above and below the items and nothing at the sides,
+   so the highlighted item runs edge to edge. Menus appear instantly and fade out over duration-fast. */
+.surface {
+    /* A hairline: one device pixel on a Retina screen. */
+    --menu-border-width: 0.5px;
+
+    box-sizing: border-box;
+    padding: var(--sphere-space-4) 0;
+    outline: 0;
+    background-color: var(--sphere-color-popup);
+    color: var(--sphere-color-label);
+    border-radius: var(--sphere-radius-popup);
+    box-shadow:
+        0 0 0 var(--menu-border-width) var(--sphere-color-popup-border),
+        var(--sphere-shadow-popup);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-regular);
+    line-height: var(--sphere-line-height-tight);
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity var(--sphere-duration-fast) ease;
+}
+
+.surface[data-ending-style] {
+    opacity: 0;
+}
+
+/* A 20px row: the left padding is the check/icon column, the shortcut sits right in the secondary colour. The
+   highlight follows the pointer and the keyboard alike ([data-highlighted]); there is no hover style. */
+.item {
+    /* The shortcut never takes more than this share of the row, so a long one truncates too. */
+    --menu-shortcut-max-width: 50%;
+
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--sphere-space-20);
+    width: 100%;
+    height: var(--sphere-menu-item-height);
+    padding: 0 var(--sphere-space-16) 0 var(--sphere-space-20);
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+    color: var(--sphere-color-label);
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.item[data-highlighted] {
+    background-color: var(--sphere-color-selection);
+    color: var(--sphere-color-on-accent);
+}
+
+.item[data-disabled] {
+    opacity: var(--sphere-opacity-disabled);
+    pointer-events: none;
+}
+
+.itemLabel {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.itemShortcut {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: var(--menu-shortcut-max-width);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--sphere-color-label-secondary);
+}
+
+.item[data-highlighted] .itemShortcut {
+    color: inherit;
+}
+
+/* The check and the icon sit centred in the 20px left padding column. */
+.itemIcon,
+.itemCheck {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sphere-space-20);
+    line-height: 0;
+}
+
+.separator {
+    /* The 1px line with 5px above and below it. */
+    --menu-separator-width: 1px;
+    --menu-separator-margin: 5px;
+
+    height: var(--menu-separator-width);
+    margin: var(--menu-separator-margin) 0;
+    border: 0;
+    background-color: var(--sphere-color-separator);
+}
+
+/* A group label: 11px secondary text on the item grid. */
+.label {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    height: var(--sphere-menu-item-height);
+    padding: 0 var(--sphere-space-16) 0 var(--sphere-space-20);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--sphere-color-label-secondary);
+    font-size: var(--sphere-font-size-small);
+    font-weight: var(--sphere-font-weight-semibold);
+}

@@ -45,7 +45,7 @@ export function CopyButton({ value }: CopyButtonProps) {
     // The wrapper is the tooltip trigger and carries the reveal: it shows on row hover or keyboard focus, and
     // stays lit while "Copied" shows. The button itself has no hover style.
     return (
-        <Tooltip label={label} arrow>
+        <Tooltip label={label}>
             <span className={copied ? s.copied : s.copy}>
                 <IconButton
                     size="sm"

@@ -1,12 +1,12 @@
 import { Menu } from "@base-ui/react/menu"
 import { type ReactNode, useMemo } from "react"
-import { Text } from "../Text"
+import { menu } from "../internal"
 import s from "./context-menu.module.css"
 
-// Mantine 5 Menu: the dropdown sits 10px to the right of the point.
-const MENU_OFFSET_PX = 10
-// Mantine 5 shifts and flips (floating-ui) with no padding: the menu may touch the window edge.
-const COLLISION_PADDING_PX = 0
+// The menu opens with its top-left corner at the pointer.
+const MENU_OFFSET_PX = 0
+// It flips and shifts at the window edges, keeping this margin from them.
+const COLLISION_PADDING_PX = 4
 // Flip to the other side, then shift along the edge instead of flipping the alignment.
 const COLLISION_AVOIDANCE = { side: "flip", align: "shift", fallbackAxisSide: "none" } as const
 
@@ -17,11 +17,15 @@ export type ContextMenuProps = {
     children: React.ReactNode
 }
 
-// The menu is anchored to a zero-size box at the point, like Mantine's fixed target div.
+// The menu is anchored to a zero-size box at the point.
 function pointAnchor([x, y]: [number, number]) {
     return {
         getBoundingClientRect: () => DOMRect.fromRect({ x, y, width: 0, height: 0 }),
     }
+}
+
+function join(classes: ReadonlyArray<string>): string {
+    return classes.join(" ")
 }
 
 export function ContextMenu({ opened, position, onClose, children }: ContextMenuProps) {
@@ -46,7 +50,7 @@ export function ContextMenu({ opened, position, onClose, children }: ContextMenu
                     collisionPadding={COLLISION_PADDING_PX}
                     collisionAvoidance={COLLISION_AVOIDANCE}
                 >
-                    <Menu.Popup className={s.dropdown}>{children}</Menu.Popup>
+                    <Menu.Popup className={join([menu.surface, s.popup])}>{children}</Menu.Popup>
                 </Menu.Positioner>
             </Menu.Portal>
         </Menu.Root>
@@ -64,28 +68,24 @@ export type ContextMenuItemProps = {
 export function ContextMenuItem({ icon, shortcut, disabled = false, onClick, children }: ContextMenuItemProps) {
     const content = (
         <>
-            {icon ? <div className={s.itemIcon}>{icon}</div> : null}
-            <div className={s.itemLabel}>{children}</div>
-            {shortcut === undefined ? null : (
-                <div>
-                    <Text tone={"dimmed"}>{shortcut}</Text>
-                </div>
-            )}
+            {icon ? <span className={menu.itemIcon}>{icon}</span> : null}
+            <span className={menu.itemLabel}>{children}</span>
+            {shortcut === undefined ? null : <span className={menu.itemShortcut}>{shortcut}</span>}
         </>
     )
 
-    // Mantine's arrow keys skip disabled items, but Base UI keeps them focusable. A disabled
-    // item is therefore a plain element outside the menu's keyboard list.
+    // Base UI keeps disabled items focusable, but arrow keys must skip them. A disabled item is therefore a plain
+    // element outside the menu's keyboard list.
     if (disabled) {
         return (
-            <div className={s.item} role="menuitem" tabIndex={-1} aria-disabled="true" data-disabled="">
+            <div className={menu.item} role="menuitem" tabIndex={-1} aria-disabled="true" data-disabled="">
                 {content}
             </div>
         )
     }
 
     return (
-        <Menu.Item className={s.item} onClick={() => onClick?.()}>
+        <Menu.Item className={menu.item} onClick={() => onClick?.()}>
             {content}
         </Menu.Item>
     )
@@ -96,5 +96,10 @@ export type ContextMenuLabelProps = {
 }
 
 export function ContextMenuLabel({ children }: ContextMenuLabelProps) {
-    return <div className={s.label}>{children}</div>
+    return <div className={menu.label}>{children}</div>
+}
+
+// A line between groups of items.
+export function ContextMenuSeparator() {
+    return <Menu.Separator className={menu.separator} />
 }

@@ -40,18 +40,6 @@ visualCases("InternalTooltip", {
         target: "page",
         allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
     },
-    arrow: {
-        render: () => (
-            <div style={{ padding: PADDING }}>
-                <Tooltip label="Copied!" arrow>
-                    {target}
-                </Tooltip>
-            </div>
-        ),
-        interact: hoverTarget("Copied!"),
-        target: "page",
-        allowedMismatchedPixelRatio: ROUNDED_POSITION_TOLERANCE,
-    },
     delayed: {
         render: () => (
             <div style={{ padding: PADDING }}>

@@ -1,7 +1,15 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { expectDesktopInteraction, fireEvent, render, screen, waitFor } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    render,
+    screen,
+    startingStyle,
+    waitFor,
+} from "../test-utils"
 import { Dialog } from "."
 
 const TAB_PRESSES = 4
@@ -128,5 +136,44 @@ describe("Dialog focus and dismissal", () => {
             </Dialog>,
         )
         expectDesktopInteraction(screen.getByRole("button", { name: "Close" }))
+    })
+})
+
+describe("Dialog surface", () => {
+    it("fades in without a scale or translate", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+        const popup = await screen.findByRole("dialog")
+
+        expect(startingStyle(popup, "transform")).toBe("")
+        expect(startingStyle(popup, "opacity")).toBe("0")
+        expect(declaredStyle(popup, "transition")).toContain("var(--sphere-duration-fast)")
+    })
+
+    it("is a window: window colour, window radius and shadow", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+        const popup = await screen.findByRole("dialog")
+
+        expect(declaredStyle(popup, "background-color")).toBe("var(--sphere-color-window)")
+        expect(declaredStyle(popup, "border-radius")).toBe("var(--sphere-radius-window)")
+        expect(declaredStyle(popup, "box-shadow")).toBe("var(--sphere-shadow-window)")
+        expect(declaredStyle(popup, "font-size")).toBe("var(--sphere-font-size-regular)")
+    })
+
+    it("sets the title in bold", () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+
+        expect(declaredStyle(screen.getByText("Input URL"), "font-weight")).toBe("var(--sphere-font-weight-bold)")
     })
 })

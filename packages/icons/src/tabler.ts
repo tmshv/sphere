@@ -39,6 +39,7 @@ export {
     IconRuler,
     IconSatellite,
     IconSearch,
+    IconSelector,
     IconSquaresFilled,
     IconStack,
     IconStack2,

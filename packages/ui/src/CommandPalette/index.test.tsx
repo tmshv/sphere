@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { fireEvent, render, screen, waitFor } from "../test-utils"
+import { declaredStyle, fireEvent, render, screen, startingStyle, waitFor } from "../test-utils"
 import { CommandPalette } from "."
 
 const SHORTCUT = "mod + p"
@@ -167,5 +167,43 @@ describe("CommandPalette", () => {
         await userEvent.type(input, "zen")
         await userEvent.keyboard("{Escape}")
         await waitFor(() => expect(screen.queryByPlaceholderText(PLACEHOLDER)).toBeNull())
+    })
+})
+
+// An undeclared radius, or an explicit zero.
+const SQUARE_CORNERS = ["", "0", "0px"]
+
+describe("CommandPalette surface", () => {
+    it("fades in without a scale or translate", async () => {
+        render(palette())
+        openPalette()
+        const popup = await screen.findByRole("dialog")
+
+        expect(startingStyle(popup, "transform")).toBe("")
+        expect(startingStyle(popup, "opacity")).toBe("0")
+        expect(declaredStyle(popup, "transition")).toContain("var(--sphere-duration-fast)")
+    })
+
+    it("has a pill search field", async () => {
+        render(palette())
+        openPalette()
+        const input = await screen.findByPlaceholderText(PLACEHOLDER)
+
+        expect(declaredStyle(input, "border-radius")).toBe("var(--sphere-radius-pill)")
+        expect(declaredStyle(input, "cursor")).toBe("text")
+    })
+
+    it("shows results as menu items highlighted edge to edge", async () => {
+        render(palette())
+        openPalette()
+        const input = await screen.findByPlaceholderText(PLACEHOLDER)
+        await userEvent.type(input, "zen")
+        const option = screen.getByRole("option", { name: /Toggle Zen/ })
+
+        expect(option).toHaveAttribute("data-highlighted")
+        expect(SQUARE_CORNERS).toContain(declaredStyle(option, "border-radius"))
+        expect(declaredStyle(option, "background-color")).toBe("var(--sphere-color-selection)")
+        expect(declaredStyle(option, "height")).toBe("var(--sphere-menu-item-height)")
+        expect(declaredStyle(option, "cursor")).toBe("default")
     })
 })

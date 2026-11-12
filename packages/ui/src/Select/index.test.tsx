@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, hoverStyle, render, screen } from "../test-utils"
 import { SegmentedControl, Select } from "."
+
+// An undeclared radius, or an explicit zero.
+const SQUARE_CORNERS = ["", "0", "0px"]
 
 const OPTIONS = [
     { value: "a", label: "Alpha" },
@@ -90,6 +93,64 @@ describe("Select", () => {
         render(<Select label="Column" value="b" options={OPTIONS} onChange={vi.fn()} searchable />)
 
         expect(screen.getByLabelText("Column")).toHaveValue("Beta")
+    })
+
+    it("marks the current option with a check glyph and no other", async () => {
+        const user = userEvent.setup()
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+
+        await user.click(screen.getByLabelText("Source"))
+
+        const current = await screen.findByRole("option", { name: "Beta" })
+        expect(current.querySelector("svg")).not.toBeNull()
+        expect(screen.getByRole("option", { name: "Alpha" }).querySelector("svg")).toBeNull()
+    })
+
+    it("searchable Select marks the current option with a check glyph", async () => {
+        const user = userEvent.setup()
+        render(<Select label="Column" value="b" options={OPTIONS} onChange={vi.fn()} searchable />)
+
+        await user.click(screen.getByLabelText("Column"))
+        await user.clear(screen.getByLabelText("Column"))
+
+        const current = await screen.findByRole("option", { name: "Beta" })
+        expect(current.querySelector("svg")).not.toBeNull()
+        expect(screen.getByRole("option", { name: "Alpha" }).querySelector("svg")).toBeNull()
+    })
+
+    it("is a pop-up button: the bordered control body with the desktop interaction model", () => {
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+        const trigger = screen.getByLabelText("Source")
+
+        expect(declaredStyle(trigger, "background-color")).toBe("var(--sphere-color-control)")
+        expect(declaredStyle(trigger, "border-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(trigger, "height")).toBe("var(--sphere-control-height-md)")
+        expectDesktopInteraction(trigger)
+    })
+
+    it("shows the double chevron glyph on the trigger", () => {
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+
+        expect(screen.getByLabelText("Source").querySelector("svg")).not.toBeNull()
+    })
+
+    it("searchable Select edits as text: the text cursor", () => {
+        render(<Select label="Column" value="b" options={OPTIONS} onChange={vi.fn()} searchable />)
+
+        expect(declaredStyle(screen.getByLabelText("Column"), "cursor")).toBe("text")
+    })
+
+    it("highlights options edge to edge with square corners", async () => {
+        const user = userEvent.setup()
+        render(<Select label="Source" value={null} options={OPTIONS} onChange={vi.fn()} />)
+
+        screen.getByLabelText("Source").focus()
+        await user.keyboard("{ArrowDown}")
+        const option = await screen.findByRole("option", { name: "Alpha" })
+
+        expect(SQUARE_CORNERS).toContain(declaredStyle(option, "border-radius"))
+        expect(declaredStyle(option, "cursor")).toBe("default")
+        expect(hoverStyle(option, "background-color")).toBe("")
     })
 })
 

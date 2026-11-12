@@ -24,6 +24,7 @@ import type { PropertyItem, PropertyItemMeta } from "../PropertiesTable"
 import type { SelectOption } from "../Select"
 import type { TabItem } from "../Tabs"
 import type { TreeItem } from "../Tree"
+import { duration } from "../tokens"
 import { ICON_SIZE } from "./layout"
 
 // Shared GIS fixture data for component stories. Later tasks extend this file instead of defining their own.
@@ -111,6 +112,8 @@ export const PALETTE_SHORTCUT = `mod+${PALETTE_KEY.toUpperCase()}`
 export const PALETTE_OPEN_KEYS = `{Control>}${PALETTE_KEY}{/Control}`
 export const PALETTE_PLACEHOLDER = "Search commands"
 export const PALETTE_EMPTY_MESSAGE = "Nothing found"
+export const PALETTE_FILTER_QUERY = "add"
+export const PALETTE_FILTER_MATCH = "Add file"
 
 export const PROPERTY_ROWS: ReadonlyArray<PropertyItem> = [
     { id: 1, name: "Parcel 77:01:0004012:15", area: 1250.5, landuse: "residential", year: 1987 },
@@ -202,13 +205,15 @@ export const ACTION_BAR_COLORED_ITEMS: Array<ActionBarItem | null> = ACTION_BAR_
 
 export const TOOLTIP_DELAY_MS = 0
 export const TOOLTIP_CLOSE_DELAY_MS = 0
-export const TOOLTIP_DURATION_MS = 100
+export const TOOLTIP_DURATION_MS = duration.fast
+export const TOOLTIP_DESKTOP_DELAY_MS = duration.tooltipDelay
 
 export const DIALOG_TITLE = "Input URL"
 export const DIALOG_NOTICE = "Nothing to configure."
 export const DIALOG_FIELD_LABEL = "URL"
 export const DIALOG_FIELD_PLACEHOLDER = "https://example.com/tiles/{z}/{x}/{y}.png"
 export const DIALOG_SUBMIT_LABEL = "Submit"
+export const DIALOG_CANCEL_LABEL = "Cancel"
 
 export const TREE_FOLDER_ID = TREE_ITEMS.at(0)?.id ?? ""
 export const TREE_SELECTED_ID = "source-parcels"

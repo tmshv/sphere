@@ -1,38 +1,21 @@
+/* A centred macOS window: window background, 6px radius, the window shadow, 20px padding, a 13px bold title and a
+   13px body, buttons bottom-right. It fades in and out over duration-fast with no scale or translate. */
 .backdrop,
 .viewport {
-    --dialog-duration: 250ms;
-    /* Mantine Transition `pop` (transitions.js popIn.out). */
-    --dialog-pop-out: scale(0.9) translateY(10px);
-}
-
-/* Centred, 440px wide, `pop` transition over 250ms (the backdrop fades in 125ms). The backdrop is the scrim: it
-   blocks clicks and dims nothing. */
-.backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: var(--sphere-z-index-modal);
+}
+
+/* The backdrop dims nothing (scrim is transparent) but still blocks clicks behind the dialog. */
+.backdrop {
     background-color: var(--sphere-color-scrim);
-    transition: opacity calc(var(--dialog-duration) / 2) ease;
 }
 
-.backdrop[data-starting-style],
-.backdrop[data-ending-style] {
-    opacity: 0;
-}
-
-/* Mantine `inner`: scrolls when the modal is taller than the window. */
+/* Scrolls when the dialog is taller than the window. */
 .viewport {
     --dialog-width: 440px;
 
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: var(--sphere-z-index-modal);
     overflow-y: auto;
     padding: calc(var(--sphere-space-20) * 2) var(--sphere-space-16);
     display: flex;
@@ -41,11 +24,12 @@
 }
 
 .popup {
+    box-sizing: border-box;
     display: block;
     position: relative;
     width: var(--dialog-width);
-    margin-top: auto;
-    margin-bottom: auto;
+    max-width: 100%;
+    margin-block: auto;
     padding: var(--sphere-space-20);
     outline: 0;
     background-color: var(--sphere-color-window);
@@ -53,47 +37,41 @@
     border-radius: var(--sphere-radius-window);
     box-shadow: var(--sphere-shadow-window);
     font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-regular);
     line-height: var(--sphere-line-height-text);
-    -webkit-tap-highlight-color: transparent;
-    transform-origin: center center;
-    transition: transform var(--dialog-duration), opacity var(--dialog-duration);
+    cursor: default;
+    transition: opacity var(--sphere-duration-fast) ease;
 }
 
-/* Mantine "pop" transition. */
 .popup[data-starting-style],
 .popup[data-ending-style] {
     opacity: 0;
-    transform: var(--dialog-pop-out);
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--sphere-space-16);
     margin-bottom: var(--sphere-space-16);
 }
 
 .title {
+    min-width: 0;
     margin: 0;
-    margin-right: var(--sphere-space-16);
-    text-overflow: ellipsis;
-    display: block;
-    word-break: break-word;
-    font-family: var(--sphere-font-family-sans);
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: var(--sphere-line-height-text);
+    overflow-wrap: anywhere;
+    font-size: var(--sphere-font-size-regular);
+    font-weight: var(--sphere-font-weight-bold);
 }
 
 .body {
-    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .footer {
     display: flex;
     flex-direction: row;
-    gap: var(--sphere-space-4);
+    gap: var(--sphere-space-12);
     justify-content: flex-end;
-    margin-top: var(--sphere-space-16);
+    margin-top: var(--sphere-space-20);
 }
-

@@ -3,6 +3,7 @@ import { fn } from "storybook/test"
 import { Button } from "../Button"
 import { TextField } from "../TextField"
 import {
+    DIALOG_CANCEL_LABEL,
     DIALOG_FIELD_LABEL,
     DIALOG_FIELD_PLACEHOLDER,
     DIALOG_NOTICE,
@@ -34,3 +35,17 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 
 export const WithoutFooter: Story = { args: { footer: undefined, children: DIALOG_NOTICE } }
+
+// Buttons bottom-right, the primary button last.
+export const WithActions: Story = {
+    args: {
+        footer: (
+            <>
+                <Button variant="secondary" onClick={fn()}>
+                    {DIALOG_CANCEL_LABEL}
+                </Button>
+                <Button onClick={fn()}>{DIALOG_SUBMIT_LABEL}</Button>
+            </>
+        ),
+    },
+}

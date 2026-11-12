@@ -1,95 +1,124 @@
-/* Mantine 5 Select: size xs, with the popover dropdown and SelectItems styles. */
-/* Doubled to beat the shared input.module.css .input (line height, overflow) by specificity (R10). */
-.trigger.trigger {
-    /* A button centres its line box; the input's own centring puts the text 2px higher
-       than a 28px line height would. */
-    line-height: normal;
-    cursor: pointer;
+/* The pop-up button: the push-button body (light body, hairline border, hairline shadow beneath, 4px radius) at
+   the 22px control height, the value on the left and the double chevron on the right. Pressing darkens the body;
+   there is no hover style. */
+.trigger {
+    /* A hairline: one device pixel on a Retina screen. */
+    --select-border-width: 0.5px;
+    /* The macOS focus ring: a glow outside the control that follows its radius. */
+    --select-focus-ring-width: 3px;
+
+    appearance: none;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--sphere-space-4);
+    width: 100%;
+    height: var(--sphere-control-height-md);
+    margin: 0;
+    padding: 0 var(--sphere-space-4) 0 var(--sphere-space-8);
+    border: var(--select-border-width) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-control);
+    outline: none;
+    background-color: var(--sphere-color-control);
+    box-shadow: var(--sphere-shadow-control);
+    color: var(--sphere-color-label);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
+    text-align: left;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.trigger:focus-visible {
+    box-shadow:
+        var(--sphere-shadow-control),
+        0 0 0 var(--select-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.trigger:active:not(:disabled) {
+    background-color: var(--sphere-color-control-pressed);
+}
+
+.trigger:disabled {
+    opacity: var(--sphere-opacity-disabled);
+}
+
+.value {
+    flex: 1 1 auto;
+    min-width: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-/* The input keeps its focus border while the dropdown is open. */
-.trigger.trigger[data-popup-open] {
-    border-color: var(--sphere-color-accent);
-}
-
 .value[data-placeholder] {
-    user-select: none;
-    color: var(--sphere-color-input-placeholder);
+    color: var(--sphere-color-label-tertiary);
 }
 
-.chevron {
-    color: var(--sphere-color-chevron);
-}
-
-/* Mantine sets pointer-events: none on the Select right section. */
-.chevronSection {
+.glyph {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: var(--sphere-space-16);
+    color: var(--sphere-color-label-secondary);
+    line-height: 0;
     pointer-events: none;
+}
+
+/* The searchable variant types into the same body: editable text, so the text cursor, and the focus ring whenever
+   it is focused, as macOS text fields do. The glyph sits over the right padding. */
+.field {
+    position: relative;
+}
+
+.search {
+    padding-right: calc(var(--sphere-space-4) * 2 + var(--sphere-space-16));
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.search:focus {
+    box-shadow:
+        var(--sphere-shadow-control),
+        0 0 0 var(--select-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.search::placeholder {
+    color: var(--sphere-color-label-tertiary);
+    opacity: 1;
+}
+
+.searchGlyph {
+    position: absolute;
+    top: 0;
+    right: var(--sphere-space-4);
+    bottom: 0;
 }
 
 .positioner {
     z-index: var(--sphere-z-index-popover);
 }
 
-.dropdown {
-    box-sizing: border-box;
-    width: var(--anchor-width);
-    background-color: var(--sphere-color-dropdown-bg);
-    border: 1px solid var(--sphere-color-dropdown-border);
-    border-radius: var(--sphere-radius-sm);
-    box-shadow: var(--sphere-shadow-sm);
-    padding: 0;
-    outline: 0;
+/* The list is at least as wide as the button and never wider than the space left in the window. */
+.popup {
+    min-width: var(--anchor-width);
+    max-width: var(--available-width);
 }
 
-/* Mantine shows no dropdown when the search matches nothing and no "nothing found" text is set. */
-.dropdown[data-empty] {
+/* No list shows when the search matches nothing. */
+.popup[data-empty] {
     display: none;
 }
 
 .list {
-    --dropdown-max-height: 220px;
-    --dropdown-padding: 4px;
+    --select-list-max-height: 220px;
 
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-height: var(--dropdown-max-height);
+    max-height: var(--select-list-max-height);
     overflow-y: auto;
-    padding: var(--dropdown-padding);
     outline: 0;
-}
-
-.item {
-    /* Mantine pads by spacing[size] / 1.5 vertically and spacing[size] across. */
-    --item-padding-divisor: 1.5;
-
-    font-family: var(--sphere-font-family-sans);
-    box-sizing: border-box;
-    text-align: left;
-    width: 100%;
-    padding: calc(var(--sphere-space-xs) / var(--item-padding-divisor)) var(--sphere-space-xs);
-    cursor: pointer;
-    font-size: var(--sphere-font-size-xs);
-    color: var(--sphere-color-text);
-    border-radius: var(--sphere-radius-sm);
-    outline: 0;
-}
-
-.item[data-highlighted] {
-    background-color: var(--sphere-color-item-hover-bg);
-}
-
-.item[data-selected] {
-    background-color: var(--sphere-color-accent);
-    color: var(--sphere-color-on-accent);
-}
-
-@media (hover: hover) {
-    .item[data-selected]:hover {
-        background-color: var(--sphere-color-accent-hover);
-    }
 }

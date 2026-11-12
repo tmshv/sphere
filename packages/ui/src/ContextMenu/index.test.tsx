@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { render, screen, waitFor } from "../test-utils"
-import { ContextMenu, ContextMenuItem, ContextMenuLabel } from "."
+import { declaredStyle, hoverStyle, render, screen, waitFor } from "../test-utils"
+import { ContextMenu, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator } from "."
 
 describe("ContextMenu", () => {
     it("renders children when opened is true", () => {
@@ -33,8 +33,8 @@ describe("ContextMenu", () => {
             expect(positioner?.style.getPropertyValue("--anchor-width")).toBe("0px")
             expect(positioner?.style.getPropertyValue("--anchor-height")).toBe("0px")
         })
-        // happy-dom has no viewport, so the side flips; the offset is applied either way.
-        expect(positioner?.style.transform).toMatch(/translate\((90|110)px, 200px\)/)
+        // The top-left corner sits at the pointer: no offset on either side, so a flip in happy-dom changes nothing.
+        expect(positioner?.style.transform).toBe("translate(100px, 200px)")
     })
 
     it("closes on Escape", async () => {
@@ -133,5 +133,47 @@ describe("ContextMenuLabel", () => {
     it("renders its text", () => {
         renderMenu(<ContextMenuLabel>Map</ContextMenuLabel>)
         expect(screen.getByText("Map")).toBeInTheDocument()
+    })
+})
+
+describe("ContextMenuSeparator", () => {
+    it("renders a separator between items", () => {
+        renderMenu(
+            <>
+                <ContextMenuItem>Copy</ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem>Delete</ContextMenuItem>
+            </>,
+        )
+        expect(screen.getByRole("separator")).toBeInTheDocument()
+    })
+})
+
+const SQUARE_CORNERS = ["", "0", "0px"]
+
+describe("ContextMenu surface", () => {
+    it("highlights an item edge to edge with square corners", async () => {
+        renderMenu(<ContextMenuItem>Copy</ContextMenuItem>)
+        await userEvent.keyboard("{ArrowDown}")
+        const item = screen.getByRole("menuitem", { name: "Copy" })
+        expect(item).toHaveAttribute("data-highlighted")
+        expect(SQUARE_CORNERS).toContain(declaredStyle(item, "border-radius"))
+        expect(declaredStyle(item, "background-color")).toBe("var(--sphere-color-selection)")
+        expect(declaredStyle(item, "color")).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("truncates a long label with an ellipsis instead of wrapping", () => {
+        renderMenu(<ContextMenuItem shortcut="⌘K">Copy</ContextMenuItem>)
+        const label = screen.getByText("Copy")
+        expect(declaredStyle(label, "text-overflow")).toBe("ellipsis")
+        expect(declaredStyle(label, "white-space")).toBe("nowrap")
+        expect(declaredStyle(screen.getByText("⌘K"), "text-overflow")).toBe("ellipsis")
+    })
+
+    it("uses the arrow cursor and no hover style", () => {
+        renderMenu(<ContextMenuItem>Copy</ContextMenuItem>)
+        const item = screen.getByRole("menuitem", { name: "Copy" })
+        expect(declaredStyle(item, "cursor")).toBe("default")
+        expect(hoverStyle(item, "background-color")).toBe("")
     })
 })
