@@ -151,7 +151,7 @@ export default function Draw({ mapId }: DrawProps) {
                     properties: feature.properties,
                 })
             } else if (t.updated.has(drawId)) {
-                if (origId !== undefined) {
+                if (typeof origId === "string" || typeof origId === "number") {
                     feature.id = origId
                 }
                 updated.push(feature)

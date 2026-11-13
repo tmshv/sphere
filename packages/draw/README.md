@@ -1,4 +1,4 @@
-> Vendored into Sphere as `@sphere/draw` from [hyvilo/maplibre-gl-draw](https://github.com/hyvilo/maplibre-gl-draw) at commit `db8b7f0` (published as `@hyvilo/maplibre-gl-draw@1.0.0`). `index.d.ts` and `maplibre-gl-draw.css` come from upstream `dist/`.
+> Vendored into Sphere as `@sphere/draw` from [hyvilo/maplibre-gl-draw](https://github.com/hyvilo/maplibre-gl-draw) at commit `db8b7f0` (published as `@hyvilo/maplibre-gl-draw@1.0.0`). `maplibre-gl-draw.css` comes from upstream `dist/`; the source has since been converted to TypeScript.
 
 # @hyvilo/maplibre-gl-draw
 

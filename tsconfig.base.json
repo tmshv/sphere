@@ -20,7 +20,8 @@
         "paths": {
             "@sphere/utils": ["./packages/utils/src"],
             "@sphere/ui":    ["./packages/ui/src"],
-            "@sphere/icons": ["./packages/icons/src"]
+            "@sphere/icons": ["./packages/icons/src"],
+            "@sphere/draw":  ["./packages/draw/src"]
         }
     }
 }

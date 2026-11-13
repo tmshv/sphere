@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import StringSet from "./string_set"
+import getPublicMemberKeys from "../test-utils/get_public_member_keys"
 
 describe("StringSet", () => {
     it("constructor and API", () => {
@@ -12,7 +13,7 @@ describe("StringSet", () => {
         expect(typeof StringSet.prototype.has, "exposes set.has").toBe("function")
         expect(typeof StringSet.prototype.values, "exposes set.values").toBe("function")
         expect(typeof StringSet.prototype.clear, "exposes set.clear").toBe("function")
-        expect(Object.keys(StringSet.prototype).filter(k => k[0] !== "_").length, "no unexpected methods").toBe(5)
+        expect(getPublicMemberKeys(StringSet.prototype).length, "no unexpected methods").toBe(5)
 
         const populatedSet = new StringSet(["a", 4, "b"])
         expect(populatedSet.values(), "populated by constructor arg").toEqual(["a", 4, "b"])

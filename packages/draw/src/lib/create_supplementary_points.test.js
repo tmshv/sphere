@@ -728,3 +728,24 @@ it("createSupplementaryPoints with a line, not all midpoints rendered because of
         },
     ])
 })
+
+it("createSupplementaryPoints with a multipoint gives its vertices string coordinate paths", () => {
+    const multiPoint = {
+        type: "Feature",
+        properties: {
+            id: "foo",
+        },
+        geometry: {
+            type: "MultiPoint",
+            coordinates: [
+                [1, 1],
+                [2, 2],
+            ],
+        },
+    }
+
+    const result = createSupplementaryPoints(multiPoint, { selectedPaths: ["1"] })
+
+    expect(result.map(point => point.properties.coord_path)).toEqual(["0", "1"])
+    expect(result.map(point => point.properties.active)).toEqual(["false", "true"])
+})

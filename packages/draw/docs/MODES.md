@@ -201,7 +201,7 @@ Triggered when [draw.trash()](https://github.com/hyvilo/maplibre-gl-draw/blob/ma
 
 -   `state`  {Object} - a mutible state object created by onSetup
 
-### MODE.onCombineFeature
+### MODE.onCombineFeatures
 
 Triggered when [draw.combineFeatures()](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#combinefeatures-draw) is called.
 
@@ -209,7 +209,7 @@ Triggered when [draw.combineFeatures()](https://github.com/hyvilo/maplibre-gl-dr
 
 -   `state`  {Object} - a mutible state object created by onSetup
 
-### MODE.onUncombineFeature
+### MODE.onUncombineFeatures
 
 Triggered when [draw.uncombineFeatures()](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#uncombinefeatures-draw) is called.
 
