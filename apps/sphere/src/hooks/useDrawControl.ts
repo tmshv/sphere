@@ -1,7 +1,5 @@
-import { eventToOps } from "@/lib/draw-session"
 import type { DrawOpQueue } from "@/lib/draw-session"
 import type { DrawEvent } from "@/types"
-import logger from "@/logger"
 import MapLibreDraw from "@sphere/draw"
 import { useEffect } from "react"
 import { useControl } from "react-map-gl/maplibre"
@@ -15,7 +13,7 @@ export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
     ref: MapRef | undefined
     position?: ControlPosition
     onChange?: OnChangeDraw
-    /** When set, draw events are forwarded to the backend as ordered edit ops. */
+    /** The queue must be stable across renders (hold it in a ref or state). When set, draw events are forwarded to the backend as ordered edit ops. */
     ops?: DrawOpQueue
 }
 
@@ -31,13 +29,7 @@ export function useDrawControl({ ref, onChange, ops, ...props }: DrawControlProp
         const map = ref.getMap()
 
         const listener = (event: DrawEvent) => {
-            if (ops) {
-                try {
-                    ops.enqueue(eventToOps(event))
-                } catch (err) {
-                    logger.error("Failed to map draw event %s: %s", event.type, err)
-                }
-            }
+            ops?.enqueueEvent(event)
             if (typeof onChange === "function") {
                 onChange(event, draw)
             }

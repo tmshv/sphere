@@ -112,6 +112,14 @@ describe("wrappers", () => {
     })
 })
 
+function opId(args: Record<string, unknown> | undefined): number {
+    const op = args?.op
+    if (typeof op === "object" && op !== null && "id" in op && typeof op.id === "number") {
+        return op.id
+    }
+    throw new Error("unexpected op")
+}
+
 describe("DrawOpQueue", () => {
     beforeEach(() => {
         invoke.mockReset()
@@ -131,10 +139,9 @@ describe("DrawOpQueue", () => {
         const first = deferred()
         const started: number[] = []
         invoke.mockImplementation(async (_cmd, args) => {
-            const op = args?.op as EditOp
-            if (op.type !== "delete") throw new Error("unexpected")
-            started.push(Number(op.id))
-            return op.id === 1 ? first.promise : null
+            const id = opId(args)
+            started.push(id)
+            return id === 1 ? first.promise : null
         })
         const queue = new DrawOpQueue("s1", () => {})
         queue.enqueue([
@@ -163,7 +170,14 @@ describe("DrawOpQueue", () => {
         await new DrawOpQueue("s1", () => {}).flush()
     })
 
-    test("failed op is reported and later ops still run", async () => {
+    test("clean queue flushes ok", async () => {
+        invoke.mockResolvedValue(null)
+        const queue = new DrawOpQueue("s1", () => {})
+        queue.enqueue([{ type: "delete", id: 1 }])
+        expect(await queue.flush()).toEqual({ ok: true })
+    })
+
+    test("failure is sticky: reported once, later ops not sent and counted", async () => {
         invoke.mockRejectedValueOnce("boom").mockResolvedValue(null)
         const errors: unknown[] = []
         const queue = new DrawOpQueue("s1", err => errors.push(err))
@@ -171,8 +185,45 @@ describe("DrawOpQueue", () => {
             { type: "delete", id: 1 },
             { type: "delete", id: 2 },
         ])
-        await queue.flush()
+        const first = await queue.flush()
+        queue.enqueue([{ type: "delete", id: 3 }])
+        const second = await queue.flush()
+        expect(first).toEqual({ ok: false, error: "boom", dropped: 1 })
+        expect(second).toEqual({ ok: false, error: "boom", dropped: 2 })
         expect(errors).toEqual(["boom"])
-        expect(invoke).toHaveBeenCalledTimes(2)
+        expect(invoke).toHaveBeenCalledTimes(1)
+    })
+
+    test("unmappable event fails the queue and sends nothing from it", async () => {
+        invoke.mockResolvedValue(null)
+        const errors: unknown[] = []
+        const queue = new DrawOpQueue("s1", err => errors.push(err))
+        queue.enqueueEvent({ type: "draw.delete", features: [feature(1), feature(undefined)] })
+        queue.enqueueEvent({ type: "draw.delete", features: [feature(2)] })
+        const result = await queue.flush()
+        expect(result.ok).toBe(false)
+        expect(errors).toHaveLength(1)
+        expect(invoke).not.toHaveBeenCalled()
+    })
+
+    test("enqueueEvent maps and applies", async () => {
+        invoke.mockResolvedValue(null)
+        const queue = new DrawOpQueue("s1", () => {})
+        queue.enqueueEvent({ type: "draw.delete", features: [feature(5)] })
+        expect(await queue.flush()).toEqual({ ok: true })
+        expect(invoke).toHaveBeenCalledWith("draw_apply", { id: "s1", op: { type: "delete", id: 5 } })
+    })
+})
+
+describe("mapping strictness", () => {
+    test("created feature with a numeric id is a mapping failure", () => {
+        expect(() => eventToOps({ type: "draw.create", features: [feature(4)] })).toThrow()
+    })
+})
+
+describe("loadWorkingSet validation", () => {
+    test("rejects a non FeatureCollection payload", async () => {
+        invoke.mockResolvedValue({ features: JSON.stringify({ type: "Feature" }), overCap: false })
+        await expect(loadWorkingSet("s1", { type: "ids", ids: [] }, 1)).rejects.toThrow("FeatureCollection")
     })
 })

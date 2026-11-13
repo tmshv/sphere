@@ -19,3 +19,5 @@ export type WorkingSet = {
     features: GeoJSON.FeatureCollection
     overCap: boolean
 }
+
+export type FlushResult = { ok: true } | { ok: false; error: unknown; dropped: number }
