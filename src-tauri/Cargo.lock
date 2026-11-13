@@ -4369,7 +4369,7 @@ dependencies = [
 
 [[package]]
 name = "sphere"
-version = "0.20.1"
+version = "0.21.0"
 dependencies = [
  "geojson",
  "libexpression",
