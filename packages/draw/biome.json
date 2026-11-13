@@ -1,7 +1,9 @@
 {
     "root": false,
     "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
-    "extends": ["../../biome.json"],
+    "extends": [
+        "../../biome.json"
+    ],
     "linter": {
         "rules": {
             "style": {
@@ -22,6 +24,8 @@
         }
     },
     "files": {
-        "includes": ["**/src/**/*.ts", "**/src/**/*.js"]
+        "includes": [
+            "**/src/**/*.ts"
+        ]
     }
 }
