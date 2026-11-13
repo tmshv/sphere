@@ -1,5 +1,5 @@
 import type { Geometry } from "geojson"
-import { beforeAll, describe, expect, it, type MockInstance, vi } from "vitest"
+import { afterEach, beforeAll, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest"
 import * as Constants from "./constants"
 import MapLibreDraw from "./index"
 import createMap, { type MockMap } from "./test-utils/create_map"
@@ -605,6 +605,122 @@ describe("api", () => {
         expect(() => Draw.trash(), "trash does not throw").not.toThrow()
         expect(Draw.getAll().features.length, "the existing feature is deleted").toBe(0)
         Draw.changeMode("simple_select")
+    })
+
+    describe("working set", () => {
+        const events = ["draw.create", "draw.update", "draw.delete"] as const
+        const listeners = events.map(event => ({ event, listener: vi.fn() }))
+
+        function point(id: string | number, coordinates: [number, number]) {
+            return {
+                type: "Feature" as const,
+                id,
+                properties: {},
+                geometry: { type: "Point" as const, coordinates },
+            }
+        }
+
+        function line(id: string | number) {
+            return {
+                type: "Feature" as const,
+                id,
+                properties: {},
+                geometry: {
+                    type: "LineString" as const,
+                    coordinates: [
+                        [0, 0],
+                        [5, 5],
+                    ],
+                },
+            }
+        }
+
+        beforeEach(() => {
+            Draw.deleteAll()
+            for (const { event, listener } of listeners) {
+                listener.mockClear()
+                map.on(event, listener)
+            }
+        })
+
+        afterEach(() => {
+            for (const { event, listener } of listeners) {
+                map.off(event, listener)
+            }
+            Draw.deleteAll()
+        })
+
+        function expectNoEvents() {
+            for (const { event, listener } of listeners) {
+                expect(listener, `${event} not emitted`).not.toHaveBeenCalled()
+            }
+        }
+
+        it("Draw.load adds features with their ids and emits no events", () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2]), point("b", [3, 4])] })
+            expect(Draw.getAll().features.map(f => f.id)).toEqual(["a", "b"])
+            expectNoEvents()
+        })
+
+        it("Draw.load keeps numeric ids as numbers, including 0", () => {
+            Draw.load({ type: "FeatureCollection", features: [point(0, [1, 2]), point(7, [3, 4])] })
+            expect(Draw.getAll().features.map(f => f.id)).toEqual([0, 7])
+            expect(Draw.get(7)?.id).toBe(7)
+            expect(Draw.get("7")).toBeUndefined()
+        })
+
+        it("Draw.load replaces a feature that already has the id", () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            Draw.load({ type: "FeatureCollection", features: [point("a", [5, 6])] })
+            const all = Draw.getAll().features
+            expect(all.length).toBe(1)
+            expect(geometryOf(all[0], "Point").coordinates).toEqual([5, 6])
+            expectNoEvents()
+        })
+
+        it("Draw.load requests a render", async () => {
+            await afterNextRender()
+            const rendered = vi.fn()
+            map.on("draw.render", rendered)
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            await afterNextRender()
+            map.off("draw.render", rendered)
+            expect(rendered).toHaveBeenCalled()
+        })
+
+        it("Draw.unload removes features, deselects them and emits no events", () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2]), point("b", [3, 4])] })
+            Draw.changeMode("simple_select", { featureIds: ["a", "b"] })
+            Draw.unload(["a"])
+            expect(Draw.getAll().features.map(f => f.id)).toEqual(["b"])
+            expect(Draw.getSelectedIds()).toEqual(["b"])
+            expectNoEvents()
+        })
+
+        it("Draw.unload ignores unknown ids", () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            expect(() => Draw.unload(["nope", 99])).not.toThrow()
+            expect(Draw.getAll().features.length).toBe(1)
+            expectNoEvents()
+        })
+
+        it("Draw.unload of the direct_select target leaves direct_select", () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a")] })
+            Draw.changeMode("direct_select", { featureId: "a" })
+            Draw.unload(["a"])
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds()).toEqual([])
+            expect(Draw.getSelectedPoints().features).toEqual([])
+            expectNoEvents()
+        })
+
+        it("Draw.unload of another feature keeps direct_select", () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a"), line("b")] })
+            Draw.changeMode("direct_select", { featureId: "a" })
+            Draw.unload(["b"])
+            expect(Draw.getMode()).toBe("direct_select")
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+        })
     })
 
     it("Cleanup", () => {

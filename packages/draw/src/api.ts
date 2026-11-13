@@ -116,12 +116,36 @@ export default class DrawApi {
         return newIds
     }
 
-    add = (geojson: DrawInput): FeatureId[] => {
+    add = (geojson: DrawInput): FeatureId[] => this.#addFeatures(geojson, feature => feature.id || generateId())
+
+    /**
+     * Silently puts a working set of features into Draw: no `draw.create`, `draw.update` or `draw.delete` is
+     * emitted, so the app must not treat loaded features as edits.
+     *
+     * Ids are kept exactly as given: a numeric id stays a number (`0` included), a string id stays a string,
+     * and `getAll()` returns the same value, so the app can map it back. Number and string ids are distinct
+     * (`7` is not `"7"`). A feature with no id gets a generated string one. A feature whose id is already in
+     * Draw is replaced.
+     */
+    load = (featureCollection: FeatureCollection<Geometry | null, FeatureProperties | null>): void => {
+        this.#addFeatures(featureCollection, feature => feature.id ?? generateId())
+    }
+
+    /**
+     * Silently removes features from Draw, without `draw.delete`. They also leave the selection and the
+     * selected vertices. Unknown ids are ignored. Like `delete`, it leaves `direct_select` when the edited
+     * feature is gone.
+     */
+    unload = (featureIds: FeatureId[]): void => {
+        this.delete(featureIds)
+    }
+
+    #addFeatures = (geojson: DrawInput, idOf: (feature: { id?: FeatureId }) => FeatureId): FeatureId[] => {
         const featureCollection = jsonClone(normalize(geojson))
         if (featureCollection === null) throw new TypeError("Invalid GeoJSON")
 
         const ids = featureCollection.features.map(feature => {
-            const id = feature.id || generateId()
+            const id = idOf(feature)
             feature.id = id
 
             const geometry = feature.geometry

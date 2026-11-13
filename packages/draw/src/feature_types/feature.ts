@@ -37,7 +37,7 @@ abstract class Feature<K extends GeometryKind = GeometryKind> {
         this.ctx = ctx
         this.properties = geojson.properties || {}
         this.coordinates = geojson.geometry.coordinates
-        this.id = geojson.id || generateId()
+        this.id = geojson.id ?? generateId()
         this.type = geojson.geometry.type
     }
 
