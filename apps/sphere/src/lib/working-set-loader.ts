@@ -27,6 +27,8 @@ export type WorkingSetLoaderOptions = {
     // The kind of scope that held too many features to load, or undefined once a load fits
     onOverCap: (scope: WorkingSetScope["type"] | undefined) => void
     onError: (err: unknown) => void
+    // The backend ids now loaded into draw (edited and deleted ones included), after a load changed them
+    onLoaded: (ids: number[]) => void
 }
 
 export type BeginOptions = {
@@ -49,6 +51,7 @@ export class WorkingSetLoader {
     private pending = false
     private scope: WorkingSetScope | undefined
     private loaded = new Set<DrawFeatureId>()
+    private reported = new Set<number>()
 
     constructor(private readonly options: WorkingSetLoaderOptions) {}
 
@@ -145,6 +148,17 @@ export class WorkingSetLoader {
         draw.load({ type: "FeatureCollection", features: plan.add })
         draw.unload(plan.unload)
         this.loaded = plan.loaded
+        this.reportLoaded()
+    }
+
+    // Draw ids (strings) belong to created features, which the base source never has
+    private reportLoaded(): void {
+        const ids = new Set([...this.loaded].filter(id => typeof id === "number"))
+        if (sameIds(ids, this.reported)) {
+            return
+        }
+        this.reported = ids
+        this.options.onLoaded([...ids])
     }
 
     private invalidate(): void {
@@ -154,4 +168,8 @@ export class WorkingSetLoader {
     private isCurrent(generation: number): boolean {
         return !this.disposed && !this.pending && generation === this.generation
     }
+}
+
+function sameIds(a: ReadonlySet<number>, b: ReadonlySet<number>): boolean {
+    return a.size === b.size && [...a].every(id => b.has(id))
 }

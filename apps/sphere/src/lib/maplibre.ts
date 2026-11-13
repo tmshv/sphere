@@ -49,6 +49,21 @@ export function combineFilters(...filters: FilterSpecification[]): FilterSpecifi
     return ["all", ...parts] as FilterSpecification
 }
 
+/**
+ * A filter that hides the features whose id is in `ids`, or undefined when there is
+ * nothing to hide. `["id"]` reads the GeoJSON feature id (Sphere sources carry numeric
+ * top-level ids). It is a `match`, not an `in` over a literal array: `match` looks the id
+ * up in a table, `in` scans the array for every feature. MapLibre takes only safe integers
+ * as match labels, so any other id is left out (it cannot be a Sphere feature id).
+ */
+export function excludeIdsFilter(ids: readonly number[]): FilterSpecification | undefined {
+    const labels = [...new Set(ids)].filter(id => Number.isSafeInteger(id)).sort((a, b) => a - b)
+    if (labels.length === 0) {
+        return undefined
+    }
+    return ["match", ["id"], labels, false, true]
+}
+
 // Returns true if the expression uses modern MapLibre expression syntax, false if it is legacy.
 // Logic mirrors isExpressionFilter from @maplibre/maplibre-gl-style-spec (not exported from dist).
 // TODO: use convertFilter here to migrate legacy syntax to new syntax instead of rejecting it.

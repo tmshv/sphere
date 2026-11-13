@@ -102,6 +102,7 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
             onLoading: setLoading,
             onOverCap: setOverCap,
             onError: err => dispatch(actions.draw.failed(errorMessage(err))),
+            onLoaded: ids => dispatch(actions.draw.setHiddenIds({ sourceId, ids })),
         })
         loader.current = current
         current.begin({

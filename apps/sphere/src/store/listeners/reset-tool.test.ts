@@ -93,7 +93,7 @@ describe("reset-tool listener", () => {
         // Real reducers, so the session end clears draw mode and the follow-up tool reset is a no-op
         const { store, dispatched } = makeLogStore({
             preloadedState: {
-                draw: { sourceId: "s1", pending: false },
+                draw: { sourceId: "s1", pending: false, hiddenIds: [3] },
                 tools: { activeTool: "draw" },
                 selection: { count: 0, version: 0 },
             },
@@ -107,6 +107,6 @@ describe("reset-tool listener", () => {
         expect(mockInvoke).toHaveBeenCalledWith("draw_rollback", { id: "s1" })
         expect(mockInvoke.mock.calls.filter(([cmd]) => cmd === "draw_rollback")).toHaveLength(1)
         expect(dispatched.filter(a => a.type === "draw/cancel")).toHaveLength(1)
-        expect(store.getState().draw).toEqual({ pending: false })
+        expect(store.getState().draw).toEqual({ pending: false, hiddenIds: [] })
     })
 })

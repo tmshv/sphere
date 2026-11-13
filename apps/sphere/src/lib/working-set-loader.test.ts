@@ -31,6 +31,7 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
     const loading: boolean[] = []
     const overCap: (WorkingSetScope["type"] | undefined)[] = []
     const errors: unknown[] = []
+    const hidden: number[][] = []
     const pinned = new Set<DrawFeatureId>()
     const fetchWorkingSet = vi.fn<WorkingSetLoaderOptions["fetchWorkingSet"]>(() => Promise.resolve(workingSet([1])))
     const getSelectionIds = vi.fn<WorkingSetLoaderOptions["getSelectionIds"]>(() => Promise.resolve([]))
@@ -54,6 +55,7 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
         onLoading: value => loading.push(value),
         onOverCap: value => overCap.push(value),
         onError: err => errors.push(err),
+        onLoaded: ids => hidden.push(ids),
         ...overrides,
     }
     const loader = new WorkingSetLoader(options)
@@ -64,6 +66,7 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
         loading,
         overCap,
         errors,
+        hidden,
         pinned,
         fetchWorkingSet,
         getSelectionIds,
@@ -297,5 +300,82 @@ describe("WorkingSetLoader: stale and failed loads", () => {
         await flushAsync()
         expect(t.overCap).toEqual(["bbox", undefined])
         expect(t.loadedIntoDraw).toEqual([[2]])
+    })
+})
+
+describe("WorkingSetLoader: loaded backend ids", () => {
+    test("reports the backend ids loaded into draw after a load", async () => {
+        const t = setup()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([1, 2]))
+
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        expect(t.hidden).toEqual([[1, 2]])
+    })
+
+    test("reports the ids again after a move unloads and loads features", async () => {
+        const t = setup()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([1, 2]))
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([2, 3]))
+
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+
+        expect(t.hidden.at(-1)).toEqual([2, 3])
+    })
+
+    test("an edited or deleted feature stays reported after the map moves away from it", async () => {
+        const t = setup()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([1, 2]))
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.pinned.add(1)
+        t.fetchWorkingSet.mockResolvedValue(workingSet([3]))
+
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+
+        expect(t.hidden.at(-1)).toEqual([1, 3])
+    })
+
+    test("draw ids of created features are not reported: the base source never has them", async () => {
+        const t = setup()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([1, "draw-a"]))
+
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        expect(t.hidden).toEqual([[1]])
+    })
+
+    test("does not report the same ids twice", async () => {
+        const t = setup()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([1, 2]))
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([2, 1]))
+
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+
+        expect(t.hidden).toEqual([[1, 2]])
+    })
+
+    test("an over-cap, stale or dropped load reports nothing", async () => {
+        const t = setup()
+        const first = deferred<WorkingSet>()
+        t.fetchWorkingSet.mockReturnValueOnce(first.promise).mockResolvedValueOnce(workingSet([], true))
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+        first.resolve(workingSet([1]))
+        await flushAsync()
+
+        expect(t.hidden).toEqual([])
     })
 })

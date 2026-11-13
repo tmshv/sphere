@@ -9,6 +9,8 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
 vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
 
 import { DrawOpQueue, registerDrawQueue } from "@/lib/draw-session"
+import drawReducer, { type DrawState } from "@/store/draw"
+import { type Middleware, combineReducers } from "@reduxjs/toolkit"
 import { onSelectionReconcile } from "@/lib/selection-bus"
 import { flushAsync, makeLogStore } from "@/testutils"
 import { actions } from "../actions"
@@ -267,5 +269,58 @@ describe("save-draw listener: failed", () => {
         expect(dispatched.find(a => a.type === "error/setError")?.payload).toEqual(
             expect.stringContaining("load exploded"),
         )
+    })
+})
+
+describe("save-draw listener: hidden ids", () => {
+    beforeEach(() => {
+        mockCommands()
+    })
+
+    afterEach(() => {
+        vi.clearAllMocks()
+    })
+
+    // The real draw reducer, so the test sees when the hidden ids clear
+    function makeHiddenStore() {
+        const hiddenAtBump: number[][] = []
+        const watchBump: Middleware<object, { draw: DrawState }> = api => next => action => {
+            if (actions.source.bumpVersion.match(action)) {
+                hiddenAtBump.push(api.getState().draw.hiddenIds)
+            }
+            return next(action)
+        }
+        const { store } = makeLogStore({
+            preloadedState: {
+                draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [4, 5] },
+                selection: { count: 0, version: 0, sourceId: SOURCE_ID },
+            },
+            reducer: combineReducers({ draw: drawReducer, selection: (state: object = {}) => state }),
+            middleware: [listener.middleware, watchBump],
+        })
+        return { store, hiddenAtBump }
+    }
+
+    test.each([
+        ["commit", actions.draw.commit],
+        ["cancel", actions.draw.cancel],
+    ])("%s clears the hidden ids only after the re-fetch was asked for", async (_, request) => {
+        const { store, hiddenAtBump } = makeHiddenStore()
+
+        store.dispatch(request({ sourceId: SOURCE_ID }))
+        await flushAsync()
+
+        expect(hiddenAtBump).toEqual([[4, 5]])
+        expect(store.getState().draw.hiddenIds).toEqual([])
+    })
+
+    test("a failed commit keeps the hidden ids: the session is still open", async () => {
+        mockCommands({ draw_commit: fail("commit exploded") })
+        const { store } = makeHiddenStore()
+
+        store.dispatch(actions.draw.commit({ sourceId: SOURCE_ID }))
+        await flushAsync()
+
+        expect(store.getState().draw).toEqual({ sourceId: SOURCE_ID, pending: false, hiddenIds: [4, 5] })
     })
 })

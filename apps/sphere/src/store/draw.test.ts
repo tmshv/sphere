@@ -1,14 +1,14 @@
 import { describe, expect, test } from "vitest"
 import reducer, { drawSlice } from "./draw"
 
-const { start, started, commit, cancel, settle, done, reset } = drawSlice.actions
-const { isDrawing, isPending, sourceId } = drawSlice.selectors
+const { start, started, commit, cancel, settle, done, reset, setHiddenIds } = drawSlice.actions
+const { isDrawing, isPending, sourceId, hiddenIds } = drawSlice.selectors
 
 import type { RootState } from "./index"
 
 const makeRootState = (draw: object) => ({ draw }) as unknown as RootState
 
-const drawing = { sourceId: "my-source", pending: false }
+const drawing = { sourceId: "my-source", pending: false, hiddenIds: [] }
 
 describe("drawSlice reducer", () => {
     test("initial state has no sourceId and nothing pending", () => {
@@ -29,7 +29,7 @@ describe("drawSlice reducer", () => {
     })
 
     test("started enters draw mode", () => {
-        const state = reducer({ pending: true }, started({ sourceId: "source-42" }))
+        const state = reducer({ pending: true, hiddenIds: [] }, started({ sourceId: "source-42" }))
         expect(state.sourceId).toBe("source-42")
         expect(state.pending).toBe(false)
     })
@@ -45,20 +45,71 @@ describe("drawSlice reducer", () => {
     })
 
     test("settle clears pending and keeps draw mode", () => {
-        const state = reducer({ sourceId: "my-source", pending: true }, settle())
+        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [] }, settle())
         expect(state).toEqual(drawing)
     })
 
     test("done clears sourceId", () => {
-        const state = reducer({ sourceId: "my-source", pending: true }, done({ sourceId: "my-source" }))
+        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [] }, done({ sourceId: "my-source" }))
         expect(state.sourceId).toBeUndefined()
         expect(state.pending).toBe(false)
     })
 
     test("reset clears sourceId", () => {
-        const state = reducer({ sourceId: "my-source", pending: true }, reset())
+        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [] }, reset())
         expect(state.sourceId).toBeUndefined()
         expect(state.pending).toBe(false)
+    })
+})
+
+describe("drawSlice hiddenIds", () => {
+    const withHidden = { sourceId: "my-source", pending: false, hiddenIds: [1, 2] }
+
+    test("start with nothing hidden", () => {
+        expect(reducer(undefined, { type: "@@INIT" }).hiddenIds).toEqual([])
+    })
+
+    test("setHiddenIds replaces the ids loaded into draw for the drawn source", () => {
+        const state = reducer(withHidden, setHiddenIds({ sourceId: "my-source", ids: [3, 4, 5] }))
+        expect(state.hiddenIds).toEqual([3, 4, 5])
+    })
+
+    test("setHiddenIds for another source changes nothing", () => {
+        expect(reducer(withHidden, setHiddenIds({ sourceId: "other", ids: [3] }))).toEqual(withHidden)
+    })
+
+    test("setHiddenIds while not drawing changes nothing", () => {
+        const idle = { pending: false, hiddenIds: [] }
+        expect(reducer(idle, setHiddenIds({ sourceId: "my-source", ids: [3] }))).toEqual(idle)
+    })
+
+    test("started begins with nothing hidden", () => {
+        const state = reducer({ pending: true, hiddenIds: [7] }, started({ sourceId: "my-source" }))
+        expect(state.hiddenIds).toEqual([])
+    })
+
+    test("pending commit or cancel keeps the hidden ids: the base source has not re-fetched yet", () => {
+        expect(reducer(withHidden, commit({ sourceId: "my-source" })).hiddenIds).toEqual([1, 2])
+        expect(reducer(withHidden, cancel({ sourceId: "my-source" })).hiddenIds).toEqual([1, 2])
+    })
+
+    test("settle with the session still open keeps the hidden ids", () => {
+        const state = reducer({ ...withHidden, pending: true }, settle())
+        expect(state.hiddenIds).toEqual([1, 2])
+    })
+
+    test("settle without a session clears the hidden ids", () => {
+        const state = reducer({ pending: true, hiddenIds: [1] }, settle())
+        expect(state.hiddenIds).toEqual([])
+    })
+
+    test("done and reset clear the hidden ids", () => {
+        expect(reducer(withHidden, done({ sourceId: "my-source" })).hiddenIds).toEqual([])
+        expect(reducer(withHidden, reset()).hiddenIds).toEqual([])
+    })
+
+    test("hiddenIds selector reads the state", () => {
+        expect(hiddenIds(makeRootState(withHidden))).toEqual([1, 2])
     })
 })
 

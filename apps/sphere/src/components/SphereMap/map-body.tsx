@@ -16,6 +16,7 @@ import { selectTerrainSpecification } from "@/store/terrain"
 import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
+import { DrawContextLayer } from "./DrawContextLayer"
 import { FilteredLayerSource } from "./FilteredLayerSource"
 import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
@@ -67,6 +68,8 @@ export default function MapBody({ mapId }: MapBodyProps) {
                     <SphereLayer id={id} />
                 </React.Fragment>
             ))}
+            {/* Before Draw: its layers must be on the map before the draw control adds its own */}
+            <DrawContextLayer />
             {drawSourceId === undefined ? null : <Draw key={drawSourceId} mapId={mapId} sourceId={drawSourceId} />}
             <RectSelectOverlay mapRef={map} />
         </>

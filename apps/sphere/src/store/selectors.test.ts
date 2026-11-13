@@ -403,3 +403,80 @@ describe("selectPopupEntries", () => {
         expect(selectPopupEntries(makePopupState({ mapTool: "info" }))).toBeNull()
     })
 })
+
+describe("draw context layer", () => {
+    const drawing = (sourceId: string, hiddenIds: number[] = []) => ({ sourceId, pending: false, hiddenIds })
+
+    test("no specs when not drawing", () => {
+        const state = makeRootState({
+            draw: { pending: false, hiddenIds: [] },
+            source: makeSourceState([makeGeojsonSource("a")]),
+        })
+        expect(selectors.drawContext.layerSpecs(state)).toEqual([])
+    })
+
+    test("drawing a GeoJSON source gives its geometry layers bottom to top", () => {
+        const state = makeRootState({ draw: drawing("a"), source: makeSourceState([makeGeojsonSource("a")]) })
+        const specs = selectors.drawContext.layerSpecs(state)
+        expect(specs.map(spec => [spec.kind, spec.layerId, spec.sourceId])).toEqual([
+            ["Polygon", "draw-context-a-polygon", "a"],
+            ["LineString", "draw-context-a-line", "a"],
+            ["Point", "draw-context-a-point", "a"],
+        ])
+        for (const spec of specs) {
+            expect(spec.sourceLayer).toBeUndefined()
+        }
+    })
+
+    test("draws only the drawn source, whatever the tree shows", () => {
+        const state = makeRootState({
+            draw: drawing("b"),
+            source: makeSourceState([makeGeojsonSource("a"), makeGeojsonSource("b")], { hiddenIds: ["b"] }),
+        })
+        expect(new Set(selectors.drawContext.layerSpecs(state).map(spec => spec.sourceId))).toEqual(new Set(["b"]))
+    })
+
+    test("no specs for a pending source or one that is not GeoJSON", () => {
+        const pending = makeRootState({
+            draw: drawing("a"),
+            source: makeSourceState([makeGeojsonSource("a", { pending: true })]),
+        })
+        expect(selectors.drawContext.layerSpecs(pending)).toEqual([])
+        const mvt = makeRootState({ draw: drawing("m"), source: makeSourceState([makeMvtSource("m")]) })
+        expect(selectors.drawContext.layerSpecs(mvt)).toEqual([])
+    })
+
+    test("specs stay the same object while only the hidden ids change", () => {
+        const source = makeSourceState([makeGeojsonSource("a")])
+        const before = selectors.drawContext.layerSpecs(makeRootState({ draw: drawing("a", [1]), source }))
+        const after = selectors.drawContext.layerSpecs(makeRootState({ draw: drawing("a", [1, 2]), source }))
+        expect(after).toBe(before)
+    })
+
+    test("the filter hides every id loaded into draw", () => {
+        const state = makeRootState({ draw: drawing("a", [4, 2]), source: makeSourceState([makeGeojsonSource("a")]) })
+        expect(selectors.drawContext.hiddenIds(state)).toEqual([4, 2])
+        expect(selectors.drawContext.filter(state)).toEqual(["match", ["id"], [2, 4], false, true])
+    })
+
+    test("no filter when nothing is loaded into draw", () => {
+        const state = makeRootState({ draw: drawing("a"), source: makeSourceState([makeGeojsonSource("a")]) })
+        expect(selectors.drawContext.filter(state)).toBeUndefined()
+    })
+
+    test("the drawn source's own user layers stay hidden while drawing", () => {
+        const state = makeRootState({
+            app: { activeSidebarTab: "layers" },
+            draw: drawing("a"),
+            source: makeSourceState([makeGeojsonSource("a")]),
+            layer: {
+                items: {
+                    pts: { id: "pts", sourceId: "a", fractionIndex: 0.5, type: LayerType.Point },
+                    base: { id: "base", fractionIndex: -1, type: LayerType.Raster },
+                },
+                allIds: ["pts", "base"],
+            },
+        })
+        expect(selectMapLayers(state).map(layer => layer.id)).toEqual(["base"])
+    })
+})
