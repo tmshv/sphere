@@ -48,10 +48,16 @@ impl EditSession {
                 if self.aliases.contains_key(&draw_id) {
                     return Err(edit_err(format!("draw id already used: {draw_id}")));
                 }
-                let id = self.next_id.max(store.max_id().map_or(1, |m| m + 1));
+                // Greater than every live id and every id the journal has seen,
+                // so a deleted feature's id is never handed out again.
+                let journal_next = self.journal.last_key_value().map_or(1, |(k, _)| k + 1);
+                let id = self
+                    .next_id
+                    .max(journal_next)
+                    .max(store.max_id().map_or(1, |m| m + 1));
                 self.next_id = id + 1;
                 feature.id = Some(Id::Number(id.into()));
-                self.journal.insert(id, None);
+                self.journal.entry(id).or_insert(None);
                 self.aliases.insert(draw_id, id);
                 store.upsert(feature);
                 Ok(Some(id))
@@ -147,6 +153,52 @@ mod tests {
         v
     }
 
+    fn spatial(s: &FeatureStore) -> (Vec<i64>, Option<crate::bbox::Bbox>) {
+        (s.query_rect([-180.0, -90.0, 180.0, 90.0], "include").into_iter().collect::<std::collections::BTreeSet<_>>().into_iter().collect(), s.get_bounds())
+    }
+
+    #[test]
+    fn delete_max_id_then_create_then_rollback_restores_everything() {
+        let mut s = store();
+        let before = snapshot(&s);
+        let sp = spatial(&s);
+        let mut e = EditSession::new();
+        e.apply(&mut s, EditOp::Delete { id: EditRef::Id(2) }).unwrap();
+        let new_id = e.apply(&mut s, create("d")).unwrap().unwrap();
+        assert_ne!(new_id, 2);
+        e.rollback(&mut s);
+        assert_eq!(snapshot(&s), before);
+        assert_eq!(spatial(&s), sp);
+    }
+
+    #[test]
+    fn delete_max_id_then_create_commit_reports_both() {
+        let mut s = store();
+        let mut e = EditSession::new();
+        e.apply(&mut s, EditOp::Delete { id: EditRef::Id(2) }).unwrap();
+        e.apply(&mut s, create("d")).unwrap();
+        assert_eq!(e.commit(), vec![2, 3]);
+        assert!(s.get_by_ids(&[2]).is_empty());
+    }
+
+    #[test]
+    fn create_update_delete_same_feature_rollback_and_commit() {
+        for rollback in [false, true] {
+            let mut s = store();
+            let before = snapshot(&s);
+            let sp = spatial(&s);
+            let mut e = EditSession::new();
+            let d = || EditRef::DrawId("d".into());
+            e.apply(&mut s, create("d")).unwrap();
+            e.apply(&mut s, EditOp::Update { id: d(), feature: pt(None, 8.0, "u") }).unwrap();
+            e.apply(&mut s, EditOp::Delete { id: d() }).unwrap();
+            let t = if rollback { e.rollback(&mut s) } else { e.commit() };
+            assert!(t.is_empty());
+            assert_eq!(snapshot(&s), before);
+            assert_eq!(spatial(&s), sp);
+        }
+    }
+
     fn create(d: &str) -> EditOp {
         EditOp::Create { draw_id: d.into(), feature: pt(None, 5.0, "new") }
     }
@@ -167,6 +219,7 @@ mod tests {
     fn update_then_rollback_restores_original() {
         let mut s = store();
         let before = snapshot(&s);
+        let sp = spatial(&s);
         let mut e = EditSession::new();
         let op = |x| EditOp::Update { id: EditRef::Id(1), feature: pt(Some(1), x, "changed") };
         e.apply(&mut s, op(9.0)).unwrap();
@@ -174,17 +227,20 @@ mod tests {
         assert_ne!(snapshot(&s), before);
         e.rollback(&mut s);
         assert_eq!(snapshot(&s), before);
+        assert_eq!(spatial(&s), sp);
     }
 
     #[test]
     fn delete_then_rollback_restores() {
         let mut s = store();
         let before = snapshot(&s);
+        let sp = spatial(&s);
         let mut e = EditSession::new();
         e.apply(&mut s, EditOp::Delete { id: EditRef::Id(2) }).unwrap();
         assert_eq!(s.feature_count(), 1);
         e.rollback(&mut s);
         assert_eq!(snapshot(&s), before);
+        assert_eq!(spatial(&s), sp);
     }
 
     #[test]
