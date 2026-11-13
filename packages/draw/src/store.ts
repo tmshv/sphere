@@ -176,7 +176,8 @@ export default class Store {
      */
     select(featureIds: FeatureIds, options: DeleteOptions = {}): this {
         for (const id of toDenseArray(featureIds)) {
-            if (this.#selectedFeatureIds.has(id)) continue
+            // Only features in the store can be selected
+            if (!this.#featureIds.has(id) || this.#selectedFeatureIds.has(id)) continue
             this.#selectedFeatureIds.add(id)
             this.#changedFeatureIds.add(id)
             if (!options.silent) {
@@ -267,13 +268,11 @@ export default class Store {
     }
 
     /**
-     * Returns features in the current selection. An id selected without a
-     * feature in the store (`Draw.changeMode` does not check the ids it is
-     * given) yields `undefined`.
+     * Returns features in the current selection.
      * @return Selected features.
      */
-    getSelected(): (DrawFeature | undefined)[] {
-        return this.#selectedFeatureIds.values().map(id => this.get(id))
+    getSelected(): DrawFeature[] {
+        return this.#selectedFeatureIds.values().flatMap(id => this.get(id) ?? [])
     }
 
     /**

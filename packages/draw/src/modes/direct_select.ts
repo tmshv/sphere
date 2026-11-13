@@ -4,7 +4,7 @@ import constrainFeatureMovement from "../lib/constrain_feature_movement"
 import doubleClickZoom from "../lib/double_click_zoom"
 import * as Constants from "../constants"
 import moveFeatures from "../lib/move_features"
-import { type DrawFeature, requireFeature } from "../feature_types/draw_feature"
+import type { DrawFeature } from "../feature_types/draw_feature"
 import { fireDrawEvent } from "../map-events"
 import type { DrawFeatureTarget, DrawPointerEvent, FeatureId, LngLatValue, SelectedCoordinate } from "../types"
 import type { DrawMode } from "./mode_interface"
@@ -65,7 +65,7 @@ const DirectSelect: DrawMode<DirectSelectState, DirectSelectOptions, DirectSelec
     fireUpdate() {
         fireDrawEvent(this.map, Constants.events.UPDATE, {
             action: Constants.updateActions.CHANGE_COORDINATES,
-            features: this.getSelected().map(f => requireFeature(f).toGeoJSON()),
+            features: this.getSelected().map(f => f.toGeoJSON()),
         })
     },
 
@@ -124,7 +124,7 @@ const DirectSelect: DrawMode<DirectSelectState, DirectSelectOptions, DirectSelec
     },
 
     dragFeature(state, e, delta) {
-        moveFeatures(this.getSelected().map(requireFeature), delta)
+        moveFeatures(this.getSelected(), delta)
         state.dragMoveLocation = e.lngLat
     },
 

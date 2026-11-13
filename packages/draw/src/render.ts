@@ -90,7 +90,7 @@ export default function render(store: Store, pending: PendingEmits): void {
 
     if (pending.selectionChange) {
         fireDrawEvent(store.ctx.map, Constants.events.SELECTION_CHANGE, {
-            features: store.getSelected().map(feature => requireFeature(feature).toGeoJSON()),
+            features: store.getSelected().map(feature => feature.toGeoJSON()),
             points: store.getSelectedCoordinates().map(coordinate => ({
                 type: Constants.geojsonTypes.FEATURE,
                 properties: {},

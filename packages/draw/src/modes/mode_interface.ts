@@ -146,7 +146,7 @@ export default class ModeInterface {
      * An id selected without a feature yields `undefined`.
      * @name this.getSelected
      */
-    getSelected(): (DrawFeature | undefined)[] {
+    getSelected(): DrawFeature[] {
         return this.ctx.store.getSelected()
     }
 

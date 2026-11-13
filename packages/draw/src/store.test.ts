@@ -159,6 +159,13 @@ describe("selection methods", () => {
         expect(store.getSelectedIds()).toEqual([])
     })
 
+    it("selecting an id without a feature does nothing", () => {
+        store.select("missing")
+        store.setSelected(["missing"])
+        expect(store.getSelectedIds(), "nothing selected").toEqual([])
+        expect(store.getSelected(), "no undefined entries").toEqual([])
+    })
+
     it("select one feature", () => {
         store.select(f1.id)
         expect(store.getSelectedIds(), "f1 returns in selected ids array").toEqual([f1.id])
@@ -238,6 +245,11 @@ it("Store#setSelected", () => {
     const point = createFeature("point")
     const line = createFeature("line")
     const polygon = createFeature("polygon")
+
+    // Only features in the store can be selected
+    store.add(asDrawFeature(point))
+    store.add(asDrawFeature(line))
+    store.add(asDrawFeature(polygon))
 
     store.setSelected(point.id)
     expect(store.getSelectedIds()).toEqual([point.id])

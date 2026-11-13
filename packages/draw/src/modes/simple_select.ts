@@ -64,8 +64,8 @@ function targeted(e: DrawPointerEvent): TargetEvent {
 }
 
 /** A geometry type without the `Multi` prefix: what features must share to be combined. */
-function baseType(feature: DrawFeature | undefined): string {
-    return requireFeature(feature).type.replace(Constants.geojsonTypes.MULTI_PREFIX, "")
+function baseType(feature: DrawFeature): string {
+    return feature.type.replace(Constants.geojsonTypes.MULTI_PREFIX, "")
 }
 
 /** The geometry of a multi feature combining `features`, all of one base type. */
@@ -136,7 +136,7 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
     fireUpdate() {
         fireDrawEvent(this.map, Constants.events.UPDATE, {
             action: Constants.updateActions.MOVE,
-            features: this.getSelected().map(f => requireFeature(f).toGeoJSON()),
+            features: this.getSelected().map(f => f.toGeoJSON()),
         })
     },
 
@@ -147,9 +147,10 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
 
         let combineFeatures = false
 
-        if (selectedFeatures.length > 1) {
+        const first = selectedFeatures.at(0)
+        if (selectedFeatures.length > 1 && first !== undefined) {
             combineFeatures = true
-            const featureType = baseType(selectedFeatures.at(0))
+            const featureType = baseType(first)
             for (const feature of selectedFeatures) {
                 if (baseType(feature) !== featureType) {
                     combineFeatures = false
@@ -388,7 +389,7 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
             lat: e.lngLat.lat - location.lat,
         }
 
-        moveFeatures(this.getSelected().map(requireFeature), delta)
+        moveFeatures(this.getSelected(), delta)
 
         state.dragMoveLocation = e.lngLat
     },
@@ -456,11 +457,10 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
 
         if (selectedFeatures.length === 0 || selectedFeatures.length < 2) return
 
-        const features = selectedFeatures.map(requireFeature)
-        const geometry = combinedGeometry(features)
+        const geometry = combinedGeometry(selectedFeatures)
         // Features of different types do not combine
         if (geometry === undefined) return
-        const featuresCombined = features.map(feature => feature.toGeoJSON())
+        const featuresCombined = selectedFeatures.map(feature => feature.toGeoJSON())
 
         const first = featuresCombined.at(0)
         if (featuresCombined.length > 1 && first !== undefined) {

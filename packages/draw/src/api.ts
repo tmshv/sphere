@@ -8,7 +8,7 @@ import stringSetsAreEqual from "./lib/string_sets_are_equal"
 import * as Constants from "./constants"
 import StringSet from "./lib/string_set"
 import createFeature, { isGeometryKind } from "./feature_types/create_feature"
-import { type DrawFeature, requireFeature } from "./feature_types/draw_feature"
+import type { DrawFeature } from "./feature_types/draw_feature"
 import type { DrawContext } from "./context"
 import type {
     AnyDrawGeometry,
@@ -84,10 +84,7 @@ export default class DrawApi {
 
     getSelected = (): DrawFeatureCollection => ({
         type: Constants.geojsonTypes.FEATURE_COLLECTION,
-        features: this.#ctx.store
-            .getSelectedIds()
-            .map(id => this.#ctx.store.get(id))
-            .map(feature => requireFeature(feature).toGeoJSON()),
+        features: this.#ctx.store.getSelected().map(feature => feature.toGeoJSON()),
     })
 
     getSelectedPoints = (): DrawFeatureCollection => ({

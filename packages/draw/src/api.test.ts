@@ -595,6 +595,18 @@ describe("api", () => {
         ).toBe(200)
     })
 
+    it("Draw.changeMode ignores feature ids that do not exist", () => {
+        Draw.deleteAll()
+        const [pointId] = Draw.add(getGeoJSON("point"))
+        Draw.changeMode("simple_select", { featureIds: [required(pointId), "missing"] })
+
+        expect(Draw.getSelectedIds(), "only the existing feature is selected").toEqual([pointId])
+        expect(Draw.getSelected().features.length, "getSelected returns the existing feature").toBe(1)
+        expect(() => Draw.trash(), "trash does not throw").not.toThrow()
+        expect(Draw.getAll().features.length, "the existing feature is deleted").toBe(0)
+        Draw.changeMode("simple_select")
+    })
+
     it("Cleanup", () => {
         Draw.deleteAll()
         Draw.onRemove()
