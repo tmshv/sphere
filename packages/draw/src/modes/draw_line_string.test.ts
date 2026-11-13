@@ -4,8 +4,8 @@ import MapLibreDraw from "../index"
 import type { DrawFeature } from "../feature_types/draw_feature"
 import LineString from "../feature_types/line_string"
 import type { DrawRenderFeature } from "../types"
-import drawLineStringModeObject from "./draw_line_string"
-import objectToMode from "./object_to_mode"
+import DrawLineString from "./draw_line_string"
+import modeBuilder from "./mode_builder"
 import setupAfterNextRender, { type AfterNextRender } from "../test-utils/after_next_render"
 import createMap, { type MockMap } from "../test-utils/create_map"
 import createMockDrawModeContext, { type MockDrawModeContext } from "../test-utils/create_mock_draw_mode_context"
@@ -24,7 +24,7 @@ import required from "../test-utils/required"
 import touchTap from "../test-utils/touch_tap"
 import waitForLoad from "../test-utils/wait_for_load"
 
-const drawLineStringMode = objectToMode(drawLineStringModeObject)
+const drawLineStringMode = modeBuilder(DrawLineString)
 
 /** The first feature in the mock context's store. */
 function firstStoredFeature(context: MockDrawModeContext): DrawFeature {

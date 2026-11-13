@@ -4,7 +4,7 @@ import createMap from "../test-utils/create_map"
 import getGeoJSON from "../test-utils/get_geojson"
 import waitForLoad from "../test-utils/wait_for_load"
 
-describe("object_to_mode", () => {
+describe("mode_builder", () => {
     let Draw: MapLibreDraw
 
     beforeAll(async () => {

@@ -2,8 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import MapLibreDraw from "../index"
 import type { DrawRenderFeature, DrawExportedFeature } from "../types"
 import Polygon from "../feature_types/polygon"
-import drawPolygonModeObject from "./draw_polygon"
-import objectToMode from "./object_to_mode"
+import DrawPolygon from "./draw_polygon"
+import modeBuilder from "./mode_builder"
 import setupAfterNextRender, { type AfterNextRender } from "../test-utils/after_next_render"
 import createMap, { type MockMap } from "../test-utils/create_map"
 import createMockDrawModeContext, { type MockDrawModeContext } from "../test-utils/create_mock_draw_mode_context"
@@ -22,7 +22,7 @@ import required from "../test-utils/required"
 import touchTap from "../test-utils/touch_tap"
 import waitForLoad from "../test-utils/wait_for_load"
 
-const drawPolygonMode = objectToMode(drawPolygonModeObject)
+const drawPolygonMode = modeBuilder(DrawPolygon)
 
 /** The first feature the mode added to the store. */
 function addedPolygon(context: MockDrawModeContext) {

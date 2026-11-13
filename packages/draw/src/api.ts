@@ -11,6 +11,7 @@ import createFeature, { isGeometryKind } from "./feature_types/create_feature"
 import type { DrawFeature } from "./feature_types/draw_feature"
 import type { DrawContext } from "./context"
 import type {
+    ChangeModeOptions,
     AnyDrawGeometry,
     DrawFeatureCollection,
     DrawExportedFeature,
@@ -18,13 +19,6 @@ import type {
     FeatureProperties,
     ScreenPoint,
 } from "./types"
-
-/** Options for `changeMode`: `featureIds` for simple_select, `featureId` (and more) for other modes. */
-export interface ChangeModeOptions {
-    featureIds?: FeatureId[]
-    featureId?: FeatureId
-    [option: string]: unknown
-}
 
 function isDrawGeometry(geometry: Geometry): geometry is Exclude<Geometry, GeometryCollection> {
     return geometry.type !== "GeometryCollection" && isGeometryKind(geometry.type)

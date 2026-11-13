@@ -6,10 +6,11 @@ import isClick, { type PointerStamp } from "./lib/is_click"
 import isTap from "./lib/is_tap"
 import * as Constants from "./constants"
 import { fireDrawEvent } from "./map-events"
-import objectToMode, { type ModeBuilder } from "./modes/object_to_mode"
+import modeBuilder, { type ModeBuilder } from "./modes/mode_builder"
 import type { DrawContext } from "./context"
 import type {
     ChangeModeEventOptions,
+    ChangeModeOptions,
     DrawActionableState,
     DrawKeyboardEvent,
     DrawMouseEvent,
@@ -72,7 +73,7 @@ type FireHandlers = { [K in keyof FireEvents]: (event: FireEvents[K]) => void }
 
 export interface DrawEvents {
     start(): void
-    changeMode(modename: string, nextModeOptions?: unknown, eventOptions?: ChangeModeEventOptions): void
+    changeMode(modename: string, nextModeOptions?: ChangeModeOptions, eventOptions?: ChangeModeEventOptions): void
     actionable(actions: DrawActionableState): void
     currentModeName(): string | null
     currentModeRender(geojson: DrawRenderFeature, push: RenderPush): void
@@ -88,7 +89,7 @@ export interface DrawEvents {
 export default function events(ctx: DrawContext): DrawEvents {
     const modes: Record<string, ModeBuilder> = {}
     for (const k of Object.keys(ctx.options.modes)) {
-        modes[k] = objectToMode(ctx.options.modes[k])
+        modes[k] = modeBuilder(ctx.options.modes[k])
     }
 
     let mouseDownInfo: Partial<PointerStamp> = {}
@@ -269,7 +270,11 @@ export default function events(ctx: DrawContext): DrawEvents {
         data,
     }
 
-    function changeMode(modename: string, nextModeOptions?: unknown, eventOptions: ChangeModeEventOptions = {}) {
+    function changeMode(
+        modename: string,
+        nextModeOptions?: ChangeModeOptions,
+        eventOptions: ChangeModeEventOptions = {},
+    ) {
         mode().stop()
 
         const modebuilder = modes[modename]

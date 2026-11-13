@@ -8,50 +8,25 @@ import moveFeatures from "../lib/move_features"
 import * as Constants from "../constants"
 import { type DrawFeature, requireFeature } from "../feature_types/draw_feature"
 import { fireDrawEvent } from "../map-events"
+import type { RenderPush } from "../lib/mode_handler"
 import type {
     AnyDrawGeometry,
+    ChangeModeOptions,
     DrawFeatureTarget,
     DrawExportedFeature,
+    DrawMouseEvent,
     DrawPointerEvent,
+    DrawRenderFeature,
+    DrawTouchEvent,
     FeatureId,
+    HandlerResult,
     LngLatValue,
     ScreenPoint,
 } from "../types"
-import type { DrawMode } from "./mode_interface"
-
-export interface SimpleSelectOptions {
-    featureIds?: FeatureId[]
-}
-
-export interface SimpleSelectState {
-    dragMoveLocation: LngLatValue | null
-    boxSelectStartLocation: ScreenPoint | null
-    boxSelectElement: HTMLElement | null | undefined
-    boxSelecting: boolean
-    canBoxSelect: boolean
-    dragMoving: boolean
-    canDragMove: boolean
-    initiallySelectedFeatureIds: FeatureId[]
-}
+import Mode, { type ModeContext } from "./mode"
 
 /** An event over a rendered Draw feature. */
 type TargetEvent = DrawPointerEvent & { featureTarget: DrawFeatureTarget }
-
-interface SimpleSelectHelpers {
-    fireUpdate(): void
-    fireActionable(): void
-    getUniqueIds(allFeatures: DrawFeatureTarget[]): FeatureId[]
-    stopExtendedInteractions(state: SimpleSelectState): void
-    clickOrTap(state: SimpleSelectState, e: DrawPointerEvent): void
-    clickAnywhere(state: SimpleSelectState): void
-    clickOnVertex(state: SimpleSelectState, e: TargetEvent): void
-    startOnActiveFeature(state: SimpleSelectState, e: TargetEvent): void
-    clickOnFeature(state: SimpleSelectState, e: TargetEvent): void
-    startBoxSelect(state: SimpleSelectState, e: DrawPointerEvent): void
-    whileBoxSelect(state: SimpleSelectState, e: DrawPointerEvent): void
-    dragMove(state: SimpleSelectState, e: DrawPointerEvent): void
-    endInteraction(state: SimpleSelectState, e: DrawPointerEvent): void
-}
 
 function hasFeatureTarget(e: DrawPointerEvent): e is TargetEvent {
     return e.featureTarget !== undefined
@@ -107,40 +82,40 @@ function combinedGeometry(features: DrawFeature[]): AnyDrawGeometry | undefined 
     return undefined
 }
 
-const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelectHelpers> = {
-    onSetup(opts) {
-        // turn the opts into state.
-        const state: SimpleSelectState = {
-            dragMoveLocation: null,
-            boxSelectStartLocation: null,
-            boxSelectElement: undefined,
-            boxSelecting: false,
-            canBoxSelect: false,
-            dragMoving: false,
-            canDragMove: false,
-            initiallySelectedFeatureIds: opts.featureIds || [],
-        }
+/** Selects, moves, combines and deletes whole features; the default mode. */
+export default class SimpleSelect extends Mode {
+    #dragMoveLocation: LngLatValue | null = null
+    #boxSelectStartLocation: ScreenPoint | null = null
+    #boxSelectElement: HTMLElement | null = null
+    #boxSelecting = false
+    #canBoxSelect = false
+    #dragMoving = false
+    #canDragMove = false
+    readonly #initiallySelectedFeatureIds: FeatureId[]
 
-        this.setSelected(state.initiallySelectedFeatureIds.filter(id => this.getFeature(id) !== undefined))
-        this.fireActionable()
+    constructor(ctx: ModeContext, opts: ChangeModeOptions) {
+        super(ctx)
+        // turn the opts into state.
+        this.#initiallySelectedFeatureIds = opts.featureIds || []
+
+        this.setSelected(this.#initiallySelectedFeatureIds.filter(id => this.getFeature(id) !== undefined))
+        this.#fireActionable()
 
         this.setActionableState({
             combineFeatures: true,
             uncombineFeatures: true,
             trash: true,
         })
+    }
 
-        return state
-    },
-
-    fireUpdate() {
+    #fireUpdate(): void {
         fireDrawEvent(this.map, Constants.events.UPDATE, {
             action: Constants.updateActions.MOVE,
             features: this.getSelected().map(f => f.toGeoJSON()),
         })
-    },
+    }
 
-    fireActionable() {
+    #fireActionable(): void {
         const selectedFeatures = this.getSelected()
 
         const multiFeatures = selectedFeatures.filter(feature => this.isInstanceOf("MultiFeature", feature))
@@ -166,9 +141,9 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
             uncombineFeatures,
             trash,
         })
-    },
+    }
 
-    getUniqueIds(allFeatures) {
+    #getUniqueIds(allFeatures: DrawFeatureTarget[]): FeatureId[] {
         if (!allFeatures.length) return []
         const ids = new StringSet()
         for (const feature of allFeatures) {
@@ -177,67 +152,76 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
         }
 
         return ids.values()
-    },
+    }
 
-    stopExtendedInteractions(state) {
-        if (state.boxSelectElement) {
-            if (state.boxSelectElement.parentNode) {
-                state.boxSelectElement.parentNode.removeChild(state.boxSelectElement)
+    #stopExtendedInteractions(): void {
+        if (this.#boxSelectElement) {
+            if (this.#boxSelectElement.parentNode) {
+                this.#boxSelectElement.parentNode.removeChild(this.#boxSelectElement)
             }
-            state.boxSelectElement = null
+            this.#boxSelectElement = null
         }
 
         this.map.dragPan.enable()
 
-        state.boxSelecting = false
-        state.canBoxSelect = false
-        state.dragMoving = false
-        state.canDragMove = false
-    },
+        this.#boxSelecting = false
+        this.#canBoxSelect = false
+        this.#dragMoving = false
+        this.#canDragMove = false
+    }
 
-    onStop() {
+    onStop(): void {
         doubleClickZoom.enable(this)
-    },
+    }
 
-    onMouseMove(state, e) {
+    onMouseMove(e: DrawMouseEvent): HandlerResult {
         const isFeature = CommonSelectors.isFeature(e)
-        if (isFeature && state.dragMoving) this.fireUpdate()
+        if (isFeature && this.#dragMoving) this.#fireUpdate()
 
         // On mousemove that is not a drag, stop extended interactions.
         // This is useful if you drag off the canvas, release the button,
         // then move the mouse back over the canvas --- we don't allow the
         // interaction to continue then, but we do let it continue if you held
         // the mouse button that whole time
-        this.stopExtendedInteractions(state)
+        this.#stopExtendedInteractions()
 
         // Skip render
         return true
-    },
+    }
 
-    onMouseOut(state) {
+    onMouseOut(): HandlerResult {
         // As soon as you mouse leaves the canvas, update the feature
-        if (state.dragMoving) return this.fireUpdate()
+        if (this.#dragMoving) {
+            this.#fireUpdate()
+            return undefined
+        }
 
         // Skip render
         return true
-    },
+    }
 
-    clickOrTap(state, e) {
+    #clickOrTap(e: DrawPointerEvent): void {
         // Click (with or without shift) on no feature
-        if (CommonSelectors.noTarget(e)) return this.clickAnywhere(state) // also tap
-        if (CommonSelectors.isOfMetaType(Constants.meta.VERTEX)(e)) return this.clickOnVertex(state, targeted(e)) //tap
-        if (CommonSelectors.isFeature(e)) return this.clickOnFeature(state, targeted(e))
-    },
+        if (CommonSelectors.noTarget(e)) {
+            this.#clickAnywhere() // also tap
+            return
+        }
+        if (CommonSelectors.isOfMetaType(Constants.meta.VERTEX)(e)) {
+            this.#clickOnVertex(targeted(e)) //tap
+            return
+        }
+        if (CommonSelectors.isFeature(e)) this.#clickOnFeature(targeted(e))
+    }
 
-    onClick(state, e) {
-        return this.clickOrTap(state, e)
-    },
+    onClick(e: DrawMouseEvent): void {
+        this.#clickOrTap(e)
+    }
 
-    onTap(state, e) {
-        return this.clickOrTap(state, e)
-    },
+    onTap(e: DrawTouchEvent): void {
+        this.#clickOrTap(e)
+    }
 
-    clickAnywhere(state) {
+    #clickAnywhere(): void {
         // Clear the re-render selection
         const wasSelected = this.getSelectedIds()
         if (wasSelected.length) {
@@ -247,10 +231,10 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
             }
         }
         doubleClickZoom.enable(this)
-        this.stopExtendedInteractions(state)
-    },
+        this.#stopExtendedInteractions()
+    }
 
-    clickOnVertex(_, e) {
+    #clickOnVertex(e: TargetEvent): void {
         // Enter direct select mode
         this.changeMode(Constants.modes.DIRECT_SELECT, {
             featureId: e.featureTarget.properties.parent,
@@ -258,11 +242,11 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
             startPos: e.lngLat,
         })
         this.updateUIClasses({ mouse: Constants.cursors.MOVE })
-    },
+    }
 
-    startOnActiveFeature(state, e) {
+    #startOnActiveFeature(e: TargetEvent): void {
         // Stop any already-underway extended interactions
-        this.stopExtendedInteractions(state)
+        this.#stopExtendedInteractions()
 
         // Disable map.dragPan immediately so it can't start
         this.map.dragPan.disable()
@@ -273,14 +257,14 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
         this.doRender(id)
 
         // Set up the state for drag moving
-        state.canDragMove = true
-        state.dragMoveLocation = e.lngLat
-    },
+        this.#canDragMove = true
+        this.#dragMoveLocation = e.lngLat
+    }
 
-    clickOnFeature(state, e) {
+    #clickOnFeature(e: TargetEvent): void {
         // Stop everything
         doubleClickZoom.disable(this)
-        this.stopExtendedInteractions(state)
+        this.#stopExtendedInteractions()
 
         const isShiftClick = CommonSelectors.isShiftDown(e)
         const selectedFeatureIds = this.getSelectedIds()
@@ -295,9 +279,10 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
             requireFeature(this.getFeature(featureId)).type !== Constants.geojsonTypes.POINT
         ) {
             // Enter direct select mode
-            return this.changeMode(Constants.modes.DIRECT_SELECT, {
+            this.changeMode(Constants.modes.DIRECT_SELECT, {
                 featureId,
             })
+            return
         }
 
         // Shift-click on a selected feature
@@ -325,45 +310,51 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
 
         // No matter what, re-render the clicked feature
         this.doRender(featureId)
-    },
+    }
 
-    onMouseDown(state, e) {
-        if (CommonSelectors.isActiveFeature(e)) return this.startOnActiveFeature(state, targeted(e))
-        if (this.drawConfig.boxSelect && CommonSelectors.isShiftMousedown(e)) return this.startBoxSelect(state, e)
-    },
+    onMouseDown(e: DrawMouseEvent): void {
+        if (CommonSelectors.isActiveFeature(e)) {
+            this.#startOnActiveFeature(targeted(e))
+            return
+        }
+        if (this.drawConfig.boxSelect && CommonSelectors.isShiftMousedown(e)) this.#startBoxSelect(e)
+    }
 
-    startBoxSelect(state, e) {
-        this.stopExtendedInteractions(state)
+    #startBoxSelect(e: DrawPointerEvent): void {
+        this.#stopExtendedInteractions()
         this.map.dragPan.disable()
         // Enable box select
-        state.boxSelectStartLocation = mouseEventPoint(e.originalEvent, this.map.getContainer())
-        state.canBoxSelect = true
-    },
+        this.#boxSelectStartLocation = mouseEventPoint(e.originalEvent, this.map.getContainer())
+        this.#canBoxSelect = true
+    }
 
-    onTouchStart(state, e) {
-        if (CommonSelectors.isActiveFeature(e)) return this.startOnActiveFeature(state, targeted(e))
-    },
+    onTouchStart(e: DrawTouchEvent): void {
+        if (CommonSelectors.isActiveFeature(e)) this.#startOnActiveFeature(targeted(e))
+    }
 
-    onDrag(state, e) {
-        if (state.canDragMove) return this.dragMove(state, e)
-        if (this.drawConfig.boxSelect && state.canBoxSelect) return this.whileBoxSelect(state, e)
-    },
+    onDrag(e: DrawPointerEvent): void {
+        if (this.#canDragMove) {
+            this.#dragMove(e)
+            return
+        }
+        if (this.drawConfig.boxSelect && this.#canBoxSelect) this.#whileBoxSelect(e)
+    }
 
-    whileBoxSelect(state, e) {
-        state.boxSelecting = true
+    #whileBoxSelect(e: DrawPointerEvent): void {
+        this.#boxSelecting = true
         this.updateUIClasses({ mouse: Constants.cursors.ADD })
 
         // Create the box node if it doesn't exist
-        let boxSelectElement = state.boxSelectElement
+        let boxSelectElement = this.#boxSelectElement
         if (!boxSelectElement) {
             boxSelectElement = document.createElement("div")
             boxSelectElement.classList.add(Constants.classes.BOX_SELECT)
             this.map.getContainer().appendChild(boxSelectElement)
-            state.boxSelectElement = boxSelectElement
+            this.#boxSelectElement = boxSelectElement
         }
 
         // Adjust the box node's width and xy position
-        const start = state.boxSelectStartLocation
+        const start = this.#boxSelectStartLocation
         if (start === null) throw new TypeError("Box select has no start location")
         const current = mouseEventPoint(e.originalEvent, this.map.getContainer())
         const minX = Math.min(start.x, current.x)
@@ -375,14 +366,14 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
         boxSelectElement.style.setProperty("-webkit-transform", translateValue)
         boxSelectElement.style.width = `${maxX - minX}px`
         boxSelectElement.style.height = `${maxY - minY}px`
-    },
+    }
 
-    dragMove(state, e) {
+    #dragMove(e: DrawPointerEvent): void {
         // Dragging when drag move is enabled
-        state.dragMoving = true
+        this.#dragMoving = true
         e.originalEvent.stopPropagation()
 
-        const location = state.dragMoveLocation
+        const location = this.#dragMoveLocation
         if (location === null) throw new TypeError("Drag move has no start location")
         const delta = {
             lng: e.lngLat.lng - location.lng,
@@ -391,15 +382,15 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
 
         moveFeatures(this.getSelected(), delta)
 
-        state.dragMoveLocation = e.lngLat
-    },
+        this.#dragMoveLocation = e.lngLat
+    }
 
-    endInteraction(state, e) {
+    #endInteraction(e: DrawPointerEvent): void {
         // End any extended interactions
-        if (state.dragMoving) {
-            this.fireUpdate()
-        } else if (state.boxSelecting) {
-            const start = state.boxSelectStartLocation
+        if (this.#dragMoving) {
+            this.#fireUpdate()
+        } else if (this.#boxSelecting) {
+            const start = this.#boxSelectStartLocation
             if (start === null) throw new TypeError("Box select has no start location")
             const end = mouseEventPoint(e.originalEvent, this.map.getContainer())
             const featuresInBox = this.featuresAt(
@@ -410,7 +401,7 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
                 ],
                 "click",
             )
-            const idsToSelect = this.getUniqueIds(featuresInBox).filter(id => !this.isSelected(id))
+            const idsToSelect = this.#getUniqueIds(featuresInBox).filter(id => !this.isSelected(id))
 
             if (idsToSelect.length) {
                 this.select(idsToSelect)
@@ -420,23 +411,23 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
                 this.updateUIClasses({ mouse: Constants.cursors.MOVE })
             }
         }
-        this.stopExtendedInteractions(state)
-    },
+        this.#stopExtendedInteractions()
+    }
 
-    onMouseUp(state, e) {
-        return this.endInteraction(state, e)
-    },
+    onMouseUp(e: DrawMouseEvent): void {
+        this.#endInteraction(e)
+    }
 
-    onTouchEnd(state, e) {
-        return this.endInteraction(state, e)
-    },
+    onTouchEnd(e: DrawTouchEvent): void {
+        this.#endInteraction(e)
+    }
 
-    toDisplayFeatures(_, geojson, display) {
+    toDisplayFeatures(geojson: DrawRenderFeature, display: RenderPush): void {
         const id = geojson.properties.id
         geojson.properties.active =
             id !== undefined && this.isSelected(id) ? Constants.activeStates.ACTIVE : Constants.activeStates.INACTIVE
         display(geojson)
-        this.fireActionable()
+        this.#fireActionable()
         if (
             geojson.properties.active !== Constants.activeStates.ACTIVE ||
             geojson.geometry.type === Constants.geojsonTypes.POINT
@@ -445,14 +436,14 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
         for (const point of createSupplementaryPoints(geojson)) {
             display(point)
         }
-    },
+    }
 
-    onTrash() {
+    onTrash(): void {
         this.deleteFeature(this.getSelectedIds())
-        this.fireActionable()
-    },
+        this.#fireActionable()
+    }
 
-    onCombineFeatures() {
+    onCombineFeatures(): void {
         const selectedFeatures = this.getSelected()
 
         if (selectedFeatures.length === 0 || selectedFeatures.length < 2) return
@@ -479,10 +470,10 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
                 deletedFeatures: featuresCombined,
             })
         }
-        this.fireActionable()
-    },
+        this.#fireActionable()
+    }
 
-    onUncombineFeatures() {
+    onUncombineFeatures(): void {
         const selectedFeatures = this.getSelected()
         if (selectedFeatures.length === 0) return
 
@@ -508,8 +499,6 @@ const SimpleSelect: DrawMode<SimpleSelectState, SimpleSelectOptions, SimpleSelec
                 deletedFeatures: featuresUncombined,
             })
         }
-        this.fireActionable()
-    },
+        this.#fireActionable()
+    }
 }
-
-export default SimpleSelect

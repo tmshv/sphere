@@ -2,7 +2,7 @@ import * as Constants from "./constants"
 
 import styles from "./lib/theme"
 import modes from "./modes"
-import type { DrawModeObject } from "./modes/mode_interface"
+import type { ModeClass } from "./modes/mode_builder"
 import type { DrawControls, DrawStyleLayer } from "./types"
 
 /** Options for `new MapLibreDraw(options)`. Each one left out gets its default. */
@@ -15,7 +15,7 @@ export interface DrawOptionsInput {
     touchBuffer?: number
     controls?: DrawControls
     styles?: DrawStyleLayer[]
-    modes?: Record<string, DrawModeObject>
+    modes?: Record<string, ModeClass>
     defaultMode?: string
     userProperties?: boolean
 }
@@ -30,7 +30,7 @@ export interface DrawOptions {
     boxSelect: boolean
     displayControlsDefault: boolean
     styles: (DrawStyleLayer & { source: string })[]
-    modes: Record<string, DrawModeObject>
+    modes: Record<string, ModeClass>
     controls: Required<DrawControls>
     userProperties: boolean
 }

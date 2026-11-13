@@ -5,24 +5,27 @@ import createMap from "../test-utils/create_map"
 import getGeoJSON from "../test-utils/get_geojson"
 import makeMouseEvent from "../test-utils/make_mouse_event"
 import waitForLoad from "../test-utils/wait_for_load"
-import type { DrawMode } from "./mode_interface"
+import type { RenderPush } from "../lib/mode_handler"
+import type { DrawRenderFeature } from "../types"
+import Mode, { type ModeContext } from "./mode"
 
-// Local copy of @mapbox/mapbox-gl-draw-static-mode (not installed in this package)
-const staticMode: DrawMode<object> = {
-    onSetup() {
+// A custom mode like @mapbox/mapbox-gl-draw-static-mode: shows the features and handles no events
+class StaticMode extends Mode {
+    constructor(ctx: ModeContext) {
+        super(ctx)
         this.setActionableState()
-        return {}
-    },
-    toDisplayFeatures(_, geojson, display) {
+    }
+
+    toDisplayFeatures(geojson: DrawRenderFeature, display: RenderPush): void {
         display(geojson)
-    },
+    }
 }
 
 describe("static", () => {
     const map = createMap()
     const Draw = new MapLibreDraw({
         modes: {
-            static: staticMode,
+            static: StaticMode,
         },
         defaultMode: "static",
     })

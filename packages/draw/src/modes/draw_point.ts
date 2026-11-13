@@ -1,22 +1,18 @@
 import * as CommonSelectors from "../lib/common_selectors"
 import * as Constants from "../constants"
 import type Point from "../feature_types/point"
-import type { DrawPointerEvent } from "../types"
+import type { RenderPush } from "../lib/mode_handler"
 import { fireDrawEvent } from "../map-events"
-import type { DrawMode } from "./mode_interface"
+import type { DrawKeyboardEvent, DrawMouseEvent, DrawPointerEvent, DrawRenderFeature, DrawTouchEvent } from "../types"
+import Mode, { type ModeContext } from "./mode"
 
-export interface DrawPointState {
-    point: Point
-}
+/** Places one point, then switches to simple_select with the point selected. */
+export default class DrawPoint extends Mode {
+    readonly #point: Point
 
-interface DrawPointHelpers {
-    stopDrawingAndRemove(state: DrawPointState): void
-    placePoint(state: DrawPointState, e: DrawPointerEvent): void
-}
-
-const DrawPoint: DrawMode<DrawPointState, unknown, DrawPointHelpers> = {
-    onSetup() {
-        const point = this.newFeature({
+    constructor(ctx: ModeContext) {
+        super(ctx)
+        this.#point = this.newFeature({
             type: Constants.geojsonTypes.FEATURE,
             properties: {},
             geometry: {
@@ -25,7 +21,7 @@ const DrawPoint: DrawMode<DrawPointState, unknown, DrawPointHelpers> = {
             },
         })
 
-        this.addFeature(point)
+        this.addFeature(this.#point)
 
         this.clearSelectedFeatures()
         this.updateUIClasses({ mouse: Constants.cursors.ADD })
@@ -34,55 +30,51 @@ const DrawPoint: DrawMode<DrawPointState, unknown, DrawPointHelpers> = {
         this.setActionableState({
             trash: true,
         })
+    }
 
-        return { point }
-    },
-
-    stopDrawingAndRemove(state) {
-        this.deleteFeature([state.point.id], { silent: true })
+    #stopDrawingAndRemove(): void {
+        this.deleteFeature([this.#point.id], { silent: true })
         this.changeMode(Constants.modes.SIMPLE_SELECT)
-    },
+    }
 
-    placePoint(state, e) {
+    #placePoint(e: DrawPointerEvent): void {
         this.updateUIClasses({ mouse: Constants.cursors.MOVE })
-        state.point.updateCoordinate("", e.lngLat.lng, e.lngLat.lat)
+        this.#point.updateCoordinate("", e.lngLat.lng, e.lngLat.lat)
         fireDrawEvent(this.map, Constants.events.CREATE, {
-            features: [state.point.toGeoJSON()],
+            features: [this.#point.toGeoJSON()],
         })
-        this.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: [state.point.id] })
-    },
+        this.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: [this.#point.id] })
+    }
 
-    onClick(state, e) {
-        this.placePoint(state, e)
-    },
+    onClick(e: DrawMouseEvent): void {
+        this.#placePoint(e)
+    }
 
-    onTap(state, e) {
-        this.placePoint(state, e)
-    },
+    onTap(e: DrawTouchEvent): void {
+        this.#placePoint(e)
+    }
 
-    onStop(state) {
+    onStop(): void {
         this.activateUIButton()
-        if (!state.point.getCoordinate().length) {
-            this.deleteFeature([state.point.id], { silent: true })
+        if (!this.#point.getCoordinate().length) {
+            this.deleteFeature([this.#point.id], { silent: true })
         }
-    },
+    }
 
-    toDisplayFeatures(state, geojson, display) {
+    toDisplayFeatures(geojson: DrawRenderFeature, display: RenderPush): void {
         // Never render the point we're drawing
-        const isActivePoint = geojson.properties.id === state.point.id
+        const isActivePoint = geojson.properties.id === this.#point.id
         geojson.properties.active = isActivePoint ? Constants.activeStates.ACTIVE : Constants.activeStates.INACTIVE
-        if (!isActivePoint) return display(geojson)
-    },
+        if (!isActivePoint) display(geojson)
+    }
 
-    onTrash(state) {
-        this.stopDrawingAndRemove(state)
-    },
+    onTrash(): void {
+        this.#stopDrawingAndRemove()
+    }
 
-    onKeyUp(state, e) {
+    onKeyUp(e: DrawKeyboardEvent): void {
         if (CommonSelectors.isEscapeKey(e) || CommonSelectors.isEnterKey(e)) {
-            return this.stopDrawingAndRemove(state)
+            this.#stopDrawingAndRemove()
         }
-    },
+    }
 }
-
-export default DrawPoint

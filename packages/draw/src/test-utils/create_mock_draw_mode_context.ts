@@ -1,6 +1,6 @@
 import { type Mock, vi } from "vitest"
 import type { DrawFeature } from "../feature_types/draw_feature"
-import type { ModeContext } from "../modes/mode_interface"
+import type { ModeContext } from "../modes/mode"
 import type { DeleteOptions, DrawActionableState, FeatureId, MapClasses } from "../types"
 
 /** The members the mock draw mode context really has; the mocks keep their mock types. */

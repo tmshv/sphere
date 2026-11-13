@@ -14,6 +14,7 @@ import MultiFeature from "../feature_types/multi_feature"
 import type { DrawFeature } from "../feature_types/draw_feature"
 import type {
     ChangeModeEventOptions,
+    ChangeModeOptions,
     DeleteOptions,
     DrawActionableState,
     DrawFeatureInput,
@@ -55,7 +56,7 @@ export interface ModeContext extends FeaturesAtContext {
     >
     readonly events: {
         actionable(actions: DrawActionableState): void
-        changeMode(mode: string, opts?: unknown, eventOpts?: ChangeModeEventOptions): void
+        changeMode(mode: string, opts?: ChangeModeOptions, eventOpts?: ChangeModeEventOptions): void
     }
     readonly ui: {
         queueMapClasses(classes: MapClasses): void
@@ -66,47 +67,21 @@ export interface ModeContext extends FeaturesAtContext {
 /** Draw's options as a mode sees them: a JSON copy, without the modes. */
 export type DrawConfig = Omit<DrawOptions, "modes">
 
-/** A mode's life cycle hooks. Each gets the state its `onSetup` returned. */
-export interface ModeHooks<State, Opts> {
-    onSetup?(opts: Opts): State
-    onDrag?(state: State, e: DrawPointerEvent): HandlerResult
-    onClick?(state: State, e: DrawMouseEvent): HandlerResult
-    onMouseMove?(state: State, e: DrawMouseEvent): HandlerResult
-    onMouseDown?(state: State, e: DrawMouseEvent): HandlerResult
-    onMouseUp?(state: State, e: DrawMouseEvent): HandlerResult
-    onMouseOut?(state: State, e: MouseEvent): HandlerResult
-    onKeyUp?(state: State, e: DrawKeyboardEvent): HandlerResult
-    onKeyDown?(state: State, e: DrawKeyboardEvent): HandlerResult
-    onTouchStart?(state: State, e: DrawTouchEvent): HandlerResult
-    onTouchMove?(state: State, e: DrawTouchEvent): HandlerResult
-    onTouchEnd?(state: State, e: DrawTouchEvent): HandlerResult
-    onTap?(state: State, e: DrawTouchEvent): HandlerResult
-    onStop?(state: State): void
-    onTrash?(state: State): void
-    onCombineFeatures?(state: State): void
-    onUncombineFeatures?(state: State): void
-    toDisplayFeatures(state: State, geojson: DrawRenderFeature, display: RenderPush): void
-}
-
 /**
- * A mode object: its hooks plus any helpers of its own (`Extra`). Its methods
- * run with `this` set to a `ModeInterface` mixed with the mode object.
+ * A Draw mode. Subclass it to make one: Draw constructs the class when it
+ * switches to the mode and drops the instance when it leaves, so one
+ * instance is one activation of the mode. The constructor sets the mode up
+ * (adds features, selects, sets UI classes and buttons) and keeps the mode's
+ * state in fields.
+ *
+ * Event hooks are optional: Draw only listens to the events whose hook the
+ * mode defines. A hook that returns something truthy skips the re-render
+ * that follows the event.
  */
-export type DrawMode<State, Opts = unknown, Extra = object> = ModeHooks<State, Opts> &
-    Extra &
-    ThisType<ModeInterface & ModeHooks<State, Opts> & Extra>
-
-/** Any mode object, as Draw's `modes` option holds them. */
-export type DrawModeObject = ModeHooks<unknown, unknown>
-
-/**
- * The `this` of a mode's methods: Draw's API for modes, plus default no-op
- * life cycle hooks for the ones a mode leaves out.
- */
-export default class ModeInterface {
-    map: MapLibreMap
-    drawConfig: Partial<DrawConfig>
-    ctx: ModeContext
+export default abstract class Mode {
+    readonly map: MapLibreMap
+    readonly drawConfig: Partial<DrawConfig>
+    readonly ctx: ModeContext
 
     constructor(ctx: ModeContext) {
         this.map = ctx.map
@@ -114,6 +89,39 @@ export default class ModeInterface {
         this.drawConfig = jsonClone(ctx.options || {})
         this.ctx = ctx
     }
+
+    onDrag?(e: DrawPointerEvent): HandlerResult
+    onClick?(e: DrawMouseEvent): HandlerResult
+    onMouseMove?(e: DrawMouseEvent): HandlerResult
+    onMouseDown?(e: DrawMouseEvent): HandlerResult
+    onMouseUp?(e: DrawMouseEvent): HandlerResult
+    onMouseOut?(e: MouseEvent): HandlerResult
+    onKeyUp?(e: DrawKeyboardEvent): HandlerResult
+    onKeyDown?(e: DrawKeyboardEvent): HandlerResult
+    onTouchStart?(e: DrawTouchEvent): HandlerResult
+    onTouchMove?(e: DrawTouchEvent): HandlerResult
+    onTouchEnd?(e: DrawTouchEvent): HandlerResult
+    onTap?(e: DrawTouchEvent): HandlerResult
+
+    /** Called when Draw leaves the mode. */
+    onStop?(): void
+
+    /** Called by `draw.trash()`. */
+    onTrash?(): void
+
+    /** Called by `draw.combineFeatures()`. */
+    onCombineFeatures?(): void
+
+    /** Called by `draw.uncombineFeatures()`. */
+    onUncombineFeatures?(): void
+
+    /**
+     * Called for every feature Draw renders. Push the GeoJSON features to
+     * draw with `display`: the feature itself (possibly with changed
+     * properties, see "Styling Draw" in docs/API.md), extra features such as
+     * vertices, or nothing to hide it.
+     */
+    abstract toDisplayFeatures(geojson: DrawRenderFeature, display: RenderPush): void
 
     /**
      * Sets Draw's interal selected state
@@ -246,7 +254,7 @@ export default class ModeInterface {
      * @param opts - the options object to pass to the new mode
      * @param eventOpts - used to control what kind of events are emitted.
      */
-    changeMode(mode: string, opts: unknown = {}, eventOpts: ChangeModeEventOptions = {}): void {
+    changeMode(mode: string, opts: ChangeModeOptions = {}, eventOpts: ChangeModeEventOptions = {}): void {
         this.ctx.events.changeMode(mode, opts, eventOpts)
     }
 
@@ -325,151 +333,5 @@ export default class ModeInterface {
      */
     doRender(id: FeatureId): unknown {
         return this.ctx.store.featureChanged(id)
-    }
-
-    /**
-     * Triggered while a mode is being transitioned into.
-     * @param opts - this is the object passed via `draw.changeMode('mode', opts)`;
-     * @name MODE.onSetup
-     * @returns - this object will be passed to all other life cycle functions
-     */
-    onSetup(): unknown {
-        return undefined
-    }
-
-    /**
-     * Triggered when a drag event is detected on the map
-     * @name MODE.onDrag
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onDrag(): void {}
-
-    /**
-     * Triggered when the mouse is clicked
-     * @name MODE.onClick
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onClick(): void {}
-
-    /**
-     * Triggered with the mouse is moved
-     * @name MODE.onMouseMove
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onMouseMove(): void {}
-
-    /**
-     * Triggered when the mouse button is pressed down
-     * @name MODE.onMouseDown
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onMouseDown(): void {}
-
-    /**
-     * Triggered when the mouse button is released
-     * @name MODE.onMouseUp
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onMouseUp(): void {}
-
-    /**
-     * Triggered when the mouse leaves the map's container
-     * @name MODE.onMouseOut
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onMouseOut(): void {}
-
-    /**
-     * Triggered when a key up event is detected
-     * @name MODE.onKeyUp
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onKeyUp(): void {}
-
-    /**
-     * Triggered when a key down event is detected
-     * @name MODE.onKeyDown
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onKeyDown(): void {}
-
-    /**
-     * Triggered when a touch event is started
-     * @name MODE.onTouchStart
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onTouchStart(): void {}
-
-    /**
-     * Triggered when one drags thier finger on a mobile device
-     * @name MODE.onTouchMove
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onTouchMove(): void {}
-
-    /**
-     * Triggered when one removes their finger from the map
-     * @name MODE.onTouchEnd
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onTouchEnd(): void {}
-
-    /**
-     * Triggered when one quicly taps the map
-     * @name MODE.onTap
-     * @param state - a mutible state object created by onSetup
-     * @param e - the captured event that is triggering this life cycle event
-     */
-    onTap(): void {}
-
-    /**
-     * Triggered when the mode is being exited, to be used for cleaning up artifacts such as invalid features
-     * @name MODE.onStop
-     * @param state - a mutible state object created by onSetup
-     */
-    onStop(): void {}
-
-    /**
-     * Triggered when `draw.trash()` (docs/API.md) is called.
-     * @name MODE.onTrash
-     * @param state - a mutible state object created by onSetup
-     */
-    onTrash(): void {}
-
-    /**
-     * Triggered when `draw.combineFeatures()` (docs/API.md) is called.
-     * @name MODE.onCombineFeatures
-     * @param state - a mutible state object created by onSetup
-     */
-    onCombineFeatures(): void {}
-
-    /**
-     * Triggered when `draw.uncombineFeatures()` (docs/API.md) is called.
-     * @name MODE.onUncombineFeatures
-     * @param state - a mutible state object created by onSetup
-     */
-    onUncombineFeatures(): void {}
-
-    /**
-     * Triggered per feature on render to convert raw features into set of features for display on the map
-     * See "Styling Draw" in docs/API.md for information about what geojson properties Draw uses as part of rendering.
-     * @name MODE.toDisplayFeatures
-     * @param state - a mutible state object created by onSetup
-     * @param geojson - a geojson being evaulated. To render, pass to `display`.
-     * @param display - all geojson objects passed to this be rendered onto the map
-     */
-    toDisplayFeatures(): void {
-        throw new Error("You must overwrite toDisplayFeatures")
     }
 }

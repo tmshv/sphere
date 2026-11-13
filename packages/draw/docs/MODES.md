@@ -1,398 +1,88 @@
-# Creating modes for MapLibreDraw
+# Modes
 
-In MapLibre Draw, modes are used to group sets of user interactions into one behavior. Internally Draw has the `draw_polygon` mode, which controls a bunch of interactions for drawing a polygon. Draw also has the `simple_select` mode which controls interactions when zero, one or many features are selected including transitioning to `direct_select` mode when a user's interactions imply that they want to do detailed edits of a single feature.
+A mode decides what clicks, drags, taps and keys do, and how features are drawn. Draw is in exactly one mode at a time. The built-in modes are `simple_select`, `direct_select`, `draw_point`, `draw_line_string` and `draw_polygon` (`MapLibreDraw.modes`). `draw.changeMode(name, options)` switches between them.
 
-To help developers have more control of their MapLibre Draw powered application, Draw provides an interface for writing and hooking in custom modes. Below we will see how to write these modes by working through a small example.
+## Writing a mode
 
-## Writing Custom Modes
+A mode is a subclass of `Mode` (`src/modes/mode.ts`). Draw constructs it when it switches to the mode and drops it when it leaves, so one instance is one activation of the mode:
 
-We're going to create a custom mode called `LotsOfPointsMode`. When active, this mode will create a new point each time a user clicks on the map and will transition to the default mode when the user hits the esc key.
+- The **constructor** sets the mode up: adds or selects features, sets UI classes and the active button, and keeps the mode's state in fields. It receives the options passed to `changeMode` (`ChangeModeOptions`).
+- **Event hooks** are optional methods. Draw only listens to the events whose hook the mode defines. A hook that returns something truthy skips the re-render after the event.
+- **`toDisplayFeatures`** is required. Draw calls it for every feature it renders; the mode pushes what to draw.
 
-```js
-var LotsOfPointsMode = {};
+```ts
+import MapLibreDraw, { Mode } from "@sphere/draw"
+import type { ChangeModeOptions, DrawKeyboardEvent, DrawMouseEvent, DrawRenderFeature, ModeContext } from "@sphere/draw"
 
-// When the mode starts this function will be called.
-// The `opts` argument comes from `draw.changeMode('lotsofpoints', {count:7})`.
-// The value returned should be an object and will be passed to all other lifecycle functions
-LotsOfPointsMode.onSetup = function(opts) {
-  var state = {};
-  state.count = opts.count || 0;
-  return state;
-};
+const ESCAPE_KEY_CODE = 27
 
-// Whenever a user clicks on the map, Draw will call `onClick`
-LotsOfPointsMode.onClick = function(state, e) {
-  // `this.newFeature` takes geojson and makes a DrawFeature
-  var point = this.newFeature({
-    type: 'Feature',
-    properties: {
-      count: state.count
-    },
-    geometry: {
-      type: 'Point',
-      coordinates: [e.lngLat.lng, e.lngLat.lat]
+/** Adds a point on every click until Escape. */
+class LotsOfPoints extends Mode {
+    #count: number
+
+    constructor(ctx: ModeContext, options: ChangeModeOptions) {
+        super(ctx)
+        this.#count = typeof options.count === "number" ? options.count : 0
+        this.updateUIClasses({ mouse: "add" })
     }
-  });
-  this.addFeature(point); // puts the point on the map
-};
 
-// Whenever a user clicks on a key while focused on the map, it will be sent here
-LotsOfPointsMode.onKeyUp = function(state, e) {
-  if (e.keyCode === 27) return this.changeMode('simple_select');
-};
+    onClick(e: DrawMouseEvent) {
+        const point = this.newFeature({
+            type: "Feature",
+            properties: { count: this.#count++ },
+            geometry: { type: "Point", coordinates: [e.lngLat.lng, e.lngLat.lat] },
+        })
+        this.addFeature(point)
+    }
 
-// This is the only required function for a mode.
-// It decides which features currently in Draw's data store will be rendered on the map.
-// All features passed to `display` will be rendered, so you can pass multiple display features per internal feature.
-// See `styling-draw` in `API.md` for advice on making display features
-LotsOfPointsMode.toDisplayFeatures = function(state, geojson, display) {
-  display(geojson);
-};
+    onKeyUp(e: DrawKeyboardEvent) {
+        if (e.keyCode === ESCAPE_KEY_CODE) this.changeMode("simple_select")
+    }
 
-// Add the new draw mode to the MapLibreDraw object
-var draw = new MapLibreDraw({
-  defaultMode: 'lots_of_points',
-  // Adds the LotsOfPointsMode to the built-in set of modes
-  modes: Object.assign({
-    lots_of_points: LotsOfPointsMode,
-  }, MapLibreDraw.modes),
-});
+    toDisplayFeatures(geojson: DrawRenderFeature, display: (geojson: DrawRenderFeature) => void) {
+        display(geojson)
+    }
+}
+
+const draw = new MapLibreDraw({
+    modes: { ...MapLibreDraw.modes, lots_of_points: LotsOfPoints },
+})
+draw.changeMode("lots_of_points", { count: 10 })
 ```
 
-For more info on how to handle map interactions see [Life Cycle Functions](#life-cycle-functions). For more info on how to interact with Draw's internal state see [Setters & Getters](#setters-and-getters).
-
-
-
-## Life Cycle Functions
-
-<!-- Generated by documentation.js. Update this documentation by updating the source code. -->
-
-### MODE.onSetup
-
-Triggered while a mode is being transitioned into.
-
-**Parameters**
-
--   `opts`  {Object} - this is the object passed via `draw.changeMode('mode', opts)`;
-
-Returns **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** this object will be passed to all other life cycle functions
-
-### MODE.onDrag
-
-Triggered when a drag event is detected on the map
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onClick
-
-Triggered when the mouse is clicked
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onMouseMove
-
-Triggered with the mouse is moved
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onMouseDown
-
-Triggered when the mouse button is pressed down
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onMouseUp
-
-Triggered when the mouse button is released
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onMouseOut
-
-Triggered when the mouse leaves the map's container
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onKeyUp
-
-Triggered when a key up event is detected
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onKeyDown
-
-Triggered when a key down event is detected
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onTouchStart
-
-Triggered when a touch event is started
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onTouchMove
-
-Triggered when one drags their finger on a mobile device
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onTouchEnd
-
-Triggered when one removes their finger from the map
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onTap
-
-Triggered when one quickly taps the map
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `e`  {Object} - the captured event that is triggering this life cycle event
-
-### MODE.onStop
-
-Triggered when the mode is being exited, to be used for cleaning up artifacts such as invalid features
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
-
-### MODE.onTrash
-
-Triggered when [draw.trash()](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#trash-draw) is called.
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
-
-### MODE.onCombineFeatures
-
-Triggered when [draw.combineFeatures()](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#combinefeatures-draw) is called.
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
-
-### MODE.onUncombineFeatures
-
-Triggered when [draw.uncombineFeatures()](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#uncombinefeatures-draw) is called.
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
-
-### MODE.toDisplayFeatures
-
-Triggered per feature on render to convert raw features into set of features for display on the map
-See [styling draw](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#styling-draw) for information about what geojson properties Draw uses as part of rendering.
-
-**Parameters**
-
--   `state`  {Object} - a mutible state object created by onSetup
--   `geojson`  {Object} - a geojson being evaulated. To render, pass to `display`.
--   `display`  {Function} - all geojson objects passed to this be rendered onto the map
-
-## Setters and Getters
-
-<!-- Generated by documentation.js. Update this documentation by updating the source code. -->
-
-### this.setSelected
-
-Sets Draw's internal selected state
-
-**Parameters**
-
--   `features`  
--   `null-null` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;DrawFeature>** whats selected as a [DrawFeature](https://github.com/hyvilo/maplibre-gl-draw/blob/main/src/feature_types/feature.js)
-
-### this.setSelectedCoordinates
-
-Sets Draw's internal selected coordinate state
-
-**Parameters**
-
--   `coords` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>** a array of {coord_path: 'string', feature_id: 'string'}
-
-### this.getSelected
-
-Get all selected features as a [DrawFeature](https://github.com/hyvilo/maplibre-gl-draw/blob/main/src/feature_types/feature.js)
-
-Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;DrawFeature>** 
-
-### this.getSelectedIds
-
-Get the ids of all currently selected features
-
-Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)&lt;[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>** 
-
-### this.isSelected
-
-Check if a feature is selected
-
-**Parameters**
-
--   `id` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** a feature id
-
-Returns **[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
-
-### this.getFeature
-
-Get a [DrawFeature](https://github.com/hyvilo/maplibre-gl-draw/blob/main/src/feature_types/feature.js) by its id
-
-**Parameters**
-
--   `id` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** a feature id
-
-Returns **DrawFeature** 
-
-### this.select
-
-Add a feature to draw's internal selected state
-
-**Parameters**
-
--   `id` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
-
-### this.delete
-
-Remove a feature from draw's internal selected state
-
-**Parameters**
-
--   `id` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
-
-### this.deleteFeature
-
-Delete a feature from draw
-
-**Parameters**
-
--   `id` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** a feature id
--   `opts`   (optional, default `{}`)
-
-### this.addFeature
-
-Add a [DrawFeature](https://github.com/hyvilo/maplibre-gl-draw/blob/main/src/feature_types/feature.js) to draw.
-See `this.newFeature` for converting geojson into a DrawFeature
-
-**Parameters**
-
--   `feature` **DrawFeature** the feature to add
-
-### clearSelectedFeatures
-
-Clear all selected features
-
-### clearSelectedCoordinates
-
-Clear all selected coordinates
-
-### this.setActionableState
-
-Indicate if the different actions are currently possible with your mode
-See [draw.actionalbe](https://github.com/hyvilo/maplibre-gl-draw/blob/main/docs/API.md#drawactionable) for a list of possible actions. All undefined actions are set to **false** by default
-
-**Parameters**
-
--   `actions` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)**  (optional, default `{}`)
-
-### this.changeMode
-
-Trigger a mode change
-
-**Parameters**
-
--   `mode` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** the mode to transition into
--   `opts` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the options object to pass to the new mode (optional, default `{}`)
--   `eventOpts` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** used to control what kind of events are emitted. (optional, default `{}`)
-
-### this.updateUIClasses
-
-Update the state of draw map classes
-
-**Parameters**
-
--   `opts` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-
-### this.activateUIButton
-
-If a name is provided it makes that button active, else if makes all buttons inactive
-
-**Parameters**
-
--   `name` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** name of the button to make active, leave as undefined to set buttons to be inactive
-
-### this.featuresAt
-
-Get the features at the location of an event object or in a bbox
-
-**Parameters**
-
--   `event`  
--   `bbox`  
--   `bufferType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** is this `click` or `tap` event, defaults to click (optional, default `'click'`)
-
-### this.newFeature
-
-Create a new [DrawFeature](https://github.com/hyvilo/maplibre-gl-draw/blob/main/src/feature_types/feature.js) from geojson
-
-**Parameters**
-
--   `geojson` **GeoJSONFeature** 
-
-Returns **DrawFeature** 
-
-### this.isInstanceOf
-
-Check is an object is an instance of a [DrawFeature](https://github.com/hyvilo/maplibre-gl-draw/blob/main/src/feature_types/feature.js)
-
-**Parameters**
-
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** `Point`, `LineString`, `Polygon`, `MultiFeature`
--   `feature` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the object that needs to be checked
-
-Returns **[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
-
-### this.doRender
-
-Force draw to rerender the feature of the provided id
-
-**Parameters**
-
--   `id` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** a feature id
+Passing `modes` replaces the built-in modes, so spread `MapLibreDraw.modes` to keep them.
+
+## Hooks
+
+| Hook                        | Called when                                   |
+| --------------------------- | --------------------------------------------- |
+| `onClick(e)`                | the map is clicked                            |
+| `onMouseDown(e)`            | a mouse button goes down on the map           |
+| `onMouseUp(e)`              | a mouse button goes up on the map             |
+| `onMouseMove(e)`            | the mouse moves with no button down           |
+| `onDrag(e)`                 | the mouse or a finger moves while down        |
+| `onMouseOut(e)`             | the mouse leaves the map container            |
+| `onTap(e)`                  | the map is tapped                             |
+| `onTouchStart(e)`           | a touch starts on the map                     |
+| `onTouchMove(e)`            | a touch moves                                 |
+| `onTouchEnd(e)`             | a touch ends                                  |
+| `onKeyDown(e)`              | a key goes down while the map has focus       |
+| `onKeyUp(e)`                | a key goes up while the map has focus         |
+| `onStop()`                  | Draw leaves the mode                          |
+| `onTrash()`                 | `draw.trash()` is called                      |
+| `onCombineFeatures()`       | `draw.combineFeatures()` is called            |
+| `onUncombineFeatures()`     | `draw.uncombineFeatures()` is called          |
+| `toDisplayFeatures(g, add)` | Draw renders a feature (required)             |
+
+Mouse and touch events carry `point` (screen pixels), `lngLat` and the original DOM event. Events on a Draw feature also carry `featureTarget`, the rendered feature under the pointer.
+
+`toDisplayFeatures` gets each feature as GeoJSON with Draw's render properties (`id`, `meta`, `active`, `mode`, …; see "Styling Draw" in [API.md](API.md)). Push it unchanged, push it with changed properties, push extra features such as vertices and midpoints, or push nothing to hide it.
+
+## The mode API
+
+`Mode` gives subclasses the methods the built-in modes use. Each is documented in `src/modes/mode.ts`.
+
+- Features: `newFeature`, `addFeature`, `getFeature`, `deleteFeature`, `isInstanceOf`, `doRender`, `featuresAt`
+- Selection: `select`, `deselect`, `setSelected`, `getSelected`, `getSelectedIds`, `isSelected`, `clearSelectedFeatures`, `setSelectedCoordinates`, `clearSelectedCoordinates`
+- Draw and UI: `changeMode`, `setActionableState`, `updateUIClasses`, `activateUIButton`
+- Fields: `map` (the MapLibre map), `drawConfig` (Draw's options), `ctx`

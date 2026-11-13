@@ -12,7 +12,7 @@ export interface ModeLifecycle {
     render(id: FeatureId): void
 }
 
-/** A mode as the mode handler drives it; `objectToMode` builds one from a mode object. */
+/** A mode as the mode handler drives it; `modeBuilder` builds one from a `Mode` subclass. */
 export interface ModeRuntime {
     start(this: ModeLifecycle): void
     stop?(): void

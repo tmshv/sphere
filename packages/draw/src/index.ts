@@ -38,10 +38,11 @@ class MapLibreDraw extends DrawApi implements IControl {
 
 export default MapLibreDraw
 
-export type { ChangeModeOptions } from "./api"
+export type { ChangeModeOptions } from "./types"
 export type { DrawOptions, DrawOptionsInput } from "./options"
-export type { DrawMode, DrawModeObject, ModeHooks } from "./modes/mode_interface"
-export type { default as ModeInterface } from "./modes/mode_interface"
+export { default as Mode, type ModeContext } from "./modes/mode"
+export type { ModeClass } from "./modes/mode_builder"
+export type { RenderPush } from "./lib/mode_handler"
 export type { DrawFeature } from "./feature_types/draw_feature"
 export type {
     DrawActionableEvent,

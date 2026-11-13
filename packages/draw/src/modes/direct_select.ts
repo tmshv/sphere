@@ -5,48 +5,27 @@ import doubleClickZoom from "../lib/double_click_zoom"
 import * as Constants from "../constants"
 import moveFeatures from "../lib/move_features"
 import type { DrawFeature } from "../feature_types/draw_feature"
+import type { RenderPush } from "../lib/mode_handler"
 import { fireDrawEvent } from "../map-events"
-import type { DrawFeatureTarget, DrawPointerEvent, FeatureId, LngLatValue, SelectedCoordinate } from "../types"
-import type { DrawMode } from "./mode_interface"
+import type {
+    ChangeModeOptions,
+    DrawFeatureTarget,
+    DrawMouseEvent,
+    DrawPointerEvent,
+    DrawRenderFeature,
+    DrawTouchEvent,
+    FeatureId,
+    HandlerResult,
+    LngLatValue,
+    SelectedCoordinate,
+} from "../types"
+import Mode, { type ModeContext } from "./mode"
 
 const isVertex = isOfMetaType(Constants.meta.VERTEX)
 const isMidpoint = isOfMetaType(Constants.meta.MIDPOINT)
 
-export interface DirectSelectOptions {
-    featureId: FeatureId
-    coordPath?: string | null
-    startPos?: LngLatValue
-}
-
 /** A feature direct select can edit: anything but a point. */
 type EditableFeature = Exclude<DrawFeature, { type: "Point" }>
-
-export interface DirectSelectState {
-    featureId: FeatureId
-    feature: EditableFeature
-    dragMoveLocation: LngLatValue | null
-    dragMoving: boolean
-    canDragMove: boolean
-    selectedCoordPaths: string[]
-}
-
-interface DirectSelectHelpers {
-    fireUpdate(): void
-    fireActionable(state: DirectSelectState): void
-    startDragging(state: DirectSelectState, e: DrawPointerEvent): void
-    stopDragging(state: DirectSelectState): void
-    onVertex(state: DirectSelectState, e: DrawPointerEvent): void
-    onMidpoint(state: DirectSelectState, e: DrawPointerEvent): void
-    pathsToCoordinates(featureId: FeatureId, paths: string[]): SelectedCoordinate[]
-    onFeature(state: DirectSelectState, e: DrawPointerEvent): void
-    dragFeature(state: DirectSelectState, e: DrawPointerEvent, delta: LngLatValue): void
-    dragVertex(state: DirectSelectState, e: DrawPointerEvent, delta: LngLatValue): void
-    clickNoTarget(state: DirectSelectState, e: DrawPointerEvent): void
-    clickInactive(state: DirectSelectState, e: DrawPointerEvent): void
-    clickActiveFeature(state: DirectSelectState, e: DrawPointerEvent): void
-    pointerDown(state: DirectSelectState, e: DrawPointerEvent): void
-    pointerUp(state: DirectSelectState): void
-}
 
 /** The properties of the rendered feature under the pointer, which the selectors already checked is there. */
 function targetProperties(e: { featureTarget?: DrawFeatureTarget }) {
@@ -59,77 +38,110 @@ function requirePath(path: string | null | undefined): string {
     return path
 }
 
-const DirectSelect: DrawMode<DirectSelectState, DirectSelectOptions, DirectSelectHelpers> = {
-    // INTERNAL FUCNTIONS
+/** Edits the vertices of one feature: select, drag, add at midpoints and delete them. */
+export default class DirectSelect extends Mode {
+    readonly #featureId: FeatureId
+    readonly #feature: EditableFeature
+    #dragMoveLocation: LngLatValue | null
+    #dragMoving = false
+    #canDragMove = false
+    #selectedCoordPaths: string[]
 
-    fireUpdate() {
+    constructor(ctx: ModeContext, opts: ChangeModeOptions) {
+        super(ctx)
+        const featureId = opts.featureId
+        const feature = featureId === undefined ? undefined : this.getFeature(featureId)
+
+        if (featureId === undefined || !feature) {
+            throw new Error("You must provide a featureId to enter direct_select mode")
+        }
+
+        if (feature.type === Constants.geojsonTypes.POINT) {
+            throw new TypeError("direct_select mode doesn't handle point features")
+        }
+
+        this.#featureId = featureId
+        this.#feature = feature
+        this.#dragMoveLocation = opts.startPos || null
+        this.#selectedCoordPaths = opts.coordPath ? [opts.coordPath] : []
+
+        this.setSelectedCoordinates(this.#pathsToCoordinates(featureId, this.#selectedCoordPaths))
+        this.setSelected(featureId)
+        doubleClickZoom.disable(this)
+
+        this.setActionableState({
+            trash: true,
+        })
+    }
+
+    #fireUpdate(): void {
         fireDrawEvent(this.map, Constants.events.UPDATE, {
             action: Constants.updateActions.CHANGE_COORDINATES,
             features: this.getSelected().map(f => f.toGeoJSON()),
         })
-    },
+    }
 
-    fireActionable(state) {
+    #fireActionable(): void {
         this.setActionableState({
             combineFeatures: false,
             uncombineFeatures: false,
-            trash: state.selectedCoordPaths.length > 0,
+            trash: this.#selectedCoordPaths.length > 0,
         })
-    },
+    }
 
-    startDragging(state, e) {
+    #startDragging(e: DrawPointerEvent): void {
         this.map.dragPan.disable()
-        state.canDragMove = true
-        state.dragMoveLocation = e.lngLat
-    },
+        this.#canDragMove = true
+        this.#dragMoveLocation = e.lngLat
+    }
 
-    stopDragging(state) {
+    #stopDragging(): void {
         this.map.dragPan.enable()
-        state.dragMoving = false
-        state.canDragMove = false
-        state.dragMoveLocation = null
-    },
+        this.#dragMoving = false
+        this.#canDragMove = false
+        this.#dragMoveLocation = null
+    }
 
-    onVertex(state, e) {
-        this.startDragging(state, e)
+    #onVertex(e: DrawPointerEvent): void {
+        this.#startDragging(e)
         const about = targetProperties(e)
         const coordPath = requirePath(about.coord_path)
-        const selectedIndex = state.selectedCoordPaths.indexOf(coordPath)
+        const selectedIndex = this.#selectedCoordPaths.indexOf(coordPath)
         if (!isShiftDown(e) && selectedIndex === -1) {
-            state.selectedCoordPaths = [coordPath]
+            this.#selectedCoordPaths = [coordPath]
         } else if (isShiftDown(e) && selectedIndex === -1) {
-            state.selectedCoordPaths.push(coordPath)
+            this.#selectedCoordPaths.push(coordPath)
         }
 
-        const selectedCoordinates = this.pathsToCoordinates(state.featureId, state.selectedCoordPaths)
+        const selectedCoordinates = this.#pathsToCoordinates(this.#featureId, this.#selectedCoordPaths)
         this.setSelectedCoordinates(selectedCoordinates)
-    },
+    }
 
-    onMidpoint(state, e) {
-        this.startDragging(state, e)
+    #onMidpoint(e: DrawPointerEvent): void {
+        this.#startDragging(e)
         const about = targetProperties(e)
         const coordPath = requirePath(about.coord_path)
-        state.feature.addCoordinate(coordPath, about.lng ?? Number.NaN, about.lat ?? Number.NaN)
-        this.fireUpdate()
-        state.selectedCoordPaths = [coordPath]
-    },
+        this.#feature.addCoordinate(coordPath, about.lng ?? Number.NaN, about.lat ?? Number.NaN)
+        this.#fireUpdate()
+        this.#selectedCoordPaths = [coordPath]
+    }
 
-    pathsToCoordinates(featureId, paths) {
+    #pathsToCoordinates(featureId: FeatureId, paths: string[]): SelectedCoordinate[] {
         return paths.map(coord_path => ({ feature_id: featureId, coord_path }))
-    },
+    }
 
-    onFeature(state, e) {
-        if (state.selectedCoordPaths.length === 0) this.startDragging(state, e)
-        else this.stopDragging(state)
-    },
+    #onFeature(e: DrawPointerEvent): void {
+        if (this.#selectedCoordPaths.length === 0) this.#startDragging(e)
+        else this.#stopDragging()
+    }
 
-    dragFeature(state, e, delta) {
+    #dragFeature(e: DrawPointerEvent, delta: LngLatValue): void {
         moveFeatures(this.getSelected(), delta)
-        state.dragMoveLocation = e.lngLat
-    },
+        this.#dragMoveLocation = e.lngLat
+    }
 
-    dragVertex(state, _, delta) {
-        const selectedCoords = state.selectedCoordPaths.map(coord_path => state.feature.getCoordinate(coord_path))
+    #dragVertex(delta: LngLatValue): void {
+        const selectedCoords = this.#selectedCoordPaths.map(coord_path => this.#feature.getCoordinate(coord_path))
         const selectedCoordPoints = selectedCoords.map(coords => ({
             type: Constants.geojsonTypes.FEATURE,
             properties: {},
@@ -142,72 +154,51 @@ const DirectSelect: DrawMode<DirectSelectState, DirectSelectOptions, DirectSelec
         const constrainedDelta = constrainFeatureMovement(selectedCoordPoints, delta)
         for (const [i, coord] of selectedCoords.entries()) {
             const [lng = Number.NaN, lat = Number.NaN] = coord
-            const path = state.selectedCoordPaths.at(i)
+            const path = this.#selectedCoordPaths.at(i)
             if (path === undefined) continue
-            state.feature.updateCoordinate(path, lng + constrainedDelta.lng, lat + constrainedDelta.lat)
+            this.#feature.updateCoordinate(path, lng + constrainedDelta.lng, lat + constrainedDelta.lat)
         }
-    },
+    }
 
-    clickNoTarget() {
+    #clickNoTarget(): void {
         this.changeMode(Constants.modes.SIMPLE_SELECT)
-    },
+    }
 
-    clickInactive() {
+    #clickInactive(): void {
         this.changeMode(Constants.modes.SIMPLE_SELECT)
-    },
+    }
 
-    clickActiveFeature(state) {
-        state.selectedCoordPaths = []
+    #clickActiveFeature(): void {
+        this.#selectedCoordPaths = []
         this.clearSelectedCoordinates()
-        state.feature.changed()
-    },
+        this.#feature.changed()
+    }
 
-    // EXTERNAL FUNCTIONS
+    #pointerDown(e: DrawPointerEvent): void {
+        if (isVertex(e)) this.#onVertex(e)
+        else if (isActiveFeature(e)) this.#onFeature(e)
+        else if (isMidpoint(e)) this.#onMidpoint(e)
+    }
 
-    onSetup(opts) {
-        const featureId = opts.featureId
-        const feature = this.getFeature(featureId)
-
-        if (!feature) {
-            throw new Error("You must provide a featureId to enter direct_select mode")
+    #pointerUp(): void {
+        if (this.#dragMoving) {
+            this.#fireUpdate()
         }
+        this.#stopDragging()
+    }
 
-        if (feature.type === Constants.geojsonTypes.POINT) {
-            throw new TypeError("direct_select mode doesn't handle point features")
-        }
-
-        const state: DirectSelectState = {
-            featureId,
-            feature,
-            dragMoveLocation: opts.startPos || null,
-            dragMoving: false,
-            canDragMove: false,
-            selectedCoordPaths: opts.coordPath ? [opts.coordPath] : [],
-        }
-
-        this.setSelectedCoordinates(this.pathsToCoordinates(featureId, state.selectedCoordPaths))
-        this.setSelected(featureId)
-        doubleClickZoom.disable(this)
-
-        this.setActionableState({
-            trash: true,
-        })
-
-        return state
-    },
-
-    onStop() {
+    onStop(): void {
         doubleClickZoom.enable(this)
         this.clearSelectedCoordinates()
-    },
+    }
 
-    toDisplayFeatures(state, geojson, push) {
-        if (state.featureId === geojson.properties.id) {
+    toDisplayFeatures(geojson: DrawRenderFeature, push: RenderPush): void {
+        if (this.#featureId === geojson.properties.id) {
             geojson.properties.active = Constants.activeStates.ACTIVE
             push(geojson)
             const points = createSupplementaryPoints(geojson, {
                 midpoints: true,
-                selectedPaths: state.selectedCoordPaths,
+                selectedPaths: this.#selectedCoordPaths,
             })
             for (const point of points) {
                 push(point)
@@ -216,111 +207,96 @@ const DirectSelect: DrawMode<DirectSelectState, DirectSelectOptions, DirectSelec
             geojson.properties.active = Constants.activeStates.INACTIVE
             push(geojson)
         }
-        this.fireActionable(state)
-    },
+        this.#fireActionable()
+    }
 
-    onTrash(state) {
+    onTrash(): void {
         // Uses number-aware sorting to make sure '9' < '10'. Comparison is reversed because we want them
         // in reverse order so that we can remove by index safely.
-        const coordPaths = state.selectedCoordPaths.sort((a, b) => b.localeCompare(a, "en", { numeric: true }))
+        const coordPaths = this.#selectedCoordPaths.sort((a, b) => b.localeCompare(a, "en", { numeric: true }))
         for (const id of coordPaths) {
-            state.feature.removeCoordinate(id)
+            this.#feature.removeCoordinate(id)
         }
-        this.fireUpdate()
-        state.selectedCoordPaths = []
+        this.#fireUpdate()
+        this.#selectedCoordPaths = []
         this.clearSelectedCoordinates()
-        this.fireActionable(state)
-        if (state.feature.isValid() === false) {
-            this.deleteFeature([state.featureId])
+        this.#fireActionable()
+        if (this.#feature.isValid() === false) {
+            this.deleteFeature([this.#featureId])
             this.changeMode(Constants.modes.SIMPLE_SELECT, {})
         }
-    },
+    }
 
-    onMouseMove(state, e) {
+    onMouseMove(e: DrawMouseEvent): HandlerResult {
         // On mousemove that is not a drag, stop vertex movement.
         const isFeature = isActiveFeature(e)
         const onVertex = isVertex(e)
         const isMidPoint = isMidpoint(e)
-        const noCoords = state.selectedCoordPaths.length === 0
+        const noCoords = this.#selectedCoordPaths.length === 0
         if (isFeature && noCoords) this.updateUIClasses({ mouse: Constants.cursors.MOVE })
         else if (onVertex && !noCoords) this.updateUIClasses({ mouse: Constants.cursors.MOVE })
         else this.updateUIClasses({ mouse: Constants.cursors.NONE })
 
         const isDraggableItem = onVertex || isFeature || isMidPoint
-        if (isDraggableItem && state.dragMoving) this.fireUpdate()
+        if (isDraggableItem && this.#dragMoving) this.#fireUpdate()
 
-        this.stopDragging(state)
+        this.#stopDragging()
 
         // Skip render
         return true
-    },
+    }
 
-    onMouseOut(state) {
+    onMouseOut(): HandlerResult {
         // As soon as you mouse leaves the canvas, update the feature
-        if (state.dragMoving) this.fireUpdate()
+        if (this.#dragMoving) this.#fireUpdate()
 
         // Skip render
         return true
-    },
+    }
 
-    pointerDown(state, e) {
-        if (isVertex(e)) return this.onVertex(state, e)
-        if (isActiveFeature(e)) return this.onFeature(state, e)
-        if (isMidpoint(e)) return this.onMidpoint(state, e)
-    },
+    onTouchStart(e: DrawTouchEvent): void {
+        this.#pointerDown(e)
+    }
 
-    onTouchStart(state, e) {
-        return this.pointerDown(state, e)
-    },
+    onMouseDown(e: DrawMouseEvent): void {
+        this.#pointerDown(e)
+    }
 
-    onMouseDown(state, e) {
-        return this.pointerDown(state, e)
-    },
-
-    onDrag(state, e) {
-        if (state.canDragMove !== true) return
-        state.dragMoving = true
+    onDrag(e: DrawPointerEvent): void {
+        if (this.#canDragMove !== true) return
+        this.#dragMoving = true
         e.originalEvent.stopPropagation()
 
-        const location = state.dragMoveLocation
+        const location = this.#dragMoveLocation
         if (location === null) throw new TypeError("Drag move has no start location")
         const delta = {
             lng: e.lngLat.lng - location.lng,
             lat: e.lngLat.lat - location.lat,
         }
-        if (state.selectedCoordPaths.length > 0) this.dragVertex(state, e, delta)
-        else this.dragFeature(state, e, delta)
+        if (this.#selectedCoordPaths.length > 0) this.#dragVertex(delta)
+        else this.#dragFeature(e, delta)
 
-        state.dragMoveLocation = e.lngLat
-    },
+        this.#dragMoveLocation = e.lngLat
+    }
 
-    onClick(state, e) {
-        if (noTarget(e)) return this.clickNoTarget(state, e)
-        if (isActiveFeature(e)) return this.clickActiveFeature(state, e)
-        if (isInactiveFeature(e)) return this.clickInactive(state, e)
-        this.stopDragging(state)
-    },
+    onClick(e: DrawMouseEvent): void {
+        if (noTarget(e)) this.#clickNoTarget()
+        else if (isActiveFeature(e)) this.#clickActiveFeature()
+        else if (isInactiveFeature(e)) this.#clickInactive()
+        else this.#stopDragging()
+    }
 
-    onTap(state, e) {
-        if (noTarget(e)) return this.clickNoTarget(state, e)
-        if (isActiveFeature(e)) return this.clickActiveFeature(state, e)
-        if (isInactiveFeature(e)) return this.clickInactive(state, e)
-    },
+    onTap(e: DrawTouchEvent): void {
+        if (noTarget(e)) this.#clickNoTarget()
+        else if (isActiveFeature(e)) this.#clickActiveFeature()
+        else if (isInactiveFeature(e)) this.#clickInactive()
+    }
 
-    pointerUp(state) {
-        if (state.dragMoving) {
-            this.fireUpdate()
-        }
-        this.stopDragging(state)
-    },
+    onTouchEnd(): void {
+        this.#pointerUp()
+    }
 
-    onTouchEnd(state) {
-        return this.pointerUp(state)
-    },
-
-    onMouseUp(state) {
-        return this.pointerUp(state)
-    },
+    onMouseUp(): void {
+        this.#pointerUp()
+    }
 }
-
-export default DirectSelect

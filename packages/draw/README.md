@@ -25,10 +25,15 @@ The API (methods, options, events, styling) is described in [docs/API.md](docs/A
 ## Changes from upstream
 
 - Written in TypeScript; the hand-written `index.d.ts` is gone.
+- Modes are `Mode` subclasses instead of plain objects with `this` mixed in; custom modes are classes too (see docs/MODES.md). `Mode` is exported from the package root.
 - No runtime dependencies: `hat`, `xtend`, `lodash.isequal` and the `@mapbox/*` GeoJSON helpers are replaced by small modules in `src/lib/`.
 - Fixed: polygons under the cursor are sorted by area again (the area was never computed, so a small polygon inside a large one could not be picked first), and multi geometries are ranked like their single counterparts.
 - Fixed: `combineFeatures()` / `uncombineFeatures()` no longer throw in modes other than `simple_select`.
 - Fixed: MultiPoint vertices get string coordinate paths like every other geometry.
+- Fixed: trashing a selected MultiPoint vertex removes that point instead of throwing.
+- Fixed: `changeMode` and selection ignore feature ids that are not in Draw.
+- Fixed: feature ids named like object members (`"constructor"`, `"__proto__"`) work; `getAll()` lists features in insertion order.
+- Fixed: button titles show the real tool keys (1, 2, 3).
 - Removed the `map.fire` monkey patch for an old mapbox-gl event signature.
 
 ## Development

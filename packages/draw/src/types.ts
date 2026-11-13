@@ -175,6 +175,21 @@ export interface DrawActionableState {
     uncombineFeatures: boolean
 }
 
+/** Options for `changeMode`. The built-in modes read the named ones; a custom mode may read others. */
+export interface ChangeModeOptions {
+    /** simple_select: the features to select */
+    featureIds?: FeatureId[]
+    /** direct_select: the feature to edit; draw_line_string: a line to continue */
+    featureId?: FeatureId
+    /** direct_select: the vertex to select */
+    coordPath?: string | null
+    /** direct_select: where a drag started */
+    startPos?: LngLatValue
+    /** draw_line_string: the end of the line to continue from: a position, a Point or a Feature<Point> */
+    from?: unknown
+    [option: string]: unknown
+}
+
 export interface ChangeModeEventOptions {
     silent?: boolean
 }

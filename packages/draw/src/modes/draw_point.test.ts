@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import MapLibreDraw from "../index"
 import Point from "../feature_types/point"
-import drawPointModeObject from "./draw_point"
-import objectToMode from "./object_to_mode"
+import DrawPoint from "./draw_point"
+import modeBuilder from "./mode_builder"
 import createMap, { type MockMap } from "../test-utils/create_map"
 import createMockDrawModeContext, { type MockDrawModeContext } from "../test-utils/create_mock_draw_mode_context"
 import createMockLifecycleContext from "../test-utils/create_mock_lifecycle_context"
@@ -15,7 +15,7 @@ import touchTap from "../test-utils/touch_tap"
 import waitForLoad from "../test-utils/wait_for_load"
 import type { DrawExportedFeature, DrawRenderFeature } from "../types"
 
-const drawPointMode = objectToMode(drawPointModeObject)
+const drawPointMode = modeBuilder(DrawPoint)
 
 /** The first feature the mode added to the store. */
 function addedPoint(context: MockDrawModeContext) {
