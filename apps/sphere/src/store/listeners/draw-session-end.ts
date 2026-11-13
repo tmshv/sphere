@@ -41,7 +41,8 @@ export async function refreshSelection(api: DrawListenerApi, sourceId: string): 
 /**
  * Discards the session's edits on the backend. Ops still in the queue land
  * first, so none arrives after the session is gone. Returns false, with the
- * error surfaced, when the rollback failed.
+ * error surfaced, when the rollback failed. The source is not re-fetched: the
+ * rollback restores exactly what the map's copy of it already shows.
  */
 export async function rollbackSession(
     api: DrawListenerApi,
@@ -56,7 +57,6 @@ export async function rollbackSession(
         surfaceError(api, ROLLBACK_FAILED, err)
         return false
     }
-    api.dispatch(actions.source.bumpVersion(sourceId))
     await refreshSelection(api, sourceId)
     return true
 }

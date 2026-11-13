@@ -201,6 +201,52 @@ describe("WorkingSetLoader: moves", () => {
         expect(t.loadedIntoDraw.at(-1)).toEqual([3])
         expect(t.unloadedFromDraw.at(-1)).toEqual([2])
     })
+
+    // The create landed on the backend before the query, but its id reached the queue only after it
+    test("a feature created while the query ran does not load next to its draw copy", async () => {
+        const t = setup()
+        const createLanded = deferred<FlushResult>()
+        t.flush.mockResolvedValueOnce({ ok: true }).mockReturnValueOnce(createLanded.promise)
+        t.fetchWorkingSet.mockResolvedValue(workingSet([9, 3]))
+
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        expect(t.loadedIntoDraw).toEqual([])
+
+        t.createdIds.mockReturnValue([9])
+        createLanded.resolve({ ok: true })
+        await flushAsync()
+
+        expect(t.loadedIntoDraw).toEqual([[3]])
+        expect(t.loading.at(-1)).toBe(false)
+    })
+
+    test("a load is dropped when the session end starts while ops created during the query land", async () => {
+        const t = setup()
+        const createLanded = deferred<FlushResult>()
+        t.flush.mockResolvedValueOnce({ ok: true }).mockReturnValueOnce(createLanded.promise)
+
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.loader.setPending(true)
+        createLanded.resolve({ ok: true })
+        await flushAsync()
+
+        expect(t.loadedIntoDraw).toEqual([])
+        expect(t.hidden).toEqual([])
+    })
+
+    test("a load is dropped when an op sent during the query failed", async () => {
+        const t = setup()
+        t.flush.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ ok: false, error: "boom", dropped: 0 })
+
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        expect(t.fetchWorkingSet).toHaveBeenCalledOnce()
+        expect(t.loadedIntoDraw).toEqual([])
+        expect(t.loading.at(-1)).toBe(false)
+    })
 })
 
 describe("WorkingSetLoader: stale and failed loads", () => {

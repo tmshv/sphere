@@ -101,6 +101,39 @@ describe("SourcePanel", () => {
         expect(screen.getByText("3")).toBeInTheDocument()
     })
 
+    describe("edit action", () => {
+        function renderWith(item: Source) {
+            const store = configureStore({
+                reducer: {
+                    source: () => makeSourceState([item], { selectedIds: [item.id] }),
+                    draw: () => ({ sourceId: null, selectedIds: [] }),
+                    sourceInfo: () => ({ info: {}, stats: {} }),
+                },
+            })
+            render(
+                <Provider store={store}>
+                    <SourcePanel />
+                </Provider>,
+            )
+        }
+
+        it("is disabled on a source that cannot be edited, and says why", () => {
+            renderWith(source)
+
+            const edit = screen.getByRole("button", {
+                name: "Switch to edit mode (only in-memory sources can be edited)",
+            })
+            expect(edit).toBeDisabled()
+            expect(edit).toHaveAttribute("title", "Switch to edit mode (only in-memory sources can be edited)")
+        })
+
+        it("is enabled on an editable source, without a reason", () => {
+            renderWith({ ...source, editable: true })
+
+            expect(screen.getByRole("button", { name: "Switch to edit mode" })).toBeEnabled()
+        })
+    })
+
     describe("with a selected source-layer node", () => {
         // Header icons in item order: delete, show properties, add to layer, edit, zoom, reload
         const DELETE_BUTTON_INDEX = 0

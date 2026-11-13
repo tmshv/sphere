@@ -169,6 +169,22 @@ describe("save-draw listener: commit", () => {
         ])
     })
 
+    test("does not ask for a re-fetch when the commit touched nothing", async () => {
+        mockCommands({ draw_commit: ok([]) })
+        const { store, dispatched } = makeStore()
+
+        store.dispatch(actions.draw.commit({ sourceId: SOURCE_ID }))
+        await flushAsync()
+
+        expect(types(dispatched)).toEqual([
+            "draw/commit",
+            "selection/sync",
+            "selection/apply",
+            "draw/done",
+            "tools/reset",
+        ])
+    })
+
     test("ignores a commit for a source that is not being drawn", async () => {
         const { store, dispatched } = makeStore()
 
@@ -199,7 +215,7 @@ describe("save-draw listener: cancel", () => {
         vi.clearAllMocks()
     })
 
-    test("lets in-flight ops land, rolls back, bumps the version, refreshes the selection, then leaves draw mode", async () => {
+    test("lets in-flight ops land, rolls back, refreshes the selection, then leaves draw mode", async () => {
         const { store, log } = makeStore()
         registerQueueWithOneOp()
 
@@ -210,7 +226,6 @@ describe("save-draw listener: cancel", () => {
             "action:draw/cancel",
             "invoke:draw_apply",
             "invoke:draw_rollback",
-            "action:source/bumpVersion",
             "invoke:selection_get_ids",
             "action:selection/sync",
             "action:selection/apply",
@@ -218,6 +233,17 @@ describe("save-draw listener: cancel", () => {
             "action:tools/reset",
         ])
         expect(mockInvoke).toHaveBeenCalledWith("draw_rollback", { id: SOURCE_ID })
+    })
+
+    // The rollback restores what the map's copy of the source already shows: nothing to re-fetch
+    test("does not ask for a re-fetch of the source", async () => {
+        const { store, dispatched } = makeStore()
+        registerQueueWithOneOp()
+
+        store.dispatch(actions.draw.cancel({ sourceId: SOURCE_ID }))
+        await flushAsync()
+
+        expect(types(dispatched)).not.toContain("source/bumpVersion")
     })
 
     test("rolls back even when the op queue failed", async () => {
@@ -301,16 +327,23 @@ describe("save-draw listener: hidden ids", () => {
         return { store, hiddenAtBump }
     }
 
-    test.each([
-        ["commit", actions.draw.commit],
-        ["cancel", actions.draw.cancel],
-    ])("%s clears the hidden ids only after the re-fetch was asked for", async (_, request) => {
+    test("commit clears the hidden ids only after the re-fetch was asked for", async () => {
         const { store, hiddenAtBump } = makeHiddenStore()
 
-        store.dispatch(request({ sourceId: SOURCE_ID }))
+        store.dispatch(actions.draw.commit({ sourceId: SOURCE_ID }))
         await flushAsync()
 
         expect(hiddenAtBump).toEqual([[4, 5]])
+        expect(store.getState().draw.hiddenIds).toEqual([])
+    })
+
+    test("cancel clears the hidden ids without a re-fetch", async () => {
+        const { store, hiddenAtBump } = makeHiddenStore()
+
+        store.dispatch(actions.draw.cancel({ sourceId: SOURCE_ID }))
+        await flushAsync()
+
+        expect(hiddenAtBump).toEqual([])
         expect(store.getState().draw.hiddenIds).toEqual([])
     })
 

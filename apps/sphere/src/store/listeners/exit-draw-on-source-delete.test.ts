@@ -67,7 +67,6 @@ describe("exit-draw-on-source-delete listener", () => {
             "action:tools/reset",
             "invoke:draw_apply",
             "invoke:draw_rollback",
-            "action:source/bumpVersion",
             "invoke:selection_get_ids",
             "action:selection/sync",
             "action:selection/apply",

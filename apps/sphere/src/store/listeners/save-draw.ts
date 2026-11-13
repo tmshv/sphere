@@ -27,15 +27,19 @@ listener.startListening({
             return
         }
 
+        let touched: number[]
         try {
-            await commitDraw(sourceId)
+            touched = await commitDraw(sourceId)
         } catch (err) {
             surfaceError(listenerApi, COMMIT_FAILED, err)
             listenerApi.dispatch(actions.draw.settle())
             return
         }
 
-        listenerApi.dispatch(actions.source.bumpVersion(sourceId))
+        // A commit that touched nothing left the source as the map already shows it
+        if (touched.length > 0) {
+            listenerApi.dispatch(actions.source.bumpVersion(sourceId))
+        }
         await refreshSelection(listenerApi, sourceId)
         listenerApi.dispatch(actions.draw.done({ sourceId }))
         listenerApi.dispatch(actions.tools.reset())

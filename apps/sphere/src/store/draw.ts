@@ -71,7 +71,8 @@ export const drawSlice = createSlice({
         failed: (state, _: PayloadAction<string>) => {
             return state
         },
-        // done and reset come after the listeners asked the base source to re-fetch (bumpVersion)
+        // done comes after a commit that changed the source asked for its re-fetch (bumpVersion); reset
+        // after a rollback, which needs none: the map's copy of the source is still the pre-session one
         done: (state, _: PayloadAction<{ sourceId: Id }>) => {
             state.sourceId = undefined
             state.pending = false

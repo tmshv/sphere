@@ -134,6 +134,12 @@ export class WorkingSetLoader {
         if (!this.isCurrent(current)) {
             return
         }
+        // A create sent while the query ran may be in its result before its backend id reached the
+        // queue: wait for it, so `createdIds` below knows it and it does not load twice
+        const settled = await queue.flush()
+        if (!settled.ok || !this.isCurrent(current)) {
+            return
+        }
         if (workingSet.overCap) {
             this.options.onOverCap(scope.type)
             return
