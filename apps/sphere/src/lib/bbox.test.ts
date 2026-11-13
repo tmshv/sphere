@@ -1,6 +1,6 @@
 import type { Map as MaplibreMap } from "maplibre-gl"
 import { describe, expect, it } from "vitest"
-import { bboxEqual, screenToGeoBbox } from "./bbox"
+import { bboxEqual, boundsToBbox, screenToGeoBbox } from "./bbox"
 import type { Bbox } from "@/types/bbox"
 
 describe("bboxEqual", () => {
@@ -95,5 +95,12 @@ describe("screenToGeoBbox", () => {
         const map = makeMockMap()
         const bbox = screenToGeoBbox(map, { x: 150, y: 150 }, { x: 150, y: 150 })
         expect(bbox).toEqual([1.5, 1.5, 1.5, 1.5])
+    })
+})
+
+describe("boundsToBbox", () => {
+    it("orders west, south, east, north", () => {
+        const bounds = { getWest: () => 1, getSouth: () => 2, getEast: () => 3, getNorth: () => 4 }
+        expect(boundsToBbox(bounds)).toEqual([1, 2, 3, 4])
     })
 })

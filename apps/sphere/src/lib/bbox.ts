@@ -21,3 +21,15 @@ export function screenToGeoBbox(
     ])
     return [sw.lng, sw.lat, ne.lng, ne.lat]
 }
+
+type BoundsLike = {
+    getWest(): number
+    getSouth(): number
+    getEast(): number
+    getNorth(): number
+}
+
+/** `[west, south, east, north]` of map bounds (e.g. `map.getBounds()`). */
+export function boundsToBbox(bounds: BoundsLike): Bbox {
+    return [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()]
+}

@@ -1,7 +1,17 @@
 import type { DrawEvent, EditOp, WorkingSetScope } from "@/types"
 import { invoke as _invoke } from "@tauri-apps/api/core"
 import type { MockedFunction } from "vitest"
-import { DrawOpQueue, applyOp, beginDraw, commitDraw, eventToOps, loadWorkingSet, rollbackDraw } from "./draw-session"
+import {
+    DrawOpQueue,
+    applyOp,
+    beginDraw,
+    commitDraw,
+    eventToOps,
+    getDrawQueue,
+    loadWorkingSet,
+    registerDrawQueue,
+    rollbackDraw,
+} from "./draw-session"
 
 type InvokeFn = (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
 const invoke = _invoke as MockedFunction<InvokeFn>
@@ -212,6 +222,54 @@ describe("DrawOpQueue", () => {
         queue.enqueueEvent({ type: "draw.delete", features: [feature(5)] })
         expect(await queue.flush()).toEqual({ ok: true })
         expect(invoke).toHaveBeenCalledWith("draw_apply", { id: "s1", op: { type: "delete", id: 5 } })
+    })
+})
+
+describe("DrawOpQueue created ids", () => {
+    beforeEach(() => {
+        invoke.mockReset()
+    })
+
+    test("records the backend ids of created features", async () => {
+        invoke.mockResolvedValueOnce(41).mockResolvedValueOnce(5).mockResolvedValueOnce(null)
+        const queue = new DrawOpQueue("s1", () => {})
+        queue.enqueue([
+            { type: "create", drawId: "a", feature: feature("a") },
+            { type: "update", id: 5, feature: feature(5) },
+            { type: "delete", id: 6 },
+        ])
+        await queue.flush()
+        expect(queue.createdIds()).toEqual([41])
+    })
+
+    test("returns a copy", async () => {
+        invoke.mockResolvedValue(3)
+        const queue = new DrawOpQueue("s1", () => {})
+        queue.enqueue([{ type: "create", drawId: "a", feature: feature("a") }])
+        await queue.flush()
+        queue.createdIds().push(99)
+        expect(queue.createdIds()).toEqual([3])
+    })
+})
+
+describe("draw queue registry", () => {
+    test("finds the registered queue by source id", () => {
+        const queue = new DrawOpQueue("s1", () => {})
+        const unregister = registerDrawQueue(queue)
+        expect(getDrawQueue("s1")).toBe(queue)
+        expect(getDrawQueue("s2")).toBeUndefined()
+        unregister()
+        expect(getDrawQueue("s1")).toBeUndefined()
+    })
+
+    test("a stale unregister does not remove a newer queue", () => {
+        const first = new DrawOpQueue("s1", () => {})
+        const second = new DrawOpQueue("s1", () => {})
+        const unregisterFirst = registerDrawQueue(first)
+        const unregisterSecond = registerDrawQueue(second)
+        unregisterFirst()
+        expect(getDrawQueue("s1")).toBe(second)
+        unregisterSecond()
     })
 })
 

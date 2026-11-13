@@ -1,3 +1,5 @@
+import type { Bbox } from "./bbox"
+
 export type DrawEvent = {
     features?: GeoJSON.Feature[]
     createdFeatures?: GeoJSON.Feature[]
@@ -13,7 +15,7 @@ export type EditOp =
     | { type: "update"; id: DrawFeatureId; feature: GeoJSON.Feature }
     | { type: "delete"; id: DrawFeatureId }
 
-export type WorkingSetScope = { type: "ids"; ids: number[] } | { type: "bbox"; bbox: [number, number, number, number] }
+export type WorkingSetScope = { type: "ids"; ids: number[] } | { type: "bbox"; bbox: Bbox }
 
 export type WorkingSet = {
     features: GeoJSON.FeatureCollection
@@ -21,3 +23,10 @@ export type WorkingSet = {
 }
 
 export type FlushResult = { ok: true } | { ok: false; error: unknown; dropped: number }
+
+/** How to bring draw in line with a fresh working set, and the loaded ids after it. */
+export type WorkingSetPlan = {
+    add: GeoJSON.Feature[]
+    unload: DrawFeatureId[]
+    loaded: Set<DrawFeatureId>
+}

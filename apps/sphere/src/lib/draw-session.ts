@@ -109,9 +109,10 @@ export class DrawOpQueue {
     private tail: Promise<void> = Promise.resolve()
     private failure: { error: unknown } | null = null
     private dropped = 0
+    private readonly created: number[] = []
 
     constructor(
-        private readonly sourceId: string,
+        readonly sourceId: string,
         private readonly onError: (err: unknown) => void = logOpError,
     ) {}
 
@@ -158,9 +159,38 @@ export class DrawOpQueue {
             return
         }
         try {
-            await applyOp(this.sourceId, op)
+            const backendId = await applyOp(this.sourceId, op)
+            if (op.type === "create" && backendId !== null) {
+                this.created.push(backendId)
+            }
         } catch (err) {
             this.fail(err)
         }
     }
+
+    /** Backend ids assigned so far to features created in this session (draw keeps their string draw ids). */
+    createdIds(): number[] {
+        return [...this.created]
+    }
+}
+
+// The queue of the draw session on screen; the draw listeners flush it before they end the session
+let activeQueue: DrawOpQueue | undefined
+
+/** Makes `queue` the one `getDrawQueue` finds. Returns the unregister function. */
+export function registerDrawQueue(queue: DrawOpQueue): () => void {
+    activeQueue = queue
+    return () => {
+        if (activeQueue === queue) {
+            activeQueue = undefined
+        }
+    }
+}
+
+/** The registered queue of the session on `sourceId`, if any. */
+export function getDrawQueue(sourceId: string): DrawOpQueue | undefined {
+    if (activeQueue?.sourceId !== sourceId) {
+        return undefined
+    }
+    return activeQueue
 }
