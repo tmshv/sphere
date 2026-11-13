@@ -46,7 +46,7 @@ export default function render(store: Store, pending: PendingEmits): void {
         newHotIds = store.getChangedIds().filter(id => store.get(id) !== undefined)
         newColdIds = store.sources.hot.flatMap(geojson => {
             const id = geojson.properties.id
-            if (id && newHotIds.indexOf(id) === -1 && store.get(id) !== undefined) return [id]
+            if (id !== undefined && newHotIds.indexOf(id) === -1 && store.get(id) !== undefined) return [id]
             return []
         })
     }
@@ -56,7 +56,7 @@ export default function render(store: Store, pending: PendingEmits): void {
     store.sources.cold = store.isDirty
         ? []
         : store.sources.cold.filter(geojson => {
-              const id = geojson.properties.id || geojson.properties.parent
+              const id = geojson.properties.id ?? geojson.properties.parent
               return id === undefined || newHotIds.indexOf(id) === -1
           })
 

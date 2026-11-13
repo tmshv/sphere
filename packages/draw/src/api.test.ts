@@ -678,14 +678,96 @@ describe("api", () => {
             expectNoEvents()
         })
 
-        it("Draw.load requests a render", async () => {
+        function renderedIds(source: string): (string | number | undefined)[] {
+            const data = map.sources[source]?.data
+            return data?.features.map(f => f.properties?.id) ?? []
+        }
+
+        it("Draw.load renders the loaded features", async () => {
             await afterNextRender()
-            const rendered = vi.fn()
-            map.on("draw.render", rendered)
             Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            expect(renderedIds(Constants.sources.HOT)).not.toContain("a")
             await afterNextRender()
-            map.off("draw.render", rendered)
-            expect(rendered).toHaveBeenCalled()
+            expect(renderedIds(Constants.sources.HOT)).toContain("a")
+        })
+
+        it("Draw.unload renders the removal", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2]), point("b", [3, 4])] })
+            await afterNextRender()
+            Draw.unload(["a"])
+            await afterNextRender()
+            const all = [...renderedIds(Constants.sources.COLD), ...renderedIds(Constants.sources.HOT)]
+            expect(all).not.toContain("a")
+            expect(all).toContain("b")
+        })
+
+        it("Draw.load turns an empty-string id into a generated one", () => {
+            Draw.load({ type: "FeatureCollection", features: [point("", [1, 2])] })
+            const [id] = Draw.getAll().features.map(f => f.id)
+            expect(typeof id).toBe("string")
+            expect(id).not.toBe("")
+        })
+
+        it("renders feature 0 exactly once when it moves between hot and cold", async () => {
+            Draw.load({ type: "FeatureCollection", features: [line(0), line(1)] })
+            await afterNextRender()
+            Draw.changeMode("direct_select", { featureId: 0 })
+            await afterNextRender()
+            const count = () =>
+                [...renderedIds(Constants.sources.HOT), ...renderedIds(Constants.sources.COLD)].filter(id => id === 0)
+                    .length
+            expect(count(), "once while edited").toBe(1)
+            Draw.changeMode("simple_select", { featureIds: [1] })
+            await afterNextRender()
+            expect(count(), "once after leaving direct_select").toBe(1)
+            Draw.changeMode("simple_select", { featureIds: [0] })
+            await afterNextRender()
+            expect(count(), "once when selected again").toBe(1)
+        })
+
+        it("Draw.load replacing a selected feature keeps the selection", () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            Draw.changeMode("simple_select", { featureIds: ["a"] })
+            Draw.load({ type: "FeatureCollection", features: [point("a", [5, 6])] })
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+            expectNoEvents()
+        })
+
+        it("Draw.load replacing the direct_select target starts the mode over safely", () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a")] })
+            Draw.changeMode("direct_select", { featureId: "a", coordPath: "1" })
+            Draw.load({
+                type: "FeatureCollection",
+                features: [
+                    {
+                        type: "Feature",
+                        id: "a",
+                        properties: {},
+                        geometry: { type: "LineString", coordinates: [[0, 0]] },
+                    },
+                ],
+            })
+            expect(Draw.getMode()).toBe("direct_select")
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+            expect(Draw.getSelectedPoints().features).toEqual([])
+            expectNoEvents()
+        })
+
+        it("Draw.load turning the direct_select target into a point leaves direct_select", () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a")] })
+            Draw.changeMode("direct_select", { featureId: "a" })
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+        })
+
+        it("Draw.unload keeps direct_select when another feature goes", () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a"), line("b")] })
+            Draw.changeMode("direct_select", { featureId: "a", coordPath: "1" })
+            Draw.unload(["b"])
+            expect(Draw.getMode()).toBe("direct_select")
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+            expect(() => Draw.getSelectedPoints()).not.toThrow()
         })
 
         it("Draw.unload removes features, deselects them and emits no events", () => {

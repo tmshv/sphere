@@ -124,11 +124,30 @@ export default class DrawApi {
      *
      * Ids are kept exactly as given: a numeric id stays a number (`0` included), a string id stays a string,
      * and `getAll()` returns the same value, so the app can map it back. Number and string ids are distinct
-     * (`7` is not `"7"`). A feature with no id gets a generated string one. A feature whose id is already in
+     * (`7` is not `"7"`). A feature with no id, or an empty-string id, gets a generated string one (as in `add`). A feature whose id is already in
      * Draw is replaced.
      */
     load = (featureCollection: FeatureCollection<Geometry | null, FeatureProperties | null>): void => {
-        this.#addFeatures(featureCollection, feature => feature.id ?? generateId())
+        const replaced = new Set<FeatureId>()
+        this.#addFeatures(featureCollection, feature => {
+            const id = feature.id === undefined || feature.id === "" ? generateId() : feature.id
+            if (this.#ctx.store.get(id) !== undefined) replaced.add(id)
+            return id
+        })
+        // direct_select keeps the feature and its vertex paths: after a replace they may be stale or the
+        // geometry may not be editable any more, so start the mode over or leave it.
+        const target = this.#ctx.store.getSelectedIds().at(0)
+        if (this.getMode() === Constants.modes.DIRECT_SELECT && target !== undefined && replaced.has(target)) {
+            this.#ctx.store.clearSelectedCoordinates()
+            const feature = this.#ctx.store.get(target)
+            const editable = feature !== undefined && feature.type !== Constants.geojsonTypes.POINT
+            this.#ctx.events.changeMode(
+                editable ? Constants.modes.DIRECT_SELECT : Constants.modes.SIMPLE_SELECT,
+                editable ? { featureId: target } : { featureIds: [target] },
+                { silent: true },
+            )
+        }
+        this.#ctx.store.render()
     }
 
     /**
