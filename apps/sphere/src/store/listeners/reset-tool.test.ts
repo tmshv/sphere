@@ -45,13 +45,47 @@ describe("reset-tool listener", () => {
         expect(dispatched.map(a => a.type)).toEqual(["tools/reset"])
     })
 
-    test("does nothing while a commit or cancel is already ending the session", async () => {
+    test("does not cancel while a commit or cancel is already ending the session", async () => {
         const { store, dispatched } = makeStore({ sourceId: "s1", pending: true })
 
         store.dispatch(actions.tools.reset())
         await flushAsync()
 
         expect(dispatched.map(a => a.type)).toEqual(["tools/reset"])
+    })
+
+    function makeRealStore() {
+        return makeLogStore({
+            preloadedState: { draw: { sourceId: "s1", pending: true }, tools: { activeTool: "draw" } },
+            reducer: combineReducers({ draw: drawReducer, tools: toolsReducer }),
+            middleware: [listener.middleware],
+        })
+    }
+
+    test("restores the draw tool when the pending session end failed and draw mode stayed", async () => {
+        const { store, dispatched } = makeRealStore()
+
+        store.dispatch(actions.tools.reset())
+        await flushAsync()
+        expect(store.getState().tools.activeTool).toBe("navigation")
+
+        store.dispatch(actions.draw.settle())
+        await flushAsync()
+
+        expect(store.getState().tools.activeTool).toBe("draw")
+        expect(dispatched.map(a => a.type)).not.toContain("draw/cancel")
+    })
+
+    test("leaves the tool alone when the pending session end finished draw mode", async () => {
+        const { store, dispatched } = makeRealStore()
+
+        store.dispatch(actions.tools.reset())
+        await flushAsync()
+        store.dispatch(actions.draw.done({ sourceId: "s1" }))
+        await flushAsync()
+
+        expect(store.getState().tools.activeTool).toBe("navigation")
+        expect(dispatched.map(a => a.type)).not.toContain("tools/setTool")
     })
 
     test("with the draw listeners, a tool reset rolls the backend session back", async () => {

@@ -5,12 +5,13 @@ const { mockInvoke } = vi.hoisted(() => ({ mockInvoke: vi.fn() }))
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
 vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
 
-import { flushAsync, makeLogStore } from "@/testutils"
+import { flushAsync, makeGeojsonSource, makeLogStore } from "@/testutils"
 import { actions } from "../actions"
 import listener from "./start-draw"
 
-function makeStore(draw: object = { pending: false }) {
-    return makeLogStore({ preloadedState: { draw }, middleware: [listener.middleware] })
+// The identity reducer keeps `source.items` as seeded: leave a source out to have it removed during the begin
+function makeStore(draw: object = { pending: false }, items: Record<string, object> = { s1: makeGeojsonSource("s1") }) {
+    return makeLogStore({ preloadedState: { draw, source: { items } }, middleware: [listener.middleware] })
 }
 
 function types(dispatched: { type: string }[]) {
@@ -45,6 +46,32 @@ describe("start-draw listener", () => {
         expect(types(dispatched)).toEqual(["draw/start", "error/setError", "draw/settle"])
         expect(dispatched.find(a => a.type === "error/setError")?.payload).toEqual(
             expect.stringContaining("not an in-memory source"),
+        )
+    })
+
+    test("rolls the session back without entering draw mode when the source was removed during the begin", async () => {
+        mockInvoke.mockResolvedValue(undefined)
+        const { store, dispatched } = makeStore({ pending: false }, {})
+
+        store.dispatch(actions.draw.start({ sourceId: "s1" }))
+        await flushAsync()
+
+        expect(mockInvoke.mock.calls.map(([cmd]) => cmd)).toEqual(["draw_begin", "draw_rollback"])
+        expect(types(dispatched)).toEqual(["draw/start", "draw/settle"])
+    })
+
+    test("surfaces a failed rollback of a session on a removed source", async () => {
+        mockInvoke.mockImplementation((cmd: string) =>
+            cmd === "draw_rollback" ? Promise.reject("rollback exploded") : Promise.resolve(undefined),
+        )
+        const { store, dispatched } = makeStore({ pending: false }, {})
+
+        store.dispatch(actions.draw.start({ sourceId: "s1" }))
+        await flushAsync()
+
+        expect(types(dispatched)).toEqual(["draw/start", "error/setError", "draw/settle"])
+        expect(dispatched.find(a => a.type === "error/setError")?.payload).toEqual(
+            expect.stringContaining("rollback exploded"),
         )
     })
 

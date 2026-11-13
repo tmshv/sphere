@@ -1,10 +1,11 @@
-import { beginDraw } from "@/lib/draw-session"
+import { beginDraw, rollbackDraw } from "@/lib/draw-session"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
 import { surfaceError } from "./draw-session-end"
 
 const BEGIN_FAILED = "Cannot edit this source"
+const ROLLBACK_FAILED = "Could not end the draw session of a removed source"
 
 const listener = createListenerMiddleware<RootState>()
 
@@ -22,6 +23,17 @@ listener.startListening({
             await beginDraw(sourceId)
         } catch (err) {
             surfaceError(listenerApi, BEGIN_FAILED, err)
+            listenerApi.dispatch(actions.draw.settle())
+            return
+        }
+
+        // The source was removed while the session began: end it instead of drawing on a gone source
+        if (!(sourceId in listenerApi.getState().source.items)) {
+            try {
+                await rollbackDraw(sourceId)
+            } catch (err) {
+                surfaceError(listenerApi, ROLLBACK_FAILED, err)
+            }
             listenerApi.dispatch(actions.draw.settle())
             return
         }

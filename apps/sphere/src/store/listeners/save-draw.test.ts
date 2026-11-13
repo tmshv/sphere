@@ -92,6 +92,26 @@ describe("save-draw listener: commit", () => {
         expect(mockInvoke).toHaveBeenCalledWith("draw_commit", { id: SOURCE_ID })
     })
 
+    test("does not commit until an in-flight op has landed", async () => {
+        let landOp: (value: unknown) => void = () => {}
+        mockCommands({
+            draw_apply: () =>
+                new Promise(resolve => {
+                    landOp = resolve
+                }),
+        })
+        const { store } = makeStore()
+        registerQueueWithOneOp()
+
+        store.dispatch(actions.draw.commit({ sourceId: SOURCE_ID }))
+        await flushAsync()
+        expect(mockInvoke).not.toHaveBeenCalledWith("draw_commit", expect.anything())
+
+        landOp(null)
+        await flushAsync()
+        expect(mockInvoke).toHaveBeenCalledWith("draw_commit", { id: SOURCE_ID })
+    })
+
     test("passes the source id and the refreshed count", async () => {
         const { store, dispatched } = makeStore()
 
