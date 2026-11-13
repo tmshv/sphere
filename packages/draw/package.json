@@ -5,17 +5,19 @@
     "type": "module",
     "description": "MapLibre GL drawing control, vendored from @hyvilo/maplibre-gl-draw",
     "license": "ISC",
-    "main": "./index.js",
+    "main": "./src/index.js",
     "types": "./index.d.ts",
     "exports": {
         ".": {
             "types": "./index.d.ts",
-            "default": "./index.js"
+            "default": "./src/index.js"
         },
         "./maplibre-gl-draw.css": "./maplibre-gl-draw.css"
     },
     "scripts": {
-        "test": "vitest run"
+        "test": "vitest run",
+        "lint": "biome lint src/",
+        "lint:fix": "biome lint --write src/"
     },
     "dependencies": {
         "@mapbox/geojson-area": "^0.2.2",

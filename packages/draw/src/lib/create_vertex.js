@@ -1,4 +1,4 @@
-import * as Constants from '../constants';
+import * as Constants from "../constants"
 
 /**
  * Returns GeoJSON for a Point representing the
@@ -11,18 +11,18 @@ import * as Constants from '../constants';
  * @param {boolean} selected
  * @return {GeoJSON} Point
  */
-export default function(parentId, coordinates, path, selected) {
-  return {
-    type: Constants.geojsonTypes.FEATURE,
-    properties: {
-      meta: Constants.meta.VERTEX,
-      parent: parentId,
-      coord_path: path,
-      active: (selected) ? Constants.activeStates.ACTIVE : Constants.activeStates.INACTIVE
-    },
-    geometry: {
-      type: Constants.geojsonTypes.POINT,
-      coordinates
+export default function (parentId, coordinates, path, selected) {
+    return {
+        type: Constants.geojsonTypes.FEATURE,
+        properties: {
+            meta: Constants.meta.VERTEX,
+            parent: parentId,
+            coord_path: path,
+            active: selected ? Constants.activeStates.ACTIVE : Constants.activeStates.INACTIVE,
+        },
+        geometry: {
+            type: Constants.geojsonTypes.POINT,
+            coordinates,
+        },
     }
-  };
 }
