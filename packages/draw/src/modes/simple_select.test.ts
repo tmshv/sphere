@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, type MockInstance, vi } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import { TAP_INTERVAL, TAP_TOLERANCE } from "../lib/is_tap"
 import setupAfterNextRender, { type AfterNextRender } from "../test-utils/after_next_render"
 import createMap, { type MockInteraction, type MockMap } from "../test-utils/create_map"
@@ -60,7 +60,7 @@ describe("simple_select", () => {
     let context: MockDrawModeContext
     let mapContainer: HTMLDivElement
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
     let afterNextRender: AfterNextRender
     let fireSpy: MockInstance<MockMap["fire"]>
     let doubleClickZoomEnable: MockInstance<MockInteraction["enable"]>
@@ -83,7 +83,7 @@ describe("simple_select", () => {
         document.body.appendChild(mapContainer)
         map = createMap({ container: mapContainer })
 
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
 
         fireSpy = vi.spyOn(map, "fire")

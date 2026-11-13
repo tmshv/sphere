@@ -162,7 +162,7 @@ export default function events(ctx: DrawContext): DrawEvents {
 
     function touchstart(event: DrawTouchEvent) {
         // Prevent emulated mouse events because we will fully handle the touch here.
-        // This does not stop the touch events from propogating to mapbox though.
+        // This does not stop the touch events from propagating to the map though.
         event.originalEvent.preventDefault()
         if (!ctx.options.touchEnabled) {
             return

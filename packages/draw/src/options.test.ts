@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import MapboxDraw from "./index"
+import MapLibreDraw from "./index"
 import modes from "./modes"
 import styleWithSourcesFixture from "./test-utils/fixtures/style_with_sources.json"
 
 describe("Options test", () => {
     it("no options", () => {
-        const Draw = new MapboxDraw()
+        const Draw = new MapLibreDraw()
         const defaultOptions = {
             defaultMode: "simple_select",
             modes,
@@ -31,7 +31,7 @@ describe("Options test", () => {
     })
 
     it("use custom clickBuffer", () => {
-        const Draw = new MapboxDraw({ clickBuffer: 10 })
+        const Draw = new MapLibreDraw({ clickBuffer: 10 })
         const defaultOptions = {
             defaultMode: "simple_select",
             modes,
@@ -57,7 +57,7 @@ describe("Options test", () => {
     })
 
     it("hide all controls", () => {
-        const Draw = new MapboxDraw({ displayControlsDefault: false })
+        const Draw = new MapLibreDraw({ displayControlsDefault: false })
         const defaultOptions = {
             defaultMode: "simple_select",
             modes,
@@ -82,7 +82,7 @@ describe("Options test", () => {
     })
 
     it("hide controls but show point", () => {
-        const Draw = new MapboxDraw({ displayControlsDefault: false, controls: { point: true } })
+        const Draw = new MapLibreDraw({ displayControlsDefault: false, controls: { point: true } })
         const defaultOptions = {
             defaultMode: "simple_select",
             modes,
@@ -108,7 +108,7 @@ describe("Options test", () => {
     })
 
     it("hide only point control", () => {
-        const Draw = new MapboxDraw({ controls: { point: false } })
+        const Draw = new MapLibreDraw({ controls: { point: false } })
         const defaultOptions = {
             defaultMode: "simple_select",
             modes,
@@ -134,7 +134,7 @@ describe("Options test", () => {
     })
 
     it("disable touch interaction", () => {
-        const Draw = new MapboxDraw({ touchEnabled: false })
+        const Draw = new MapLibreDraw({ touchEnabled: false })
         const defaultOptions = {
             defaultMode: "simple_select",
             modes,
@@ -160,7 +160,7 @@ describe("Options test", () => {
     })
 
     it("custom styles", () => {
-        const Draw = new MapboxDraw({
+        const Draw = new MapLibreDraw({
             styles: [
                 {
                     id: "custom-polygon",

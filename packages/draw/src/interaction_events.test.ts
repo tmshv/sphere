@@ -2,7 +2,7 @@
 
 import type { Feature, LineString } from "geojson"
 import { afterAll, beforeAll, describe, expect, it, type MockInstance, vi } from "vitest"
-import MapboxDraw from "./index"
+import MapLibreDraw from "./index"
 import createAfterNextRender, { type AfterNextRender } from "./test-utils/after_next_render"
 import createMap, { type MockMap } from "./test-utils/create_map"
 import { backspaceEvent, enterEvent, escapeEvent } from "./test-utils/key_events"
@@ -16,7 +16,7 @@ describe("interaction events", () => {
     let map: MockMap
     let fireSpy: MockInstance<MockMap["fire"]>
     let afterNextRender: AfterNextRender
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
     let controlGroup: HTMLElement | null = null
     let pointButton: HTMLElement
     let lineCutton: HTMLElement
@@ -28,7 +28,7 @@ describe("interaction events", () => {
         map = createMap({ container })
         fireSpy = vi.spyOn(map, "fire")
         afterNextRender = createAfterNextRender(map)
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         const onAdd = Draw.onAdd.bind(Draw)
         Draw.onAdd = m => {
             controlGroup = onAdd(m)

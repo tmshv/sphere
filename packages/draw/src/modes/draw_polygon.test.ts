@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import type { DrawRenderFeature, DrawExportedFeature } from "../types"
 import Polygon from "../feature_types/polygon"
 import drawPolygonModeObject from "./draw_polygon"
@@ -30,7 +30,7 @@ function addedPolygon(context: MockDrawModeContext) {
 }
 
 /** The first feature Draw holds, as GeoJSON. */
-function firstFeature(draw: MapboxDraw): DrawExportedFeature {
+function firstFeature(draw: MapLibreDraw): DrawExportedFeature {
     return required(draw.getAll().features.at(0))
 }
 
@@ -337,13 +337,13 @@ describe("draw_polygon mouse interaction", () => {
     // The following tests share state
     const container = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
     let afterNextRender: AfterNextRender
 
     beforeAll(async () => {
         document.body.appendChild(container)
         map = createMap({ container })
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         await waitForLoad(map)
 
@@ -793,12 +793,12 @@ describe("draw_polygon touch interaction", () => {
     // The following tests share state
     const container = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
 
     beforeAll(async () => {
         document.body.appendChild(container)
         map = createMap({ container })
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         await waitForLoad(map)
 

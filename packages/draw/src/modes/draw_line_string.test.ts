@@ -1,6 +1,6 @@
 import type { Feature, LineString as GeoJSONLineString, Position } from "geojson"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import type { DrawFeature } from "../feature_types/draw_feature"
 import LineString from "../feature_types/line_string"
 import type { DrawRenderFeature } from "../types"
@@ -38,7 +38,7 @@ function lineCoordinates(feature: Feature): Position[] {
 }
 
 /** The first feature in Draw. */
-function firstFeature(draw: MapboxDraw): Feature {
+function firstFeature(draw: MapLibreDraw): Feature {
     return required(draw.getAll().features.at(0))
 }
 
@@ -254,13 +254,13 @@ describe("draw_line_string mouse interaction", () => {
     // The following tests share state
     const container = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
     let afterNextRender: AfterNextRender
 
     beforeAll(async () => {
         document.body.appendChild(container)
         map = createMap({ container })
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         afterNextRender = setupAfterNextRender(map)
         await waitForLoad(map)
@@ -564,12 +564,12 @@ describe("draw_line_string touch interaction", () => {
     // The following tests share state
     const container = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
 
     beforeAll(async () => {
         document.body.appendChild(container)
         map = createMap({ container })
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         await waitForLoad(map)
 
@@ -735,7 +735,7 @@ describe("draw_line_string continue LineString", () => {
         const container = document.createElement("div")
         document.body.appendChild(container)
         const map = createMap({ container })
-        const Draw = new MapboxDraw()
+        const Draw = new MapLibreDraw()
         map.addControl(Draw)
         const afterNextRender = setupAfterNextRender(map)
         await waitForLoad(map)

@@ -118,7 +118,7 @@ export default class ModeInterface {
     /**
      * Sets Draw's interal selected state
      * @name this.setSelected
-     * @param features - whats selected as a [DrawFeature](https://github.com/mapbox/mapbox-gl-draw/blob/main/src/feature_types/feature.js)
+     * @param features - whats selected as a `DrawFeature` (see `src/feature_types/feature.ts`)
      */
     setSelected(features?: FeatureId | readonly FeatureId[]): unknown {
         return this.ctx.store.setSelected(features)
@@ -142,7 +142,7 @@ export default class ModeInterface {
     }
 
     /**
-     * Get all selected features as a [DrawFeature](https://github.com/mapbox/mapbox-gl-draw/blob/main/src/feature_types/feature.js).
+     * Get all selected features as a `DrawFeature` (see `src/feature_types/feature.ts`).
      * An id selected without a feature yields `undefined`.
      * @name this.getSelected
      */
@@ -168,7 +168,7 @@ export default class ModeInterface {
     }
 
     /**
-     * Get a [DrawFeature](https://github.com/mapbox/mapbox-gl-draw/blob/main/src/feature_types/feature.js) by its id
+     * Get a `DrawFeature` (see `src/feature_types/feature.ts`) by its id
      * @name this.getFeature
      * @param id - a feature id
      */
@@ -202,7 +202,7 @@ export default class ModeInterface {
     }
 
     /**
-     * Add a [DrawFeature](https://github.com/mapbox/mapbox-gl-draw/blob/main/src/feature_types/feature.js) to draw.
+     * Add a `DrawFeature` (see `src/feature_types/feature.ts`) to draw.
      * See `this.newFeature` for converting geojson into a DrawFeature
      * @name this.addFeature
      * @param feature - the feature to add
@@ -227,7 +227,7 @@ export default class ModeInterface {
 
     /**
      * Indicate if the different action are currently possible with your mode
-     * See [draw.actionalbe](https://github.com/mapbox/mapbox-gl-draw/blob/main/API.md#drawactionable) for a list of possible actions. All undefined actions are set to **false** by default
+     * See `draw.actionable` (docs/API.md) for a list of possible actions. All undefined actions are set to **false** by default
      * @name this.setActionableState
      */
     setActionableState(actions: Partial<DrawActionableState> = {}): void {
@@ -270,7 +270,7 @@ export default class ModeInterface {
     /**
      * Get the features at the location of an event object or in a bbox
      * @name this.featuresAt
-     * @param event - a mapbox-gl event object
+     * @param event - a MapLibre map event
      * @param bbox - the area to get features from
      * @param bufferType - is this `click` or `touch` event, defaults to click
      */
@@ -285,7 +285,7 @@ export default class ModeInterface {
     }
 
     /**
-     * Create a new [DrawFeature](https://github.com/mapbox/mapbox-gl-draw/blob/main/src/feature_types/feature.js) from geojson
+     * Create a new `DrawFeature` (see `src/feature_types/feature.ts`) from geojson
      * @name this.newFeature
      */
     newFeature(geojson: DrawFeatureInput<"Point">): Point
@@ -300,7 +300,7 @@ export default class ModeInterface {
     }
 
     /**
-     * Check is an object is an instance of a [DrawFeature](https://github.com/mapbox/mapbox-gl-draw/blob/main/src/feature_types/feature.js)
+     * Check is an object is an instance of a `DrawFeature` (see `src/feature_types/feature.ts`)
      * @name this.isInstanceOf
      * @param type - `Point`, `LineString`, `Polygon`, `MultiFeature`
      * @param feature - the object that needs to be checked
@@ -441,21 +441,21 @@ export default class ModeInterface {
     onStop(): void {}
 
     /**
-     * Triggered when [draw.trash()](https://github.com/mapbox/mapbox-gl-draw/blob/main/API.md#trash-draw) is called.
+     * Triggered when `draw.trash()` (docs/API.md) is called.
      * @name MODE.onTrash
      * @param state - a mutible state object created by onSetup
      */
     onTrash(): void {}
 
     /**
-     * Triggered when [draw.combineFeatures()](https://github.com/mapbox/mapbox-gl-draw/blob/main/API.md#combinefeatures-draw) is called.
+     * Triggered when `draw.combineFeatures()` (docs/API.md) is called.
      * @name MODE.onCombineFeatures
      * @param state - a mutible state object created by onSetup
      */
     onCombineFeatures(): void {}
 
     /**
-     * Triggered when [draw.uncombineFeatures()](https://github.com/mapbox/mapbox-gl-draw/blob/main/API.md#uncombinefeatures-draw) is called.
+     * Triggered when `draw.uncombineFeatures()` (docs/API.md) is called.
      * @name MODE.onUncombineFeatures
      * @param state - a mutible state object created by onSetup
      */
@@ -463,7 +463,7 @@ export default class ModeInterface {
 
     /**
      * Triggered per feature on render to convert raw features into set of features for display on the map
-     * See [styling draw](https://github.com/mapbox/mapbox-gl-draw/blob/main/API.md#styling-draw) for information about what geojson properties Draw uses as part of rendering.
+     * See "Styling Draw" in docs/API.md for information about what geojson properties Draw uses as part of rendering.
      * @name MODE.toDisplayFeatures
      * @param state - a mutible state object created by onSetup
      * @param geojson - a geojson being evaulated. To render, pass to `display`.

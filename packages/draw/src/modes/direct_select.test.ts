@@ -1,6 +1,6 @@
 import type { Feature, LineString, Polygon, Position } from "geojson"
 import { afterAll, beforeAll, describe, expect, it, type MockInstance, vi } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import type { DrawActionableState, DrawExportedFeature } from "../types"
 import * as Constants from "../constants"
 import setupAfterNextRender, { type AfterNextRender } from "../test-utils/after_next_render"
@@ -50,7 +50,7 @@ function isActionablePayload(data: unknown): data is { actions: DrawActionableSt
 describe("direct_select", () => {
     const mapContainer = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
     let afterNextRender: AfterNextRender
     let fireSpy: MockInstance<MockMap["fire"]>
 
@@ -74,7 +74,7 @@ describe("direct_select", () => {
         document.body.appendChild(mapContainer)
         map = createMap({ container: mapContainer })
 
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
 
         fireSpy = vi.spyOn(map, "fire")

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import Feature from "./feature"
 import LineString from "./line_string"
 import createFeature from "../test-utils/create_feature"
@@ -129,7 +129,7 @@ describe("line_string", () => {
             [20, 40],
         ]
         const map = createMap()
-        const Draw = new MapboxDraw()
+        const Draw = new MapLibreDraw()
         map.addControl(Draw)
 
         await waitForLoad(map)

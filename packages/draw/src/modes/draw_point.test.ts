@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import Point from "../feature_types/point"
 import drawPointModeObject from "./draw_point"
 import objectToMode from "./object_to_mode"
@@ -29,7 +29,7 @@ function coordinates(feature: DrawExportedFeature): unknown {
 }
 
 /** The first feature Draw holds, as GeoJSON. */
-function firstFeature(draw: MapboxDraw): DrawExportedFeature {
+function firstFeature(draw: MapLibreDraw): DrawExportedFeature {
     return required(draw.getAll().features.at(0))
 }
 
@@ -182,12 +182,12 @@ describe("draw_point mouse interaction", () => {
     // The following tests share state
     const container = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
 
     beforeAll(async () => {
         document.body.appendChild(container)
         map = createMap({ container })
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         await waitForLoad(map)
     })
@@ -249,12 +249,12 @@ describe("draw_point mouse interaction", () => {
 describe("draw_point touch interaction", () => {
     const container = document.createElement("div")
     let map: MockMap
-    let Draw: MapboxDraw
+    let Draw: MapLibreDraw
 
     beforeAll(async () => {
         document.body.appendChild(container)
         map = createMap({ container })
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         await waitForLoad(map)
     })

@@ -1,114 +1,45 @@
-> Vendored into Sphere as `@sphere/draw` from [hyvilo/maplibre-gl-draw](https://github.com/hyvilo/maplibre-gl-draw) at commit `db8b7f0` (published as `@hyvilo/maplibre-gl-draw@1.0.0`). `maplibre-gl-draw.css` comes from upstream `dist/`; the source has since been converted to TypeScript.
+# @sphere/draw
 
-# @hyvilo/maplibre-gl-draw
+Drawing and editing of points, lines and polygons on a MapLibre GL map, as a map control (`MapLibreDraw`).
 
+This package is a TypeScript fork of [hyvilo/maplibre-gl-draw](https://github.com/hyvilo/maplibre-gl-draw) at commit `db8b7f0` (published as `@hyvilo/maplibre-gl-draw@1.0.0`), which is itself a MapLibre port of [mapbox-gl-draw](https://github.com/mapbox/mapbox-gl-draw). It is a private workspace package of Sphere and is not published. License: ISC (see `LICENSE`).
 
-Adds support for drawing and editing features on [maplibre-gl.js](https://maplibre.org/projects/maplibre-gl-js/) maps. [See a live example here](https://maplibre.org/maplibre-gl-js-docs/example/mapbox-gl-draw/)
+## Usage
 
+```ts
+import MapLibreDraw from "@sphere/draw"
+import "@sphere/draw/maplibre-gl-draw.css"
 
-### Installing
+const draw = new MapLibreDraw({ displayControlsDefault: false, controls: { polygon: true, trash: true } })
+map.addControl(draw, "top-left")
 
-```
-npm install @hyvilo/maplibre-gl-draw
-```
-
-Draw ships with CSS, make sure you include it in your build.
-
-### Usage in your application
-
-#### JavaScript
-
-**When using modules**
-
-```js
-import maplibregl from 'maplibre-gl';
-import MapLibreDraw from "@mapbox/mapbox-gl-draw";
+map.on("draw.create", event => {
+    // event.features: the created features
+})
 ```
 
-**When using a CDN**
+`maplibre-gl` is a peer dependency, used for types only. The package declares its `draw.*` events on MapLibre's `Map`, so `map.on("draw.create", …)` is typed. Option, feature and event types are named exports of `@sphere/draw`.
 
-```html
-<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.1/mapbox-gl-draw.js'></script>
+The API (methods, options, events, styling) is described in [docs/API.md](docs/API.md), custom modes in [docs/MODES.md](docs/MODES.md), and examples in [docs/EXAMPLES.md](docs/EXAMPLES.md). These documents come from upstream.
+
+## Changes from upstream
+
+- Written in TypeScript; the hand-written `index.d.ts` is gone.
+- No runtime dependencies: `hat`, `xtend`, `lodash.isequal` and the `@mapbox/*` GeoJSON helpers are replaced by small modules in `src/lib/`.
+- Fixed: polygons under the cursor are sorted by area again (the area was never computed, so a small polygon inside a large one could not be picked first), and multi geometries are ranked like their single counterparts.
+- Fixed: `combineFeatures()` / `uncombineFeatures()` no longer throw in modes other than `simple_select`.
+- Fixed: MultiPoint vertices get string coordinate paths like every other geometry.
+- Removed the `map.fire` monkey patch for an old mapbox-gl event signature.
+
+## Development
+
+From the repo root:
+
+```bash
+npm test -w @sphere/draw        # Vitest (happy-dom), tests next to the code
+npm run typecheck -w @sphere/draw
+npm run lint -w @sphere/draw
+npm run format                  # Biome, whole repo
 ```
 
-#### CSS
-
- ```js
-import '@hyvilo/maplibre-gl-draw/dist/maplibre-gl-draw.css'
- ```
-
-### Typescript
-
-Typescript definition files are available
-
-### Example usage
-
-```js
-maplibregl.accessToken = 'YOUR_ACCESS_TOKEN';
-
-var map = new maplibregl.Map({
-  container: 'map',
-  style: 'mapbox://styles/mapbox/streets-v12',
-  center: [40, -74.50],
-  zoom: 9
-});
-
-var Draw = new MapLibreDraw();
-
-// Map#addControl takes an optional second argument to set the position of the control.
-// If no position is specified the control defaults to `top-right`. See the docs
-// for more details: https://docs.mapbox.com/mapbox-gl-js/api/#map#addcontrol
-
-map.addControl(Draw, 'top-left');
-
-map.on('load', function() {
-  // ALL YOUR APPLICATION CODE
-});
-```
-
-
-### Developing and testing
-
-Install dependencies, build the source files and crank up a server via:
-
-```
-git clone git@github.com:mapbox/mapbox-gl-draw.git
-yarn install
-yarn start
-```
-
-### Testing
-
-```
-npm run test
-```
-
-### Publishing
-
-To GitHub and NPM:
-
-```
-npm version (major|minor|patch)
-git push --tags
-git push
-npm publish
-```
-
-To CDN:
-
-```
-# make sure you are authenticated for AWS
-git checkout v{x.y.z}
-yarn install
-yarn run prepublish
-aws s3 cp --recursive --acl public-read dist s3://mapbox-gl-js/plugins/mapbox-gl-draw/v{x.y.z}
-```
-
-Update the version number in [the GL JS example](https://github.com/mapbox/mapbox-gl-js/blob/publisher-production/docs/pages/example/mapbox-gl-draw.html).
-
-### Naming actions
-
-We're trying to follow standards when naming things. Here is a collection of links where we look for inspiration.
-
-- https://turfjs.org
-- https://shapely.readthedocs.io/en/latest/manual.html
+Test helpers and mocks (mock map, mock contexts, GeoJSON fixtures, event factories) are in `src/test-utils/`.

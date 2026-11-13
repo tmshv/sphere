@@ -1,7 +1,7 @@
 import type { Geometry } from "geojson"
 import { beforeAll, describe, expect, it, type MockInstance, vi } from "vitest"
 import * as Constants from "./constants"
-import MapboxDraw from "./index"
+import MapLibreDraw from "./index"
 import createMap, { type MockMap } from "./test-utils/create_map"
 import getGeoJSON from "./test-utils/get_geojson"
 import setupAfterNextRender, { type AfterNextRender } from "./test-utils/after_next_render"
@@ -30,14 +30,14 @@ function geometryOf<K extends Geometry["type"]>(
 describe("api", () => {
     let map: MockMap
     let afterNextRender: AfterNextRender
-    let Draw: MapboxDraw
-    let addSpy: MockInstance<MapboxDraw["add"]>
-    let deleteSpy: MockInstance<MapboxDraw["delete"]>
+    let Draw: MapLibreDraw
+    let addSpy: MockInstance<MapLibreDraw["add"]>
+    let deleteSpy: MockInstance<MapLibreDraw["delete"]>
 
     beforeAll(async () => {
         map = createMap()
         afterNextRender = setupAfterNextRender(map)
-        Draw = new MapboxDraw()
+        Draw = new MapLibreDraw()
         map.addControl(Draw)
         addSpy = vi.spyOn(Draw, "add")
         deleteSpy = vi.spyOn(Draw, "delete")

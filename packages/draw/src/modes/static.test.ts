@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
-import MapboxDraw from "../index"
+import MapLibreDraw from "../index"
 import setupAfterNextRender from "../test-utils/after_next_render"
 import createMap from "../test-utils/create_map"
 import getGeoJSON from "../test-utils/get_geojson"
@@ -20,7 +20,7 @@ const staticMode: DrawMode<object> = {
 
 describe("static", () => {
     const map = createMap()
-    const Draw = new MapboxDraw({
+    const Draw = new MapLibreDraw({
         modes: {
             static: staticMode,
         },
