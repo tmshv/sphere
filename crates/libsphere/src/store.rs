@@ -238,8 +238,17 @@ impl FeatureStore {
         self.bounds
     }
 
+    /// Schema as of construction or the last `refresh_schema`; `upsert` and
+    /// `remove` do not update it.
     pub fn schema(&self) -> &SourceSchema {
         &self.schema
+    }
+
+    /// Re-infer the schema (columns and geometry counts) from the live features.
+    /// One pass over every feature.
+    pub fn refresh_schema(&mut self) {
+        let schema = infer_source_schema(self.features());
+        self.schema = schema;
     }
 
     /// Returns IDs of features that match the given rect and mode.
@@ -478,6 +487,31 @@ mod tests {
             make_point_feature(3.0, 3.0, json!({"name": "Delta", "score": 5, "type": "airport"})),
             make_point_feature(4.0, 4.0, json!({"name": "Epsilon", "score": 50, "type": "helipad"})),
         ]
+    }
+
+    #[test]
+    fn refresh_schema_reflects_upserts_and_removes() {
+        let mut features = make_features();
+        for (i, f) in features.iter_mut().enumerate() {
+            f.id = Some(geojson::feature::Id::Number((i as i64 + 1).into()));
+        }
+        let mut store = FeatureStore::from_features(features);
+        let mut extra = make_point_feature(9.0, 9.0, json!({"height": 3}));
+        extra.id = Some(geojson::feature::Id::Number(9.into()));
+        store.upsert(extra);
+        store.remove(1);
+        assert!(!store.schema().columns.contains_key("height"));
+
+        store.refresh_schema();
+
+        assert_eq!(store.schema().columns.get("height").map(String::as_str), Some("Number"));
+        assert_eq!(store.schema().features_count, 5);
+        assert_eq!(store.schema().points_count, 5);
+
+        store.remove(9);
+        store.refresh_schema();
+        assert!(!store.schema().columns.contains_key("height"));
+        assert_eq!(store.schema().features_count, 4);
     }
 
     #[test]
