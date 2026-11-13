@@ -16,9 +16,10 @@ interface MockUiContext extends UiContext {
 interface MockContextOptions {
     position?: string
     controls?: DrawControls
+    keybindings?: boolean
 }
 
-function createMockContext({ position, controls }: MockContextOptions = {}) {
+function createMockContext({ position, controls, keybindings = true }: MockContextOptions = {}) {
     const container = document.createElement("div")
     document.body.appendChild(container)
 
@@ -31,7 +32,7 @@ function createMockContext({ position, controls }: MockContextOptions = {}) {
             container,
             options: {
                 controls,
-                keybindings: true,
+                keybindings,
             },
             events: {
                 changeMode: vi.fn(),
@@ -312,5 +313,24 @@ describe("ui buttons with all options.controls, no attribution control", () => {
         expect(trashButton.classList.contains("active"), "trash button is inactive").toBeFalsy()
 
         expect(context.events.changeMode, "changeMode not called").toHaveBeenCalledTimes(0)
+    })
+})
+
+describe("ui button titles", () => {
+    const drawControls: DrawControls = { line_string: true, point: true, polygon: true }
+
+    function titles(keybindings: boolean): (string | null)[] {
+        const { context, cleanup } = createMockContext({ controls: drawControls, keybindings })
+        const buttons = getButtons(ui(context).addButtons())
+        cleanup()
+        return buttons.map(button => button.getAttribute("title"))
+    }
+
+    it("show the keys that start each tool", () => {
+        expect(titles(true)).toEqual(["LineString tool (2)", "Polygon tool (3)", "Marker tool (1)"])
+    })
+
+    it("show no key hint without keybindings", () => {
+        expect(titles(false)).toEqual(["LineString tool", "Polygon tool", "Marker tool"])
     })
 })

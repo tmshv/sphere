@@ -33,6 +33,13 @@ export const types = {
     POINT: "point",
 } as const
 
+/** The key that starts each drawing tool when `keybindings` is on. */
+export const toolKeys = {
+    [types.POINT]: "1",
+    [types.LINE]: "2",
+    [types.POLYGON]: "3",
+} as const
+
 export const geojsonTypes = {
     FEATURE: "Feature",
     POLYGON: "Polygon",

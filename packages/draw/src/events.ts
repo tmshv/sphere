@@ -21,12 +21,14 @@ import type {
 const KEY_CODE_BACKSPACE = 8
 const KEY_CODE_DELETE = 46
 const KEY_CODE_DIGIT_0 = 48
-const KEY_CODE_DIGIT_1 = 49
-const KEY_CODE_DIGIT_2 = 50
-const KEY_CODE_DIGIT_3 = 51
 const KEY_CODE_DIGIT_9 = 57
 const PRIMARY_BUTTON_PRESSED = 1
 const MAP_CANVAS_CLASS = "maplibregl-canvas"
+
+/** Whether the key is the one that starts the tool. A digit key's key code is the digit's character code. */
+function isToolKey(event: { keyCode: number }, tool: keyof typeof Constants.toolKeys): boolean {
+    return event.keyCode === Constants.toolKeys[tool].charCodeAt(0)
+}
 
 /** A MapLibre `data` event; Draw re-adds its layers when the style is replaced. */
 export interface DataEvent {
@@ -225,11 +227,11 @@ export default function events(ctx: DrawContext): DrawEvents {
             mode().trash()
         } else if (isKeyModeValid(event.keyCode)) {
             mode().keydown(event)
-        } else if (event.keyCode === KEY_CODE_DIGIT_1 && ctx.options.controls.point) {
+        } else if (isToolKey(event, Constants.types.POINT) && ctx.options.controls.point) {
             changeMode(Constants.modes.DRAW_POINT)
-        } else if (event.keyCode === KEY_CODE_DIGIT_2 && ctx.options.controls.line_string) {
+        } else if (isToolKey(event, Constants.types.LINE) && ctx.options.controls.line_string) {
             changeMode(Constants.modes.DRAW_LINE_STRING)
-        } else if (event.keyCode === KEY_CODE_DIGIT_3 && ctx.options.controls.polygon) {
+        } else if (isToolKey(event, Constants.types.POLYGON) && ctx.options.controls.polygon) {
             changeMode(Constants.modes.DRAW_POLYGON)
         }
     }
