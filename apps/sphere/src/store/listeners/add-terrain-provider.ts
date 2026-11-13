@@ -14,6 +14,9 @@ listener.startListening({
         const hadTerrainSource = selectHasTerrainSource(listenerApi.getState())
         const sourceId = nextId("terrain")
         listenerApi.dispatch(actions.source.addRasterSource({ id: sourceId, name, location, tiles, dem }))
+        // Hidden in the Sources tree: elevation tiles drawn as a raster are noise. Terrain ignores tree visibility,
+        // so the source still drives terrain and hillshade.
+        listenerApi.dispatch(actions.source.setVisible({ id: sourceId, value: false }))
         if (!hadTerrainSource) {
             listenerApi.dispatch(actions.terrain.enableFor(sourceId))
         }

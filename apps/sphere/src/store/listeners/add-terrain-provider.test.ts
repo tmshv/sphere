@@ -47,6 +47,21 @@ describe("add-terrain-provider listener", () => {
         expect(dispatched.map(action => action.type)).not.toContain(actions.layer.addLayer.type)
     })
 
+    test("hides the added source in the Sources tree, so it is not drawn as a raster", async () => {
+        const { store, dispatched } = makeStore()
+        store.dispatch(actions.source.addTerrainProvider("mapterhorn"))
+        await settle()
+
+        const added = dispatched.find(action => action.type === actions.source.addRasterSource.type)
+        const id =
+            typeof added?.payload === "object" && added.payload && "id" in added.payload ? added.payload.id : undefined
+        const hidden = dispatched.filter(action => action.type === actions.source.setVisible.type)
+        expect(hidden.map(action => action.payload)).toEqual([{ id, value: false }])
+        expect(dispatched.map(action => action.type).indexOf(actions.source.setVisible.type)).toBeGreaterThan(
+            dispatched.map(action => action.type).indexOf(actions.source.addRasterSource.type),
+        )
+    })
+
     test("the added source is a raster source with the DEM encoding", () => {
         const state = sourceReducer(
             undefined,
@@ -56,6 +71,9 @@ describe("add-terrain-provider listener", () => {
             }),
         )
         expect(state.items.t).toMatchObject({ type: SourceType.Raster, dem: "terrarium" })
+        expect(sourceReducer(state, sourceSlice.actions.setVisible({ id: "t", value: false })).nodes.t?.visible).toBe(
+            false,
+        )
     })
 
     test("on an empty project enables terrain and hillshade for the new source", async () => {
