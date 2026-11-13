@@ -9,9 +9,11 @@ pub trait SpatialIndex: Send + Sync {
     fn insert(&mut self, idx: usize, bbox: Bbox);
     /// Return feature indices whose bbox intersects the query bbox.
     fn query_bbox(&self, bbox: Bbox) -> Vec<usize>;
+    /// Remove the entry for `idx` that was inserted with `bbox`. No-op when absent.
+    fn remove(&mut self, idx: usize, bbox: Bbox);
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 struct IndexEntry {
     idx: usize,
     envelope: AABB<[f64; 2]>,
@@ -65,6 +67,13 @@ impl SpatialIndex for RstarIndex {
         });
     }
 
+    fn remove(&mut self, idx: usize, bbox: Bbox) {
+        self.tree.remove(&IndexEntry {
+            idx,
+            envelope: AABB::from_corners([bbox.0, bbox.1], [bbox.2, bbox.3]),
+        });
+    }
+
     fn query_bbox(&self, bbox: Bbox) -> Vec<usize> {
         let query_envelope = AABB::from_corners([bbox.0, bbox.1], [bbox.2, bbox.3]);
         self.tree
@@ -110,6 +119,23 @@ mod tests {
         let index = RstarIndex::build(vec![(0, (0.0, 0.0, 1.0, 1.0))]);
         let results = index.query_bbox((10.0, 10.0, 11.0, 11.0));
         assert!(results.is_empty());
+    }
+
+    #[test]
+    fn test_rstar_remove() {
+        let mut index = RstarIndex::new();
+        index.insert(0, (0.0, 0.0, 1.0, 1.0));
+        index.insert(1, (0.5, 0.5, 1.5, 1.5));
+        index.remove(0, (0.0, 0.0, 1.0, 1.0));
+        assert_eq!(index.query_bbox((0.0, 0.0, 2.0, 2.0)), vec![1]);
+    }
+
+    #[test]
+    fn test_rstar_remove_wrong_bbox_keeps_entry() {
+        let mut index = RstarIndex::new();
+        index.insert(0, (0.0, 0.0, 1.0, 1.0));
+        index.remove(0, (5.0, 5.0, 6.0, 6.0));
+        assert_eq!(index.query_bbox((0.0, 0.0, 2.0, 2.0)), vec![0]);
     }
 
     #[test]

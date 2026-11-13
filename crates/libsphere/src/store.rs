@@ -20,7 +20,10 @@ pub struct PageResult {
 }
 
 pub struct FeatureStore {
-    features: Vec<Feature>,
+    /// Slots; `None` is a tombstone left by `remove` so other indices stay valid.
+    features: Vec<Option<Feature>>,
+    id_to_idx: HashMap<i64, usize>,
+    live_count: usize,
     feature_ids: Vec<Option<i64>>,
     feature_bboxes: Vec<Option<Bbox>>,
     index: Box<dyn SpatialIndex>,
@@ -57,8 +60,17 @@ impl FeatureStore {
 
         let index = Box::new(RstarIndex::build(entries));
 
+        let id_to_idx: HashMap<i64, usize> = feature_ids
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, id)| id.map(|id| (id, idx)))
+            .collect();
+        let live_count = features.len();
+
         Self {
-            features,
+            features: features.into_iter().map(Some).collect(),
+            id_to_idx,
+            live_count,
             feature_ids,
             feature_bboxes,
             index,
@@ -79,7 +91,9 @@ impl FeatureStore {
     ) -> PageResult {
         let mut matching_indices: Vec<usize> = (0..self.features.len())
             .filter(|&idx| {
-                let feature = &self.features[idx];
+                let Some(feature) = self.features[idx].as_ref() else {
+                    return false;
+                };
                 match filter {
                     None => true,
                     Some(expr) => {
@@ -113,8 +127,8 @@ impl FeatureStore {
 
         if let Some(col) = sort_column {
             matching_indices.sort_by(|&a, &b| {
-                let val_a = get_property_value(&self.features[a], col);
-                let val_b = get_property_value(&self.features[b], col);
+                let val_a = self.features[a].as_ref().and_then(|f| get_property_value(f, col));
+                let val_b = self.features[b].as_ref().and_then(|f| get_property_value(f, col));
                 let ord = compare_values(val_a, val_b);
                 if sort_asc { ord } else { ord.reverse() }
             });
@@ -126,7 +140,7 @@ impl FeatureStore {
             .into_iter()
             .skip(offset as usize)
             .take(limit as usize)
-            .filter_map(|idx| serde_json::to_value(&self.features[idx]).ok())
+            .filter_map(|idx| serde_json::to_value(self.features[idx].as_ref()?).ok())
             .collect();
 
         PageResult {
@@ -137,8 +151,70 @@ impl FeatureStore {
         }
     }
 
-    pub fn features(&self) -> &[Feature] {
-        &self.features
+    /// Live features in slot order (tombstones skipped).
+    pub fn features(&self) -> impl Iterator<Item = &Feature> {
+        self.features.iter().filter_map(|f| f.as_ref())
+    }
+
+    /// Insert or replace the feature with the same id. Returns the previous version.
+    /// Features without an integer id cannot be addressed and are ignored.
+    pub fn upsert(&mut self, feature: Feature) -> Option<Feature> {
+        let id = feature_id_i64(&feature)?;
+        let previous = self.remove_inner(id);
+        let bbox = compute_feature_bbox(&feature);
+        let idx = self.features.len();
+        self.features.push(Some(feature));
+        self.feature_ids.push(Some(id));
+        self.feature_bboxes.push(bbox);
+        self.id_to_idx.insert(id, idx);
+        self.live_count += 1;
+        if let Some(b) = bbox {
+            self.index.insert(idx, b);
+            self.bounds = Some(match self.bounds {
+                None => b,
+                Some(ob) => (ob.0.min(b.0), ob.1.min(b.1), ob.2.max(b.2), ob.3.max(b.3)),
+            });
+        }
+        previous
+    }
+
+    /// Remove the feature with the given id, leaving a tombstone. Returns it.
+    pub fn remove(&mut self, id: i64) -> Option<Feature> {
+        self.remove_inner(id)
+    }
+
+    /// Features for the given ids, in the order requested; missing ids are skipped.
+    pub fn get_by_ids(&self, ids: &[i64]) -> Vec<Feature> {
+        ids.iter()
+            .filter_map(|id| {
+                let idx = *self.id_to_idx.get(id)?;
+                self.features.get(idx)?.clone()
+            })
+            .collect()
+    }
+
+    fn remove_inner(&mut self, id: i64) -> Option<Feature> {
+        let idx = self.id_to_idx.remove(&id)?;
+        let feature = self.features[idx].take()?;
+        self.feature_ids[idx] = None;
+        let bbox = self.feature_bboxes[idx].take();
+        self.live_count -= 1;
+        if let Some(b) = bbox {
+            self.index.remove(idx, b);
+            if self.bounds.is_some_and(|ob| touches_edge(ob, b)) {
+                self.bounds = self.recompute_bounds();
+            }
+        }
+        Some(feature)
+    }
+
+    fn recompute_bounds(&self) -> Option<Bbox> {
+        self.feature_bboxes.iter().flatten().fold(None, |acc, b| {
+            Some(match acc {
+                None => *b,
+                Some(ob) => (ob.0.min(b.0), ob.1.min(b.1), ob.2.max(b.2), ob.3.max(b.3)),
+            })
+        })
     }
 
     /// Returns all features that match the given filter expression as JSON values.
@@ -149,7 +225,7 @@ impl FeatureStore {
     }
 
     pub fn feature_count(&self) -> u64 {
-        self.features.len() as u64
+        self.live_count as u64
     }
 
     pub fn get_bounds(&self) -> Option<Bbox> {
@@ -186,7 +262,7 @@ impl FeatureStore {
                     fb.0 >= west && fb.1 >= south && fb.2 <= east && fb.3 <= north
                 }
                 "intersect" => {
-                    let geometry = match &self.features[idx].geometry {
+                    let geometry = match self.features[idx].as_ref().and_then(|f| f.geometry.as_ref()) {
                         Some(g) => g,
                         None => continue,
                     };
@@ -208,6 +284,10 @@ impl FeatureStore {
         result.sort();
         result
     }
+}
+
+fn touches_edge(outer: Bbox, inner: Bbox) -> bool {
+    inner.0 <= outer.0 || inner.1 <= outer.1 || inner.2 >= outer.2 || inner.3 >= outer.3
 }
 
 fn feature_id_i64(feature: &Feature) -> Option<i64> {
@@ -810,5 +890,108 @@ mod tests {
             store.query_rect([0.0, 0.0, 20.0, 20.0], "include"),
             vec![1i64]
         );
+    }
+
+    fn make_id_point(id: i64, lon: f64, lat: f64) -> Feature {
+        let mut f = make_point_feature(lon, lat, json!({"name": format!("f{id}")}));
+        f.id = Some(geojson::feature::Id::Number(id.into()));
+        f
+    }
+
+    fn make_id_store() -> FeatureStore {
+        FeatureStore::from_features(vec![
+            make_id_point(1, 0.0, 0.0),
+            make_id_point(2, 1.0, 1.0),
+            make_id_point(3, 2.0, 2.0),
+        ])
+    }
+
+    const WORLD: [f64; 4] = [-180.0, -90.0, 180.0, 90.0];
+
+    #[test]
+    fn test_upsert_new_feature_is_queryable_and_grows_bounds() {
+        let mut store = make_id_store();
+        let prev = store.upsert(make_id_point(4, 10.0, 10.0));
+        assert!(prev.is_none());
+        assert_eq!(store.feature_count(), 4);
+        assert_eq!(store.query_rect([9.0, 9.0, 11.0, 11.0], "include"), vec![4]);
+        assert_eq!(store.get_bounds(), Some((0.0, 0.0, 10.0, 10.0)));
+    }
+
+    #[test]
+    fn test_upsert_existing_replaces_and_returns_previous() {
+        let mut store = make_id_store();
+        let prev = store.upsert(make_id_point(2, 20.0, 20.0)).expect("previous");
+        assert_eq!(prev.geometry.unwrap().value, GeoValue::Point(vec![1.0, 1.0]));
+        assert_eq!(store.feature_count(), 3);
+        assert!(store.query_rect([0.5, 0.5, 1.5, 1.5], "include").is_empty());
+        assert_eq!(store.query_rect([19.0, 19.0, 21.0, 21.0], "intersect"), vec![2]);
+    }
+
+    #[test]
+    fn test_remove_makes_feature_unfindable() {
+        let mut store = make_id_store();
+        let removed = store.remove(2).expect("removed");
+        assert_eq!(removed.geometry.unwrap().value, GeoValue::Point(vec![1.0, 1.0]));
+        assert_eq!(store.feature_count(), 2);
+        assert_eq!(store.query_rect(WORLD, "include"), vec![1, 3]);
+        assert_eq!(store.query_rect(WORLD, "intersect"), vec![1, 3]);
+        assert_eq!(store.features().count(), 2);
+        assert_eq!(store.query_page(0, 10, None, None, true).total_matching, 2);
+        assert_eq!(store.get_filtered(None).len(), 2);
+    }
+
+    #[test]
+    fn test_remove_missing_returns_none() {
+        let mut store = make_id_store();
+        assert!(store.remove(99).is_none());
+        assert_eq!(store.feature_count(), 3);
+    }
+
+    #[test]
+    fn test_remove_keeps_other_indices_valid() {
+        let mut store = make_id_store();
+        store.remove(1);
+        assert_eq!(store.query_rect([1.5, 1.5, 2.5, 2.5], "include"), vec![3]);
+        let got = store.get_by_ids(&[3, 2]);
+        assert_eq!(got.len(), 2);
+        // slot reuse by a new feature does not disturb others
+        store.upsert(make_id_point(5, 7.0, 7.0));
+        assert_eq!(store.query_rect(WORLD, "include"), vec![2, 3, 5]);
+    }
+
+    #[test]
+    fn test_remove_recomputes_bounds() {
+        let mut store = make_id_store();
+        store.remove(3);
+        assert_eq!(store.get_bounds(), Some((0.0, 0.0, 1.0, 1.0)));
+        store.remove(1);
+        store.remove(2);
+        assert!(store.get_bounds().is_none());
+    }
+
+    #[test]
+    fn test_remove_interior_keeps_bounds() {
+        let mut store = make_id_store();
+        store.remove(2);
+        assert_eq!(store.get_bounds(), Some((0.0, 0.0, 2.0, 2.0)));
+    }
+
+    #[test]
+    fn test_get_by_ids_skips_missing_and_removed() {
+        let mut store = make_id_store();
+        store.remove(2);
+        let got = store.get_by_ids(&[1, 2, 99, 3]);
+        let ids: Vec<Option<i64>> = got.iter().map(feature_id_i64).collect();
+        assert_eq!(ids, vec![Some(1), Some(3)]);
+    }
+
+    #[test]
+    fn test_upsert_after_remove_same_id() {
+        let mut store = make_id_store();
+        store.remove(2);
+        assert!(store.upsert(make_id_point(2, 8.0, 8.0)).is_none());
+        assert_eq!(store.feature_count(), 3);
+        assert_eq!(store.query_rect([7.0, 7.0, 9.0, 9.0], "include"), vec![2]);
     }
 }

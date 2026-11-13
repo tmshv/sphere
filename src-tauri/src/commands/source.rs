@@ -338,15 +338,14 @@ fn compute_column_stats(
     let id_filter: Option<std::collections::HashSet<i64>> =
         ids.map(|v| v.into_iter().collect());
 
-    let all_features = fs.features();
-    let features_iter: Box<dyn Iterator<Item = &geojson::Feature>> = match &id_filter {
-        Some(set) => Box::new(all_features.iter().filter(move |f| match &f.id {
+        let features_iter: Box<dyn Iterator<Item = &geojson::Feature>> = match &id_filter {
+        Some(set) => Box::new(fs.features().filter(move |f| match &f.id {
             Some(geojson::feature::Id::Number(n)) => {
                 n.as_i64().map(|v| set.contains(&v)).unwrap_or(false)
             }
             _ => false,
         })),
-        None => Box::new(all_features.iter()),
+        None => Box::new(fs.features()),
     };
 
     let mut count = 0u64;
