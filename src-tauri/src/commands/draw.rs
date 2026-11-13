@@ -93,8 +93,8 @@ impl From<EditOpInput> for EditOp {
     }
 }
 
-/// Mode passed to `FeatureStore::query_rect` for a bbox working set: every
-/// feature that touches the box, not only the ones inside it.
+/// Mode passed to `FeatureStore::query_rect_limited` for a bbox working set:
+/// every feature that touches the box, not only the ones inside it.
 const BBOX_MODE: &str = "intersect";
 
 fn not_found(id: &str) -> String {
@@ -107,6 +107,10 @@ fn no_session(id: &str) -> String {
 
 fn not_in_memory(id: &str) -> String {
     format!("Source {id} is not an in-memory source")
+}
+
+fn duplicate_ids(id: &str) -> String {
+    format!("Source {id} has duplicate feature ids and cannot be edited")
 }
 
 /// The store of an in-memory source, the only kind a session can edit.
@@ -143,24 +147,24 @@ fn feature_collection_json(features: Vec<Feature>) -> Result<String, String> {
     serde_json::to_string(&fc).map_err(|e| e.to_string())
 }
 
-/// At most `limit` features for `scope`, so an over-cap scope never copies more
-/// than one feature past the cap.
-fn scope_features(store: &FeatureStore, scope: WorkingScope, limit: usize) -> Vec<Feature> {
+/// The features of `scope`, or `None` when more than `cap` match. An over-cap
+/// scope never copies more than one feature past the cap, and a bbox scope stops
+/// testing geometries once the cap is passed.
+fn scope_features(store: &FeatureStore, scope: WorkingScope, cap: usize) -> Option<Vec<Feature>> {
     match scope {
         WorkingScope::Ids { ids } => {
             let mut seen = HashSet::new();
-            ids.into_iter()
+            let features: Vec<Feature> = ids
+                .into_iter()
                 .filter(|id| seen.insert(*id))
                 .filter_map(|id| store.get_by_ids(&[id]).into_iter().next())
-                .take(limit)
-                .collect()
+                .take(cap.saturating_add(1))
+                .collect();
+            (features.len() <= cap).then_some(features)
         }
         WorkingScope::Bbox { bbox } => {
-            let mut ids = store.query_rect(bbox, BBOX_MODE);
-            ids.sort_unstable();
-            ids.dedup();
-            ids.truncate(limit);
-            store.get_by_ids(&ids)
+            let (ids, over_cap) = store.query_rect_limited(bbox, BBOX_MODE, cap);
+            (!over_cap).then(|| store.get_by_ids(&ids))
         }
     }
 }
@@ -215,8 +219,13 @@ fn end_session(
             SessionEnd::Commit => session.commit(),
             SessionEnd::Rollback => session.rollback(&mut fs),
         };
-        fs.refresh_schema();
-        sync_source_data(&mut entry.source.data, &fs, &touched);
+        // Both are O(n). During a session neither the source data nor the schema
+        // is updated, so after a rollback, or a commit that changed nothing, they
+        // still describe the store.
+        if matches!(end, SessionEnd::Commit) && !touched.is_empty() {
+            fs.refresh_schema();
+            sync_source_data(&mut entry.source.data, &fs, &touched);
+        }
         let vanished: Vec<i64> = touched
             .iter()
             .copied()
@@ -230,12 +239,16 @@ fn end_session(
     Ok(touched)
 }
 
-/// Start a draw session on an in-memory source.
+/// Start a draw session on an in-memory source. A source whose features share an
+/// id cannot be edited: ids address features, so an edit would hit the wrong one.
 #[tauri::command]
 pub async fn draw_begin(id: String, storage: State<'_, SourceStorage>) -> Result<(), String> {
     let mut sources = storage.store.lock().unwrap();
     let entry = sources.get_mut(&id).ok_or_else(|| not_found(&id))?;
-    editable_store(entry, &id)?;
+    let store = editable_store(entry, &id)?;
+    if store.read().unwrap().has_duplicate_ids() {
+        return Err(duplicate_ids(&id));
+    }
     if entry.session.is_some() {
         return Err(format!("Source {id} already has a draw session"));
     }
@@ -253,9 +266,9 @@ pub async fn draw_get_working_set(
 ) -> Result<WorkingSet, String> {
     let store = session_store(&storage, &id)?;
     let fs = store.read().unwrap();
-    let features = scope_features(&fs, scope, cap.saturating_add(1));
-    let over_cap = features.len() > cap;
-    let features = if over_cap { Vec::new() } else { features };
+    let features = scope_features(&fs, scope, cap);
+    let over_cap = features.is_none();
+    let features = features.unwrap_or_default();
     Ok(WorkingSet {
         features: feature_collection_json(features)?,
         over_cap,
@@ -301,8 +314,7 @@ pub async fn draw_rollback(
 mod tests {
     use super::*;
     use crate::commands::source::{
-        source_add_data, source_bounds, source_get, source_get_schema, source_query_page,
-        source_replace,
+        source_add_data, source_bounds, source_get, source_get_schema, source_query_page, source_replace,
     };
     use crate::state::SourceEntry;
     use geojson::{Geometry, Value as GeoValue};
@@ -473,6 +485,29 @@ mod tests {
         let err = draw_begin("file-source".into(), app.state()).await.unwrap_err();
         assert_eq!(err, "Source file-source is not an in-memory source");
         assert!(!has_session(&app, "file-source"));
+    }
+
+    #[tokio::test]
+    async fn begin_rejects_a_source_with_duplicate_feature_ids() {
+        let app = test_app();
+        let mut a = point(0.0, 0.0, json!({ "name": "a" }));
+        let mut b = point(1.0, 1.0, json!({ "name": "b" }));
+        a.id = Some(geojson::feature::Id::Number(1.into()));
+        b.id = Some(geojson::feature::Id::Number(1.into()));
+        let fc = FeatureCollection {
+            bbox: None,
+            features: vec![a, b],
+            foreign_members: None,
+        };
+        let id = source_add_data("dupes".into(), fc, app.state()).await.unwrap().id;
+
+        let err = draw_begin(id.clone(), app.state()).await.unwrap_err();
+
+        assert_eq!(
+            err,
+            format!("Source {id} has duplicate feature ids and cannot be edited")
+        );
+        assert!(!has_session(&app, &id));
     }
 
     #[tokio::test]
@@ -814,6 +849,77 @@ mod tests {
         assert_eq!(selected(&app), vec![1]);
     }
 
+    /// Add a feature to the store behind the session's back. Only an end that
+    /// re-scans the store (schema refresh) or rebuilds the source data sees it.
+    fn sneak_into_store(app: &App<MockRuntime>, id: &str, feature_id: i64) {
+        let sources = app.state::<SourceStorage>();
+        let sources = sources.store.lock().unwrap();
+        let store = sources.get(id).unwrap().store.clone().unwrap();
+        let mut feature = point(70.0, 70.0, json!({ "sneaky": true }));
+        feature.id = Some(geojson::feature::Id::Number(feature_id.into()));
+        store.write().unwrap().upsert(feature);
+    }
+
+    #[tokio::test]
+    async fn rollback_does_not_rescan_the_store_or_rebuild_the_source_data() {
+        let app = test_app();
+        let id = add_source(&app).await;
+        let before = source_get(id.clone(), app.state()).await.unwrap();
+        draw_begin(id.clone(), app.state()).await.unwrap();
+        draw_apply(id.clone(), op(json!({ "type": "delete", "id": 1 })), app.state())
+            .await
+            .unwrap();
+        sneak_into_store(&app, &id, 9);
+
+        draw_rollback(id.clone(), app.state(), app.state()).await.unwrap();
+
+        let schema = source_get_schema(id.clone(), app.state()).await.unwrap();
+        assert!(!schema.columns.contains_key("sneaky"), "schema was not refreshed");
+        assert_eq!(schema.features_count, 3);
+        assert_eq!(
+            source_get(id, app.state()).await.unwrap(),
+            before,
+            "source data was not synced"
+        );
+    }
+
+    #[tokio::test]
+    async fn commit_of_an_untouched_session_does_not_rescan_the_store() {
+        let app = test_app();
+        let id = add_source(&app).await;
+        let before = source_get(id.clone(), app.state()).await.unwrap();
+        draw_begin(id.clone(), app.state()).await.unwrap();
+        sneak_into_store(&app, &id, 9);
+
+        let touched = draw_commit(id.clone(), app.state(), app.state()).await.unwrap();
+
+        assert!(touched.is_empty());
+        assert!(!has_session(&app, &id));
+        let schema = source_get_schema(id.clone(), app.state()).await.unwrap();
+        assert!(!schema.columns.contains_key("sneaky"), "schema was not refreshed");
+        assert_eq!(source_get(id, app.state()).await.unwrap(), before);
+    }
+
+    #[tokio::test]
+    async fn working_set_by_bbox_over_cap_with_zero_cap() {
+        let app = test_app();
+        let id = add_source(&app).await;
+        draw_begin(id.clone(), app.state()).await.unwrap();
+
+        let hit = WorkingScope::Bbox {
+            bbox: [-1.0, -1.0, 1.0, 1.0],
+        };
+        let miss = WorkingScope::Bbox {
+            bbox: [40.0, 40.0, 41.0, 41.0],
+        };
+        let hit_ws = draw_get_working_set(id.clone(), hit, 0, app.state()).await.unwrap();
+        let miss_ws = draw_get_working_set(id, miss, 0, app.state()).await.unwrap();
+
+        assert!(hit_ws.over_cap);
+        assert!(ids_of(&hit_ws.features).is_empty());
+        assert!(!miss_ws.over_cap);
+    }
+
     // --- session lifetime ---
 
     #[tokio::test]
@@ -832,7 +938,6 @@ mod tests {
         assert!(!has_session(&app, &id));
         draw_begin(id, app.state()).await.unwrap();
     }
-
 
     #[tokio::test]
     async fn removing_the_source_ends_the_session() {

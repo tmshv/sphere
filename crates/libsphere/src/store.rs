@@ -29,7 +29,16 @@ pub struct FeatureStore {
     index: Box<dyn SpatialIndex>,
     schema: SourceSchema,
     bounds: Option<Bbox>,
+    /// Two input features shared an integer id. `id_to_idx` keeps only the last
+    /// of them, so id-addressed edits would hit the wrong feature. `upsert` and
+    /// `remove` never add a duplicate, so this is settled at construction.
+    duplicate_ids: bool,
 }
+
+/// `query_rect` mode: the feature's bbox lies fully inside the rect.
+const RECT_MODE_INCLUDE: &str = "include";
+/// `query_rect` mode: the feature's geometry touches the rect.
+const RECT_MODE_INTERSECT: &str = "intersect";
 
 impl FeatureStore {
     pub fn from_features(features: Vec<Feature>) -> Self {
@@ -65,6 +74,7 @@ impl FeatureStore {
             .enumerate()
             .filter_map(|(idx, id)| id.map(|id| (id, idx)))
             .collect();
+        let duplicate_ids = id_to_idx.len() != feature_ids.iter().flatten().count();
         let live_count = features.len();
 
         Self {
@@ -76,7 +86,14 @@ impl FeatureStore {
             index,
             schema,
             bounds: overall_bbox,
+            duplicate_ids,
         }
+    }
+
+    /// Whether two features were built with the same integer id. Such a store
+    /// cannot be edited by id safely.
+    pub fn has_duplicate_ids(&self) -> bool {
+        self.duplicate_ids
     }
 
     /// Paginated query with optional MapLibre expression filter.
@@ -298,6 +315,58 @@ impl FeatureStore {
         }
         result.sort();
         result
+    }
+
+    /// `query_rect` that gives up once more than `limit` features match: returns
+    /// the matching ids, sorted, and `false`, or at most `limit` of them and
+    /// `true` when there are more. The spatial index is walked lazily and a
+    /// candidate whose bbox lies inside the rect matches without a geometry test,
+    /// so a rect over a huge source costs about `limit` candidates, not all of them.
+    pub fn query_rect_limited(&self, bbox: [f64; 4], mode: &str, limit: usize) -> (Vec<i64>, bool) {
+        let [west, south, east, north] = bbox;
+        let rect = geo::Rect::new(
+            geo::coord! { x: west, y: south },
+            geo::coord! { x: east, y: north },
+        );
+        let mut result = Vec::new();
+        let mut over_limit = false;
+        for idx in self.index.query_bbox_iter((west, south, east, north)) {
+            let (Some(id), Some(fb)) = (self.feature_ids[idx], self.feature_bboxes[idx]) else {
+                continue;
+            };
+            let inside = fb.0 >= west && fb.1 >= south && fb.2 <= east && fb.3 <= north;
+            let matches = match mode {
+                RECT_MODE_INCLUDE => inside,
+                RECT_MODE_INTERSECT => self.has_geometry(idx) && (inside || self.intersects_rect(idx, &rect)),
+                _ => false,
+            };
+            if !matches {
+                continue;
+            }
+            if result.len() == limit {
+                over_limit = true;
+                break;
+            }
+            result.push(id);
+        }
+        result.sort();
+        (result, over_limit)
+    }
+
+    fn has_geometry(&self, idx: usize) -> bool {
+        self.features[idx].as_ref().and_then(|f| f.geometry.as_ref()).is_some()
+    }
+
+    /// Exact geometry test against `rect`. Geometries that fail to convert, or
+    /// that would panic in geo's relate algorithm, do not match.
+    fn intersects_rect(&self, idx: usize, rect: &geo::Rect<f64>) -> bool {
+        let Some(geometry) = self.features[idx].as_ref().and_then(|f| f.geometry.as_ref()) else {
+            return false;
+        };
+        let Ok(geo_geom) = geo::Geometry::<f64>::try_from(geometry) else {
+            return false;
+        };
+        catch_unwind(AssertUnwindSafe(|| rect.intersects(&geo_geom))).unwrap_or(false)
     }
 }
 
@@ -1064,5 +1133,100 @@ mod tests {
         store.remove(3);
         assert_eq!(store.max_id(), Some(2));
         assert_eq!(FeatureStore::from_features(vec![]).max_id(), None);
+    }
+
+    #[test]
+    fn test_has_duplicate_ids_is_false_for_unique_ids() {
+        let mut store = make_id_store();
+        assert!(!store.has_duplicate_ids());
+        store.upsert(make_id_point(2, 9.0, 9.0));
+        store.remove(1);
+        assert!(!store.has_duplicate_ids());
+        assert!(!FeatureStore::from_features(vec![]).has_duplicate_ids());
+    }
+
+    #[test]
+    fn test_has_duplicate_ids_ignores_features_without_an_id() {
+        let store = FeatureStore::from_features(vec![
+            make_point_feature(0.0, 0.0, json!({})),
+            make_point_feature(1.0, 1.0, json!({})),
+            make_id_point(1, 2.0, 2.0),
+        ]);
+        assert!(!store.has_duplicate_ids());
+    }
+
+    #[test]
+    fn test_has_duplicate_ids_is_true_when_two_features_share_an_id() {
+        let store = FeatureStore::from_features(vec![
+            make_id_point(1, 0.0, 0.0),
+            make_id_point(1, 1.0, 1.0),
+            make_id_point(2, 2.0, 2.0),
+        ]);
+        assert!(store.has_duplicate_ids());
+    }
+
+    /// `count` points along the diagonal, ids 1..=count.
+    fn diagonal_store(count: i64) -> FeatureStore {
+        FeatureStore::from_features((1..=count).map(|i| point_feature(i, i as f64, i as f64)).collect())
+    }
+
+    #[test]
+    fn test_query_rect_limited_matches_query_rect_under_the_limit() {
+        let features = vec![
+            square_feature(1, 0.1, 0.1, 0.5, 0.5),
+            square_feature(2, 0.8, 0.8, 5.0, 5.0),
+            square_feature(3, 10.0, 10.0, 11.0, 11.0),
+            point_feature(4, 0.5, 0.5),
+            polygon_feature(5, &[(0.0, 0.0), (2.0, 0.0), (0.0, 2.0), (0.0, 0.0)]),
+        ];
+        let store = FeatureStore::from_features(features);
+        for rect in [[0.0, 0.0, 1.0, 1.0], [1.5, 1.5, 3.0, 3.0], WORLD] {
+            for mode in ["include", "intersect", "bogus"] {
+                let (ids, over) = store.query_rect_limited(rect, mode, 10);
+                assert_eq!(ids, store.query_rect(rect, mode), "{rect:?} {mode}");
+                assert!(!over, "{rect:?} {mode}");
+            }
+        }
+    }
+
+    #[test]
+    fn test_query_rect_limited_at_the_limit_is_not_over() {
+        let store = diagonal_store(3);
+        let (ids, over) = store.query_rect_limited(WORLD, "intersect", 3);
+        assert_eq!(ids, vec![1, 2, 3]);
+        assert!(!over);
+    }
+
+    #[test]
+    fn test_query_rect_limited_stops_past_the_limit() {
+        let store = diagonal_store(50);
+        for mode in ["include", "intersect"] {
+            let (ids, over) = store.query_rect_limited(WORLD, mode, 5);
+            assert!(over, "{mode}");
+            assert_eq!(ids.len(), 5, "{mode}: at most `limit` ids come back");
+            assert!(ids.windows(2).all(|w| w[0] < w[1]), "{mode}: sorted");
+        }
+    }
+
+    #[test]
+    fn test_query_rect_limited_zero_limit() {
+        let store = diagonal_store(2);
+        assert_eq!(store.query_rect_limited(WORLD, "intersect", 0), (vec![], true));
+        assert_eq!(store.query_rect_limited([100.0, 0.0, 101.0, 1.0], "intersect", 0), (vec![], false));
+    }
+
+    #[test]
+    fn test_query_rect_limited_skips_removed_and_geometry_less_features() {
+        let mut store = diagonal_store(3);
+        store.remove(2);
+        let no_geometry = Feature {
+            bbox: Some(vec![0.5, 0.5, 0.6, 0.6]),
+            geometry: None,
+            id: Some(geojson::feature::Id::Number(9.into())),
+            properties: None,
+            foreign_members: None,
+        };
+        store.upsert(no_geometry);
+        assert_eq!(store.query_rect_limited(WORLD, "intersect", 10), (vec![1, 3], false));
     }
 }

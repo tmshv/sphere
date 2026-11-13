@@ -9,6 +9,9 @@ pub trait SpatialIndex: Send + Sync {
     fn insert(&mut self, idx: usize, bbox: Bbox);
     /// Return feature indices whose bbox intersects the query bbox.
     fn query_bbox(&self, bbox: Bbox) -> Vec<usize>;
+    /// Lazily yield feature indices whose bbox intersects the query bbox, so a
+    /// caller that stops early does not walk the whole tree.
+    fn query_bbox_iter<'a>(&'a self, bbox: Bbox) -> Box<dyn Iterator<Item = usize> + 'a>;
     /// Remove the entry for `idx` that was inserted with `bbox`. No-op when absent.
     fn remove(&mut self, idx: usize, bbox: Bbox);
 }
@@ -81,6 +84,15 @@ impl SpatialIndex for RstarIndex {
             .map(|e| e.idx)
             .collect()
     }
+
+    fn query_bbox_iter<'a>(&'a self, bbox: Bbox) -> Box<dyn Iterator<Item = usize> + 'a> {
+        let query_envelope = AABB::from_corners([bbox.0, bbox.1], [bbox.2, bbox.3]);
+        Box::new(
+            self.tree
+                .locate_in_envelope_intersecting(&query_envelope)
+                .map(|e| e.idx),
+        )
+    }
 }
 
 #[cfg(test)]
@@ -136,6 +148,22 @@ mod tests {
         index.insert(0, (0.0, 0.0, 1.0, 1.0));
         index.remove(0, (5.0, 5.0, 6.0, 6.0));
         assert_eq!(index.query_bbox((0.0, 0.0, 2.0, 2.0)), vec![0]);
+    }
+
+    #[test]
+    fn test_rstar_query_bbox_iter_matches_query_bbox() {
+        let entries = vec![
+            (0, (0.0, 0.0, 1.0, 1.0)),
+            (1, (5.0, 5.0, 6.0, 6.0)),
+            (2, (0.5, 0.5, 1.5, 1.5)),
+        ];
+        let index = RstarIndex::build(entries);
+        let mut lazy: Vec<usize> = index.query_bbox_iter((0.0, 0.0, 1.0, 1.0)).collect();
+        let mut eager = index.query_bbox((0.0, 0.0, 1.0, 1.0));
+        lazy.sort();
+        eager.sort();
+        assert_eq!(lazy, eager);
+        assert_eq!(index.query_bbox_iter((0.0, 0.0, 100.0, 100.0)).take(1).count(), 1);
     }
 
     #[test]

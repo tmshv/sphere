@@ -29,7 +29,9 @@ pub enum EditOp {
 pub struct EditSession {
     journal: BTreeMap<i64, Option<Feature>>,
     aliases: HashMap<String, i64>,
-    next_id: i64,
+    /// Lower bound for the next created id; `None` until the first `Create`,
+    /// which scans the store for its max id once. Only grows afterwards.
+    next_id: Option<i64>,
 }
 
 fn edit_err(detail: impl Into<String>) -> SphereError {
@@ -51,11 +53,11 @@ impl EditSession {
                 // Greater than every live id and every id the journal has seen,
                 // so a deleted feature's id is never handed out again.
                 let journal_next = self.journal.last_key_value().map_or(1, |(k, _)| k + 1);
-                let id = self
+                let next_id = *self
                     .next_id
-                    .max(journal_next)
-                    .max(store.max_id().map_or(1, |m| m + 1));
-                self.next_id = id + 1;
+                    .get_or_insert_with(|| store.max_id().map_or(1, |m| m + 1));
+                let id = next_id.max(journal_next);
+                self.next_id = Some(id + 1);
                 feature.id = Some(Id::Number(id.into()));
                 self.journal.entry(id).or_insert(None);
                 self.aliases.insert(draw_id, id);
@@ -321,6 +323,26 @@ mod tests {
         assert!(EditSession::new().commit().is_empty());
         assert!(EditSession::new().rollback(&mut s).is_empty());
         assert_eq!(snapshot(&s), before);
+    }
+
+    #[test]
+    fn create_scans_the_store_for_the_max_id_once_per_session() {
+        let mut s = store();
+        let mut e = EditSession::new();
+        assert_eq!(e.apply(&mut s, create("a")).unwrap(), Some(3));
+        // Not an edit of this session: only visible if Create re-scans the store.
+        s.upsert(pt(Some(100), 9.0, "outside"));
+        assert_eq!(e.apply(&mut s, create("b")).unwrap(), Some(4));
+    }
+
+    #[test]
+    fn create_after_deleting_the_max_id_in_a_later_create_stays_above_it() {
+        let mut s = store();
+        let mut e = EditSession::new();
+        assert_eq!(e.apply(&mut s, create("a")).unwrap(), Some(3));
+        e.apply(&mut s, EditOp::Delete { id: EditRef::Id(2) }).unwrap();
+        e.apply(&mut s, EditOp::Delete { id: EditRef::DrawId("a".into()) }).unwrap();
+        assert_eq!(e.apply(&mut s, create("b")).unwrap(), Some(4));
     }
 
     #[test]
