@@ -18,7 +18,7 @@ const DEFAULT_TOP_VALUES: usize = 10;
 
 #[derive(Serialize, Debug)]
 pub struct SourceAddResult {
-    id: String,
+    pub(crate) id: String,
     name: String,
     location: String,
     source_type: String,
@@ -476,6 +476,8 @@ pub async fn source_replace(
     }
     entry.source.data = SourceData::InMemory(new_fc);
     entry.store = Some(new_store);
+    // The journal refers to the replaced features: the session cannot survive.
+    entry.session = None;
     Ok(())
 }
 
@@ -530,6 +532,8 @@ pub async fn source_patch(
     assign_feature_ids(fc);
 
     entry.store = Some(shared_feature_store(build_feature_store(&entry.source)?));
+    // The store was rebuilt from the source data: the session cannot survive.
+    entry.session = None;
     Ok(())
 }
 

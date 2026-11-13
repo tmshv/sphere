@@ -1,5 +1,5 @@
 use libsphere::source::Source;
-use libsphere::FeatureStore;
+use libsphere::{EditSession, FeatureStore};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
@@ -15,11 +15,18 @@ pub fn shared_feature_store(store: FeatureStore) -> SharedFeatureStore {
 pub struct SourceEntry {
     pub source: Source,
     pub store: Option<SharedFeatureStore>,
+    /// Active draw session, if any. It lives in the entry so that removing or
+    /// replacing the entry ends it.
+    pub session: Option<EditSession>,
 }
 
 impl SourceEntry {
     pub fn new(source: Source, store: Option<SharedFeatureStore>) -> Self {
-        Self { source, store }
+        Self {
+            source,
+            store,
+            session: None,
+        }
     }
 }
 
