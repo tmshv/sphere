@@ -157,7 +157,8 @@ impl FeatureStore {
     }
 
     /// Insert or replace the feature with the same id. Returns the previous version.
-    /// Features without an integer id cannot be addressed and are ignored.
+    /// Features without an integer id cannot be addressed: they are ignored and
+    /// `None` is returned.
     pub fn upsert(&mut self, feature: Feature) -> Option<Feature> {
         let id = feature_id_i64(&feature)?;
         let previous = self.remove_inner(id);
@@ -929,6 +930,27 @@ mod tests {
     }
 
     #[test]
+    fn test_upsert_existing_is_reflected_in_features_and_page() {
+        let mut store = make_id_store();
+        store.upsert(make_id_point(2, 20.0, 20.0));
+        let geoms: Vec<GeoValue> = store
+            .features()
+            .filter(|f| feature_id_i64(f) == Some(2))
+            .filter_map(|f| f.geometry.as_ref().map(|g| g.value.clone()))
+            .collect();
+        assert_eq!(geoms, vec![GeoValue::Point(vec![20.0, 20.0])]);
+        let page = store.query_page(0, 10, None, None, true);
+        assert_eq!(page.total_matching, 3);
+        let coords: Vec<&Value> = page
+            .features
+            .iter()
+            .filter(|f| f["id"] == json!(2))
+            .map(|f| &f["geometry"]["coordinates"])
+            .collect();
+        assert_eq!(coords, vec![&json!([20.0, 20.0])]);
+    }
+
+    #[test]
     fn test_remove_makes_feature_unfindable() {
         let mut store = make_id_store();
         let removed = store.remove(2).expect("removed");
@@ -954,8 +976,9 @@ mod tests {
         store.remove(1);
         assert_eq!(store.query_rect([1.5, 1.5, 2.5, 2.5], "include"), vec![3]);
         let got = store.get_by_ids(&[3, 2]);
-        assert_eq!(got.len(), 2);
-        // slot reuse by a new feature does not disturb others
+        let ids: Vec<Option<i64>> = got.iter().map(feature_id_i64).collect();
+        assert_eq!(ids, vec![Some(3), Some(2)]);
+        // appending a new feature after a tombstone does not disturb others
         store.upsert(make_id_point(5, 7.0, 7.0));
         assert_eq!(store.query_rect(WORLD, "include"), vec![2, 3, 5]);
     }

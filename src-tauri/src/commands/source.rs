@@ -338,7 +338,7 @@ fn compute_column_stats(
     let id_filter: Option<std::collections::HashSet<i64>> =
         ids.map(|v| v.into_iter().collect());
 
-        let features_iter: Box<dyn Iterator<Item = &geojson::Feature>> = match &id_filter {
+    let features_iter: Box<dyn Iterator<Item = &geojson::Feature>> = match &id_filter {
         Some(set) => Box::new(fs.features().filter(move |f| match &f.id {
             Some(geojson::feature::Id::Number(n)) => {
                 n.as_i64().map(|v| set.contains(&v)).unwrap_or(false)
