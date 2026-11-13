@@ -37,6 +37,8 @@ pub enum Requires {
     Layer,
     /// At least one feature is selected.
     Selection,
+    /// At least one elevation source is available for terrain.
+    TerrainSource,
 }
 
 /// A menu item owned by the application. Clicking it emits a menu event
@@ -176,7 +178,7 @@ const VIEW: Submenu = Submenu {
         custom_with_accelerator("view.toggle-zen-mode", "Toggle Zen Mode", "Ctrl+Cmd+F"),
         custom("view.toggle-dark-theme", "Toggle Dark Theme"),
         SEPARATOR,
-        custom("view.toggle-terrain", "Toggle Terrain"),
+        requiring(custom("view.toggle-terrain", "Toggle Terrain"), Requires::TerrainSource),
         custom("view.toggle-sky", "Toggle Sky"),
         custom("view.toggle-tile-boundaries", "Toggle Tile Boundaries"),
         custom("view.toggle-geometry-outline", "Toggle Geometry Outline"),
@@ -323,6 +325,11 @@ mod tests {
             items_requiring(Requires::Selection),
             vec!["edit.copy-selection-geojson", "edit.copy-selection-wkt"]
         );
+    }
+
+    #[test]
+    fn terrain_toggle_requires_a_terrain_source() {
+        assert!(items_requiring(Requires::TerrainSource).contains(&"view.toggle-terrain"));
     }
 
     #[test]

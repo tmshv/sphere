@@ -65,7 +65,9 @@ function rule(selector: string, declarations: Declaration[]): string {
     return `${selector}{${body}}`
 }
 
-// Light colours and every non-colour scale on :root, dark colours on :root[data-theme="dark"].
+// Light colours and every non-colour scale on :root, dark colours on any [data-theme="dark"] element: the theme
+// provider stamps it on <html>, and a subtree that keeps a dark look in both themes (the statusbar popover) stamps it
+// on its own root, where the custom properties it redefines inherit to everything inside.
 export function tokensToCss(): string {
-    return `${rule(":root", [...colors("light"), ...scales()])}\n${rule(':root[data-theme="dark"]', colors("dark"))}`
+    return `${rule(":root", [...colors("light"), ...scales()])}\n${rule('[data-theme="dark"]', colors("dark"))}`
 }

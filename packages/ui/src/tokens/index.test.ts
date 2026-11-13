@@ -79,7 +79,7 @@ const REMOVED_NAMES = [
 ]
 const COLOR_PREFIX = "--sphere-color-"
 
-const RULE = /^(:root|:root\[data-theme="dark"\])\{(.*)\}$/
+const RULE = /^(:root|\[data-theme="dark"\])\{(.*)\}$/
 const DECLARATION = /^--sphere-[a-z0-9]+(-[a-z0-9]+)*:\S.*$/
 
 type Rule = { selector: string; declarations: string[] }
@@ -158,8 +158,8 @@ describe("scales", () => {
 })
 
 describe("tokensToCss", () => {
-    it("emits light on :root and dark on [data-theme=dark]", () => {
-        expect(rules().map(rule => rule.selector)).toEqual([":root", ':root[data-theme="dark"]'])
+    it("emits light on :root and dark on any [data-theme=dark] element", () => {
+        expect(rules().map(rule => rule.selector)).toEqual([":root", '[data-theme="dark"]'])
         const [light, dark] = rules()
         expect(light?.declarations).toContain("--sphere-color-window:#ececec")
         expect(dark?.declarations).toContain("--sphere-color-window:#323232")

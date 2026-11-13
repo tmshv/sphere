@@ -1,3 +1,4 @@
+import useHillshadePlacement from "@/hooks/useHillshadePlacement"
 import useMapNavigation from "@/hooks/useMapNavigation"
 import useProjection from "@/hooks/useProjection"
 import useSky from "@/hooks/useSky"
@@ -20,6 +21,7 @@ import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
+import { TerrainSources } from "./TerrainSources"
 
 export type MapBodyProps = {
     mapId: string
@@ -32,6 +34,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
 
     const terrain = useAppSelector(selectTerrainSpecification)
     useTerrain(map, terrain)
+    useHillshadePlacement(map)
 
     const sky = useAppSelector(selectSkySpecification)
     useSky(map, sky)
@@ -55,6 +58,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
+            <TerrainSources />
             {!drawing && previewActive && <SourcePreviewLayer mapId={mapId} delay={50} />}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>

@@ -1,0 +1,57 @@
+/* A vertical list of macOS radio buttons under the field label: each a round control-coloured button with a
+   hairline control border and the control shadow, filled with the accent and a centred on-accent dot when chosen.
+   The option name sits beside it in the label colour. Keyboard focus draws the focus-ring glow. */
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sphere-space-6);
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--sphere-space-8);
+    font-size: var(--sphere-font-size-body);
+    color: var(--sphere-color-label);
+    cursor: default;
+}
+
+.radio {
+    --radio-size: 14px;
+    --radio-dot-size: 6px;
+
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--radio-size);
+    height: var(--radio-size);
+    margin: 0;
+    padding: 0;
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-pill);
+    background-color: var(--sphere-color-control);
+    box-shadow: var(--sphere-shadow-control);
+    outline: 0;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.radio[data-checked] {
+    border-color: transparent;
+    background-color: var(--sphere-color-accent);
+}
+
+.radio:focus-visible {
+    box-shadow:
+        var(--sphere-shadow-control),
+        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.indicator {
+    width: var(--radio-dot-size);
+    height: var(--radio-dot-size);
+    border-radius: var(--sphere-radius-pill);
+    background-color: var(--sphere-color-on-accent);
+}

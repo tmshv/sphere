@@ -8,20 +8,18 @@ import { selectMapTool, selectShowLeftSidebar, selectVersion } from "@/store/app
 import { selectErrorMessage } from "@/store/error"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { selectSourcesAmount } from "@/store/source"
-import { selectIsShowTerrain } from "@/store/terrain"
 import { Statusbar, StatusbarBadge, StatusbarButton } from "@sphere/ui"
 import {
     IconHandStop,
     IconInfoCircle,
     IconLayoutSidebar,
     IconLiveView,
-    IconMountain,
-    IconMountainOff,
     IconNorthStar,
     IconPointer,
     IconWorld,
     IconWorldOff,
 } from "@sphere/icons"
+import { TerrainButton } from "./TerrainButton"
 import { type CSSProperties, useCallback } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
@@ -60,7 +58,6 @@ export function MapStatusbar({ id }: MapStatusbarProps) {
     const sources = useAppSelector(selectSourcesAmount)
     const projection = useAppSelector(selectors.projection.projection)
     const changeProjection = useAppSelector(selectors.projection.changeProjectionAvailable)
-    const terrain = useAppSelector(selectIsShowTerrain)
     const errorMessage = useAppSelector(selectErrorMessage)
     const mapTool = useAppSelector(selectMapTool)
     const selectedCount = useAppSelector(selectors.selection.count)
@@ -80,10 +77,6 @@ export function MapStatusbar({ id }: MapStatusbarProps) {
 
     const resetNorth = useCallback(() => {
         dispatch(actions.map.resetNorth({ mapId: MAP_ID }))
-    }, [dispatch])
-
-    const toggleTerrain = useCallback(() => {
-        dispatch(actions.terrain.toggle())
     }, [dispatch])
 
     const toggleProjection = useCallback(() => {
@@ -148,12 +141,7 @@ export function MapStatusbar({ id }: MapStatusbarProps) {
                 onClick={printViewport}
             />
             <StatusbarButton icon={<IconNorthStar size={ICON_SIZE_PX} />} label="Reset north" onClick={resetNorth} />
-            <StatusbarButton
-                icon={terrain ? <IconMountain size={ICON_SIZE_PX} /> : <IconMountainOff size={ICON_SIZE_PX} />}
-                label="Terrain"
-                disabled
-                onClick={toggleTerrain}
-            />
+            <TerrainButton />
             <StatusbarButton
                 icon={isGlobe ? <IconWorld size={ICON_SIZE_PX} /> : <IconWorldOff size={ICON_SIZE_PX} />}
                 label="Globe"

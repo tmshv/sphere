@@ -25,6 +25,7 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
     const selectionSourceId = useAppSelector(selectors.selection.sourceId)
     const selectionCount = useAppSelector(selectors.selection.count)
     const copyWrapFc = useAppSelector(selectors.settings.selectCopyWrapAsFeatureCollection)
+    const hasTerrainSource = useAppSelector(selectors.terrain.hasSource)
     const copyWktSeparator = useAppSelector(selectors.settings.selectCopyWktSeparator)
 
     const commands: Command[] = [
@@ -42,6 +43,14 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
             description: "Add Sentinel-2 cloudless 2016 satellite source with a layer",
             onTrigger: () => {
                 dispatch(actions.source.addBasemap("sentinel2-2016"))
+            },
+        },
+        {
+            id: "add-mapterhorn",
+            title: "Add Mapterhorn terrain",
+            description: "Add Mapterhorn elevation source",
+            onTrigger: () => {
+                dispatch(actions.source.addTerrainProvider("mapterhorn"))
             },
         },
         {
@@ -68,14 +77,18 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
                 dispatch(actions.sky.toggle())
             },
         },
-        {
-            id: "terrain",
-            title: "Terrain",
-            description: "Toggle terrain",
-            onTrigger: () => {
-                dispatch(actions.terrain.toggle())
-            },
-        },
+        ...(hasTerrainSource
+            ? [
+                  {
+                      id: "terrain",
+                      title: "Terrain",
+                      description: "Toggle terrain",
+                      onTrigger: () => {
+                          dispatch(actions.terrain.toggle())
+                      },
+                  },
+              ]
+            : []),
         {
             id: "globe",
             title: "Globe",

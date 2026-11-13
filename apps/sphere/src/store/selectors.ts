@@ -26,7 +26,16 @@ import { selectSourceOutline, selectSourceTreeShape } from "./source/outline-sel
 import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./sourceInfo/selectors"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
-import { selectIsShowTerrain } from "./terrain"
+import {
+    selectHasTerrainSource,
+    selectHillshadeSourceId,
+    selectIsShowHillshade,
+    selectIsShowTerrain,
+    selectTerrainCandidates,
+    selectTerrainExaggeration,
+    selectTerrainSource,
+    selectTerrainSpecification,
+} from "./terrain"
 import { toolsSlice as tools } from "./tools"
 export type { PreviewLayerSpec, PreviewLayerStackEntry } from "./preview"
 // Other code such as selectors can use the imported `RootState` type
@@ -78,6 +87,13 @@ export const selectors = {
     },
     terrain: {
         show: selectIsShowTerrain,
+        hillshade: selectIsShowHillshade,
+        exaggeration: selectTerrainExaggeration,
+        candidates: selectTerrainCandidates,
+        hasSource: selectHasTerrainSource,
+        source: selectTerrainSource,
+        specification: selectTerrainSpecification,
+        hillshadeSourceId: selectHillshadeSourceId,
     },
     source: {
         ...source.selectors,

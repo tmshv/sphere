@@ -24,6 +24,7 @@ pub struct Context {
     pub has_source: bool,
     pub has_layer: bool,
     pub has_selection: bool,
+    pub has_terrain_source: bool,
 }
 
 /// Enables or disables the context-dependent items to match the frontend store.
@@ -47,6 +48,7 @@ fn apply_context<R: Runtime>(app: &AppHandle<R>, context: Context) -> tauri::Res
         (spec::Requires::Source, context.has_source),
         (spec::Requires::Layer, context.has_layer),
         (spec::Requires::Selection, context.has_selection),
+        (spec::Requires::TerrainSource, context.has_terrain_source),
     ];
 
     for (requires, enabled) in requirements {
@@ -148,13 +150,14 @@ mod tests {
 
     #[test]
     fn accepts_the_context_payload_sent_by_the_webview() {
-        let json = r#"{"hasSource":true,"hasLayer":false,"hasSelection":true}"#;
+        let json = r#"{"hasSource":true,"hasLayer":false,"hasSelection":true,"hasTerrainSource":true}"#;
 
         let context: Context = serde_json::from_str(json).expect("payload should deserialize");
 
         assert!(context.has_source);
         assert!(!context.has_layer);
         assert!(context.has_selection);
+        assert!(context.has_terrain_source);
     }
 
     #[test]

@@ -483,3 +483,13 @@ export const STATUSBAR_COORDINATE_BADGES: ReadonlyArray<{ text: string; title: s
 ]
 
 export const COMPOSITION_DIALOG_FIELD_VALUE = "https://example.com/parcels.geojson"
+
+export const SWITCH_LABEL = "Hillshade"
+export const RADIO_LIST_LABEL = "Source"
+export const RADIO_LIST_OPTIONS: ReadonlyArray<SelectOption> = [
+    { value: "mapterhorn", label: "Mapterhorn" },
+    { value: "srtm", label: "SRTM 30 m" },
+    { value: "copernicus", label: "Copernicus DEM" },
+]
+export const POPOVER_TITLE = "Terrain"
+export const POPOVER_SECTION_TITLES = { first: "Terrain", second: "Hillshade" } as const

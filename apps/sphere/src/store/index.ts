@@ -52,6 +52,7 @@ export const store = configureStore({
             mapListener.middleware,
             listeners.addBlankLayer.middleware,
             listeners.addBasemap.middleware,
+            listeners.addTerrainProvider.middleware,
             listeners.forceResizeMap.middleware,
             listeners.clearSelection.middleware,
             listeners.clearSelectionOnNodeChange.middleware,
@@ -75,6 +76,7 @@ export const store = configureStore({
             listeners.copySelection.middleware,
             listeners.loadSourceInfo.middleware,
             listeners.applyCsvGeometry.middleware,
+            listeners.resolveTerrainSource.middleware,
         )
     },
 })

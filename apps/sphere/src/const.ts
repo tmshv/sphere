@@ -1,4 +1,5 @@
 import type { Basemap, BasemapId } from "@/types/basemap"
+import type { TerrainProvider, TerrainProviderId } from "@/types/terrain"
 import type { StyleSpecification } from "maplibre-gl"
 
 export const MAP_ID = "spheremap"
@@ -31,6 +32,23 @@ export const BASEMAPS: Record<BasemapId, Basemap> = {
             maxzoom: 14,
             attribution:
                 '<a href="https://s2maps.eu">Sentinel-2 cloudless</a> by <a href="https://eox.at">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016)',
+        },
+    },
+}
+const TERRAIN_TILE_SIZE = 512
+// Mapterhorn publishes no max zoom, so 12 is a safe cap: beyond it MapLibre overzooms the z12 tiles, while a
+// cap above the deepest level Mapterhorn has would request tiles that do not exist
+const MAPTERHORN_MAXZOOM = 12
+export const TERRAIN_PROVIDERS: Record<TerrainProviderId, TerrainProvider> = {
+    mapterhorn: {
+        name: "Mapterhorn",
+        location: "https://mapterhorn.com",
+        dem: "terrarium",
+        tiles: {
+            urls: ["https://tiles.mapterhorn.com/{z}/{x}/{y}.webp"],
+            tileSize: TERRAIN_TILE_SIZE,
+            maxzoom: MAPTERHORN_MAXZOOM,
+            attribution: "<a href='https://mapterhorn.com/attribution'>© Mapterhorn</a>",
         },
     },
 }

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { MouseEvent, ReactNode, Ref } from "react"
 import { ButtonBase, cx } from "../internal"
 import s from "./statusbar-button.module.css"
 
@@ -15,6 +15,9 @@ export type StatusbarButtonProps = {
     active?: boolean
     /** How a toggled-on button shows (default `accent`). */
     activeLook?: StatusbarButtonLook
+    /** Called on right click, after the native context menu is suppressed. Not called when disabled. */
+    onContextMenu?: () => void
+    ref?: Ref<HTMLButtonElement>
 }
 
 /** A small glyph button for the statusbar. */
@@ -25,7 +28,17 @@ export function StatusbarButton({
     disabled = false,
     active,
     activeLook = "accent",
+    onContextMenu,
+    ref,
 }: StatusbarButtonProps) {
+    function handleContextMenu(event: MouseEvent<HTMLButtonElement>) {
+        if (disabled || !onContextMenu) {
+            return
+        }
+        event.preventDefault()
+        onContextMenu()
+    }
+
     return (
         <ButtonBase
             shape="glyph"
@@ -35,6 +48,8 @@ export function StatusbarButton({
             disabled={disabled}
             className={cx(s.button, activeLook === "fill" && s.fill)}
             onClick={onClick}
+            onContextMenu={handleContextMenu}
+            ref={ref}
         >
             {icon}
         </ButtonBase>
