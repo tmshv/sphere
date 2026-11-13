@@ -1,185 +1,134 @@
-import test from 'tape';
-import xtend from 'xtend';
-import {spy} from 'sinon';
-import modeHandler from '../src/lib/mode_handler';
-import createMockModeHandlerContext from './utils/create_mock_mode_handler_context';
-import createMockMode from './utils/create_mock_mode';
+import { describe, expect, it, vi } from "vitest"
+import modeHandler from "../src/lib/mode_handler"
+import createMockMode from "./utils/create_mock_mode"
+import createMockModeHandlerContext from "./utils/create_mock_mode_handler_context"
 
-test('returned API', (t) => {
-  const mh = modeHandler(createMockMode(), createMockModeHandlerContext());
-  t.equal(typeof mh.render, 'function', 'exposes render');
-  t.equal(typeof mh.stop, 'function', 'exposes stop');
-  t.equal(typeof mh.trash, 'function', 'exposes trash');
-  t.equal(typeof mh.drag, 'function', 'exposes drag');
-  t.equal(typeof mh.click, 'function', 'exposes click');
-  t.equal(typeof mh.mousemove, 'function', 'exposes mousemove');
-  t.equal(typeof mh.mousedown, 'function', 'exposes mousedown');
-  t.equal(typeof mh.mouseup, 'function', 'exposes mouseup');
-  t.equal(typeof mh.mouseout, 'function', 'exposes mouseout');
-  t.equal(typeof mh.keydown, 'function', 'exposes keydown');
-  t.equal(typeof mh.keyup, 'function', 'exposes keyup');
-  t.equal(typeof mh.touchstart, 'function', 'exposes touchstart');
-  t.equal(typeof mh.touchmove, 'function', 'exposes touchmove');
-  t.equal(typeof mh.touchend, 'function', 'exposes touchend');
-  t.equal(typeof mh.tap, 'function', 'exposes tap');
-  t.equal(typeof mh.combineFeatures, 'function', 'exposes combineFeatures');
-  t.equal(typeof mh.uncombineFeatures, 'function', 'exposes uncombineFeatures');
-  t.equal(Object.keys(mh).length, 17, 'no unexpected properties');
-  t.end();
-});
+const DELEGATED_EVENTS = [
+    "drag",
+    "click",
+    "mousemove",
+    "mouseup",
+    "mouseout",
+    "keydown",
+    "keyup",
+    "touchstart",
+    "touchmove",
+    "touchend",
+]
 
-test('ModeHandler calling mode.start with context, and delegation functionality', (t) => {
-  let startContext;
-  function handleStart() {
-    // eslint-disable-next-line
-    startContext = this;
-  }
-  const handleStartSpy = spy(handleStart);
-  const mode = xtend(createMockMode(), {
-    start: handleStartSpy
-  });
-  const drawContext = createMockModeHandlerContext();
+describe("mode_handler", () => {
+    it("returned API", () => {
+        const mh = modeHandler(createMockMode(), createMockModeHandlerContext())
+        expect(typeof mh.render, "exposes render").toBe("function")
+        expect(typeof mh.stop, "exposes stop").toBe("function")
+        expect(typeof mh.trash, "exposes trash").toBe("function")
+        expect(typeof mh.drag, "exposes drag").toBe("function")
+        expect(typeof mh.click, "exposes click").toBe("function")
+        expect(typeof mh.mousemove, "exposes mousemove").toBe("function")
+        expect(typeof mh.mousedown, "exposes mousedown").toBe("function")
+        expect(typeof mh.mouseup, "exposes mouseup").toBe("function")
+        expect(typeof mh.mouseout, "exposes mouseout").toBe("function")
+        expect(typeof mh.keydown, "exposes keydown").toBe("function")
+        expect(typeof mh.keyup, "exposes keyup").toBe("function")
+        expect(typeof mh.touchstart, "exposes touchstart").toBe("function")
+        expect(typeof mh.touchmove, "exposes touchmove").toBe("function")
+        expect(typeof mh.touchend, "exposes touchend").toBe("function")
+        expect(typeof mh.tap, "exposes tap").toBe("function")
+        expect(typeof mh.combineFeatures, "exposes combineFeatures").toBe("function")
+        expect(typeof mh.uncombineFeatures, "exposes uncombineFeatures").toBe("function")
+        expect(Object.keys(mh).length, "no unexpected properties").toBe(17)
+    })
 
-  const mh = modeHandler(mode, drawContext);
-  t.equal(handleStartSpy.callCount, 1, 'start was called on mode handler creation');
-  t.equal(typeof startContext.on, 'function', 'start context has on()');
-  t.equal(typeof startContext.render, 'function', 'start context has render()');
-  t.equal(Object.keys(startContext).length, 2, 'start context has no unexpected properties');
+    it("ModeHandler calling mode.start with context, and delegation functionality", () => {
+        let startContext
+        function handleStart() {
+            startContext = this
+        }
+        const handleStartSpy = vi.fn(handleStart)
+        const mode = { ...createMockMode(), start: handleStartSpy }
+        const drawContext = createMockModeHandlerContext()
 
-  startContext.render('foo');
-  t.ok(drawContext.store.featureChanged.calledWith('foo'), 'start context render calls store.featureChanged');
+        const mh = modeHandler(mode, drawContext)
+        expect(handleStartSpy, "start was called on mode handler creation").toHaveBeenCalledTimes(1)
+        expect(typeof startContext.on, "start context has on()").toBe("function")
+        expect(typeof startContext.render, "start context has render()").toBe("function")
+        expect(Object.keys(startContext).length, "start context has no unexpected properties").toBe(2)
 
-  t.throws(() => {
-    startContext.on('bar', () => true, () => {});
-  }, 'start context on throws on unknown event type');
+        startContext.render("foo")
+        expect(drawContext.store.featureChanged, "start context render calls store.featureChanged").toHaveBeenCalledWith(
+            "foo",
+        )
 
-  mh.mousedown({ one: 1 });
-  t.equal(drawContext.store.render.callCount, 0, 'render not called if no handler fires');
-  t.equal(drawContext.ui.updateMapClasses.callCount, 0, 'updateMapClasses not called if no handler fires');
+        expect(() => {
+            startContext.on("bar", () => true, () => {})
+        }, "start context on throws on unknown event type").toThrow()
 
-  const mousedownSpy = spy();
-  startContext.on('mousedown', () => true, mousedownSpy);
-  mh.mousedown({ two: 2 });
-  t.equal(mousedownSpy.callCount, 1, 'mousedown callback called via delegation');
-  t.deepEqual(mousedownSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
-  t.equal(drawContext.store.render.callCount, 1, 'render called if handler fires');
-  t.equal(drawContext.ui.updateMapClasses.callCount, 1, 'updateMapClasses called if handler fires');
+        mh.mousedown({ one: 1 })
+        expect(drawContext.store.render, "render not called if no handler fires").toHaveBeenCalledTimes(0)
+        expect(drawContext.ui.updateMapClasses, "updateMapClasses not called if no handler fires").toHaveBeenCalledTimes(0)
 
-  const mousedownFailSpy = spy();
-  mousedownSpy.resetHistory();
-  startContext.on('mousedown', e => !e.three, mousedownFailSpy);
-  mh.mousedown({ three: 3 });
-  t.equal(mousedownFailSpy.callCount, 0, 'delegation only calls callbacks with selectors returning true');
-  t.equal(mousedownSpy.callCount, 1);
-  t.deepEqual(mousedownSpy.getCall(0).args, [{ three: 3 }]);
+        const mousedownSpy = vi.fn()
+        startContext.on("mousedown", () => true, mousedownSpy)
+        mh.mousedown({ two: 2 })
+        expect(mousedownSpy, "mousedown callback called via delegation").toHaveBeenCalledTimes(1)
+        expect(mousedownSpy, "with correct argument").toHaveBeenNthCalledWith(1, { two: 2 })
+        expect(drawContext.store.render, "render called if handler fires").toHaveBeenCalledTimes(1)
+        expect(drawContext.ui.updateMapClasses, "updateMapClasses called if handler fires").toHaveBeenCalledTimes(1)
 
-  const dragSpy = spy();
-  startContext.on('drag', () => true, dragSpy);
-  mh.drag({ two: 2 });
-  t.equal(dragSpy.callCount, 1, 'drag callback called via delegation');
-  t.deepEqual(dragSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+        const mousedownFailSpy = vi.fn()
+        mousedownSpy.mockClear()
+        startContext.on("mousedown", e => !e.three, mousedownFailSpy)
+        mh.mousedown({ three: 3 })
+        expect(mousedownFailSpy, "delegation only calls callbacks with selectors returning true").toHaveBeenCalledTimes(0)
+        expect(mousedownSpy).toHaveBeenCalledTimes(1)
+        expect(mousedownSpy).toHaveBeenNthCalledWith(1, { three: 3 })
 
-  const clickSpy = spy();
-  startContext.on('click', () => true, clickSpy);
-  mh.click({ two: 2 });
-  t.equal(clickSpy.callCount, 1, 'click callback called via delegation');
-  t.deepEqual(clickSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+        for (const name of DELEGATED_EVENTS) {
+            const eventSpy = vi.fn()
+            startContext.on(name, () => true, eventSpy)
+            mh[name]({ two: 2 })
+            expect(eventSpy, `${name} callback called via delegation`).toHaveBeenCalledTimes(1)
+            expect(eventSpy, "with correct argument").toHaveBeenNthCalledWith(1, { two: 2 })
+        }
+    })
 
-  const mousemoveSpy = spy();
-  startContext.on('mousemove', () => true, mousemoveSpy);
-  mh.mousemove({ two: 2 });
-  t.equal(mousemoveSpy.callCount, 1, 'mousemove callback called via delegation');
-  t.deepEqual(mousemoveSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+    it("ModeHandler#stop calling mode.stop", () => {
+        const mode = createMockMode()
+        const mh = modeHandler(mode, createMockModeHandlerContext())
 
-  const mouseupSpy = spy();
-  startContext.on('mouseup', () => true, mouseupSpy);
-  mh.mouseup({ two: 2 });
-  t.equal(mouseupSpy.callCount, 1, 'mouseup callback called via delegation');
-  t.deepEqual(mouseupSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+        mh.stop()
+        expect(mode.stop, "mode.stop called").toHaveBeenCalledTimes(1)
+    })
 
-  const mouseoutSpy = spy();
-  startContext.on('mouseout', () => true, mouseoutSpy);
-  mh.mouseout({ two: 2 });
-  t.equal(mouseoutSpy.callCount, 1, 'mouseout callback called via delegation');
-  t.deepEqual(mouseoutSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+    it("ModeHandler#stop not calling nonexistent mode.stop", () => {
+        const mode = createMockMode()
+        delete mode.stop
+        const mh = modeHandler(mode, createMockModeHandlerContext())
 
-  const keydownSpy = spy();
-  startContext.on('keydown', () => true, keydownSpy);
-  mh.keydown({ two: 2 });
-  t.equal(keydownSpy.callCount, 1, 'keydown callback called via delegation');
-  t.deepEqual(keydownSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+        expect(() => {
+            mh.stop()
+        }).not.toThrow()
+    })
 
-  const keyupSpy = spy();
-  startContext.on('keyup', () => true, keyupSpy);
-  mh.keyup({ two: 2 });
-  t.equal(keyupSpy.callCount, 1, 'keyup callback called via delegation');
-  t.deepEqual(keyupSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+    it("Modehandler#trash", () => {
+        const mode = createMockMode()
+        const drawContext = createMockModeHandlerContext()
+        const mh = modeHandler(mode, drawContext)
 
-  const touchstartSpy = spy();
-  startContext.on('touchstart', () => true, touchstartSpy);
-  mh.touchstart({ two: 2 });
-  t.equal(touchstartSpy.callCount, 1, 'touchstart callback called via delegation');
-  t.deepEqual(touchstartSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+        mh.trash()
+        expect(mode.trash, "mode.trash called").toHaveBeenCalledTimes(1)
+        expect(drawContext.store.render, "store.render called").toHaveBeenCalledTimes(1)
+    })
 
-  const touchmoveSpy = spy();
-  startContext.on('touchmove', () => true, touchmoveSpy);
-  mh.touchmove({ two: 2 });
-  t.equal(touchmoveSpy.callCount, 1, 'touchmove callback called via delegation');
-  t.deepEqual(touchmoveSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
+    it("Modehandler#trash without a mode.trash", () => {
+        const mode = createMockMode()
+        delete mode.trash
+        const drawContext = createMockModeHandlerContext()
+        const mh = modeHandler(mode, drawContext)
 
-  const touchendSpy = spy();
-  startContext.on('touchend', () => true, touchendSpy);
-  mh.touchend({ two: 2 });
-  t.equal(touchendSpy.callCount, 1, 'touchend callback called via delegation');
-  t.deepEqual(touchendSpy.getCall(0).args, [{ two: 2 }], 'with correct argument');
-
-  t.end();
-});
-
-test('ModeHandler#stop calling mode.stop', (t) => {
-  const mode = createMockMode();
-  const mh = modeHandler(mode, createMockModeHandlerContext());
-
-  mh.stop();
-  t.equal(mode.stop.callCount, 1, 'mode.stop called');
-
-  t.end();
-});
-
-test('ModeHandler#stop not calling nonexistent mode.stop', (t) => {
-  const mode = createMockMode();
-  delete mode.stop;
-  const mh = modeHandler(mode, createMockModeHandlerContext());
-
-  t.doesNotThrow(() => {
-    mh.stop();
-  });
-
-  t.end();
-});
-
-test('Modehandler#trash', (t) => {
-  const mode = createMockMode();
-  const drawContext = createMockModeHandlerContext();
-  const mh = modeHandler(mode, drawContext);
-
-  mh.trash();
-  t.equal(mode.trash.callCount, 1, 'mode.trash called');
-  t.equal(drawContext.store.render.callCount, 1, 'store.render called');
-
-  t.end();
-});
-
-test('Modehandler#trash without a mode.trash', (t) => {
-  const mode = createMockMode();
-  delete mode.trash;
-  const drawContext = createMockModeHandlerContext();
-  const mh = modeHandler(mode, drawContext);
-
-  t.doesNotThrow(() => {
-    mh.trash();
-  });
-  t.equal(drawContext.store.render.callCount, 0, 'store.render not called');
-
-  t.end();
-});
+        expect(() => {
+            mh.trash()
+        }).not.toThrow()
+        expect(drawContext.store.render, "store.render not called").toHaveBeenCalledTimes(0)
+    })
+})

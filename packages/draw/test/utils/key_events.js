@@ -1,36 +1,23 @@
-import createSyntheticEvent from 'synthetic-dom-events';
+const KEY_ENTER = 13
+const KEY_ESCAPE = 27
+const KEY_BACKSPACE = 8
+const KEY_1 = 49
+const KEY_2 = 50
+const KEY_3 = 51
 
-const classList = ['maplibregl-canvas'];
-classList.contains = function(cls) {
-  return classList.indexOf(cls) >= 0;
-};
+// Draw only handles key events whose source element is the map canvas.
+const mapCanvas = { classList: { contains: cls => cls === "maplibregl-canvas" } }
 
-export const enterEvent = createSyntheticEvent('keyup', {
-  srcElement: { classList },
-  keyCode: 13
-});
+function makeKeyEvent(type, keyCode) {
+    const event = new KeyboardEvent(type)
+    Object.defineProperty(event, "keyCode", { value: keyCode })
+    Object.defineProperty(event, "srcElement", { value: mapCanvas })
+    return event
+}
 
-export const startPointEvent = createSyntheticEvent('keydown', {
-  srcElement: { classList },
-  keyCode: 49
-});
-
-export const startLineStringEvent = createSyntheticEvent('keydown', {
-  srcElement: { classList },
-  keyCode: 50
-});
-
-export const startPolygonEvent = createSyntheticEvent('keydown', {
-  srcElement: { classList },
-  keyCode: 51
-});
-
-export const escapeEvent = createSyntheticEvent('keyup', {
-  srcElement: { classList },
-  keyCode: 27
-});
-
-export const backspaceEvent = createSyntheticEvent('keydown', {
-  srcElement: { classList },
-  keyCode: 8
-});
+export const enterEvent = () => makeKeyEvent("keyup", KEY_ENTER)
+export const startPointEvent = () => makeKeyEvent("keydown", KEY_1)
+export const startLineStringEvent = () => makeKeyEvent("keydown", KEY_2)
+export const startPolygonEvent = () => makeKeyEvent("keydown", KEY_3)
+export const escapeEvent = () => makeKeyEvent("keyup", KEY_ESCAPE)
+export const backspaceEvent = () => makeKeyEvent("keydown", KEY_BACKSPACE)

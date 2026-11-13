@@ -1,7 +1,7 @@
-import {spy} from 'sinon';
+import { vi } from "vitest"
 
 export default function createMockLifecycleContext() {
-  return {
-    on: spy()
-  };
+    return {
+        on: vi.fn(),
+    }
 }

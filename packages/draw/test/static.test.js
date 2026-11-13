@@ -1,96 +1,95 @@
-/* eslint no-shadow:[0] */
-import test from 'tape';
-import MapboxDraw from '../index';
-import {spy} from 'sinon';
-import setupAfterNextRender from './utils/after_next_render';
-import makeMouseEvent from './utils/make_mouse_event';
-import getGeoJSON from './utils/get_geojson';
-import createMap from './utils/create_map';
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
+import MapboxDraw from "../index"
+import setupAfterNextRender from "./utils/after_next_render"
+import createMap from "./utils/create_map"
+import getGeoJSON from "./utils/get_geojson"
+import makeMouseEvent from "./utils/make_mouse_event"
+import waitForLoad from "./utils/wait_for_load"
 
-test('static', (t) => {
-
-  const map = createMap();
-  const opts = {
-    modes: {
-      static: require('@mapbox/mapbox-gl-draw-static-mode')
+// Local copy of @mapbox/mapbox-gl-draw-static-mode (not installed in this package)
+const staticMode = {
+    onSetup() {
+        this.setActionableState()
+        return {}
     },
-    defaultMode: 'static'
-  };
-  const Draw = new MapboxDraw(opts);
-  map.addControl(Draw);
+    toDisplayFeatures(state, geojson, display) {
+        display(geojson)
+    },
+}
 
-  spy(map, 'fire');
-  map.dragPan.disable();
-  spy(map.dragPan, 'disable');
+describe("static", () => {
+    let map
+    let Draw
+    let afterNextRender
 
-  const afterNextRender = setupAfterNextRender(map);
-
-  const cleanUp = function(cb) {
-    Draw.deleteAll();
-    map.fire.resetHistory();
-    if (cb) cb();
-  };
-
-  const getFireArgs = function() {
-    const args = [];
-    for (let i = 0; i < map.fire.callCount; i++) {
-      args.push(map.fire.getCall(i).args);
+    function cleanUp() {
+        Draw.deleteAll()
+        map.fire.mockClear()
     }
-    return args;
-  };
 
-  t.test('static - init map for tests', (t) => {
-    const done = function() {
-      map.off('load', done);
-      t.end();
-    };
-    if (map.loaded()) {
-      done();
-    } else {
-      map.on('load', done);
+    function getFireArgs() {
+        return [...map.fire.mock.calls]
     }
-  });
 
+    beforeAll(async () => {
+        map = createMap()
+        const opts = {
+            modes: {
+                static: staticMode,
+            },
+            defaultMode: "static",
+        }
+        Draw = new MapboxDraw(opts)
+        map.addControl(Draw)
 
-  t.test('static - box select', (t) => {
-    Draw.add(getGeoJSON('negativePoint'));
-    Draw.add(getGeoJSON('point'));
-    map.fire.resetHistory();
+        vi.spyOn(map, "fire")
+        map.dragPan.disable()
+        vi.spyOn(map.dragPan, "disable")
 
-    afterNextRender(() => {
-      map.dragPan.disable.resetHistory();
-      map.fire('mousedown', makeMouseEvent(0, 0, { shiftKey: true }));
-      t.equal(map.dragPan.disable.callCount, 0, 'dragPan is still enabled');
-      map.fire('mousemove', makeMouseEvent(15, 15, { shiftKey: true }));
-      map.fire('mouseup', makeMouseEvent(15, 15, { shiftKey: true }));
+        afterNextRender = setupAfterNextRender(map)
 
-      const args = getFireArgs().filter(arg => arg[0] === 'draw.selectionchange');
-      t.equal(args.length, 0, 'should have zero selectionchange events');
-      cleanUp(t.end);
-    });
-  });
+        await waitForLoad(map)
+    })
 
-  t.test('static - try clicking many features', (t) => {
-    const features = [getGeoJSON('point'), getGeoJSON('line'), getGeoJSON('square')];
-    Draw.add({
-      type: 'FeatureCollection',
-      features
-    });
-    map.fire.resetHistory();
+    afterAll(() => {
+        vi.restoreAllMocks()
+    })
 
-    afterNextRender(() => {
-      map.fire('mousedown', makeMouseEvent(10, 10));
-      map.fire('mouseup', makeMouseEvent(10, 10));
-      map.fire('mousemove', makeMouseEvent(1.5, 1.5));
-      map.fire('mouseup', makeMouseEvent(1.5, 1.5));
-      map.fire('mousemove', makeMouseEvent(1, 1));
-      map.fire('mouseup', makeMouseEvent(1, 1));
+    it("static - box select", async () => {
+        Draw.add(getGeoJSON("negativePoint"))
+        Draw.add(getGeoJSON("point"))
+        map.fire.mockClear()
 
-      const args = getFireArgs().filter(arg => arg[0] === 'draw.selectionchange');
-      t.equal(args.length, 0, 'should have zero selectionchange events');
-      cleanUp(t.end);
-    });
-  });
+        await afterNextRender()
+        map.dragPan.disable.mockClear()
+        map.fire("mousedown", makeMouseEvent(0, 0, { shiftKey: true }))
+        expect(map.dragPan.disable, "dragPan is still enabled").toHaveBeenCalledTimes(0)
+        map.fire("mousemove", makeMouseEvent(15, 15, { shiftKey: true }))
+        map.fire("mouseup", makeMouseEvent(15, 15, { shiftKey: true }))
 
-  t.end();
-});
+        const args = getFireArgs().filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have zero selectionchange events").toBe(0)
+        cleanUp()
+    })
+
+    it("static - try clicking many features", async () => {
+        const features = [getGeoJSON("point"), getGeoJSON("line"), getGeoJSON("square")]
+        Draw.add({
+            type: "FeatureCollection",
+            features,
+        })
+        map.fire.mockClear()
+
+        await afterNextRender()
+        map.fire("mousedown", makeMouseEvent(10, 10))
+        map.fire("mouseup", makeMouseEvent(10, 10))
+        map.fire("mousemove", makeMouseEvent(1.5, 1.5))
+        map.fire("mouseup", makeMouseEvent(1.5, 1.5))
+        map.fire("mousemove", makeMouseEvent(1, 1))
+        map.fire("mouseup", makeMouseEvent(1, 1))
+
+        const args = getFireArgs().filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have zero selectionchange events").toBe(0)
+        cleanUp()
+    })
+})

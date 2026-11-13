@@ -1,13 +1,13 @@
-import {spy} from 'sinon';
+import { vi } from "vitest"
 
 export default function createMockModeHandlerContext() {
-  return {
-    store: {
-      featureChanged: spy(),
-      render: spy()
-    },
-    ui: {
-      updateMapClasses: spy()
+    return {
+        store: {
+            featureChanged: vi.fn(),
+            render: vi.fn(),
+        },
+        ui: {
+            updateMapClasses: vi.fn(),
+        },
     }
-  };
 }

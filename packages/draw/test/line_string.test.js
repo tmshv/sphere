@@ -1,127 +1,144 @@
-import test from 'tape';
-import {spy} from 'sinon';
-import Feature from '../src/feature_types/feature';
-import LineString from '../src/feature_types/line_string';
-import MapboxDraw from '../index';
-import createFeature from './utils/create_feature';
-import getPublicMemberKeys from './utils/get_public_member_keys';
-import createMockCtx from './utils/create_mock_feature_context';
-import drawGeometry from './utils/draw_geometry';
-import createMap from './utils/create_map';
+import { describe, expect, it, vi } from "vitest"
+import MapboxDraw from "../index"
+import Feature from "../src/feature_types/feature"
+import LineString from "../src/feature_types/line_string"
+import createFeature from "./utils/create_feature"
+import createMap from "./utils/create_map"
+import createMockCtx from "./utils/create_mock_feature_context"
+import drawGeometry from "./utils/draw_geometry"
+import getPublicMemberKeys from "./utils/get_public_member_keys"
+import waitForLoad from "./utils/wait_for_load"
 
-test('LineString constructor and API', (t) => {
-  const rawLine = createFeature('line');
-  const ctx = createMockCtx();
-  const lineString = new LineString(ctx, rawLine);
+describe("line_string", () => {
+    it("LineString constructor and API", () => {
+        const rawLine = createFeature("line")
+        const ctx = createMockCtx()
+        const lineString = new LineString(ctx, rawLine)
 
-  // Instance members
-  t.equal(lineString.ctx, ctx, 'lineString.ctx');
-  t.equal(lineString.coordinates, rawLine.geometry.coordinates, 'lineString.coordinates');
-  t.equal(lineString.properties, rawLine.properties, 'lineString.properties');
-  t.equal(lineString.id, rawLine.id, 'lineString.id');
-  t.equal(lineString.type, rawLine.geometry.type, 'lineString.type');
-  t.equal(getPublicMemberKeys(lineString).length, 5, 'no unexpected instance members');
+        // Instance members
+        expect(lineString.ctx, "lineString.ctx").toBe(ctx)
+        expect(lineString.coordinates, "lineString.coordinates").toBe(rawLine.geometry.coordinates)
+        expect(lineString.properties, "lineString.properties").toBe(rawLine.properties)
+        expect(lineString.id, "lineString.id").toBe(rawLine.id)
+        expect(lineString.type, "lineString.type").toBe(rawLine.geometry.type)
+        expect(getPublicMemberKeys(lineString).length, "no unexpected instance members").toBe(5)
 
-  // Prototype members
-  t.equal(typeof LineString.prototype.isValid, 'function', 'lineString.isValid');
-  t.equal(typeof LineString.prototype.addCoordinate, 'function', 'lineString.addCoordinate');
-  t.equal(typeof LineString.prototype.getCoordinate, 'function', 'lineString.getCoordinate');
-  t.equal(typeof LineString.prototype.removeCoordinate, 'function', 'lineString.removeCoordinate');
-  t.equal(typeof LineString.prototype.updateCoordinate, 'function', 'lineString.updateCoordinate');
-  t.equal(getPublicMemberKeys(LineString.prototype).length, 5, 'no unexpected prototype members');
+        // Prototype members
+        expect(typeof LineString.prototype.isValid, "lineString.isValid").toBe("function")
+        expect(typeof LineString.prototype.addCoordinate, "lineString.addCoordinate").toBe("function")
+        expect(typeof LineString.prototype.getCoordinate, "lineString.getCoordinate").toBe("function")
+        expect(typeof LineString.prototype.removeCoordinate, "lineString.removeCoordinate").toBe("function")
+        expect(typeof LineString.prototype.updateCoordinate, "lineString.updateCoordinate").toBe("function")
+        expect(getPublicMemberKeys(LineString.prototype).length, "no unexpected prototype members").toBe(5)
 
-  t.ok(LineString.prototype instanceof Feature, 'inherits from Feature');
+        expect(LineString.prototype instanceof Feature, "inherits from Feature").toBeTruthy()
+    })
 
-  t.end();
-});
+    it("LineString#isValid", () => {
+        const validRawLine = createFeature("line")
+        const validLineString = new LineString(createMockCtx(), validRawLine)
+        expect(validLineString.isValid(), "returns true when valid").toBe(true)
 
-test('LineString#isValid', (t) => {
-  const validRawLine = createFeature('line');
-  const validLineString = new LineString(createMockCtx(), validRawLine);
-  t.equal(validLineString.isValid(), true, 'returns true when valid');
+        const invalidRawLineA = createFeature("line")
+        invalidRawLineA.geometry.coordinates = [3]
+        const invalidLineStringA = new LineString(createMockCtx(), invalidRawLineA)
+        expect(invalidLineStringA.isValid(), "returns false when there is one coordinate").toBe(false)
 
-  const invalidRawLineA = createFeature('line');
-  invalidRawLineA.geometry.coordinates = [3];
-  const invalidLineStringA = new LineString(createMockCtx(), invalidRawLineA);
-  t.equal(invalidLineStringA.isValid(), false, 'returns false when there is one coordinate');
+        const invalidRawLineB = createFeature("line")
+        invalidRawLineB.geometry.coordinates = []
+        const invalidLineStringB = new LineString(createMockCtx(), invalidRawLineB)
+        expect(invalidLineStringB.isValid(), "returns false when there are no coordinates").toBe(false)
+    })
 
-  const invalidRawLineB = createFeature('line');
-  invalidRawLineB.geometry.coordinates = [];
-  const invalidLineStringB = new LineString(createMockCtx(), invalidRawLineB);
-  t.equal(invalidLineStringB.isValid(), false, 'returns false when there are no coordinates');
+    it("LineString#addCoordinate", () => {
+        const rawLine = createFeature("line")
+        rawLine.geometry.coordinates = [
+            [1, 2],
+            [3, 4],
+        ]
+        const lineString = new LineString(createMockCtx(), rawLine)
+        const changedSpy = vi.spyOn(lineString, "changed")
 
-  t.end();
-});
+        lineString.addCoordinate(1, 5, 6)
+        expect(changedSpy, "called lineString.changed()").toHaveBeenCalledTimes(1)
+        expect(lineString.getCoordinates(), "new coordinate inserted in correct place").toEqual([
+            [1, 2],
+            [5, 6],
+            [3, 4],
+        ])
 
-test('LineString#addCoordinate', (t) => {
-  const rawLine = createFeature('line');
-  rawLine.geometry.coordinates = [[1, 2], [3, 4]];
-  const lineString = new LineString(createMockCtx(), rawLine);
-  const changedSpy = spy(lineString, 'changed');
+        lineString.addCoordinate("0", 7, 8)
+        expect(lineString.getCoordinates(), "string path works").toEqual([
+            [7, 8],
+            [1, 2],
+            [5, 6],
+            [3, 4],
+        ])
+    })
 
-  lineString.addCoordinate(1, 5, 6);
-  t.equal(changedSpy.callCount, 1, 'called lineString.changed()');
-  t.deepEqual(lineString.getCoordinates(), [[1, 2], [5, 6], [3, 4]], 'new coordinate inserted in correct place');
+    it("LineString#getCoordinate", () => {
+        const rawLine = createFeature("line")
+        rawLine.geometry.coordinates = [
+            [1, 2],
+            [3, 4],
+        ]
+        const lineString = new LineString(createMockCtx(), rawLine)
 
-  lineString.addCoordinate('0', 7, 8);
-  t.deepEqual(lineString.getCoordinates(), [[7, 8], [1, 2], [5, 6], [3, 4]],
-    'string path works');
+        expect(lineString.getCoordinate(0), "number path works").toEqual([1, 2])
+        expect(lineString.getCoordinate("1"), "string path works").toEqual([3, 4])
+    })
 
-  t.end();
-});
+    it("LineString#removeCoordinate", () => {
+        const rawLine = createFeature("line")
+        rawLine.geometry.coordinates = [
+            [1, 2],
+            [3, 4],
+        ]
+        const lineString = new LineString(createMockCtx(), rawLine)
+        const changedSpy = vi.spyOn(lineString, "changed")
 
-test('LineString#getCoordinate', (t) => {
-  const rawLine = createFeature('line');
-  rawLine.geometry.coordinates = [[1, 2], [3, 4]];
-  const lineString = new LineString(createMockCtx(), rawLine);
+        lineString.removeCoordinate(1)
+        expect(changedSpy, "called lineString.changed()").toHaveBeenCalledTimes(1)
+        expect(lineString.getCoordinates(), "coordinate removed from correct place").toEqual([[1, 2]])
+    })
 
-  t.deepEqual(lineString.getCoordinate(0), [1, 2], 'number path works');
-  t.deepEqual(lineString.getCoordinate('1'), [3, 4], 'string path works');
+    it("LineString#updateCoordinate", () => {
+        const rawLine = createFeature("line")
+        rawLine.geometry.coordinates = [
+            [1, 2],
+            [3, 4],
+            [5, 6],
+        ]
+        const lineString = new LineString(createMockCtx(), rawLine)
+        const changedSpy = vi.spyOn(lineString, "changed")
 
-  t.end();
-});
+        lineString.updateCoordinate(1, 7, 8)
+        expect(changedSpy, "called lineString.changed()").toHaveBeenCalledTimes(1)
+        expect(lineString.getCoordinates(), "coordinate updated at correct place").toEqual([
+            [1, 2],
+            [7, 8],
+            [5, 6],
+        ])
+    })
 
-test('LineString#removeCoordinate', (t) => {
-  const rawLine = createFeature('line');
-  rawLine.geometry.coordinates = [[1, 2], [3, 4]];
-  const lineString = new LineString(createMockCtx(), rawLine);
-  const changedSpy = spy(lineString, 'changed');
+    it("LineString integration", async () => {
+        const lineStringCoordinates = [
+            [0, 0],
+            [40, 20],
+            [20, 40],
+        ]
+        const map = createMap()
+        const Draw = new MapboxDraw()
+        map.addControl(Draw)
 
-  lineString.removeCoordinate(1);
-  t.equal(changedSpy.callCount, 1, 'called lineString.changed()');
-  t.deepEqual(lineString.getCoordinates(), [[1, 2]], 'coordinate removed from correct place');
+        await waitForLoad(map)
+        await drawGeometry(map, Draw, "LineString", lineStringCoordinates)
 
-  t.end();
-});
-
-test('LineString#updateCoordinate', (t) => {
-  const rawLine = createFeature('line');
-  rawLine.geometry.coordinates = [[1, 2], [3, 4], [5, 6]];
-  const lineString = new LineString(createMockCtx(), rawLine);
-  const changedSpy = spy(lineString, 'changed');
-
-  lineString.updateCoordinate(1, 7, 8);
-  t.equal(changedSpy.callCount, 1, 'called lineString.changed()');
-  t.deepEqual(lineString.getCoordinates(), [[1, 2], [7, 8], [5, 6]], 'coordinate updated at correct place');
-
-  t.end();
-});
-
-test('LineString integration', (t) => {
-  const lineStringCoordinates = [[0, 0], [40, 20], [20, 40]];
-  const map = createMap();
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
-
-  map.on('load', () => {
-    drawGeometry(map, Draw, 'LineString', lineStringCoordinates, () => {
-      const feats = Draw.getAll().features;
-      t.equals(1, feats.length, 'only one');
-      t.equals('LineString', feats[0].geometry.type, 'of the right type');
-      t.equals(lineStringCoordinates[0].length, feats[0].geometry.coordinates[0].length, 'right number of points');
-      t.deepEquals([...lineStringCoordinates, [20, 40]], feats[0].geometry.coordinates, 'in the right spot');
-      Draw.onRemove();
-      t.end();
-    });
-  });
-});
+        const feats = Draw.getAll().features
+        expect(1, "only one").toBe(feats.length)
+        expect("LineString", "of the right type").toBe(feats[0].geometry.type)
+        expect(lineStringCoordinates[0].length, "right number of points").toBe(feats[0].geometry.coordinates[0].length)
+        expect([...lineStringCoordinates, [20, 40]], "in the right spot").toEqual(feats[0].geometry.coordinates)
+        Draw.onRemove()
+    })
+})

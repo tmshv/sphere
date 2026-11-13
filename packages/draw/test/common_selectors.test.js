@@ -1,271 +1,330 @@
-import test from 'tape';
-import * as commonSelectors from '../src/lib/common_selectors';
+import { expect, it } from "vitest"
+import * as commonSelectors from "../src/lib/common_selectors"
 
-test('commonSelectors.isOfMetaType', (t) => {
-  const isFoo = commonSelectors.isOfMetaType('foo');
-  t.equal(typeof isFoo, 'function');
-  t.ok(isFoo({
-    featureTarget: {
-      properties: {
-        meta: 'foo'
-      }
-    }
-  }));
-  t.notOk(isFoo({}));
-  t.notOk(isFoo({
-    featureTarget: {
-      properties: {
-        meta: 'bar'
-      }
-    }
-  }));
+it("commonSelectors.isOfMetaType", () => {
+    const isFoo = commonSelectors.isOfMetaType("foo")
+    expect(typeof isFoo).toBe("function")
+    expect(
+        isFoo({
+            featureTarget: {
+                properties: {
+                    meta: "foo",
+                },
+            },
+        }),
+    ).toBeTruthy()
+    expect(isFoo({})).toBeFalsy()
+    expect(
+        isFoo({
+            featureTarget: {
+                properties: {
+                    meta: "bar",
+                },
+            },
+        }),
+    ).toBeFalsy()
+})
 
-  t.end();
-});
+it("commonSelectors.isShiftMousedown", () => {
+    expect(
+        commonSelectors.isShiftMousedown({
+            originalEvent: {
+                shiftKey: true,
+                button: 0,
+            },
+        }),
+    ).toBeTruthy()
 
-test('commonSelectors.isShiftMousedown', (t) => {
-  t.ok(commonSelectors.isShiftMousedown({
-    originalEvent: {
-      shiftKey: true,
-      button: 0
-    }
-  }));
+    expect(
+        commonSelectors.isShiftMousedown({
+            originalEvent: {
+                shiftKey: false,
+                button: 0,
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isShiftMousedown({
-    originalEvent: {
-      shiftKey: false,
-      button: 0
-    }
-  }));
+    expect(
+        commonSelectors.isShiftMousedown({
+            originalEvent: {
+                shiftKey: true,
+                button: 1,
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isShiftMousedown({
-    originalEvent: {
-      shiftKey: true,
-      button: 1
-    }
-  }));
+    expect(
+        commonSelectors.isShiftMousedown({
+            nothing: false,
+        }),
+    ).toBeFalsy()
+})
 
-  t.notOk(commonSelectors.isShiftMousedown({
-    nothing: false
-  }));
+it("commonSelectors.isActiveFeature", () => {
+    expect(
+        commonSelectors.isActiveFeature({
+            featureTarget: {
+                properties: {
+                    active: "true",
+                    meta: "feature",
+                },
+            },
+        }),
+    ).toBeTruthy()
 
-  t.end();
-});
+    expect(
+        commonSelectors.isActiveFeature({
+            foo: "bar",
+        }),
+    ).toBeFalsy()
 
-test('commonSelectors.isActiveFeature', (t) => {
-  t.ok(commonSelectors.isActiveFeature({
-    featureTarget: {
-      properties: {
-        active: 'true',
-        meta: 'feature'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isActiveFeature({
+            featureTarget: {
+                properties: {
+                    active: "false",
+                    meta: "feature",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isActiveFeature({
-    foo: 'bar'
-  }));
+    expect(
+        commonSelectors.isActiveFeature({
+            featureTarget: {
+                properties: {
+                    active: "true",
+                    meta: "something",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isActiveFeature({
-    featureTarget: {
-      properties: {
-        active: 'false',
-        meta: 'feature'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isActiveFeature({
+            featureTarget: {
+                properties: {
+                    active: true,
+                    meta: "Feature",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isActiveFeature({
-    featureTarget: {
-      properties: {
-        active: 'true',
-        meta: 'something'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isActiveFeature({
+            nothing: false,
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isActiveFeature({
-    featureTarget: {
-      properties: {
-        active: true,
-        meta: 'Feature'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isActiveFeature({
+            featureTarget: {},
+        }),
+    ).toBeFalsy()
+})
 
-  t.notOk(commonSelectors.isActiveFeature({
-    nothing: false
-  }));
+it("commonSelectors.isInactiveFeature", () => {
+    expect(
+        commonSelectors.isInactiveFeature({
+            featureTarget: {
+                properties: {
+                    active: "false",
+                    meta: "feature",
+                },
+            },
+        }),
+    ).toBeTruthy()
 
-  t.notOk(commonSelectors.isActiveFeature({
-    featureTarget: {}
-  }));
+    expect(
+        commonSelectors.isInactiveFeature({
+            foo: "bar",
+        }),
+    ).toBeFalsy()
 
-  t.end();
-});
+    expect(
+        commonSelectors.isInactiveFeature({
+            featureTarget: {
+                properties: {
+                    active: "true",
+                    meta: "feature",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-test('commonSelectors.isInactiveFeature', (t) => {
-  t.ok(commonSelectors.isInactiveFeature({
-    featureTarget: {
-      properties: {
-        active: 'false',
-        meta: 'feature'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isInactiveFeature({
+            featureTarget: {
+                properties: {
+                    active: "false",
+                    meta: "something",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isInactiveFeature({
-    foo: 'bar'
-  }));
+    expect(
+        commonSelectors.isInactiveFeature({
+            featureTarget: {
+                properties: {
+                    active: false,
+                    meta: "Feature",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isInactiveFeature({
-    featureTarget: {
-      properties: {
-        active: 'true',
-        meta: 'feature'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isInactiveFeature({
+            nothing: false,
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isInactiveFeature({
-    featureTarget: {
-      properties: {
-        active: 'false',
-        meta: 'something'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isInactiveFeature({
+            featureTarget: {},
+        }),
+    ).toBeFalsy()
+})
 
-  t.notOk(commonSelectors.isInactiveFeature({
-    featureTarget: {
-      properties: {
-        active: false,
-        meta: 'Feature'
-      }
-    }
-  }));
+it("commonSelectors.noTarget", () => {
+    expect(
+        commonSelectors.noTarget({
+            something: 1,
+        }),
+    ).toBeTruthy()
 
-  t.notOk(commonSelectors.isInactiveFeature({
-    nothing: false
-  }));
+    expect(
+        commonSelectors.noTarget({
+            FeatureTarget: 1,
+        }),
+    ).toBeTruthy()
 
-  t.notOk(commonSelectors.isInactiveFeature({
-    featureTarget: {}
-  }));
+    expect(
+        commonSelectors.noTarget({
+            featureTarget: {},
+        }),
+    ).toBeFalsy()
 
-  t.end();
-});
+    expect(
+        commonSelectors.noTarget({
+            featureTarget: null,
+        }),
+    ).toBeFalsy()
+})
 
-test('commonSelectors.noTarget', (t) => {
-  t.ok(commonSelectors.noTarget({
-    something: 1
-  }));
+it("commonSelectors.isFeature", () => {
+    expect(
+        commonSelectors.isFeature({
+            featureTarget: {
+                properties: {
+                    meta: "feature",
+                },
+            },
+        }),
+    ).toBeTruthy()
 
-  t.ok(commonSelectors.noTarget({
-    FeatureTarget: 1
-  }));
+    expect(
+        commonSelectors.isFeature({
+            feee: 2,
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.noTarget({
-    featureTarget: {}
-  }));
+    expect(
+        commonSelectors.isFeature({
+            featureTarget: {
+                properties: {
+                    meta: "nonfeature",
+                },
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.noTarget({
-    featureTarget: null
-  }));
+    expect(
+        commonSelectors.isFeature({
+            nothing: false,
+        }),
+    ).toBeFalsy()
 
-  t.end();
-});
+    expect(
+        commonSelectors.isFeature({
+            featureTarget: {},
+        }),
+    ).toBeFalsy()
+})
 
-test('commonSelectors.isFeature', (t) => {
-  t.ok(commonSelectors.isFeature({
-    featureTarget: {
-      properties: {
-        meta: 'feature'
-      }
-    }
-  }));
+it("commonSelectors.isShiftDown", () => {
+    expect(
+        commonSelectors.isShiftDown({
+            originalEvent: {
+                shiftKey: true,
+            },
+        }),
+    ).toBeTruthy()
 
-  t.notOk(commonSelectors.isFeature({
-    feee: 2
-  }));
+    expect(
+        commonSelectors.isShiftDown({
+            originalEvent: {
+                shiftKey: false,
+            },
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isFeature({
-    featureTarget: {
-      properties: {
-        meta: 'nonfeature'
-      }
-    }
-  }));
+    expect(
+        commonSelectors.isShiftDown({
+            originalEvent: {},
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isFeature({
-    nothing: false
-  }));
+    expect(
+        commonSelectors.isShiftDown({
+            nothing: true,
+        }),
+    ).toBeFalsy()
+})
 
-  t.notOk(commonSelectors.isFeature({
-    featureTarget: {}
-  }));
+it("commonSelectors.isEscapeKey", () => {
+    expect(
+        commonSelectors.isEscapeKey({
+            keyCode: 27,
+        }),
+    ).toBeTruthy()
 
-  t.end();
-});
+    expect(
+        commonSelectors.isEscapeKey({
+            keyCode: 13,
+        }),
+    ).toBeFalsy()
 
-test('commonSelectors.isShiftDown', (t) => {
-  t.ok(commonSelectors.isShiftDown({
-    originalEvent: {
-      shiftKey: true
-    }
-  }));
+    expect(
+        commonSelectors.isEscapeKey({
+            originalEvent: {},
+        }),
+    ).toBeFalsy()
+})
 
-  t.notOk(commonSelectors.isShiftDown({
-    originalEvent: {
-      shiftKey: false
-    }
-  }));
+it("commonSelectors.isEnterKey", () => {
+    expect(
+        commonSelectors.isEnterKey({
+            keyCode: 13,
+        }),
+    ).toBeTruthy()
 
-  t.notOk(commonSelectors.isShiftDown({
-    originalEvent: {}
-  }));
+    expect(
+        commonSelectors.isEnterKey({
+            keyCode: 27,
+        }),
+    ).toBeFalsy()
 
-  t.notOk(commonSelectors.isShiftDown({
-    nothing: true
-  }));
+    expect(
+        commonSelectors.isEnterKey({
+            originalEvent: {},
+        }),
+    ).toBeFalsy()
+})
 
-  t.end();
-});
-
-test('commonSelectors.isEscapeKey', (t) => {
-  t.ok(commonSelectors.isEscapeKey({
-    keyCode: 27
-  }));
-
-  t.notOk(commonSelectors.isEscapeKey({
-    keyCode: 13
-  }));
-
-  t.notOk(commonSelectors.isEscapeKey({
-    originalEvent: {}
-  }));
-
-  t.end();
-});
-
-test('commonSelectors.isEnterKey', (t) => {
-  t.ok(commonSelectors.isEnterKey({
-    keyCode: 13
-  }));
-
-  t.notOk(commonSelectors.isEnterKey({
-    keyCode: 27
-  }));
-
-  t.notOk(commonSelectors.isEnterKey({
-    originalEvent: {}
-  }));
-
-  t.end();
-});
-
-test('commonSelectors.true', (t) => {
-  t.ok(commonSelectors.isTrue());
-  t.ok(commonSelectors.isTrue(false));
-  t.end();
-});
+it("commonSelectors.true", () => {
+    expect(commonSelectors.isTrue()).toBeTruthy()
+    expect(commonSelectors.isTrue(false)).toBeTruthy()
+})

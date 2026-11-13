@@ -1,35 +1,29 @@
-import click from './mouse_click';
-import setupAfterNextRender from './after_next_render';
-import makeMouseEvent from './make_mouse_event';
-
-/**
- * Draws a feature on a map.
- */
+import setupAfterNextRender from "./after_next_render"
+import makeMouseEvent from "./make_mouse_event"
+import click from "./mouse_click"
 
 const mapFeaturesToModes = {
-  Polygon: 'draw_polygon',
-  Point: 'draw_point',
-  LineString: 'draw_line_string'
-};
+    Polygon: "draw_polygon",
+    Point: "draw_point",
+    LineString: "draw_line_string",
+}
 
-export default function drawGeometry(map, draw, type, coordinates, cb) {
-  const afterNextRender = setupAfterNextRender(map);
-  draw.changeMode(mapFeaturesToModes[type]);
-  let drawCoordinates;
-  if (type === 'Polygon') drawCoordinates = coordinates[0];
-  if (type === 'Point') drawCoordinates = [coordinates];
-  if (type === 'LineString') drawCoordinates = coordinates;
+function toDrawCoordinates(type, coordinates) {
+    if (type === "Polygon") return coordinates[0]
+    if (type === "Point") return [coordinates]
+    return coordinates
+}
 
-  const addCoordinate = function(idx) {
-    const point = drawCoordinates[idx];
-    if (point === undefined) {
-      return cb();
+/**
+ * Draws a feature on a map by clicking each coordinate, waiting for a render
+ * between clicks. Resolves (and calls the optional callback) when done.
+ */
+export default async function drawGeometry(map, draw, type, coordinates, cb) {
+    const afterNextRender = setupAfterNextRender(map)
+    draw.changeMode(mapFeaturesToModes[type])
+    for (const point of toDrawCoordinates(type, coordinates)) {
+        click(map, makeMouseEvent(point[0], point[1], false))
+        await afterNextRender()
     }
-    click(map, makeMouseEvent(point[0], point[1], false));
-    afterNextRender(() => {
-      addCoordinate(idx + 1);
-    });
-  };
-
-  addCoordinate(0);
+    if (cb) cb()
 }

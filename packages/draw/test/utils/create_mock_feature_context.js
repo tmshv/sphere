@@ -1,18 +1,15 @@
-import {spy} from 'sinon';
+import { vi } from "vitest"
 
 /**
- * Returns an mock ctx object with just those properties a Feature
- * requires.
- *
- * @return {Object}
+ * Returns a mock ctx object with just those properties a Feature requires.
  */
-export default function createMockFeatureContext(opts = { userProperties: false}) {
-  return {
-    options: {
-      userProperties: opts.userProperties
-    },
-    store: {
-      featureChanged: spy()
+export default function createMockFeatureContext(opts = { userProperties: false }) {
+    return {
+        options: {
+            userProperties: opts.userProperties,
+        },
+        store: {
+            featureChanged: vi.fn(),
+        },
     }
-  };
 }

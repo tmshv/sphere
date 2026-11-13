@@ -1,588 +1,600 @@
-/* eslint no-shadow:[0] */
-import test from 'tape';
-import MapboxDraw from '../index';
-import {spy} from 'sinon';
-import setupAfterNextRender from './utils/after_next_render';
-import makeMouseEvent from './utils/make_mouse_event';
-import mouseClick from './utils/mouse_click';
-import makeTouchEvent from './utils/make_touch_event';
-import getGeoJSON from './utils/get_geojson';
-import createMap from './utils/create_map';
-import createSyntheticEvent from 'synthetic-dom-events';
-import createMockDrawModeContext from './utils/create_mock_draw_mode_context';
-import { TAP_INTERVAL, TAP_TOLERANCE } from '../src/lib/is_tap';
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
+import MapboxDraw from "../index"
+import { TAP_INTERVAL, TAP_TOLERANCE } from "../src/lib/is_tap"
+import setupAfterNextRender from "./utils/after_next_render"
+import createMap from "./utils/create_map"
+import createMockDrawModeContext from "./utils/create_mock_draw_mode_context"
+import getGeoJSON from "./utils/get_geojson"
+import makeMouseEvent from "./utils/make_mouse_event"
+import makeTouchEvent from "./utils/make_touch_event"
+import mouseClick from "./utils/mouse_click"
+import waitForLoad from "./utils/wait_for_load"
 
-test('simple_select', (t) => {
-  const context = createMockDrawModeContext();
-  const mapContainer = document.createElement('div');
-  document.body.appendChild(mapContainer);
-  const map = createMap({ container: mapContainer });
+describe("simple_select", () => {
+    let context
+    let mapContainer
+    let map
+    let Draw
+    let afterNextRender
 
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
-
-  spy(map, 'fire');
-  spy(map.doubleClickZoom, 'enable');
-  spy(map.doubleClickZoom, 'disable');
-  spy(map.dragPan, 'enable');
-  spy(map.dragPan, 'disable');
-
-  const afterNextRender = setupAfterNextRender(map);
-
-  const cleanUp = function(cb) {
-    Draw.deleteAll();
-    map.fire.resetHistory();
-    if (cb) cb();
-  };
-
-  const getFireArgs = function() {
-    const args = [];
-    for (let i = 0; i < map.fire.callCount; i++) {
-      args.push(map.fire.getCall(i).args);
+    function cleanUp() {
+        Draw.deleteAll()
+        map.fire.mockClear()
     }
-    return args;
-  };
 
-  t.test('simple_select - init map for tests', (t) => {
-    const done = function() {
-      map.off('load', done);
-      t.end();
-    };
-    if (map.loaded()) {
-      done();
-    } else {
-      map.on('load', done);
+    function getFireArgs() {
+        return [...map.fire.mock.calls]
     }
-  });
 
+    beforeAll(async () => {
+        context = createMockDrawModeContext()
+        mapContainer = document.createElement("div")
+        document.body.appendChild(mapContainer)
+        map = createMap({ container: mapContainer })
 
-  t.test('simple_select - box select', (t) => {
-    Draw.add(getGeoJSON('negativePoint'));
-    const id = Draw.add(getGeoJSON('point'))[0];
-    map.fire.resetHistory();
+        Draw = new MapboxDraw()
+        map.addControl(Draw)
 
-    afterNextRender(() => {
-      map.dragPan.enable.resetHistory();
-      map.dragPan.disable.resetHistory();
-      map.fire('mousedown', makeMouseEvent(0, 0, { shiftKey: true }));
-      t.equal(map.dragPan.disable.callCount, 1, 'disable dragPan');
-      map.fire('mousemove', makeMouseEvent(15, 15, {
-        shiftKey: true,
-        buttons: 1
-      }));
-      afterNextRender(() => {
-        t.equal(map.getContainer().className.indexOf('mouse-add') > -1, true, 'mouse-add class has been set');
-        map.fire('mouseup', makeMouseEvent(15, 15, { shiftKey: true }));
+        vi.spyOn(map, "fire")
+        vi.spyOn(map.doubleClickZoom, "enable")
+        vi.spyOn(map.doubleClickZoom, "disable")
+        vi.spyOn(map.dragPan, "enable")
+        vi.spyOn(map.dragPan, "disable")
 
-        afterNextRender(() => {
-          t.equal(map.getContainer().className.indexOf('mouse-move') > -1, true, 'mouse-move class has been set');
-          const fireArgs = getFireArgs();
-          const args = fireArgs.filter(arg => arg[0] === 'draw.selectionchange');
-          t.equal(args.length, 1, 'should have one and only one selectionchange event');
-          if (args.length > 0) {
-            t.equal(args[0][1].features.length, 1, 'should have one feature selected');
-            t.equal(args[0][1].features[0].id, id, 'should be the feature we expect to be selected');
-          }
+        afterNextRender = setupAfterNextRender(map)
 
-          const actionableArgs = fireArgs.filter(arg => arg[0] === 'draw.actionable');
-          t.ok(actionableArgs.length > 0, 'should have fired an actionable event');
-          if (actionableArgs.length > 0) {
-            const actionable = actionableArgs[actionableArgs.length - 1][1];
-            t.equal(actionable.actions.combineFeatures, false, 'should fire correct combine actionable');
-            t.equal(actionable.actions.uncombineFeatures, false, 'should fire correct uncombine actionable');
-            t.equal(actionable.actions.trash, true, 'should fire correct trash actionable');
-          }
+        await waitForLoad(map)
+    })
 
-          cleanUp(t.end);
-        });
-      });
-    });
-  });
+    afterAll(() => {
+        mapContainer.remove()
+    })
 
-  t.test('simple_select - box select many features', (t) => {
-    const features = [];
-    for (let i = 0; i < 5; i++) {
-      features.push(getGeoJSON('point'));
-    }
-    const ids = Draw.add({
-      type: 'FeatureCollection',
-      features
-    });
-    map.fire.resetHistory();
+    it("box select", async () => {
+        Draw.add(getGeoJSON("negativePoint"))
+        const id = Draw.add(getGeoJSON("point"))[0]
+        map.fire.mockClear()
 
-    afterNextRender(() => {
-      map.dragPan.enable.resetHistory();
-      map.fire('mousedown', makeMouseEvent(0, 0, { shiftKey: true }));
-      map.fire('mousemove', makeMouseEvent(15, 15, {
-        shiftKey: true,
-        buttons: 1
-      }));
-      map.fire('mouseup', makeMouseEvent(15, 15, { shiftKey: true }));
+        await afterNextRender()
+        map.dragPan.enable.mockClear()
+        map.dragPan.disable.mockClear()
+        map.fire("mousedown", makeMouseEvent(0, 0, { shiftKey: true }))
+        expect(map.dragPan.disable, "disable dragPan").toHaveBeenCalledTimes(1)
+        map.fire(
+            "mousemove",
+            makeMouseEvent(15, 15, {
+                shiftKey: true,
+                buttons: 1,
+            }),
+        )
+        await afterNextRender()
+        expect(map.getContainer().className.indexOf("mouse-add") > -1, "mouse-add class has been set").toBe(true)
+        map.fire("mouseup", makeMouseEvent(15, 15, { shiftKey: true }))
 
-      afterNextRender(() => {
-        const fireArgs = getFireArgs();
-        const args = fireArgs.filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one select event');
+        await afterNextRender()
+        expect(map.getContainer().className.indexOf("mouse-move") > -1, "mouse-move class has been set").toBe(true)
+        const fireArgs = getFireArgs()
+        const args = fireArgs.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, ids.length, 'should have all features selected');
+            expect(args[0][1].features.length, "should have one feature selected").toBe(1)
+            expect(args[0][1].features[0].id, "should be the feature we expect to be selected").toBe(id)
         }
 
-        const actionableArgs = fireArgs.filter(arg => arg[0] === 'draw.actionable');
-        t.ok(actionableArgs.length > 0, 'should have fired an actionable event');
+        const actionableArgs = fireArgs.filter(arg => arg[0] === "draw.actionable")
+        expect(actionableArgs.length > 0, "should have fired an actionable event").toBeTruthy()
         if (actionableArgs.length > 0) {
-          const actionable = actionableArgs[actionableArgs.length - 1][1];
-          t.equal(actionable.actions.combineFeatures, true, 'should fire correct combine actionable');
-          t.equal(actionable.actions.uncombineFeatures, false, 'should fire correct uncombine actionable');
-          t.equal(actionable.actions.trash, true, 'should fire correct trash actionable');
+            const actionable = actionableArgs[actionableArgs.length - 1][1]
+            expect(actionable.actions.combineFeatures, "should fire correct combine actionable").toBe(false)
+            expect(actionable.actions.uncombineFeatures, "should fire correct uncombine actionable").toBe(false)
+            expect(actionable.actions.trash, "should fire correct trash actionable").toBe(true)
         }
 
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - box select over no points', (t) => {
+    it("box select many features", async () => {
+        const features = []
+        for (let i = 0; i < 5; i++) {
+            features.push(getGeoJSON("point"))
+        }
+        const ids = Draw.add({
+            type: "FeatureCollection",
+            features,
+        })
+        map.fire.mockClear()
 
-    Draw.add(getGeoJSON('point'));
-    map.fire.resetHistory();
+        await afterNextRender()
+        map.dragPan.enable.mockClear()
+        map.fire("mousedown", makeMouseEvent(0, 0, { shiftKey: true }))
+        map.fire(
+            "mousemove",
+            makeMouseEvent(15, 15, {
+                shiftKey: true,
+                buttons: 1,
+            }),
+        )
+        map.fire("mouseup", makeMouseEvent(15, 15, { shiftKey: true }))
 
-    afterNextRender(() => {
-      map.fire('mousedown', makeMouseEvent(0, 0, { shiftKey: true }));
-      map.fire('mousemove', makeMouseEvent(-15, -15, {
-        shiftKey: true,
-        buttons: 1
-      }));
-      map.fire('mouseup', makeMouseEvent(-15, -15, { shiftKey: true }));
-
-      afterNextRender(() => {
-        t.equal(getFireArgs().filter(arg => arg[0] === 'draw.selectionchange').length, 0, 'there should be no draw.selectionchange event');
-        cleanUp(t.end);
-      });
-    });
-  });
-
-  t.test('simple_select - box select then mousemove', (t) => {
-    Draw.add(getGeoJSON('point'));
-    map.fire.resetHistory();
-
-    afterNextRender(() => {
-      map.fire('mousedown', makeMouseEvent(0, 0, { shiftKey: true }));
-      map.fire('mousemove', makeMouseEvent(15, 15, { shiftKey: true }));
-      // This mousemove (not a drag) cancels the box select
-      map.fire('mousemove', makeMouseEvent(15, 15));
-      map.fire('mouseup', makeMouseEvent(15, 15, { shiftKey: true }));
-
-      afterNextRender(() => {
-        t.equal(getFireArgs().filter(arg => arg[0] === 'draw.selectionchange').length, 0, 'there should be no draw.selectionchange event');
-        cleanUp(t.end);
-      });
-    });
-  });
-
-  t.test('simple_select - deselect', (t) => {
-    const id = Draw.add(getGeoJSON('point'))[0];
-    Draw.changeMode('simple_select', { featureIds: [id] });
-
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(15, 15));
-      map.fire('mouseup', makeMouseEvent(15, 15));
-
-      afterNextRender(() => {
-        const args = getFireArgs().filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one selectionchange event');
+        await afterNextRender()
+        const fireArgs = getFireArgs()
+        const args = fireArgs.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one select event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, 0, 'should have no features selected');
+            expect(args[0][1].features.length, "should have all features selected").toBe(ids.length)
         }
-        cleanUp(t.end);
-      });
-    });
-  });
 
-  t.test('simple_select - click on a deselected feature', (t) => {
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select');
+        const actionableArgs = fireArgs.filter(arg => arg[0] === "draw.actionable")
+        expect(actionableArgs.length > 0, "should have fired an actionable event").toBeTruthy()
+        if (actionableArgs.length > 0) {
+            const actionable = actionableArgs[actionableArgs.length - 1][1]
+            expect(actionable.actions.combineFeatures, "should fire correct combine actionable").toBe(true)
+            expect(actionable.actions.uncombineFeatures, "should fire correct uncombine actionable").toBe(false)
+            expect(actionable.actions.trash, "should fire correct trash actionable").toBe(true)
+        }
 
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.doubleClickZoom.disable.resetHistory();
-      map.fire('mousedown', makeMouseEvent(50, 30));
-      map.fire('mouseup', makeMouseEvent(50, 30));
+        cleanUp()
+    })
 
-      afterNextRender(() => {
-        t.equal(map.doubleClickZoom.disable.callCount, 1, 'disable doubleClickZoom');
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one selectionchange event');
+    it("box select over no points", async () => {
+        Draw.add(getGeoJSON("point"))
+        map.fire.mockClear()
+
+        await afterNextRender()
+        map.fire("mousedown", makeMouseEvent(0, 0, { shiftKey: true }))
+        map.fire(
+            "mousemove",
+            makeMouseEvent(-15, -15, {
+                shiftKey: true,
+                buttons: 1,
+            }),
+        )
+        map.fire("mouseup", makeMouseEvent(-15, -15, { shiftKey: true }))
+
+        await afterNextRender()
+        expect(
+            getFireArgs().filter(arg => arg[0] === "draw.selectionchange").length,
+            "there should be no draw.selectionchange event",
+        ).toBe(0)
+        cleanUp()
+    })
+
+    it("box select then mousemove", async () => {
+        Draw.add(getGeoJSON("point"))
+        map.fire.mockClear()
+
+        await afterNextRender()
+        map.fire("mousedown", makeMouseEvent(0, 0, { shiftKey: true }))
+        map.fire("mousemove", makeMouseEvent(15, 15, { shiftKey: true }))
+        // This mousemove (not a drag) cancels the box select
+        map.fire("mousemove", makeMouseEvent(15, 15))
+        map.fire("mouseup", makeMouseEvent(15, 15, { shiftKey: true }))
+
+        await afterNextRender()
+        expect(
+            getFireArgs().filter(arg => arg[0] === "draw.selectionchange").length,
+            "there should be no draw.selectionchange event",
+        ).toBe(0)
+        cleanUp()
+    })
+
+    it("deselect", async () => {
+        const id = Draw.add(getGeoJSON("point"))[0]
+        Draw.changeMode("simple_select", { featureIds: [id] })
+
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(15, 15))
+        map.fire("mouseup", makeMouseEvent(15, 15))
+
+        await afterNextRender()
+        const args = getFireArgs().filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, 1, 'should have only one feature selected');
-          t.equal(args[0][1].features[0].id, id, 'should be the feature we expect to be selected');
+            expect(args[0][1].features.length, "should have no features selected").toBe(0)
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - tap on a deselected feature', (t) => {
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select');
+    it("click on a deselected feature", async () => {
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select")
 
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.doubleClickZoom.disable.resetHistory();
-      map.fire('touchstart', makeTouchEvent(50, 30));
-      map.fire('touchend', makeTouchEvent(50, 30));
+        await afterNextRender()
+        map.fire.mockClear()
+        map.doubleClickZoom.disable.mockClear()
+        map.fire("mousedown", makeMouseEvent(50, 30))
+        map.fire("mouseup", makeMouseEvent(50, 30))
 
-      afterNextRender(() => {
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one selectionchange event');
+        await afterNextRender()
+        expect(map.doubleClickZoom.disable, "disable doubleClickZoom").toHaveBeenCalledTimes(1)
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, 1, 'should have only one feature selected');
-          t.equal(args[0][1].features[0].id, id, 'should be the feature we expect to be selected');
+            expect(args[0][1].features.length, "should have only one feature selected").toBe(1)
+            expect(args[0][1].features[0].id, "should be the feature we expect to be selected").toBe(id)
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - click on a selected feature with shift down', (t) => {
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [id] });
+    it("tap on a deselected feature", async () => {
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select")
 
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.doubleClickZoom.disable.resetHistory();
-      map.fire('mousedown', makeMouseEvent(50, 30, { shiftKey: true }));
-      map.fire('mouseup', makeMouseEvent(50, 30, { shiftKey: true }));
+        await afterNextRender()
+        map.fire.mockClear()
+        map.doubleClickZoom.disable.mockClear()
+        map.fire("touchstart", makeTouchEvent(50, 30))
+        map.fire("touchend", makeTouchEvent(50, 30))
 
-      afterNextRender(() => {
-        t.equal(map.doubleClickZoom.disable.callCount, 1, 'disable doubleClickZoom');
-        t.equal(map.getContainer().className.indexOf('mouse-pointer') > -1, true, 'mouse-pointer class has been set');
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one selectionchange event');
+        await afterNextRender()
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, 0, 'should have no features selected');
+            expect(args[0][1].features.length, "should have only one feature selected").toBe(1)
+            expect(args[0][1].features[0].id, "should be the feature we expect to be selected").toBe(id)
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - delete selected features', (t) => {
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [id] });
-    map.fire.resetHistory();
-    Draw.trash();
-    afterNextRender(() => {
-      let args = getFireArgs();
-      args = args.filter(arg => arg[0] === 'draw.delete');
-      t.equal(args.length, 1, 'should have one and only one draw.delete event');
-      t.equal(args[0][1].features.length, 1, 'should delete only one feature');
-      t.equal(args[0][1].features[0].id, id, 'should delete the feature we expect it to delete');
+    it("click on a selected feature with shift down", async () => {
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [id] })
 
-      const selectedFeatures = Draw.getSelectedIds();
-      t.equal(selectedFeatures.length, 0, 'nothing should be selected anymore');
-      cleanUp(t.end);
-    });
-  });
+        await afterNextRender()
+        map.fire.mockClear()
+        map.doubleClickZoom.disable.mockClear()
+        map.fire("mousedown", makeMouseEvent(50, 30, { shiftKey: true }))
+        map.fire("mouseup", makeMouseEvent(50, 30, { shiftKey: true }))
 
-  t.test('simple_select - click on a selected feature with shift up to enter direct_select', (t) => {
-    Draw.deleteAll();
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [id] });
-
-    afterNextRender(() => {
-      map.doubleClickZoom.enable.resetHistory();
-      map.fire.resetHistory();
-      map.doubleClickZoom.disable.resetHistory();
-      map.fire('mousedown', makeMouseEvent(50, 30, false));
-      map.fire('mouseup', makeMouseEvent(50, 30, false));
-
-      afterNextRender(() => {
-        t.equal(map.doubleClickZoom.disable.callCount, 2, 'disable doubleClickZoom. Once for click, once for direct_select');
-        t.equal(map.doubleClickZoom.enable.callCount, 1, 'double click zoom has been enabled');
-        t.equal(map.getContainer().className.indexOf('mouse-move') > -1, true, 'mouse-move class has been set');
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.modechange');
-        t.equal(args.length, 1, 'should have one and only one modechange event');
+        await afterNextRender()
+        expect(map.doubleClickZoom.disable, "disable doubleClickZoom").toHaveBeenCalledTimes(1)
+        expect(map.getContainer().className.indexOf("mouse-pointer") > -1, "mouse-pointer class has been set").toBe(
+            true,
+        )
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].mode, 'direct_select', 'should change to direct select');
+            expect(args[0][1].features.length, "should have no features selected").toBe(0)
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - click on a vertex to enter direct_select', (t) => {
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [id] });
+    it("delete selected features", async () => {
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [id] })
+        map.fire.mockClear()
+        Draw.trash()
+        await afterNextRender()
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.delete")
+        expect(args.length, "should have one and only one draw.delete event").toBe(1)
+        expect(args[0][1].features.length, "should delete only one feature").toBe(1)
+        expect(args[0][1].features[0].id, "should delete the feature we expect it to delete").toBe(id)
 
-    const clickPosition = getGeoJSON('polygon').geometry.coordinates[0][0];
+        const selectedFeatures = Draw.getSelectedIds()
+        expect(selectedFeatures.length, "nothing should be selected anymore").toBe(0)
+        cleanUp()
+    })
 
-    afterNextRender(() => {
-      map.doubleClickZoom.enable.resetHistory();
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(clickPosition[0], clickPosition[1]));
-      map.fire('mouseup', makeMouseEvent(clickPosition[0], clickPosition[1]));
+    it("click on a selected feature with shift up to enter direct_select", async () => {
+        Draw.deleteAll()
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [id] })
 
-      afterNextRender(() => {
-        t.equal(map.doubleClickZoom.enable.callCount, 1, 'double click zoom has been enabled');
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.modechange');
-        t.equal(args.length, 1, 'should have one and only one modechange event');
+        await afterNextRender()
+        map.doubleClickZoom.enable.mockClear()
+        map.fire.mockClear()
+        map.doubleClickZoom.disable.mockClear()
+        map.fire("mousedown", makeMouseEvent(50, 30, false))
+        map.fire("mouseup", makeMouseEvent(50, 30, false))
+
+        await afterNextRender()
+        expect(
+            map.doubleClickZoom.disable,
+            "disable doubleClickZoom. Once for click, once for direct_select",
+        ).toHaveBeenCalledTimes(2)
+        expect(map.doubleClickZoom.enable, "double click zoom has been enabled").toHaveBeenCalledTimes(1)
+        expect(map.getContainer().className.indexOf("mouse-move") > -1, "mouse-move class has been set").toBe(true)
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.modechange")
+        expect(args.length, "should have one and only one modechange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].mode, 'direct_select', 'should change to direct select');
+            expect(args[0][1].mode, "should change to direct select").toBe("direct_select")
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - tap on a vertex to enter direct_select', (t) => {
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [id] });
+    it("click on a vertex to enter direct_select", async () => {
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [id] })
 
-    const tapPosition = getGeoJSON('polygon').geometry.coordinates[0][0];
+        const clickPosition = getGeoJSON("polygon").geometry.coordinates[0][0]
 
-    afterNextRender(() => {
-      map.doubleClickZoom.enable.resetHistory();
-      map.fire.resetHistory();
-      map.fire('touchstart', makeTouchEvent(tapPosition[0], tapPosition[1]));
-      map.fire('touchend', makeTouchEvent(tapPosition[0], tapPosition[1]));
+        await afterNextRender()
+        map.doubleClickZoom.enable.mockClear()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(clickPosition[0], clickPosition[1]))
+        map.fire("mouseup", makeMouseEvent(clickPosition[0], clickPosition[1]))
 
-      afterNextRender(() => {
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.modechange');
-        t.equal(args.length, 1, 'should have one and only one modechange event');
+        await afterNextRender()
+        expect(map.doubleClickZoom.enable, "double click zoom has been enabled").toHaveBeenCalledTimes(1)
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.modechange")
+        expect(args.length, "should have one and only one modechange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].mode, 'direct_select', 'should change to direct select');
+            expect(args[0][1].mode, "should change to direct select").toBe("direct_select")
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - click on a deselected feature with shift down while having another feature selected', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [pointId] });
+    it("tap on a vertex to enter direct_select", async () => {
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [id] })
 
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(50, 30, { shiftKey: true }));
-      map.fire('mouseup', makeMouseEvent(50, 30, { shiftKey: true }));
+        const tapPosition = getGeoJSON("polygon").geometry.coordinates[0][0]
 
-      afterNextRender(() => {
-        t.equal(map.getContainer().className.indexOf('mouse-move') > -1, true, 'mouse-move class has been set');
-        t.equal(Draw.getSelectedIds().indexOf(pointId) !== -1, true, 'point is still selected');
-        t.equal(Draw.getSelectedIds().indexOf(id) !== -1, true, 'polygon is now selected');
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one selectionchange event');
+        await afterNextRender()
+        map.doubleClickZoom.enable.mockClear()
+        map.fire.mockClear()
+        map.fire("touchstart", makeTouchEvent(tapPosition[0], tapPosition[1]))
+        map.fire("touchend", makeTouchEvent(tapPosition[0], tapPosition[1]))
+
+        await afterNextRender()
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.modechange")
+        expect(args.length, "should have one and only one modechange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, 2, 'should have two features selected');
-          t.equal(args[0][1].features[0].id, pointId, 'selection includes point');
-          t.equal(args[0][1].features[1].id, id, 'selection includes polygon');
+            expect(args[0][1].mode, "should change to direct select").toBe("direct_select")
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - click on a deselected feature with shift up, while having another feature selected', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    const id = Draw.add(getGeoJSON('polygon'))[0];
-    Draw.changeMode('simple_select', { featureIds: [pointId] });
+    it("click on a deselected feature with shift down while having another feature selected", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [pointId] })
 
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(50, 30, false));
-      map.fire('mouseup', makeMouseEvent(50, 30, false));
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(50, 30, { shiftKey: true }))
+        map.fire("mouseup", makeMouseEvent(50, 30, { shiftKey: true }))
 
-      afterNextRender(() => {
-        t.equal(map.getContainer().className.indexOf('mouse-move') > -1, true, 'mouse-move class has been set');
-        t.equal(Draw.getSelectedIds().indexOf(pointId) === -1, true, 'point is no longer selected');
-        t.equal(Draw.getSelectedIds().indexOf(id) !== -1, true, 'polygon is now selected');
-        let args = getFireArgs();
-        args = args.filter(arg => arg[0] === 'draw.selectionchange');
-        t.equal(args.length, 1, 'should have one and only one selectionchange event');
+        await afterNextRender()
+        expect(map.getContainer().className.indexOf("mouse-move") > -1, "mouse-move class has been set").toBe(true)
+        expect(Draw.getSelectedIds().indexOf(pointId) !== -1, "point is still selected").toBe(true)
+        expect(Draw.getSelectedIds().indexOf(id) !== -1, "polygon is now selected").toBe(true)
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
         if (args.length > 0) {
-          t.equal(args[0][1].features.length, 1, 'should have only one feature selected');
-          t.equal(args[0][1].features[0].id, id, 'should be the feature we expect to be selected');
+            expect(args[0][1].features.length, "should have two features selected").toBe(2)
+            expect(args[0][1].features[0].id, "selection includes point").toBe(pointId)
+            expect(args[0][1].features[1].id, "selection includes polygon").toBe(id)
         }
-        cleanUp(t.end);
-      });
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - drag every feature type', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    const multiPointId = Draw.add(getGeoJSON('multiPoint'))[0];
-    const lineStringId = Draw.add(getGeoJSON('line'))[0];
-    const multiLineStringId = Draw.add(getGeoJSON('multiLineString'))[0];
-    const polygonId = Draw.add(getGeoJSON('polygon'))[0];
-    const multiPolygonId = Draw.add(getGeoJSON('multiPolygon'))[0];
+    it("click on a deselected feature with shift up, while having another feature selected", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        const id = Draw.add(getGeoJSON("polygon"))[0]
+        Draw.changeMode("simple_select", { featureIds: [pointId] })
 
-    const countPositions = function(feature) {
-      return feature.geometry.coordinates.join(',').split(',').length;
-    };
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(50, 30, false))
+        map.fire("mouseup", makeMouseEvent(50, 30, false))
 
-    const startPosition = getGeoJSON('point').geometry.coordinates;
-    Draw.changeMode('simple_select', {
-      featureIds: [pointId, multiPointId, lineStringId, multiLineStringId, polygonId, multiPolygonId]
-    });
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(startPosition[0], startPosition[1]));
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }));
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25, { buttons: 1 }));
-      map.fire('mouseup', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25));
+        await afterNextRender()
+        expect(map.getContainer().className.indexOf("mouse-move") > -1, "mouse-move class has been set").toBe(true)
+        expect(Draw.getSelectedIds().indexOf(pointId) === -1, "point is no longer selected").toBe(true)
+        expect(Draw.getSelectedIds().indexOf(id) !== -1, "polygon is now selected").toBe(true)
+        let args = getFireArgs()
+        args = args.filter(arg => arg[0] === "draw.selectionchange")
+        expect(args.length, "should have one and only one selectionchange event").toBe(1)
+        if (args.length > 0) {
+            expect(args[0][1].features.length, "should have only one feature selected").toBe(1)
+            expect(args[0][1].features[0].id, "should be the feature we expect to be selected").toBe(id)
+        }
+        cleanUp()
+    })
 
-      const movedPoint = Draw.get(pointId);
-      t.equal(movedPoint.geometry.coordinates[0], startPosition[0] + 25, 'point lng moved');
-      t.equal(movedPoint.geometry.coordinates[1], startPosition[1] + 25, 'point lat moved');
-      t.equal(countPositions(movedPoint), countPositions(getGeoJSON('point')), 'point has same number of postions');
+    it("drag every feature type", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        const multiPointId = Draw.add(getGeoJSON("multiPoint"))[0]
+        const lineStringId = Draw.add(getGeoJSON("line"))[0]
+        const multiLineStringId = Draw.add(getGeoJSON("multiLineString"))[0]
+        const polygonId = Draw.add(getGeoJSON("polygon"))[0]
+        const multiPolygonId = Draw.add(getGeoJSON("multiPolygon"))[0]
 
-      const movedMultiPoint = Draw.get(multiPointId);
-      t.equal(movedMultiPoint.geometry.coordinates[0][0], getGeoJSON('multiPoint').geometry.coordinates[0][0] + 25, 'multipoint lng moved');
-      t.equal(movedMultiPoint.geometry.coordinates[0][1], getGeoJSON('multiPoint').geometry.coordinates[0][1] + 25, 'multipoint lat moved');
-      t.equal(countPositions(movedMultiPoint), countPositions(getGeoJSON('multiPoint')), 'multiPoint has same number of postions');
+        const countPositions = function (feature) {
+            return feature.geometry.coordinates.join(",").split(",").length
+        }
 
-      const movedLineString = Draw.get(lineStringId);
-      t.equal(movedLineString.geometry.coordinates[0][0], getGeoJSON('line').geometry.coordinates[0][0] + 25, 'line lng moved');
-      t.equal(movedLineString.geometry.coordinates[0][1], getGeoJSON('line').geometry.coordinates[0][1] + 25, 'line lat moved');
-      t.equal(countPositions(movedLineString), countPositions(getGeoJSON('line')), 'line has same number of postions');
+        const startPosition = getGeoJSON("point").geometry.coordinates
+        Draw.changeMode("simple_select", {
+            featureIds: [pointId, multiPointId, lineStringId, multiLineStringId, polygonId, multiPolygonId],
+        })
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(startPosition[0], startPosition[1]))
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }))
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25, { buttons: 1 }))
+        map.fire("mouseup", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25))
 
-      const movedMultiLineString = Draw.get(multiLineStringId);
-      t.equal(movedMultiLineString.geometry.coordinates[0][0][0], getGeoJSON('multiLineString').geometry.coordinates[0][0][0] + 25, 'multiLineString lng moved');
-      t.equal(movedMultiLineString.geometry.coordinates[0][0][1], getGeoJSON('multiLineString').geometry.coordinates[0][0][1] + 25, 'multiLineString lat moved');
-      t.equal(countPositions(movedMultiLineString), countPositions(getGeoJSON('multiLineString')), 'multiLineString has same number of postions');
+        const movedPoint = Draw.get(pointId)
+        expect(movedPoint.geometry.coordinates[0], "point lng moved").toBe(startPosition[0] + 25)
+        expect(movedPoint.geometry.coordinates[1], "point lat moved").toBe(startPosition[1] + 25)
+        expect(countPositions(movedPoint), "point has same number of postions").toBe(
+            countPositions(getGeoJSON("point")),
+        )
 
-      const movedPolygon = Draw.get(polygonId);
-      t.equal(movedPolygon.geometry.coordinates[0][0][0], getGeoJSON('polygon').geometry.coordinates[0][0][0] + 25, 'polygon lng moved');
-      t.equal(movedPolygon.geometry.coordinates[0][0][1], getGeoJSON('polygon').geometry.coordinates[0][0][1] + 25, 'polygon lat moved');
-      t.equal(countPositions(movedPolygon), countPositions(getGeoJSON('polygon')), 'polygon has same number of postions');
+        const movedMultiPoint = Draw.get(multiPointId)
+        expect(movedMultiPoint.geometry.coordinates[0][0], "multipoint lng moved").toBe(
+            getGeoJSON("multiPoint").geometry.coordinates[0][0] + 25,
+        )
+        expect(movedMultiPoint.geometry.coordinates[0][1], "multipoint lat moved").toBe(
+            getGeoJSON("multiPoint").geometry.coordinates[0][1] + 25,
+        )
+        expect(countPositions(movedMultiPoint), "multiPoint has same number of postions").toBe(
+            countPositions(getGeoJSON("multiPoint")),
+        )
 
-      const movedMultiPolygon = Draw.get(multiPolygonId);
-      t.equal(movedMultiPolygon.geometry.coordinates[0][0][0][0], getGeoJSON('multiPolygon').geometry.coordinates[0][0][0][0] + 25, 'multiPolygon lng moved');
-      t.equal(movedMultiPolygon.geometry.coordinates[0][0][0][1], getGeoJSON('multiPolygon').geometry.coordinates[0][0][0][1] + 25, 'multiPolygon lat moved');
-      t.equal(countPositions(movedMultiPolygon), countPositions(getGeoJSON('multiPolygon')), 'multiPolygon has same number of postions');
+        const movedLineString = Draw.get(lineStringId)
+        expect(movedLineString.geometry.coordinates[0][0], "line lng moved").toBe(
+            getGeoJSON("line").geometry.coordinates[0][0] + 25,
+        )
+        expect(movedLineString.geometry.coordinates[0][1], "line lat moved").toBe(
+            getGeoJSON("line").geometry.coordinates[0][1] + 25,
+        )
+        expect(countPositions(movedLineString), "line has same number of postions").toBe(
+            countPositions(getGeoJSON("line")),
+        )
 
-      cleanUp(t.end);
-    });
-  });
+        const movedMultiLineString = Draw.get(multiLineStringId)
+        expect(movedMultiLineString.geometry.coordinates[0][0][0], "multiLineString lng moved").toBe(
+            getGeoJSON("multiLineString").geometry.coordinates[0][0][0] + 25,
+        )
+        expect(movedMultiLineString.geometry.coordinates[0][0][1], "multiLineString lat moved").toBe(
+            getGeoJSON("multiLineString").geometry.coordinates[0][0][1] + 25,
+        )
+        expect(countPositions(movedMultiLineString), "multiLineString has same number of postions").toBe(
+            countPositions(getGeoJSON("multiLineString")),
+        )
 
-  t.test('simple_select - interrupt drag move with mousemove', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    Draw.changeMode('simple_select', { featureIds: [pointId] });
-    const startPosition = getGeoJSON('point').geometry.coordinates;
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(startPosition[0], startPosition[1]));
-      // Dragging
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }));
-      // Not dragging
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25));
-      map.fire('mouseup', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25));
+        const movedPolygon = Draw.get(polygonId)
+        expect(movedPolygon.geometry.coordinates[0][0][0], "polygon lng moved").toBe(
+            getGeoJSON("polygon").geometry.coordinates[0][0][0] + 25,
+        )
+        expect(movedPolygon.geometry.coordinates[0][0][1], "polygon lat moved").toBe(
+            getGeoJSON("polygon").geometry.coordinates[0][0][1] + 25,
+        )
+        expect(countPositions(movedPolygon), "polygon has same number of postions").toBe(
+            countPositions(getGeoJSON("polygon")),
+        )
 
-      const movedPoint = Draw.get(pointId);
-      t.equal(movedPoint.geometry.coordinates[0], startPosition[0] + 15, 'point lng moved only the first amount');
-      t.equal(movedPoint.geometry.coordinates[1], startPosition[1] + 15, 'point lat moved only the first amount');
+        const movedMultiPolygon = Draw.get(multiPolygonId)
+        expect(movedMultiPolygon.geometry.coordinates[0][0][0][0], "multiPolygon lng moved").toBe(
+            getGeoJSON("multiPolygon").geometry.coordinates[0][0][0][0] + 25,
+        )
+        expect(movedMultiPolygon.geometry.coordinates[0][0][0][1], "multiPolygon lat moved").toBe(
+            getGeoJSON("multiPolygon").geometry.coordinates[0][0][0][1] + 25,
+        )
+        expect(countPositions(movedMultiPolygon), "multiPolygon has same number of postions").toBe(
+            countPositions(getGeoJSON("multiPolygon")),
+        )
 
-      cleanUp(t.end);
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - fire one update when dragging mouse leaves container and button is released outside', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    Draw.changeMode('simple_select', { featureIds: [pointId] });
-    const startPosition = getGeoJSON('point').geometry.coordinates;
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(startPosition[0], startPosition[1]));
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }));
-      mapContainer.dispatchEvent(createSyntheticEvent('mouseout'));
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25));
-      map.fire('mouseup', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25));
+    it("interrupt drag move with mousemove", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        Draw.changeMode("simple_select", { featureIds: [pointId] })
+        const startPosition = getGeoJSON("point").geometry.coordinates
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(startPosition[0], startPosition[1]))
+        // Dragging
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }))
+        // Not dragging
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25))
+        map.fire("mouseup", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25))
 
-      const movedPoint = Draw.get(pointId);
-      const args = getFireArgs().filter(arg => arg[0] === 'draw.update');
-      t.equal(args.length, 1, 'draw.update called once');
-      t.equal(movedPoint.geometry.coordinates[0], startPosition[0] + 15, 'point lng moved only the first amount');
-      t.equal(movedPoint.geometry.coordinates[1], startPosition[1] + 15, 'point lat moved only the first amount');
+        const movedPoint = Draw.get(pointId)
+        expect(movedPoint.geometry.coordinates[0], "point lng moved only the first amount").toBe(startPosition[0] + 15)
+        expect(movedPoint.geometry.coordinates[1], "point lat moved only the first amount").toBe(startPosition[1] + 15)
 
-      cleanUp(t.end);
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - fire two update when dragging mouse leaves container then returns and button is released inside', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    Draw.changeMode('simple_select', { featureIds: [pointId] });
-    const startPosition = getGeoJSON('point').geometry.coordinates;
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.fire('mousedown', makeMouseEvent(startPosition[0], startPosition[1]));
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }));
-      mapContainer.dispatchEvent(createSyntheticEvent('mouseout'));
-      map.fire('mousemove', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25, { buttons: 1 }));
-      map.fire('mouseup', makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25));
+    it("fire one update when dragging mouse leaves container and button is released outside", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        Draw.changeMode("simple_select", { featureIds: [pointId] })
+        const startPosition = getGeoJSON("point").geometry.coordinates
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(startPosition[0], startPosition[1]))
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }))
+        mapContainer.dispatchEvent(new MouseEvent("mouseout"))
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25))
+        map.fire("mouseup", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25))
 
-      const movedPoint = Draw.get(pointId);
-      const args = getFireArgs().filter(arg => arg[0] === 'draw.update');
-      t.equal(args.length, 2, 'draw.update called twice');
-      t.equal(movedPoint.geometry.coordinates[0], startPosition[0] + 25, 'point lng moved to the mouseup location');
-      t.equal(movedPoint.geometry.coordinates[1], startPosition[1] + 25, 'point lat moved to the mouseup location');
+        const movedPoint = Draw.get(pointId)
+        const args = getFireArgs().filter(arg => arg[0] === "draw.update")
+        expect(args.length, "draw.update called once").toBe(1)
+        expect(movedPoint.geometry.coordinates[0], "point lng moved only the first amount").toBe(startPosition[0] + 15)
+        expect(movedPoint.geometry.coordinates[1], "point lat moved only the first amount").toBe(startPosition[1] + 15)
 
-      t.end();
-    });
-  });
+        cleanUp()
+    })
 
-  t.test('simple_select - on closing invalid line', (t) => {
-    Draw.changeMode('draw_line_string');
-    mouseClick(map, makeMouseEvent(1, 1));
-    mouseClick(map, makeMouseEvent(1, 1));
-    t.equal(Draw.getMode(), 'simple_select', 'should be in simple_select mode');
-    t.equal(Draw.getSelected().features.length, 0, 'should not get any selected features');
-    t.equal(context.store._emitSelectionChange, undefined, 'should not emit selection change');
-    cleanUp(t.end);
-  });
+    it("fire two update when dragging mouse leaves container then returns and button is released inside", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        Draw.changeMode("simple_select", { featureIds: [pointId] })
+        const startPosition = getGeoJSON("point").geometry.coordinates
+        await afterNextRender()
+        map.fire.mockClear()
+        map.fire("mousedown", makeMouseEvent(startPosition[0], startPosition[1]))
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 15, startPosition[1] + 15, { buttons: 1 }))
+        mapContainer.dispatchEvent(new MouseEvent("mouseout"))
+        map.fire("mousemove", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25, { buttons: 1 }))
+        map.fire("mouseup", makeMouseEvent(startPosition[0] + 25, startPosition[1] + 25))
 
-  t.test('simple_select - on closing invalid polygon', (t) => {
-    Draw.changeMode('draw_polygon');
-    mouseClick(map, makeMouseEvent(1, 1));
-    mouseClick(map, makeMouseEvent(16, 16));
-    mouseClick(map, makeMouseEvent(16, 16));
-    t.equal(Draw.getMode(), 'simple_select', 'should be in simple_select mode');
-    t.equal(Draw.getSelected().features.length, 0, 'should not get any selected features');
-    t.equal(context.store._emitSelectionChange, undefined, 'should not emit selection change');
-    cleanUp(t.end);
-  });
+        const movedPoint = Draw.get(pointId)
+        const args = getFireArgs().filter(arg => arg[0] === "draw.update")
+        expect(args.length, "draw.update called twice").toBe(2)
+        expect(movedPoint.geometry.coordinates[0], "point lng moved to the mouseup location").toBe(
+            startPosition[0] + 25,
+        )
+        expect(movedPoint.geometry.coordinates[1], "point lat moved to the mouseup location").toBe(
+            startPosition[1] + 25,
+        )
+    })
 
-  t.test('simple_select - fire one update after moving point with touch', (t) => {
-    const pointId = Draw.add(getGeoJSON('point'))[0];
-    Draw.changeMode('simple_select', { featureIds: [pointId] });
-    const startPosition = getGeoJSON('point').geometry.coordinates;
-    const endPosition = [startPosition[0] + TAP_TOLERANCE, startPosition[1] + TAP_TOLERANCE];
-    afterNextRender(() => {
-      map.fire.resetHistory();
-      map.doubleClickZoom.disable.resetHistory();
-      map.fire('touchstart', makeTouchEvent(startPosition[0], startPosition[1]));
-      setTimeout(() => {
-        map.fire('touchmove', makeTouchEvent(endPosition[0], endPosition[1]));
-        map.fire('touchend', makeTouchEvent(endPosition[0], endPosition[1]));
+    it("on closing invalid line", () => {
+        Draw.changeMode("draw_line_string")
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(1, 1))
+        expect(Draw.getMode(), "should be in simple_select mode").toBe("simple_select")
+        expect(Draw.getSelected().features.length, "should not get any selected features").toBe(0)
+        expect(context.store._emitSelectionChange, "should not emit selection change").toBe(undefined)
+        cleanUp()
+    })
 
-        const movedPoint = Draw.get(pointId);
-        const args = getFireArgs().filter(arg => arg[0] === 'draw.update');
-        t.equal(args.length, 1, 'draw.update called once');
-        t.equal(movedPoint.geometry.coordinates[0], endPosition[0], 'point lng moved to the last touchmove position');
-        t.equal(movedPoint.geometry.coordinates[1], endPosition[1], 'point lat moved the last touchmove position');
-        cleanUp(t.end);
-      }, TAP_INTERVAL);
-    });
-  });
-  document.body.removeChild(mapContainer);
+    it("on closing invalid polygon", () => {
+        Draw.changeMode("draw_polygon")
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(16, 16))
+        mouseClick(map, makeMouseEvent(16, 16))
+        expect(Draw.getMode(), "should be in simple_select mode").toBe("simple_select")
+        expect(Draw.getSelected().features.length, "should not get any selected features").toBe(0)
+        expect(context.store._emitSelectionChange, "should not emit selection change").toBe(undefined)
+        cleanUp()
+    })
 
-  t.end();
-});
+    it("fire one update after moving point with touch", async () => {
+        const pointId = Draw.add(getGeoJSON("point"))[0]
+        Draw.changeMode("simple_select", { featureIds: [pointId] })
+        const startPosition = getGeoJSON("point").geometry.coordinates
+        const endPosition = [startPosition[0] + TAP_TOLERANCE, startPosition[1] + TAP_TOLERANCE]
+        await afterNextRender()
+        map.fire.mockClear()
+        map.doubleClickZoom.disable.mockClear()
+        map.fire("touchstart", makeTouchEvent(startPosition[0], startPosition[1]))
+        await new Promise(resolve => setTimeout(resolve, TAP_INTERVAL))
+        map.fire("touchmove", makeTouchEvent(endPosition[0], endPosition[1]))
+        map.fire("touchend", makeTouchEvent(endPosition[0], endPosition[1]))
+
+        const movedPoint = Draw.get(pointId)
+        const args = getFireArgs().filter(arg => arg[0] === "draw.update")
+        expect(args.length, "draw.update called once").toBe(1)
+        expect(movedPoint.geometry.coordinates[0], "point lng moved to the last touchmove position").toBe(
+            endPosition[0],
+        )
+        expect(movedPoint.geometry.coordinates[1], "point lat moved the last touchmove position").toBe(endPosition[1])
+        cleanUp()
+    })
+})

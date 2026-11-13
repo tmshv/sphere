@@ -1,21 +1,37 @@
-import test from 'tape';
-import isEventAtCoordinates from '../src/lib/is_event_at_coordinates';
+import { describe, expect, it } from "vitest"
+import isEventAtCoordinates from "../src/lib/is_event_at_coordinates"
 
-test('isEventAtCoordinates', (t) => {
-  t.ok(isEventAtCoordinates({
-    lngLat: {
-      lng: 3,
-      lat: 29
-    }
-  }, [3, 29]));
-  t.notOk(isEventAtCoordinates({
-    lngLat: {
-      lng: -3,
-      lat: 29
-    }
-  }, [3, 29]));
-  t.notOk(isEventAtCoordinates({
-    nothing: true
-  }, [3, 29]));
-  t.end();
-});
+describe("isEventAtCoordinates", () => {
+    it("compares event position to coordinates", () => {
+        expect(
+            isEventAtCoordinates(
+                {
+                    lngLat: {
+                        lng: 3,
+                        lat: 29,
+                    },
+                },
+                [3, 29],
+            ),
+        ).toBeTruthy()
+        expect(
+            isEventAtCoordinates(
+                {
+                    lngLat: {
+                        lng: -3,
+                        lat: 29,
+                    },
+                },
+                [3, 29],
+            ),
+        ).toBeFalsy()
+        expect(
+            isEventAtCoordinates(
+                {
+                    nothing: true,
+                },
+                [3, 29],
+            ),
+        ).toBeFalsy()
+    })
+})

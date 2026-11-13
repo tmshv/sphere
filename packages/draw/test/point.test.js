@@ -1,90 +1,84 @@
-import test from 'tape';
-import {spy} from 'sinon';
-import Feature from '../src/feature_types/feature';
-import Point from '../src/feature_types/point';
-import MapboxDraw from '../index';
-import createFeature from './utils/create_feature';
-import getPublicMemberKeys from './utils/get_public_member_keys';
-import createMockCtx from './utils/create_mock_feature_context';
-import drawGeometry from './utils/draw_geometry';
-import createMap from './utils/create_map';
+import { describe, expect, it, vi } from "vitest"
+import MapboxDraw from "../index"
+import Feature from "../src/feature_types/feature"
+import Point from "../src/feature_types/point"
+import createFeature from "./utils/create_feature"
+import createMap from "./utils/create_map"
+import createMockCtx from "./utils/create_mock_feature_context"
+import drawGeometry from "./utils/draw_geometry"
+import getPublicMemberKeys from "./utils/get_public_member_keys"
+import waitForLoad from "./utils/wait_for_load"
 
-test('Point constructor and API', (t) => {
-  const rawPoint = createFeature('point');
-  const ctx = createMockCtx();
-  const point = new Point(ctx, rawPoint);
+describe("point", () => {
+    it("Point constructor and API", () => {
+        const rawPoint = createFeature("point")
+        const ctx = createMockCtx()
+        const point = new Point(ctx, rawPoint)
 
-  // Instance members
-  t.equal(point.ctx, ctx, 'point.ctx');
-  t.equal(point.coordinates, rawPoint.geometry.coordinates, 'point.coordinates');
-  t.equal(point.properties, rawPoint.properties, 'point.properties');
-  t.equal(point.id, rawPoint.id, 'point.id');
-  t.equal(point.type, rawPoint.geometry.type, 'point.type');
-  t.equal(getPublicMemberKeys(point).length, 5, 'no unexpected instance members');
+        // Instance members
+        expect(point.ctx, "point.ctx").toBe(ctx)
+        expect(point.coordinates, "point.coordinates").toBe(rawPoint.geometry.coordinates)
+        expect(point.properties, "point.properties").toBe(rawPoint.properties)
+        expect(point.id, "point.id").toBe(rawPoint.id)
+        expect(point.type, "point.type").toBe(rawPoint.geometry.type)
+        expect(getPublicMemberKeys(point).length, "no unexpected instance members").toBe(5)
 
-  // Prototype members
-  t.equal(typeof Point.prototype.isValid, 'function', 'point.isValid');
-  t.equal(typeof Point.prototype.getCoordinate, 'function', 'point.getCoordinate');
-  t.equal(typeof Point.prototype.updateCoordinate, 'function', 'point.updateCoordinate');
-  t.equal(getPublicMemberKeys(Point.prototype).length, 3, 'no unexpected prototype members');
+        // Prototype members
+        expect(typeof Point.prototype.isValid, "point.isValid").toBe("function")
+        expect(typeof Point.prototype.getCoordinate, "point.getCoordinate").toBe("function")
+        expect(typeof Point.prototype.updateCoordinate, "point.updateCoordinate").toBe("function")
+        expect(getPublicMemberKeys(Point.prototype).length, "no unexpected prototype members").toBe(3)
 
-  t.ok(Point.prototype instanceof Feature, 'inherits from Feature');
+        expect(Point.prototype instanceof Feature, "inherits from Feature").toBeTruthy()
+    })
 
-  t.end();
-});
+    it("Point#isValid", () => {
+        const validRawPoint = createFeature("point")
+        const validPoint = new Point(createMockCtx(), validRawPoint)
+        expect(validPoint.isValid(), "returns true for valid point").toBe(true)
 
-test('Point#isValid', (t) => {
-  const validRawPoint = createFeature('point');
-  const validPoint = new Point(createMockCtx(), validRawPoint);
-  t.equal(validPoint.isValid(), true, 'returns true for valid point');
+        const invalidRawPointA = createFeature("point")
+        invalidRawPointA.geometry.coordinates = [0, "1"]
+        const invalidPointA = new Point(createMockCtx(), invalidRawPointA)
+        expect(invalidPointA.isValid(), "returns false with non-number coordinate").toBe(false)
 
-  const invalidRawPointA = createFeature('point');
-  invalidRawPointA.geometry.coordinates = [0, '1'];
-  const invalidPointA = new Point(createMockCtx(), invalidRawPointA);
-  t.equal(invalidPointA.isValid(), false, 'returns false with non-number coordinate');
+        const invalidRawPointB = createFeature("point")
+        invalidRawPointB.geometry.coordinates = ["1", 0]
+        // Upstream passes invalidRawPointA here (kept for a faithful port)
+        const invalidPointB = new Point(createMockCtx(), invalidRawPointA)
+        expect(invalidPointB.isValid(), "returns false with non-number coordinate, again").toBe(false)
+    })
 
-  const invalidRawPointB = createFeature('point');
-  invalidRawPointB.geometry.coordinates = ['1', 0];
-  const invalidPointB = new Point(createMockCtx(), invalidRawPointA);
-  t.equal(invalidPointB.isValid(), false, 'returns false with non-number coordinate, again');
+    it("Point#updateCoordinate, Point#getCoordinate", () => {
+        const rawPoint = createFeature("point")
+        rawPoint.geometry.coordinates = [1, 2]
+        const point = new Point(createMockCtx(), rawPoint)
+        const changedSpy = vi.spyOn(point, "changed")
 
-  t.end();
-});
+        expect(point.getCoordinate()).toEqual([1, 2])
 
-test('Point#updateCoordinate, Point#getCoordinate', (t) => {
-  const rawPoint = createFeature('point');
-  rawPoint.geometry.coordinates = [1, 2];
-  const point = new Point(createMockCtx(), rawPoint);
-  const changedSpy = spy(point, 'changed');
+        point.updateCoordinate(3, 4, 5)
+        expect(changedSpy).toHaveBeenCalledTimes(1)
+        expect(point.getCoordinate(), "handles 3 arguments, ignoring the first (as path)").toEqual([4, 5])
 
-  t.deepEqual(point.getCoordinate(), [1, 2]);
+        point.updateCoordinate(6, 7)
+        expect(point.getCoordinate(), "handles 2 arguments").toEqual([6, 7])
+    })
 
-  point.updateCoordinate(3, 4, 5);
-  t.equal(changedSpy.callCount, 1);
-  t.deepEqual(point.getCoordinate(), [4, 5], 'handles 3 arguments, ignoring the first (as path)');
+    it("Point integration test", async () => {
+        const pointCoordinates = [10, 10]
+        const map = createMap()
+        const Draw = new MapboxDraw()
+        map.addControl(Draw)
 
-  point.updateCoordinate(6, 7);
-  t.deepEqual(point.getCoordinate(), [6, 7], 'handles 2 arguments');
+        await waitForLoad(map)
+        await drawGeometry(map, Draw, "Point", pointCoordinates)
 
-  t.end();
-});
+        const feats = Draw.getAll().features
+        expect(1, "only one").toBe(feats.length)
+        expect("Point", "of the right type").toBe(feats[0].geometry.type)
+        expect([10, 10], "in the right spot").toEqual(feats[0].geometry.coordinates)
 
-test('Point integration test', (t) => {
-  const pointCoordinates = [10, 10];
-  const map = createMap();
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
-
-  map.on('load', () => {
-    drawGeometry(map, Draw, 'Point', pointCoordinates, () => {
-      const feats = Draw.getAll().features;
-      t.equals(1, feats.length, 'only one');
-      t.equals('Point', feats[0].geometry.type, 'of the right type');
-      t.deepEquals([10, 10], feats[0].geometry.coordinates, 'in the right spot');
-
-      Draw.onRemove();
-      t.end();
-    });
-  });
-
-});
+        Draw.onRemove()
+    })
+})

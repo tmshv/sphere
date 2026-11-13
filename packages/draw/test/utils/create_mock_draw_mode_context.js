@@ -1,46 +1,46 @@
-import {spy} from 'sinon';
+import { vi } from "vitest"
 
 export default function createMockDrawModeContext() {
-  const _store = {};
+    const store = {}
 
-  const api = {
-    store: {
-      add(f) {
-        _store[f.id] = f;
-      },
-      delete(id) {
-        delete _store[id];
-      },
-      featureChanged: spy(),
-      clearSelected: spy(),
-      getAllIds() {
-        return Object.keys(_store);
-      },
-      get(id) {
-        return _store[id];
-      }
-    },
-    events: {
-      changeMode: spy(),
-      actionable: spy()
-    },
-    ui: {
-      queueMapClasses: spy(),
-      setActiveButton: spy()
-    },
-    map: {
-      doubleClickZoom: {
-        disable: spy(),
-        enable: spy()
-      },
-      fire: spy()
-    },
-    _test: {}
-  };
+    const api = {
+        store: {
+            add(f) {
+                store[f.id] = f
+            },
+            delete(id) {
+                delete store[id]
+            },
+            featureChanged: vi.fn(),
+            clearSelected: vi.fn(),
+            getAllIds() {
+                return Object.keys(store)
+            },
+            get(id) {
+                return store[id]
+            },
+        },
+        events: {
+            changeMode: vi.fn(),
+            actionable: vi.fn(),
+        },
+        ui: {
+            queueMapClasses: vi.fn(),
+            setActiveButton: vi.fn(),
+        },
+        map: {
+            doubleClickZoom: {
+                disable: vi.fn(),
+                enable: vi.fn(),
+            },
+            fire: vi.fn(),
+        },
+        _test: {},
+    }
 
-  spy(api.store, 'add');
-  spy(api.store, 'delete');
-  spy(api.store, 'get');
+    vi.spyOn(api.store, "add")
+    vi.spyOn(api.store, "delete")
+    vi.spyOn(api.store, "get")
 
-  return api;
+    return api
 }

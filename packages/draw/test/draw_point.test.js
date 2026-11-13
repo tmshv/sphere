@@ -1,266 +1,268 @@
-import test from 'tape';
-import xtend from 'xtend';
-import MapboxDraw from '../index';
-import mouseClick from './utils/mouse_click';
-import touchTap from './utils/touch_tap';
-import createMap from './utils/create_map';
-import makeMouseEvent from './utils/make_mouse_event';
-import makeTouchEvent from './utils/make_touch_event';
-import drawPointModeObject from '../src/modes/draw_point';
-import Point from '../src/feature_types/point';
-import createMockDrawModeContext from './utils/create_mock_draw_mode_context';
-import createMockLifecycleContext from './utils/create_mock_lifecycle_context';
-import {escapeEvent, enterEvent} from './utils/key_events';
-import objectToMode from '../src/modes/object_to_mode';
-const drawPointMode = objectToMode(drawPointModeObject);
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import MapboxDraw from "../index"
+import Point from "../src/feature_types/point"
+import drawPointModeObject from "../src/modes/draw_point"
+import objectToMode from "../src/modes/object_to_mode"
+import createMap from "./utils/create_map"
+import createMockDrawModeContext from "./utils/create_mock_draw_mode_context"
+import createMockLifecycleContext from "./utils/create_mock_lifecycle_context"
+import { enterEvent, escapeEvent } from "./utils/key_events"
+import makeMouseEvent from "./utils/make_mouse_event"
+import makeTouchEvent from "./utils/make_touch_event"
+import mouseClick from "./utils/mouse_click"
+import touchTap from "./utils/touch_tap"
+import waitForLoad from "./utils/wait_for_load"
 
-test('draw_point mode initialization', (t) => {
-  const context = createMockDrawModeContext();
-  const lifecycleContext = createMockLifecycleContext();
-  const mode = drawPointMode(context);
-  mode.start.call(lifecycleContext);
+const drawPointMode = objectToMode(drawPointModeObject)
 
-  t.equal(context.store.add.callCount, 1, 'store.add called');
+describe("draw_point", () => {
+    it("mode initialization", () => {
+        const context = createMockDrawModeContext()
+        const lifecycleContext = createMockLifecycleContext()
+        const mode = drawPointMode(context)
+        mode.start.call(lifecycleContext)
 
-  const emptypoint = new Point(context, {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Point',
-      coordinates: []
-    }
-  });
-  // Strip ids for this comparison
-  t.deepEqual(xtend(context.store.add.getCall(0).args[0], { id: null }),
-    xtend(emptypoint, { id: null }), 'with a new line');
+        expect(context.store.add, "store.add called").toHaveBeenCalledTimes(1)
 
-  t.end();
-});
+        const emptypoint = new Point(context, {
+            type: "Feature",
+            properties: {},
+            geometry: {
+                type: "Point",
+                coordinates: [],
+            },
+        })
+        // Strip ids for this comparison
+        const [added] = context.store.add.mock.lastCall
+        expect({ ...added, id: null }, "with a new line").toEqual({ ...emptypoint, id: null })
+    })
 
-test('draw_point start', (t) => {
-  const context = createMockDrawModeContext();
-  const lifecycleContext = createMockLifecycleContext();
-  const mode = drawPointMode(context);
-  mode.start.call(lifecycleContext);
+    it("start", () => {
+        const context = createMockDrawModeContext()
+        const lifecycleContext = createMockLifecycleContext()
+        const mode = drawPointMode(context)
+        mode.start.call(lifecycleContext)
 
-  t.equal(context.store.clearSelected.callCount, 1, 'store.clearSelected called');
-  t.equal(context.ui.queueMapClasses.callCount, 1, 'ui.queueMapClasses called');
-  t.deepEqual(context.ui.queueMapClasses.getCall(0).args, [{ mouse: 'add' }],
-    'ui.queueMapClasses received correct arguments');
-  t.equal(context.ui.setActiveButton.callCount, 1, 'ui.setActiveButton called');
-  t.deepEqual(context.ui.setActiveButton.getCall(0).args, ['point'],
-    'ui.setActiveButton received correct arguments');
+        expect(context.store.clearSelected, "store.clearSelected called").toHaveBeenCalledTimes(1)
+        expect(context.ui.queueMapClasses, "ui.queueMapClasses called").toHaveBeenCalledTimes(1)
+        expect(context.ui.queueMapClasses, "ui.queueMapClasses received correct arguments").toHaveBeenNthCalledWith(
+            1,
+            { mouse: "add" },
+        )
+        expect(context.ui.setActiveButton, "ui.setActiveButton called").toHaveBeenCalledTimes(1)
+        expect(context.ui.setActiveButton, "ui.setActiveButton received correct arguments").toHaveBeenNthCalledWith(
+            1,
+            "point",
+        )
 
-  t.equal(lifecycleContext.on.callCount, 12, 'this.on called');
+        expect(lifecycleContext.on, "this.on called").toHaveBeenCalledTimes(12)
+    })
 
-  t.end();
-});
+    it("stop with point placed", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPointMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-test('draw_point stop with point placed', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPointMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+        // Fake a placed point
+        const id = context.store.getAllIds()[0]
+        const point = context.store.get(id)
+        point.updateCoordinate(10, 20)
 
-  // Fake a placed point
-  const id = context.store.getAllIds()[0];
-  const point = context.store.get(id);
-  point.updateCoordinate(10, 20);
+        mode.stop.call()
+        expect(context.ui.setActiveButton, "ui.setActiveButton called").toHaveBeenCalledTimes(2)
+        expect(context.ui.setActiveButton, "ui.setActiveButton received correct arguments").toHaveBeenNthCalledWith(
+            2,
+            undefined,
+        )
+        expect(context.store.delete, "store.delete not called").toHaveBeenCalledTimes(0)
+    })
 
-  mode.stop.call();
-  t.equal(context.ui.setActiveButton.callCount, 2, 'ui.setActiveButton called');
-  t.deepEqual(context.ui.setActiveButton.getCall(1).args, [undefined],
-    'ui.setActiveButton received correct arguments');
-  t.equal(context.store.delete.callCount, 0, 'store.delete not called');
+    it("stop with no point placed", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPointMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-  t.end();
-});
+        const id = context.store.getAllIds()[0]
+        const point = context.store.get(id)
 
-test('draw_point stop with no point placed', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPointMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+        mode.stop.call()
 
-  const id = context.store.getAllIds()[0];
-  const point = context.store.get(id);
+        expect(context.ui.setActiveButton, "ui.setActiveButton called").toHaveBeenCalledTimes(2)
+        expect(context.ui.setActiveButton, "ui.setActiveButton received correct arguments").toHaveBeenNthCalledWith(
+            2,
+            undefined,
+        )
+        expect(context.store.delete, "store.delete called").toHaveBeenCalledTimes(1)
+        expect(context.store.delete, "store.delete received correct arguments").toHaveBeenNthCalledWith(
+            1,
+            [point.id],
+            { silent: true },
+        )
+    })
 
-  mode.stop.call();
+    it("render the active point", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPointMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
+        const id = context.store.getAllIds()[0]
+        const point = context.store.get(id)
 
-  t.equal(context.ui.setActiveButton.callCount, 2, 'ui.setActiveButton called');
-  t.deepEqual(context.ui.setActiveButton.getCall(1).args, [undefined],
-    'ui.setActiveButton received correct arguments');
-  t.equal(context.store.delete.callCount, 1, 'store.delete called');
-  t.deepEqual(context.store.delete.getCall(0).args, [
-    [point.id],
-    { silent: true }
-  ], 'store.delete received correct arguments');
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                id: point.id,
+            },
+            geometry: {
+                type: "Point",
+                coordinates: [10, 10],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "active point does not render").toBe(0)
+    })
 
-  t.end();
-});
+    it("render an inactive feature", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPointMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-test('draw_point render the active point', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPointMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                meta: "nothing",
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [10, 10],
+                    [20, 20],
+                ],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "does render").toBe(1)
+        expect(memo[0], "unaltered except active: false").toEqual({
+            type: "Feature",
+            properties: {
+                active: "false",
+                meta: "nothing",
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [10, 10],
+                    [20, 20],
+                ],
+            },
+        })
+    })
+})
 
-  const id = context.store.getAllIds()[0];
-  const point = context.store.get(id);
+describe("draw_point mouse interaction", () => {
+    // The following tests share state
+    const container = document.createElement("div")
+    let map
+    let Draw
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      id: point.id
-    },
-    geometry: {
-      type: 'Point',
-      coordinates: [10, 10]
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 0, 'active point does not render');
-  t.end();
-});
+    beforeAll(async () => {
+        document.body.appendChild(container)
+        map = createMap({ container })
+        Draw = new MapboxDraw()
+        map.addControl(Draw)
+        await waitForLoad(map)
+    })
 
-test('draw_point render an inactive feature', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPointMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+    afterAll(() => {
+        container.remove()
+    })
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      meta: 'nothing'
-    },
-    geometry: {
-      type: 'LineString',
-      coordinates: [[10, 10], [20, 20]]
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 1, 'does render');
-  t.deepEqual(memo[0], {
-    type: 'Feature',
-    properties: {
-      active: 'false',
-      meta: 'nothing'
-    },
-    geometry: {
-      type: 'LineString',
-      coordinates: [[10, 10], [20, 20]]
-    }
-  }, 'unaltered except active: false');
-  t.end();
-});
+    it("clicking", () => {
+        Draw.deleteAll()
+        Draw.changeMode("draw_point")
+        mouseClick(map, makeMouseEvent(10, 20))
 
-test('draw_point mouse interaction', (t) => {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const map = createMap({ container });
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
+        const { features } = Draw.getAll()
+        expect(features.length, "point created").toBe(1)
+        const point = Draw.getAll().features[0]
+        expect(point.geometry.type).toBe("Point")
 
-  map.on('load', () => {
-    // The following sub-tests share state ...
+        expect(point.geometry.coordinates, "coordinate added").toEqual([10, 20])
 
-    t.test('clicking', (st) => {
-      Draw.deleteAll();
-      Draw.changeMode('draw_point');
-      mouseClick(map, makeMouseEvent(10, 20));
+        mouseClick(map, makeMouseEvent(30, 30))
+        expect(features.length, "mode has changed, so another click does not create another point").toBe(1)
+    })
 
-      const { features } = Draw.getAll();
-      st.equal(features.length, 1, 'point created');
-      const point = Draw.getAll().features[0];
-      st.equal(point.geometry.type, 'Point');
+    it("exist before clicking by hitting Escape", () => {
+        Draw.deleteAll()
+        Draw.changeMode("draw_point")
 
-      st.deepEqual(point.geometry.coordinates, [10, 20], 'coordinate added');
+        container.dispatchEvent(escapeEvent())
 
-      mouseClick(map, makeMouseEvent(30, 30));
-      st.equal(features.length, 1, 'mode has changed, so another click does not create another point');
+        expect(Draw.getAll().features.length, "no feature added").toBe(0)
+        mouseClick(map, makeMouseEvent(30, 30))
+        expect(Draw.getAll().features.length, "mode has changed, so a click does not create another point").toBe(0)
+    })
 
-      st.end();
-    });
+    it("exist before clicking by hitting Enter", () => {
+        Draw.deleteAll()
+        Draw.changeMode("draw_point")
 
-    t.test('exist before clicking by hitting Escape', (st) => {
-      Draw.deleteAll();
-      Draw.changeMode('draw_point');
+        container.dispatchEvent(enterEvent())
 
-      container.dispatchEvent(escapeEvent);
+        expect(Draw.getAll().features.length, "no feature added").toBe(0)
+        mouseClick(map, makeMouseEvent(30, 30))
+        expect(Draw.getAll().features.length, "mode has changed, so a click does not create another point").toBe(0)
+    })
 
-      st.equal(Draw.getAll().features.length, 0, 'no feature added');
-      mouseClick(map, makeMouseEvent(30, 30));
-      st.equal(Draw.getAll().features.length, 0, 'mode has changed, so a click does not create another point');
+    it("exist before clicking with Trash", () => {
+        Draw.deleteAll()
+        Draw.changeMode("draw_point")
 
-      st.end();
-    });
+        Draw.trash()
 
-    t.test('exist before clicking by hitting Enter', (st) => {
-      Draw.deleteAll();
-      Draw.changeMode('draw_point');
+        expect(Draw.getAll().features.length, "no feature added").toBe(0)
+        mouseClick(map, makeMouseEvent(30, 30))
+        expect(Draw.getAll().features.length, "mode has changed, so a click does not create another point").toBe(0)
+    })
+})
 
-      container.dispatchEvent(enterEvent);
+describe("draw_point touch interaction", () => {
+    const container = document.createElement("div")
+    let map
+    let Draw
 
-      st.equal(Draw.getAll().features.length, 0, 'no feature added');
-      mouseClick(map, makeMouseEvent(30, 30));
-      st.equal(Draw.getAll().features.length, 0, 'mode has changed, so a click does not create another point');
+    beforeAll(async () => {
+        document.body.appendChild(container)
+        map = createMap({ container })
+        Draw = new MapboxDraw()
+        map.addControl(Draw)
+        await waitForLoad(map)
+    })
 
-      st.end();
-    });
+    afterAll(() => {
+        container.remove()
+    })
 
-    t.test('exist before clicking with Trash', (st) => {
-      Draw.deleteAll();
-      Draw.changeMode('draw_point');
+    it("tapping", () => {
+        Draw.deleteAll()
+        Draw.changeMode("draw_point")
+        touchTap(map, makeTouchEvent(10, 20))
 
-      Draw.trash();
+        const { features } = Draw.getAll()
+        expect(features.length, "point created").toBe(1)
+        const point = Draw.getAll().features[0]
+        expect(point.geometry.type).toBe("Point")
 
-      st.equal(Draw.getAll().features.length, 0, 'no feature added');
-      mouseClick(map, makeMouseEvent(30, 30));
-      st.equal(Draw.getAll().features.length, 0, 'mode has changed, so a click does not create another point');
+        expect(point.geometry.coordinates, "coordinate added").toEqual([10, 20])
 
-      st.end();
-    });
-
-    document.body.removeChild(container);
-    t.end();
-  });
-});
-
-
-test('draw_point touch interaction', (t) => {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const map = createMap({ container });
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
-
-  map.on('load', () => {
-    // The following sub-tests share state ...
-
-    t.test('tapping', (st) => {
-      Draw.deleteAll();
-      Draw.changeMode('draw_point');
-      touchTap(map, makeTouchEvent(10, 20));
-
-      const { features } = Draw.getAll();
-      st.equal(features.length, 1, 'point created');
-      const point = Draw.getAll().features[0];
-      st.equal(point.geometry.type, 'Point');
-
-      st.deepEqual(point.geometry.coordinates, [10, 20], 'coordinate added');
-
-      touchTap(map, makeTouchEvent(30, 30));
-      st.equal(features.length, 1, 'mode has changed, so another click does not create another point');
-
-      st.end();
-    });
-
-    document.body.removeChild(container);
-    t.end();
-  });
-});
-
+        touchTap(map, makeTouchEvent(30, 30))
+        expect(features.length, "mode has changed, so another click does not create another point").toBe(1)
+    })
+})

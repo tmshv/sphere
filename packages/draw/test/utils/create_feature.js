@@ -1,15 +1,14 @@
-import xtend from 'xtend';
-import getGeoJSON from './get_geojson';
-import hat from 'hat';
-
-const hatRack = hat.rack();
+import getGeoJSON from "./get_geojson"
 
 export default function createFeature(featureType) {
-  const feature = xtend({
-    id: hatRack(),
-    properties: {}
-  }, getGeoJSON(featureType));
-  feature.toGeoJSON = () => feature;
-  feature.setProperty = (property, name) => { feature.properties[property] = name; };
-  return feature;
+    const feature = {
+        id: crypto.randomUUID(),
+        properties: {},
+        ...getGeoJSON(featureType),
+    }
+    feature.toGeoJSON = () => feature
+    feature.setProperty = (property, name) => {
+        feature.properties[property] = name
+    }
+    return feature
 }

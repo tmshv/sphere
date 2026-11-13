@@ -1,713 +1,883 @@
-import test from 'tape';
-import xtend from 'xtend';
-import MapboxDraw from '../index';
-import createMap from './utils/create_map';
-import mouseClick from './utils/mouse_click';
-import touchTap from './utils/touch_tap';
-import makeMouseEvent from './utils/make_mouse_event';
-import makeTouchEvent from './utils/make_touch_event';
-import drawPolygonModeObject from '../src/modes/draw_polygon';
-import Polygon from '../src/feature_types/polygon';
-import createMockDrawModeContext from './utils/create_mock_draw_mode_context';
-import createMockLifecycleContext from './utils/create_mock_lifecycle_context';
-import setupAfterNextRender from './utils/after_next_render';
-import objectToMode from '../src/modes/object_to_mode';
-const drawPolygonMode = objectToMode(drawPolygonModeObject);
-
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import MapboxDraw from "../index"
+import Polygon from "../src/feature_types/polygon"
+import drawPolygonModeObject from "../src/modes/draw_polygon"
+import objectToMode from "../src/modes/object_to_mode"
+import setupAfterNextRender from "./utils/after_next_render"
+import createMap from "./utils/create_map"
+import createMockDrawModeContext from "./utils/create_mock_draw_mode_context"
+import createMockLifecycleContext from "./utils/create_mock_lifecycle_context"
 import {
-  enterEvent,
-  startPointEvent,
-  startLineStringEvent,
-  startPolygonEvent,
-  escapeEvent
-} from './utils/key_events';
+    enterEvent,
+    escapeEvent,
+    startLineStringEvent,
+    startPointEvent,
+    startPolygonEvent,
+} from "./utils/key_events"
+import makeMouseEvent from "./utils/make_mouse_event"
+import makeTouchEvent from "./utils/make_touch_event"
+import mouseClick from "./utils/mouse_click"
+import touchTap from "./utils/touch_tap"
+import waitForLoad from "./utils/wait_for_load"
 
-test('draw_polygon mode initialization', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+const drawPolygonMode = objectToMode(drawPolygonModeObject)
 
-  t.equal(context.store.add.callCount, 1, 'store.add called');
+describe("draw_polygon", () => {
+    it("mode initialization", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-  const emptyPolygon = new Polygon(context, {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Polygon',
-      coordinates: [[]]
-    }
-  });
-  // Strip ids for this comparison
-  t.deepEqual(xtend(context.store.add.getCall(0).args[0], { id: null }),
-    xtend(emptyPolygon, { id: null }), 'with a new polygon');
+        expect(context.store.add, "store.add called").toHaveBeenCalledTimes(1)
 
-  t.end();
-});
+        const emptyPolygon = new Polygon(context, {
+            type: "Feature",
+            properties: {},
+            geometry: {
+                type: "Polygon",
+                coordinates: [[]],
+            },
+        })
+        // Strip ids for this comparison
+        const [added] = context.store.add.mock.calls[0]
+        expect({ ...added, id: null }, "with a new polygon").toEqual({ ...emptyPolygon, id: null })
+    })
 
-test('draw_polygon start', (t) => {
-  const context = createMockDrawModeContext();
-  const lifecycleContext = createMockLifecycleContext();
-  const mode = drawPolygonMode(context);
+    it("start", async () => {
+        const context = createMockDrawModeContext()
+        const lifecycleContext = createMockLifecycleContext()
+        const mode = drawPolygonMode(context)
 
-  mode.start.call(lifecycleContext);
-  t.equal(context.store.clearSelected.callCount, 1, 'store.clearSelected called');
-  t.equal(context.ui.queueMapClasses.callCount, 1, 'ui.queueMapClasses called');
-  t.deepEqual(context.ui.queueMapClasses.getCall(0).args, [{ mouse: 'add' }],
-    'ui.queueMapClasses received correct arguments');
-  t.equal(context.ui.setActiveButton.callCount, 1, 'ui.setActiveButton called');
-  t.deepEqual(context.ui.setActiveButton.getCall(0).args, ['polygon'],
-    'ui.setActiveButton received correct arguments');
+        mode.start.call(lifecycleContext)
+        expect(context.store.clearSelected, "store.clearSelected called").toHaveBeenCalledTimes(1)
+        expect(context.ui.queueMapClasses, "ui.queueMapClasses called").toHaveBeenCalledTimes(1)
+        expect(context.ui.queueMapClasses, "ui.queueMapClasses received correct arguments").toHaveBeenNthCalledWith(
+            1,
+            { mouse: "add" },
+        )
+        expect(context.ui.setActiveButton, "ui.setActiveButton called").toHaveBeenCalledTimes(1)
+        expect(context.ui.setActiveButton, "ui.setActiveButton received correct arguments").toHaveBeenNthCalledWith(
+            1,
+            "polygon",
+        )
 
-  setTimeout(() => {
-    t.equal(context.map.doubleClickZoom.disable.callCount, 1);
-    t.end();
-  }, 10);
-});
+        await new Promise(resolve => setTimeout(resolve, 10))
+        expect(context.map.doubleClickZoom.disable).toHaveBeenCalledTimes(1)
+    })
 
-test('draw_polygon stop with valid polygon', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+    it("stop with valid polygon", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-  // Fake a valid polygon
-  const testPolygon = context.store.get(context.store.getAllIds()[0]);
-  testPolygon.isValid = () => true;
+        // Fake a valid polygon
+        const testPolygon = context.store.get(context.store.getAllIds()[0])
+        testPolygon.isValid = () => true
 
-  mode.stop.call();
-  t.equal(context.ui.setActiveButton.callCount, 2, 'ui.setActiveButton called');
-  t.deepEqual(context.ui.setActiveButton.getCall(1).args, [undefined],
-    'ui.setActiveButton received correct arguments');
-  t.equal(context.store.delete.callCount, 0, 'store.delete not called');
+        mode.stop.call()
+        expect(context.ui.setActiveButton, "ui.setActiveButton called").toHaveBeenCalledTimes(2)
+        expect(context.ui.setActiveButton, "ui.setActiveButton received correct arguments").toHaveBeenNthCalledWith(
+            2,
+            undefined,
+        )
+        expect(context.store.delete, "store.delete not called").toHaveBeenCalledTimes(0)
+    })
 
-  t.end();
-});
+    it("stop with invalid polygon", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-test('draw_polygon stop with invalid polygon', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+        // Fake an invalid polygon
+        const testPolygon = context.store.get(context.store.getAllIds()[0])
+        testPolygon.isValid = () => false
 
-  // Fake an invalid polygon
-  const testPolygon = context.store.get(context.store.getAllIds()[0]);
-  testPolygon.isValid = () => false;
+        mode.stop.call()
+        expect(context.ui.setActiveButton, "ui.setActiveButton called").toHaveBeenCalledTimes(2)
+        expect(context.ui.setActiveButton, "ui.setActiveButton received correct arguments").toHaveBeenNthCalledWith(
+            2,
+            undefined,
+        )
+        expect(context.store.delete, "store.delete called").toHaveBeenCalledTimes(1)
+        expect(context.store.delete, "store.delete received correct arguments").toHaveBeenNthCalledWith(
+            1,
+            [testPolygon.id],
+            { silent: true },
+        )
+    })
 
-  mode.stop.call();
-  t.equal(context.ui.setActiveButton.callCount, 2, 'ui.setActiveButton called');
-  t.deepEqual(context.ui.setActiveButton.getCall(1).args, [undefined],
-    'ui.setActiveButton received correct arguments');
-  t.equal(context.store.delete.callCount, 1, 'store.delete called');
-  t.deepEqual(context.store.delete.getCall(0).args, [
-    [testPolygon.id],
-    { silent: true }
-  ], 'store.delete received correct arguments');
+    it("render active polygon with no coordinates", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
+        const testPolygon = context.store.get(context.store.getAllIds()[0])
 
-  t.end();
-});
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                id: testPolygon.id,
+            },
+            geometry: {
+                type: "Polygon",
+                coordinates: [],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "does not render").toBe(0)
+    })
 
-test('draw_polygon render active polygon with no coordinates', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
-  const testPolygon = context.store.get(context.store.getAllIds()[0]);
+    it("render active polygon with 1 coordinate (and closer)", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
+        const testPolygon = context.store.get(context.store.getAllIds()[0])
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      id: testPolygon.id
-    },
-    geometry: {
-      type: 'Polygon',
-      coordinates: []
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 0, 'does not render');
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                id: testPolygon.id,
+            },
+            geometry: {
+                type: "Polygon",
+                coordinates: [
+                    [
+                        [10, 10],
+                        [10, 10],
+                    ],
+                ],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "does not render").toBe(0)
+    })
 
-  t.end();
-});
+    it("render active polygon with 2 coordinates (and closer)", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
+        const testPolygon = context.store.get(context.store.getAllIds()[0])
 
-test('draw_polygon render active polygon with 1 coordinate (and closer)', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
-  const testPolygon = context.store.get(context.store.getAllIds()[0]);
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                id: testPolygon.id,
+            },
+            geometry: {
+                type: "Polygon",
+                coordinates: [
+                    [
+                        [0, 0],
+                        [0, 10],
+                        [0, 0],
+                    ],
+                ],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "does render").toBe(2)
+        expect(memo[1], "renders as a LineString with meta: feature, active: true").toEqual({
+            type: "Feature",
+            properties: {
+                id: testPolygon.id,
+                active: "true",
+                meta: "feature",
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [0, 0],
+                    [0, 10],
+                ],
+            },
+        })
+    })
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      id: testPolygon.id
-    },
-    geometry: {
-      type: 'Polygon',
-      coordinates: [[[10, 10], [10, 10]]]
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 0, 'does not render');
+    it("render active polygon with 3 coordinates (and closer)", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
+        const testPolygon = context.store.get(context.store.getAllIds()[0])
 
-  t.end();
-});
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                id: testPolygon.id,
+            },
+            geometry: {
+                type: "Polygon",
+                coordinates: [
+                    [
+                        [0, 0],
+                        [0, 10],
+                        [10, 10],
+                        [10, 0],
+                        [0, 0],
+                    ],
+                ],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "does render").toBe(3)
+        expect(memo[0], "renders the start point point with meta: vertex").toEqual({
+            type: "Feature",
+            properties: {
+                parent: testPolygon.id,
+                meta: "vertex",
+                coord_path: "0.0",
+                active: "false",
+            },
+            geometry: {
+                type: "Point",
+                coordinates: [0, 0],
+            },
+        })
+        expect(memo[1], "renders end point with meta: vertex").toEqual({
+            type: "Feature",
+            properties: {
+                parent: testPolygon.id,
+                meta: "vertex",
+                coord_path: "0.2",
+                active: "false",
+            },
+            geometry: {
+                type: "Point",
+                coordinates: [10, 10],
+            },
+        })
+        expect(memo[2], "renders as a polygon with meta: feature, active: true").toEqual({
+            type: "Feature",
+            properties: {
+                id: testPolygon.id,
+                active: "true",
+                meta: "feature",
+            },
+            geometry: {
+                type: "Polygon",
+                coordinates: [
+                    [
+                        [0, 0],
+                        [0, 10],
+                        [10, 10],
+                        [10, 0],
+                        [0, 0],
+                    ],
+                ],
+            },
+        })
+    })
 
-test('draw_polygon render active polygon with 2 coordinates (and closer)', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
-  const testPolygon = context.store.get(context.store.getAllIds()[0]);
+    it("render inactive feature", () => {
+        const context = createMockDrawModeContext()
+        const mode = drawPolygonMode(context)
+        const lifecycleContext = createMockLifecycleContext()
+        mode.start.call(lifecycleContext)
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      id: testPolygon.id
-    },
-    geometry: {
-      type: 'Polygon',
-      coordinates: [[[0, 0], [0, 10], [0, 0]]]
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 2, 'does render');
-  t.deepEqual(memo[1], {
-    type: 'Feature',
-    properties: {
-      id: testPolygon.id,
-      active: 'true',
-      meta: 'feature'
-    },
-    geometry: {
-      type: 'LineString',
-      coordinates: [[0, 0], [0, 10]]
-    }
-  }, 'renders as a LineString with meta: feature, active: true');
-  t.end();
-});
+        const memo = []
+        const geojson = {
+            type: "Feature",
+            properties: {
+                meta: "meh",
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [0, 0],
+                    [0, 10],
+                ],
+            },
+        }
+        mode.render(geojson, x => memo.push(x))
+        expect(memo.length, "does render").toBe(1)
+        expect(memo[0], "unaltered except active: false").toEqual({
+            type: "Feature",
+            properties: {
+                active: "false",
+                meta: "meh",
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [0, 0],
+                    [0, 10],
+                ],
+            },
+        })
+    })
+})
 
-test('draw_polygon render active polygon with 3 coordinates (and closer)', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
-  const testPolygon = context.store.get(context.store.getAllIds()[0]);
+describe("draw_polygon mouse interaction", () => {
+    // The following tests share state
+    const container = document.createElement("div")
+    let map
+    let Draw
+    let afterNextRender
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      id: testPolygon.id
-    },
-    geometry: {
-      type: 'Polygon',
-      coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]]
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 3, 'does render');
-  t.deepEqual(memo[0], {
-    type: 'Feature',
-    properties: {
-      parent: testPolygon.id,
-      meta: 'vertex',
-      coord_path: '0.0',
-      active: 'false'
-    },
-    geometry: {
-      type: 'Point',
-      coordinates: [0, 0]
-    }
-  }, 'renders the start point point with meta: vertex');
-  t.deepEqual(memo[1], {
-    type: 'Feature',
-    properties: {
-      parent: testPolygon.id,
-      meta: 'vertex',
-      coord_path: '0.2',
-      active: 'false'
-    },
-    geometry: {
-      type: 'Point',
-      coordinates: [10, 10]
-    }
-  }, 'renders end point with meta: vertex');
-  t.deepEqual(memo[2], {
-    type: 'Feature',
-    properties: {
-      id: testPolygon.id,
-      active: 'true',
-      meta: 'feature'
-    },
-    geometry: {
-      type: 'Polygon',
-      coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]]
-    }
-  }, 'renders as a polygon with meta: feature, active: true');
-  t.end();
-});
+    beforeAll(async () => {
+        document.body.appendChild(container)
+        map = createMap({ container })
+        Draw = new MapboxDraw()
+        map.addControl(Draw)
+        await waitForLoad(map)
 
-test('draw_polygon render inactive feature', (t) => {
-  const context = createMockDrawModeContext();
-  const mode = drawPolygonMode(context);
-  const lifecycleContext = createMockLifecycleContext();
-  mode.start.call(lifecycleContext);
+        afterNextRender = setupAfterNextRender(map)
+        Draw.changeMode("draw_polygon")
+    })
 
-  const memo = [];
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      meta: 'meh'
-    },
-    geometry: {
-      type: 'LineString',
-      coordinates: [[0, 0], [0, 10]]
-    }
-  };
-  mode.render(geojson, x => memo.push(x));
-  t.equal(memo.length, 1, 'does render');
-  t.deepEqual(memo[0], {
-    type: 'Feature',
-    properties: {
-      active: 'false',
-      meta: 'meh'
-    },
-    geometry: {
-      type: 'LineString',
-      coordinates: [[0, 0], [0, 10]]
-    }
-  }, 'unaltered except active: false');
-  t.end();
-});
+    afterAll(() => {
+        container.remove()
+    })
 
-test('draw_polygon mouse interaction', (t) => {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const map = createMap({ container });
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
+    it("first click", () => {
+        mouseClick(map, makeMouseEvent(10, 20))
 
-  map.on('load', () => {
-    // The following sub-tests share state ...
-    const afterNextRender = setupAfterNextRender(map);
+        const { features } = Draw.getAll()
+        expect(features.length, "polygon created").toBe(1)
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.type).toBe("Polygon")
 
-    Draw.changeMode('draw_polygon');
-    t.test('first click', (st) => {
-      mouseClick(map, makeMouseEvent(10, 20));
+        expect(polygon.geometry.coordinates, "starting coordinate added").toEqual([
+            [
+                [10, 20],
+                [10, 20],
+                [10, 20],
+            ],
+        ])
+    })
 
-      const { features } = Draw.getAll();
-      st.equal(features.length, 1, 'polygon created');
-      const polygon = Draw.getAll().features[0];
-      st.equal(polygon.geometry.type, 'Polygon');
+    it("move mouse", () => {
+        map.fire("mousemove", makeMouseEvent(15, 23))
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "middle coordinate added").toEqual([
+            [
+                [10, 20],
+                [15, 23],
+                [10, 20],
+            ],
+        ])
+    })
 
-      st.deepEqual(polygon.geometry.coordinates, [[[10, 20], [10, 20], [10, 20]]], 'starting coordinate added');
+    it("move mouse again", () => {
+        map.fire("mousemove", makeMouseEvent(30, 33))
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "middle coordinate replaced").toEqual([
+            [
+                [10, 20],
+                [30, 33],
+                [10, 20],
+            ],
+        ])
+    })
 
-      st.end();
-    });
+    it("click to add another vertex", () => {
+        mouseClick(map, makeMouseEvent(35, 35))
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "middle coordinate replaced").toEqual([
+            [
+                [10, 20],
+                [35, 35],
+                [35, 35],
+                [10, 20],
+            ],
+        ])
+    })
 
-    t.test('move mouse', (st) => {
-      map.fire('mousemove', makeMouseEvent(15, 23));
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[10, 20], [15, 23], [10, 20]]], 'middle coordinate added');
-      st.end();
-    });
+    it("add more points then click on the last vertex to finish", () => {
+        mouseClick(map, makeMouseEvent(40, 40))
+        mouseClick(map, makeMouseEvent(50, 50))
+        mouseClick(map, makeMouseEvent(55, 55))
+        mouseClick(map, makeMouseEvent(55, 55))
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "all coordinates in place").toEqual([
+            [
+                [10, 20],
+                [35, 35],
+                [40, 40],
+                [50, 50],
+                [55, 55],
+                [10, 20],
+            ],
+        ])
 
-    t.test('move mouse again', (st) => {
-      map.fire('mousemove', makeMouseEvent(30, 33));
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[10, 20], [30, 33], [10, 20]]], 'middle coordinate replaced');
-      st.end();
-    });
+        mouseClick(map, makeMouseEvent(40, 40))
+        expect(
+            polygon.geometry.coordinates,
+            "since we exited draw_polygon mode, another click does not add a coordinate",
+        ).toEqual([
+            [
+                [10, 20],
+                [35, 35],
+                [40, 40],
+                [50, 50],
+                [55, 55],
+                [10, 20],
+            ],
+        ])
+    })
 
-    t.test('click to add another vertex', (st) => {
-      mouseClick(map, makeMouseEvent(35, 35));
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[10, 20], [35, 35], [35, 35], [10, 20]]], 'middle coordinate replaced');
-      st.end();
-    });
+    it("start a polygon but trash it before completion", () => {
+        // Start a new polygon
+        Draw.deleteAll()
+        Draw.changeMode("draw_polygon")
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(2, 2))
+        mouseClick(map, makeMouseEvent(3, 3))
 
-    t.test('add more points then click on the last vertex to finish', (st) => {
-      mouseClick(map, makeMouseEvent(40, 40));
-      mouseClick(map, makeMouseEvent(50, 50));
-      mouseClick(map, makeMouseEvent(55, 55));
-      mouseClick(map, makeMouseEvent(55, 55));
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates,
-        [[[10, 20], [35, 35], [40, 40], [50, 50], [55, 55], [10, 20]]],
-        'all coordinates in place');
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates).toEqual([
+            [
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [3, 3],
+                [1, 1],
+            ],
+        ])
 
-      mouseClick(map, makeMouseEvent(40, 40));
-      st.deepEqual(polygon.geometry.coordinates,
-        [[[10, 20], [35, 35], [40, 40], [50, 50], [55, 55], [10, 20]]],
-        'since we exited draw_polygon mode, another click does not add a coordinate');
+        Draw.trash()
+        expect(Draw.getAll().features.length, "no feature added").toBe(0)
 
-      st.end();
-    });
+        mouseClick(map, makeMouseEvent(1, 1))
+        expect(Draw.getAll().features.length, "no longer drawing").toBe(0)
+    })
 
-    t.test('start a polygon but trash it before completion', (st) => {
-      // Start a new polygon
-      Draw.deleteAll();
-      Draw.changeMode('draw_polygon');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(2, 2));
-      mouseClick(map, makeMouseEvent(3, 3));
+    it("start a polygon but trash it with Escape before completion", () => {
+        // Start a new polygon
+        Draw.deleteAll()
+        Draw.changeMode("draw_polygon")
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(2, 2))
+        mouseClick(map, makeMouseEvent(3, 3))
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [2, 2], [3, 3], [3, 3], [1, 1]]]);
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates).toEqual([
+            [
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [3, 3],
+                [1, 1],
+            ],
+        ])
 
-      Draw.trash();
-      st.equal(Draw.getAll().features.length, 0, 'no feature added');
+        container.dispatchEvent(escapeEvent())
 
-      mouseClick(map, makeMouseEvent(1, 1));
-      st.equal(Draw.getAll().features.length, 0, 'no longer drawing');
+        expect(Draw.getAll().features.length, "no feature added").toBe(0)
 
-      st.end();
-    });
-
-    t.test('start a polygon but trash it with Escape before completion', (st) => {
-      // Start a new polygon
-      Draw.deleteAll();
-      Draw.changeMode('draw_polygon');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(2, 2));
-      mouseClick(map, makeMouseEvent(3, 3));
-
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [2, 2], [3, 3], [3, 3], [1, 1]]]);
-
-      container.dispatchEvent(escapeEvent);
-
-      st.equal(Draw.getAll().features.length, 0, 'no feature added');
-
-      mouseClick(map, makeMouseEvent(1, 1));
-      st.equal(Draw.getAll().features.length, 0, 'no longer drawing');
-
-      st.end();
-    });
+        mouseClick(map, makeMouseEvent(1, 1))
+        expect(Draw.getAll().features.length, "no longer drawing").toBe(0)
+    })
 
     // ZERO CLICK TESTS
 
-    t.test('start a polygon and end it with Enter', (st) => {
-      // Start a new polygon
-      Draw.deleteAll();
-      Draw.changeMode('draw_polygon');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(2, 2));
-      mouseClick(map, makeMouseEvent(3, 3));
+    it("start a polygon and end it with Enter", () => {
+        // Start a new polygon
+        Draw.deleteAll()
+        Draw.changeMode("draw_polygon")
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(2, 2))
+        mouseClick(map, makeMouseEvent(3, 3))
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [2, 2], [3, 3], [3, 3], [1, 1]]]);
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates).toEqual([
+            [
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [3, 3],
+                [1, 1],
+            ],
+        ])
 
-      container.dispatchEvent(enterEvent);
+        container.dispatchEvent(enterEvent())
 
-      st.equal(Draw.getAll().features.length, 1, 'the feature was added');
-      st.deepEqual(Draw.getAll().features[0].geometry.coordinates, [[[1, 1], [2, 2], [3, 3], [1, 1]]], 'the polygon is correct');
+        expect(Draw.getAll().features.length, "the feature was added").toBe(1)
+        expect(Draw.getAll().features[0].geometry.coordinates, "the polygon is correct").toEqual([
+            [
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [1, 1],
+            ],
+        ])
 
-      mouseClick(map, makeMouseEvent(1, 1));
-      st.equal(Draw.getAll().features.length, 1, 'no longer drawing');
+        mouseClick(map, makeMouseEvent(1, 1))
+        expect(Draw.getAll().features.length, "no longer drawing").toBe(1)
+    })
 
-      st.end();
-    });
+    it("start draw_polygon mode then changemode before a click", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-    t.test('start draw_polygon mode then changemode before a click', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.type).toEqual("Polygon")
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.type, 'Polygon');
-
-      Draw.changeMode('simple_select');
-      st.equal(Draw.getAll().features.length, 0, 'polygon is removed');
-
-      st.end();
-    });
+        Draw.changeMode("simple_select")
+        expect(Draw.getAll().features.length, "polygon is removed").toBe(0)
+    })
 
     // ONE CLICK TESTS
 
-    t.test('start draw_polygon mode then enter after one click', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+    it("start draw_polygon mode then enter after one click", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      map.fire('mousemove', makeMouseEvent(16, 16));
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        map.fire("mousemove", makeMouseEvent(16, 16))
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [1, 1]]], 'and has right coordinates');
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [1, 1],
+            ],
+        ])
 
-      container.dispatchEvent(enterEvent);
-      st.equal(Draw.getAll().features.length, 0, 'polygon was removed');
+        container.dispatchEvent(enterEvent())
+        expect(Draw.getAll().features.length, "polygon was removed").toBe(0)
+    })
 
-      st.end();
-    });
+    it("start draw_polygon mode then start a point after one click", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-    t.test('start draw_polygon mode then start a point after one click', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        map.fire("mousemove", makeMouseEvent(16, 16))
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      map.fire('mousemove', makeMouseEvent(16, 16));
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [1, 1],
+            ],
+        ])
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [1, 1]]], 'and has right coordinates');
+        container.dispatchEvent(startPointEvent())
+        expect(Draw.get(polygon.id), "polygon was removed").toBe(undefined)
+    })
 
-      container.dispatchEvent(startPointEvent);
-      st.equal(Draw.get(polygon.id), undefined, 'polygon was removed');
+    it("start draw_polygon mode then start a line_string after one click", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      st.end();
-    });
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        map.fire("mousemove", makeMouseEvent(16, 16))
 
-    t.test('start draw_polygon mode then start a line_string after one click', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [1, 1],
+            ],
+        ])
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      map.fire('mousemove', makeMouseEvent(16, 16));
+        container.dispatchEvent(startLineStringEvent())
+        expect(Draw.get(polygon.id), "polygon was removed").toBe(undefined)
+    })
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [1, 1]]], 'and has right coordinates');
+    it("start draw_polygon mode then start a new polygon after one click", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      container.dispatchEvent(startLineStringEvent);
-      st.equal(Draw.get(polygon.id), undefined, 'polygon was removed');
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        map.fire("mousemove", makeMouseEvent(16, 16))
 
-      st.end();
-    });
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [1, 1],
+            ],
+        ])
 
-    t.test('start draw_polygon mode then start a new polygon after one click', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+        container.dispatchEvent(startPolygonEvent())
+        expect(Draw.get(polygon.id), "polygon was removed").toBe(undefined)
+    })
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      map.fire('mousemove', makeMouseEvent(16, 16));
+    it("start draw_polygon mode then doubleclick", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [1, 1]]], 'and has right coordinates');
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(1, 1))
 
-      container.dispatchEvent(startPolygonEvent);
-      st.equal(Draw.get(polygon.id), undefined, 'polygon was removed');
-
-      st.end();
-    });
-
-    t.test('start draw_polygon mode then doubleclick', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
-
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(1, 1));
-
-      st.equal(Draw.getAll().features.length, 0, 'polygon was removed');
-
-      st.end();
-    });
+        expect(Draw.getAll().features.length, "polygon was removed").toBe(0)
+    })
 
     // TWO CLICK TESTS
 
-    t.test('start draw_polygon mode then enter after two clicks', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+    it("start draw_polygon mode then enter after two clicks", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(16, 16));
-      map.fire('mousemove', makeMouseEvent(8, 0));
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(16, 16))
+        map.fire("mousemove", makeMouseEvent(8, 0))
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [8, 0], [1, 1]]], 'and has right coordinates');
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [8, 0],
+                [1, 1],
+            ],
+        ])
 
-      container.dispatchEvent(enterEvent);
-      st.equal(Draw.getAll().features.length, 0, 'polygon was removed');
-      st.end();
-    });
+        container.dispatchEvent(enterEvent())
+        expect(Draw.getAll().features.length, "polygon was removed").toBe(0)
+    })
 
-    t.test('start draw_polygon mode then start a point after two clicks', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+    it("start draw_polygon mode then start a point after two clicks", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(16, 16));
-      map.fire('mousemove', makeMouseEvent(8, 0));
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(16, 16))
+        map.fire("mousemove", makeMouseEvent(8, 0))
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [8, 0], [1, 1]]], 'and has right coordinates');
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [8, 0],
+                [1, 1],
+            ],
+        ])
 
-      container.dispatchEvent(startPointEvent);
-      st.equal(Draw.get(polygon.id), undefined, 'polygon was removed');
+        container.dispatchEvent(startPointEvent())
+        expect(Draw.get(polygon.id), "polygon was removed").toBe(undefined)
+    })
 
-      st.end();
-    });
+    it("start draw_polygon mode then start a line_string after two clicks", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-    t.test('start draw_polygon mode then start a line_string after two clicks', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(16, 16))
+        map.fire("mousemove", makeMouseEvent(8, 0))
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(16, 16));
-      map.fire('mousemove', makeMouseEvent(8, 0));
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [8, 0],
+                [1, 1],
+            ],
+        ])
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [8, 0], [1, 1]]], 'and has right coordinates');
+        container.dispatchEvent(startLineStringEvent())
+        expect(Draw.get(polygon.id), "polygon was removed").toBe(undefined)
+    })
 
-      container.dispatchEvent(startLineStringEvent);
-      st.equal(Draw.get(polygon.id), undefined, 'polygon was removed');
+    it("start draw_polygon mode then start a new polygon after two clicks", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      st.end();
-    });
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(16, 16))
+        map.fire("mousemove", makeMouseEvent(8, 0))
 
-    t.test('start draw_polygon mode then start a new polygon after two clicks', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [1, 1],
+                [16, 16],
+                [8, 0],
+                [1, 1],
+            ],
+        ])
 
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(16, 16));
-      map.fire('mousemove', makeMouseEvent(8, 0));
+        container.dispatchEvent(startPolygonEvent())
+        expect(Draw.get(polygon.id), "polygon was removed").toBe(undefined)
+    })
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[1, 1], [16, 16], [8, 0], [1, 1]]], 'and has right coordinates');
+    it("start draw_polygon mode then doubleclick (after two clicks)", () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
 
-      container.dispatchEvent(startPolygonEvent);
-      st.equal(Draw.get(polygon.id), undefined, 'polygon was removed');
+        Draw.changeMode("draw_polygon")
+        expect(Draw.getAll().features.length, "polygon is added").toBe(1)
+        mouseClick(map, makeMouseEvent(1, 1))
+        mouseClick(map, makeMouseEvent(16, 16))
+        mouseClick(map, makeMouseEvent(16, 16))
 
-      st.end();
-    });
-
-    t.test('start draw_polygon mode then doubleclick', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
-
-      Draw.changeMode('draw_polygon');
-      st.equal(Draw.getAll().features.length, 1, 'polygon is added');
-      mouseClick(map, makeMouseEvent(1, 1));
-      mouseClick(map, makeMouseEvent(16, 16));
-      mouseClick(map, makeMouseEvent(16, 16));
-
-      st.equal(Draw.getAll().features.length, 0, 'polygon was removed');
-
-      st.end();
-    });
+        expect(Draw.getAll().features.length, "polygon was removed").toBe(0)
+    })
 
     // FIVE CLICK TEST
 
-    t.test('end draw_polygon mode by clicking on the start point', (st) => {
-      Draw.deleteAll();
-      st.equal(Draw.getAll().features.length, 0, 'no features yet');
-      Draw.changeMode('draw_polygon');
-      let polygon = Draw.getAll().features[0];
-      st.equal(polygon !== undefined, true, 'polygon is added');
-      mouseClick(map, makeMouseEvent(0, 0));
-      mouseClick(map, makeMouseEvent(20, 0));
-      mouseClick(map, makeMouseEvent(20, 20));
-      mouseClick(map, makeMouseEvent(0, 20));
+    it("end draw_polygon mode by clicking on the start point", async () => {
+        Draw.deleteAll()
+        expect(Draw.getAll().features.length, "no features yet").toBe(0)
+        Draw.changeMode("draw_polygon")
+        let polygon = Draw.getAll().features[0]
+        expect(polygon !== undefined, "polygon is added").toBe(true)
+        mouseClick(map, makeMouseEvent(0, 0))
+        mouseClick(map, makeMouseEvent(20, 0))
+        mouseClick(map, makeMouseEvent(20, 20))
+        mouseClick(map, makeMouseEvent(0, 20))
 
-      afterNextRender(() => {
-        map.fire('mousemove', makeMouseEvent(0, 0));
-        mouseClick(map, makeMouseEvent(0, 0));
+        await afterNextRender()
+        map.fire("mousemove", makeMouseEvent(0, 0))
+        mouseClick(map, makeMouseEvent(0, 0))
 
-        polygon = Draw.get(polygon.id);
-        st.deepEqual(polygon.geometry.coordinates, [[[0, 0], [20, 0], [20, 20], [0, 20], [0, 0]]], 'and has right coordinates');
-        Draw.deleteAll();
-        st.end();
-      });
-    });
+        polygon = Draw.get(polygon.id)
+        expect(polygon.geometry.coordinates, "and has right coordinates").toEqual([
+            [
+                [0, 0],
+                [20, 0],
+                [20, 20],
+                [0, 20],
+                [0, 0],
+            ],
+        ])
+        Draw.deleteAll()
+    })
+})
 
-    document.body.removeChild(container);
-    t.end();
-  });
-});
+describe("draw_polygon touch interaction", () => {
+    // The following tests share state
+    const container = document.createElement("div")
+    let map
+    let Draw
 
+    beforeAll(async () => {
+        document.body.appendChild(container)
+        map = createMap({ container })
+        Draw = new MapboxDraw()
+        map.addControl(Draw)
+        await waitForLoad(map)
 
-test('draw_polygon touch interaction', (t) => {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const map = createMap({ container });
-  const Draw = new MapboxDraw();
-  map.addControl(Draw);
+        Draw.changeMode("draw_polygon")
+    })
 
-  map.on('load', () => {
-    // The following sub-tests share state ...
+    afterAll(() => {
+        container.remove()
+    })
 
-    Draw.changeMode('draw_polygon');
-    t.test('first tap', (st) => {
-      touchTap(map, makeTouchEvent(100, 200));
+    it("first tap", () => {
+        touchTap(map, makeTouchEvent(100, 200))
 
-      const { features } = Draw.getAll();
-      st.equal(features.length, 1, 'polygon created');
-      const polygon = Draw.getAll().features[0];
-      st.equal(polygon.geometry.type, 'Polygon');
+        const { features } = Draw.getAll()
+        expect(features.length, "polygon created").toBe(1)
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.type).toBe("Polygon")
 
-      st.deepEqual(polygon.geometry.coordinates, [[[100, 200], [100, 200], [100, 200]]], 'starting coordinate added');
+        expect(polygon.geometry.coordinates, "starting coordinate added").toEqual([
+            [
+                [100, 200],
+                [100, 200],
+                [100, 200],
+            ],
+        ])
+    })
 
-      st.end();
-    });
+    it("tap to add another vertex", () => {
+        touchTap(map, makeTouchEvent(135, 135))
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "middle coordinate replaced").toEqual([
+            [
+                [100, 200],
+                [135, 135],
+                [135, 135],
+                [100, 200],
+            ],
+        ])
+    })
 
-    t.test('tap to add another vertex', (st) => {
-      touchTap(map, makeTouchEvent(135, 135));
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[100, 200], [135, 135], [135, 135], [100, 200]]], 'middle coordinate replaced');
-      st.end();
-    });
+    it("add more points then tap on the last vertex to finish", () => {
+        touchTap(map, makeTouchEvent(400, 400))
+        touchTap(map, makeTouchEvent(500, 500))
+        touchTap(map, makeTouchEvent(550, 550))
+        touchTap(map, makeTouchEvent(550, 550))
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates, "all coordinates in place").toEqual([
+            [
+                [100, 200],
+                [135, 135],
+                [400, 400],
+                [500, 500],
+                [550, 550],
+                [100, 200],
+            ],
+        ])
 
-    t.test('add more points then tap on the last vertex to finish', (st) => {
-      touchTap(map, makeTouchEvent(400, 400));
-      touchTap(map, makeTouchEvent(500, 500));
-      touchTap(map, makeTouchEvent(550, 550));
-      touchTap(map, makeTouchEvent(550, 550));
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates,
-        [[[100, 200], [135, 135], [400, 400], [500, 500], [550, 550], [100, 200]]],
-        'all coordinates in place');
+        touchTap(map, makeTouchEvent(400, 400))
+        expect(
+            polygon.geometry.coordinates,
+            "since we exited draw_polygon mode, another tap does not add a coordinate",
+        ).toEqual([
+            [
+                [100, 200],
+                [135, 135],
+                [400, 400],
+                [500, 500],
+                [550, 550],
+                [100, 200],
+            ],
+        ])
+    })
 
-      touchTap(map, makeTouchEvent(400, 400));
-      st.deepEqual(polygon.geometry.coordinates,
-        [[[100, 200], [135, 135], [400, 400], [500, 500], [550, 550], [100, 200]]],
-        'since we exited draw_polygon mode, another tap does not add a coordinate');
+    it("start a polygon but trash it before completion", () => {
+        // Start a new polygon
+        Draw.deleteAll()
+        Draw.changeMode("draw_polygon")
+        touchTap(map, makeTouchEvent(100, 100))
+        touchTap(map, makeTouchEvent(200, 200))
+        touchTap(map, makeTouchEvent(300, 300))
 
-      st.end();
-    });
+        const polygon = Draw.getAll().features[0]
+        expect(polygon.geometry.coordinates).toEqual([
+            [
+                [100, 100],
+                [200, 200],
+                [300, 300],
+                [300, 300],
+                [100, 100],
+            ],
+        ])
 
-    t.test('start a polygon but trash it before completion', (st) => {
-      // Start a new polygon
-      Draw.deleteAll();
-      Draw.changeMode('draw_polygon');
-      touchTap(map, makeTouchEvent(100, 100));
-      touchTap(map, makeTouchEvent(200, 200));
-      touchTap(map, makeTouchEvent(300, 300));
+        Draw.trash()
+        expect(Draw.getAll().features.length, "no feature added").toBe(0)
 
-      const polygon = Draw.getAll().features[0];
-      st.deepEqual(polygon.geometry.coordinates, [[[100, 100], [200, 200], [300, 300], [300, 300], [100, 100]]]);
-
-      Draw.trash();
-      st.equal(Draw.getAll().features.length, 0, 'no feature added');
-
-      touchTap(map, makeTouchEvent(1, 1));
-      st.equal(Draw.getAll().features.length, 0, 'no longer drawing');
-
-      st.end();
-    });
-
-    document.body.removeChild(container);
-    t.end();
-  });
-});
+        touchTap(map, makeTouchEvent(1, 1))
+        expect(Draw.getAll().features.length, "no longer drawing").toBe(0)
+    })
+})

@@ -1,264 +1,288 @@
-import test from 'tape';
-import ui from '../src/ui';
-import {spy} from 'sinon';
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
+import ui from "../src/ui"
 
 function createMockContext({ position, controls } = {}) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+    const container = document.createElement("div")
+    document.body.appendChild(container)
 
-  const controlContainer = document.createElement('div');
-  controlContainer.className = `maplibregl-ctrl-${position || 'top-left'}`;
-  container.appendChild(controlContainer);
+    const controlContainer = document.createElement("div")
+    controlContainer.className = `maplibregl-ctrl-${position || "top-left"}`
+    container.appendChild(controlContainer)
 
-  return {
-    context: {
-      container,
-      options: {
-        controls,
-        keybindings: true
-      },
-      api: {
-        trash: spy()
-      },
-      events: {
-        changeMode: spy()
-      }
-    },
-    cleanup() {
-      document.body.removeChild(container);
-    },
-    getControlContainer() {
-      return controlContainer;
+    return {
+        context: {
+            container,
+            options: {
+                controls,
+                keybindings: true,
+            },
+            api: {
+                trash: vi.fn(),
+            },
+            events: {
+                changeMode: vi.fn(),
+                // src/ui.js calls ctx.events.trash (not api.trash); the old DOM swallowed the TypeError, happy-dom rethrows it
+                trash: vi.fn(),
+            },
+        },
+        cleanup() {
+            container.remove()
+        },
+        getControlContainer() {
+            return controlContainer
+        },
     }
-  };
 }
 
 function getButtons(div) {
-  return Array.prototype.slice.call(div.getElementsByClassName('maplibre-gl-draw_ctrl-draw-btn'));
+    return Array.prototype.slice.call(div.getElementsByClassName("maplibre-gl-draw_ctrl-draw-btn"))
 }
 
-test('ui container classes', (t) => {
-  const { context, cleanup } = createMockContext();
-  const testUi = ui(context);
+describe("ui container classes", () => {
+    let context
+    let cleanup
+    let testUi
 
-  t.equal(context.container.className, '', 'confirm that class starts empty');
+    beforeAll(() => {
+        ;({ context, cleanup } = createMockContext())
+        testUi = ui(context)
+    })
 
-  // Each sub-test relies on state from the prior sub-tests
+    afterAll(() => {
+        cleanup()
+    })
 
-  t.test('update all classes', (st) => {
-    testUi.queueMapClasses({
-      mode: 'direct_select',
-      feature: 'vertex',
-      mouse: 'move'
-    });
-    testUi.updateMapClasses();
-    st.ok(context.container.classList.contains('mode-direct_select'), 'mode class set');
-    st.ok(context.container.classList.contains('feature-vertex'), 'feature class set');
-    st.ok(context.container.classList.contains('mouse-move'), 'mouse class set');
-    st.end();
-  });
+    // Each sub-test relies on state from the prior sub-tests
 
-  t.test('update only feature class', (st) => {
-    testUi.queueMapClasses({
-      feature: 'midpoint'
-    });
-    testUi.updateMapClasses();
-    st.ok(context.container.classList.contains('mode-direct_select'), 'mode class remains');
-    st.ok(context.container.classList.contains('feature-midpoint'), 'feature class updated');
-    st.ok(context.container.classList.contains('mouse-move'), 'mouse class remains');
-    st.end();
-  });
+    it("starts with empty class", () => {
+        expect(context.container.className, "confirm that class starts empty").toBe("")
+    })
 
-  t.test('update mode and mouse classes', (st) => {
-    testUi.queueMapClasses({
-      mode: 'foo',
-      mouse: 'bar'
-    });
-    testUi.updateMapClasses();
-    st.ok(context.container.classList.contains('mode-foo'), 'mode class updated');
-    st.ok(context.container.classList.contains('feature-midpoint'), 'feature class remains');
-    st.ok(context.container.classList.contains('mouse-bar'), 'mouse class updated');
-    st.end();
-  });
+    it("update all classes", () => {
+        testUi.queueMapClasses({
+            mode: "direct_select",
+            feature: "vertex",
+            mouse: "move",
+        })
+        testUi.updateMapClasses()
+        expect(context.container.classList.contains("mode-direct_select"), "mode class set").toBeTruthy()
+        expect(context.container.classList.contains("feature-vertex"), "feature class set").toBeTruthy()
+        expect(context.container.classList.contains("mouse-move"), "mouse class set").toBeTruthy()
+    })
 
-  t.test('remove only feature class', (st) => {
-    testUi.queueMapClasses({
-      feature: null
-    });
-    testUi.updateMapClasses();
-    st.ok(context.container.classList.contains('mode-foo'), 'mode class remains');
-    st.ok(context.container.className.indexOf('feature-') === -1, 'feature class removed');
-    st.ok(context.container.classList.contains('mouse-bar'), 'mouse class remains');
-    st.end();
-  });
+    it("update only feature class", () => {
+        testUi.queueMapClasses({
+            feature: "midpoint",
+        })
+        testUi.updateMapClasses()
+        expect(context.container.classList.contains("mode-direct_select"), "mode class remains").toBeTruthy()
+        expect(context.container.classList.contains("feature-midpoint"), "feature class updated").toBeTruthy()
+        expect(context.container.classList.contains("mouse-move"), "mouse class remains").toBeTruthy()
+    })
 
-  t.test('remove all classes', (st) => {
-    testUi.queueMapClasses({
-      feature: null,
-      mode: null,
-      mouse: null
-    });
-    testUi.updateMapClasses();
-    st.ok(context.container.className.indexOf('mode-') === -1, 'mode class removed');
-    st.ok(context.container.className.indexOf('feature-') === -1, 'feature class still gone');
-    st.ok(context.container.className.indexOf('mouse-') === -1, 'mouse class removed');
-    st.end();
-  });
+    it("update mode and mouse classes", () => {
+        testUi.queueMapClasses({
+            mode: "foo",
+            mouse: "bar",
+        })
+        testUi.updateMapClasses()
+        expect(context.container.classList.contains("mode-foo"), "mode class updated").toBeTruthy()
+        expect(context.container.classList.contains("feature-midpoint"), "feature class remains").toBeTruthy()
+        expect(context.container.classList.contains("mouse-bar"), "mouse class updated").toBeTruthy()
+    })
 
-  cleanup();
-  t.end();
-});
+    it("remove only feature class", () => {
+        testUi.queueMapClasses({
+            feature: null,
+        })
+        testUi.updateMapClasses()
+        expect(context.container.classList.contains("mode-foo"), "mode class remains").toBeTruthy()
+        expect(context.container.className.indexOf("feature-") === -1, "feature class removed").toBeTruthy()
+        expect(context.container.classList.contains("mouse-bar"), "mouse class remains").toBeTruthy()
+    })
 
-test('ui buttons with no options.controls', (t) => {
-  const { context, cleanup } = createMockContext();
-  const testUi = ui(context);
+    it("remove all classes", () => {
+        testUi.queueMapClasses({
+            feature: null,
+            mode: null,
+            mouse: null,
+        })
+        testUi.updateMapClasses()
+        expect(context.container.className.indexOf("mode-") === -1, "mode class removed").toBeTruthy()
+        expect(context.container.className.indexOf("feature-") === -1, "feature class still gone").toBeTruthy()
+        expect(context.container.className.indexOf("mouse-") === -1, "mouse class removed").toBeTruthy()
+    })
+})
 
-  const div = testUi.addButtons();
-  t.deepEqual(getButtons(div), [], 'still no buttons');
+describe("ui buttons", () => {
+    it("with no options.controls", () => {
+        const { context, cleanup } = createMockContext()
+        const testUi = ui(context)
 
-  cleanup();
-  t.end();
-});
+        const div = testUi.addButtons()
+        expect(getButtons(div), "still no buttons").toEqual([])
 
-test('ui buttons with one options.controls', (t) => {
-  /* eslint-disable */
-  const { context, cleanup } = createMockContext({
-    controls: {
-      line_string: true
-    }
-  });
-  /* eslint-enable */
-  const testUi = ui(context);
+        cleanup()
+    })
 
-  const div = testUi.addButtons();
-  const buttons = getButtons(div);
-  t.equal(buttons.length, 1, 'one button added');
-  t.ok(buttons[0].classList.contains('maplibre-gl-draw_line'), 'has line class');
-  t.ok(buttons[0].classList.contains('maplibre-gl-draw_ctrl-draw-btn'), 'has control class');
+    it("with one options.controls", () => {
+        const { context, cleanup } = createMockContext({
+            controls: {
+                line_string: true,
+            },
+        })
+        const testUi = ui(context)
 
-  cleanup();
-  t.end();
-});
+        const div = testUi.addButtons()
+        const buttons = getButtons(div)
+        expect(buttons.length, "one button added").toBe(1)
+        expect(buttons[0].classList.contains("maplibre-gl-draw_line"), "has line class").toBeTruthy()
+        expect(buttons[0].classList.contains("maplibre-gl-draw_ctrl-draw-btn"), "has control class").toBeTruthy()
 
-test('ui buttons control group container inserted above attribution control, in control container, by addButtons', (t) => {
-  const { context, cleanup, getControlContainer } = createMockContext({
-    controls: {
-      trash: true
-    }
-  });
+        cleanup()
+    })
 
-  const controlContainer = getControlContainer();
-  const testUi = ui(context);
+    it("control group container inserted above attribution control, in control container, by addButtons", () => {
+        const { context, cleanup, getControlContainer } = createMockContext({
+            controls: {
+                trash: true,
+            },
+        })
 
-  t.equal(controlContainer.getElementsByClassName('maplibregl-ctrl-group').length, 0,
-    'confirm control group does not exist at first');
+        const controlContainer = getControlContainer()
+        const testUi = ui(context)
 
-  const controlGroup = testUi.addButtons();
-  t.ok(controlGroup, 'control group exists');
+        expect(
+            controlContainer.getElementsByClassName("maplibregl-ctrl-group").length,
+            "confirm control group does not exist at first",
+        ).toBe(0)
 
-  cleanup();
-  t.end();
-});
+        const controlGroup = testUi.addButtons()
+        expect(controlGroup, "control group exists").toBeTruthy()
 
-test('ui buttons with all options.controls, no attribution control', (t) => {
-  /* eslint-disable */
-  const { context, cleanup } = createMockContext({
-    controls: {
-      line_string: true,
-      point: true,
-      polygon: true,
-      trash: true
-    }
-  });
-  /* eslint-enable */
-  const testUi = ui(context);
+        cleanup()
+    })
+})
 
-  const controlGroup = testUi.addButtons();
-  const buttons = getButtons(controlGroup);
+describe("ui buttons with all options.controls, no attribution control", () => {
+    let context
+    let cleanup
+    let testUi
+    let controlGroup
+    let lineButton
+    let polygonButton
+    let pointButton
+    let trashButton
 
-  t.equal(buttons.length, 4, 'one button added');
+    beforeAll(() => {
+        ;({ context, cleanup } = createMockContext({
+            controls: {
+                line_string: true,
+                point: true,
+                polygon: true,
+                trash: true,
+            },
+        }))
+        testUi = ui(context)
 
-  t.ok(buttons[0].classList.contains('maplibre-gl-draw_line'), 'first button has line class');
-  t.ok(buttons[0].classList.contains('maplibre-gl-draw_ctrl-draw-btn'), 'first button has control class');
-  t.equal(buttons[0].parentNode, controlGroup, 'first button is in controlGroup');
-  const lineButton = buttons[0];
+        controlGroup = testUi.addButtons()
+    })
 
-  t.ok(buttons[1].classList.contains('maplibre-gl-draw_polygon'), 'second button has polygon class');
-  t.ok(buttons[1].classList.contains('maplibre-gl-draw_ctrl-draw-btn'), 'second button has control class');
-  t.equal(buttons[1].parentNode, controlGroup, 'second button is in controlGroup');
-  const polygonButton = buttons[1];
-  t.ok(buttons[2].classList.contains('maplibre-gl-draw_point'), 'third button has point class');
-  t.ok(buttons[2].classList.contains('maplibre-gl-draw_ctrl-draw-btn'), 'third button has control class');
-  t.equal(buttons[2].parentNode, controlGroup, 'third button is in controlGroup');
-  const pointButton = buttons[2];
-  t.ok(buttons[3].classList.contains('maplibre-gl-draw_trash'), 'fourth button has trash class');
-  t.ok(buttons[3].classList.contains('maplibre-gl-draw_ctrl-draw-btn'), 'fourth button has control class');
-  t.equal(buttons[3].parentNode, controlGroup, 'fourth button is in controlGroup');
-  const trashButton = buttons[3];
+    afterAll(() => {
+        cleanup()
+    })
 
-  t.test('click line button', (st) => {
-    lineButton.click();
+    it("adds all buttons", () => {
+        const buttons = getButtons(controlGroup)
 
-    st.ok(lineButton.classList.contains('active'), 'line button is active');
-    st.notOk(polygonButton.classList.contains('active'), 'polygon button is inactive');
-    st.notOk(pointButton.classList.contains('active'), 'point button is inactive');
-    st.notOk(trashButton.classList.contains('active'), 'trash button is inactive');
+        expect(buttons.length, "one button added").toBe(4)
 
-    st.equal(context.events.changeMode.callCount, 1, 'changeMode called');
-    st.deepEqual(context.events.changeMode.getCall(0).args, ['draw_line_string'], 'with correct arguments');
-    context.events.changeMode.resetHistory();
+        expect(buttons[0].classList.contains("maplibre-gl-draw_line"), "first button has line class").toBeTruthy()
+        expect(
+            buttons[0].classList.contains("maplibre-gl-draw_ctrl-draw-btn"),
+            "first button has control class",
+        ).toBeTruthy()
+        expect(buttons[0].parentNode, "first button is in controlGroup").toBe(controlGroup)
+        lineButton = buttons[0]
 
-    st.end();
-  });
+        expect(
+            buttons[1].classList.contains("maplibre-gl-draw_polygon"),
+            "second button has polygon class",
+        ).toBeTruthy()
+        expect(
+            buttons[1].classList.contains("maplibre-gl-draw_ctrl-draw-btn"),
+            "second button has control class",
+        ).toBeTruthy()
+        expect(buttons[1].parentNode, "second button is in controlGroup").toBe(controlGroup)
+        polygonButton = buttons[1]
+        expect(buttons[2].classList.contains("maplibre-gl-draw_point"), "third button has point class").toBeTruthy()
+        expect(
+            buttons[2].classList.contains("maplibre-gl-draw_ctrl-draw-btn"),
+            "third button has control class",
+        ).toBeTruthy()
+        expect(buttons[2].parentNode, "third button is in controlGroup").toBe(controlGroup)
+        pointButton = buttons[2]
+        expect(buttons[3].classList.contains("maplibre-gl-draw_trash"), "fourth button has trash class").toBeTruthy()
+        expect(
+            buttons[3].classList.contains("maplibre-gl-draw_ctrl-draw-btn"),
+            "fourth button has control class",
+        ).toBeTruthy()
+        expect(buttons[3].parentNode, "fourth button is in controlGroup").toBe(controlGroup)
+        trashButton = buttons[3]
+    })
 
-  t.test('click polygon button', (st) => {
-    polygonButton.click();
+    it("click line button", () => {
+        lineButton.click()
 
-    st.notOk(lineButton.classList.contains('active'), 'line button is inactive');
-    st.ok(polygonButton.classList.contains('active'), 'polygon button is active');
-    st.notOk(pointButton.classList.contains('active'), 'point button is inactive');
-    st.notOk(trashButton.classList.contains('active'), 'trash button is inactive');
+        expect(lineButton.classList.contains("active"), "line button is active").toBeTruthy()
+        expect(polygonButton.classList.contains("active"), "polygon button is inactive").toBeFalsy()
+        expect(pointButton.classList.contains("active"), "point button is inactive").toBeFalsy()
+        expect(trashButton.classList.contains("active"), "trash button is inactive").toBeFalsy()
 
-    st.equal(context.events.changeMode.callCount, 1, 'changeMode called');
-    st.deepEqual(context.events.changeMode.getCall(0).args, ['draw_polygon'], 'with correct arguments');
-    context.events.changeMode.resetHistory();
+        expect(context.events.changeMode, "changeMode called").toHaveBeenCalledTimes(1)
+        expect(context.events.changeMode, "with correct arguments").toHaveBeenNthCalledWith(1, "draw_line_string")
+        context.events.changeMode.mockClear()
+    })
 
-    st.end();
-  });
+    it("click polygon button", () => {
+        polygonButton.click()
 
-  t.test('programmatically activate point button, then programmatically deactivate', (st) => {
-    testUi.setActiveButton('point');
+        expect(lineButton.classList.contains("active"), "line button is inactive").toBeFalsy()
+        expect(polygonButton.classList.contains("active"), "polygon button is active").toBeTruthy()
+        expect(pointButton.classList.contains("active"), "point button is inactive").toBeFalsy()
+        expect(trashButton.classList.contains("active"), "trash button is inactive").toBeFalsy()
 
-    st.notOk(lineButton.classList.contains('active'), 'line button is inactive');
-    st.notOk(polygonButton.classList.contains('active'), 'polygon button is inactive');
-    st.ok(pointButton.classList.contains('active'), 'point button is active');
-    st.notOk(trashButton.classList.contains('active'), 'trash button is inactive');
-    st.equal(context.events.changeMode.callCount, 0, 'changeMode not called');
+        expect(context.events.changeMode, "changeMode called").toHaveBeenCalledTimes(1)
+        expect(context.events.changeMode, "with correct arguments").toHaveBeenNthCalledWith(1, "draw_polygon")
+        context.events.changeMode.mockClear()
+    })
 
-    testUi.setActiveButton();
+    it("programmatically activate point button, then programmatically deactivate", () => {
+        testUi.setActiveButton("point")
 
-    st.notOk(lineButton.classList.contains('active'), 'line button is inactive');
-    st.notOk(polygonButton.classList.contains('active'), 'polygon button is inactive');
-    st.notOk(pointButton.classList.contains('active'), 'point button is inactive');
-    st.notOk(trashButton.classList.contains('active'), 'trash button is inactive');
-    st.equal(context.events.changeMode.callCount, 0, 'changeMode not called');
+        expect(lineButton.classList.contains("active"), "line button is inactive").toBeFalsy()
+        expect(polygonButton.classList.contains("active"), "polygon button is inactive").toBeFalsy()
+        expect(pointButton.classList.contains("active"), "point button is active").toBeTruthy()
+        expect(trashButton.classList.contains("active"), "trash button is inactive").toBeFalsy()
+        expect(context.events.changeMode, "changeMode not called").toHaveBeenCalledTimes(0)
 
-    st.end();
-  });
+        testUi.setActiveButton()
 
-  t.test('click trash button', (st) => {
-    trashButton.click();
+        expect(lineButton.classList.contains("active"), "line button is inactive").toBeFalsy()
+        expect(polygonButton.classList.contains("active"), "polygon button is inactive").toBeFalsy()
+        expect(pointButton.classList.contains("active"), "point button is inactive").toBeFalsy()
+        expect(trashButton.classList.contains("active"), "trash button is inactive").toBeFalsy()
+        expect(context.events.changeMode, "changeMode not called").toHaveBeenCalledTimes(0)
+    })
 
-    st.notOk(lineButton.classList.contains('active'), 'line button is inactive');
-    st.notOk(polygonButton.classList.contains('active'), 'polygon button is inactive');
-    st.notOk(pointButton.classList.contains('active'), 'point button is inactive');
-    st.notOk(trashButton.classList.contains('active'), 'trash button is inactive');
+    it("click trash button", () => {
+        trashButton.click()
 
-    st.equal(context.events.changeMode.callCount, 0, 'changeMode not called');
+        expect(lineButton.classList.contains("active"), "line button is inactive").toBeFalsy()
+        expect(polygonButton.classList.contains("active"), "polygon button is inactive").toBeFalsy()
+        expect(pointButton.classList.contains("active"), "point button is inactive").toBeFalsy()
+        expect(trashButton.classList.contains("active"), "trash button is inactive").toBeFalsy()
 
-    st.end();
-  });
-
-  cleanup();
-  t.end();
-});
+        expect(context.events.changeMode, "changeMode not called").toHaveBeenCalledTimes(0)
+    })
+})

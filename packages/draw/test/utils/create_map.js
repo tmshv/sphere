@@ -1,6 +1,6 @@
 import { interactions } from '../../src/constants';
-import Evented from '../../bench/lib/evented';
-import bboxClip from '@turf/bbox-clip';
+import Evented from './evented';
+import { bboxClip } from '@turf/bbox-clip';
 
 class MockMap extends Evented {
   constructor(options = {}) {

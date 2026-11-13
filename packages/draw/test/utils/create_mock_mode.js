@@ -1,10 +1,10 @@
-import {spy} from 'sinon';
+import { vi } from "vitest"
 
-export default function createMockModeHandlerContext() {
-  return {
-    start: spy(),
-    stop: spy(),
-    trash: spy(),
-    render: spy()
-  };
+export default function createMockMode() {
+    return {
+        start: vi.fn(),
+        stop: vi.fn(),
+        trash: vi.fn(),
+        render: vi.fn(),
+    }
 }

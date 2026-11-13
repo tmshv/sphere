@@ -1,28 +1,28 @@
-import test from 'tape';
-import Point from '@mapbox/point-geometry';
-import mouseEventPoint from '../src/lib/mouse_event_point';
+import Point from "@mapbox/point-geometry"
+import { describe, expect, it } from "vitest"
+import mouseEventPoint from "../src/lib/mouse_event_point"
 
-test('mouseEventPoint', (t) => {
-  const mockContainer = {
-    clientLeft: 2,
-    clientTop: 1,
-    getBoundingClientRect() {
-      return {
-        left: 10,
-        top: 20
-      };
-    }
-  };
+describe("mouseEventPoint", () => {
+    it("converts a mouse event to a point relative to the container", () => {
+        const mockContainer = {
+            clientLeft: 2,
+            clientTop: 1,
+            getBoundingClientRect() {
+                return {
+                    left: 10,
+                    top: 20,
+                }
+            },
+        }
 
-  const mockEvent = {
-    clientX: 15,
-    clientY: 33
-  };
+        const mockEvent = {
+            clientX: 15,
+            clientY: 33,
+        }
 
-  const result = mouseEventPoint(mockEvent, mockContainer);
-  t.equal(result instanceof Point, true);
-  t.equal(result.x, 3);
-  t.equal(result.y, 12);
-
-  t.end();
-});
+        const result = mouseEventPoint(mockEvent, mockContainer)
+        expect(result instanceof Point).toBe(true)
+        expect(result.x).toBe(3)
+        expect(result.y).toBe(12)
+    })
+})
