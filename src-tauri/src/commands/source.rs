@@ -7,12 +7,11 @@ use mbtiles::tile::Tile;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
 use tauri::State;
 use url::Url;
 
 use crate::selection::SelectionStorage;
-use crate::state::{SourceEntry, SourceStorage};
+use crate::state::{shared_feature_store, SharedFeatureStore, SourceEntry, SourceStorage};
 
 const HISTOGRAM_BINS: usize = 10;
 const DEFAULT_TOP_VALUES: usize = 10;
@@ -96,9 +95,9 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
             // For all other source types, failure to build the store is an error.
             let store = match &source.data {
                 SourceData::Mbtiles(_) => None,
-                _ => Some(Arc::new(build_feature_store(&source)?)),
+                _ => Some(shared_feature_store(build_feature_store(&source)?)),
             };
-            let entry = SourceEntry { source, store };
+            let entry = SourceEntry::new(source, store);
             storage.store.lock().unwrap().insert(id, entry);
             Ok(n)
         }
@@ -161,7 +160,7 @@ pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) ->
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
         Some(entry) => match &entry.store {
-            Some(fs) => Ok(fs.schema().clone()),
+            Some(fs) => Ok(fs.read().unwrap().schema().clone()),
             None => entry.source.get_schema(),
         },
         None => Err(format!("Not found {}", &id)),
@@ -174,7 +173,7 @@ pub async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Res
     match store.get(&id) {
         Some(entry) => {
             if let Some(fs) = &entry.store {
-                if let Some(bounds) = fs.get_bounds() {
+                if let Some(bounds) = fs.read().unwrap().get_bounds() {
                     return Ok(bounds);
                 }
             }
@@ -251,7 +250,7 @@ pub async fn source_get_filtered(
         None => entry.source.to_geojson(),
         Some(expr) => {
             let fs = entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?;
-            let features = fs.get_filtered(Some(&expr));
+            let features = fs.read().unwrap().get_filtered(Some(&expr));
             let fc = serde_json::json!({
                 "type": "FeatureCollection",
                 "features": features,
@@ -285,7 +284,7 @@ pub async fn source_query_page(
         entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
     };
 
-    let result = fs.query_page(
+    let result = fs.read().unwrap().query_page(
         offset,
         limit,
         filter.as_ref(),
@@ -315,6 +314,8 @@ pub async fn source_get_column_stats(
     };
 
     let col_type = fs
+        .read()
+        .unwrap()
         .schema()
         .columns
         .get(&column)
@@ -329,12 +330,13 @@ pub async fn source_get_column_stats(
 }
 
 fn compute_column_stats(
-    fs: Arc<FeatureStore>,
+    fs: SharedFeatureStore,
     column: String,
     col_type: String,
     ids: Option<Vec<i64>>,
     top_n: usize,
 ) -> Result<ColumnStats, String> {
+    let fs = fs.read().unwrap();
     let id_filter: Option<std::collections::HashSet<i64>> =
         ids.map(|v| v.into_iter().collect());
 
@@ -419,7 +421,7 @@ pub async fn source_query_rect(
         let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
         entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
     };
-    Ok(fs.query_rect(bbox, &mode))
+    Ok(fs.read().unwrap().query_rect(bbox, &mode))
 }
 
 #[derive(Deserialize, Debug)]
@@ -445,8 +447,8 @@ pub async fn source_add_data(
         location: location.clone(),
         data: SourceData::InMemory(fc),
     };
-    let store = Arc::new(build_feature_store(&source)?);
-    let entry = SourceEntry { source, store: Some(store) };
+    let store = shared_feature_store(build_feature_store(&source)?);
+    let entry = SourceEntry::new(source, Some(store));
     storage.store.lock().unwrap().insert(id.clone(), entry);
     Ok(SourceAddResult {
         id,
@@ -464,7 +466,7 @@ pub async fn source_replace(
 ) -> Result<(), String> {
     let mut new_fc = data;
     assign_feature_ids(&mut new_fc);
-    let new_store = Arc::new(FeatureStore::from_features(new_fc.features.clone()));
+    let new_store = shared_feature_store(FeatureStore::from_features(new_fc.features.clone()));
 
     let mut store = storage.store.lock().unwrap();
     let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
@@ -527,7 +529,7 @@ pub async fn source_patch(
     }
     assign_feature_ids(fc);
 
-    entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
+    entry.store = Some(shared_feature_store(build_feature_store(&entry.source)?));
     Ok(())
 }
 
@@ -600,7 +602,7 @@ mod tests {
             .store
             .lock()
             .unwrap()
-            .insert(id.into(), SourceEntry { source, store: None });
+            .insert(id.into(), SourceEntry::new(source, None));
     }
 
     fn feature_ids(geojson: &str) -> Vec<i64> {
