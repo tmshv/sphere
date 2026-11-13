@@ -105,7 +105,7 @@ class MultiFeature<K extends MultiGeometryKind = MultiGeometryKind> extends Feat
     }
 
     isValid(): boolean {
-        return this.features.every(f => f.isValid())
+        return this.features.length > 0 && this.features.every(f => f.isValid())
     }
 
     setCoordinates(coords: CoordinatesMap[K]): void {
@@ -143,8 +143,12 @@ class MultiFeature<K extends MultiGeometryKind = MultiGeometryKind> extends Feat
     removeCoordinate(path: string): void {
         const { index, tail } = splitPath(path)
         const feature = this.#part(index)
-        if (feature instanceof Point) throw new TypeError("A point has no coordinates to remove")
-        feature.removeCoordinate(requireTail(tail, path))
+        if (feature instanceof Point) {
+            // A point of a MultiPoint is a vertex of its own: removing it removes the part
+            this.features = this.features.filter((_, i) => i !== index)
+        } else {
+            feature.removeCoordinate(requireTail(tail, path))
+        }
         this.changed()
     }
 

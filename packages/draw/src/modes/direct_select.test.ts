@@ -329,4 +329,24 @@ describe("direct_select", () => {
         expect(selectedPointCoordinates(), "selection is accurate after dragging").toEqual(endPosition)
         await cleanUp()
     })
+
+    it("trashing a selected MultiPoint vertex removes that point", async () => {
+        const [id] = Draw.add(getGeoJSON("multiPoint"))
+        const featureId = required(id)
+
+        Draw.changeMode(Constants.modes.DIRECT_SELECT, { featureId, coordPath: "0" })
+        expect(() => Draw.trash(), "trash does not throw").not.toThrow()
+        const feature = required(Draw.get(featureId))
+        if (feature.geometry.type !== "MultiPoint")
+            throw new Error(`Expected a MultiPoint, got ${feature.geometry.type}`)
+        expect(feature.geometry.coordinates, "first point removed").toEqual([[-10, -10]])
+
+        // Re-entering direct_select for the same feature is a no-op, so leave it first
+        Draw.changeMode(Constants.modes.SIMPLE_SELECT)
+        Draw.changeMode(Constants.modes.DIRECT_SELECT, { featureId, coordPath: "0" })
+        Draw.trash()
+        expect(Draw.get(featureId), "trashing the last point deletes the feature").toBe(undefined)
+        expect(Draw.getMode(), "back to simple_select").toBe(Constants.modes.SIMPLE_SELECT)
+        await cleanUp()
+    })
 })

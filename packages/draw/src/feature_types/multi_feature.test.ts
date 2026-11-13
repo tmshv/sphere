@@ -137,6 +137,36 @@ describe("multi_feature", () => {
 
     // Tests below less in depth becuase we know the
     // inner-workings are the same
+    it("MultiPoint removeCoordinate removes the point at that path", () => {
+        const multiPoint = new MultiFeature(createMockCtx(), {
+            type: "Feature",
+            id: "points",
+            properties: {},
+            geometry: {
+                type: "MultiPoint",
+                coordinates: [
+                    [1, 1],
+                    [2, 2],
+                    [3, 3],
+                ],
+            },
+        })
+        const changedSpy = vi.spyOn(multiPoint, "changed")
+
+        multiPoint.removeCoordinate("1")
+        expect(multiPoint.getCoordinates(), "middle point removed").toEqual([
+            [1, 1],
+            [3, 3],
+        ])
+        expect(changedSpy, "feature marked as changed").toHaveBeenCalledTimes(1)
+        expect(multiPoint.isValid(), "still valid with points left").toBe(true)
+
+        multiPoint.removeCoordinate("0")
+        multiPoint.removeCoordinate("0")
+        expect(multiPoint.getCoordinates(), "all points removed").toEqual([])
+        expect(multiPoint.isValid(), "a MultiPoint without points is invalid").toBe(false)
+    })
+
     it("MultiPolygon via MultiFeature", () => {
         const rawMultiPolygon: DrawFeatureInput<"MultiPolygon"> = {
             type: "Feature",
