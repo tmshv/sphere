@@ -184,6 +184,11 @@ impl FeatureStore {
         self.remove_inner(id)
     }
 
+    /// Largest live integer feature id, if any.
+    pub fn max_id(&self) -> Option<i64> {
+        self.id_to_idx.keys().copied().max()
+    }
+
     /// Features for the given ids, in the order requested; missing ids are skipped.
     pub fn get_by_ids(&self, ids: &[i64]) -> Vec<Feature> {
         ids.iter()
@@ -1016,5 +1021,14 @@ mod tests {
         assert!(store.upsert(make_id_point(2, 8.0, 8.0)).is_none());
         assert_eq!(store.feature_count(), 3);
         assert_eq!(store.query_rect([7.0, 7.0, 9.0, 9.0], "include"), vec![2]);
+    }
+
+    #[test]
+    fn test_max_id_tracks_live_ids() {
+        let mut store = make_id_store();
+        assert_eq!(store.max_id(), Some(3));
+        store.remove(3);
+        assert_eq!(store.max_id(), Some(2));
+        assert_eq!(FeatureStore::from_features(vec![]).max_id(), None);
     }
 }

@@ -1,5 +1,6 @@
 pub mod bbox;
 pub mod csv;
+pub mod edit;
 pub mod error;
 pub mod geojson;
 pub mod geojsonseq;
@@ -16,6 +17,7 @@ pub mod uri;
 
 pub use error::{Result, SphereError};
 pub use bbox::Bbox;
+pub use edit::{EditOp, EditRef, EditSession};
 pub use index::{RstarIndex, SpatialIndex};
 pub use selection::{SelectionDelta, SelectionState};
 pub use store::{FeatureStore, PageResult};
