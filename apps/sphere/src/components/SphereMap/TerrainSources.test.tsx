@@ -11,8 +11,9 @@ import { Provider } from "react-redux"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TerrainSources } from "./TerrainSources"
 
-// Latest props of every source rendered since the last reset, keyed by id
+// Latest props of every source, and the paint of every layer, rendered since the last reset, keyed by id
 const sources = new Map<string, SourceProps>()
+const paints = new Map<string, unknown>()
 
 // Mounted sources and layers render as elements, so the DOM shows what is on the map. Like react-map-gl,
 // a source keeps the id it mounted with, so a source that is reused for another id shows its stale id.
@@ -26,11 +27,16 @@ vi.mock("react-map-gl/maplibre", async () => {
             }
             return <div data-source={id}>{children}</div>
         },
-        Layer: ({ id, type }: LayerProps) => <div data-layer={id} data-type={type} />,
+        Layer: (props: LayerProps) => {
+            if (props.id) {
+                paints.set(props.id, "paint" in props ? props.paint : undefined)
+            }
+            return <div data-layer={props.id} data-type={props.type} />
+        },
     }
 })
 
-const { show, hide, setHillshade, setSource } = terrainSlice.actions
+const { show, hide, setHillshade, setSource, updateHillshade } = terrainSlice.actions
 
 function dem(id: string): Source {
     return {
@@ -79,6 +85,7 @@ function renderTerrainSources(items: Source[]) {
 describe("TerrainSources", () => {
     beforeEach(() => {
         sources.clear()
+        paints.clear()
     })
 
     it("mounts only the terrain source while terrain is on and hillshade off", () => {
@@ -97,15 +104,39 @@ describe("TerrainSources", () => {
         })
     })
 
-    it("mounts only the hillshade source and layer while hillshade is on and terrain off", () => {
+    it("mounts no hillshade while terrain is off, even with the hillshade switch on", () => {
         const { store, mountedSources, mountedLayers } = renderTerrainSources([dem("a")])
         act(() => {
             store.dispatch(setHillshade(true))
         })
 
-        expect(mountedSources()).toEqual(["hillshade-dem-a"])
+        expect(mountedSources()).toEqual([])
+        expect(mountedLayers()).toEqual([])
+    })
+
+    it("mounts the hillshade source and layer while terrain and hillshade are on", () => {
+        const { store, mountedLayers } = renderTerrainSources([dem("a")])
+        act(() => {
+            store.dispatch(show())
+            store.dispatch(setHillshade(true))
+        })
+
         expect(mountedLayers()).toEqual([{ id: "sphere-hillshade", type: "hillshade", source: "hillshade-dem-a" }])
         expect(sources.get("hillshade-dem-a")).toMatchObject({ type: "raster-dem", encoding: "terrarium" })
+    })
+
+    it("paints the hillshade layer with the hillshade settings", () => {
+        const { store } = renderTerrainSources([dem("a")])
+        act(() => {
+            store.dispatch(show())
+            store.dispatch(setHillshade(true))
+            store.dispatch(updateHillshade({ intensity: 0.9, accentColor: "#ff0000" }))
+        })
+
+        expect(paints.get("sphere-hillshade")).toMatchObject({
+            "hillshade-exaggeration": 0.9,
+            "hillshade-accent-color": "#ff0000",
+        })
     })
 
     it("mounts nothing without a terrain candidate", () => {

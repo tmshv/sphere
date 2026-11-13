@@ -492,3 +492,4 @@ export const RADIO_LIST_OPTIONS: ReadonlyArray<SelectOption> = [
     { value: "copernicus", label: "Copernicus DEM" },
 ]
 export const POPOVER_TITLE = "Terrain"
+export const POPOVER_SECTION_TITLES = { first: "Terrain", second: "Hillshade" } as const

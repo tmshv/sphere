@@ -2,7 +2,11 @@ import type { RasterSource, Source } from "@/types/source"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import {
+    HILLSHADE_DEFAULTS,
     HILLSHADE_LAYER_ID,
+    hillshadeAnchorOf,
+    hillshadeMethodOf,
+    hillshadePaint,
     demEncodingOf,
     demSourceProps,
     hillshadeDemSourceId,
@@ -178,5 +182,59 @@ describe("hillshadePlacement", () => {
         expect(hillshadePlacement([layer("osm", "raster"), hillshade])).toBeUndefined()
         expect(hillshadePlacement([hillshade, layer("a", "fill")])).toBe("a")
         expect(hillshadePlacement([layer("a", "fill"), hillshade])).toBe("a")
+    })
+})
+
+describe("HILLSHADE_DEFAULTS", () => {
+    test("are MapLibre's own hillshade defaults, so the map looks unchanged until the user edits one", () => {
+        expect(HILLSHADE_DEFAULTS).toEqual({
+            intensity: 0.5,
+            method: "standard",
+            direction: 335,
+            altitude: 45,
+            anchor: "viewport",
+            shadowColor: "#000000",
+            highlightColor: "#ffffff",
+            accentColor: "#000000",
+        })
+    })
+})
+
+describe("hillshadePaint", () => {
+    test("maps every setting to its hillshade paint property", () => {
+        expect(
+            hillshadePaint({
+                intensity: 0.8,
+                method: "igor",
+                direction: 90,
+                altitude: 30,
+                anchor: "map",
+                shadowColor: "#112233",
+                highlightColor: "#ddeeff",
+                accentColor: "#445566",
+            }),
+        ).toEqual({
+            "hillshade-exaggeration": 0.8,
+            "hillshade-method": "igor",
+            "hillshade-illumination-direction": 90,
+            "hillshade-illumination-altitude": 30,
+            "hillshade-illumination-anchor": "map",
+            "hillshade-shadow-color": "#112233",
+            "hillshade-highlight-color": "#ddeeff",
+            "hillshade-accent-color": "#445566",
+        })
+    })
+})
+
+describe("hillshadeMethodOf / hillshadeAnchorOf", () => {
+    test("return the typed value of a known option", () => {
+        expect(hillshadeMethodOf("igor")).toBe("igor")
+        expect(hillshadeAnchorOf("map")).toBe("map")
+    })
+
+    test("return undefined for anything else", () => {
+        expect(hillshadeMethodOf("hachures")).toBeUndefined()
+        expect(hillshadeMethodOf(null)).toBeUndefined()
+        expect(hillshadeAnchorOf("screen")).toBeUndefined()
     })
 })

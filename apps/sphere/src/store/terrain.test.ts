@@ -1,9 +1,12 @@
 import { makeGeojsonSource, makeSourceState } from "@/testutils"
+import { HILLSHADE_DEFAULTS, hillshadePaint } from "@/lib/terrain"
 import { SourceType } from "@/types"
 import { describe, expect, test } from "vitest"
 import type { RootState } from "./index"
 import reducer, {
     selectHasTerrainSource,
+    selectHillshadePaint,
+    selectHillshadeSettings,
     selectHillshadeSourceId,
     selectTerrainCandidates,
     selectTerrainSource,
@@ -11,7 +14,7 @@ import reducer, {
     terrainSlice,
 } from "./terrain"
 
-const { pick, enableFor, setSource, setHillshade } = terrainSlice.actions
+const { pick, enableFor, setSource, setHillshade, updateHillshade, hide, toggle } = terrainSlice.actions
 
 function raster(id: string, dem?: "terrarium" | "mapbox") {
     return {
@@ -144,5 +147,55 @@ describe("selectHillshadeSourceId", () => {
         expect(
             selectHillshadeSourceId(makeState(sources, { terrain: reducer(terrain, setHillshade(false)) })),
         ).toBeNull()
+    })
+})
+
+describe("hillshade follows the terrain toggle", () => {
+    const sources = [raster("a", "terrarium")]
+
+    test("turning terrain off removes the hillshade but keeps the user's hillshade switch", () => {
+        const terrain = reducer(reducer(undefined, enableFor("a")), hide())
+        expect(terrain.hillshade).toBe(true)
+        expect(selectHillshadeSourceId(makeState(sources, { terrain }))).toBeNull()
+    })
+
+    test("turning terrain back on brings the hillshade back", () => {
+        const terrain = reducer(reducer(reducer(undefined, enableFor("a")), toggle()), toggle())
+        expect(selectHillshadeSourceId(makeState(sources, { terrain }))).toBe("hillshade-dem-a")
+    })
+
+    test("draw mode keeps the hillshade while it flattens the terrain", () => {
+        const terrain = reducer(undefined, enableFor("a"))
+        const state = makeState(sources, { terrain, drawing: true })
+        expect(selectTerrainSpecification(state)).toBeNull()
+        expect(selectHillshadeSourceId(state)).toBe("hillshade-dem-a")
+    })
+})
+
+describe("hillshade settings", () => {
+    test("start at MapLibre's defaults", () => {
+        expect(selectHillshadeSettings(makeState([]))).toEqual(HILLSHADE_DEFAULTS)
+    })
+
+    test("updateHillshade changes only the given settings", () => {
+        const terrain = reducer(undefined, updateHillshade({ intensity: 0.9, method: "igor" }))
+        expect(selectHillshadeSettings(makeState([], { terrain }))).toEqual({
+            ...HILLSHADE_DEFAULTS,
+            intensity: 0.9,
+            method: "igor",
+        })
+    })
+
+    test("updateHillshade leaves the terrain toggles alone", () => {
+        const before = reducer(undefined, enableFor("a"))
+        const after = reducer(before, updateHillshade({ altitude: 10 }))
+        expect(after).toMatchObject({ show: true, hillshade: true, sourceId: "a", exaggeration: before.exaggeration })
+    })
+
+    test("selectHillshadePaint is the paint of the settings, memoized", () => {
+        const terrain = reducer(undefined, updateHillshade({ direction: 90 }))
+        const state = makeState([], { terrain })
+        expect(selectHillshadePaint(state)).toEqual(hillshadePaint({ ...HILLSHADE_DEFAULTS, direction: 90 }))
+        expect(selectHillshadePaint(state)).toBe(selectHillshadePaint(state))
     })
 })

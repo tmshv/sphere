@@ -1,6 +1,13 @@
-import { TERRAIN_EXAGGERATION, demEncodingOf, hillshadeDemSourceId, terrainDemSourceId } from "@/lib/terrain"
+import {
+    HILLSHADE_DEFAULTS,
+    TERRAIN_EXAGGERATION,
+    demEncodingOf,
+    hillshadeDemSourceId,
+    hillshadePaint,
+    terrainDemSourceId,
+} from "@/lib/terrain"
 import type { Id } from "@/types"
-import type { TerrainCandidate } from "@/types/terrain"
+import type { HillshadeSettings, TerrainCandidate } from "@/types/terrain"
 import type { SelectOption } from "@sphere/ui"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSelector, createSlice } from "@reduxjs/toolkit"
@@ -13,12 +20,14 @@ type TerrainState = {
     hillshade: boolean
     exaggeration: number
     sourceId?: Id
+    hillshadeSettings: HillshadeSettings
 }
 
 const initialState: TerrainState = {
     show: false,
     hillshade: false,
     exaggeration: TERRAIN_EXAGGERATION.default,
+    hillshadeSettings: HILLSHADE_DEFAULTS,
 }
 
 export const terrainSlice = createSlice({
@@ -40,6 +49,9 @@ export const terrainSlice = createSlice({
         setHillshade: (state, action: PayloadAction<boolean>) => {
             state.hillshade = action.payload
         },
+        updateHillshade: (state, action: PayloadAction<Partial<HillshadeSettings>>) => {
+            state.hillshadeSettings = { ...state.hillshadeSettings, ...action.payload }
+        },
         pick: (state, action: PayloadAction<Id>) => {
             state.sourceId = action.payload
             state.show = true
@@ -58,6 +70,7 @@ export const terrainSlice = createSlice({
 export const selectIsShowTerrain = (state: RootState) => state.terrain.show
 export const selectIsShowHillshade = (state: RootState) => state.terrain.hillshade
 export const selectTerrainExaggeration = (state: RootState) => state.terrain.exaggeration
+export const selectHillshadeSettings = (state: RootState) => state.terrain.hillshadeSettings
 const selectStoredTerrainSourceId = (state: RootState) => state.terrain.sourceId
 
 // Every elevation source, whatever its visibility in the Sources tree, oldest first
@@ -94,12 +107,17 @@ export const selectTerrainSpecification = createSelector(
     },
 )
 
+// Turning terrain off removes the hillshade too, but keeps the hillshade switch, so turning terrain back on restores
+// it. Draw mode is not turning terrain off: it flattens the terrain and keeps the hillshade.
 export function selectHillshadeSourceId(state: RootState): string | null {
     const source = selectTerrainSource(state)
-    if (!state.terrain.hillshade || !source) {
+    if (!state.terrain.show || !state.terrain.hillshade || !source) {
         return null
     }
     return hillshadeDemSourceId(source.id)
 }
+
+// Memoized: TerrainSources passes it to the hillshade <Layer>, and a fresh object would re-apply every paint property
+export const selectHillshadePaint = createSelector([selectHillshadeSettings], hillshadePaint)
 
 export default terrainSlice.reducer

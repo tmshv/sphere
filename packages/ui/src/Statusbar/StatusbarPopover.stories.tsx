@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { useRef } from "react"
 import { fn } from "storybook/test"
+import { PopoverSection } from "../Popover"
 import { RadioListField } from "../RadioListField"
 import { SliderField } from "../SliderField"
 import { SwitchField } from "../SwitchField"
 import {
+    POPOVER_SECTION_TITLES,
     RADIO_LIST_LABEL,
     RADIO_LIST_OPTIONS,
     SLIDER_LABEL,
@@ -43,21 +45,25 @@ const meta = {
         onClose: fn(),
         children: (
             <>
-                <RadioListField
-                    label={RADIO_LIST_LABEL}
-                    value={RADIO_LIST_OPTIONS.at(0)?.value}
-                    options={[...RADIO_LIST_OPTIONS]}
-                    onChange={fn()}
-                />
-                <SliderField
-                    label={SLIDER_LABEL}
-                    value={SLIDER_VALUE}
-                    min={SLIDER_MIN}
-                    max={SLIDER_MAX}
-                    step={SLIDER_STEP}
-                    onChange={fn()}
-                />
-                <SwitchField label={SWITCH_LABEL} checked onChange={fn()} />
+                <PopoverSection title={POPOVER_SECTION_TITLES.first}>
+                    <RadioListField
+                        label={RADIO_LIST_LABEL}
+                        value={RADIO_LIST_OPTIONS.at(0)?.value}
+                        options={[...RADIO_LIST_OPTIONS]}
+                        onChange={fn()}
+                    />
+                    <SliderField
+                        label={SLIDER_LABEL}
+                        value={SLIDER_VALUE}
+                        min={SLIDER_MIN}
+                        max={SLIDER_MAX}
+                        step={SLIDER_STEP}
+                        onChange={fn()}
+                    />
+                </PopoverSection>
+                <PopoverSection title={POPOVER_SECTION_TITLES.second}>
+                    <SwitchField label={SWITCH_LABEL} checked onChange={fn()} />
+                </PopoverSection>
             </>
         ),
     },

@@ -42,3 +42,6 @@ export function Popover({ open, anchor, onClose, dark = false, className, childr
         </BasePopover.Root>
     )
 }
+
+export { PopoverSection } from "./PopoverSection"
+export type { PopoverSectionProps } from "./PopoverSection"

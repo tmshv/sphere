@@ -1,6 +1,11 @@
 import { HILLSHADE_LAYER_ID, demSourceProps, terrainDemSourceId } from "@/lib/terrain"
 import { useAppSelector } from "@/store/hooks"
-import { selectHillshadeSourceId, selectIsShowTerrain, selectTerrainSource } from "@/store/terrain"
+import {
+    selectHillshadePaint,
+    selectHillshadeSourceId,
+    selectIsShowTerrain,
+    selectTerrainSource,
+} from "@/store/terrain"
 import { Layer, Source } from "react-map-gl/maplibre"
 
 // The raster-dem sources of the current terrain source: one for the terrain, a separate one for the
@@ -11,6 +16,7 @@ export function TerrainSources() {
     const source = useAppSelector(state => (candidate ? state.source.items[candidate.id] : undefined))
     const showTerrain = useAppSelector(selectIsShowTerrain)
     const hillshadeId = useAppSelector(selectHillshadeSourceId)
+    const hillshadePaint = useAppSelector(selectHillshadePaint)
 
     if (!candidate || !source) {
         return null
@@ -26,7 +32,7 @@ export function TerrainSources() {
             {showTerrain && <Source key={terrainId} id={terrainId} {...props} />}
             {hillshadeId !== null && (
                 <Source key={hillshadeId} id={hillshadeId} {...props}>
-                    <Layer id={HILLSHADE_LAYER_ID} type="hillshade" />
+                    <Layer id={HILLSHADE_LAYER_ID} type="hillshade" paint={hillshadePaint} />
                 </Source>
             )}
         </>

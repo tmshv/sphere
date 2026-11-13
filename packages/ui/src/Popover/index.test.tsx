@@ -2,7 +2,7 @@ import userEvent from "@testing-library/user-event"
 import { createRef } from "react"
 import { describe, expect, it, vi } from "vitest"
 import { render, screen } from "../test-utils"
-import { Popover } from "."
+import { Popover, PopoverSection } from "."
 
 describe("Popover", () => {
     it("renders children when open", () => {
@@ -59,5 +59,18 @@ describe("Popover", () => {
         )
         await userEvent.keyboard("{Escape}")
         expect(onClose).toHaveBeenCalledTimes(1)
+    })
+})
+
+describe("PopoverSection", () => {
+    it("labels its content with the title as a heading", () => {
+        render(
+            <PopoverSection title="Hillshade">
+                <span>Content</span>
+            </PopoverSection>,
+        )
+        const section = screen.getByRole("region", { name: "Hillshade" })
+        expect(section).toContainElement(screen.getByText("Content"))
+        expect(screen.getByRole("heading", { name: "Hillshade" })).toBeInTheDocument()
     })
 })
