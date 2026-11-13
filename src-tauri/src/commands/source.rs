@@ -424,13 +424,6 @@ pub async fn source_query_rect(
     Ok(fs.read().unwrap().query_rect(bbox, &mode))
 }
 
-#[derive(Deserialize, Debug)]
-pub struct SourcePatch {
-    pub added: Vec<serde_json::Value>,
-    pub updated: Vec<serde_json::Value>,
-    pub deleted_ids: Vec<serde_json::Value>,
-}
-
 #[tauri::command]
 pub async fn source_add_data(
     name: String,
@@ -481,61 +474,6 @@ pub async fn source_replace(
     Ok(())
 }
 
-#[tauri::command]
-pub async fn source_patch(
-    id: String,
-    patch: SourcePatch,
-    storage: State<'_, SourceStorage>,
-) -> Result<(), String> {
-    let updated_features: Vec<geojson::Feature> = patch.updated.iter()
-        .map(|v| {
-            serde_json::from_value(v.clone())
-                .map_err(|e| format!("Failed to parse updated feature: {}", e))
-        })
-        .collect::<Result<_, _>>()?;
-
-    let added_features: Vec<geojson::Feature> = patch.added.iter()
-        .map(|v| {
-            serde_json::from_value(v.clone())
-                .map_err(|e| format!("Failed to parse added feature: {}", e))
-        })
-        .collect::<Result<_, _>>()?;
-
-    let mut store = storage.store.lock().unwrap();
-    let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
-    let fc = match &mut entry.source.data {
-        SourceData::InMemory(fc) => fc,
-        _ => return Err(format!("Source {} is not an in-memory source", id)),
-    };
-
-    fc.features.retain(|f| {
-        !patch.deleted_ids.iter().any(|del_id| f.id.as_ref().map_or(false, |fid| {
-            match (fid, del_id) {
-                (geojson::feature::Id::Number(n), serde_json::Value::Number(m)) => {
-                    n.as_f64() == m.as_f64()
-                }
-                (geojson::feature::Id::String(s), serde_json::Value::String(t)) => s == t,
-                _ => false,
-            }
-        }))
-    });
-
-    for updated_feature in updated_features {
-        if let Some(feat) = fc.features.iter_mut().find(|f| f.id == updated_feature.id) {
-            *feat = updated_feature;
-        }
-    }
-
-    for added_feature in added_features {
-        fc.features.push(added_feature);
-    }
-    assign_feature_ids(fc);
-
-    entry.store = Some(shared_feature_store(build_feature_store(&entry.source)?));
-    // The store was rebuilt from the source data: the session cannot survive.
-    entry.session = None;
-    Ok(())
-}
 
 #[cfg(test)]
 mod tests {
@@ -1157,104 +1095,6 @@ mod tests {
         let err = source_replace("file-source".into(), collection(vec![]), app.state())
             .await
             .unwrap_err();
-
-        assert_eq!(err, "Source file-source is not an in-memory source");
-    }
-
-    #[tokio::test]
-    async fn patch_adds_updates_and_deletes_features() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![serde_json::to_value(point(30.0, 30.0, json!({ "name": "d" }))).unwrap()],
-            updated: vec![json!({
-                "type": "Feature",
-                "id": 2,
-                "geometry": { "type": "Point", "coordinates": [11.0, 11.0] },
-                "properties": { "name": "b2" }
-            })],
-            deleted_ids: vec![json!(1)],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        let geojson = source_get(id.clone(), app.state()).await.unwrap();
-        let parsed: Value = serde_json::from_str(&geojson).unwrap();
-        let names: Vec<&str> = parsed["features"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter_map(|f| f["properties"]["name"].as_str())
-            .collect();
-        assert_eq!(names, vec!["b2", "c", "d"]);
-        assert_eq!(parsed["features"][0]["geometry"]["coordinates"][0], 11.0);
-    }
-
-    #[tokio::test]
-    async fn patch_rebuilds_the_feature_store() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![],
-            updated: vec![],
-            deleted_ids: vec![json!(2), json!(3)],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        let schema = source_get_schema(id.clone(), app.state()).await.unwrap();
-        assert_eq!(schema.features_count, 1);
-        assert_eq!(source_bounds(id, app.state()).await.unwrap(), (0.0, 0.0, 0.0, 0.0));
-    }
-
-    #[tokio::test]
-    async fn patch_gives_added_features_fresh_ids() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![serde_json::to_value(point(30.0, 30.0, json!({ "name": "d" }))).unwrap()],
-            updated: vec![],
-            deleted_ids: vec![],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        let geojson = source_get(id, app.state()).await.unwrap();
-        assert_eq!(feature_ids(&geojson), vec![1, 2, 3, 4]);
-    }
-
-    #[tokio::test]
-    async fn patch_rejects_a_malformed_added_feature() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![json!({ "type": "NotAFeature" })],
-            updated: vec![],
-            deleted_ids: vec![],
-        };
-
-        let err = source_patch(id, patch, app.state()).await.unwrap_err();
-
-        assert!(err.starts_with("Failed to parse added feature"));
-    }
-
-    #[tokio::test]
-    async fn patch_reports_a_missing_source() {
-        let app = test_app();
-        let patch = SourcePatch { added: vec![], updated: vec![], deleted_ids: vec![] };
-
-        let err = source_patch("nope".into(), patch, app.state()).await.unwrap_err();
-
-        assert_eq!(err, "Not found nope");
-    }
-
-    #[tokio::test]
-    async fn patch_rejects_a_source_that_is_not_in_memory() {
-        let app = test_app();
-        add_file_source(&app, "file-source");
-        let patch = SourcePatch { added: vec![], updated: vec![], deleted_ids: vec![] };
-
-        let err = source_patch("file-source".into(), patch, app.state()).await.unwrap_err();
 
         assert_eq!(err, "Source file-source is not an in-memory source");
     }

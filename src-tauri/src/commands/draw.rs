@@ -301,7 +301,7 @@ pub async fn draw_rollback(
 mod tests {
     use super::*;
     use crate::commands::source::{
-        SourcePatch, source_add_data, source_bounds, source_get, source_get_schema, source_patch, source_query_page,
+        source_add_data, source_bounds, source_get, source_get_schema, source_query_page,
         source_replace,
     };
     use crate::state::SourceEntry;
@@ -833,22 +833,6 @@ mod tests {
         draw_begin(id, app.state()).await.unwrap();
     }
 
-    #[tokio::test]
-    async fn patching_the_source_ends_the_session() {
-        let app = test_app();
-        let id = add_source(&app).await;
-        draw_begin(id.clone(), app.state()).await.unwrap();
-        let patch = SourcePatch {
-            added: vec![],
-            updated: vec![],
-            deleted_ids: vec![json!(1)],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        assert!(!has_session(&app, &id));
-        draw_begin(id, app.state()).await.unwrap();
-    }
 
     #[tokio::test]
     async fn removing_the_source_ends_the_session() {

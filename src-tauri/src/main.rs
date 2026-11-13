@@ -52,7 +52,6 @@ async fn main() {
             commands::source::source_query_rect,
             commands::source::source_add_data,
             commands::source::source_replace,
-            commands::source::source_patch,
             commands::draw::draw_begin,
             commands::draw::draw_get_working_set,
             commands::draw::draw_apply,
