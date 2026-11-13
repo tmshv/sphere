@@ -1,6 +1,6 @@
 import type { Map as MaplibreMap } from "maplibre-gl"
 import { describe, expect, it } from "vitest"
-import { bboxEqual, boundsToBbox, screenToGeoBbox } from "./bbox"
+import { bboxEqual, screenToGeoBbox, viewportBbox } from "./bbox"
 import type { Bbox } from "@/types/bbox"
 
 describe("bboxEqual", () => {
@@ -98,9 +98,34 @@ describe("screenToGeoBbox", () => {
     })
 })
 
-describe("boundsToBbox", () => {
-    it("orders west, south, east, north", () => {
-        const bounds = { getWest: () => 1, getSouth: () => 2, getEast: () => 3, getNorth: () => 4 }
-        expect(boundsToBbox(bounds)).toEqual([1, 2, 3, 4])
+function bounds(west: number, south: number, east: number, north: number) {
+    return { getWest: () => west, getSouth: () => south, getEast: () => east, getNorth: () => north }
+}
+
+describe("viewportBbox", () => {
+    it("keeps a bbox inside the world as is", () => {
+        expect(viewportBbox(bounds(1, 2, 3, 4))).toEqual([1, 2, 3, 4])
+    })
+
+    it("shifts a world copy back into [-180, 180)", () => {
+        expect(viewportBbox(bounds(200, 10, 260, 20))).toEqual([-160, 10, -100, 20])
+        expect(viewportBbox(bounds(-620, 10, -560, 20))).toEqual([100, 10, 160, 20])
+    })
+
+    it("takes the whole longitude range when the view crosses the antimeridian", () => {
+        expect(viewportBbox(bounds(170, 10, 190, 20))).toEqual([-180, 10, 180, 20])
+        expect(viewportBbox(bounds(-190, 10, -170, 20))).toEqual([-180, 10, 180, 20])
+    })
+
+    it("takes the whole longitude range when the view spans the world", () => {
+        expect(viewportBbox(bounds(-300, 10, 60, 20))).toEqual([-180, 10, 180, 20])
+    })
+
+    it("keeps a view ending exactly on the antimeridian", () => {
+        expect(viewportBbox(bounds(170, 10, 180, 20))).toEqual([170, 10, 180, 20])
+    })
+
+    it("clamps latitude to the poles", () => {
+        expect(viewportBbox(bounds(1, -95, 3, 100))).toEqual([1, -90, 3, 90])
     })
 })

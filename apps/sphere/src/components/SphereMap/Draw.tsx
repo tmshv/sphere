@@ -1,14 +1,16 @@
 import { DRAW_WORKING_SET_CAP } from "@/const"
 import { useDrawControl } from "@/hooks/useDrawControl"
-import { boundsToBbox } from "@/lib/bbox"
+import { viewportBbox } from "@/lib/bbox"
 import { DrawOpQueue, loadWorkingSet, registerDrawQueue } from "@/lib/draw-session"
-import { chooseWorkingSetScope, planWorkingSetUpdate, scopeAfterMove, touchedIds } from "@/lib/draw-working-set"
+import { touchedIds } from "@/lib/draw-working-set"
 import { errorMessage } from "@/lib/error-message"
 import { selectionGetIds } from "@/lib/selection-ipc"
+import { WorkingSetLoader } from "@/lib/working-set-loader"
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import type { DrawEvent, DrawFeatureId, Id, WorkingSetScope } from "@/types"
 import { Button, Overlay, Row, Surface, Text } from "@sphere/ui"
+import type { CSSProperties } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
@@ -16,6 +18,18 @@ import { useMap } from "react-map-gl/maplibre"
 const OVER_CAP_NOTICE: Record<WorkingSetScope["type"], string> = {
     bbox: "Too many features here. Zoom in to edit.",
     ids: "Too many features selected. Cancel and select fewer to edit.",
+}
+
+// Covers the map and the draw toolbar while a load or a session end runs. It shares the
+// Overlay's layer and is rendered before it, so Cancel and Done stay on top and clickable
+const BLOCKER_STYLE: CSSProperties = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: "var(--sphere-z-index-app)",
+    pointerEvents: "auto",
 }
 
 export type DrawProps = {
@@ -27,10 +41,8 @@ export type DrawProps = {
 /**
  * The draw UI of one backend draw session. The session itself (begin, commit,
  * rollback) is run by the draw listeners; this component owns the draw control
- * and the op queue that forwards each edit to the backend, and loads the
- * working set into draw: the selection when it belongs to this source, else
- * the viewport, re-queried after every move. Features the user touched stay
- * in draw; untouched ones that left the viewport are unloaded.
+ * and the op queue that forwards each edit to the backend, and wires a
+ * `WorkingSetLoader` to the map to load the features to edit.
  */
 export default function Draw({ mapId, sourceId }: DrawProps) {
     const dispatch = useAppDispatch()
@@ -42,19 +54,20 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
     // The kind of scope that held too many features to load, if the last load did
     const [overCap, setOverCap] = useState<WorkingSetScope["type"] | undefined>(undefined)
     const [queue] = useState(() => new DrawOpQueue(sourceId, err => dispatch(actions.draw.failed(errorMessage(err)))))
-    const scope = useRef<WorkingSetScope | undefined>(undefined)
-    const loaded = useRef(new Set<DrawFeatureId>())
-    const pinned = useRef(new Set<DrawFeatureId>())
-    // Only the latest load applies; unmount bumps it too
-    const generation = useRef(0)
+    // Ids the user edited, deleted or created: never loaded over or unloaded
+    const [pinned] = useState(() => new Set<DrawFeatureId>())
+    const loader = useRef<WorkingSetLoader | undefined>(undefined)
 
     useEffect(() => registerDrawQueue(queue), [queue])
 
-    const onChange = useCallback((event: DrawEvent) => {
-        for (const id of touchedIds(event)) {
-            pinned.current.add(id)
-        }
-    }, [])
+    const onChange = useCallback(
+        (event: DrawEvent) => {
+            for (const id of touchedIds(event)) {
+                pinned.add(id)
+            }
+        },
+        [pinned],
+    )
 
     const { [mapId]: mapRef } = useMap()
     const map = mapRef?.getMap()
@@ -74,97 +87,40 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         displayControlsDefault: false,
     })
 
-    const applyWorkingSet = useCallback(
-        async (next: WorkingSetScope, current: number) => {
-            // Created features must have their backend ids before the query, or they would load twice
-            const flushed = await queue.flush()
-            if (!flushed.ok) {
-                // Already surfaced by the queue; the backend lags behind the map, so load nothing more
-                return
-            }
-            const workingSet = await loadWorkingSet(sourceId, next, DRAW_WORKING_SET_CAP)
-            if (current !== generation.current) {
-                return
-            }
-            if (workingSet.overCap) {
-                setOverCap(next.type)
-                return
-            }
-            setOverCap(undefined)
-            const plan = planWorkingSetUpdate({
-                loaded: loaded.current,
-                pinned: new Set([...pinned.current, ...queue.createdIds()]),
-                incoming: workingSet.features.features,
-            })
-            // Load first: if it throws, nothing was unloaded and `loaded` still matches draw
-            draw.load({ type: "FeatureCollection", features: plan.add })
-            draw.unload(plan.unload)
-            loaded.current = plan.loaded
-        },
-        [queue, sourceId, draw],
-    )
-
-    // Blocks the map while the working set loads; an older load that resolves late is dropped
-    const refresh = useCallback(
-        (next: WorkingSetScope) => {
-            generation.current += 1
-            const current = generation.current
-            setLoading(true)
-            applyWorkingSet(next, current)
-                .catch(err => {
-                    dispatch(actions.draw.failed(errorMessage(err)))
-                })
-                .finally(() => {
-                    if (current === generation.current) {
-                        setLoading(false)
-                    }
-                })
-        },
-        [applyWorkingSet, dispatch],
-    )
-
     useEffect(() => {
         if (!map) {
             return
         }
-        let active = true
-        selectionGetIds()
-            .then(selectionIds => {
-                if (!active) {
-                    return
-                }
-                scope.current = chooseWorkingSetScope({
-                    sourceId,
-                    selectionSourceId: initialSelectionSourceId.current,
-                    selectionIds,
-                    bbox: boundsToBbox(map.getBounds()),
-                })
-                refresh(scope.current)
-            })
-            .catch(err => {
-                dispatch(actions.draw.failed(errorMessage(err)))
-                setLoading(false)
-            })
-        return () => {
-            active = false
-            generation.current += 1
-        }
-    }, [map, sourceId, refresh, dispatch])
-
-    useEffect(() => {
-        if (!map) {
-            return
-        }
+        const current = new WorkingSetLoader({
+            sourceId,
+            cap: DRAW_WORKING_SET_CAP,
+            draw,
+            queue,
+            pinned,
+            fetchWorkingSet: loadWorkingSet,
+            getSelectionIds: selectionGetIds,
+            onLoading: setLoading,
+            onOverCap: setOverCap,
+            onError: err => dispatch(actions.draw.failed(errorMessage(err))),
+        })
+        loader.current = current
+        current.begin({
+            selectionSourceId: initialSelectionSourceId.current,
+            bbox: viewportBbox(map.getBounds()),
+        })
         const subscription = map.on("moveend", () => {
-            const next = scopeAfterMove(scope.current, boundsToBbox(map.getBounds()))
-            if (next) {
-                refresh(next)
-            }
+            current.moved(viewportBbox(map.getBounds()))
         })
         return () => {
             subscription.unsubscribe()
+            current.dispose()
+            loader.current = undefined
         }
-    }, [map, refresh])
+    }, [map, sourceId, draw, queue, pinned, dispatch])
+
+    useEffect(() => {
+        loader.current?.setPending(pending)
+    }, [pending])
 
     const onCancel = useCallback(() => {
         dispatch(actions.draw.cancel({ sourceId }))
@@ -184,19 +140,7 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
 
     return (
         <>
-            {blocked && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: 101,
-                        pointerEvents: "auto",
-                    }}
-                />
-            )}
+            {blocked && <div style={BLOCKER_STYLE} />}
             <Overlay
                 top={notice}
                 bottom={

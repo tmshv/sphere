@@ -18,7 +18,8 @@ export type EditOp =
 export type WorkingSetScope = { type: "ids"; ids: number[] } | { type: "bbox"; bbox: Bbox }
 
 export type WorkingSet = {
-    features: GeoJSON.FeatureCollection
+    // A feature may come back without a geometry
+    features: GeoJSON.FeatureCollection<GeoJSON.Geometry | null>
     overCap: boolean
 }
 

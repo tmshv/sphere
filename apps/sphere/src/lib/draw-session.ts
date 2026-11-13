@@ -16,7 +16,7 @@ const EVENT_UNCOMBINE = "draw.uncombine"
 
 type RawWorkingSet = { features: string; overCap: boolean }
 
-function isFeatureCollection(value: unknown): value is GeoJSON.FeatureCollection {
+function isFeatureCollection(value: unknown): value is GeoJSON.FeatureCollection<GeoJSON.Geometry | null> {
     return (
         typeof value === "object" &&
         value !== null &&

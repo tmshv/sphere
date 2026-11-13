@@ -47,7 +47,7 @@ export type PlanWorkingSetUpdateInput = {
     // Ids edited, deleted or created in this session (created ones under both their draw and backend ids)
     pinned: ReadonlySet<DrawFeatureId>
     // The fresh working set from the backend
-    incoming: GeoJSON.Feature[]
+    incoming: GeoJSON.Feature<GeoJSON.Geometry | null>[]
 }
 
 /**
@@ -55,15 +55,16 @@ export type PlanWorkingSetUpdateInput = {
  * loaded (draw holds the edited version, and the backend copy may lag behind
  * queued ops) and never unloaded. Untouched features that are no longer in the
  * working set are unloaded, so draw only holds what is in view plus the edits.
- * An incoming feature without an id cannot be mapped back to the backend and is
- * skipped.
+ * An incoming feature without an id cannot be mapped back to the backend, and
+ * draw cannot hold one with no geometry or a GeometryCollection (it would throw
+ * partway through the load); both are skipped and stay as they are.
  */
 export function planWorkingSetUpdate({ loaded, pinned, incoming }: PlanWorkingSetUpdateInput): WorkingSetPlan {
     const incomingIds = new Set<DrawFeatureId>()
     const add: GeoJSON.Feature[] = []
     for (const feature of incoming) {
         const id = feature.id
-        if (id === undefined) {
+        if (id === undefined || !isDrawable(feature)) {
             continue
         }
         incomingIds.add(id)
@@ -78,4 +79,10 @@ export function planWorkingSetUpdate({ loaded, pinned, incoming }: PlanWorkingSe
 
 function featureIds(feature: GeoJSON.Feature): DrawFeatureId[] {
     return feature.id === undefined ? [] : [feature.id]
+}
+
+const GEOMETRY_COLLECTION = "GeometryCollection"
+
+function isDrawable(feature: GeoJSON.Feature<GeoJSON.Geometry | null>): feature is GeoJSON.Feature {
+    return feature.geometry !== null && feature.geometry.type !== GEOMETRY_COLLECTION
 }

@@ -120,6 +120,28 @@ describe("planWorkingSetUpdate", () => {
         expect([...plan.loaded]).toEqual([1])
     })
 
+    test("skips features draw cannot hold: no geometry or a GeometryCollection", () => {
+        const empty: GeoJSON.Feature<GeoJSON.Geometry | null> = {
+            type: "Feature",
+            id: 1,
+            properties: {},
+            geometry: null,
+        }
+        const collection: GeoJSON.Feature = {
+            type: "Feature",
+            id: 2,
+            properties: {},
+            geometry: { type: "GeometryCollection", geometries: [] },
+        }
+        const plan = planWorkingSetUpdate({
+            loaded: new Set(),
+            pinned: new Set(),
+            incoming: [empty, collection, feature(3)],
+        })
+        expect(plan.add).toEqual([feature(3)])
+        expect([...plan.loaded]).toEqual([3])
+    })
+
     test("skips incoming features without an id", () => {
         const plan = planWorkingSetUpdate({
             loaded: new Set(),
