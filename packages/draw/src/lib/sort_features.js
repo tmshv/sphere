@@ -1,41 +1,27 @@
-import area from "@mapbox/geojson-area"
 import * as Constants from "../constants"
+import geometryArea from "./geojson_area"
 
 const FEATURE_SORT_RANKS = {
     Point: 0,
+    MultiPoint: 0,
     LineString: 1,
     MultiLineString: 1,
     Polygon: 2,
+    MultiPolygon: 2,
 }
 
-function comparator(a, b) {
-    const score = FEATURE_SORT_RANKS[a.geometry.type] - FEATURE_SORT_RANKS[b.geometry.type]
+const AREA_TYPES = new Set([Constants.geojsonTypes.POLYGON, Constants.geojsonTypes.MULTI_POLYGON])
 
-    if (score === 0 && a.geometry.type === Constants.geojsonTypes.POLYGON) {
-        return a.area - b.area
-    }
-
-    return score
-}
-
-// Sort in the order above, then sort polygons by area ascending.
+// Sort points first, then lines, then polygons; polygons by area ascending, so
+// a small polygon on top of a large one is the one that gets picked.
 function sortFeatures(features) {
-    return features
-        .map(feature => {
-            if (feature.geometry.type === Constants.geojsonTypes.POLYGON) {
-                feature.area = area.geometry({
-                    type: Constants.geojsonTypes.FEATURE,
-                    property: {},
-                    geometry: feature.geometry,
-                })
-            }
-            return feature
-        })
-        .sort(comparator)
-        .map(feature => {
-            delete feature.area
-            return feature
-        })
+    const ranked = features.map(feature => ({
+        feature,
+        rank: FEATURE_SORT_RANKS[feature.geometry.type],
+        area: AREA_TYPES.has(feature.geometry.type) ? geometryArea(feature.geometry) : 0,
+    }))
+    ranked.sort((a, b) => a.rank - b.rank || a.area - b.area)
+    return ranked.map(({ feature }) => feature)
 }
 
 export default sortFeatures

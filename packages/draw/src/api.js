@@ -1,6 +1,6 @@
-import isEqual from "lodash.isequal"
-import normalize from "@mapbox/geojson-normalize"
-import hat from "hat"
+import coordinatesEqual from "./lib/coordinates_equal"
+import generateId from "./lib/generate_id"
+import normalize from "./lib/normalize"
 import featuresAt from "./lib/features_at"
 import stringSetsAreEqual from "./lib/string_sets_are_equal"
 import * as Constants from "./constants"
@@ -76,7 +76,7 @@ export default function (ctx, api) {
         const featureCollection = JSON.parse(JSON.stringify(normalize(geojson)))
 
         const ids = featureCollection.features.map(feature => {
-            feature.id = feature.id || hat()
+            feature.id = feature.id || generateId()
 
             if (feature.geometry === null) {
                 throw new Error("Invalid geometry: null")
@@ -94,7 +94,7 @@ export default function (ctx, api) {
                 // If a feature of that id has already been created, and we are swapping it out ...
                 const internalFeature = ctx.store.get(feature.id)
                 internalFeature.properties = feature.properties
-                if (!isEqual(internalFeature.getCoordinates(), feature.geometry.coordinates)) {
+                if (!coordinatesEqual(internalFeature.getCoordinates(), feature.geometry.coordinates)) {
                     internalFeature.incomingCoords(feature.geometry.coordinates)
                 }
             }

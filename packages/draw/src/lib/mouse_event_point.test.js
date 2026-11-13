@@ -1,4 +1,3 @@
-import Point from "@mapbox/point-geometry"
 import { describe, expect, it } from "vitest"
 import mouseEventPoint from "./mouse_event_point"
 
@@ -21,8 +20,6 @@ describe("mouseEventPoint", () => {
         }
 
         const result = mouseEventPoint(mockEvent, mockContainer)
-        expect(result instanceof Point).toBe(true)
-        expect(result.x).toBe(3)
-        expect(result.y).toBe(12)
+        expect(result).toEqual({ x: 3, y: 12 })
     })
 })

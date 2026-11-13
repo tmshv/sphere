@@ -1,4 +1,4 @@
-import extent from "@mapbox/geojson-extent"
+import featureBounds from "./feature_bounds"
 import * as Constants from "../constants"
 
 const { LAT_MIN, LAT_MAX, LAT_RENDERED_MIN, LAT_RENDERED_MAX, LNG_MIN, LNG_MAX } = Constants
@@ -19,7 +19,7 @@ export default function (geojsonFeatures, delta) {
     let eastEdge = LNG_MIN
 
     for (const feature of geojsonFeatures) {
-        const bounds = extent(feature)
+        const bounds = featureBounds(feature)
         const featureSouthEdge = bounds[1]
         const featureNorthEdge = bounds[3]
         const featureWestEdge = bounds[0]

@@ -277,7 +277,12 @@ SimpleSelect.onTouchEnd = SimpleSelect.onMouseUp = function (state, e) {
     if (state.dragMoving) {
         this.fireUpdate()
     } else if (state.boxSelecting) {
-        const bbox = [state.boxSelectStartLocation, mouseEventPoint(e.originalEvent, this.map.getContainer())]
+        const start = state.boxSelectStartLocation
+        const end = mouseEventPoint(e.originalEvent, this.map.getContainer())
+        const bbox = [
+            [start.x, start.y],
+            [end.x, end.y],
+        ]
         const featuresInBox = this.featuresAt(null, bbox, "click")
         const idsToSelect = this.getUniqueIds(featuresInBox).filter(id => !this.isSelected(id))
 

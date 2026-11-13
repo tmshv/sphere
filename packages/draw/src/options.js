@@ -1,4 +1,3 @@
-import xtend from "xtend"
 import * as Constants from "./constants"
 
 import styles from "./lib/theme"
@@ -39,27 +38,28 @@ const hideControls = {
 function addSources(styles, sourceBucket) {
     return styles.map(style => {
         if (style.source) return style
-        return xtend(style, {
+        return {
+            ...style,
             id: `${style.id}.${sourceBucket}`,
             source: sourceBucket === "hot" ? Constants.sources.HOT : Constants.sources.COLD,
-        })
+        }
     })
 }
 
 export default function (options = {}) {
-    let withDefaults = xtend(options)
+    let withDefaults = { ...options }
 
     if (!options.controls) {
         withDefaults.controls = {}
     }
 
     if (options.displayControlsDefault === false) {
-        withDefaults.controls = xtend(hideControls, options.controls)
+        withDefaults.controls = { ...hideControls, ...options.controls }
     } else {
-        withDefaults.controls = xtend(showControls, options.controls)
+        withDefaults.controls = { ...showControls, ...options.controls }
     }
 
-    withDefaults = xtend(defaultOptions, withDefaults)
+    withDefaults = { ...defaultOptions, ...withDefaults }
 
     // Layers with a shared source should be adjacent for performance reasons
     withDefaults.styles = addSources(withDefaults.styles, "cold").concat(addSources(withDefaults.styles, "hot"))

@@ -1,6 +1,6 @@
 import Feature from "./feature"
 import * as Constants from "../constants"
-import hat from "hat"
+import generateId from "../lib/generate_id"
 
 import MultiPoint from "./point"
 import MultiLineString from "./line_string"
@@ -35,7 +35,7 @@ MultiFeature.prototype._coordinatesToFeatures = function (coordinates) {
     return coordinates.map(
         coords =>
             new Model(this.ctx, {
-                id: hat(),
+                id: generateId(),
                 type: Constants.geojsonTypes.FEATURE,
                 properties: {},
                 geometry: {

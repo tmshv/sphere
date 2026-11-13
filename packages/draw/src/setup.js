@@ -2,7 +2,6 @@ import events from "./events"
 import Store from "./store"
 import ui from "./ui"
 import * as Constants from "./constants"
-import xtend from "xtend"
 
 export default function (ctx) {
     let controlContainer = null
@@ -44,7 +43,7 @@ export default function (ctx) {
                 map.fire = (...args) => {
                     if (originalFire.length === 1 && args.length !== 1) {
                         const [type, event] = args
-                        return originalFire.call(map, xtend({}, { type }, event))
+                        return originalFire.call(map, { type, ...event })
                     }
                     return originalFire.apply(map, args)
                 }

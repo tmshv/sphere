@@ -1,11 +1,11 @@
-import hat from "hat"
+import generateId from "../lib/generate_id"
 import * as Constants from "../constants"
 
 const Feature = function (ctx, geojson) {
     this.ctx = ctx
     this.properties = geojson.properties || {}
     this.coordinates = geojson.geometry.coordinates
-    this.id = geojson.id || hat()
+    this.id = geojson.id || generateId()
     this.type = geojson.geometry.type
 }
 
