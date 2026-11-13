@@ -72,3 +72,30 @@ describe("StringSet", () => {
         expect(set.values()).toEqual([])
     })
 })
+
+describe("StringSet with ids named like object members", () => {
+    const names = ["constructor", "toString", "__proto__", "hasOwnProperty"]
+
+    it("does not contain them before they are added", () => {
+        const set = new StringSet()
+        for (const name of names) {
+            expect(set.has(name), `${name} is not a member`).toBe(false)
+        }
+    })
+
+    it("adds, lists and deletes them like any id", () => {
+        const set = new StringSet()
+        for (const name of names) set.add(name)
+        expect(set.values(), "all added in order").toEqual(names)
+        set.delete("__proto__")
+        expect(set.has("__proto__"), "__proto__ deleted").toBe(false)
+        expect(set.values(), "others kept").toEqual(["constructor", "toString", "hasOwnProperty"])
+    })
+
+    it("keeps insertion order after a delete and an add", () => {
+        const set = new StringSet(["a", "b", "c"])
+        set.delete("a")
+        set.add("d")
+        expect(set.values()).toEqual(["b", "c", "d"])
+    })
+})

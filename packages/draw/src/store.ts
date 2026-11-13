@@ -25,7 +25,7 @@ export interface StoreContext {
 type FeatureIds = FeatureId | readonly FeatureId[] | undefined
 
 export default class Store {
-    #features: Record<string, DrawFeature> = {}
+    #features = new Map<FeatureId, DrawFeature>()
     #featureIds = new StringSet()
     #selectedFeatureIds = new StringSet()
     #selectedCoordinates: SelectedCoordinate[] = []
@@ -122,7 +122,7 @@ export default class Store {
      */
     add(feature: DrawFeature): this {
         this.featureChanged(feature.id)
-        this.#features[feature.id] = feature
+        this.#features.set(feature.id, feature)
         this.#featureIds.add(feature.id)
         return this
     }
@@ -141,13 +141,13 @@ export default class Store {
             if (!this.#featureIds.has(id)) continue
             this.#featureIds.delete(id)
             this.#selectedFeatureIds.delete(id)
-            const feature = this.#features[id]
-            if (!options.silent) {
+            const feature = this.#features.get(id)
+            if (feature !== undefined && !options.silent) {
                 if (this.#pending.deletedFeatures.indexOf(feature) === -1) {
                     this.#pending.deletedFeatures.push(feature)
                 }
             }
-            delete this.#features[id]
+            this.#features.delete(id)
             this.isDirty = true
         }
         this.#refreshSelectedCoordinates(options)
@@ -158,14 +158,14 @@ export default class Store {
      * Returns a feature in the store matching the specified value.
      */
     get(id: FeatureId): DrawFeature | undefined {
-        return this.#features[id]
+        return this.#features.get(id)
     }
 
     /**
      * Returns all features in the store.
      */
     getAll(): DrawFeature[] {
-        return Object.keys(this.#features).map(id => this.#features[id])
+        return Array.from(this.#features.values())
     }
 
     /**

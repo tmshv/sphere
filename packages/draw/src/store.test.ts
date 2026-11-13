@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import Store, { type StoreContext } from "./store"
+import Point from "./feature_types/point"
+import createMockFeatureContext from "./test-utils/create_mock_feature_context"
 import createFeature, { asDrawFeature, type FakeFeature } from "./test-utils/create_feature"
 import getPublicMemberKeys from "./test-utils/get_public_member_keys"
 import createMap, { asMapLibreMap, type MockMap } from "./test-utils/create_map"
@@ -292,4 +294,39 @@ it("Store#storeAndRestoreMapConfig", () => {
     map.doubleClickZoom.enable()
     store.restoreMapConfig()
     expect(map.doubleClickZoom.isEnabled(), "Restores doubleClickZoom on the map").toBe(false)
+})
+
+it("Store keeps features whose ids are named like object members", () => {
+    const store = createStore()
+    expect(store.get("toString"), "no feature before one is added").toBe(undefined)
+
+    const ids = ["constructor", "__proto__"]
+    for (const id of ids) {
+        store.add(asDrawFeature({ ...createFeature("point"), id }))
+    }
+    for (const id of ids) {
+        expect(required(store.get(id)).id, `${id} is stored`).toBe(id)
+    }
+    expect(
+        store.getAll().map(f => f.id),
+        "both listed",
+    ).toEqual(ids)
+
+    store.delete("__proto__")
+    expect(store.get("__proto__"), "__proto__ deleted").toBe(undefined)
+    expect(
+        store.getAll().map(f => f.id),
+        "constructor kept",
+    ).toEqual(["constructor"])
+})
+
+it("Store lists features in insertion order, numeric ids included", () => {
+    const store = createStore()
+    const ctx = createMockFeatureContext()
+    for (const id of [10, "b", 2]) {
+        store.add(
+            new Point(ctx, { type: "Feature", id, properties: {}, geometry: { type: "Point", coordinates: [0, 0] } }),
+        )
+    }
+    expect(store.getAll().map(f => f.id)).toEqual([10, "b", 2])
 })
