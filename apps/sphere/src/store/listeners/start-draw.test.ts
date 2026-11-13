@@ -1,58 +1,69 @@
-import { configureStore, type Middleware } from "@reduxjs/toolkit"
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
+import { afterEach, describe, expect, test, vi } from "vitest"
 
-vi.mock("../actions", () => {
-    const makeAction = (type: string) =>
-        Object.assign((payload: unknown) => ({ type, payload }), {
-            type,
-            match: (action: { type: string }) => action.type === type,
-        })
-    return {
-        actions: {
-            draw: {
-                start: makeAction("draw/start"),
-            },
-            tools: {
-                setTool: makeAction("tools/setTool"),
-            },
-        },
-    }
-})
+const { mockInvoke } = vi.hoisted(() => ({ mockInvoke: vi.fn() }))
 
+vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
+vi.mock("@/logger", () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
+
+import { flushAsync, makeLogStore } from "@/testutils"
+import { actions } from "../actions"
 import listener from "./start-draw"
 
-type Action = { type: string; payload?: unknown }
+function makeStore(draw: object = { pending: false }) {
+    return makeLogStore({ preloadedState: { draw }, middleware: [listener.middleware] })
+}
 
-function makeStore(state: Record<string, unknown> = {}) {
-    const dispatchedActions: Action[] = []
-    const captureMiddleware: Middleware = () => next => action => {
-        dispatchedActions.push(action as Action)
-        return next(action)
-    }
-    const store = configureStore({
-        reducer: (s = state) => s,
-        middleware: getDefaultMiddleware =>
-            getDefaultMiddleware().prepend(listener.middleware).concat(captureMiddleware),
-    })
-    return { store, dispatchedActions }
+function types(dispatched: { type: string }[]) {
+    return dispatched.map(a => a.type)
 }
 
 describe("start-draw listener", () => {
-    beforeEach(() => {
-        vi.useFakeTimers()
-    })
-
     afterEach(() => {
-        vi.useRealTimers()
         vi.clearAllMocks()
     })
 
-    test("dispatches tools/setTool draw on draw/start", async () => {
-        const { store, dispatchedActions } = makeStore({})
+    test("begins the backend session, then enters draw mode", async () => {
+        mockInvoke.mockResolvedValue(undefined)
+        const { store, dispatched } = makeStore()
 
-        store.dispatch({ type: "draw/start", payload: { sourceId: "s1" } })
-        await vi.runAllTimersAsync()
+        store.dispatch(actions.draw.start({ sourceId: "s1" }))
+        await flushAsync()
 
-        expect(dispatchedActions.find(a => a.type === "tools/setTool" && a.payload === "draw")).toBeDefined()
+        expect(mockInvoke).toHaveBeenCalledWith("draw_begin", { id: "s1" })
+        expect(types(dispatched)).toEqual(["draw/start", "draw/started", "tools/setTool"])
+        expect(dispatched.find(a => a.type === "draw/started")?.payload).toEqual({ sourceId: "s1" })
+        expect(dispatched.find(a => a.type === "tools/setTool")?.payload).toBe("draw")
+    })
+
+    test("fails closed on a source that cannot be edited: error surfaced, not in draw mode", async () => {
+        mockInvoke.mockRejectedValue("Source s1 is not an in-memory source")
+        const { store, dispatched } = makeStore()
+
+        store.dispatch(actions.draw.start({ sourceId: "s1" }))
+        await flushAsync()
+
+        expect(types(dispatched)).toEqual(["draw/start", "error/setError", "draw/settle"])
+        expect(dispatched.find(a => a.type === "error/setError")?.payload).toEqual(
+            expect.stringContaining("not an in-memory source"),
+        )
+    })
+
+    test("does nothing while already drawing", async () => {
+        const { store, dispatched } = makeStore({ sourceId: "s0", pending: false })
+
+        store.dispatch(actions.draw.start({ sourceId: "s1" }))
+        await flushAsync()
+
+        expect(mockInvoke).not.toHaveBeenCalled()
+        expect(types(dispatched)).toEqual(["draw/start"])
+    })
+
+    test("does nothing while another begin is pending", async () => {
+        const { store } = makeStore({ pending: true })
+
+        store.dispatch(actions.draw.start({ sourceId: "s1" }))
+        await flushAsync()
+
+        expect(mockInvoke).not.toHaveBeenCalled()
     })
 })

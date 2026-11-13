@@ -47,6 +47,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useTileBoundaries(map)
 
     const drawing = useAppSelector(selectors.draw.isDrawing)
+    const drawSourceId = useAppSelector(selectors.draw.sourceId)
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(selectors.source.allIds)
     const layers = useAppSelector(selectors.layer.mapLayers)
@@ -66,7 +67,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
                     <SphereLayer id={id} />
                 </React.Fragment>
             ))}
-            {!drawing ? null : <Draw mapId={mapId} />}
+            {drawSourceId === undefined ? null : <Draw key={drawSourceId} mapId={mapId} sourceId={drawSourceId} />}
             <RectSelectOverlay mapRef={map} />
         </>
     )

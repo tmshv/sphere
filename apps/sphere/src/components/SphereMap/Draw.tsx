@@ -1,101 +1,67 @@
-import { DRAW_ORIG_ID_KEY } from "@/const"
+import { DRAW_WORKING_SET_CAP } from "@/const"
 import { useDrawControl } from "@/hooks/useDrawControl"
-import type { DrawEvent } from "@/hooks/useDrawControl"
-import { loadDrawFeatures } from "@/lib/draw-source"
-import logger from "@/logger"
-import { actions } from "@/store"
+import { boundsToBbox } from "@/lib/bbox"
+import { DrawOpQueue, loadWorkingSet, registerDrawQueue } from "@/lib/draw-session"
+import { chooseWorkingSetScope, planWorkingSetUpdate, scopeAfterMove, touchedIds } from "@/lib/draw-working-set"
+import { errorMessage } from "@/lib/error-message"
+import { selectionGetIds } from "@/lib/selection-ipc"
+import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { Button, Overlay, Row } from "@sphere/ui"
+import type { DrawEvent, DrawFeatureId, Id, WorkingSetScope } from "@/types"
+import { Button, Overlay, Row, Surface, Text } from "@sphere/ui"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
 
+// Shown instead of loading when the scope holds more than DRAW_WORKING_SET_CAP features
+const OVER_CAP_NOTICE: Record<WorkingSetScope["type"], string> = {
+    bbox: "Too many features here. Zoom in to edit.",
+    ids: "Too many features selected. Cancel and select fewer to edit.",
+}
+
 export type DrawProps = {
     mapId: string
+    // Fixed for the component's life: mount it with `key={sourceId}`
+    sourceId: Id
 }
 
-type ChangeTracker = {
-    created: Set<string>
-    updated: Set<string>
-    deleted: Map<string, string | number | undefined>
-}
-
-function newTracker(): ChangeTracker {
-    return {
-        created: new Set(),
-        updated: new Set(),
-        deleted: new Map(),
-    }
-}
-
-function trackDelete(t: ChangeTracker, feature: GeoJSON.Feature, key: string) {
-    const drawId = String(feature.id)
-    if (t.created.has(drawId)) {
-        t.created.delete(drawId)
-    } else {
-        const origId = feature.properties?.[key]
-        t.deleted.set(drawId, origId)
-        t.updated.delete(drawId)
-    }
-}
-
-export default function Draw({ mapId }: DrawProps) {
+/**
+ * The draw UI of one backend draw session. The session itself (begin, commit,
+ * rollback) is run by the draw listeners; this component owns the draw control
+ * and the op queue that forwards each edit to the backend, and loads the
+ * working set into draw: the selection when it belongs to this source, else
+ * the viewport, re-queried after every move. Features the user touched stay
+ * in draw; untouched ones that left the viewport are unloaded.
+ */
+export default function Draw({ mapId, sourceId }: DrawProps) {
     const dispatch = useAppDispatch()
-    const sourceId = useAppSelector(state => state.draw.sourceId)
+    const pending = useAppSelector(selectors.draw.isPending)
+    const selectionSourceId = useAppSelector(selectors.selection.sourceId)
+    // The scope is chosen once, when drawing starts
+    const initialSelectionSourceId = useRef(selectionSourceId)
     const [loading, setLoading] = useState(true)
+    // The kind of scope that held too many features to load, if the last load did
+    const [overCap, setOverCap] = useState<WorkingSetScope["type"] | undefined>(undefined)
+    const [queue] = useState(() => new DrawOpQueue(sourceId, err => dispatch(actions.draw.failed(errorMessage(err)))))
+    const scope = useRef<WorkingSetScope | undefined>(undefined)
+    const loaded = useRef(new Set<DrawFeatureId>())
+    const pinned = useRef(new Set<DrawFeatureId>())
+    // Only the latest load applies; unmount bumps it too
+    const generation = useRef(0)
 
-    const tracker = useRef<ChangeTracker>(newTracker())
-    const loadingRef = useRef(true)
+    useEffect(() => registerDrawQueue(queue), [queue])
 
     const onChange = useCallback((event: DrawEvent) => {
-        if (loadingRef.current) return
-        const t = tracker.current
-        switch (event.type) {
-            case "draw.create": {
-                for (const feature of event.features ?? []) {
-                    t.created.add(String(feature.id))
-                }
-                break
-            }
-            case "draw.update": {
-                for (const feature of event.features ?? []) {
-                    const drawId = String(feature.id)
-                    if (!t.created.has(drawId)) {
-                        t.updated.add(drawId)
-                    }
-                }
-                break
-            }
-            case "draw.delete": {
-                for (const feature of event.features ?? []) {
-                    trackDelete(t, feature, DRAW_ORIG_ID_KEY)
-                }
-                break
-            }
-            case "draw.combine": {
-                for (const feature of event.deletedFeatures ?? []) {
-                    trackDelete(t, feature, DRAW_ORIG_ID_KEY)
-                }
-                for (const feature of event.createdFeatures ?? []) {
-                    t.created.add(String(feature.id))
-                }
-                break
-            }
-            case "draw.uncombine": {
-                for (const feature of event.deletedFeatures ?? []) {
-                    trackDelete(t, feature, DRAW_ORIG_ID_KEY)
-                }
-                for (const feature of event.createdFeatures ?? []) {
-                    t.created.add(String(feature.id))
-                }
-                break
-            }
+        for (const id of touchedIds(event)) {
+            pinned.current.add(id)
         }
     }, [])
 
-    const { [mapId]: ref } = useMap()
+    const { [mapId]: mapRef } = useMap()
+    const map = mapRef?.getMap()
     const draw = useDrawControl({
-        ref,
+        ref: mapRef,
         onChange,
+        ops: queue,
         position: "top-left",
         controls: {
             point: true,
@@ -108,74 +74,117 @@ export default function Draw({ mapId }: DrawProps) {
         displayControlsDefault: false,
     })
 
+    const applyWorkingSet = useCallback(
+        async (next: WorkingSetScope, current: number) => {
+            // Created features must have their backend ids before the query, or they would load twice
+            const flushed = await queue.flush()
+            if (!flushed.ok) {
+                // Already surfaced by the queue; the backend lags behind the map, so load nothing more
+                return
+            }
+            const workingSet = await loadWorkingSet(sourceId, next, DRAW_WORKING_SET_CAP)
+            if (current !== generation.current) {
+                return
+            }
+            if (workingSet.overCap) {
+                setOverCap(next.type)
+                return
+            }
+            setOverCap(undefined)
+            const plan = planWorkingSetUpdate({
+                loaded: loaded.current,
+                pinned: new Set([...pinned.current, ...queue.createdIds()]),
+                incoming: workingSet.features.features,
+            })
+            // Load first: if it throws, nothing was unloaded and `loaded` still matches draw
+            draw.load({ type: "FeatureCollection", features: plan.add })
+            draw.unload(plan.unload)
+            loaded.current = plan.loaded
+        },
+        [queue, sourceId, draw],
+    )
+
+    // Blocks the map while the working set loads; an older load that resolves late is dropped
+    const refresh = useCallback(
+        (next: WorkingSetScope) => {
+            generation.current += 1
+            const current = generation.current
+            setLoading(true)
+            applyWorkingSet(next, current)
+                .catch(err => {
+                    dispatch(actions.draw.failed(errorMessage(err)))
+                })
+                .finally(() => {
+                    if (current === generation.current) {
+                        setLoading(false)
+                    }
+                })
+        },
+        [applyWorkingSet, dispatch],
+    )
+
     useEffect(() => {
-        if (!sourceId) return
-        setLoading(true)
-        loadingRef.current = true
-        loadDrawFeatures(sourceId)
-            .then(fc => {
-                if (!fc) return
-                tracker.current = newTracker()
-                draw.set(fc)
+        if (!map) {
+            return
+        }
+        let active = true
+        selectionGetIds()
+            .then(selectionIds => {
+                if (!active) {
+                    return
+                }
+                scope.current = chooseWorkingSetScope({
+                    sourceId,
+                    selectionSourceId: initialSelectionSourceId.current,
+                    selectionIds,
+                    bbox: boundsToBbox(map.getBounds()),
+                })
+                refresh(scope.current)
             })
             .catch(err => {
-                logger.error("Failed to load draw source %s: %s", sourceId, err)
-            })
-            .finally(() => {
-                loadingRef.current = false
+                dispatch(actions.draw.failed(errorMessage(err)))
                 setLoading(false)
             })
-    }, [sourceId, draw])
+        return () => {
+            active = false
+            generation.current += 1
+        }
+    }, [map, sourceId, refresh, dispatch])
+
+    useEffect(() => {
+        if (!map) {
+            return
+        }
+        const subscription = map.on("moveend", () => {
+            const next = scopeAfterMove(scope.current, boundsToBbox(map.getBounds()))
+            if (next) {
+                refresh(next)
+            }
+        })
+        return () => {
+            subscription.unsubscribe()
+        }
+    }, [map, refresh])
 
     const onCancel = useCallback(() => {
-        dispatch(actions.tools.reset())
-    }, [dispatch])
+        dispatch(actions.draw.cancel({ sourceId }))
+    }, [dispatch, sourceId])
 
     const onDone = useCallback(() => {
-        if (!sourceId || loading) return
-        const t = tracker.current
-        const all = draw.getAll()
+        dispatch(actions.draw.commit({ sourceId }))
+    }, [dispatch, sourceId])
 
-        const added: GeoJSON.Feature[] = []
-        const updated: GeoJSON.Feature[] = []
-        for (const feature of all.features) {
-            const drawId = String(feature.id)
-            const origId = feature.properties?.[DRAW_ORIG_ID_KEY]
-            if (feature.properties) {
-                delete feature.properties[DRAW_ORIG_ID_KEY]
-            }
-            if (t.created.has(drawId)) {
-                added.push({
-                    type: feature.type,
-                    geometry: feature.geometry,
-                    properties: feature.properties,
-                })
-            } else if (t.updated.has(drawId)) {
-                if (typeof origId === "string" || typeof origId === "number") {
-                    feature.id = origId
-                }
-                updated.push(feature)
-            }
-        }
-
-        const deleted_ids: (string | number)[] = []
-        for (const [, origId] of t.deleted) {
-            if (origId !== undefined) {
-                deleted_ids.push(origId)
-            }
-        }
-
-        dispatch(
-            actions.draw.commit({
-                sourceId,
-                patch: { added, updated, deleted_ids },
-            }),
+    const blocked = loading || pending
+    const notice =
+        overCap === undefined ? null : (
+            <Surface>
+                <Text>{OVER_CAP_NOTICE[overCap]}</Text>
+            </Surface>
         )
-    }, [dispatch, sourceId, loading, draw])
 
     return (
         <>
-            {loading && (
+            {blocked && (
                 <div
                     style={{
                         position: "absolute",
@@ -189,12 +198,13 @@ export default function Draw({ mapId }: DrawProps) {
                 />
             )}
             <Overlay
+                top={notice}
                 bottom={
                     <Row gap="xs">
-                        <Button variant="secondary" onClick={onCancel}>
+                        <Button variant="secondary" onClick={onCancel} disabled={pending}>
                             Cancel
                         </Button>
-                        <Button onClick={onDone} disabled={loading}>
+                        <Button onClick={onDone} disabled={blocked}>
                             Done
                         </Button>
                     </Row>

@@ -1,25 +1,72 @@
-import logger from "@/logger"
+import { commitDraw, getDrawQueue } from "@/lib/draw-session"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
-import { invoke } from "@tauri-apps/api/core"
+import type { RootState } from ".."
 import { actions } from "../actions"
+import { refreshSelection, rollbackSession, surfaceError } from "./draw-session-end"
 
-const listener = createListenerMiddleware()
+const EDITS_NOT_SAVED = "Draw edits could not be saved, cancel to discard them"
+const COMMIT_FAILED = "Could not save the draw edits"
+const DRAW_FAILED = "Draw failed"
+
+const listener = createListenerMiddleware<RootState>()
+
+// Done: send every queued op, then keep the edits. Any failure keeps draw mode, so the user can Cancel
 listener.startListening({
     actionCreator: actions.draw.commit,
     effect: async (action, listenerApi) => {
-        const { sourceId, patch } = action.payload
-        const hasChanges = patch.added.length > 0 || patch.updated.length > 0 || patch.deleted_ids.length > 0
-        if (hasChanges) {
-            try {
-                await invoke("source_patch", { id: sourceId, patch })
-            } catch (err) {
-                logger.error("Failed to save draw source %s: %s", sourceId, err)
-                return
-            }
-            listenerApi.dispatch(actions.source.bumpVersion(sourceId))
+        const { sourceId } = action.payload
+        const before = listenerApi.getOriginalState().draw
+        if (before.sourceId !== sourceId || before.pending) {
+            return
         }
+
+        const flushed = await getDrawQueue(sourceId)?.flush()
+        if (flushed && !flushed.ok) {
+            surfaceError(listenerApi, EDITS_NOT_SAVED, flushed.error)
+            listenerApi.dispatch(actions.draw.settle())
+            return
+        }
+
+        try {
+            await commitDraw(sourceId)
+        } catch (err) {
+            surfaceError(listenerApi, COMMIT_FAILED, err)
+            listenerApi.dispatch(actions.draw.settle())
+            return
+        }
+
+        listenerApi.dispatch(actions.source.bumpVersion(sourceId))
+        await refreshSelection(listenerApi, sourceId)
         listenerApi.dispatch(actions.draw.done({ sourceId }))
         listenerApi.dispatch(actions.tools.reset())
+    },
+})
+
+// Cancel: discard the edits. A failed rollback keeps draw mode, so the user can retry
+listener.startListening({
+    actionCreator: actions.draw.cancel,
+    effect: async (action, listenerApi) => {
+        const { sourceId } = action.payload
+        const before = listenerApi.getOriginalState().draw
+        if (before.sourceId !== sourceId || before.pending) {
+            return
+        }
+
+        const rolledBack = await rollbackSession(listenerApi, sourceId, getDrawQueue(sourceId))
+        if (!rolledBack) {
+            listenerApi.dispatch(actions.draw.settle())
+            return
+        }
+        // Draw mode ends first, so the tool reset below does not cancel again
+        listenerApi.dispatch(actions.draw.reset())
+        listenerApi.dispatch(actions.tools.reset())
+    },
+})
+
+listener.startListening({
+    actionCreator: actions.draw.failed,
+    effect: (action, listenerApi) => {
+        surfaceError(listenerApi, DRAW_FAILED, action.payload)
     },
 })
 
