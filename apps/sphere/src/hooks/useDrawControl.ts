@@ -1,4 +1,4 @@
-import MapLibreDraw from "@hyvilo/maplibre-gl-draw"
+import MapLibreDraw from "@sphere/draw"
 import { useEffect } from "react"
 import { useControl } from "react-map-gl/maplibre"
 import type { ControlPosition, MapRef } from "react-map-gl/maplibre"
