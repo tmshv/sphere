@@ -1,6 +1,7 @@
 import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { isOverDrawFeature } from "@/lib/draw-hit"
 import { isRectSelectEnabled } from "@/lib/map-tools"
 import { useEffect, useRef, useState } from "react"
 import type { MapRef } from "react-map-gl/maplibre"
@@ -102,7 +103,8 @@ export type RectSelectOverlayProps = {
 export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const dispatch = useAppDispatch()
     const mapTool = useAppSelector(selectMapTool)
-    const sourceId = useAppSelector(selectors.source.selectSelectedSourceId)
+    const sourceId = useAppSelector(selectors.selection.targetSourceId)
+    const drawing = useAppSelector(selectors.selection.drawing)
     const enabled = isRectSelectEnabled(mapTool)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
@@ -111,15 +113,25 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const sourceIdRef = useRef(sourceId)
     sourceIdRef.current = sourceId
 
+    const drawingRef = useRef(drawing)
+    drawingRef.current = drawing
+
     const dragStartRef = useRef(dragStart)
     dragStartRef.current = dragStart
 
     useEffect(() => {
-        const container = mapRef?.getMap()?.getCanvasContainer()
-        if (!container || !enabled) return
+        const map = mapRef?.getMap()
+        const container = map?.getCanvasContainer()
+        if (!map || !container || !enabled) return
 
         const onMouseDown = (e: MouseEvent) => {
             if (e.button !== 0) return
+            // A drag that starts on a draw feature belongs to draw, which moves it
+            if (drawingRef.current) {
+                const bounds = container.getBoundingClientRect()
+                const point = { x: e.clientX - bounds.left, y: e.clientY - bounds.top }
+                if (isOverDrawFeature(map, point)) return
+            }
             isDragging.current = false
             setDragStart({ x: e.clientX, y: e.clientY })
             setDragCurrent(null)
@@ -164,12 +176,15 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
 
             if (sourceIdRef.current) {
                 if (!isDragging.current) {
-                    dispatch(
-                        actions.rectSelect.click({
-                            point: start,
-                            modifier: getModifier(e),
-                        }),
-                    )
+                    // While drawing, clicks select through draw itself
+                    if (!drawingRef.current) {
+                        dispatch(
+                            actions.rectSelect.click({
+                                point: start,
+                                modifier: getModifier(e),
+                            }),
+                        )
+                    }
                 } else {
                     const current = { x: e.clientX, y: e.clientY }
                     dispatch(

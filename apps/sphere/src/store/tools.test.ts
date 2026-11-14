@@ -35,6 +35,10 @@ describe("toolsSlice selectors", () => {
         expect(selectNavigationEnabled(makeRootState({ activeTool: "navigation" }))).toBe(true)
     })
 
+    test("selectNavigationEnabled returns true when activeTool is draw", () => {
+        expect(selectNavigationEnabled(makeRootState({ activeTool: "draw" }))).toBe(true)
+    })
+
     test("selectNavigationEnabled returns false when activeTool is null", () => {
         expect(selectNavigationEnabled(makeRootState({ activeTool: null }))).toBe(false)
     })

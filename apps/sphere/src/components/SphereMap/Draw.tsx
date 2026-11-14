@@ -20,7 +20,7 @@ import { useMap } from "react-map-gl/maplibre"
 // Shown instead of loading when the scope holds more than DRAW_WORKING_SET_CAP features
 const OVER_CAP_NOTICE: Record<WorkingSetScope["type"], string> = {
     bbox: "Too many features here. Zoom in to edit.",
-    ids: "Too many features selected. Cancel and select fewer to edit.",
+    ids: "Too many features selected. Select fewer to edit.",
 }
 
 // Covers the map and the draw toolbar while a load or a session end runs. It shares the
