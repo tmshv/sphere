@@ -22,14 +22,24 @@ export function surfaceError(api: DrawListenerApi, context: string, err: unknown
 /**
  * Re-reads the backend selection after a commit or rollback, which drop the
  * ids that no longer exist, so deleted features do not stay highlighted and
- * the count and properties panel follow.
+ * the count and properties panel follow. When `isCurrent` turns false while
+ * the ids are read, a newer selection change won and nothing is applied.
  */
-export async function refreshSelection(api: DrawListenerApi, sourceId: string): Promise<void> {
+export async function refreshSelection(
+    api: DrawListenerApi,
+    sourceId: string,
+    isCurrent: () => boolean = () => true,
+): Promise<void> {
     let ids: number[]
     try {
         ids = await selectionGetIds()
     } catch (err) {
-        surfaceError(api, SELECTION_REFRESH_FAILED, err)
+        if (isCurrent()) {
+            surfaceError(api, SELECTION_REFRESH_FAILED, err)
+        }
+        return
+    }
+    if (!isCurrent()) {
         return
     }
     const selectionSourceId = api.getState().selection.sourceId

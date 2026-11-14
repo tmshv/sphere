@@ -131,7 +131,7 @@ describe("draw-selection listener", () => {
                 return calls === 1 ? first.promise : Promise.resolve(delta(Array.isArray(args.ids) ? args.ids : []))
             },
         })
-        const { store, dispatched, deltas, reconciled } = setup()
+        const { store, dispatched, deltas, reconciled } = setup(SOURCE_ID)
 
         store.dispatch(change([1]))
         await flushAsync()
@@ -145,7 +145,7 @@ describe("draw-selection listener", () => {
 
         expect(setCalls()).toEqual([{ ids: [1] }, { ids: [2] }])
         expect(deltas).toEqual([delta([2])])
-        // The older delta was dropped; the newer one restates the whole selection
+        // The older delta was dropped, so the newer delta alone is not the truth: it restates the whole selection
         expect(reconciled).toEqual([{ ids: [2], sourceId: SOURCE_ID }])
         expect(dispatched.filter(a => a.type === "selection/sync").map(a => a.payload)).toEqual([
             { count: 1, sourceId: SOURCE_ID },
@@ -289,5 +289,83 @@ describe("draw-selection listener", () => {
         await flushAsync()
 
         expect(setCalls()).toEqual([{ ids: [1] }])
+    })
+
+    test("no reconcile when the selection already belonged to the drawn source: the delta is the truth", async () => {
+        const { store, deltas, reconciled } = setup(SOURCE_ID)
+
+        store.dispatch(change([1]))
+        await flushAsync()
+
+        expect(deltas).toEqual([delta([1])])
+        expect(reconciled).toEqual([])
+    })
+
+    test("a failure recovery that lands after a newer change started emits nothing", async () => {
+        const ids = deferred<number[]>()
+        let calls = 0
+        mockCommands({
+            selection_set: args => {
+                calls += 1
+                return calls === 1
+                    ? Promise.reject("ipc down")
+                    : Promise.resolve(delta(Array.isArray(args.ids) ? args.ids : []))
+            },
+            selection_get_ids: () => ids.promise,
+        })
+        const { store, dispatched, deltas, reconciled } = setup(SOURCE_ID)
+
+        store.dispatch(change([1]))
+        await flushAsync()
+        store.dispatch(change([2]))
+        await flushAsync()
+        expect(deltas).toEqual([delta([2])])
+        ids.resolve([5])
+        await flushAsync()
+
+        expect(reconciled).toEqual([])
+        expect(dispatched.filter(a => a.type === "selection/sync").map(a => a.payload)).toEqual([
+            { count: 1, sourceId: SOURCE_ID },
+        ])
+    })
+
+    test("a change that sent nothing does not block the same click later", async () => {
+        const { store, queue } = setup()
+        // No queue for the drawn source: nothing is sent
+        cleanups.push(registerDrawQueue(new DrawOpQueue("other", () => {})))
+        store.dispatch(change([1]))
+        await flushAsync()
+        // A failed queue: nothing is sent
+        mockCommands({ draw_apply: () => Promise.reject("boom") })
+        const failing = new DrawOpQueue(SOURCE_ID, () => {})
+        cleanups.push(registerDrawQueue(failing))
+        failing.enqueue([{ type: "delete", id: 9 }])
+        store.dispatch(change([1]))
+        await flushAsync()
+        expect(setCalls()).toEqual([])
+
+        mockCommands()
+        cleanups.push(registerDrawQueue(queue))
+        store.dispatch(change([1]))
+        await flushAsync()
+
+        expect(setCalls()).toEqual([{ ids: [1] }])
+    })
+
+    test("a selection change elsewhere while a change is in flight is not overwritten", async () => {
+        const pending = deferred<SelectionDelta>()
+        mockCommands({ selection_set: () => pending.promise })
+        const { store } = setup()
+
+        store.dispatch(change([1]))
+        await flushAsync()
+        store.dispatch(actions.selection.sync({ count: 3, sourceId: SOURCE_ID }))
+        pending.resolve(delta([1]))
+        await flushAsync()
+        mockCommands()
+        store.dispatch(change([1]))
+        await flushAsync()
+
+        expect(setCalls()).toEqual([{ ids: [1] }, { ids: [1] }])
     })
 })
