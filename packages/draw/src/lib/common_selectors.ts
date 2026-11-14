@@ -14,6 +14,8 @@ interface TargetEvent {
 interface OriginalEventHolder {
     originalEvent?: {
         shiftKey?: boolean
+        metaKey?: boolean
+        ctrlKey?: boolean
         button?: number
     }
 }
@@ -71,6 +73,12 @@ export function isVertex(e: TargetEvent): boolean {
 export function isShiftDown(e: OriginalEventHolder): boolean {
     if (!e.originalEvent) return false
     return e.originalEvent.shiftKey === true
+}
+
+/** Whether cmd or ctrl is down: the modifier that removes a feature from the selection. */
+export function isModifierRemoveDown(e: OriginalEventHolder): boolean {
+    if (!e.originalEvent) return false
+    return e.originalEvent.metaKey === true || e.originalEvent.ctrlKey === true
 }
 
 export function isEscapeKey(e: { keyCode: number }): boolean {

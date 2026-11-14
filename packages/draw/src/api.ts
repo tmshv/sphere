@@ -159,6 +159,26 @@ export default class DrawApi {
         this.delete(featureIds)
     }
 
+    /**
+     * Silently sets the selection to `featureIds`: no `draw.selectionchange` is emitted. Ids that are not in
+     * Draw are ignored. In `direct_select`, a result that is not exactly the edited feature leaves it for
+     * `simple_select`.
+     */
+    setSelected = (featureIds: FeatureId[]): void => {
+        const edited = this.#ctx.store.getSelectedIds().at(0)
+        const known = featureIds.filter(id => this.#ctx.store.get(id) !== undefined)
+        this.#ctx.store.setSelected(known, { silent: true })
+        const selected = this.#ctx.store.getSelectedIds()
+        const stillEditing = selected.length === 1 && selected.at(0) === edited
+        if (this.getMode() === Constants.modes.DIRECT_SELECT && !stillEditing) {
+            this.#ctx.events.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: selected }, { silent: true })
+            // Leaving direct_select drops its selected vertices, which would report a selection change
+            this.#ctx.store.discardPendingSelectionChange()
+            return
+        }
+        this.#ctx.store.render()
+    }
+
     #addFeatures = (geojson: DrawInput, idOf: (feature: { id?: FeatureId }) => FeatureId): FeatureId[] => {
         const featureCollection = jsonClone(normalize(geojson))
         if (featureCollection === null) throw new TypeError("Invalid GeoJSON")

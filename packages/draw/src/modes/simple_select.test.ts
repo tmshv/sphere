@@ -296,28 +296,144 @@ describe("simple_select", () => {
         cleanUp()
     })
 
-    it("click on a selected feature with shift down", async () => {
-        const id = Draw.add(getGeoJSON("polygon"))[0]
-        Draw.changeMode("simple_select", { featureIds: [id] })
+    describe("click rules", () => {
+        const POLYGON_CLICK = { x: 50, y: 30 }
+        const POINT_CLICK = { x: 10, y: 10 }
+        const EMPTY_CLICK = { x: -170, y: -80 }
 
-        await afterNextRender()
-        fireSpy.mockClear()
-        doubleClickZoomDisable.mockClear()
-        map.fire("mousedown", makeMouseEvent(50, 30, { shiftKey: true }))
-        map.fire("mouseup", makeMouseEvent(50, 30, { shiftKey: true }))
-
-        await afterNextRender()
-        expect(doubleClickZoomDisable, "disable doubleClickZoom").toHaveBeenCalledTimes(1)
-        expect(map.getContainer().className.indexOf("mouse-pointer") > -1, "mouse-pointer class has been set").toBe(
-            true,
-        )
-        let args = getFireArgs()
-        args = args.filter(arg => arg[0] === "draw.selectionchange")
-        expect(args.length, "should have one and only one selectionchange event").toBe(1)
-        if (args.length > 0) {
-            expect(payload(args[0], hasFeatures).features.length, "should have no features selected").toBe(0)
+        function lastSelection(): string[] {
+            const calls = getFireArgs().filter(arg => arg[0] === "draw.selectionchange")
+            const last = payload(calls.at(-1), hasFeatures)
+            return last.features.map(f => String(f.id))
         }
-        cleanUp()
+
+        function addPair(): { polygon: string; point: string } {
+            const polygon = String(required(Draw.add(getGeoJSON("polygon"))[0]))
+            const pointFeature = getGeoJSON("point")
+            const point = String(
+                required(Draw.add({ ...pointFeature, geometry: { type: "Point", coordinates: [10, 10] } })[0]),
+            )
+            return { polygon, point }
+        }
+
+        async function clickAt(at: { x: number; y: number }, modifiers: Parameters<typeof makeMouseEvent>[2] = {}) {
+            await afterNextRender()
+            fireSpy.mockClear()
+            mouseClick(map, makeMouseEvent(at.x, at.y, modifiers))
+            await afterNextRender()
+        }
+
+        it("click on an unselected feature replaces the selection", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [point] })
+            await clickAt(POLYGON_CLICK)
+            expect(Draw.getSelectedIds()).toEqual([polygon])
+            cleanUp()
+        })
+
+        it("shift-click on an unselected feature adds it", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [point] })
+            await clickAt(POLYGON_CLICK, { shiftKey: true })
+            expect(Draw.getSelectedIds().toSorted()).toEqual([polygon, point].toSorted())
+            cleanUp()
+        })
+
+        it("shift-click on a selected feature keeps it selected", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon, point] })
+            await clickAt(POLYGON_CLICK, { shiftKey: true })
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds().toSorted()).toEqual([polygon, point].toSorted())
+            cleanUp()
+        })
+
+        it("shift-click on the only selected feature does not enter direct_select", async () => {
+            const { polygon } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon] })
+            await clickAt(POLYGON_CLICK, { shiftKey: true })
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds()).toEqual([polygon])
+            cleanUp()
+        })
+
+        it("cmd-click on a selected feature removes it", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon, point] })
+            await clickAt(POLYGON_CLICK, { metaKey: true })
+            expect(Draw.getSelectedIds()).toEqual([point])
+            expect(lastSelection()).toEqual([point])
+            cleanUp()
+        })
+
+        it("ctrl-click on a selected feature removes it", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon, point] })
+            await clickAt(POLYGON_CLICK, { ctrlKey: true })
+            expect(Draw.getSelectedIds()).toEqual([point])
+            cleanUp()
+        })
+
+        it("cmd-click on an unselected feature changes nothing", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [point] })
+            await clickAt(POLYGON_CLICK, { metaKey: true })
+            expect(Draw.getSelectedIds()).toEqual([point])
+            expect(polygon).not.toBe(point)
+            cleanUp()
+        })
+
+        it("click on empty map clears the selection", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon, point] })
+            await clickAt(EMPTY_CLICK)
+            expect(Draw.getSelectedIds()).toEqual([])
+            cleanUp()
+        })
+
+        it("click on one of several selected features selects only it", async () => {
+            const { polygon, point } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon, point] })
+            await clickAt(POINT_CLICK)
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds()).toEqual([point])
+            cleanUp()
+        })
+
+        it("click on the only selected feature enters direct_select", async () => {
+            const { polygon } = addPair()
+            Draw.changeMode("simple_select", { featureIds: [polygon] })
+            await clickAt(POLYGON_CLICK)
+            expect(Draw.getMode()).toBe("direct_select")
+            cleanUp()
+        })
+    })
+
+    describe("dragPan", () => {
+        async function dragSelectedPolygon() {
+            const id = required(Draw.add(getGeoJSON("polygon"))[0])
+            Draw.changeMode("simple_select", { featureIds: [id] })
+            await afterNextRender()
+            map.fire("mousedown", makeMouseEvent(50, 30))
+            map.fire("mousemove", makeMouseEvent(60, 40, { buttons: 1 }))
+            map.fire("mouseup", makeMouseEvent(60, 40))
+            await afterNextRender()
+        }
+
+        it("stays disabled after a feature drag when it was disabled before", async () => {
+            map.dragPan.disable()
+            await dragSelectedPolygon()
+            expect(map.dragPan.isEnabled()).toBe(false)
+            map.dragPan.enable()
+            cleanUp()
+        })
+
+        it("is enabled after a feature drag when it was enabled before", async () => {
+            map.dragPan.enable()
+            await dragSelectedPolygon()
+            expect(map.dragPan.isEnabled()).toBe(true)
+            cleanUp()
+        })
     })
 
     it("delete selected features", async () => {

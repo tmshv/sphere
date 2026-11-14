@@ -330,6 +330,35 @@ describe("direct_select", () => {
         await cleanUp()
     })
 
+    describe("dragPan", () => {
+        async function dragVertex() {
+            const [lineId] = Draw.add(getGeoJSON("line"))
+            Draw.changeMode(Constants.modes.DIRECT_SELECT, { featureId: required(lineId) })
+            const start = required(getGeoJSON("line").geometry.coordinates[0])
+            await afterNextRender()
+            click(map, makeMouseEvent(start[0], start[1]))
+            map.fire("mousedown", makeMouseEvent(start[0], start[1]))
+            map.fire("mousemove", makeMouseEvent(start[0] + 10, start[1] + 10, { buttons: 1 }))
+            map.fire("mouseup", makeMouseEvent(start[0] + 10, start[1] + 10))
+            await afterNextRender()
+        }
+
+        it("stays disabled after a vertex drag when it was disabled before", async () => {
+            map.dragPan.disable()
+            await dragVertex()
+            expect(map.dragPan.isEnabled()).toBe(false)
+            map.dragPan.enable()
+            await cleanUp()
+        })
+
+        it("is enabled after a vertex drag when it was enabled before", async () => {
+            map.dragPan.enable()
+            await dragVertex()
+            expect(map.dragPan.isEnabled()).toBe(true)
+            await cleanUp()
+        })
+    })
+
     it("trashing a selected MultiPoint vertex removes that point", async () => {
         const [id] = Draw.add(getGeoJSON("multiPoint"))
         const featureId = required(id)

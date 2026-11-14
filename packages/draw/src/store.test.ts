@@ -70,12 +70,15 @@ it("Store constructor and public API", () => {
     expect(typeof Store.prototype.setSelectedCoordinates, "exposes store.setSelectedCoordinates").toBe("function")
     expect(typeof Store.prototype.getSelectedCoordinates, "exposes store.getSelectedCoordinates").toBe("function")
     expect(typeof Store.prototype.clearSelectedCoordinates, "exposes store.clearSelectedCoordinates").toBe("function")
+    expect(typeof Store.prototype.discardPendingSelectionChange, "exposes store.discardPendingSelectionChange").toBe(
+        "function",
+    )
     expect(typeof Store.prototype.setFeatureProperty, "exposes store.setFeatureProperty").toBe("function")
     expect(typeof Store.prototype.storeMapConfig, "exposes store.storeMapConfig").toBe("function")
     expect(typeof Store.prototype.restoreMapConfig, "exposes store.restoreMapConfig").toBe("function")
     expect(typeof Store.prototype.getInitialConfigValue, "exposes store.getInitialConfigValue").toBe("function")
 
-    expect(getPublicMemberKeys(Store.prototype).length, "no untested prototype members").toBe(24)
+    expect(getPublicMemberKeys(Store.prototype).length, "no untested prototype members").toBe(25)
 })
 
 it("Store#setDirty", () => {

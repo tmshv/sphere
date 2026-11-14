@@ -91,6 +91,8 @@ export default class SimpleSelect extends Mode {
     #canBoxSelect = false
     #dragMoving = false
     #canDragMove = false
+    /** Whether `dragPan` was on when this mode turned it off; `null` while this mode has not turned it off. */
+    #dragPanWasEnabled: boolean | null = null
     readonly #initiallySelectedFeatureIds: FeatureId[]
 
     constructor(ctx: ModeContext, opts: ChangeModeOptions) {
@@ -154,6 +156,17 @@ export default class SimpleSelect extends Mode {
         return ids.values()
     }
 
+    #disableDragPan(): void {
+        if (this.#dragPanWasEnabled === null) this.#dragPanWasEnabled = this.map.dragPan.isEnabled()
+        this.map.dragPan.disable()
+    }
+
+    #restoreDragPan(): void {
+        if (this.#dragPanWasEnabled === null) return
+        if (this.#dragPanWasEnabled) this.map.dragPan.enable()
+        this.#dragPanWasEnabled = null
+    }
+
     #stopExtendedInteractions(): void {
         if (this.#boxSelectElement) {
             if (this.#boxSelectElement.parentNode) {
@@ -162,7 +175,7 @@ export default class SimpleSelect extends Mode {
             this.#boxSelectElement = null
         }
 
-        this.map.dragPan.enable()
+        this.#restoreDragPan()
 
         this.#boxSelecting = false
         this.#canBoxSelect = false
@@ -249,7 +262,7 @@ export default class SimpleSelect extends Mode {
         this.#stopExtendedInteractions()
 
         // Disable map.dragPan immediately so it can't start
-        this.map.dragPan.disable()
+        this.#disableDragPan()
 
         // Re-render it and enable drag move
         const id = e.featureTarget.properties.id
@@ -266,41 +279,38 @@ export default class SimpleSelect extends Mode {
         doubleClickZoom.disable(this)
         this.#stopExtendedInteractions()
 
+        const isRemoveClick = CommonSelectors.isModifierRemoveDown(e)
         const isShiftClick = CommonSelectors.isShiftDown(e)
         const selectedFeatureIds = this.getSelectedIds()
         const featureId = e.featureTarget.properties.id
         if (featureId === undefined) throw new TypeError("The clicked feature has no id")
         const isFeatureSelected = this.isSelected(featureId)
 
-        // Click (without shift) on any selected feature but a point
-        if (
-            !isShiftClick &&
-            isFeatureSelected &&
-            requireFeature(this.getFeature(featureId)).type !== Constants.geojsonTypes.POINT
-        ) {
-            // Enter direct select mode
-            this.changeMode(Constants.modes.DIRECT_SELECT, {
-                featureId,
-            })
-            return
-        }
-
-        // Shift-click on a selected feature
-        if (isFeatureSelected && isShiftClick) {
-            // Deselect it
-            this.deselect(featureId)
-            this.updateUIClasses({ mouse: Constants.cursors.POINTER })
-            if (selectedFeatureIds.length === 1) {
-                doubleClickZoom.enable(this)
+        if (isRemoveClick) {
+            // Cmd/ctrl-click removes a selected feature and leaves an unselected one alone
+            if (isFeatureSelected) {
+                this.deselect(featureId)
+                this.updateUIClasses({ mouse: Constants.cursors.POINTER })
+                if (selectedFeatureIds.length === 1) {
+                    doubleClickZoom.enable(this)
+                }
             }
-            // Shift-click on an unselected feature
-        } else if (!isFeatureSelected && isShiftClick) {
-            // Add it to the selection
-            this.select(featureId)
-            this.updateUIClasses({ mouse: Constants.cursors.MOVE })
-            // Click (without shift) on an unselected feature
-        } else if (!isFeatureSelected && !isShiftClick) {
-            // Make it the only selected feature
+        } else if (isShiftClick) {
+            // Shift-click adds an unselected feature and keeps a selected one selected
+            if (!isFeatureSelected) {
+                this.select(featureId)
+                this.updateUIClasses({ mouse: Constants.cursors.MOVE })
+            }
+        } else if (isFeatureSelected && selectedFeatureIds.length === 1) {
+            // Click on the only selected feature: edit its vertices (a point has none)
+            if (requireFeature(this.getFeature(featureId)).type !== Constants.geojsonTypes.POINT) {
+                this.changeMode(Constants.modes.DIRECT_SELECT, {
+                    featureId,
+                })
+                return
+            }
+        } else {
+            // Click replaces the selection
             for (const id of selectedFeatureIds) {
                 this.doRender(id)
             }
@@ -322,7 +332,7 @@ export default class SimpleSelect extends Mode {
 
     #startBoxSelect(e: DrawPointerEvent): void {
         this.#stopExtendedInteractions()
-        this.map.dragPan.disable()
+        this.#disableDragPan()
         // Enable box select
         this.#boxSelectStartLocation = mouseEventPoint(e.originalEvent, this.map.getContainer())
         this.#canBoxSelect = true

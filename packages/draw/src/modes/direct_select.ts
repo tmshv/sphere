@@ -45,6 +45,8 @@ export default class DirectSelect extends Mode {
     #dragMoveLocation: LngLatValue | null
     #dragMoving = false
     #canDragMove = false
+    /** Whether `dragPan` was on when this mode turned it off; `null` while this mode has not turned it off. */
+    #dragPanWasEnabled: boolean | null = null
     #selectedCoordPaths: string[]
 
     constructor(ctx: ModeContext, opts: ChangeModeOptions) {
@@ -90,13 +92,15 @@ export default class DirectSelect extends Mode {
     }
 
     #startDragging(e: DrawPointerEvent): void {
+        if (this.#dragPanWasEnabled === null) this.#dragPanWasEnabled = this.map.dragPan.isEnabled()
         this.map.dragPan.disable()
         this.#canDragMove = true
         this.#dragMoveLocation = e.lngLat
     }
 
     #stopDragging(): void {
-        this.map.dragPan.enable()
+        if (this.#dragPanWasEnabled) this.map.dragPan.enable()
+        this.#dragPanWasEnabled = null
         this.#dragMoving = false
         this.#canDragMove = false
         this.#dragMoveLocation = null

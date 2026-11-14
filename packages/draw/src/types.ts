@@ -92,6 +92,8 @@ export interface DrawOriginalMouseEvent {
     buttons?: number
     which?: number
     shiftKey?: boolean
+    metaKey?: boolean
+    ctrlKey?: boolean
     clientX: number
     clientY: number
     stopPropagation(): void

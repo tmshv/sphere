@@ -61,8 +61,9 @@ export default function runSetup(ctx: DrawContext): DrawSetup {
                 map.boxZoom.disable()
                 // Need to toggle dragPan on and off or else first
                 // dragPan disable attempt in simple_select doesn't work
+                const dragPanWasEnabled = map.dragPan.isEnabled()
                 map.dragPan.disable()
-                map.dragPan.enable()
+                if (dragPanWasEnabled) map.dragPan.enable()
             }
 
             if (map.loaded()) {

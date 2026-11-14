@@ -251,6 +251,13 @@ export default class Store {
     }
 
     /**
+     * Drops the pending `draw.selectionchange`, for a selection change the app made itself and already knows.
+     */
+    discardPendingSelectionChange(): void {
+        this.#pending.selectionChange = false
+    }
+
+    /**
      * Clears the current coordinates selection.
      */
     clearSelectedCoordinates(): this {

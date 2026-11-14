@@ -805,6 +805,107 @@ describe("api", () => {
         })
     })
 
+    describe("silent selection", () => {
+        const selectionChange = vi.fn()
+
+        function point(id: string, coordinates: [number, number]) {
+            return {
+                type: "Feature" as const,
+                id,
+                properties: {},
+                geometry: { type: "Point" as const, coordinates },
+            }
+        }
+
+        function line(id: string) {
+            return {
+                type: "Feature" as const,
+                id,
+                properties: {},
+                geometry: {
+                    type: "LineString" as const,
+                    coordinates: [
+                        [0, 0],
+                        [5, 5],
+                    ],
+                },
+            }
+        }
+
+        beforeEach(async () => {
+            Draw.deleteAll()
+            await afterNextRender()
+            selectionChange.mockClear()
+            map.on("draw.selectionchange", selectionChange)
+        })
+
+        afterEach(() => {
+            map.off("draw.selectionchange", selectionChange)
+            Draw.deleteAll()
+        })
+
+        it("Draw.setSelected selects every id and emits no draw.selectionchange", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2]), point("b", [3, 4])] })
+            Draw.setSelected(["a", "b"])
+            await afterNextRender()
+            expect(Draw.getSelectedIds()).toEqual(["a", "b"])
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+
+        it("Draw.setSelected ignores an id that is not in Draw", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            Draw.setSelected(["a", "nope"])
+            await afterNextRender()
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+
+        it("Draw.setSelected with no ids leaves direct_select", async () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a")] })
+            Draw.changeMode("direct_select", { featureId: "a" })
+            Draw.setSelected([])
+            await afterNextRender()
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds()).toEqual([])
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+
+        it("Draw.setSelected of another feature leaves direct_select", async () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a"), line("b")] })
+            Draw.changeMode("direct_select", { featureId: "a" })
+            Draw.setSelected(["b"])
+            await afterNextRender()
+            expect(Draw.getMode()).toBe("simple_select")
+            expect(Draw.getSelectedIds()).toEqual(["b"])
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+
+        it("Draw.setSelected of the edited feature keeps direct_select", async () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a")] })
+            Draw.changeMode("direct_select", { featureId: "a" })
+            Draw.setSelected(["a"])
+            await afterNextRender()
+            expect(Draw.getMode()).toBe("direct_select")
+            expect(Draw.getSelectedIds()).toEqual(["a"])
+        })
+
+        it("Draw.unload of a selected feature emits no draw.selectionchange", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            Draw.setSelected(["a"])
+            await afterNextRender()
+            Draw.unload(["a"])
+            await afterNextRender()
+            expect(Draw.getSelectedIds()).toEqual([])
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+
+        it("Draw.load emits no draw.selectionchange", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            await afterNextRender()
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+    })
+
     it("Cleanup", () => {
         Draw.deleteAll()
         Draw.onRemove()
