@@ -32,8 +32,12 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
     const overCap: (WorkingSetScope["type"] | undefined)[] = []
     const errors: unknown[] = []
     const hidden: number[][] = []
+    const selections: number[][] = []
     const pinned = new Set<DrawFeatureId>()
-    const fetchWorkingSet = vi.fn<WorkingSetLoaderOptions["fetchWorkingSet"]>(() => Promise.resolve(workingSet([1])))
+    // The viewport holds feature 1; a selection query returns the features asked for
+    const fetchWorkingSet = vi.fn<WorkingSetLoaderOptions["fetchWorkingSet"]>((_, scope) =>
+        Promise.resolve(workingSet(scope.type === "ids" ? scope.ids : [1])),
+    )
     const getSelectionIds = vi.fn<WorkingSetLoaderOptions["getSelectionIds"]>(() => Promise.resolve([]))
     const flush = vi.fn<() => Promise<FlushResult>>(() => Promise.resolve({ ok: true }))
     const createdIds = vi.fn<() => number[]>(() => [])
@@ -56,6 +60,7 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
         onOverCap: value => overCap.push(value),
         onError: err => errors.push(err),
         onLoaded: ids => hidden.push(ids),
+        onSelection: ids => selections.push(ids),
         ...overrides,
     }
     const loader = new WorkingSetLoader(options)
@@ -67,6 +72,7 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
         overCap,
         errors,
         hidden,
+        selections,
         pinned,
         fetchWorkingSet,
         getSelectionIds,
@@ -75,26 +81,75 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
     }
 }
 
+function loadedIds(t: ReturnType<typeof setup>): DrawFeatureId[] {
+    return t.loadedIntoDraw.flat()
+}
+
 describe("WorkingSetLoader: begin", () => {
-    test("loads the selection when it belongs to the source", async () => {
+    test("loads the viewport and the selection when the selection belongs to the source", async () => {
         const t = setup()
         t.getSelectionIds.mockResolvedValue([4, 5])
 
         t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
         await flushAsync()
 
+        expect(t.fetchWorkingSet).toHaveBeenCalledWith("s1", { type: "bbox", bbox: BBOX }, 10)
         expect(t.fetchWorkingSet).toHaveBeenCalledWith("s1", { type: "ids", ids: [4, 5] }, 10)
-        expect(t.loadedIntoDraw).toEqual([[1]])
+        expect(loadedIds(t).sort()).toEqual([1, 4, 5])
+        expect(t.selections).toEqual([[4, 5]])
         expect(t.loading.at(-1)).toBe(false)
     })
 
-    test("loads the viewport otherwise", async () => {
+    test("loads only the viewport when the selection belongs to another source", async () => {
         const t = setup()
+        t.getSelectionIds.mockResolvedValue([4, 5])
 
         t.loader.begin({ selectionSourceId: "s2", bbox: BBOX })
         await flushAsync()
 
-        expect(t.fetchWorkingSet).toHaveBeenCalledWith("s1", { type: "bbox", bbox: BBOX }, 10)
+        expect(t.fetchWorkingSet).toHaveBeenCalledExactlyOnceWith("s1", { type: "bbox", bbox: BBOX }, 10)
+        // The selection of another source is not draw's: draw starts with none
+        expect(t.selections).toEqual([[]])
+    })
+
+    test("a selection over the cap loads nothing for that part only", async () => {
+        const t = setup()
+        t.getSelectionIds.mockResolvedValue([4, 5])
+        t.fetchWorkingSet.mockImplementation((_, scope) =>
+            Promise.resolve(scope.type === "ids" ? workingSet([], true) : workingSet([1])),
+        )
+
+        t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
+        await flushAsync()
+
+        expect(loadedIds(t)).toEqual([1])
+        expect(t.overCap.at(-1)).toBe("ids")
+        expect(t.loading.at(-1)).toBe(false)
+    })
+
+    test("a viewport over the cap loads nothing for that part only", async () => {
+        const t = setup()
+        t.getSelectionIds.mockResolvedValue([4, 5])
+        t.fetchWorkingSet.mockImplementation((_, scope) =>
+            Promise.resolve(scope.type === "ids" ? workingSet(scope.ids) : workingSet([], true)),
+        )
+
+        t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
+        await flushAsync()
+
+        expect(loadedIds(t).sort()).toEqual([4, 5])
+        expect(t.overCap.at(-1)).toBe("bbox")
+    })
+
+    test("a selection larger than the cap is over the cap without a query", async () => {
+        const t = setup({ cap: 2 })
+        t.getSelectionIds.mockResolvedValue([4, 5, 6])
+
+        t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
+        await flushAsync()
+
+        expect(t.fetchWorkingSet).toHaveBeenCalledExactlyOnceWith("s1", { type: "bbox", bbox: BBOX }, 2)
+        expect(t.overCap.at(-1)).toBe("ids")
     })
 
     test("reports a failed selection read and stops loading", async () => {
@@ -137,16 +192,17 @@ describe("WorkingSetLoader: moves", () => {
         expect(t.unloadedFromDraw).toEqual([[], [1]])
     })
 
-    test("a selection scope does not re-query", async () => {
+    test("a move re-queries the viewport only, also with a selection loaded", async () => {
         const t = setup()
-        t.getSelectionIds.mockResolvedValue([1])
+        t.getSelectionIds.mockResolvedValue([4])
         t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
         await flushAsync()
 
         t.loader.moved(OTHER_BBOX)
         await flushAsync()
 
-        expect(t.fetchWorkingSet).toHaveBeenCalledOnce()
+        expect(t.fetchWorkingSet).toHaveBeenCalledTimes(3)
+        expect(t.fetchWorkingSet).toHaveBeenLastCalledWith("s1", { type: "bbox", bbox: OTHER_BBOX }, 10)
     })
 
     test("no refresh starts while the session end is pending", async () => {
@@ -423,5 +479,183 @@ describe("WorkingSetLoader: loaded backend ids", () => {
         await flushAsync()
 
         expect(t.hidden).toEqual([])
+    })
+})
+
+describe("WorkingSetLoader: selection changes", () => {
+    test("loads the selected ids that are not loaded yet", async () => {
+        const t = setup()
+        t.fetchWorkingSet.mockImplementation((_, scope) =>
+            Promise.resolve(workingSet(scope.type === "ids" ? scope.ids : [1, 2])),
+        )
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        t.loader.selectionChanged([2, 3])
+        await flushAsync()
+
+        expect(t.fetchWorkingSet).toHaveBeenLastCalledWith("s1", { type: "ids", ids: [3] }, 10)
+        expect(t.loadedIntoDraw.at(-1)).toEqual([3])
+        expect(t.hidden.at(-1)).toEqual([1, 2, 3])
+    })
+
+    test("queries nothing when every selected feature is loaded or edited", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.pinned.add(7)
+
+        t.loader.selectionChanged([1, 7])
+        await flushAsync()
+
+        expect(t.fetchWorkingSet).toHaveBeenCalledOnce()
+    })
+
+    test("loads nothing for a selection over the cap", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([], true))
+
+        t.loader.selectionChanged([3, 4])
+        await flushAsync()
+
+        expect(loadedIds(t)).toEqual([1])
+        expect(t.overCap.at(-1)).toBe("ids")
+    })
+
+    test("only the latest selection change loads", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        const first = deferred<WorkingSet>()
+        t.fetchWorkingSet.mockReturnValueOnce(first.promise)
+
+        t.loader.selectionChanged([3])
+        await flushAsync()
+        t.loader.selectionChanged([4])
+        await flushAsync()
+        first.resolve(workingSet([3]))
+        await flushAsync()
+
+        expect(loadedIds(t)).toEqual([1, 4])
+    })
+
+    test("a selection change does not cancel a viewport load", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        const viewport = deferred<WorkingSet>()
+        t.fetchWorkingSet.mockReturnValueOnce(viewport.promise)
+
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+        t.loader.selectionChanged([3])
+        await flushAsync()
+        viewport.resolve(workingSet([1, 2]))
+        await flushAsync()
+
+        expect(loadedIds(t).sort()).toEqual([1, 2, 3])
+        expect(t.loading.at(-1)).toBe(false)
+    })
+
+    test("a selection load does not block the map", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        const before = t.loading.length
+
+        t.loader.selectionChanged([3])
+        await flushAsync()
+
+        expect(t.loading.length).toBe(before)
+    })
+
+    test("no selection load starts while the session end is pending or after dispose", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        t.loader.setPending(true)
+        t.loader.selectionChanged([3])
+        await flushAsync()
+        t.loader.setPending(false)
+        t.loader.dispose()
+        t.loader.selectionChanged([4])
+        await flushAsync()
+
+        expect(t.fetchWorkingSet).toHaveBeenCalledOnce()
+    })
+})
+
+describe("WorkingSetLoader: unloading", () => {
+    test("a feature leaves draw only when it is not in the viewport, not selected and not pinned", async () => {
+        const t = setup()
+        t.getSelectionIds.mockResolvedValue([5])
+        t.fetchWorkingSet.mockImplementation((_, scope) =>
+            Promise.resolve(workingSet(scope.type === "ids" ? scope.ids : [1, 2, 3])),
+        )
+        t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
+        await flushAsync()
+        t.pinned.add(3)
+
+        // 1 and 2 leave the viewport: 1 is unloaded, 3 is pinned, 5 is selected
+        t.fetchWorkingSet.mockImplementation((_, scope) =>
+            Promise.resolve(workingSet(scope.type === "ids" ? scope.ids : [2])),
+        )
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+        expect(t.unloadedFromDraw.at(-1)).toEqual([1])
+
+        // 5 is deselected away from the viewport: it leaves; 2 is in view and 3 pinned: they stay
+        t.loader.selectionChanged([])
+        await flushAsync()
+        expect(t.unloadedFromDraw.at(-1)).toEqual([5])
+        expect(t.hidden.at(-1)?.sort()).toEqual([2, 3])
+    })
+
+    test("a viewport over the cap keeps what is loaded", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([], true))
+
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+        t.loader.selectionChanged([])
+        await flushAsync()
+
+        expect(t.unloadedFromDraw.flat()).toEqual([])
+    })
+})
+
+describe("WorkingSetLoader: the over-cap notice", () => {
+    test("reports ids while the selection is over the cap, else bbox while the viewport is, else nothing", async () => {
+        const t = setup()
+        t.getSelectionIds.mockResolvedValue([4, 5])
+        t.fetchWorkingSet.mockResolvedValue(workingSet([], true))
+        t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
+        await flushAsync()
+        expect(t.overCap.at(-1)).toBe("ids")
+
+        t.loader.selectionChanged([])
+        await flushAsync()
+        expect(t.overCap.at(-1)).toBe("bbox")
+
+        t.fetchWorkingSet.mockResolvedValue(workingSet([1]))
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+        expect(t.overCap.at(-1)).toBeUndefined()
+    })
+})
+
+describe("WorkingSetLoader: held ids", () => {
+    test("holds the loaded and the pinned ids", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.pinned.add("draw-a")
+
+        expect([...t.loader.held()]).toEqual([1, "draw-a"])
     })
 })

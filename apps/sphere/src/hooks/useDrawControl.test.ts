@@ -23,7 +23,7 @@ vi.mock("react-map-gl/maplibre", async () => {
     }
 })
 
-type Handler = (event: DrawEvent) => void
+type Handler = (event: DrawEvent & { points?: GeoJSON.Feature[] }) => void
 
 const EDIT_EVENTS = ["draw.create", "draw.update", "draw.delete", "draw.combine", "draw.uncombine"]
 
@@ -38,7 +38,7 @@ function makeMap() {
             return { unsubscribe: () => set.delete(handler) }
         }),
     }
-    const fire = (event: DrawEvent) => {
+    const fire = (event: DrawEvent & { points?: GeoJSON.Feature[] }) => {
         act(() => {
             for (const handler of [...(handlers.get(event.type) ?? [])]) {
                 handler(event)
@@ -55,6 +55,10 @@ function makeQueue() {
     const queue = new DrawOpQueue("s1", () => {})
     const enqueueEvent = vi.spyOn(queue, "enqueueEvent").mockImplementation(() => {})
     return { queue, enqueueEvent }
+}
+
+function feature(id: number | string): GeoJSON.Feature {
+    return { type: "Feature", id, properties: {}, geometry: { type: "Point", coordinates: [0, 0] } }
 }
 
 function event(type: string): DrawEvent {
@@ -102,6 +106,44 @@ describe("useDrawControl", () => {
         render({ ref, ops: queue })
 
         expect(map.on.mock.calls.map(([type]) => type).sort()).toEqual([...EDIT_EVENTS].sort())
+    })
+
+    test("forwards the feature ids of a selection change, not its vertices", () => {
+        const { ref, fire } = makeMap()
+        const onSelectionChange = vi.fn()
+        render({ ref, onSelectionChange })
+
+        fire({
+            type: "draw.selectionchange",
+            features: [feature(4), feature("draw-a")],
+            points: [feature("vertex")],
+        })
+
+        expect(onSelectionChange).toHaveBeenCalledExactlyOnceWith([4, "draw-a"])
+    })
+
+    test("a selection change does not reach the op queue or onChange", () => {
+        const { ref, fire } = makeMap()
+        const { queue, enqueueEvent } = makeQueue()
+        const onChange = vi.fn()
+        render({ ref, ops: queue, onChange, onSelectionChange: vi.fn() })
+
+        fire({ type: "draw.selectionchange", features: [feature(1)] })
+
+        expect(enqueueEvent).not.toHaveBeenCalled()
+        expect(onChange).not.toHaveBeenCalled()
+    })
+
+    test("stops forwarding selection changes on unmount", () => {
+        const { ref, fire, count } = makeMap()
+        const onSelectionChange = vi.fn()
+        const { unmount } = render({ ref, onSelectionChange })
+
+        unmount()
+        fire({ type: "draw.selectionchange", features: [feature(1)] })
+
+        expect(count("draw.selectionchange")).toBe(0)
+        expect(onSelectionChange).not.toHaveBeenCalled()
     })
 
     test("still calls onChange without a queue", () => {

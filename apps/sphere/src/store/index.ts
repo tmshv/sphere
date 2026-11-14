@@ -67,6 +67,7 @@ export const store = configureStore({
             listeners.autoSelectOnDelete.middleware,
             listeners.exitDrawOnSourceDelete.middleware,
             listeners.saveDraw.middleware,
+            listeners.drawSelection.middleware,
             listeners.mapToolChanged.middleware,
             listeners.rectSelect.middleware,
             listeners.rectSelectMvt.middleware,

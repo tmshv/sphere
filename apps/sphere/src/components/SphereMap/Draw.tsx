@@ -1,9 +1,11 @@
 import { DRAW_WORKING_SET_CAP, FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { useDrawControl } from "@/hooks/useDrawControl"
 import { viewportBbox } from "@/lib/bbox"
+import { applyDelta, drawSelectionIds } from "@/lib/draw-selection"
 import { DrawOpQueue, loadWorkingSet, registerDrawQueue } from "@/lib/draw-session"
 import { touchedIds } from "@/lib/draw-working-set"
 import { errorMessage } from "@/lib/error-message"
+import { onSelectionDelta, onSelectionReconcile } from "@/lib/selection-bus"
 import { selectionGetIds } from "@/lib/selection-ipc"
 import { WorkingSetLoader } from "@/lib/working-set-loader"
 import { actions, selectors } from "@/store"
@@ -44,6 +46,11 @@ export type DrawProps = {
  * rollback) is run by the draw listeners; this component owns the draw control
  * and the op queue that forwards each edit to the backend, and wires a
  * `WorkingSetLoader` to the map to load the features to edit.
+ *
+ * The backend holds the only selection. Draw's own selection changes go to the
+ * draw-selection listener, which mirrors them to the backend; every selection
+ * delta on the bus is pushed back into draw silently, and the loader loads the
+ * selected features draw does not hold yet.
  */
 export default function Draw({ mapId, sourceId }: DrawProps) {
     const dispatch = useAppDispatch()
@@ -80,11 +87,19 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         [pinned],
     )
 
+    const onSelectionChange = useCallback(
+        (ids: DrawFeatureId[]) => {
+            dispatch(actions.draw.selectionChanged({ sourceId, ids }))
+        },
+        [dispatch, sourceId],
+    )
+
     const { [mapId]: mapRef } = useMap()
     const map = mapRef?.getMap()
     const draw = useDrawControl({
         ref: mapRef,
         onChange,
+        onSelectionChange,
         ops: queue,
         position: "top-left",
         controls: {
@@ -104,6 +119,12 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         if (!map) {
             return
         }
+        // The backend selection, mirrored from the selection bus
+        let selected = new Set<number>()
+        // Draw selects the selected features it holds, silently: draw already agrees after its own change
+        const pushSelection = () => {
+            draw.setSelected(drawSelectionIds(selected, current.held(), id => queue.drawId(id)))
+        }
         const current = new WorkingSetLoader({
             sourceId,
             cap: DRAW_WORKING_SET_CAP,
@@ -115,7 +136,26 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
             onLoading: setLoading,
             onOverCap: setOverCap,
             onError: err => dispatch(actions.draw.failed(errorMessage(err))),
-            onLoaded: ids => dispatch(actions.draw.setHiddenIds({ sourceId, ids })),
+            onLoaded: ids => {
+                dispatch(actions.draw.setHiddenIds({ sourceId, ids }))
+                pushSelection()
+            },
+            onSelection: ids => {
+                selected = new Set(ids)
+            },
+        })
+        const followSelection = () => {
+            current.selectionChanged([...selected])
+            pushSelection()
+        }
+        const unsubscribeDelta = onSelectionDelta(delta => {
+            applyDelta(selected, delta)
+            followSelection()
+        })
+        const unsubscribeReconcile = onSelectionReconcile(({ ids, sourceId: target }) => {
+            // While drawing the selection belongs to the drawn source; one of another source is not draw's
+            selected = new Set(target === sourceId ? ids : [])
+            followSelection()
         })
         loader.current = current
         current.begin({
@@ -126,6 +166,8 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
             current.moved(viewportBbox(map.getBounds()))
         })
         return () => {
+            unsubscribeDelta()
+            unsubscribeReconcile()
             subscription.unsubscribe()
             current.dispose()
             loader.current = undefined

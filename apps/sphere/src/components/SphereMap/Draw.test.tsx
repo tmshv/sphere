@@ -5,6 +5,7 @@ const { mockInvoke, drawControls } = vi.hoisted(() => ({
     drawControls: [] as {
         load: ReturnType<typeof vi.fn>
         unload: ReturnType<typeof vi.fn>
+        setSelected: ReturnType<typeof vi.fn>
         options: Record<string, unknown>
     }[],
 }))
@@ -17,6 +18,7 @@ vi.mock("@sphere/draw", () => ({
     default: class FakeDraw {
         load = vi.fn()
         unload = vi.fn()
+        setSelected = vi.fn()
         options: Record<string, unknown>
         constructor(options: Record<string, unknown>) {
             this.options = options
@@ -40,10 +42,11 @@ vi.mock("react-map-gl/maplibre", async () => {
 import drawReducer from "@/store/draw"
 import selectionReducer from "@/store/selection"
 import settingsReducer, { settingsSlice } from "@/store/settings"
-import { FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
+import { DRAW_WORKING_SET_CAP, FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { flushAsync } from "@/testutils"
 import type { DrawEvent } from "@/types"
-import { configureStore } from "@reduxjs/toolkit"
+import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
+import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { act, render } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { actions } from "@/store/actions"
@@ -81,14 +84,22 @@ function point(id: number | string): GeoJSON.Feature {
     return { type: "Feature", id, properties: {}, geometry: { type: "Point", coordinates: [1, 1] } }
 }
 
-function mockCommands(loadedIds: number[]) {
-    const features = JSON.stringify({ type: "FeatureCollection", features: loadedIds.map(point) })
-    mockInvoke.mockImplementation((cmd: string) => {
+function featureCollection(ids: number[]): string {
+    return JSON.stringify({ type: "FeatureCollection", features: ids.map(point) })
+}
+
+type WorkingSetArgs = { scope?: { type: string; ids?: number[] } }
+
+/** The viewport holds `loadedIds`; a selection query returns the features asked for. */
+function mockCommands(loadedIds: number[], selectionIds: number[] = []) {
+    mockInvoke.mockImplementation((cmd: string, args: WorkingSetArgs = {}) => {
         switch (cmd) {
             case "selection_get_ids":
-                return Promise.resolve([])
-            case "draw_get_working_set":
-                return Promise.resolve({ features, overCap: false })
+                return Promise.resolve(selectionIds)
+            case "draw_get_working_set": {
+                const ids = args.scope?.type === "ids" ? (args.scope.ids ?? []) : loadedIds
+                return Promise.resolve({ features: featureCollection(ids), overCap: false })
+            }
             case "draw_apply":
                 return Promise.resolve(42)
             default:
@@ -101,10 +112,25 @@ function workingSetQueries() {
     return mockInvoke.mock.calls.filter(([cmd]) => cmd === "draw_get_working_set").length
 }
 
-async function renderDraw(previewOutline?: boolean) {
+function isAction(value: unknown): value is UnknownAction {
+    return typeof value === "object" && value !== null && "type" in value && typeof value.type === "string"
+}
+
+async function renderDraw(previewOutline?: boolean, selectionSourceId?: string) {
+    const dispatched: UnknownAction[] = []
+    const capture: Middleware = () => next => action => {
+        if (isAction(action)) {
+            dispatched.push(action)
+        }
+        return next(action)
+    }
     const store = configureStore({
         reducer: { draw: drawReducer, selection: selectionReducer, settings: settingsReducer },
-        preloadedState: { draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] } },
+        preloadedState: {
+            draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] },
+            selection: { count: 0, version: 0, sourceId: selectionSourceId },
+        },
+        middleware: getDefaultMiddleware => getDefaultMiddleware().concat(capture),
     })
     if (previewOutline === false) {
         store.dispatch(settingsSlice.actions.togglePreviewOutline())
@@ -115,7 +141,15 @@ async function renderDraw(previewOutline?: boolean) {
         </Provider>,
     )
     await act(flushAsync)
-    return { store, view }
+    return { store, view, dispatched }
+}
+
+function lastDraw() {
+    const draw = drawControls.at(-1)
+    if (!draw) {
+        throw new Error("No draw control was built")
+    }
+    return draw
 }
 
 describe("Draw", () => {
@@ -194,5 +228,88 @@ describe("Draw", () => {
         fire({ type: "moveend" })
         await act(flushAsync)
         expect(workingSetQueries()).toBe(2)
+    })
+
+    test("a selection delta selects in draw the selected features that are loaded", async () => {
+        makeMap()
+        mockCommands([4, 7])
+        await renderDraw()
+
+        act(() => emitSelectionDelta({ added: [4, 9], removed: [] }))
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([4])
+
+        act(() => emitSelectionDelta({ added: [7], removed: [4] }))
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([7])
+    })
+
+    test("a reconcile replaces draw's selection, and one for another source clears it", async () => {
+        makeMap()
+        mockCommands([4, 7])
+        await renderDraw()
+
+        act(() => emitSelectionReconcile([7], SOURCE_ID))
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([7])
+
+        act(() => emitSelectionReconcile([4], "other"))
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([])
+    })
+
+    test("a selection change loads the selected features that are not loaded yet", async () => {
+        makeMap()
+        mockCommands([4])
+        await renderDraw()
+
+        act(() => emitSelectionDelta({ added: [9], removed: [] }))
+        await act(flushAsync)
+
+        expect(mockInvoke).toHaveBeenLastCalledWith("draw_get_working_set", {
+            id: SOURCE_ID,
+            scope: { type: "ids", ids: [9] },
+            cap: DRAW_WORKING_SET_CAP,
+        })
+        // Once loaded, the feature is selected in draw
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([9])
+    })
+
+    test("starts with the selection of the drawn source selected in draw once it is loaded", async () => {
+        makeMap()
+        mockCommands([4], [7])
+
+        await renderDraw(true, SOURCE_ID)
+
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([7])
+    })
+
+    test("a selection on another source is not draw's", async () => {
+        makeMap()
+        mockCommands([4, 7], [7])
+
+        await renderDraw(true, "other")
+
+        expect(lastDraw().setSelected).not.toHaveBeenCalledWith([7])
+    })
+
+    test("a selection change in draw dispatches draw.selectionChanged with the feature ids", async () => {
+        const { fire } = makeMap()
+        mockCommands([4])
+        const { dispatched } = await renderDraw()
+
+        fire({ type: "draw.selectionchange", features: [point(4)] })
+
+        expect(dispatched).toContainEqual(actions.draw.selectionChanged({ sourceId: SOURCE_ID, ids: [4] }))
+    })
+
+    test("the selection bus subscription ends on unmount", async () => {
+        makeMap()
+        mockCommands([4])
+        const { view } = await renderDraw()
+        const draw = lastDraw()
+        draw.setSelected.mockClear()
+
+        view.unmount()
+        emitSelectionDelta({ added: [4], removed: [] })
+        emitSelectionReconcile([4], SOURCE_ID)
+
+        expect(draw.setSelected).not.toHaveBeenCalled()
     })
 })
