@@ -4,31 +4,34 @@ type DeltaListener = (delta: SelectionDelta) => void
 type ReconcilePayload = { ids: number[]; sourceId: string }
 type ReconcileListener = (payload: ReconcilePayload) => void
 
-let deltaListener: DeltaListener | null = null
-let reconcileListener: ReconcileListener | null = null
+const deltaListeners = new Set<DeltaListener>()
+const reconcileListeners = new Set<ReconcileListener>()
 
 export function onSelectionDelta(fn: DeltaListener): () => void {
-    deltaListener = fn
+    // A wrapper keeps the same function subscribed twice as two independent subscriptions
+    const entry: DeltaListener = delta => fn(delta)
+    deltaListeners.add(entry)
     return () => {
-        if (deltaListener === fn) {
-            deltaListener = null
-        }
+        deltaListeners.delete(entry)
     }
 }
 
 export function emitSelectionDelta(delta: SelectionDelta): void {
-    deltaListener?.(delta)
+    for (const fn of [...deltaListeners]) {
+        fn(delta)
+    }
 }
 
 export function onSelectionReconcile(fn: ReconcileListener): () => void {
-    reconcileListener = fn
+    const entry: ReconcileListener = payload => fn(payload)
+    reconcileListeners.add(entry)
     return () => {
-        if (reconcileListener === fn) {
-            reconcileListener = null
-        }
+        reconcileListeners.delete(entry)
     }
 }
 
 export function emitSelectionReconcile(ids: number[], sourceId: string): void {
-    reconcileListener?.({ ids, sourceId })
+    for (const fn of [...reconcileListeners]) {
+        fn({ ids, sourceId })
+    }
 }

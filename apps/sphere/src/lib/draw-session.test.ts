@@ -252,6 +252,28 @@ describe("DrawOpQueue created ids", () => {
     })
 })
 
+describe("DrawOpQueue id mapping", () => {
+    beforeEach(() => {
+        invoke.mockReset()
+    })
+
+    test("maps a created feature both ways once its create op settled", async () => {
+        invoke.mockResolvedValue(42)
+        const queue = new DrawOpQueue("s1", () => {})
+        queue.enqueue([{ type: "create", drawId: "abc", feature: feature("abc") }])
+        expect(queue.backendId("abc")).toBeUndefined()
+        await queue.flush()
+        expect(queue.backendId("abc")).toBe(42)
+        expect(queue.drawId(42)).toBe("abc")
+    })
+
+    test("numbers map to themselves", () => {
+        const queue = new DrawOpQueue("s1", () => {})
+        expect(queue.backendId(7)).toBe(7)
+        expect(queue.drawId(7)).toBe(7)
+    })
+})
+
 describe("draw queue registry", () => {
     test("finds the registered queue by source id", () => {
         const queue = new DrawOpQueue("s1", () => {})

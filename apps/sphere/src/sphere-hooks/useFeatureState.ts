@@ -81,7 +81,7 @@ function isSameTarget(
 
 export default function useFeatureState(ref: MapRef | undefined) {
     const selectedLayerId = useAppSelector(selectors.layer.selectSelectedId)
-    const selectedSourceId = useAppSelector(selectors.source.selectSelectedSourceId)
+    const selectedSourceId = useAppSelector(selectors.selection.targetSourceId)
     const selectedSourceLayer = useAppSelector(selectors.source.selectSelectedSourceLayer)
     const layerItems = useAppSelector(state => state.layer.items)
     const sourceItems = useAppSelector(state => state.source.items)

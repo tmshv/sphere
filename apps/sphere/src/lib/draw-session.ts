@@ -110,6 +110,8 @@ export class DrawOpQueue {
     private failure: { error: unknown } | null = null
     private dropped = 0
     private readonly created: number[] = []
+    private readonly byDrawId = new Map<string, number>()
+    private readonly byBackendId = new Map<number, string>()
 
     constructor(
         readonly sourceId: string,
@@ -162,10 +164,25 @@ export class DrawOpQueue {
             const backendId = await applyOp(this.sourceId, op)
             if (op.type === "create" && backendId !== null) {
                 this.created.push(backendId)
+                this.byDrawId.set(op.drawId, backendId)
+                this.byBackendId.set(backendId, op.drawId)
             }
         } catch (err) {
             this.fail(err)
         }
+    }
+
+    /** The backend id of a draw feature: a number is its own; a created feature's once its create op settled. */
+    backendId(drawId: DrawFeatureId): number | undefined {
+        if (typeof drawId === "number") {
+            return drawId
+        }
+        return this.byDrawId.get(drawId)
+    }
+
+    /** The draw id of a backend feature: the string draw keeps for a created one, else the number itself. */
+    drawId(backendId: number): DrawFeatureId {
+        return this.byBackendId.get(backendId) ?? backendId
     }
 
     /** Backend ids assigned so far to features created in this session (draw keeps their string draw ids). */
