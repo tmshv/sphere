@@ -30,8 +30,8 @@ Draw mode should feel like the rest of Sphere. Two things break that today.
 
 Selection, two ways to make Rust the single owner:
 
-1. **Draw selects at once, and the app mirrors to Rust (chosen).** Draw's clicks select locally and immediately; the app forwards each `draw.selectionchange` to Rust. Rect selection runs in Rust as it does outside draw; its delta is applied to draw silently. Press-and-drag on an unselected feature still selects and moves it in one motion.
-2. **Draw never selects by itself.** Every click asks Rust first, and draw only applies what comes back. This is purer, but it breaks grab-and-move of an unselected feature and adds an IPC round trip to every click. Rejected.
+1. **Draw selects at once, and the app mirrors to Rust (chosen).** Draw's clicks select locally and immediately; the app forwards each `draw.selectionchange` to Rust. Rect selection runs in Rust as it does outside draw; its delta is applied to draw silently. Moving a feature takes a click to select it, then a drag, as upstream draw always did (`simple_select` drag-moves only selected features); press-and-drag on an unselected feature does not move it.
+2. **Draw never selects by itself.** Every click asks Rust first, and draw only applies what comes back. This is purer, but every click waits for an IPC round trip before draw shows the selection, and draw's own select-then-edit flow (a click on the only selected feature enters `direct_select`) would wait on it too. Rejected.
 
 Style: presets live in the package (asked for), parameterised by the app's constants, rather than the app passing raw `styles` arrays.
 
@@ -66,7 +66,7 @@ Style: presets live in the package (asked for), parameterised by the app's const
 - **Preset.** `Draw.tsx` builds the control with `spherePreset({ color: PREVIEW_COLOR, highlightColor: FEATURE_HIGHLIGHT_COLOR, outline, pointRadius: PREVIEW_RADIUS })` and `boxSelect: false`. `outline` is the `previewOutline` setting read when the session starts; a toggle during a session applies to the next one.
 - **Clicks: draw to Rust.** Each `draw.selectionchange` becomes `selection_set(backendIds)`. The resulting delta goes on the selection bus, so feature-state, the count and the attribute table all update as they do outside draw.
   - A created feature has only a draw id until its `create` op settles. Its selection is mirrored once the backend id is known, in the same order as the ops.
-- **Rectangles: Rust to draw.** In draw mode, with the Select tool, a drag on empty map runs the existing rect-select flow on the drawn source: `selection_rect`, then the delta on the bus. A drag that starts on a draw feature belongs to draw and moves it. With the Navigation tool, a drag pans.
+- **Rectangles: Rust to draw.** In draw mode, with the Select tool, a drag on empty map runs the existing rect-select flow on the drawn source: `selection_rect`, then the delta on the bus. A drag that starts on a draw feature belongs to draw and draws no rectangle: draw moves the feature if it is selected (an unselected one must be clicked first). While draw creates a feature (`draw_point`, `draw_line_string`, `draw_polygon`), every press belongs to draw. With the Navigation tool, a drag pans.
 - **Bus to draw.** While drawing, every selection delta is applied to draw: `setSelected` with the selected ids that are loaded.
 - **Selection loads into draw.** The working set becomes the union of three parts:
   - the viewport features, when they fit the cap;

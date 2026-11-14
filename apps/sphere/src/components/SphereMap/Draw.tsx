@@ -56,7 +56,8 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
     const dispatch = useAppDispatch()
     const pending = useAppSelector(selectors.draw.isPending)
     const selectionSourceId = useAppSelector(selectors.selection.sourceId)
-    // The scope is chosen once, when drawing starts
+    // Whether the selection belongs to the drawn source is read once, when drawing starts: only then
+    // does the backend selection become draw's; later changes come through the selection bus
     const initialSelectionSourceId = useRef(selectionSourceId)
     // The control is built once, so the outline setting is read once, at mount
     const previewOutline = useAppSelector(selectors.settings.selectPreviewOutline)
