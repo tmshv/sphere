@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest"
 import reducer, { actions, drawSlice } from "./draw"
 
-const { start, started, commit, cancel, settle, done, reset, setHiddenIds } = drawSlice.actions
-const { isDrawing, isPending, sourceId, hiddenIds } = drawSlice.selectors
+const { start, started, commit, cancel, settle, done, reset, setHiddenIds, modeChanged } = drawSlice.actions
+const { isDrawing, isPending, sourceId, hiddenIds, isCreating } = drawSlice.selectors
 
 import type { RootState } from "./index"
 
@@ -139,5 +139,33 @@ describe("drawSlice selectors", () => {
         const state = makeRootState({ sourceId: "src-1", pending: true })
         expect(sourceId(state)).toBe("src-1")
         expect(isPending(state)).toBe(true)
+    })
+})
+
+describe("draw mode of the control", () => {
+    test("modeChanged records the mode of the drawn source's control", () => {
+        expect(reducer(drawing, modeChanged({ sourceId: "my-source", mode: "draw_polygon" })).mode).toBe("draw_polygon")
+    })
+
+    test("modeChanged for another source changes nothing", () => {
+        expect(reducer(drawing, modeChanged({ sourceId: "other", mode: "draw_polygon" }))).toEqual(drawing)
+    })
+
+    test("a new session, done and reset forget the mode", () => {
+        const creating = { ...drawing, mode: "draw_point" }
+        expect(reducer(creating, started({ sourceId: "my-source" })).mode).toBeUndefined()
+        expect(reducer(creating, done({ sourceId: "my-source" })).mode).toBeUndefined()
+        expect(reducer(creating, reset()).mode).toBeUndefined()
+    })
+
+    test.each([
+        ["draw_point", true],
+        ["draw_line_string", true],
+        ["draw_polygon", true],
+        ["simple_select", false],
+        ["direct_select", false],
+        [undefined, false],
+    ])("isCreating with mode %s is %s", (mode, expected) => {
+        expect(isCreating(makeRootState({ ...drawing, mode }))).toBe(expected)
     })
 })

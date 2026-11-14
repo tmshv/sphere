@@ -23,7 +23,9 @@ vi.mock("react-map-gl/maplibre", async () => {
     }
 })
 
-type Handler = (event: DrawEvent & { points?: GeoJSON.Feature[] }) => void
+type FiredEvent = DrawEvent & { points?: GeoJSON.Feature[]; mode?: string }
+
+type Handler = (event: FiredEvent) => void
 
 const EDIT_EVENTS = ["draw.create", "draw.update", "draw.delete", "draw.combine", "draw.uncombine"]
 
@@ -38,7 +40,7 @@ function makeMap() {
             return { unsubscribe: () => set.delete(handler) }
         }),
     }
-    const fire = (event: DrawEvent & { points?: GeoJSON.Feature[] }) => {
+    const fire = (event: FiredEvent) => {
         act(() => {
             for (const handler of [...(handlers.get(event.type) ?? [])]) {
                 handler(event)
@@ -144,6 +146,25 @@ describe("useDrawControl", () => {
 
         expect(count("draw.selectionchange")).toBe(0)
         expect(onSelectionChange).not.toHaveBeenCalled()
+    })
+
+    test("forwards the mode of a mode change", () => {
+        const { ref, fire } = makeMap()
+        const onModeChange = vi.fn()
+        render({ ref, onModeChange })
+
+        fire({ type: "draw.modechange", mode: "draw_polygon" })
+
+        expect(onModeChange).toHaveBeenCalledExactlyOnceWith("draw_polygon")
+    })
+
+    test("stops forwarding mode changes on unmount", () => {
+        const { ref, count } = makeMap()
+        const { unmount } = render({ ref, onModeChange: vi.fn() })
+
+        unmount()
+
+        expect(count("draw.modechange")).toBe(0)
     })
 
     test("still calls onChange without a queue", () => {

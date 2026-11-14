@@ -55,7 +55,9 @@ import Draw from "./Draw"
 const MAP_ID = "main"
 const SOURCE_ID = "s1"
 
-type Handler = (event: DrawEvent) => void
+type FiredEvent = DrawEvent & { mode?: string }
+
+type Handler = (event: FiredEvent) => void
 
 /** A map that records its `on` handlers and has fixed bounds. */
 function makeMap() {
@@ -69,7 +71,7 @@ function makeMap() {
         },
         getBounds: () => ({ getWest: () => 0, getSouth: () => 0, getEast: () => 10, getNorth: () => 10 }),
     }
-    const fire = (event: DrawEvent) => {
+    const fire = (event: FiredEvent) => {
         act(() => {
             for (const handler of [...(handlers.get(event.type) ?? [])]) {
                 handler(event)
@@ -334,6 +336,16 @@ describe("Draw", () => {
         fire({ type: "draw.selectionchange", features: [point(4)] })
 
         expect(dispatched).toContainEqual(actions.draw.selectionChanged({ sourceId: SOURCE_ID, ids: [4] }))
+    })
+
+    test("a mode change of the control dispatches draw.modeChanged", async () => {
+        const { fire } = makeMap()
+        mockCommands([])
+        const { store } = await renderDraw()
+
+        fire({ type: "draw.modechange", mode: "draw_line_string" })
+
+        expect(store.getState().draw.mode).toBe("draw_line_string")
     })
 
     test("the selection bus subscription ends on unmount", async () => {

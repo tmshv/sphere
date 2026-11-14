@@ -105,6 +105,7 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const mapTool = useAppSelector(selectMapTool)
     const sourceId = useAppSelector(selectors.selection.targetSourceId)
     const drawing = useAppSelector(selectors.selection.drawing)
+    const creating = useAppSelector(selectors.draw.isCreating)
     const enabled = isRectSelectEnabled(mapTool)
 
     const [dragStart, setDragStart] = useState<Point | null>(null)
@@ -116,6 +117,9 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
     const drawingRef = useRef(drawing)
     drawingRef.current = drawing
 
+    const creatingRef = useRef(creating)
+    creatingRef.current = creating
+
     const dragStartRef = useRef(dragStart)
     dragStartRef.current = dragStart
 
@@ -126,6 +130,8 @@ export default function RectSelectOverlay({ mapRef }: RectSelectOverlayProps) {
 
         const onMouseDown = (e: MouseEvent) => {
             if (e.button !== 0) return
+            // While draw places the vertices of a new feature, every press is draw's
+            if (creatingRef.current) return
             // A drag that starts on a draw feature belongs to draw, which moves it
             if (drawingRef.current) {
                 const bounds = container.getBoundingClientRect()

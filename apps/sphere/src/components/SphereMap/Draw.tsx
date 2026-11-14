@@ -94,12 +94,20 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         [dispatch, sourceId],
     )
 
+    const onModeChange = useCallback(
+        (mode: string) => {
+            dispatch(actions.draw.modeChanged({ sourceId, mode }))
+        },
+        [dispatch, sourceId],
+    )
+
     const { [mapId]: mapRef } = useMap()
     const map = mapRef?.getMap()
     const draw = useDrawControl({
         ref: mapRef,
         onChange,
         onSelectionChange,
+        onModeChange,
         ops: queue,
         position: "top-left",
         controls: {

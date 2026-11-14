@@ -1,3 +1,4 @@
+import { isCreationMode } from "@/lib/draw-mode"
 import type { DrawFeatureId, Id } from "@/types"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
@@ -11,6 +12,8 @@ export type DrawState = {
     // context layer hides them, so the pre-session copy of the source never shows under the edit.
     // Ids only, never GeoJSON; at most the working set cap plus the features edited this session
     hiddenIds: number[]
+    // The mode of the draw control (`simple_select`, `draw_polygon`, …), once it reported a change
+    mode?: string
 }
 
 const initialState: DrawState = {
@@ -41,11 +44,18 @@ export const drawSlice = createSlice({
             state.sourceId = action.payload.sourceId
             state.pending = false
             state.hiddenIds = []
+            state.mode = undefined
         },
         /** The backend ids now loaded into draw, reported by the working-set loader after each load. */
         setHiddenIds: (state, action: PayloadAction<{ sourceId: Id; ids: number[] }>) => {
             if (state.sourceId === action.payload.sourceId) {
                 state.hiddenIds = action.payload.ids
+            }
+        },
+        /** The draw control of the drawn source changed its mode. */
+        modeChanged: (state, action: PayloadAction<{ sourceId: Id; mode: string }>) => {
+            if (state.sourceId === action.payload.sourceId) {
+                state.mode = action.payload.mode
             }
         },
         /** Request to keep the edits. Handled by the save-draw listener. */
@@ -77,11 +87,13 @@ export const drawSlice = createSlice({
             state.sourceId = undefined
             state.pending = false
             state.hiddenIds = []
+            state.mode = undefined
         },
         reset: state => {
             state.sourceId = undefined
             state.pending = false
             state.hiddenIds = []
+            state.mode = undefined
         },
     },
     selectors: {
@@ -89,6 +101,8 @@ export const drawSlice = createSlice({
         isPending: state => state.pending,
         sourceId: state => state.sourceId,
         hiddenIds: state => state.hiddenIds,
+        // Draw is placing the vertices of a new feature: a drag between its clicks is draw's, not a rectangle
+        isCreating: state => isCreationMode(state.mode),
     },
 })
 

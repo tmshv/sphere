@@ -18,9 +18,18 @@ export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
     ops?: DrawOpQueue
     /** Receives the ids of the selected features after each `draw.selectionchange` (selected vertices are left out). */
     onSelectionChange?: (ids: DrawFeatureId[]) => void
+    /** Receives the new mode after each `draw.modechange`. */
+    onModeChange?: (mode: string) => void
 }
 
-export function useDrawControl({ ref, onChange, ops, onSelectionChange, ...props }: DrawControlProps): MapLibreDraw {
+export function useDrawControl({
+    ref,
+    onChange,
+    ops,
+    onSelectionChange,
+    onModeChange,
+    ...props
+}: DrawControlProps): MapLibreDraw {
     const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props), {
         position: props.position,
     })
@@ -64,6 +73,18 @@ export function useDrawControl({ ref, onChange, ops, onSelectionChange, ...props
             subscription.unsubscribe()
         }
     }, [ref, onSelectionChange])
+
+    useEffect(() => {
+        if (!ref || !onModeChange) {
+            return
+        }
+        const subscription = ref.getMap().on("draw.modechange", event => {
+            onModeChange(event.mode)
+        })
+        return () => {
+            subscription.unsubscribe()
+        }
+    }, [ref, onModeChange])
 
     return draw
 }
