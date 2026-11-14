@@ -24,23 +24,25 @@ const VERTEX_RADIUS = 3
 const MIDPOINT_RING_RADIUS = 4
 const MIDPOINT_RADIUS = 2
 
-type Filter = NonNullable<DrawStyleLayer["filter"]>
+// One legacy filter clause, e.g. ["==", "active", "true"]
+type Clause = ["==" | "!=", string, string]
+type Filter = ["all", ...Clause[]]
 
-const INACTIVE: Filter = ["==", "active", "false"]
-const ACTIVE: Filter = ["==", "active", "true"]
-const NOT_STATIC: Filter = ["!=", "mode", "static"]
-const POLYGON: Filter = ["==", "$type", "Polygon"]
-const LINE: Filter = ["==", "$type", "LineString"]
-const POINT: Filter = ["==", "$type", "Point"]
-const FEATURE_POINT: Filter = ["==", "meta", "feature"]
+const INACTIVE: Clause = ["==", "active", "false"]
+const ACTIVE: Clause = ["==", "active", "true"]
+const NOT_STATIC: Clause = ["!=", "mode", "static"]
+const POLYGON: Clause = ["==", "$type", "Polygon"]
+const LINE: Clause = ["==", "$type", "LineString"]
+const POINT: Clause = ["==", "$type", "Point"]
+const FEATURE_POINT: Clause = ["==", "meta", "feature"]
 
 const ROUND_LINE = { "line-cap": "round", "line-join": "round" } as const
 
-function inactive(...parts: Filter[]): Filter {
+function inactive(...parts: Clause[]): Filter {
     return ["all", INACTIVE, ...parts, NOT_STATIC]
 }
 
-function active(...parts: Filter[]): Filter {
+function active(...parts: Clause[]): Filter {
     return ["all", ACTIVE, ...parts]
 }
 

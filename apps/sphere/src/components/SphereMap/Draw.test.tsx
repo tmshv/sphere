@@ -39,7 +39,7 @@ vi.mock("react-map-gl/maplibre", async () => {
 
 import drawReducer from "@/store/draw"
 import selectionReducer from "@/store/selection"
-import settingsReducer from "@/store/settings"
+import settingsReducer, { settingsSlice } from "@/store/settings"
 import { FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { flushAsync } from "@/testutils"
 import type { DrawEvent } from "@/types"
@@ -104,13 +104,11 @@ function workingSetQueries() {
 async function renderDraw(previewOutline?: boolean) {
     const store = configureStore({
         reducer: { draw: drawReducer, selection: selectionReducer, settings: settingsReducer },
-        preloadedState: {
-            draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] },
-            ...(previewOutline === undefined
-                ? {}
-                : { settings: { ...settingsReducer(undefined, { type: "init" }), previewOutline } }),
-        },
+        preloadedState: { draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] } },
     })
+    if (previewOutline === false) {
+        store.dispatch(settingsSlice.actions.togglePreviewOutline())
+    }
     const view = render(
         <Provider store={store}>
             <Draw mapId={MAP_ID} sourceId={SOURCE_ID} />
