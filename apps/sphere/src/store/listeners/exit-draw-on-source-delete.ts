@@ -2,7 +2,7 @@ import { getDrawQueue } from "@/lib/draw-session"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 import { actions } from "../actions"
-import { rollbackSession } from "./draw-session-end"
+import { refreshSelection, rollbackSession } from "./draw-session-end"
 
 const listener = createListenerMiddleware<RootState>()
 
@@ -29,7 +29,9 @@ listener.startListening({
         const queue = getDrawQueue(sourceId)
         listenerApi.dispatch(actions.draw.reset())
         listenerApi.dispatch(actions.tools.reset())
-        await rollbackSession(listenerApi, sourceId, queue)
+        if (await rollbackSession(listenerApi, sourceId, queue)) {
+            await refreshSelection(listenerApi, sourceId)
+        }
     },
 })
 

@@ -24,6 +24,10 @@ export function surfaceError(api: DrawListenerApi, context: string, err: unknown
  * ids that no longer exist, so deleted features do not stay highlighted and
  * the count and properties panel follow. When `isCurrent` turns false while
  * the ids are read, a newer selection change won and nothing is applied.
+ *
+ * A session end calls it after draw mode has ended, so the highlights land on
+ * the target the selection has outside draw (a selection on another source,
+ * left alone by a session that never changed it, gets its highlights back).
  */
 export async function refreshSelection(
     api: DrawListenerApi,
@@ -52,7 +56,8 @@ export async function refreshSelection(
  * Discards the session's edits on the backend. Ops still in the queue land
  * first, so none arrives after the session is gone. Returns false, with the
  * error surfaced, when the rollback failed. The source is not re-fetched: the
- * rollback restores exactly what the map's copy of it already shows.
+ * rollback restores exactly what the map's copy of it already shows. The
+ * caller refreshes the selection once draw mode has ended.
  */
 export async function rollbackSession(
     api: DrawListenerApi,
@@ -67,6 +72,5 @@ export async function rollbackSession(
         surfaceError(api, ROLLBACK_FAILED, err)
         return false
     }
-    await refreshSelection(api, sourceId)
     return true
 }

@@ -40,9 +40,10 @@ listener.startListening({
         if (touched.length > 0) {
             listenerApi.dispatch(actions.source.bumpVersion(sourceId))
         }
-        await refreshSelection(listenerApi, sourceId)
         listenerApi.dispatch(actions.draw.done({ sourceId }))
         listenerApi.dispatch(actions.tools.reset())
+        // After draw mode ended, so the highlights go where the selection belongs outside draw
+        await refreshSelection(listenerApi, sourceId)
     },
 })
 
@@ -64,6 +65,7 @@ listener.startListening({
         // Draw mode ends first, so the tool reset below does not cancel again
         listenerApi.dispatch(actions.draw.reset())
         listenerApi.dispatch(actions.tools.reset())
+        await refreshSelection(listenerApi, sourceId)
     },
 })
 

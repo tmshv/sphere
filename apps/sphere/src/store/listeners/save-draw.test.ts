@@ -70,7 +70,7 @@ describe("save-draw listener: commit", () => {
         vi.clearAllMocks()
     })
 
-    test("flushes, commits, bumps the version, refreshes the selection, then leaves draw mode", async () => {
+    test("flushes, commits, bumps the version, leaves draw mode, then refreshes the selection", async () => {
         const { store, log } = makeStore()
         const reconciled: { ids: number[]; sourceId: string }[] = []
         cleanups.push(onSelectionReconcile(payload => reconciled.push(payload)))
@@ -84,11 +84,11 @@ describe("save-draw listener: commit", () => {
             "invoke:draw_apply",
             "invoke:draw_commit",
             "action:source/bumpVersion",
+            "action:draw/done",
+            "action:tools/reset",
             "invoke:selection_get_ids",
             "action:selection/sync",
             "action:selection/apply",
-            "action:draw/done",
-            "action:tools/reset",
         ])
         expect(reconciled).toEqual([{ ids: [2], sourceId: SOURCE_ID }])
         expect(mockInvoke).toHaveBeenCalledWith("draw_commit", { id: SOURCE_ID })
@@ -163,9 +163,9 @@ describe("save-draw listener: commit", () => {
         expect(types(dispatched)).toEqual([
             "draw/commit",
             "source/bumpVersion",
-            "error/setError",
             "draw/done",
             "tools/reset",
+            "error/setError",
         ])
     })
 
@@ -178,10 +178,10 @@ describe("save-draw listener: commit", () => {
 
         expect(types(dispatched)).toEqual([
             "draw/commit",
-            "selection/sync",
-            "selection/apply",
             "draw/done",
             "tools/reset",
+            "selection/sync",
+            "selection/apply",
         ])
     })
 
@@ -215,7 +215,7 @@ describe("save-draw listener: cancel", () => {
         vi.clearAllMocks()
     })
 
-    test("lets in-flight ops land, rolls back, refreshes the selection, then leaves draw mode", async () => {
+    test("lets in-flight ops land, rolls back, leaves draw mode, then refreshes the selection", async () => {
         const { store, log } = makeStore()
         registerQueueWithOneOp()
 
@@ -226,11 +226,11 @@ describe("save-draw listener: cancel", () => {
             "action:draw/cancel",
             "invoke:draw_apply",
             "invoke:draw_rollback",
+            "action:draw/reset",
+            "action:tools/reset",
             "invoke:selection_get_ids",
             "action:selection/sync",
             "action:selection/apply",
-            "action:draw/reset",
-            "action:tools/reset",
         ])
         expect(mockInvoke).toHaveBeenCalledWith("draw_rollback", { id: SOURCE_ID })
     })
