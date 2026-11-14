@@ -404,6 +404,25 @@ describe("rect-select listener", () => {
             expect(invokeMock).not.toHaveBeenCalled()
         })
 
+        test("a drag retried with the same bbox after a failed flush is not dedup-skipped", async () => {
+            const queue = new DrawOpQueue("drawn", () => {})
+            vi.spyOn(queue, "flush")
+                .mockResolvedValueOnce({ ok: false, error: new Error("x"), dropped: 0 })
+                .mockResolvedValue({ ok: true })
+            const unregister = registerDrawQueue(queue)
+            const { store } = makeStore({ source: makeSourceState([]), draw: drawState })
+            const drag = rectSelectDrag({ start: { x: 10, y: 10 }, current: { x: 100, y: 100 }, modifier: "none" })
+
+            store.dispatch(drag)
+            await vi.runAllTimersAsync()
+            store.dispatch(drag)
+            await vi.runAllTimersAsync()
+            unregister()
+
+            const rectCalls = invokeMock.mock.calls.filter((c: unknown[]) => c[0] === "selection_rect")
+            expect(rectCalls).toHaveLength(1)
+        })
+
         test("rectSelectClick does nothing", async () => {
             const { store, dispatched } = makeStore({
                 source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),

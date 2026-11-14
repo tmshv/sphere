@@ -14,11 +14,12 @@ const makeStore = (
     selectedNodeId: string | undefined,
     sources: SourceFixture[] = selectedNodeId ? [makeGeojsonSource(selectedNodeId)] : [],
     drawSourceId: string | undefined = undefined,
+    layerItems: Record<string, { sourceId: string }> = {},
 ) =>
     configureStore({
         reducer: {
             draw: () => ({ sourceId: drawSourceId, pending: false, hiddenIds: [] }),
-            layer: () => ({ items: {}, selectedId: selectedLayerId }),
+            layer: () => ({ items: layerItems, selectedId: selectedLayerId }),
             source: () => makeSourceState(sources, { selectedIds: selectedNodeId ? [selectedNodeId] : [] }),
         },
     })
@@ -83,6 +84,17 @@ describe("useFeatureState", () => {
             emitSelectionDelta({ added: [5], removed: [] })
         })
         expect(map.setFeatureState).toHaveBeenCalledWith({ source: "drawn", id: 5 }, { selected: true })
+    })
+
+    it("highlights on the drawn source, not the selected layer's source, while drawing", () => {
+        const map = makeMap()
+        const store = makeStore("l1", "s1", undefined, "s2", { l1: { sourceId: "s1" } })
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            emitSelectionDelta({ added: [5], removed: [] })
+        })
+        expect(map.setFeatureState).toHaveBeenCalledWith({ source: "s2", id: 5 }, { selected: true })
+        expect(map.setFeatureState).not.toHaveBeenCalledWith({ source: "s1", id: 5 }, expect.anything())
     })
 
     it("does not call setFeatureState when sourceId is not set", () => {

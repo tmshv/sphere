@@ -80,7 +80,10 @@ function isSameTarget(
 }
 
 export default function useFeatureState(ref: MapRef | undefined) {
-    const selectedLayerId = useAppSelector(selectors.layer.selectSelectedId)
+    const layerSelectedId = useAppSelector(selectors.layer.selectSelectedId)
+    const drawing = useAppSelector(selectors.selection.drawing)
+    // While drawing, highlights go to the drawn source whatever layer is selected
+    const selectedLayerId = drawing ? undefined : layerSelectedId
     const selectedSourceId = useAppSelector(selectors.selection.targetSourceId)
     const selectedSourceLayer = useAppSelector(selectors.source.selectSelectedSourceLayer)
     const layerItems = useAppSelector(state => state.layer.items)

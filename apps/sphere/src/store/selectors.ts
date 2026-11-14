@@ -13,7 +13,11 @@ import {
     selectPreviewLayerStack,
 } from "./preview"
 import { selectionSlice as selection } from "./selection"
-import { selectSelectionTargetInteractive, selectSelectionTargetSourceId } from "./selection-target"
+import {
+    selectSelectionDrawing,
+    selectSelectionTargetInteractive,
+    selectSelectionTargetSourceId,
+} from "./selection-target"
 import { settingsSlice as settings } from "./settings"
 import { selectCurrentSourceItem, sourceSlice as source } from "./source"
 import {
@@ -123,6 +127,7 @@ export const selectors = {
         ...selection.selectors,
         targetSourceId: selectSelectionTargetSourceId,
         targetInteractive: selectSelectionTargetInteractive,
+        drawing: selectSelectionDrawing,
     },
     settings: settings.selectors,
     sourceInfo: {

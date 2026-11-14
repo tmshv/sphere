@@ -90,11 +90,12 @@ listener.startListening({
                 if (lastDragBbox && lastDragMode === mode && lastDragOp === op && bboxEqual(lastDragBbox, bbox)) {
                     continue
                 }
+
+                // Dedup bookkeeping follows a successful flush, so a retry after a failed one is not skipped
+                if (!(await flushDraw(state, sourceId))) continue
                 lastDragBbox = bbox
                 lastDragMode = mode
                 lastDragOp = op
-
-                if (!(await flushDraw(state, sourceId))) continue
 
                 const generation = ++queryGeneration
                 const delta = await selectionRect(sourceId, bbox, mode, op, generation)
