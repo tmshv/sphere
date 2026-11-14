@@ -193,6 +193,8 @@ export default class DirectSelect extends Mode {
 
     onStop(): void {
         doubleClickZoom.enable(this)
+        // A mode change in the middle of a drag (a silent one from the API) must not leave dragPan off
+        this.#stopDragging()
         this.clearSelectedCoordinates()
     }
 

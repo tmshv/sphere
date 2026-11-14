@@ -357,6 +357,26 @@ describe("direct_select", () => {
             expect(map.dragPan.isEnabled()).toBe(true)
             await cleanUp()
         })
+
+        it("is enabled again when the mode stops in the middle of a vertex drag", async () => {
+            map.dragPan.enable()
+            const lineId = required(Draw.add(getGeoJSON("line")).at(0))
+            Draw.changeMode(Constants.modes.DIRECT_SELECT, { featureId: lineId })
+            const [x = 0, y = 0] = required(getGeoJSON("line").geometry.coordinates.at(0))
+            await afterNextRender()
+            click(map, makeMouseEvent(x, y))
+            map.fire("mousedown", makeMouseEvent(x, y))
+            map.fire("mousemove", makeMouseEvent(x + 10, y + 10, { buttons: 1 }))
+            expect(map.dragPan.isEnabled()).toBe(false)
+
+            // The app deselects silently, with the button still down: draw returns to simple_select
+            Draw.setSelected([])
+            expect(Draw.getMode()).toBe(Constants.modes.SIMPLE_SELECT)
+            expect(map.dragPan.isEnabled()).toBe(true)
+            map.fire("mouseup", makeMouseEvent(x + 10, y + 10))
+            await afterNextRender()
+            await cleanUp()
+        })
     })
 
     it("trashing a selected MultiPoint vertex removes that point", async () => {

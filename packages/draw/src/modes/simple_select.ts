@@ -185,6 +185,8 @@ export default class SimpleSelect extends Mode {
 
     onStop(): void {
         doubleClickZoom.enable(this)
+        // A mode change in the middle of a drag (a silent one from the API) must not leave dragPan off
+        this.#stopExtendedInteractions()
     }
 
     onMouseMove(e: DrawMouseEvent): HandlerResult {

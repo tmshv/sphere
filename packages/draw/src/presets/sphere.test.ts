@@ -14,10 +14,14 @@ function find(layers: DrawStyleLayer[], id: string): DrawStyleLayer | undefined 
     return layers.find(layer => layer.id === id)
 }
 
+function isPaint(value: unknown): value is Paint {
+    return typeof value === "object" && value !== null
+}
+
 function paintOf(layers: DrawStyleLayer[], id: string): Paint {
-    const layer = find(layers, id)
-    expect(layer, id).toBeDefined()
-    return (layer?.paint ?? {}) as Paint
+    const paint = find(layers, id)?.paint
+    expect(isPaint(paint), id).toBe(true)
+    return isPaint(paint) ? paint : {}
 }
 
 function mentions(filter: unknown, name: string): boolean {

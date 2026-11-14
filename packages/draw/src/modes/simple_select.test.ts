@@ -434,6 +434,23 @@ describe("simple_select", () => {
             expect(map.dragPan.isEnabled()).toBe(true)
             cleanUp()
         })
+
+        it("is enabled again when the mode stops in the middle of a feature drag", async () => {
+            map.dragPan.enable()
+            const id = required(Draw.add(getGeoJSON("polygon")).at(0))
+            Draw.changeMode("simple_select", { featureIds: [id] })
+            await afterNextRender()
+            map.fire("mousedown", makeMouseEvent(50, 30))
+            map.fire("mousemove", makeMouseEvent(60, 40, { buttons: 1 }))
+            expect(map.dragPan.isEnabled()).toBe(false)
+
+            // A silent mode change from the app, with the button still down
+            Draw.changeMode("direct_select", { featureId: id })
+            expect(map.dragPan.isEnabled()).toBe(true)
+            map.fire("mouseup", makeMouseEvent(60, 40))
+            await afterNextRender()
+            cleanUp()
+        })
     })
 
     it("delete selected features", async () => {
