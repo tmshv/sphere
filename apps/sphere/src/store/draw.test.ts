@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
-import reducer, { drawSlice } from "./draw"
+import reducer, { actions, drawSlice } from "./draw"
 
-const { start, started, commit, cancel, settle, done, reset, setHiddenIds, selectionChanged } = drawSlice.actions
+const { start, started, commit, cancel, settle, done, reset, setHiddenIds } = drawSlice.actions
 const { isDrawing, isPending, sourceId, hiddenIds } = drawSlice.selectors
 
 import type { RootState } from "./index"
@@ -57,7 +57,9 @@ describe("drawSlice reducer", () => {
 
     test("selectionChanged is a signal: it changes no state", () => {
         const withHidden = { ...drawing, hiddenIds: [1] }
-        const action = selectionChanged({ sourceId: "my-source", ids: [1, "draw-a"] })
+        const action = actions.selectionChanged({ sourceId: "my-source", ids: [1, "draw-a"] })
+        expect(action.type).toBe("draw/selectionChanged")
+        expect("selectionChanged" in drawSlice.actions).toBe(false)
         expect(reducer(withHidden, action)).toBe(withHidden)
         expect(action.payload).toEqual({ sourceId: "my-source", ids: [1, "draw-a"] })
     })

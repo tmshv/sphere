@@ -1,5 +1,5 @@
 import type { DrawFeatureId, Id } from "@/types"
-import { createSlice } from "@reduxjs/toolkit"
+import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
 export type DrawState = {
@@ -48,10 +48,6 @@ export const drawSlice = createSlice({
                 state.hiddenIds = action.payload.ids
             }
         },
-        /** The user changed draw's feature selection; the draw-selection listener mirrors it to the backend. */
-        selectionChanged: (state, _: PayloadAction<{ sourceId: Id; ids: DrawFeatureId[] }>) => {
-            return state
-        },
         /** Request to keep the edits. Handled by the save-draw listener. */
         commit: (state, action: PayloadAction<{ sourceId: Id }>) => {
             if (isDrawingSource(state, action.payload.sourceId)) {
@@ -96,8 +92,12 @@ export const drawSlice = createSlice({
     },
 })
 
+/** The user changed draw's feature selection; the draw-selection listener mirrors it to the backend. */
+const selectionChanged = createAction<{ sourceId: Id; ids: DrawFeatureId[] }>("draw/selectionChanged")
+
 export const actions = {
     ...drawSlice.actions,
+    selectionChanged,
 }
 
 export default drawSlice.reducer
