@@ -208,7 +208,9 @@ describe("interaction events", () => {
         firedWith("draw.delete", {
             features: [pointB],
         })
-        expect(flushDrawEvents(), "no unexpected draw events").toEqual(["draw.delete"])
+        // The deleted point was selected, so the selection changed too
+        firedWith("draw.selectionchange", { features: [], points: [] })
+        expect(flushDrawEvents(), "no unexpected draw events").toEqual(["draw.selectionchange", "draw.delete"])
     })
 
     it("enter draw_line_string mode", () => {
@@ -822,7 +824,8 @@ describe("interaction events", () => {
         firedWith("draw.delete", {
             features: [line],
         })
-        expect(flushDrawEvents(), "no unexpected draw events").toEqual(["draw.delete"])
+        firedWith("draw.selectionchange", { features: [], points: [] })
+        expect(flushDrawEvents(), "no unexpected draw events").toEqual(["draw.selectionchange", "draw.delete"])
     })
 
     it("start draw_point mode then exit with Enter", async () => {

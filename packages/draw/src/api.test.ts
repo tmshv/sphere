@@ -899,6 +899,40 @@ describe("api", () => {
             expect(selectionChange).not.toHaveBeenCalled()
         })
 
+        it("Draw.trash of selected features emits draw.selectionchange with what stays selected", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2]), point("b", [3, 4])] })
+            Draw.setSelected(["a"])
+            await afterNextRender()
+            Draw.trash()
+            await afterNextRender()
+            expect(Draw.getSelectedIds()).toEqual([])
+            expect(selectionChange).toHaveBeenCalledTimes(1)
+            expect(selectionChange.mock.calls.at(0)?.at(0)).toMatchObject({ features: [] })
+        })
+
+        it("Draw.trash of an invalid feature in direct_select emits draw.selectionchange", async () => {
+            Draw.load({ type: "FeatureCollection", features: [line("a")] })
+            Draw.changeMode("direct_select", { featureId: "a", coordPath: "0" })
+            await afterNextRender()
+            selectionChange.mockClear()
+            // A line left with one vertex is invalid, so the trash deletes the whole feature
+            Draw.trash()
+            await afterNextRender()
+            expect(Draw.getSelectedIds()).toEqual([])
+            const last = selectionChange.mock.calls.at(-1)?.at(0)
+            expect(last).toMatchObject({ features: [] })
+        })
+
+        it("Draw.delete of a selected feature emits no draw.selectionchange", async () => {
+            Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
+            Draw.setSelected(["a"])
+            await afterNextRender()
+            Draw.delete(["a"])
+            await afterNextRender()
+            expect(Draw.getSelectedIds()).toEqual([])
+            expect(selectionChange).not.toHaveBeenCalled()
+        })
+
         it("Draw.load emits no draw.selectionchange", async () => {
             Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
             await afterNextRender()

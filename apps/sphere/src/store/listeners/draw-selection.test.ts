@@ -368,4 +368,29 @@ describe("draw-selection listener", () => {
 
         expect(setCalls()).toEqual([{ ids: [1] }, { ids: [1] }])
     })
+    test("a trash of selected features takes them out of the backend selection after their delete op", async () => {
+        const { store, log, deltas, dispatched, queue } = setup(SOURCE_ID)
+        mockCommands({
+            selection_set: args => {
+                const ids = Array.isArray(args.ids) ? args.ids : []
+                return Promise.resolve(ids.length === 0 ? delta([], [7]) : delta(ids))
+            },
+        })
+        store.dispatch(change([7]))
+        await flushAsync()
+        log.length = 0
+
+        // Draw fires the selection change, then the delete, in the same render
+        store.dispatch(change([]))
+        queue.enqueue([{ type: "delete", id: 7 }])
+        await flushAsync()
+
+        expect(log.filter(entry => entry.startsWith("invoke:"))).toEqual(["invoke:draw_apply", "invoke:selection_set"])
+        expect(setCalls().at(-1)).toEqual({ ids: [] })
+        expect(deltas.at(-1)).toEqual(delta([], [7]))
+        expect(dispatched.findLast(a => a.type === "selection/sync")?.payload).toEqual({
+            count: 0,
+            sourceId: SOURCE_ID,
+        })
+    })
 })

@@ -140,6 +140,10 @@ export default class Store {
         for (const id of toDenseArray(featureIds)) {
             if (!this.#featureIds.has(id)) continue
             this.#featureIds.delete(id)
+            // A user's delete of a selected feature changes the selection; a silent one (unload) does not tell
+            if (this.#selectedFeatureIds.has(id) && !options.silent) {
+                this.#pending.selectionChange = true
+            }
             this.#selectedFeatureIds.delete(id)
             const feature = this.#features.get(id)
             if (feature !== undefined && !options.silent) {
