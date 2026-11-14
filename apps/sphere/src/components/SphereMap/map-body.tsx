@@ -1,5 +1,4 @@
 import useHillshadePlacement from "@/hooks/useHillshadePlacement"
-import useMapNavigation from "@/hooks/useMapNavigation"
 import useProjection from "@/hooks/useProjection"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
@@ -18,6 +17,7 @@ import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
 import { DrawContextLayer } from "./DrawContextLayer"
 import { FilteredLayerSource } from "./FilteredLayerSource"
+import MapNavigation from "./MapNavigation"
 import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
@@ -31,7 +31,6 @@ export type MapBodyProps = {
 export default function MapBody({ mapId }: MapBodyProps) {
     useMapStore(mapId)
     const { [mapId]: map } = useMap()
-    useMapNavigation(map)
 
     const terrain = useAppSelector(selectTerrainSpecification)
     useTerrain(map, terrain)
@@ -56,6 +55,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
 
     return (
         <>
+            <MapNavigation mapRef={map} />
             {!showAttribution ? null : <AttributionControl compact />}
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />

@@ -1,6 +1,9 @@
+import MapLibreDraw from "@sphere/draw"
 import type { Map as MaplibreMap } from "maplibre-gl"
 
-const DRAW_LAYER_PREFIX = "gl-draw-"
+// Draw renders every feature, vertex and midpoint from its own hot and cold sources, whatever the
+// style preset names its layers
+const DRAW_SOURCES: ReadonlySet<string> = new Set(Object.values(MapLibreDraw.constants.sources))
 
 /** True when a feature of the draw control is rendered at the point (map pixels). */
 export function isOverDrawFeature(
@@ -9,8 +12,7 @@ export function isOverDrawFeature(
 ): boolean {
     const layers = map
         .getStyle()
-        .layers.map(layer => layer.id)
-        .filter(id => id.startsWith(DRAW_LAYER_PREFIX))
+        .layers.flatMap(layer => ("source" in layer && DRAW_SOURCES.has(layer.source) ? [layer.id] : []))
     if (layers.length === 0) {
         return false
     }
