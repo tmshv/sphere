@@ -1,6 +1,6 @@
 import type { DrawStyleLayer } from "../types"
 
-const theme: DrawStyleLayer[] = [
+export const classicPreset: DrawStyleLayer[] = [
     {
         id: "gl-draw-polygon-fill-inactive",
         type: "fill",
@@ -197,5 +197,3 @@ const theme: DrawStyleLayer[] = [
         },
     },
 ]
-
-export default theme

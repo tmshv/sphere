@@ -1,4 +1,4 @@
-import { DRAW_WORKING_SET_CAP } from "@/const"
+import { DRAW_WORKING_SET_CAP, FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { useDrawControl } from "@/hooks/useDrawControl"
 import { viewportBbox } from "@/lib/bbox"
 import { DrawOpQueue, loadWorkingSet, registerDrawQueue } from "@/lib/draw-session"
@@ -9,6 +9,7 @@ import { WorkingSetLoader } from "@/lib/working-set-loader"
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import type { DrawEvent, DrawFeatureId, Id, WorkingSetScope } from "@/types"
+import { spherePreset } from "@sphere/draw"
 import { Button, Overlay, Row, Surface, Text } from "@sphere/ui"
 import type { CSSProperties } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -50,6 +51,16 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
     const selectionSourceId = useAppSelector(selectors.selection.sourceId)
     // The scope is chosen once, when drawing starts
     const initialSelectionSourceId = useRef(selectionSourceId)
+    // The control is built once, so the outline setting is read once, at mount
+    const previewOutline = useAppSelector(selectors.settings.selectPreviewOutline)
+    const [styles] = useState(() =>
+        spherePreset({
+            color: PREVIEW_COLOR,
+            highlightColor: FEATURE_HIGHLIGHT_COLOR,
+            outline: previewOutline,
+            pointRadius: PREVIEW_RADIUS,
+        }),
+    )
     const [loading, setLoading] = useState(true)
     // The kind of scope that held too many features to load, if the last load did
     const [overCap, setOverCap] = useState<WorkingSetScope["type"] | undefined>(undefined)
@@ -85,6 +96,8 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
             trash: true,
         },
         displayControlsDefault: false,
+        boxSelect: false,
+        styles,
     })
 
     useEffect(() => {

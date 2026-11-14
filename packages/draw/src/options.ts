@@ -1,6 +1,6 @@
 import * as Constants from "./constants"
 
-import styles from "./lib/theme"
+import { classicPreset as styles } from "./presets"
 import modes from "./modes"
 import type { ModeClass } from "./modes/mode_builder"
 import type { DrawControls, DrawStyleLayer } from "./types"

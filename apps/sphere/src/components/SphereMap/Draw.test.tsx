@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const { mockInvoke, drawControls } = vi.hoisted(() => ({
     mockInvoke: vi.fn(),
-    drawControls: [] as { load: ReturnType<typeof vi.fn>; unload: ReturnType<typeof vi.fn> }[],
+    drawControls: [] as {
+        load: ReturnType<typeof vi.fn>
+        unload: ReturnType<typeof vi.fn>
+        options: Record<string, unknown>
+    }[],
 }))
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }))
@@ -13,10 +17,14 @@ vi.mock("@sphere/draw", () => ({
     default: class FakeDraw {
         load = vi.fn()
         unload = vi.fn()
-        constructor() {
+        options: Record<string, unknown>
+        constructor(options: Record<string, unknown>) {
+            this.options = options
             drawControls.push(this)
         }
     },
+    // Tagged so the test can tell it was called with the app's options
+    spherePreset: (options: unknown) => [{ preset: options }],
 }))
 
 const mapRefs: Record<string, unknown> = {}
@@ -31,6 +39,8 @@ vi.mock("react-map-gl/maplibre", async () => {
 
 import drawReducer from "@/store/draw"
 import selectionReducer from "@/store/selection"
+import settingsReducer from "@/store/settings"
+import { FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { flushAsync } from "@/testutils"
 import type { DrawEvent } from "@/types"
 import { configureStore } from "@reduxjs/toolkit"
@@ -91,10 +101,15 @@ function workingSetQueries() {
     return mockInvoke.mock.calls.filter(([cmd]) => cmd === "draw_get_working_set").length
 }
 
-async function renderDraw() {
+async function renderDraw(previewOutline?: boolean) {
     const store = configureStore({
-        reducer: { draw: drawReducer, selection: selectionReducer },
-        preloadedState: { draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] } },
+        reducer: { draw: drawReducer, selection: selectionReducer, settings: settingsReducer },
+        preloadedState: {
+            draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] },
+            ...(previewOutline === undefined
+                ? {}
+                : { settings: { ...settingsReducer(undefined, { type: "init" }), previewOutline } }),
+        },
     })
     const view = render(
         <Provider store={store}>
@@ -125,6 +140,26 @@ describe("Draw", () => {
             features: [point(4), point(7)],
         })
         expect(store.getState().draw.hiddenIds).toEqual([4, 7])
+    })
+
+    test.each([true, false])("builds the control with the sphere preset (outline %s)", async outline => {
+        makeMap()
+        mockCommands([])
+
+        await renderDraw(outline)
+
+        const options = drawControls.at(-1)?.options
+        expect(options?.boxSelect).toBe(false)
+        expect(options?.styles).toEqual([
+            {
+                preset: {
+                    color: PREVIEW_COLOR,
+                    highlightColor: FEATURE_HIGHLIGHT_COLOR,
+                    outline,
+                    pointRadius: PREVIEW_RADIUS,
+                },
+            },
+        ])
     })
 
     test("forwards an edit on the map to the backend as an edit op", async () => {

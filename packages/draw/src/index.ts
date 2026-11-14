@@ -40,6 +40,7 @@ export default MapLibreDraw
 
 export type { ChangeModeOptions } from "./types"
 export type { DrawOptions, DrawOptionsInput } from "./options"
+export { classicPreset, spherePreset, type SpherePresetOptions } from "./presets"
 export { default as Mode, type ModeContext } from "./modes/mode"
 export type { ModeClass } from "./modes/mode_builder"
 export type { RenderPush } from "./lib/mode_handler"
