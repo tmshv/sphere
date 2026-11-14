@@ -1,23 +1,36 @@
 import type { DrawFeatureId } from "@/types"
 import { applyDelta, drawSelectionIds, featureIds, sameIds, toBackendIds } from "./draw-selection"
 
-const identity = (id: number): DrawFeatureId => id
+const toBackendId = (id: DrawFeatureId): number | undefined => (typeof id === "number" ? id : undefined)
 
 describe("drawSelectionIds", () => {
     test("keeps only the selected ids loaded into draw", () => {
-        expect(drawSelectionIds(new Set([1, 2, 3]), new Set<DrawFeatureId>([1, 3, 4]), identity)).toEqual([1, 3])
+        expect(drawSelectionIds(new Set([1, 2, 3]), new Set<DrawFeatureId>([1, 3, 4]), toBackendId)).toEqual([1, 3])
     })
 
-    test("maps a created feature's backend id to its draw id", () => {
-        const toDrawId = (id: number): DrawFeatureId => (id === 100 ? "draw-a" : id)
-        expect(drawSelectionIds(new Set([100, 2]), new Set<DrawFeatureId>(["draw-a", 2]), toDrawId)).toEqual([
+    test("selects a created feature by its draw id once its backend id is selected", () => {
+        const backendId = (id: DrawFeatureId): number | undefined => (id === "draw-a" ? 100 : toBackendId(id))
+        expect(drawSelectionIds(new Set([100, 2]), new Set<DrawFeatureId>(["draw-a", 2]), backendId)).toEqual([
             "draw-a",
             2,
         ])
     })
 
+    test("a created feature whose create has not settled is not selected", () => {
+        expect(drawSelectionIds(new Set([1]), new Set<DrawFeatureId>(["draw-a"]), toBackendId)).toEqual([])
+    })
+
     test("an empty selection selects nothing", () => {
-        expect(drawSelectionIds(new Set(), new Set<DrawFeatureId>([1]), identity)).toEqual([])
+        expect(drawSelectionIds(new Set(), new Set<DrawFeatureId>([1]), toBackendId)).toEqual([])
+    })
+
+    test("looks up only the held features, never walks the whole selection", () => {
+        const selected = new Set(Array.from({ length: 1000 }, (_, i) => i))
+        const walk = vi.spyOn(selected, Symbol.iterator)
+        const has = vi.spyOn(selected, "has")
+        expect(drawSelectionIds(selected, new Set<DrawFeatureId>([5, 2000]), toBackendId)).toEqual([5])
+        expect(walk).not.toHaveBeenCalled()
+        expect(has).toHaveBeenCalledTimes(2)
     })
 })
 

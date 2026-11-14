@@ -119,11 +119,12 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         if (!map) {
             return
         }
-        // The backend selection, mirrored from the selection bus
+        // The backend selection, mirrored from the selection bus. The loader reads the same set
         let selected = new Set<number>()
-        // Draw selects the selected features it holds, silently: draw already agrees after its own change
+        // Draw selects the selected features it holds, silently: draw already agrees after its own change.
+        // Only the held features are looked up, so a huge selection costs no more than the working set
         const pushSelection = () => {
-            draw.setSelected(drawSelectionIds(selected, current.held(), id => queue.drawId(id)))
+            draw.setSelected(drawSelectionIds(selected, current.held(), id => queue.backendId(id)))
         }
         const current = new WorkingSetLoader({
             sourceId,
@@ -141,16 +142,21 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
                 pushSelection()
             },
             onSelection: ids => {
-                selected = new Set(ids)
+                selected = ids
             },
         })
         const followSelection = () => {
-            current.selectionChanged([...selected])
+            current.selectionChanged(selected)
             pushSelection()
         }
-        const unsubscribeDelta = onSelectionDelta(delta => {
+        const unsubscribeDelta = onSelectionDelta((delta, { dragging }) => {
             applyDelta(selected, delta)
-            followSelection()
+            // A step of a rectangle drag only selects what draw holds; the drag's end loads the rest
+            if (dragging) {
+                pushSelection()
+            } else {
+                followSelection()
+            }
         })
         const unsubscribeReconcile = onSelectionReconcile(({ ids, sourceId: target }) => {
             // While drawing the selection belongs to the drawn source; one of another source is not draw's

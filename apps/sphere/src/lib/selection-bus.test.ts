@@ -8,8 +8,8 @@ describe("selection bus", () => {
         const offA = onSelectionDelta(a)
         const offB = onSelectionDelta(b)
         emitSelectionDelta({ added: [1], removed: [] })
-        expect(a).toHaveBeenCalledWith({ added: [1], removed: [] })
-        expect(b).toHaveBeenCalledWith({ added: [1], removed: [] })
+        expect(a).toHaveBeenCalledWith({ added: [1], removed: [] }, { dragging: false })
+        expect(b).toHaveBeenCalledWith({ added: [1], removed: [] }, { dragging: false })
         offA()
         offB()
     })
@@ -48,5 +48,16 @@ describe("selection bus", () => {
         expect(a).not.toHaveBeenCalled()
         expect(b).toHaveBeenCalledTimes(1)
         offB()
+    })
+    test("a delta is settled unless the emitter marks it as a step of a drag", () => {
+        const a = vi.fn()
+        const off = onSelectionDelta(a)
+        emitSelectionDelta({ added: [1], removed: [] })
+        emitSelectionDelta({ added: [2], removed: [] }, { dragging: true })
+        expect(a.mock.calls).toEqual([
+            [{ added: [1], removed: [] }, { dragging: false }],
+            [{ added: [2], removed: [] }, { dragging: true }],
+        ])
+        off()
     })
 })

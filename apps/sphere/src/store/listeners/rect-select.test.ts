@@ -114,6 +114,24 @@ describe("rect-select listener", () => {
         expect(invokeMock.mock.calls.some((c: unknown[]) => c[0] === "selection_set")).toBe(false)
     })
 
+    test("a drag step emits its delta as dragging, the commit emits settled deltas", async () => {
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
+
+        // A bbox no other test drags, so the drag dedup does not skip it
+        store.dispatch(rectSelectDrag({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
+        await vi.runAllTimersAsync()
+        expect(vi.mocked(emitSelectionDelta).mock.calls).toEqual([[{ added: [1, 2], removed: [] }, { dragging: true }]])
+
+        vi.mocked(emitSelectionDelta).mockClear()
+        store.dispatch(rectSelectCommit({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
+        await vi.runAllTimersAsync()
+        const origins = vi.mocked(emitSelectionDelta).mock.calls.map(call => call.at(1))
+        expect(origins.length).toBeGreaterThan(0)
+        expect(origins.every(origin => origin === undefined)).toBe(true)
+    })
+
     test("rectSelectDrag with shift modifier uses op=preview", async () => {
         const { store } = makeStore({
             source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
@@ -382,7 +400,7 @@ describe("rect-select listener", () => {
             const unregister = registerDrawQueue(queue)
             const { store } = makeStore({ source: makeSourceState([]), draw: drawState })
 
-            store.dispatch(rectSelectCommit({ start: { x: 10, y: 10 }, current: { x: 100, y: 100 }, modifier: "none" }))
+            store.dispatch(rectSelectCommit({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
             await vi.runAllTimersAsync()
             unregister()
 
@@ -397,7 +415,7 @@ describe("rect-select listener", () => {
             const unregister = registerDrawQueue(queue)
             const { store } = makeStore({ source: makeSourceState([]), draw: drawState })
 
-            store.dispatch(rectSelectCommit({ start: { x: 10, y: 10 }, current: { x: 100, y: 100 }, modifier: "none" }))
+            store.dispatch(rectSelectCommit({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
             await vi.runAllTimersAsync()
             unregister()
 

@@ -1,6 +1,13 @@
 import type { SelectionDelta } from "./selection-ipc"
 
-type DeltaListener = (delta: SelectionDelta) => void
+/**
+ * How a delta came about. `dragging` marks one step of a rectangle still being
+ * dragged: the drag's end always emits the settled selection after it, so a
+ * listener with costly work (loading features) may wait for that.
+ */
+export type DeltaOrigin = { dragging: boolean }
+
+type DeltaListener = (delta: SelectionDelta, origin: DeltaOrigin) => void
 type ReconcilePayload = { ids: number[]; sourceId: string }
 type ReconcileListener = (payload: ReconcilePayload) => void
 
@@ -9,16 +16,18 @@ const reconcileListeners = new Set<ReconcileListener>()
 
 export function onSelectionDelta(fn: DeltaListener): () => void {
     // A wrapper keeps the same function subscribed twice as two independent subscriptions
-    const entry: DeltaListener = delta => fn(delta)
+    const entry: DeltaListener = (delta, origin) => fn(delta, origin)
     deltaListeners.add(entry)
     return () => {
         deltaListeners.delete(entry)
     }
 }
 
-export function emitSelectionDelta(delta: SelectionDelta): void {
+const SETTLED: DeltaOrigin = { dragging: false }
+
+export function emitSelectionDelta(delta: SelectionDelta, origin: DeltaOrigin = SETTLED): void {
     for (const fn of [...deltaListeners]) {
-        fn(delta)
+        fn(delta, origin)
     }
 }
 

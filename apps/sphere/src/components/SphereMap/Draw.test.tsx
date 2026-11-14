@@ -271,6 +271,43 @@ describe("Draw", () => {
         expect(lastDraw().setSelected).toHaveBeenLastCalledWith([9])
     })
 
+    test("a drag step selects the loaded features in draw and loads nothing; the drag's end loads", async () => {
+        makeMap()
+        mockCommands([4])
+        await renderDraw()
+        const queries = workingSetQueries()
+
+        act(() => emitSelectionDelta({ added: [4, 9], removed: [] }, { dragging: true }))
+        await act(flushAsync)
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([4])
+        expect(workingSetQueries()).toBe(queries)
+
+        act(() => emitSelectionReconcile([4, 9], SOURCE_ID))
+        await act(flushAsync)
+        expect(mockInvoke).toHaveBeenLastCalledWith("draw_get_working_set", {
+            id: SOURCE_ID,
+            scope: { type: "ids", ids: [9] },
+            cap: DRAW_WORKING_SET_CAP,
+        })
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([4, 9])
+    })
+
+    test("a selection over the cap unloads the features only it loaded", async () => {
+        makeMap()
+        mockCommands([4])
+        await renderDraw()
+        act(() => emitSelectionDelta({ added: [9], removed: [] }))
+        await act(flushAsync)
+        lastDraw().unload.mockClear()
+
+        const overCap = Array.from({ length: DRAW_WORKING_SET_CAP + 1 }, (_, i) => i + 1)
+        act(() => emitSelectionReconcile(overCap, SOURCE_ID))
+        await act(flushAsync)
+
+        expect(lastDraw().unload).toHaveBeenLastCalledWith([9])
+        expect(lastDraw().setSelected).toHaveBeenLastCalledWith([4])
+    })
+
     test("starts with the selection of the drawn source selected in draw once it is loaded", async () => {
         makeMap()
         mockCommands([4], [7])

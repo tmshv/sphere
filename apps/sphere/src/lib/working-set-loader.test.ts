@@ -60,7 +60,7 @@ function setup(overrides: Partial<WorkingSetLoaderOptions> = {}) {
         onOverCap: value => overCap.push(value),
         onError: err => errors.push(err),
         onLoaded: ids => hidden.push(ids),
-        onSelection: ids => selections.push(ids),
+        onSelection: ids => selections.push([...ids]),
         ...overrides,
     }
     const loader = new WorkingSetLoader(options)
@@ -491,7 +491,7 @@ describe("WorkingSetLoader: selection changes", () => {
         t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
         await flushAsync()
 
-        t.loader.selectionChanged([2, 3])
+        t.loader.selectionChanged(new Set([2, 3]))
         await flushAsync()
 
         expect(t.fetchWorkingSet).toHaveBeenLastCalledWith("s1", { type: "ids", ids: [3] }, 10)
@@ -505,7 +505,7 @@ describe("WorkingSetLoader: selection changes", () => {
         await flushAsync()
         t.pinned.add(7)
 
-        t.loader.selectionChanged([1, 7])
+        t.loader.selectionChanged(new Set([1, 7]))
         await flushAsync()
 
         expect(t.fetchWorkingSet).toHaveBeenCalledOnce()
@@ -517,7 +517,7 @@ describe("WorkingSetLoader: selection changes", () => {
         await flushAsync()
         t.fetchWorkingSet.mockResolvedValue(workingSet([], true))
 
-        t.loader.selectionChanged([3, 4])
+        t.loader.selectionChanged(new Set([3, 4]))
         await flushAsync()
 
         expect(loadedIds(t)).toEqual([1])
@@ -531,9 +531,9 @@ describe("WorkingSetLoader: selection changes", () => {
         const first = deferred<WorkingSet>()
         t.fetchWorkingSet.mockReturnValueOnce(first.promise)
 
-        t.loader.selectionChanged([3])
+        t.loader.selectionChanged(new Set([3]))
         await flushAsync()
-        t.loader.selectionChanged([4])
+        t.loader.selectionChanged(new Set([4]))
         await flushAsync()
         first.resolve(workingSet([3]))
         await flushAsync()
@@ -550,7 +550,7 @@ describe("WorkingSetLoader: selection changes", () => {
 
         t.loader.moved(OTHER_BBOX)
         await flushAsync()
-        t.loader.selectionChanged([3])
+        t.loader.selectionChanged(new Set([3]))
         await flushAsync()
         viewport.resolve(workingSet([1, 2]))
         await flushAsync()
@@ -565,7 +565,7 @@ describe("WorkingSetLoader: selection changes", () => {
         await flushAsync()
         const before = t.loading.length
 
-        t.loader.selectionChanged([3])
+        t.loader.selectionChanged(new Set([3]))
         await flushAsync()
 
         expect(t.loading.length).toBe(before)
@@ -577,11 +577,11 @@ describe("WorkingSetLoader: selection changes", () => {
         await flushAsync()
 
         t.loader.setPending(true)
-        t.loader.selectionChanged([3])
+        t.loader.selectionChanged(new Set([3]))
         await flushAsync()
         t.loader.setPending(false)
         t.loader.dispose()
-        t.loader.selectionChanged([4])
+        t.loader.selectionChanged(new Set([4]))
         await flushAsync()
 
         expect(t.fetchWorkingSet).toHaveBeenCalledOnce()
@@ -608,7 +608,7 @@ describe("WorkingSetLoader: unloading", () => {
         expect(t.unloadedFromDraw.at(-1)).toEqual([1])
 
         // 5 is deselected away from the viewport: it leaves; 2 is in view and 3 pinned: they stay
-        t.loader.selectionChanged([])
+        t.loader.selectionChanged(new Set([]))
         await flushAsync()
         expect(t.unloadedFromDraw.at(-1)).toEqual([5])
         expect(t.hidden.at(-1)?.sort()).toEqual([2, 3])
@@ -622,7 +622,7 @@ describe("WorkingSetLoader: unloading", () => {
 
         t.loader.moved(OTHER_BBOX)
         await flushAsync()
-        t.loader.selectionChanged([])
+        t.loader.selectionChanged(new Set([]))
         await flushAsync()
 
         expect(t.unloadedFromDraw.flat()).toEqual([])
@@ -638,7 +638,7 @@ describe("WorkingSetLoader: the over-cap notice", () => {
         await flushAsync()
         expect(t.overCap.at(-1)).toBe("ids")
 
-        t.loader.selectionChanged([])
+        t.loader.selectionChanged(new Set([]))
         await flushAsync()
         expect(t.overCap.at(-1)).toBe("bbox")
 
@@ -657,5 +657,124 @@ describe("WorkingSetLoader: held ids", () => {
         t.pinned.add("draw-a")
 
         expect([...t.loader.held()]).toEqual([1, "draw-a"])
+    })
+})
+
+/** A selection that fails the test if anything walks through it: only its size and membership may be read. */
+class UnwalkableSelection extends Set<number> {
+    override [Symbol.iterator](): SetIterator<number> {
+        throw new Error("the whole selection was walked")
+    }
+    override values(): SetIterator<number> {
+        throw new Error("the whole selection was walked")
+    }
+    override forEach(): void {
+        throw new Error("the whole selection was walked")
+    }
+}
+
+function range(from: number, count: number): number[] {
+    return Array.from({ length: count }, (_, i) => from + i)
+}
+
+describe("WorkingSetLoader: a selection over the cap", () => {
+    test("a selection that grows over the cap unloads the features only it loaded", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.loader.selectionChanged(new Set([3, 4]))
+        await flushAsync()
+        expect(t.hidden.at(-1)).toEqual([1, 3, 4])
+
+        // A rectangle grows the selection past the cap (10): its part loads nothing and keeps nothing
+        t.loader.selectionChanged(new Set(range(1, 11)))
+        await flushAsync()
+
+        expect(t.unloadedFromDraw.at(-1)?.sort()).toEqual([3, 4])
+        expect(t.hidden.at(-1)).toEqual([1])
+        expect(t.overCap.at(-1)).toBe("ids")
+    })
+
+    test("a selection the backend finds over the cap unloads the features only it loaded", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.loader.selectionChanged(new Set([3]))
+        await flushAsync()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([], true))
+
+        t.loader.selectionChanged(new Set([3, 4]))
+        await flushAsync()
+
+        expect(t.unloadedFromDraw.at(-1)).toEqual([3])
+        expect(t.hidden.at(-1)).toEqual([1])
+    })
+
+    test("panning keeps the working set to the viewport while the selection is over the cap", async () => {
+        const t = setup()
+        // Everything in view is selected, and the selection is over the cap
+        t.getSelectionIds.mockResolvedValue(range(1, 11))
+        t.loader.begin({ selectionSourceId: "s1", bbox: BBOX })
+        await flushAsync()
+        expect(t.hidden.at(-1)).toEqual([1])
+
+        t.fetchWorkingSet.mockResolvedValue(workingSet([2]))
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+
+        expect(t.unloadedFromDraw.at(-1)).toEqual([1])
+        expect(t.hidden.at(-1)).toEqual([2])
+    })
+
+    test("selected features load again once the selection fits", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        t.loader.selectionChanged(new Set(range(2, 11)))
+        await flushAsync()
+
+        t.loader.selectionChanged(new Set([3, 4]))
+        await flushAsync()
+
+        expect(t.fetchWorkingSet).toHaveBeenLastCalledWith("s1", { type: "ids", ids: [3, 4] }, 10)
+        expect(t.hidden.at(-1)).toEqual([1, 3, 4])
+        expect(t.overCap.at(-1)).toBeUndefined()
+    })
+
+    test("an over-cap selection is never walked through", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+
+        t.loader.selectionChanged(new UnwalkableSelection(range(1, 11)))
+        await flushAsync()
+        t.fetchWorkingSet.mockResolvedValue(workingSet([2]))
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+
+        expect(t.errors).toEqual([])
+        expect(t.overCap.at(-1)).toBe("ids")
+        expect(t.hidden.at(-1)).toEqual([2])
+    })
+
+    test("a viewport load that lands before the over-cap selection's own load does not walk it", async () => {
+        const t = setup()
+        t.loader.begin({ selectionSourceId: undefined, bbox: BBOX })
+        await flushAsync()
+        const viewport = deferred<WorkingSet>()
+        t.fetchWorkingSet.mockReturnValueOnce(viewport.promise)
+        t.loader.moved(OTHER_BBOX)
+        await flushAsync()
+        const selectionFlush = deferred<FlushResult>()
+        t.flush.mockReturnValueOnce(selectionFlush.promise)
+
+        t.loader.selectionChanged(new UnwalkableSelection(range(1, 11)))
+        viewport.resolve(workingSet([2]))
+        await flushAsync()
+        selectionFlush.resolve({ ok: true })
+        await flushAsync()
+
+        expect(t.errors).toEqual([])
+        expect(t.hidden.at(-1)).toEqual([2])
     })
 })

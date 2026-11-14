@@ -29,8 +29,9 @@ export type WorkingSetLoaderOptions = {
     onError: (err: unknown) => void
     // The backend ids now loaded into draw (edited and deleted ones included), after a load changed them
     onLoaded: (ids: number[]) => void
-    // The selection the session starts with: the backend selection when it belongs to the source, else none
-    onSelection: (ids: number[]) => void
+    // The selection the session starts with: the backend selection when it belongs to the source, else none.
+    // The loader keeps reading this set until `selectionChanged` hands it another
+    onSelection: (ids: Set<number>) => void
 }
 
 export type BeginOptions = {
@@ -47,9 +48,15 @@ type Ticket = { part: Part; epoch: number; generation: number }
  * Loads a draw session's working set into the draw control. It is the union of
  * two parts and the pinned (edited) features: the viewport, re-queried after
  * every move, and the selection, re-queried after every selection change for
- * the selected features not loaded yet. A part over the cap loads nothing and
- * keeps what it loaded before. A feature leaves draw only when it is in neither
- * part and not pinned, so a load never drops a selected feature.
+ * the selected features not loaded yet. Each part is capped on its own. A
+ * feature leaves draw only when it is in neither part and not pinned.
+ *
+ * A viewport over the cap loads nothing and keeps what it loaded before. A
+ * selection over the cap loads nothing and keeps nothing: its features stay
+ * selected in the backend (and red on the map) but leave draw unless the
+ * viewport holds them, so the working set never grows past the parts' caps.
+ * The selection is read through size and membership only, never walked, while
+ * it is over the cap.
  *
  * Only the latest load of each part applies. A load is dropped, and its error
  * not reported, once a newer one of its part starts, once the session end is
@@ -69,7 +76,8 @@ export class WorkingSetLoader {
     private bbox: Bbox | undefined
     // Ids of the viewport part, as of its last load that fit the cap
     private viewport = new Set<DrawFeatureId>()
-    private selected = new Set<number>()
+    // The backend selection, owned by the caller, which may update it in place
+    private selected: ReadonlySet<number> = new Set<number>()
     private loaded = new Set<DrawFeatureId>()
     private reported = new Set<number>()
 
@@ -85,8 +93,9 @@ export class WorkingSetLoader {
                     return
                 }
                 this.began = true
-                this.selected = new Set(selectionSourceId === this.options.sourceId ? selectionIds : [])
-                this.options.onSelection([...this.selected])
+                const selected = new Set(selectionSourceId === this.options.sourceId ? selectionIds : [])
+                this.selected = selected
+                this.options.onSelection(selected)
                 this.refreshViewport()
                 if (this.selected.size > 0) {
                     this.refreshSelection(true)
@@ -109,9 +118,12 @@ export class WorkingSetLoader {
         }
     }
 
-    /** The backend selection is now `ids`: the selected features not loaded yet are loaded, if they fit. */
-    selectionChanged(ids: number[]): void {
-        this.selected = new Set(ids)
+    /**
+     * The backend selection is now `ids`: the selected features not loaded yet are loaded, if they fit.
+     * The loader keeps the set and reads it live; the caller may update it in place and call again.
+     */
+    selectionChanged(ids: ReadonlySet<number>): void {
+        this.selected = ids
         if (this.began) {
             this.refreshSelection(false)
         }
@@ -193,13 +205,14 @@ export class WorkingSetLoader {
         if (!flushed.ok || !this.isCurrent(ticket)) {
             return
         }
-        const pinned = this.pinned()
-        const missing = [...this.selected].filter(id => !this.loaded.has(id) && !pinned.has(id))
+        // Checked first: an over-cap selection may be huge, so it is never walked
         if (this.selected.size > cap) {
             this.setOverCap("selection", true)
             this.update([])
             return
         }
+        const pinned = this.pinned()
+        const missing = [...this.selected].filter(id => !this.loaded.has(id) && !pinned.has(id))
         if (missing.length === 0) {
             this.setOverCap("selection", false)
             this.update([])
@@ -235,12 +248,20 @@ export class WorkingSetLoader {
         return workingSet
     }
 
-    // Loads the incoming features and unloads every untouched one that is in neither part
+    // Loads the incoming features and unloads every untouched one that is in neither part.
+    // A selection over the cap is no part of the working set
     private update(incoming: GeoJSON.Feature<GeoJSON.Geometry | null>[]): void {
+        const keep = new Set<DrawFeatureId>(this.viewport)
+        // The size is checked too: a viewport load may land before the selection's own load ran
+        if (!this.overCap.selection && this.selected.size <= this.options.cap) {
+            for (const id of this.selected) {
+                keep.add(id)
+            }
+        }
         const plan = planWorkingSetUpdate({
             loaded: this.loaded,
             pinned: this.pinned(),
-            keep: new Set<DrawFeatureId>([...this.viewport, ...this.selected]),
+            keep,
             incoming,
         })
         // Load first: if it throws, nothing was unloaded and `loaded` still matches draw

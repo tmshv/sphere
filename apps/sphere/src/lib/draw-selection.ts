@@ -3,15 +3,24 @@ import type { SelectionDelta } from "./selection-ipc"
 
 /**
  * The draw ids to select in draw for the backend selection `selected`: each
- * selected id mapped to its draw id (a created feature keeps its string draw
- * id), kept only when draw holds that feature.
+ * feature draw holds whose backend id is selected (a created feature keeps its
+ * string draw id; one whose create has not settled has no backend id yet).
+ * Only the held features are looked up, so the cost follows the working set,
+ * not the selection, which may be far larger.
  */
 export function drawSelectionIds(
     selected: ReadonlySet<number>,
-    loaded: ReadonlySet<DrawFeatureId>,
-    toDrawId: (id: number) => DrawFeatureId,
+    held: Iterable<DrawFeatureId>,
+    toBackendId: (id: DrawFeatureId) => number | undefined,
 ): DrawFeatureId[] {
-    return [...selected].map(toDrawId).filter(id => loaded.has(id))
+    const ids: DrawFeatureId[] = []
+    for (const id of held) {
+        const backend = toBackendId(id)
+        if (backend !== undefined && selected.has(backend)) {
+            ids.push(id)
+        }
+    }
+    return ids
 }
 
 /** Applies a backend selection delta to the mirrored selection in place. */
