@@ -14,6 +14,8 @@ const listener = createListenerMiddleware<RootState>()
 
 // Only the latest change emits and dispatches; an older one drops out once a newer one started
 let generation = 0
+// Bumped at every session boundary (start, done, reset): a change of an ended session does nothing more
+let session = 0
 // Draw ids of the latest change started. A change with the same ids only moved the selected vertices
 let lastIds: DrawFeatureId[] | undefined
 // Each selection_set settles before the next is sent, so the backend applies them in order
@@ -45,7 +47,10 @@ listener.startListening({
         lastIds = ids
         generation += 1
         const current = generation
-        const isCurrent = () => current === generation
+        const ownSession = session
+        // Still the session this change was made in, which draws the same source
+        const isLive = () => ownSession === session && api.getState().draw.sourceId === sourceId
+        const isCurrent = () => current === generation && isLive()
         // Nothing was sent: the same click may retry, unless a newer change took over
         const forget = () => {
             if (isCurrent()) lastIds = undefined
@@ -57,6 +62,7 @@ listener.startListening({
         }
 
         const flushed = await queue.flush()
+        if (!isLive()) return
         // A failed queue already surfaced its error, and the backend lags behind draw: send nothing
         if (!flushed.ok) {
             forget()
@@ -75,6 +81,7 @@ listener.startListening({
         try {
             delta = await request
         } catch (err) {
+            if (!isLive()) return
             if (!isCurrent()) {
                 unsynced = true
                 return
@@ -85,6 +92,7 @@ listener.startListening({
             await refreshSelection(api, sourceId, isCurrent)
             return
         }
+        if (!isLive()) return
         if (!isCurrent()) {
             unsynced = true
             return
@@ -105,14 +113,21 @@ listener.startListening({
     },
 })
 
-// The selection changed elsewhere (a rectangle, a clear, a refresh) or a new session began:
+// The selection changed elsewhere (a rectangle, a clear, a refresh) or a session began or ended:
 // draw's next change is sent even when its ids equal the last ones
 listener.startListening({
-    matcher: isAnyOf(actions.selection.sync, actions.selection.reset, actions.draw.started),
+    matcher: isAnyOf(
+        actions.selection.sync,
+        actions.selection.reset,
+        actions.draw.started,
+        actions.draw.done,
+        actions.draw.reset,
+    ),
     effect: action => {
         if (syncing) return
         lastIds = undefined
-        if (actions.draw.started.match(action)) {
+        if (isAnyOf(actions.draw.started, actions.draw.done, actions.draw.reset)(action)) {
+            session += 1
             unsynced = false
         }
     },

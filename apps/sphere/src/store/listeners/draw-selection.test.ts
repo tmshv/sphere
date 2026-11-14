@@ -393,4 +393,48 @@ describe("draw-selection listener", () => {
             sourceId: SOURCE_ID,
         })
     })
+
+    test.each([
+        ["a new session on the same source started", true],
+        ["the session ended", false],
+    ])("a selection_set that resolves after %s emits and syncs nothing", async (_, restarted) => {
+        const pending = deferred<SelectionDelta>()
+        mockCommands({ selection_set: () => pending.promise })
+        const { store, log, deltas, reconciled } = setup()
+
+        store.dispatch(change([1]))
+        await flushAsync()
+        store.dispatch(actions.draw.done({ sourceId: SOURCE_ID }))
+        if (restarted) {
+            store.dispatch(actions.draw.started({ sourceId: SOURCE_ID }))
+        }
+        log.length = 0
+        pending.resolve(delta([1]))
+        await flushAsync()
+
+        expect(deltas).toEqual([])
+        expect(reconciled).toEqual([])
+        expect(log).toEqual([])
+    })
+
+    test("a failed selection_set from an ended session surfaces nothing and recovers nothing", async () => {
+        let reject: (err: unknown) => void = () => {}
+        mockCommands({
+            selection_set: () =>
+                new Promise((_, rej) => {
+                    reject = rej
+                }),
+        })
+        const { store, log } = setup()
+
+        store.dispatch(change([1]))
+        await flushAsync()
+        store.dispatch(actions.draw.done({ sourceId: SOURCE_ID }))
+        store.dispatch(actions.draw.started({ sourceId: SOURCE_ID }))
+        log.length = 0
+        reject("ipc down")
+        await flushAsync()
+
+        expect(log).toEqual([])
+    })
 })
