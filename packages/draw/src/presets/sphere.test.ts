@@ -58,13 +58,13 @@ describe("spherePreset", () => {
         }
     })
 
-    test("draws the polygon edge, dashed when active", () => {
+    test("draws the polygon edge solid, in the highlight colour when active", () => {
         const inactive = paintOf(layers, "sphere-polygon-edge-inactive")
         expect(inactive).toMatchObject({ "line-color": "black", "line-width": 1 })
         expect(inactive["line-dasharray"]).toBeUndefined()
         const active = paintOf(layers, "sphere-polygon-edge-active")
         expect(active).toMatchObject({ "line-color": "red", "line-width": 1 })
-        expect(active["line-dasharray"]).toBeDefined()
+        expect(active["line-dasharray"]).toBeUndefined()
     })
 
     test("draws the white line casing", () => {
@@ -76,13 +76,13 @@ describe("spherePreset", () => {
         }
     })
 
-    test("draws the line, dashed when active", () => {
+    test("draws the line solid, in the highlight colour when active", () => {
         const inactive = paintOf(layers, "sphere-line-inactive")
         expect(inactive).toMatchObject({ "line-color": "black", "line-width": 1 })
         expect(inactive["line-dasharray"]).toBeUndefined()
         const active = paintOf(layers, "sphere-line-active")
         expect(active).toMatchObject({ "line-color": "red", "line-width": 1 })
-        expect(active["line-dasharray"]).toBeDefined()
+        expect(active["line-dasharray"]).toBeUndefined()
     })
 
     test("draws points with a white stroke", () => {

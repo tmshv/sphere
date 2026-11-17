@@ -44,7 +44,7 @@ Style: presets live in the package (asked for), parameterised by the app's const
   - **Polygon.** Fill in `color` at opacity 0.15. A white inner line, width 1 and offset -1, drawn only when `outline` is set. An edge line in `color`, width 1.
   - **Line.** A white casing, width 3, drawn only when `outline` is set, under a line in `color`, width 1.
   - **Point.** A circle of radius `pointRadius` in `color`, with a white stroke of width 1 when `outline` is set.
-  - **Active** (selected, `active=true`): the same layers in `highlightColor`. Lines and polygon edges keep the dashed pattern.
+  - **Active** (selected, `active=true`): the same layers in `highlightColor`. Lines and polygon edges are solid, as in the app's selected look: a 1px dashed edge reads as faint dots, so the white outline beside it looked like the edge and the midpoint handles looked 1px off it.
   - **Vertices and midpoints.** A white ring with a `highlightColor` centre, like `classic` but in the highlight colour.
 - Both presets are exported from the package barrel.
 

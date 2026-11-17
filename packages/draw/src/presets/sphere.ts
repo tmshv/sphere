@@ -18,7 +18,6 @@ const CASING_WIDTH = 3
 const INNER_OUTLINE_OFFSET = -1
 const POINT_STROKE_WIDTH = 1
 const NO_STROKE_WIDTH = 0
-const ACTIVE_DASH = [0.2, 2]
 const VERTEX_RING_RADIUS = 5
 const VERTEX_RADIUS = 3
 const MIDPOINT_RING_RADIUS = 4
@@ -67,8 +66,8 @@ export function spherePreset({ color, highlightColor, outline, pointRadius }: Sp
         { state: "active", filter: active(POLYGON), paint: highlightColor },
     ] as const
     const lineStates = [
-        { state: "inactive", filter: inactive(LINE), paint: color, dash: undefined },
-        { state: "active", filter: active(LINE), paint: highlightColor, dash: ACTIVE_DASH },
+        { state: "inactive", filter: inactive(LINE), paint: color },
+        { state: "active", filter: active(LINE), paint: highlightColor },
     ] as const
     const pointStates = [
         { state: "inactive", filter: inactive(POINT, FEATURE_POINT), paint: color },
@@ -102,11 +101,7 @@ export function spherePreset({ color, highlightColor, outline, pointRadius }: Sp
             type: "line",
             filter,
             layout: ROUND_LINE,
-            paint: {
-                "line-color": paint,
-                "line-width": LINE_WIDTH,
-                ...(state === "active" ? { "line-dasharray": ACTIVE_DASH } : {}),
-            },
+            paint: { "line-color": paint, "line-width": LINE_WIDTH },
         })
     }
     if (outline) {
@@ -120,17 +115,13 @@ export function spherePreset({ color, highlightColor, outline, pointRadius }: Sp
             })
         }
     }
-    for (const { state, filter, paint, dash } of lineStates) {
+    for (const { state, filter, paint } of lineStates) {
         layers.push({
             id: `sphere-line-${state}`,
             type: "line",
             filter,
             layout: ROUND_LINE,
-            paint: {
-                "line-color": paint,
-                "line-width": LINE_WIDTH,
-                ...(dash ? { "line-dasharray": dash } : {}),
-            },
+            paint: { "line-color": paint, "line-width": LINE_WIDTH },
         })
     }
     for (const { state, filter, paint } of pointStates) {
