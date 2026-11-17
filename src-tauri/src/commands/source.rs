@@ -4,7 +4,7 @@ use libsphere::PageResult;
 use libsphere::schema::{assign_feature_ids, SourceSchema};
 use libsphere::source::{Source, SourceData};
 use mbtiles::tile::Tile;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
 use tauri::State;
