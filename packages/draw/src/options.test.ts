@@ -11,6 +11,7 @@ describe("Options test", () => {
             modes,
             touchEnabled: true,
             keybindings: true,
+            buttons: true,
             clickBuffer: 2,
             touchBuffer: 25,
             displayControlsDefault: true,
@@ -36,6 +37,7 @@ describe("Options test", () => {
             defaultMode: "simple_select",
             modes,
             keybindings: true,
+            buttons: true,
             touchEnabled: true,
             clickBuffer: 10,
             touchBuffer: 25,
@@ -62,6 +64,7 @@ describe("Options test", () => {
             defaultMode: "simple_select",
             modes,
             keybindings: true,
+            buttons: true,
             touchEnabled: true,
             clickBuffer: 2,
             touchBuffer: 25,
@@ -87,6 +90,7 @@ describe("Options test", () => {
             defaultMode: "simple_select",
             modes,
             keybindings: true,
+            buttons: true,
             touchEnabled: true,
             displayControlsDefault: false,
             clickBuffer: 2,
@@ -113,6 +117,7 @@ describe("Options test", () => {
             defaultMode: "simple_select",
             modes,
             keybindings: true,
+            buttons: true,
             touchEnabled: true,
             displayControlsDefault: true,
             touchBuffer: 25,
@@ -140,6 +145,7 @@ describe("Options test", () => {
             modes,
             touchEnabled: false,
             keybindings: true,
+            buttons: true,
             clickBuffer: 2,
             touchBuffer: 25,
             displayControlsDefault: true,
@@ -221,5 +227,13 @@ describe("Options test", () => {
         ]
 
         expect(styles).toEqual(Draw.options.styles)
+    })
+
+    it("buttons defaults to true and can be turned off", () => {
+        expect(new MapLibreDraw().options.buttons).toBe(true)
+        const Draw = new MapLibreDraw({ buttons: false, displayControlsDefault: false, controls: { point: true } })
+        expect(Draw.options.buttons).toBe(false)
+        expect(Draw.options.controls.point).toBe(true)
+        expect(Draw.options.controls.trash).toBe(false)
     })
 })

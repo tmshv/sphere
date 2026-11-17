@@ -16,6 +16,8 @@ export interface UiContext {
     readonly options: {
         readonly controls?: DrawControls
         readonly keybindings: boolean
+        /** `false` renders no buttons; a bare test context leaves it out. */
+        readonly buttons?: boolean
     }
     readonly events: {
         changeMode(mode: string): void
@@ -151,7 +153,7 @@ export default function ui(ctx: UiContext): DrawUi {
         const controlGroup = document.createElement("div")
         controlGroup.className = `${Constants.classes.CONTROL_GROUP} ${Constants.classes.CONTROL_BASE}`
 
-        if (!controls) return controlGroup
+        if (!controls || ctx.options.buttons === false) return controlGroup
 
         if (controls[Constants.types.LINE]) {
             buttonElements[Constants.types.LINE] = createControlButton(Constants.types.LINE, {

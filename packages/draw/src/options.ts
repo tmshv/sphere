@@ -9,6 +9,8 @@ import type { DrawControls, DrawStyleLayer } from "./types"
 export interface DrawOptionsInput {
     displayControlsDefault?: boolean
     keybindings?: boolean
+    /** Render the map buttons. `false` runs headless: `controls` still picks the tools and keys. */
+    buttons?: boolean
     touchEnabled?: boolean
     boxSelect?: boolean
     clickBuffer?: number
@@ -24,6 +26,7 @@ export interface DrawOptionsInput {
 export interface DrawOptions {
     defaultMode: string
     keybindings: boolean
+    buttons: boolean
     touchEnabled: boolean
     clickBuffer: number
     touchBuffer: number
@@ -38,6 +41,7 @@ export interface DrawOptions {
 const defaultOptions = {
     defaultMode: Constants.modes.SIMPLE_SELECT,
     keybindings: true,
+    buttons: true,
     touchEnabled: true,
     clickBuffer: 2,
     touchBuffer: 25,
