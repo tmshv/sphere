@@ -14,6 +14,7 @@ function createContext(map: MockMap): StoreContext {
         events: {
             currentModeName: () => null,
             currentModeRender() {},
+            currentModeRendered() {},
         },
         ui: {
             queueMapClasses() {},

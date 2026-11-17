@@ -64,7 +64,8 @@ describe("mode_handler", () => {
         expect(typeof mh.tap, "exposes tap").toBe("function")
         expect(typeof mh.combineFeatures, "exposes combineFeatures").toBe("function")
         expect(typeof mh.uncombineFeatures, "exposes uncombineFeatures").toBe("function")
-        expect(Object.keys(mh).length, "no unexpected properties").toBe(17)
+        expect(typeof mh.rendered, "exposes rendered").toBe("function")
+        expect(Object.keys(mh).length, "no unexpected properties").toBe(18)
     })
 
     it("ModeHandler calling mode.start with context, and delegation functionality", () => {
@@ -164,5 +165,25 @@ describe("mode_handler", () => {
             mh.trash()
         }).not.toThrow()
         expect(drawContext.store.render, "store.render not called").toHaveBeenCalledTimes(0)
+    })
+
+    it("ModeHandler#rendered calling mode.rendered", () => {
+        const mode = createMockMode()
+        const drawContext = createMockModeHandlerContext()
+        const mh = modeHandler(mode, drawContext)
+
+        mh.rendered()
+        expect(mode.rendered, "mode.rendered called").toHaveBeenCalledTimes(1)
+        expect(drawContext.store.render, "store.render not called").toHaveBeenCalledTimes(0)
+    })
+
+    it("ModeHandler#rendered without a mode.rendered", () => {
+        const mode = createMockMode()
+        delete mode.rendered
+        const mh = modeHandler(mode, createMockModeHandlerContext())
+
+        expect(() => {
+            mh.rendered()
+        }).not.toThrow()
     })
 })

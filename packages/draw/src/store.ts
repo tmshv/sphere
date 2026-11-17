@@ -16,6 +16,7 @@ export interface StoreContext {
     readonly events: {
         currentModeName(): string | null
         currentModeRender(geojson: DrawRenderFeature, push: RenderPush): void
+        currentModeRendered(): void
     }
     readonly ui: {
         queueMapClasses(classes: MapClasses): void

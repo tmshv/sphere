@@ -3,11 +3,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, type MockInstan
 import * as Constants from "./constants"
 import MapLibreDraw from "./index"
 import createMap, { type MockMap } from "./test-utils/create-map"
-import getGeoJSON from "./test-utils/get-geojson"
+import getGeoJSON, { type DrawableFixtureName } from "./test-utils/get-geojson"
 import setupAfterNextRender, { type AfterNextRender } from "./test-utils/after-next-render"
 import waitForLoad from "./test-utils/wait-for-load"
 import getPublicMemberKeys from "./test-utils/get-public-member-keys"
 import required from "./test-utils/required"
+import trackActionable from "./test-utils/track-actionable"
 import type { DrawExportedFeature } from "./types"
 
 function isGeometryOfType<K extends Geometry["type"]>(
@@ -30,6 +31,7 @@ function geometryOf<K extends Geometry["type"]>(
 describe("api", () => {
     let map: MockMap
     let afterNextRender: AfterNextRender
+    let actionable: ReturnType<typeof trackActionable>
     let Draw: MapLibreDraw
     let addSpy: MockInstance<MapLibreDraw["add"]>
     let deleteSpy: MockInstance<MapLibreDraw["delete"]>
@@ -38,6 +40,7 @@ describe("api", () => {
         map = createMap()
         afterNextRender = setupAfterNextRender(map)
         Draw = new MapLibreDraw()
+        actionable = trackActionable(map)
         map.addControl(Draw)
         addSpy = vi.spyOn(Draw, "add")
         deleteSpy = vi.spyOn(Draw, "delete")
@@ -937,6 +940,90 @@ describe("api", () => {
             Draw.load({ type: "FeatureCollection", features: [point("a", [1, 2])] })
             await afterNextRender()
             expect(selectionChange).not.toHaveBeenCalled()
+        })
+    })
+
+    describe("actionable in simple_select", () => {
+        const NOTHING = { trash: false, combineFeatures: false, uncombineFeatures: false }
+        const actionableListener = vi.fn()
+
+        function addOne(name: DrawableFixtureName) {
+            return required(Draw.add(getGeoJSON(name)).at(0))
+        }
+
+        beforeEach(async () => {
+            Draw.deleteAll()
+            Draw.changeMode("simple_select")
+            await afterNextRender()
+            actionableListener.mockClear()
+            map.on("draw.actionable", actionableListener)
+        })
+
+        afterEach(() => {
+            map.off("draw.actionable", actionableListener)
+            Draw.deleteAll()
+        })
+
+        it("Draw.setSelected of two polygons reports combine, then of none reports nothing", async () => {
+            const a = addOne("polygon")
+            const b = addOne("polygon2")
+            await afterNextRender()
+            Draw.setSelected([a, b])
+            await afterNextRender()
+            expect(actionableListener).toHaveBeenCalled()
+            expect(actionable()).toEqual({ trash: true, combineFeatures: true, uncombineFeatures: false })
+            actionableListener.mockClear()
+            Draw.setSelected([])
+            await afterNextRender()
+            expect(actionableListener).toHaveBeenCalled()
+            expect(actionable()).toEqual(NOTHING)
+        })
+
+        it("Draw.setSelected of a multipolygon reports uncombine", async () => {
+            const multi = addOne("multiPolygon")
+            await afterNextRender()
+            Draw.setSelected([multi])
+            await afterNextRender()
+            expect(actionable()).toEqual({ trash: true, combineFeatures: false, uncombineFeatures: true })
+        })
+
+        it("Draw.setSelected of a point and a polygon does not report combine", async () => {
+            const point = addOne("point")
+            const polygon = addOne("polygon")
+            await afterNextRender()
+            Draw.setSelected([point, polygon])
+            await afterNextRender()
+            expect(actionable()).toEqual({ trash: true, combineFeatures: false, uncombineFeatures: false })
+        })
+
+        it("Draw.unload of one of two selected polygons stops reporting combine", async () => {
+            const a = addOne("polygon")
+            const b = addOne("polygon2")
+            Draw.setSelected([a, b])
+            await afterNextRender()
+            Draw.unload([b])
+            await afterNextRender()
+            expect(actionable()).toEqual({ trash: true, combineFeatures: false, uncombineFeatures: false })
+        })
+
+        it("Draw.unload of every selected feature reports nothing", async () => {
+            const a = addOne("polygon")
+            Draw.setSelected([a])
+            await afterNextRender()
+            expect(actionable().trash).toBe(true)
+            Draw.unload([a])
+            await afterNextRender()
+            expect(actionable()).toEqual(NOTHING)
+        })
+
+        it("Draw.load replacing the selected multipolygon with a polygon stops reporting uncombine", async () => {
+            Draw.load({ type: "FeatureCollection", features: [{ ...getGeoJSON("multiPolygon"), id: "m" }] })
+            Draw.setSelected(["m"])
+            await afterNextRender()
+            expect(actionable().uncombineFeatures).toBe(true)
+            Draw.load({ type: "FeatureCollection", features: [{ ...getGeoJSON("polygon"), id: "m" }] })
+            await afterNextRender()
+            expect(actionable()).toEqual({ trash: true, combineFeatures: false, uncombineFeatures: false })
         })
     })
 

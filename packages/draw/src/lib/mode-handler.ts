@@ -20,6 +20,8 @@ export interface ModeRuntime {
     combineFeatures?(): void
     uncombineFeatures?(): void
     render(geojson: DrawRenderFeature, push: RenderPush): void
+    /** Called once after every render, whether or not it rendered any feature. */
+    rendered?(): void
 }
 
 /** What the mode handler needs from the Draw context. */
@@ -42,6 +44,7 @@ type HandlerLists = { [K in DrawModeEventName]: Handler<K>[] }
 
 export interface ModeHandle {
     render: ModeRuntime["render"]
+    rendered(): void
     stop(): void
     trash(): void
     combineFeatures(): void
@@ -116,6 +119,9 @@ const ModeHandler = (mode: ModeRuntime, DrawContext: ModeHandlerContext): ModeHa
 
     return {
         render: mode.render,
+        rendered() {
+            if (mode.rendered) mode.rendered()
+        },
         stop() {
             if (mode.stop) mode.stop()
         },

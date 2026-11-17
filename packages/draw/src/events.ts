@@ -77,6 +77,7 @@ export interface DrawEvents {
     actionable(actions: DrawActionableState): void
     currentModeName(): string | null
     currentModeRender(geojson: DrawRenderFeature, push: RenderPush): void
+    currentModeRendered(): void
     fire<K extends keyof FireEvents>(name: K, event: FireEvents[K]): void
     addEventListeners(): void
     removeEventListeners(): void
@@ -349,6 +350,9 @@ export default function events(ctx: DrawContext): DrawEvents {
         },
         currentModeRender(geojson, push) {
             return mode().render(geojson, push)
+        },
+        currentModeRendered() {
+            mode().rendered()
         },
         fire(name, event) {
             const handler = handlers[name]

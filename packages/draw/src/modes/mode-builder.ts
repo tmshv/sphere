@@ -62,6 +62,9 @@ export default function modeBuilder(ModeClass: ModeClass): ModeBuilder {
             render(geojson, push) {
                 started().toDisplayFeatures(geojson, push)
             },
+            rendered() {
+                started().onRender?.()
+            },
         }
     }
 }

@@ -9,6 +9,7 @@ import makeMouseEvent from "../test-utils/make-mouse-event"
 import makeTouchEvent from "../test-utils/make-touch-event"
 import mouseClick from "../test-utils/mouse-click"
 import required from "../test-utils/required"
+import trackActionable from "../test-utils/track-actionable"
 import waitForLoad from "../test-utils/wait-for-load"
 import type { DrawEventPayloads } from "../map-events"
 import type { DrawExportedFeature } from "../types"
@@ -62,6 +63,7 @@ describe("simple_select", () => {
     let map: MockMap
     let Draw: MapLibreDraw
     let afterNextRender: AfterNextRender
+    let actionable: ReturnType<typeof trackActionable>
     let fireSpy: MockInstance<MockMap["fire"]>
     let doubleClickZoomEnable: MockInstance<MockInteraction["enable"]>
     let doubleClickZoomDisable: MockInstance<MockInteraction["disable"]>
@@ -84,6 +86,7 @@ describe("simple_select", () => {
         map = createMap({ container: mapContainer })
 
         Draw = new MapLibreDraw()
+        actionable = trackActionable(map)
         map.addControl(Draw)
 
         fireSpy = vi.spyOn(map, "fire")
@@ -405,6 +408,31 @@ describe("simple_select", () => {
             Draw.changeMode("simple_select", { featureIds: [polygon] })
             await clickAt(POLYGON_CLICK)
             expect(Draw.getMode()).toBe("direct_select")
+            cleanUp()
+        })
+    })
+
+    describe("actionable", () => {
+        const NOTHING = { trash: false, combineFeatures: false, uncombineFeatures: false }
+        const ONLY_TRASH = { trash: true, combineFeatures: false, uncombineFeatures: false }
+
+        it("entering with no selection reports nothing actionable", async () => {
+            // draw_point reports trash as actionable, so entering simple_select has to change it
+            Draw.changeMode("draw_point")
+            Draw.changeMode("simple_select")
+            expect(actionable(), "on entering").toEqual(NOTHING)
+            await afterNextRender()
+            expect(actionable(), "after the render").toEqual(NOTHING)
+            cleanUp()
+        })
+
+        it("entering with a polygon selected reports only trash", async () => {
+            const id = required(Draw.add(getGeoJSON("polygon")).at(0))
+            Draw.changeMode("draw_point")
+            Draw.changeMode("simple_select", { featureIds: [id] })
+            expect(actionable(), "on entering").toEqual(ONLY_TRASH)
+            await afterNextRender()
+            expect(actionable(), "after the render").toEqual(ONLY_TRASH)
             cleanUp()
         })
     })

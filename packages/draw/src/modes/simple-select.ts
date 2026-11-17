@@ -102,12 +102,6 @@ export default class SimpleSelect extends Mode {
 
         this.setSelected(this.#initiallySelectedFeatureIds.filter(id => this.getFeature(id) !== undefined))
         this.#fireActionable()
-
-        this.setActionableState({
-            combineFeatures: true,
-            uncombineFeatures: true,
-            trash: true,
-        })
     }
 
     #fireUpdate(): void {
@@ -439,7 +433,6 @@ export default class SimpleSelect extends Mode {
         geojson.properties.active =
             id !== undefined && this.isSelected(id) ? Constants.activeStates.ACTIVE : Constants.activeStates.INACTIVE
         display(geojson)
-        this.#fireActionable()
         if (
             geojson.properties.active !== Constants.activeStates.ACTIVE ||
             geojson.geometry.type === Constants.geojsonTypes.POINT
@@ -448,6 +441,11 @@ export default class SimpleSelect extends Mode {
         for (const point of createSupplementaryPoints(geojson)) {
             display(point)
         }
+    }
+
+    /** The selection may have changed in any way, the app's silent `setSelected`, `load` and `unload` included. */
+    onRender(): void {
+        this.#fireActionable()
     }
 
     onTrash(): void {

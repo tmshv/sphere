@@ -116,6 +116,15 @@ export default abstract class Mode {
     onUncombineFeatures?(): void
 
     /**
+     * Called once after every render, after `toDisplayFeatures` for each
+     * rendered feature, even when no feature was rendered. Draw renders after
+     * every selection change, the API's silent `setSelected`, `load` and
+     * `unload` included, so this is where a mode can keep state derived from
+     * the selection in step with it.
+     */
+    onRender?(): void
+
+    /**
      * Called for every feature Draw renders. Push the GeoJSON features to
      * draw with `display`: the feature itself (possibly with changed
      * properties), extra features such as

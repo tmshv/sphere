@@ -88,6 +88,9 @@ export default function render(store: Store, pending: PendingEmits): void {
         features: store.sources.hot,
     })
 
+    // Before the queued events, so their listeners see the mode's state in step with the store
+    store.ctx.events.currentModeRendered()
+
     if (pending.selectionChange) {
         fireDrawEvent(store.ctx.map, Constants.events.SELECTION_CHANGE, {
             features: store.getSelected().map(feature => feature.toGeoJSON()),
