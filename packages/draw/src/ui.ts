@@ -150,10 +150,13 @@ export default function ui(ctx: UiContext): DrawUi {
 
     function addButtons() {
         const controls = ctx.options.controls
+        // Headless: a bare element, so no MapLibre control styling takes space in the corner
+        if (ctx.options.buttons === false) return document.createElement("div")
+
         const controlGroup = document.createElement("div")
         controlGroup.className = `${Constants.classes.CONTROL_GROUP} ${Constants.classes.CONTROL_BASE}`
 
-        if (!controls || ctx.options.buttons === false) return controlGroup
+        if (!controls) return controlGroup
 
         if (controls[Constants.types.LINE]) {
             buttonElements[Constants.types.LINE] = createControlButton(Constants.types.LINE, {

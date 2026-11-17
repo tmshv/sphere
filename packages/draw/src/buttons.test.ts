@@ -39,6 +39,10 @@ describe("buttons option", () => {
         expect(container.querySelector(`.${BUTTON_CLASS}`)).toBeNull()
     })
 
+    it("returns a bare element without MapLibre control classes", () => {
+        expect(required(control, "control was not added").className).toBe("")
+    })
+
     it("starts a tool with its key", () => {
         const fire = vi.spyOn(map, "fire")
         container.dispatchEvent(startPointEvent())
@@ -55,7 +59,9 @@ describe("buttons option", () => {
     })
 
     it("removes the control cleanly", () => {
-        draw.onRemove()
-        expect(container.querySelector(`.${BUTTON_CLASS}`)).toBeNull()
+        const element = required(control, "control was not added")
+        container.appendChild(element)
+        expect(() => draw.onRemove()).not.toThrow()
+        expect(element.parentNode).toBeNull()
     })
 })
