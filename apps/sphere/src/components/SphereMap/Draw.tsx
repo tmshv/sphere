@@ -13,10 +13,11 @@ import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import type { DrawActionable, DrawEvent, DrawFeatureId, Id, WorkingSetScope } from "@/types"
 import { spherePreset } from "@sphere/draw"
-import { Button, Overlay, Row, Surface, Text } from "@sphere/ui"
+import { Overlay, Surface, Text } from "@sphere/ui"
 import type { CSSProperties } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMap } from "react-map-gl/maplibre"
+import { DrawToolbar } from "./DrawToolbar"
 
 // Shown instead of loading when the scope holds more than DRAW_WORKING_SET_CAP features
 const OVER_CAP_NOTICE: Record<WorkingSetScope["type"], string> = {
@@ -25,7 +26,7 @@ const OVER_CAP_NOTICE: Record<WorkingSetScope["type"], string> = {
 }
 
 // Covers the map and the draw toolbar while a load or a session end runs. It shares the
-// Overlay's layer and is rendered before it, so Cancel and Done stay on top and clickable
+// Overlay's layer and is rendered before it, so the toolbar stays on top and Cancel clickable
 const BLOCKER_STYLE: CSSProperties = {
     position: "absolute",
     top: 0,
@@ -207,14 +208,6 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         loader.current?.setPending(pending)
     }, [pending])
 
-    const onCancel = useCallback(() => {
-        dispatch(actions.draw.cancel({ sourceId }))
-    }, [dispatch, sourceId])
-
-    const onDone = useCallback(() => {
-        dispatch(actions.draw.commit({ sourceId }))
-    }, [dispatch, sourceId])
-
     const blocked = loading || pending
     const notice =
         overCap === undefined ? null : (
@@ -226,19 +219,7 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
     return (
         <>
             {blocked && <div style={BLOCKER_STYLE} />}
-            <Overlay
-                top={notice}
-                bottom={
-                    <Row gap="xs">
-                        <Button variant="secondary" onClick={onCancel} disabled={pending}>
-                            Cancel
-                        </Button>
-                        <Button onClick={onDone} disabled={blocked}>
-                            Done
-                        </Button>
-                    </Row>
-                }
-            />
+            <Overlay top={notice} bottom={<DrawToolbar sourceId={sourceId} blocked={blocked} pending={pending} />} />
         </>
     )
 }

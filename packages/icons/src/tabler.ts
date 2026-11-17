@@ -3,6 +3,8 @@
 export {
     IconArrowDown,
     IconArrowUp,
+    IconArrowsJoin2,
+    IconArrowsSplit2,
     IconBraces,
     IconBulb,
     IconBulbOff,

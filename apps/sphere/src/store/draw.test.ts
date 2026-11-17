@@ -176,6 +176,16 @@ describe("draw mode of the control", () => {
     ])("isCreating with mode %s is %s", (mode, expected) => {
         expect(isCreating(makeRootState({ ...drawing, mode }))).toBe(expected)
     })
+
+    test.each([
+        ["draw_point", "point"],
+        ["draw_line_string", "line"],
+        ["draw_polygon", "polygon"],
+        ["simple_select", undefined],
+        [undefined, undefined],
+    ])("activeTool with mode %s is %s", (mode, expected) => {
+        expect(drawSlice.selectors.activeTool(makeRootState({ ...drawing, mode }))).toBe(expected)
+    })
 })
 
 describe("draw actionable state", () => {

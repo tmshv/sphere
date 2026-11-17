@@ -47,7 +47,7 @@ import { flushAsync } from "@/testutils"
 import type { DrawActionable, DrawEvent } from "@/types"
 import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
-import { act, render } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { actions } from "@/store/actions"
 import { getDrawControl } from "@/lib/draw-control"
@@ -394,6 +394,28 @@ describe("Draw", () => {
         fire({ type: "draw.actionable", actions: actionable })
 
         expect(store.getState().draw.actionable).toEqual(actionable)
+    })
+
+    test("shows the draw toolbar, unblocked once the working set loaded", async () => {
+        makeMap()
+        mockCommands([])
+
+        await renderDraw()
+
+        expect(screen.getByRole("button", { name: "Polygon (3)" })).toBeEnabled()
+        expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
+        expect(screen.getByRole("button", { name: "Done" })).toBeEnabled()
+    })
+
+    test("blocks the draw toolbar while the working set loads", async () => {
+        makeMap()
+        mockInvoke.mockImplementation(() => new Promise(() => {}))
+
+        await renderDraw()
+
+        expect(screen.getByRole("button", { name: "Polygon (3)" })).toBeDisabled()
+        expect(screen.getByRole("button", { name: "Done" })).toBeDisabled()
+        expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled()
     })
 
     test("the selection bus subscription ends on unmount", async () => {

@@ -1,4 +1,4 @@
-import { isCreationMode } from "@/lib/draw-mode"
+import { drawToolOfMode, isCreationMode } from "@/lib/draw-mode"
 import type { DrawActionable, DrawFeatureId, DrawToolbarAction, Id } from "@/types"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
@@ -119,6 +119,8 @@ export const drawSlice = createSlice({
         actionable: state => state.actionable,
         // Draw is placing the vertices of a new feature: a drag between its clicks is draw's, not a rectangle
         isCreating: state => isCreationMode(state.mode),
+        // The toolbar tool shown pressed: the one whose mode the control is in
+        activeTool: state => drawToolOfMode(state.mode),
     },
 })
 
