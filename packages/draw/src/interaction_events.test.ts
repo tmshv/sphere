@@ -385,24 +385,22 @@ describe("interaction events", () => {
         expect(flushDrawEvents(), "no unexpected draw events").toEqual(["draw.update", "draw.selectionchange"])
     })
 
+    // The midpoint of lineC's edge [20, 0] → [62, 42], halfway in Web Mercator
+    const lineCMidpoint = [41, 22.57323625877281] as const
+
     const lineD = {
         type: "Feature",
         properties: {},
         geometry: {
             type: "LineString",
-            coordinates: [
-                [20, 0],
-                [41, 21],
-                [62, 42],
-                [60, 40],
-            ],
+            coordinates: [[20, 0], [...lineCMidpoint], [62, 42], [60, 40]],
         },
     }
 
     it("add another vertex", async () => {
         // Now in `direct_select` mode ...
         // Click a midpoint of lineC
-        click(map, makeMouseEvent(41, 21))
+        click(map, makeMouseEvent(...lineCMidpoint))
         await afterNextRender()
         firedWith("draw.update", {
             action: "change_coordinates",
@@ -427,7 +425,7 @@ describe("interaction events", () => {
     it("delete a vertex with Backspace", async () => {
         // Now in `direct_select` mode ...
         // Click a vertex
-        click(map, makeMouseEvent(41, 21))
+        click(map, makeMouseEvent(...lineCMidpoint))
         container.dispatchEvent(backspaceEvent())
         await afterNextRender()
         firedWith("draw.update", {

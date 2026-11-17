@@ -3,6 +3,16 @@ import createSupplementaryPoints from "./create_supplementary_points"
 
 type SupplementaryPointsSource = Parameters<typeof createSupplementaryPoints>[0]
 
+// Midpoint latitudes, halfway between two vertex latitudes in Web Mercator (MID_<from>_<to>)
+const MID_0_4 = 2.0012195844332847
+const MID_4_8 = 6.003670705859995
+const MID_1_2 = 1.500057130632192
+const MID_2_3 = 2.5000952564270724
+const MID_3_4 = 3.5001334403812963
+const MID_4_1 = 2.500857525778972
+const MID_20_24 = 22.014111041685865
+const MID_24_28 = 26.017034962301665
+
 it("createSupplementaryPoints with a point", () => {
     const point: SupplementaryPointsSource = {
         properties: {
@@ -205,12 +215,12 @@ it("createSupplementaryPoints with line, midpoints, selected coordinate", () => 
         },
         {
             geometry: {
-                coordinates: [2, 2],
+                coordinates: [2, MID_0_4],
                 type: "Point",
             },
             properties: {
                 coord_path: "1",
-                lat: 2,
+                lat: MID_0_4,
                 lng: 2,
                 meta: "midpoint",
                 parent: "foo",
@@ -232,12 +242,12 @@ it("createSupplementaryPoints with line, midpoints, selected coordinate", () => 
         },
         {
             geometry: {
-                coordinates: [6, 6],
+                coordinates: [6, MID_4_8],
                 type: "Point",
             },
             properties: {
                 coord_path: "2",
-                lat: 6,
+                lat: MID_4_8,
                 lng: 6,
                 meta: "midpoint",
                 parent: "foo",
@@ -300,12 +310,12 @@ it("createSupplementaryPoints with polygon, midpoints, selection", () => {
         },
         {
             geometry: {
-                coordinates: [1.5, 1.5],
+                coordinates: [1.5, MID_1_2],
                 type: "Point",
             },
             properties: {
                 coord_path: "0.1",
-                lat: 1.5,
+                lat: MID_1_2,
                 lng: 1.5,
                 meta: "midpoint",
                 parent: "foo",
@@ -327,12 +337,12 @@ it("createSupplementaryPoints with polygon, midpoints, selection", () => {
         },
         {
             geometry: {
-                coordinates: [2.5, 2.5],
+                coordinates: [2.5, MID_2_3],
                 type: "Point",
             },
             properties: {
                 coord_path: "0.2",
-                lat: 2.5,
+                lat: MID_2_3,
                 lng: 2.5,
                 meta: "midpoint",
                 parent: "foo",
@@ -354,12 +364,12 @@ it("createSupplementaryPoints with polygon, midpoints, selection", () => {
         },
         {
             geometry: {
-                coordinates: [3.5, 3.5],
+                coordinates: [3.5, MID_3_4],
                 type: "Point",
             },
             properties: {
                 coord_path: "0.3",
-                lat: 3.5,
+                lat: MID_3_4,
                 lng: 3.5,
                 meta: "midpoint",
                 parent: "foo",
@@ -381,12 +391,12 @@ it("createSupplementaryPoints with polygon, midpoints, selection", () => {
         },
         {
             geometry: {
-                coordinates: [2.5, 2.5],
+                coordinates: [2.5, MID_4_1],
                 type: "Point",
             },
             properties: {
                 coord_path: "0.4",
-                lat: 2.5,
+                lat: MID_4_1,
                 lng: 2.5,
                 meta: "midpoint",
                 parent: "foo",
@@ -439,12 +449,12 @@ it("createSupplementaryPoints with MultiLineString, midpoints, selected coordina
         },
         {
             geometry: {
-                coordinates: [2, 2],
+                coordinates: [2, MID_0_4],
                 type: "Point",
             },
             properties: {
                 coord_path: "0.1",
-                lat: 2,
+                lat: MID_0_4,
                 lng: 2,
                 meta: "midpoint",
                 parent: "foo",
@@ -466,12 +476,12 @@ it("createSupplementaryPoints with MultiLineString, midpoints, selected coordina
         },
         {
             geometry: {
-                coordinates: [6, 6],
+                coordinates: [6, MID_4_8],
                 type: "Point",
             },
             properties: {
                 coord_path: "0.2",
-                lat: 6,
+                lat: MID_4_8,
                 lng: 6,
                 meta: "midpoint",
                 parent: "foo",
@@ -506,12 +516,12 @@ it("createSupplementaryPoints with MultiLineString, midpoints, selected coordina
         },
         {
             geometry: {
-                coordinates: [22, 22],
+                coordinates: [22, MID_20_24],
                 type: "Point",
             },
             properties: {
                 coord_path: "1.1",
-                lat: 22,
+                lat: MID_20_24,
                 lng: 22,
                 meta: "midpoint",
                 parent: "foo",
@@ -533,12 +543,12 @@ it("createSupplementaryPoints with MultiLineString, midpoints, selected coordina
         },
         {
             geometry: {
-                coordinates: [26, 26],
+                coordinates: [26, MID_24_28],
                 type: "Point",
             },
             properties: {
                 coord_path: "1.2",
-                lat: 26,
+                lat: MID_24_28,
                 lng: 26,
                 meta: "midpoint",
                 parent: "foo",
@@ -596,12 +606,12 @@ it("createSupplementaryPoints with a line, not all midpoints rendered because of
         },
         {
             geometry: {
-                coordinates: [2, 2],
+                coordinates: [2, MID_0_4],
                 type: "Point",
             },
             properties: {
                 coord_path: "1",
-                lat: 2,
+                lat: MID_0_4,
                 lng: 2,
                 meta: "midpoint",
                 parent: "foo",
@@ -672,12 +682,12 @@ it("createSupplementaryPoints with a line, not all midpoints rendered because of
         },
         {
             geometry: {
-                coordinates: [2, 2],
+                coordinates: [2, MID_0_4],
                 type: "Point",
             },
             properties: {
                 coord_path: "1",
-                lat: 2,
+                lat: MID_0_4,
                 lng: 2,
                 meta: "midpoint",
                 parent: "foo",
