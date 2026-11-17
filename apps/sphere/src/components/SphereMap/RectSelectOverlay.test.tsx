@@ -32,7 +32,13 @@ function setup(drawSourceId: string | undefined, drawMode?: string) {
         reducer: { app: appReducer, draw: drawReducer, source: sourceReducer },
         middleware: gDM => gDM().concat(recorder),
         preloadedState: {
-            draw: { sourceId: drawSourceId, pending: false, hiddenIds: [], mode: drawMode },
+            draw: {
+                sourceId: drawSourceId,
+                pending: false,
+                hiddenIds: [],
+                mode: drawMode,
+                actionable: { trash: false, combineFeatures: false, uncombineFeatures: false },
+            },
         },
     })
     // Outside draw, selection acts on the source selected in the tree

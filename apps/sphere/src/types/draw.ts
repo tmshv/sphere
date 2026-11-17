@@ -31,3 +31,16 @@ export type WorkingSetPlan = {
     unload: DrawFeatureId[]
     loaded: Set<DrawFeatureId>
 }
+
+/** A draw tool of the app toolbar: each starts the draw control's mode that creates that kind of feature. */
+export type DrawTool = "point" | "line" | "polygon"
+
+/** A press on the app's draw toolbar. */
+export type DrawToolbarAction = DrawTool | "trash" | "combine" | "uncombine"
+
+/** Which of draw's actions apply to its current mode and selection, as `draw.actionable` reports it. */
+export type DrawActionable = {
+    trash: boolean
+    combineFeatures: boolean
+    uncombineFeatures: boolean
+}

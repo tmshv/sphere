@@ -8,7 +8,9 @@ import type { RootState } from "./index"
 
 const makeRootState = (draw: object) => ({ draw }) as unknown as RootState
 
-const drawing = { sourceId: "my-source", pending: false, hiddenIds: [] }
+const NOTHING = { trash: false, combineFeatures: false, uncombineFeatures: false }
+
+const drawing = { sourceId: "my-source", pending: false, hiddenIds: [], actionable: NOTHING }
 
 describe("drawSlice reducer", () => {
     test("initial state has no sourceId and nothing pending", () => {
@@ -29,7 +31,7 @@ describe("drawSlice reducer", () => {
     })
 
     test("started enters draw mode", () => {
-        const state = reducer({ pending: true, hiddenIds: [] }, started({ sourceId: "source-42" }))
+        const state = reducer({ pending: true, hiddenIds: [], actionable: NOTHING }, started({ sourceId: "source-42" }))
         expect(state.sourceId).toBe("source-42")
         expect(state.pending).toBe(false)
     })
@@ -45,12 +47,15 @@ describe("drawSlice reducer", () => {
     })
 
     test("settle clears pending and keeps draw mode", () => {
-        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [] }, settle())
+        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [], actionable: NOTHING }, settle())
         expect(state).toEqual(drawing)
     })
 
     test("done clears sourceId", () => {
-        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [] }, done({ sourceId: "my-source" }))
+        const state = reducer(
+            { sourceId: "my-source", pending: true, hiddenIds: [], actionable: NOTHING },
+            done({ sourceId: "my-source" }),
+        )
         expect(state.sourceId).toBeUndefined()
         expect(state.pending).toBe(false)
     })
@@ -65,14 +70,14 @@ describe("drawSlice reducer", () => {
     })
 
     test("reset clears sourceId", () => {
-        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [] }, reset())
+        const state = reducer({ sourceId: "my-source", pending: true, hiddenIds: [], actionable: NOTHING }, reset())
         expect(state.sourceId).toBeUndefined()
         expect(state.pending).toBe(false)
     })
 })
 
 describe("drawSlice hiddenIds", () => {
-    const withHidden = { sourceId: "my-source", pending: false, hiddenIds: [1, 2] }
+    const withHidden = { sourceId: "my-source", pending: false, hiddenIds: [1, 2], actionable: NOTHING }
 
     test("start with nothing hidden", () => {
         expect(reducer(undefined, { type: "@@INIT" }).hiddenIds).toEqual([])
@@ -88,12 +93,15 @@ describe("drawSlice hiddenIds", () => {
     })
 
     test("setHiddenIds while not drawing changes nothing", () => {
-        const idle = { pending: false, hiddenIds: [] }
+        const idle = { pending: false, hiddenIds: [], actionable: NOTHING }
         expect(reducer(idle, setHiddenIds({ sourceId: "my-source", ids: [3] }))).toEqual(idle)
     })
 
     test("started begins with nothing hidden", () => {
-        const state = reducer({ pending: true, hiddenIds: [7] }, started({ sourceId: "my-source" }))
+        const state = reducer(
+            { pending: true, hiddenIds: [7], actionable: NOTHING },
+            started({ sourceId: "my-source" }),
+        )
         expect(state.hiddenIds).toEqual([])
     })
 
@@ -108,7 +116,7 @@ describe("drawSlice hiddenIds", () => {
     })
 
     test("settle without a session clears the hidden ids", () => {
-        const state = reducer({ pending: true, hiddenIds: [1] }, settle())
+        const state = reducer({ pending: true, hiddenIds: [1], actionable: NOTHING }, settle())
         expect(state.hiddenIds).toEqual([])
     })
 
@@ -167,5 +175,42 @@ describe("draw mode of the control", () => {
         [undefined, false],
     ])("isCreating with mode %s is %s", (mode, expected) => {
         expect(isCreating(makeRootState({ ...drawing, mode }))).toBe(expected)
+    })
+})
+
+describe("draw actionable state", () => {
+    const some = { trash: true, combineFeatures: true, uncombineFeatures: false }
+
+    test("nothing is actionable initially", () => {
+        expect(reducer(undefined, { type: "@@INIT" }).actionable).toEqual(NOTHING)
+    })
+
+    test("actionableChanged stores the state of the drawn source's control", () => {
+        const state = reducer(drawing, actions.actionableChanged({ sourceId: "my-source", actionable: some }))
+        expect(state.actionable).toEqual(some)
+    })
+
+    test("actionableChanged for another source changes nothing", () => {
+        expect(reducer(drawing, actions.actionableChanged({ sourceId: "other", actionable: some }))).toEqual(drawing)
+    })
+
+    test("a new session, done and reset clear it", () => {
+        const actionable = { ...drawing, actionable: some }
+        expect(reducer(actionable, started({ sourceId: "my-source" })).actionable).toEqual(NOTHING)
+        expect(reducer(actionable, done({ sourceId: "my-source" })).actionable).toEqual(NOTHING)
+        expect(reducer(actionable, reset()).actionable).toEqual(NOTHING)
+    })
+
+    test("the actionable and mode selectors read the state", () => {
+        const state = makeRootState({ ...drawing, actionable: some, mode: "draw_point" })
+        expect(drawSlice.selectors.actionable(state)).toEqual(some)
+        expect(drawSlice.selectors.mode(state)).toBe("draw_point")
+    })
+
+    test("toolbar is a request handled by a listener: it changes no state", () => {
+        const action = actions.toolbar({ sourceId: "my-source", action: "polygon" })
+        expect(action.type).toBe("draw/toolbar")
+        expect("toolbar" in drawSlice.actions).toBe(false)
+        expect(reducer(drawing, action)).toBe(drawing)
     })
 })

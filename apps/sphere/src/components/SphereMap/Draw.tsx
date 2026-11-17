@@ -1,6 +1,7 @@
 import { DRAW_WORKING_SET_CAP, FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { useDrawControl } from "@/hooks/useDrawControl"
 import { viewportBbox } from "@/lib/bbox"
+import { registerDrawControl } from "@/lib/draw-control"
 import { applyDelta, drawSelectionIds } from "@/lib/draw-selection"
 import { DrawOpQueue, loadWorkingSet, registerDrawQueue } from "@/lib/draw-session"
 import { touchedIds } from "@/lib/draw-working-set"
@@ -10,7 +11,7 @@ import { selectionGetIds } from "@/lib/selection-ipc"
 import { WorkingSetLoader } from "@/lib/working-set-loader"
 import { actions, selectors } from "@/store"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import type { DrawEvent, DrawFeatureId, Id, WorkingSetScope } from "@/types"
+import type { DrawActionable, DrawEvent, DrawFeatureId, Id, WorkingSetScope } from "@/types"
 import { spherePreset } from "@sphere/draw"
 import { Button, Overlay, Row, Surface, Text } from "@sphere/ui"
 import type { CSSProperties } from "react"
@@ -102,6 +103,13 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         [dispatch, sourceId],
     )
 
+    const onActionableChange = useCallback(
+        (actionable: DrawActionable) => {
+            dispatch(actions.draw.actionableChanged({ sourceId, actionable }))
+        },
+        [dispatch, sourceId],
+    )
+
     const { [mapId]: mapRef } = useMap()
     const map = mapRef?.getMap()
     const draw = useDrawControl({
@@ -109,6 +117,7 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         onChange,
         onSelectionChange,
         onModeChange,
+        onActionableChange,
         ops: queue,
         position: "top-left",
         controls: {
@@ -120,9 +129,14 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
             trash: true,
         },
         displayControlsDefault: false,
+        // The app's draw toolbar shows the tools; `controls` still enables their keys
+        buttons: false,
         boxSelect: false,
         styles,
     })
+
+    // The draw toolbar listener runs the toolbar's actions on this control
+    useEffect(() => registerDrawControl(sourceId, draw), [sourceId, draw])
 
     useEffect(() => {
         if (!map) {

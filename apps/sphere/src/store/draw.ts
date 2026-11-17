@@ -1,5 +1,5 @@
 import { isCreationMode } from "@/lib/draw-mode"
-import type { DrawFeatureId, Id } from "@/types"
+import type { DrawActionable, DrawFeatureId, DrawToolbarAction, Id } from "@/types"
 import { createAction, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
@@ -14,11 +14,16 @@ export type DrawState = {
     hiddenIds: number[]
     // The mode of the draw control (`simple_select`, `draw_polygon`, …), once it reported a change
     mode?: string
+    // Which of draw's actions (delete, combine, uncombine) apply to the control's mode and selection
+    actionable: DrawActionable
 }
+
+const NOTHING_ACTIONABLE: DrawActionable = { trash: false, combineFeatures: false, uncombineFeatures: false }
 
 const initialState: DrawState = {
     pending: false,
     hiddenIds: [],
+    actionable: NOTHING_ACTIONABLE,
 }
 
 function isIdle(state: DrawState) {
@@ -45,6 +50,7 @@ export const drawSlice = createSlice({
             state.pending = false
             state.hiddenIds = []
             state.mode = undefined
+            state.actionable = NOTHING_ACTIONABLE
         },
         /** The backend ids now loaded into draw, reported by the working-set loader after each load. */
         setHiddenIds: (state, action: PayloadAction<{ sourceId: Id; ids: number[] }>) => {
@@ -56,6 +62,12 @@ export const drawSlice = createSlice({
         modeChanged: (state, action: PayloadAction<{ sourceId: Id; mode: string }>) => {
             if (state.sourceId === action.payload.sourceId) {
                 state.mode = action.payload.mode
+            }
+        },
+        /** The draw control of the drawn source changed which of its actions apply. */
+        actionableChanged: (state, action: PayloadAction<{ sourceId: Id; actionable: DrawActionable }>) => {
+            if (state.sourceId === action.payload.sourceId) {
+                state.actionable = action.payload.actionable
             }
         },
         /** Request to keep the edits. Handled by the save-draw listener. */
@@ -88,12 +100,14 @@ export const drawSlice = createSlice({
             state.pending = false
             state.hiddenIds = []
             state.mode = undefined
+            state.actionable = NOTHING_ACTIONABLE
         },
         reset: state => {
             state.sourceId = undefined
             state.pending = false
             state.hiddenIds = []
             state.mode = undefined
+            state.actionable = NOTHING_ACTIONABLE
         },
     },
     selectors: {
@@ -101,6 +115,8 @@ export const drawSlice = createSlice({
         isPending: state => state.pending,
         sourceId: state => state.sourceId,
         hiddenIds: state => state.hiddenIds,
+        mode: state => state.mode,
+        actionable: state => state.actionable,
         // Draw is placing the vertices of a new feature: a drag between its clicks is draw's, not a rectangle
         isCreating: state => isCreationMode(state.mode),
     },
@@ -109,9 +125,13 @@ export const drawSlice = createSlice({
 /** The user changed draw's feature selection; the draw-selection listener mirrors it to the backend. */
 const selectionChanged = createAction<{ sourceId: Id; ids: DrawFeatureId[] }>("draw/selectionChanged")
 
+/** A press on the draw toolbar; the draw-toolbar listener runs it on the drawn source's control. */
+const toolbar = createAction<{ sourceId: Id; action: DrawToolbarAction }>("draw/toolbar")
+
 export const actions = {
     ...drawSlice.actions,
     selectionChanged,
+    toolbar,
 }
 
 export default drawSlice.reducer

@@ -44,18 +44,19 @@ import selectionReducer from "@/store/selection"
 import settingsReducer, { settingsSlice } from "@/store/settings"
 import { DRAW_WORKING_SET_CAP, FEATURE_HIGHLIGHT_COLOR, PREVIEW_COLOR, PREVIEW_RADIUS } from "@/const"
 import { flushAsync } from "@/testutils"
-import type { DrawEvent } from "@/types"
+import type { DrawActionable, DrawEvent } from "@/types"
 import { emitSelectionDelta, emitSelectionReconcile } from "@/lib/selection-bus"
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { act, render } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { actions } from "@/store/actions"
+import { getDrawControl } from "@/lib/draw-control"
 import Draw from "./Draw"
 
 const MAP_ID = "main"
 const SOURCE_ID = "s1"
 
-type FiredEvent = DrawEvent & { mode?: string }
+type FiredEvent = DrawEvent & { mode?: string; actions?: DrawActionable }
 
 type Handler = (event: FiredEvent) => void
 
@@ -129,7 +130,12 @@ async function renderDraw(previewOutline?: boolean, selectionSourceId?: string) 
     const store = configureStore({
         reducer: { draw: drawReducer, selection: selectionReducer, settings: settingsReducer },
         preloadedState: {
-            draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] },
+            draw: {
+                sourceId: SOURCE_ID,
+                pending: false,
+                hiddenIds: [],
+                actionable: { trash: false, combineFeatures: false, uncombineFeatures: false },
+            },
             selection: { count: 0, version: 0, sourceId: selectionSourceId },
         },
         middleware: getDefaultMiddleware => getDefaultMiddleware().concat(capture),
@@ -346,6 +352,48 @@ describe("Draw", () => {
         fire({ type: "draw.modechange", mode: "draw_line_string" })
 
         expect(store.getState().draw.mode).toBe("draw_line_string")
+    })
+
+    test("builds the control without map buttons, with every draw tool enabled", async () => {
+        makeMap()
+        mockCommands([])
+
+        await renderDraw()
+
+        const options = lastDraw().options
+        expect(options.buttons).toBe(false)
+        expect(options.controls).toEqual({
+            point: true,
+            polygon: true,
+            line_string: true,
+            combine_features: true,
+            uncombine_features: true,
+            trash: true,
+        })
+        expect(options.displayControlsDefault).toBe(false)
+    })
+
+    test("registers the control for its source while mounted, and unregisters it on unmount", async () => {
+        makeMap()
+        mockCommands([])
+        const { view } = await renderDraw()
+
+        expect(getDrawControl(SOURCE_ID)).toBe(lastDraw())
+
+        view.unmount()
+
+        expect(getDrawControl(SOURCE_ID)).toBeUndefined()
+    })
+
+    test("an actionable change of the control dispatches draw.actionableChanged", async () => {
+        const { fire } = makeMap()
+        mockCommands([])
+        const { store } = await renderDraw()
+        const actionable = { trash: true, combineFeatures: true, uncombineFeatures: false }
+
+        fire({ type: "draw.actionable", actions: actionable })
+
+        expect(store.getState().draw.actionable).toEqual(actionable)
     })
 
     test("the selection bus subscription ends on unmount", async () => {

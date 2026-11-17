@@ -55,7 +55,11 @@ function renderContext(draw: { sourceId?: string; hiddenIds: number[] }) {
     const store = configureStore({
         reducer: { draw: drawReducer, source: sourceReducer, settings: settingsReducer },
         preloadedState: {
-            draw: { pending: false, ...draw },
+            draw: {
+                pending: false,
+                actionable: { trash: false, combineFeatures: false, uncombineFeatures: false },
+                ...draw,
+            },
             source: makeSourceState([geojson("a"), geojson("b")]),
         },
     })

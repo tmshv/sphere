@@ -1,6 +1,6 @@
 import { featureIds } from "@/lib/draw-selection"
 import type { DrawOpQueue } from "@/lib/draw-session"
-import type { DrawEvent, DrawFeatureId } from "@/types"
+import type { DrawActionable, DrawEvent, DrawFeatureId } from "@/types"
 import MapLibreDraw from "@sphere/draw"
 import { useEffect } from "react"
 import { useControl } from "react-map-gl/maplibre"
@@ -20,6 +20,8 @@ export type DrawControlProps = ConstructorParameters<typeof MapLibreDraw>[0] & {
     onSelectionChange?: (ids: DrawFeatureId[]) => void
     /** Receives the new mode after each `draw.modechange`. */
     onModeChange?: (mode: string) => void
+    /** Receives which actions apply after each `draw.actionable`, as a copy: draw mutates its own object later. */
+    onActionableChange?: (actionable: DrawActionable) => void
 }
 
 export function useDrawControl({
@@ -28,6 +30,7 @@ export function useDrawControl({
     ops,
     onSelectionChange,
     onModeChange,
+    onActionableChange,
     ...props
 }: DrawControlProps): MapLibreDraw {
     const draw = useControl<MapLibreDraw>(() => new MapLibreDraw(props), {
@@ -85,6 +88,22 @@ export function useDrawControl({
             subscription.unsubscribe()
         }
     }, [ref, onModeChange])
+
+    useEffect(() => {
+        if (!ref || !onActionableChange) {
+            return
+        }
+        const subscription = ref.getMap().on("draw.actionable", ({ actions }) => {
+            onActionableChange({
+                trash: actions.trash,
+                combineFeatures: actions.combineFeatures,
+                uncombineFeatures: actions.uncombineFeatures,
+            })
+        })
+        return () => {
+            subscription.unsubscribe()
+        }
+    }, [ref, onActionableChange])
 
     return draw
 }

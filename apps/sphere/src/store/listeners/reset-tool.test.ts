@@ -107,6 +107,10 @@ describe("reset-tool listener", () => {
         expect(mockInvoke).toHaveBeenCalledWith("draw_rollback", { id: "s1" })
         expect(mockInvoke.mock.calls.filter(([cmd]) => cmd === "draw_rollback")).toHaveLength(1)
         expect(dispatched.filter(a => a.type === "draw/cancel")).toHaveLength(1)
-        expect(store.getState().draw).toEqual({ pending: false, hiddenIds: [] })
+        expect(store.getState().draw).toEqual({
+            pending: false,
+            hiddenIds: [],
+            actionable: { trash: false, combineFeatures: false, uncombineFeatures: false },
+        })
     })
 })

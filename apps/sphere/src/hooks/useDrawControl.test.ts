@@ -1,5 +1,5 @@
 import { DrawOpQueue } from "@/lib/draw-session"
-import type { DrawEvent } from "@/types"
+import type { DrawActionable, DrawEvent } from "@/types"
 import { act, renderHook } from "@testing-library/react"
 import type { MapRef } from "react-map-gl/maplibre"
 import { afterEach, describe, expect, test, vi } from "vitest"
@@ -23,7 +23,7 @@ vi.mock("react-map-gl/maplibre", async () => {
     }
 })
 
-type FiredEvent = DrawEvent & { points?: GeoJSON.Feature[]; mode?: string }
+type FiredEvent = DrawEvent & { points?: GeoJSON.Feature[]; mode?: string; actions?: DrawActionable }
 
 type Handler = (event: FiredEvent) => void
 
@@ -165,6 +165,43 @@ describe("useDrawControl", () => {
         unmount()
 
         expect(count("draw.modechange")).toBe(0)
+    })
+
+    test("forwards the actions of an actionable change", () => {
+        const { ref, fire } = makeMap()
+        const onActionableChange = vi.fn()
+        render({ ref, onActionableChange })
+
+        fire({ type: "draw.actionable", actions: { trash: true, combineFeatures: false, uncombineFeatures: true } })
+
+        expect(onActionableChange).toHaveBeenCalledExactlyOnceWith({
+            trash: true,
+            combineFeatures: false,
+            uncombineFeatures: true,
+        })
+    })
+
+    test("passes a copy of the actions: draw mutates its own object later", () => {
+        const { ref, fire } = makeMap()
+        const received: DrawActionable[] = []
+        render({ ref, onActionableChange: actionable => received.push(actionable) })
+        const own = { trash: true, combineFeatures: true, uncombineFeatures: false }
+
+        fire({ type: "draw.actionable", actions: own })
+        own.trash = false
+        own.combineFeatures = false
+
+        expect(received).toEqual([{ trash: true, combineFeatures: true, uncombineFeatures: false }])
+        expect(received.at(0)).not.toBe(own)
+    })
+
+    test("stops forwarding actionable changes on unmount", () => {
+        const { ref, count } = makeMap()
+        const { unmount } = render({ ref, onActionableChange: vi.fn() })
+
+        unmount()
+
+        expect(count("draw.actionable")).toBe(0)
     })
 
     test("still calls onChange without a queue", () => {
