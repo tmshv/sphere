@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import MapLibreDraw from "./index"
 import modes from "./modes"
-import styleWithSourcesFixture from "./test-utils/fixtures/style_with_sources.json"
+import styleWithSourcesFixture from "./test-utils/fixtures/style-with-sources.json"
 
 describe("Options test", () => {
     it("no options", () => {

@@ -2,7 +2,7 @@ import * as Constants from "./constants"
 
 import { classicPreset as styles } from "./presets"
 import modes from "./modes"
-import type { ModeClass } from "./modes/mode_builder"
+import type { ModeClass } from "./modes/mode-builder"
 import type { DrawControls, DrawStyleLayer } from "./types"
 
 /** Options for `new MapLibreDraw(options)`. Each one left out gets its default. */

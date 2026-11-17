@@ -1,17 +1,17 @@
 import type { Map as MapLibreMap } from "maplibre-gl"
 import * as Constants from "../constants"
-import featuresAt, { type FeaturesAtContext } from "../lib/features_at"
-import jsonClone from "../lib/json_clone"
-import type { ScreenBox } from "../lib/map_event_to_bounding_box"
-import type { RenderPush } from "../lib/mode_handler"
+import featuresAt, { type FeaturesAtContext } from "../lib/features-at"
+import jsonClone from "../lib/json-clone"
+import type { ScreenBox } from "../lib/map-event-to-bounding-box"
+import type { RenderPush } from "../lib/mode-handler"
 import type { DrawOptions } from "../options"
 import type Store from "../store"
-import createFeature, { type AnyFeatureInput } from "../feature_types/create_feature"
-import Point from "../feature_types/point"
-import LineString from "../feature_types/line_string"
-import Polygon from "../feature_types/polygon"
-import MultiFeature from "../feature_types/multi_feature"
-import type { DrawFeature } from "../feature_types/draw_feature"
+import createFeature, { type AnyFeatureInput } from "../feature-types/create-feature"
+import Point from "../feature-types/point"
+import LineString from "../feature-types/line-string"
+import Polygon from "../feature-types/polygon"
+import MultiFeature from "../feature-types/multi-feature"
+import type { DrawFeature } from "../feature-types/draw-feature"
 import type {
     ChangeModeEventOptions,
     ChangeModeOptions,
@@ -118,7 +118,7 @@ export default abstract class Mode {
     /**
      * Called for every feature Draw renders. Push the GeoJSON features to
      * draw with `display`: the feature itself (possibly with changed
-     * properties, see "Styling Draw" in docs/API.md), extra features such as
+     * properties), extra features such as
      * vertices, or nothing to hide it.
      */
     abstract toDisplayFeatures(geojson: DrawRenderFeature, display: RenderPush): void
@@ -126,7 +126,7 @@ export default abstract class Mode {
     /**
      * Sets Draw's interal selected state
      * @name this.setSelected
-     * @param features - whats selected as a `DrawFeature` (see `src/feature_types/feature.ts`)
+     * @param features - whats selected as a `DrawFeature` (see `src/feature-types/feature.ts`)
      */
     setSelected(features?: FeatureId | readonly FeatureId[]): unknown {
         return this.ctx.store.setSelected(features)
@@ -150,7 +150,7 @@ export default abstract class Mode {
     }
 
     /**
-     * Get all selected features as a `DrawFeature` (see `src/feature_types/feature.ts`).
+     * Get all selected features as a `DrawFeature` (see `src/feature-types/feature.ts`).
      * An id selected without a feature yields `undefined`.
      * @name this.getSelected
      */
@@ -176,7 +176,7 @@ export default abstract class Mode {
     }
 
     /**
-     * Get a `DrawFeature` (see `src/feature_types/feature.ts`) by its id
+     * Get a `DrawFeature` (see `src/feature-types/feature.ts`) by its id
      * @name this.getFeature
      * @param id - a feature id
      */
@@ -210,7 +210,7 @@ export default abstract class Mode {
     }
 
     /**
-     * Add a `DrawFeature` (see `src/feature_types/feature.ts`) to draw.
+     * Add a `DrawFeature` (see `src/feature-types/feature.ts`) to draw.
      * See `this.newFeature` for converting geojson into a DrawFeature
      * @name this.addFeature
      * @param feature - the feature to add
@@ -235,7 +235,7 @@ export default abstract class Mode {
 
     /**
      * Indicate if the different action are currently possible with your mode
-     * See `draw.actionable` (docs/API.md) for a list of possible actions. All undefined actions are set to **false** by default
+     * See `DrawActionableState` for a list of possible actions. All undefined actions are set to **false** by default
      * @name this.setActionableState
      */
     setActionableState(actions: Partial<DrawActionableState> = {}): void {
@@ -293,7 +293,7 @@ export default abstract class Mode {
     }
 
     /**
-     * Create a new `DrawFeature` (see `src/feature_types/feature.ts`) from geojson
+     * Create a new `DrawFeature` (see `src/feature-types/feature.ts`) from geojson
      * @name this.newFeature
      */
     newFeature(geojson: DrawFeatureInput<"Point">): Point
@@ -308,7 +308,7 @@ export default abstract class Mode {
     }
 
     /**
-     * Check is an object is an instance of a `DrawFeature` (see `src/feature_types/feature.ts`)
+     * Check is an object is an instance of a `DrawFeature` (see `src/feature-types/feature.ts`)
      * @name this.isInstanceOf
      * @param type - `Point`, `LineString`, `Polygon`, `MultiFeature`
      * @param feature - the object that needs to be checked

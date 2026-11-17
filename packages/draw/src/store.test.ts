@@ -1,10 +1,10 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import Store, { type StoreContext } from "./store"
-import Point from "./feature_types/point"
-import createMockFeatureContext from "./test-utils/create_mock_feature_context"
-import createFeature, { asDrawFeature, type FakeFeature } from "./test-utils/create_feature"
-import getPublicMemberKeys from "./test-utils/get_public_member_keys"
-import createMap, { asMapLibreMap, type MockMap } from "./test-utils/create_map"
+import Point from "./feature-types/point"
+import createMockFeatureContext from "./test-utils/create-mock-feature-context"
+import createFeature, { asDrawFeature, type FakeFeature } from "./test-utils/create-feature"
+import getPublicMemberKeys from "./test-utils/get-public-member-keys"
+import createMap, { asMapLibreMap, type MockMap } from "./test-utils/create-map"
 import required from "./test-utils/required"
 
 /** A store context with the mock map; the store only reads `map` outside of rendering. */

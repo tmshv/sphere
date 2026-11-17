@@ -42,9 +42,9 @@ export type { ChangeModeOptions } from "./types"
 export type { DrawOptions, DrawOptionsInput } from "./options"
 export { classicPreset, spherePreset, type SpherePresetOptions } from "./presets"
 export { default as Mode, type ModeContext } from "./modes/mode"
-export type { ModeClass } from "./modes/mode_builder"
-export type { RenderPush } from "./lib/mode_handler"
-export type { DrawFeature } from "./feature_types/draw_feature"
+export type { ModeClass } from "./modes/mode-builder"
+export type { RenderPush } from "./lib/mode-handler"
+export type { DrawFeature } from "./feature-types/draw-feature"
 export type {
     DrawActionableEvent,
     DrawCombineEvent,

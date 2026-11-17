@@ -1,6 +1,6 @@
 import * as Constants from "./constants"
-import type { DrawFeature } from "./feature_types/draw_feature"
-import { requireFeature } from "./feature_types/draw_feature"
+import type { DrawFeature } from "./feature-types/draw-feature"
+import { requireFeature } from "./feature-types/draw-feature"
 import { fireDrawEvent } from "./map-events"
 import type Store from "./store"
 import type { DrawRenderFeature, FeatureId } from "./types"

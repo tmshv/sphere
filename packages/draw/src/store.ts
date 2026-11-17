@@ -1,11 +1,11 @@
 import type { Map as MapLibreMap } from "maplibre-gl"
 import type { Position } from "geojson"
-import toDenseArray from "./lib/to_dense_array"
-import StringSet from "./lib/string_set"
+import toDenseArray from "./lib/to-dense-array"
+import StringSet from "./lib/string-set"
 import render, { type PendingEmits } from "./render"
 import { interactions } from "./constants"
-import type { DrawFeature } from "./feature_types/draw_feature"
-import type { RenderPush } from "./lib/mode_handler"
+import type { DrawFeature } from "./feature-types/draw-feature"
+import type { RenderPush } from "./lib/mode-handler"
 import type { DeleteOptions, DrawRenderFeature, FeatureId, Interaction, MapClasses, SelectedCoordinate } from "./types"
 
 /** What the store and its render need from the Draw context. */

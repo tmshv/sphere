@@ -1,8 +1,8 @@
-import simple_select from "./simple_select"
-import direct_select from "./direct_select"
-import draw_point from "./draw_point"
-import draw_polygon from "./draw_polygon"
-import draw_line_string from "./draw_line_string"
+import simple_select from "./simple-select"
+import direct_select from "./direct-select"
+import draw_point from "./draw-point"
+import draw_polygon from "./draw-polygon"
+import draw_line_string from "./draw-line-string"
 
 export default {
     simple_select,

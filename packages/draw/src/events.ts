@@ -1,12 +1,12 @@
 import type { Map as MapLibreMap } from "maplibre-gl"
-import setupModeHandler, { type ModeHandle, type RenderPush } from "./lib/mode_handler"
-import getFeaturesAndSetCursor from "./lib/get_features_and_set_cursor"
-import featuresAt from "./lib/features_at"
-import isClick, { type PointerStamp } from "./lib/is_click"
-import isTap from "./lib/is_tap"
+import setupModeHandler, { type ModeHandle, type RenderPush } from "./lib/mode-handler"
+import getFeaturesAndSetCursor from "./lib/get-features-and-set-cursor"
+import featuresAt from "./lib/features-at"
+import isClick, { type PointerStamp } from "./lib/is-click"
+import isTap from "./lib/is-tap"
 import * as Constants from "./constants"
 import { fireDrawEvent } from "./map-events"
-import modeBuilder, { type ModeBuilder } from "./modes/mode_builder"
+import modeBuilder, { type ModeBuilder } from "./modes/mode-builder"
 import type { DrawContext } from "./context"
 import type {
     ChangeModeEventOptions,
