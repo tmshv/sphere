@@ -120,7 +120,6 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
         onModeChange,
         onActionableChange,
         ops: queue,
-        position: "top-left",
         controls: {
             point: true,
             polygon: true,
@@ -137,7 +136,13 @@ export default function Draw({ mapId, sourceId }: DrawProps) {
     })
 
     // The draw toolbar listener runs the toolbar's actions on this control
-    useEffect(() => registerDrawControl(sourceId, draw), [sourceId, draw])
+    useEffect(
+        () =>
+            registerDrawControl(sourceId, draw, () => {
+                map?.getCanvas().focus()
+            }),
+        [sourceId, draw, map],
+    )
 
     useEffect(() => {
         if (!map) {

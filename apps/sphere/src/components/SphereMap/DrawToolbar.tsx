@@ -3,9 +3,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import type { DrawActionable, DrawTool, DrawToolbarAction, Id } from "@/types"
 import { IconArrowsJoin2, IconArrowsSplit2, IconLine, IconPoint, IconPolygon, IconTrash } from "@sphere/icons"
 import { Button, IconButton, Row } from "@sphere/ui"
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 
 const ICON_SIZE = 16
+
+// A fieldset is the group element; it draws a border and padding by default
+const GROUP_RESET: CSSProperties = { border: 0, margin: 0, padding: 0, minWidth: 0 }
 
 type ToolButton = {
     tool: DrawTool
@@ -62,44 +65,48 @@ export function DrawToolbar({ sourceId, blocked, pending }: DrawToolbarProps) {
     }
 
     return (
-        <Row gap="sm">
-            <Row gap="xxs">
-                {TOOLS.map(({ tool, label, icon }) => (
-                    <IconButton
-                        key={tool}
-                        variant="bordered"
-                        icon={icon}
-                        label={label}
-                        active={tool === activeTool}
-                        disabled={blocked}
-                        onClick={() => press(tool)}
-                    />
-                ))}
+        <div role="toolbar" aria-label="Draw">
+            <Row gap="sm">
+                <fieldset aria-label="Tools" style={GROUP_RESET}>
+                    <Row gap="xxs">
+                        {TOOLS.map(({ tool, label, icon }) => (
+                            <IconButton
+                                key={tool}
+                                variant="bordered"
+                                icon={icon}
+                                label={label}
+                                active={tool === activeTool}
+                                disabled={blocked}
+                                onClick={() => press(tool)}
+                            />
+                        ))}
+                    </Row>
+                </fieldset>
+                <Row gap="xxs">
+                    {EDITS.map(edit => (
+                        <IconButton
+                            key={edit.action}
+                            variant="bordered"
+                            icon={edit.icon}
+                            label={edit.label}
+                            disabled={blocked || !actionable[edit.actionable]}
+                            onClick={() => press(edit.action)}
+                        />
+                    ))}
+                </Row>
+                <Row gap="xs">
+                    <Button
+                        variant="secondary"
+                        onClick={() => dispatch(actions.draw.cancel({ sourceId }))}
+                        disabled={pending}
+                    >
+                        Cancel
+                    </Button>
+                    <Button onClick={() => dispatch(actions.draw.commit({ sourceId }))} disabled={blocked}>
+                        Done
+                    </Button>
+                </Row>
             </Row>
-            <Row gap="xxs">
-                {EDITS.map(edit => (
-                    <IconButton
-                        key={edit.action}
-                        variant="bordered"
-                        icon={edit.icon}
-                        label={edit.label}
-                        disabled={blocked || !actionable[edit.actionable]}
-                        onClick={() => press(edit.action)}
-                    />
-                ))}
-            </Row>
-            <Row gap="xs">
-                <Button
-                    variant="secondary"
-                    onClick={() => dispatch(actions.draw.cancel({ sourceId }))}
-                    disabled={pending}
-                >
-                    Cancel
-                </Button>
-                <Button onClick={() => dispatch(actions.draw.commit({ sourceId }))} disabled={blocked}>
-                    Done
-                </Button>
-            </Row>
-        </Row>
+        </div>
     )
 }

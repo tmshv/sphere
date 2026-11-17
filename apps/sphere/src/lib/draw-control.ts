@@ -13,11 +13,14 @@ export type DrawControlApi = {
 }
 
 // The control of the draw session on screen; the draw toolbar listener runs the toolbar's actions on it
-let active: { sourceId: Id; control: DrawControlApi } | undefined
+let active: { sourceId: Id; control: DrawControlApi; focusMap: () => void } | undefined
 
-/** Makes `control` the one `getDrawControl` finds for `sourceId`. Returns the unregister function. */
-export function registerDrawControl(sourceId: Id, control: DrawControlApi): () => void {
-    const entry = { sourceId, control }
+/**
+ * Makes `control` the one `getDrawControl` finds for `sourceId`. `focusMap` gives the keyboard focus
+ * to the map canvas, where draw listens for keys. Returns the unregister function.
+ */
+export function registerDrawControl(sourceId: Id, control: DrawControlApi, focusMap: () => void): () => void {
+    const entry = { sourceId, control, focusMap }
     active = entry
     return () => {
         if (active === entry) {
@@ -32,4 +35,11 @@ export function getDrawControl(sourceId: Id): DrawControlApi | undefined {
         return undefined
     }
     return active.control
+}
+
+/** Gives the keyboard focus to the map canvas of the session on `sourceId`, if one is registered. */
+export function focusDrawMap(sourceId: Id) {
+    if (active?.sourceId === sourceId) {
+        active.focusMap()
+    }
 }

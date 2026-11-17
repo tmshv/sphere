@@ -1,6 +1,6 @@
 import drawReducer from "@/store/draw"
 import { actions } from "@/store/actions"
-import { fireEvent, render, screen } from "@/test-utils"
+import { fireEvent, render, screen, within } from "@/test-utils"
 import type { DrawActionable } from "@/types"
 import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
@@ -54,6 +54,15 @@ function button(name: string) {
 }
 
 describe("DrawToolbar", () => {
+    test("is a toolbar named Draw with a Tools group holding the three tools", () => {
+        renderToolbar()
+
+        const toolbar = screen.getByRole("toolbar", { name: "Draw" })
+        const group = screen.getByRole("group", { name: "Tools" })
+        expect(toolbar).toContainElement(group)
+        expect(within(group).getAllByRole("button")).toHaveLength(TOOL_TITLES.length)
+    })
+
     test("shows the tools, the edit actions, then Cancel and Done, left to right", () => {
         renderToolbar()
 

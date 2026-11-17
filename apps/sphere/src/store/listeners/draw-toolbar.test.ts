@@ -37,14 +37,15 @@ function makeControl(initialMode: string, modeAfterTrash = "simple_select") {
 
 const cleanups: (() => void)[] = []
 
-function setup(mode: string, modeAfterTrash?: string) {
+function setup(mode: string, modeAfterTrash?: string, pending = false) {
     const { control, calls } = makeControl(mode, modeAfterTrash)
-    cleanups.push(registerDrawControl(SOURCE_ID, control))
+    const focusMap = vi.fn()
+    cleanups.push(registerDrawControl(SOURCE_ID, control, focusMap))
     const { store, dispatched } = makeCaptureStore({
-        preloadedState: { draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] } },
+        preloadedState: { draw: { sourceId: SOURCE_ID, pending, hiddenIds: [] } },
         middleware: listener.middleware,
     })
-    return { store, dispatched, control, calls }
+    return { store, dispatched, control, calls, focusMap }
 }
 
 function toolbar(action: DrawToolbarAction, sourceId = SOURCE_ID) {
@@ -127,19 +128,46 @@ describe("draw-toolbar listener", () => {
         expect(replies(dispatched)).toEqual([actions.draw.modeChanged({ sourceId: SOURCE_ID, mode: "simple_select" })])
     })
 
-    test("with no control registered, dispatches nothing and does not throw", () => {
+    test("with no control registered, dispatches nothing", () => {
         const { store, dispatched } = makeCaptureStore({
             preloadedState: { draw: { sourceId: SOURCE_ID, pending: false, hiddenIds: [] } },
             middleware: listener.middleware,
         })
 
-        expect(() => store.dispatch(toolbar("polygon"))).not.toThrow()
+        store.dispatch(toolbar("polygon"))
+
+        expect(replies(dispatched)).toEqual([])
+    })
+
+    test.each([
+        "point",
+        "line",
+        "polygon",
+        "trash",
+        "combine",
+        "uncombine",
+    ] as const)("%s gives the keyboard focus back to the map once it ran", action => {
+        const { store, focusMap, calls } = setup("simple_select")
+
+        store.dispatch(toolbar(action))
+
+        expect(calls).toHaveLength(1)
+        expect(focusMap).toHaveBeenCalledTimes(1)
+    })
+
+    test("a pending commit or rollback blocks the action: no control call, no mode report, no focus", () => {
+        const { store, dispatched, calls, focusMap } = setup("simple_select", undefined, true)
+
+        store.dispatch(toolbar("point"))
+
+        expect(calls).toEqual([])
+        expect(focusMap).not.toHaveBeenCalled()
         expect(replies(dispatched)).toEqual([])
     })
 
     test("after the session ended, does nothing", () => {
         const { control, calls } = makeControl("simple_select")
-        cleanups.push(registerDrawControl(SOURCE_ID, control))
+        cleanups.push(registerDrawControl(SOURCE_ID, control, vi.fn()))
         const { store, dispatched } = makeCaptureStore({
             preloadedState: { draw: { pending: false, hiddenIds: [] } },
             middleware: listener.middleware,
@@ -154,7 +182,7 @@ describe("draw-toolbar listener", () => {
     test("for a source other than the drawn one, does nothing", () => {
         const { store, dispatched, calls } = setup("simple_select")
         const other = makeControl("simple_select")
-        cleanups.push(registerDrawControl("other", other.control))
+        cleanups.push(registerDrawControl("other", other.control, vi.fn()))
 
         store.dispatch(toolbar("point", "other"))
 

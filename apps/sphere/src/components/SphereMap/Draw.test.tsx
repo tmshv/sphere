@@ -50,7 +50,7 @@ import { type Middleware, type UnknownAction, configureStore } from "@reduxjs/to
 import { act, render, screen } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { actions } from "@/store/actions"
-import { getDrawControl } from "@/lib/draw-control"
+import { focusDrawMap, getDrawControl } from "@/lib/draw-control"
 import Draw from "./Draw"
 
 const MAP_ID = "main"
@@ -62,6 +62,9 @@ type Handler = (event: FiredEvent) => void
 
 /** A map that records its `on` handlers and has fixed bounds. */
 function makeMap() {
+    const canvas = document.createElement("canvas")
+    canvas.tabIndex = 0
+    document.body.append(canvas)
     const handlers = new Map<string, Set<Handler>>()
     const map = {
         on: (type: string, handler: Handler) => {
@@ -70,6 +73,7 @@ function makeMap() {
             handlers.set(type, set)
             return { unsubscribe: () => set.delete(handler) }
         },
+        getCanvas: () => canvas,
         getBounds: () => ({ getWest: () => 0, getSouth: () => 0, getEast: () => 10, getNorth: () => 10 }),
     }
     const fire = (event: FiredEvent) => {
@@ -80,7 +84,7 @@ function makeMap() {
         })
     }
     mapRefs[MAP_ID] = { getMap: () => map }
-    return { fire }
+    return { fire, canvas }
 }
 
 function point(id: number | string): GeoJSON.Feature {
@@ -383,6 +387,17 @@ describe("Draw", () => {
         view.unmount()
 
         expect(getDrawControl(SOURCE_ID)).toBeUndefined()
+    })
+
+    test("registers a focus function that gives the keyboard focus to the map canvas", async () => {
+        const { canvas } = makeMap()
+        mockCommands([])
+        await renderDraw()
+        expect(document.activeElement).not.toBe(canvas)
+
+        focusDrawMap(SOURCE_ID)
+
+        expect(document.activeElement).toBe(canvas)
     })
 
     test("an actionable change of the control dispatches draw.actionableChanged", async () => {

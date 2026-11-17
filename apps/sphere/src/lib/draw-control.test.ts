@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { type DrawControlApi, getDrawControl, registerDrawControl } from "./draw-control"
+import { type DrawControlApi, focusDrawMap, getDrawControl, registerDrawControl } from "./draw-control"
 
 function makeControl(): DrawControlApi {
     const control: DrawControlApi = {
@@ -14,8 +14,8 @@ function makeControl(): DrawControlApi {
 
 const cleanups: (() => void)[] = []
 
-function register(sourceId: string, control: DrawControlApi) {
-    const unregister = registerDrawControl(sourceId, control)
+function register(sourceId: string, control: DrawControlApi, focusMap: () => void = vi.fn()) {
+    const unregister = registerDrawControl(sourceId, control, focusMap)
     cleanups.push(unregister)
     return unregister
 }
@@ -54,5 +54,25 @@ describe("draw control registry", () => {
         unregisterOld()
 
         expect(getDrawControl("s1")).toBe(newer)
+    })
+
+    test("focusDrawMap runs the focus function registered for the source", () => {
+        const focusMap = vi.fn()
+        register("s1", makeControl(), focusMap)
+
+        focusDrawMap("s1")
+
+        expect(focusMap).toHaveBeenCalledTimes(1)
+    })
+
+    test("focusDrawMap does nothing for another source or once unregistered", () => {
+        const focusMap = vi.fn()
+        const unregister = register("s1", makeControl(), focusMap)
+
+        focusDrawMap("s2")
+        unregister()
+        focusDrawMap("s1")
+
+        expect(focusMap).not.toHaveBeenCalled()
     })
 })
