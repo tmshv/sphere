@@ -14,6 +14,7 @@ pub mod selection;
 pub mod shape;
 pub mod source;
 pub mod store;
+pub mod tile_archive;
 pub mod uri;
 
 pub use error::{Result, SphereError};

@@ -114,23 +114,27 @@ impl Pmtiles {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod test_support {
     use super::*;
     use ::pmtiles::PmTilesWriter;
-    use serde_json::json;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
-    struct TempArchive {
-        path: String,
+    pub(crate) struct TempArchive {
+        pub(crate) path: String,
     }
 
     impl TempArchive {
-        fn new() -> TempArchive {
+        pub(crate) fn new() -> TempArchive {
+            TempArchive::with_extension("pmtiles")
+        }
+
+        /// The extension is part of the path, so a test can use `PMTILES` to check case handling.
+        pub(crate) fn with_extension(extension: &str) -> TempArchive {
             let n = COUNTER.fetch_add(1, Ordering::SeqCst);
             let path = std::env::temp_dir()
-                .join(format!("sphere-pmtiles-{}-{}.pmtiles", std::process::id(), n))
+                .join(format!("sphere-pmtiles-{}-{}.{}", std::process::id(), n, extension))
                 .to_string_lossy()
                 .into_owned();
             TempArchive { path }
@@ -143,13 +147,22 @@ mod tests {
         }
     }
 
-    fn write_archive(
+    pub(crate) fn write_archive(
         tile_type: TileType,
         compression: Compression,
         metadata: Option<&str>,
         tiles: &[((u8, u32, u32), &[u8])],
     ) -> TempArchive {
-        let archive = TempArchive::new();
+        write_archive_to(TempArchive::new(), tile_type, compression, metadata, tiles)
+    }
+
+    pub(crate) fn write_archive_to(
+        archive: TempArchive,
+        tile_type: TileType,
+        compression: Compression,
+        metadata: Option<&str>,
+        tiles: &[((u8, u32, u32), &[u8])],
+    ) -> TempArchive {
         let mut builder = PmTilesWriter::new(tile_type)
             .tile_compression(compression)
             .min_zoom(0)
@@ -170,6 +183,13 @@ mod tests {
         writer.finalize().expect("finalize");
         archive
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::test_support::{write_archive, TempArchive};
+    use super::*;
+    use serde_json::json;
 
     fn open(archive: &TempArchive) -> Result<Pmtiles> {
         Pmtiles::new("basemap".to_string(), archive.path.clone())

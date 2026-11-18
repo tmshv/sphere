@@ -13,8 +13,10 @@ use super::geojsonseq::GeojsonSeq;
 use super::gpx::Gpx;
 use super::kml::Kml;
 use super::mbtiles::Tiles;
+use super::pmtiles::Pmtiles;
 use super::schema::{assign_feature_ids, SourceSchema};
 use super::shape::Shapefile;
+use super::tile_archive::TileArchive;
 use super::uri::SphereUri;
 use super::Bounds;
 
@@ -45,7 +47,7 @@ pub enum SourceData {
     Gpx(Gpx),
     Kml(Kml),
     InMemory(geojson::FeatureCollection),
-    // Pmtiles,
+    Pmtiles(Pmtiles),
 }
 
 #[derive(Debug)]
@@ -147,6 +149,10 @@ impl Source {
                 let source = Tiles::new(id.clone(), source_path).map_err(|e| e.to_string())?;
                 Ok((SourceData::Mbtiles(source), file_url))
             }
+            "pmtiles" => {
+                let source = Pmtiles::new(id.clone(), source_path).map_err(|e| e.to_string())?;
+                Ok((SourceData::Pmtiles(source), file_url))
+            }
             "csv" => {
                 let params = CsvParams::from_uri(uri).map_err(|e| e.to_string())?;
                 let geometry = match params {
@@ -177,7 +183,9 @@ impl Source {
             SourceData::Csv(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Gpx(src) => src.to_geojson().map_err(|e| e.to_string())?,
             SourceData::Kml(src) => src.to_geojson().map_err(|e| e.to_string())?,
-            SourceData::Mbtiles(_) => return Err("MBTiles sources cannot be converted to FeatureCollection".into()),
+            SourceData::Mbtiles(_) | SourceData::Pmtiles(_) => {
+                return Err("Tile sources cannot be converted to FeatureCollection".into())
+            }
         };
         let geojson: geojson::GeoJson = raw.parse().map_err(|e: geojson::Error| e.to_string())?;
         let mut fc = match geojson {
@@ -233,7 +241,7 @@ impl Source {
                 src.get_schema().map_err(|e| e.to_string())
             }
             SourceData::InMemory(_) => Err("use FeatureStore".into()),
-            SourceData::Mbtiles(_) => Err("Getting schema is not implemented for this type of file".into()),
+            SourceData::Mbtiles(_) | SourceData::Pmtiles(_) => Err("Getting schema is not implemented for this type of file".into()),
         }
     }
     // pub fn to_geo(&self) -> SResult<geo::Geometry<f64>> {
@@ -266,11 +274,16 @@ impl Source {
     //     }
     // }
 
-    pub fn get_mbtiles(&self) -> Option<&Tiles> {
+    pub fn tile_archive(&self) -> Option<&dyn TileArchive> {
         match &self.data {
             SourceData::Mbtiles(val) => Some(val),
+            SourceData::Pmtiles(val) => Some(val),
             _ => None,
         }
+    }
+
+    pub fn is_tile_archive(&self) -> bool {
+        self.tile_archive().is_some()
     }
 }
 
@@ -320,7 +333,84 @@ pub fn features_to_wkt(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pmtiles::test_support::{write_archive_to, TempArchive};
+    use ::pmtiles::{Compression, TileType};
     use geojson::{feature::Id, Feature, FeatureCollection};
+    use mbtiles::tile::Tile;
+
+    const TILE_BYTES: &[u8] = b"sphere-test-vector-tile";
+
+    fn pmtiles_archive(extension: &str) -> TempArchive {
+        write_archive_to(
+            TempArchive::with_extension(extension),
+            TileType::Mvt,
+            Compression::Gzip,
+            Some(r#"{"name":"Sphere Test"}"#),
+            &[((0, 0, 0), TILE_BYTES)],
+        )
+    }
+
+    fn source_of(path: &str) -> Source {
+        Source::from_url(Url::from_file_path(path).expect("absolute path")).expect("source")
+    }
+
+    #[test]
+    fn pmtiles_file_becomes_a_pmtiles_source() {
+        let archive = pmtiles_archive("pmtiles");
+
+        let source = source_of(&archive.path);
+
+        assert!(matches!(source.data, SourceData::Pmtiles(_)));
+        assert!(source.is_tile_archive());
+        let data = source
+            .tile_archive()
+            .expect("archive")
+            .get_tile(&Tile { zoom: 0, x: 0, y: 0 })
+            .expect("tile");
+        assert_eq!(data, TILE_BYTES);
+    }
+
+    #[test]
+    fn pmtiles_extension_is_case_insensitive() {
+        let archive = pmtiles_archive("PMTILES");
+
+        let source = source_of(&archive.path);
+
+        assert!(matches!(source.data, SourceData::Pmtiles(_)));
+    }
+
+    #[test]
+    fn mbtiles_source_is_a_tile_archive() {
+        let path = std::fs::canonicalize("./assets/mbtiles/test.mbtiles").expect("fixture");
+
+        let source = source_of(path.to_str().expect("utf-8 path"));
+
+        assert!(source.is_tile_archive());
+        assert!(source.tile_archive().expect("archive").get_metadata().is_ok());
+    }
+
+    #[test]
+    fn vector_file_is_not_a_tile_archive() {
+        let path = std::fs::canonicalize("./assets/geojson-files/ne_10m_airports.geojson")
+            .expect("fixture");
+
+        let source = source_of(path.to_str().expect("utf-8 path"));
+
+        assert!(source.tile_archive().is_none());
+        assert!(!source.is_tile_archive());
+    }
+
+    #[test]
+    fn pmtiles_source_has_no_feature_collection() {
+        let archive = pmtiles_archive("pmtiles");
+
+        let source = source_of(&archive.path);
+
+        assert_eq!(
+            source.to_feature_collection().expect_err("tile source"),
+            "Tile sources cannot be converted to FeatureCollection"
+        );
+    }
 
     fn make_feature(id: i64) -> Feature {
         Feature {
