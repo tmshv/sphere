@@ -192,7 +192,7 @@ pub async fn source_get_info(
         let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
 
         let schema = match &entry.store {
-            Some(fs) => fs.schema().clone(),
+            Some(fs) => fs.read().unwrap().schema().clone(),
             None => entry.source.get_schema()?,
         };
 
@@ -262,7 +262,7 @@ pub async fn source_set_csv_geometry(
     match crate::commands::source::build_feature_store(&entry.source) {
         Ok(feature_store) => {
             let schema = feature_store.schema().clone();
-            entry.store = Some(std::sync::Arc::new(feature_store));
+            entry.store = Some(crate::state::shared_feature_store(feature_store));
             Ok(schema)
         }
         Err(err) => {

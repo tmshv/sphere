@@ -51,8 +51,10 @@ const selectRootIds = (state: RootState) => state.source.rootIds
 
 const PREVIEW_OPTIONS = { minRadius: PREVIEW_RADIUS, maxRadius: PREVIEW_RADIUS }
 
-function geometrySpecs(nodeId: Id, sourceId: Id, sourceLayer?: string): PreviewLayerSpec[] {
-    const prefix = sourceLayer === undefined ? `preview-${sourceId}` : `preview-${sourceId}-${sourceLayer}`
+export type PreviewGeometrySpec = Exclude<PreviewLayerSpec, { kind: "Raster" }>
+
+/** Point, line and polygon specs (top to bottom) of one source or source layer, with layer ids `${prefix}-{geometry}` */
+export function geometrySpecs(prefix: string, nodeId: Id, sourceId: Id, sourceLayer?: string): PreviewGeometrySpec[] {
     return [
         {
             kind: "Point",
@@ -79,7 +81,7 @@ function geometrySpecs(nodeId: Id, sourceId: Id, sourceLayer?: string): PreviewL
 function sourceNodeSpecs(nodeId: Id, src: Source | undefined): PreviewLayerSpec[] {
     if (!src || src.pending) return []
     if (src.type === SourceType.Geojson || src.type === SourceType.FeatureCollection) {
-        return geometrySpecs(nodeId, nodeId)
+        return geometrySpecs(`preview-${nodeId}`, nodeId, nodeId)
     }
     if (src.type === SourceType.Raster || (src.type === SourceType.MVT && isRasterTileFormat(src.format))) {
         return [{ kind: "Raster", nodeId, layerId: `preview-${nodeId}-raster`, sourceId: nodeId }]
@@ -97,7 +99,12 @@ export const selectPreviewLayerSpecs = createSelector(
             if (node.kind === "source-layer" && node.parentId !== undefined) {
                 const parent = items[node.parentId]
                 if (!parent || parent.pending) return []
-                return geometrySpecs(node.id, node.parentId, node.sourceLayer)
+                return geometrySpecs(
+                    `preview-${node.parentId}-${node.sourceLayer}`,
+                    node.id,
+                    node.parentId,
+                    node.sourceLayer,
+                )
             }
             return []
         })

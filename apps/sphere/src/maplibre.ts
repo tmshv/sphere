@@ -1,5 +1,5 @@
 import "maplibre-gl/dist/maplibre-gl.css"
-import "@hyvilo/maplibre-gl-draw/dist/maplibre-gl-draw.css"
+import "@sphere/draw/maplibre-gl-draw.css"
 
 import { addProtocol, setWorkerUrl } from "maplibre-gl"
 // maplibre-gl v6 is ESM-only and loads its worker as a real URL. Bundlers cannot

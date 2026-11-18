@@ -53,6 +53,9 @@ pub enum SphereError {
     #[error("Configuration error: {detail}")]
     Config { detail: String },
 
+    #[error("Edit error: {detail}")]
+    Edit { detail: String },
+
     #[error("Expression error: {0}")]
     Expression(#[from] libexpression::ExprError),
 }

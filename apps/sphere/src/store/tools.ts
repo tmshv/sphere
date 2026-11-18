@@ -24,7 +24,8 @@ export const toolsSlice = createSlice({
     },
     selectors: {
         selectActiveTool: state => state.activeTool,
-        selectNavigationEnabled: state => state.activeTool === "navigation",
+        // Draw mode keeps the statusbar map tool in force, so the map pans there too
+        selectNavigationEnabled: state => state.activeTool === "navigation" || state.activeTool === "draw",
     },
 })
 

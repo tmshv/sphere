@@ -13,10 +13,13 @@ const makeStore = (
     selectedLayerId: string | undefined,
     selectedNodeId: string | undefined,
     sources: SourceFixture[] = selectedNodeId ? [makeGeojsonSource(selectedNodeId)] : [],
+    drawSourceId: string | undefined = undefined,
+    layerItems: Record<string, { sourceId: string }> = {},
 ) =>
     configureStore({
         reducer: {
-            layer: () => ({ items: {}, selectedId: selectedLayerId }),
+            draw: () => ({ sourceId: drawSourceId, pending: false, hiddenIds: [] }),
+            layer: () => ({ items: layerItems, selectedId: selectedLayerId }),
             source: () => makeSourceState(sources, { selectedIds: selectedNodeId ? [selectedNodeId] : [] }),
         },
     })
@@ -28,6 +31,7 @@ const makeSwitchableStore = (selectedNodeId: string, sources: SourceFixture[]) =
     const initial = makeSourceState(sources, { selectedIds: [selectedNodeId] })
     return configureStore({
         reducer: {
+            draw: () => ({ sourceId: undefined, pending: false, hiddenIds: [] }),
             layer: () => ({ items: {}, selectedId: undefined }),
             source: (state: typeof initial = initial, action: { type: string; payload?: unknown }) => {
                 if (action.type !== SELECT_NODE || typeof action.payload !== "string") return state
@@ -70,6 +74,27 @@ describe("useFeatureState", () => {
         expect(map.setFeatureState).toHaveBeenCalledTimes(2)
         expect(map.setFeatureState).toHaveBeenCalledWith({ source: "src1", id: 1 }, { selected: true })
         expect(map.setFeatureState).toHaveBeenCalledWith({ source: "src1", id: 2 }, { selected: true })
+    })
+
+    it("highlights on the drawn source when no layer is selected and a draw session is active", () => {
+        const map = makeMap()
+        const store = makeStore(undefined, "src1", undefined, "drawn")
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            emitSelectionDelta({ added: [5], removed: [] })
+        })
+        expect(map.setFeatureState).toHaveBeenCalledWith({ source: "drawn", id: 5 }, { selected: true })
+    })
+
+    it("highlights on the drawn source, not the selected layer's source, while drawing", () => {
+        const map = makeMap()
+        const store = makeStore("l1", "s1", undefined, "s2", { l1: { sourceId: "s1" } })
+        renderHook(() => useFeatureState(makeMapRef(map) as never), { wrapper: wrapper(store) })
+        act(() => {
+            emitSelectionDelta({ added: [5], removed: [] })
+        })
+        expect(map.setFeatureState).toHaveBeenCalledWith({ source: "s2", id: 5 }, { selected: true })
+        expect(map.setFeatureState).not.toHaveBeenCalledWith({ source: "s1", id: 5 }, expect.anything())
     })
 
     it("does not call setFeatureState when sourceId is not set", () => {

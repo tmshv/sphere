@@ -44,8 +44,9 @@ vi.mock("../preview", () => ({
 
 import { makeCaptureStore, makeMvtSource, makeSourceState } from "@/testutils"
 import type { Id } from "@/types"
+import { emitSelectionDelta } from "@/lib/selection-bus"
 import { actions } from "../actions"
-import { rectSelectCommit } from "../rect-select"
+import { rectSelectCommit, rectSelectDrag } from "../rect-select"
 import listener from "./rect-select-mvt"
 
 const MVT_ID = "m1"
@@ -104,5 +105,17 @@ describe("rect-select-mvt listener", () => {
         await flush()
 
         expect(ipc.selectionRectFeatures).not.toHaveBeenCalled()
+    })
+
+    test("a drag step emits its delta as dragging", async () => {
+        const { store } = makeStore(MVT_ID)
+
+        store.dispatch(rectSelectDrag({ start: { x: 10, y: 10 }, current: { x: 100, y: 100 }, modifier: "none" }))
+        await flush()
+
+        expect(vi.mocked(emitSelectionDelta)).toHaveBeenCalledExactlyOnceWith(
+            { added: [1, 2], removed: [] },
+            { dragging: true },
+        )
     })
 })

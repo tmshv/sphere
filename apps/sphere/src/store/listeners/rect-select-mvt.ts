@@ -93,7 +93,8 @@ listener.startListening({
 
                 if (session !== dragSession) break
 
-                emitSelectionDelta(delta)
+                // The commit at the drag's end emits the settled selection
+                emitSelectionDelta(delta, { dragging: true })
             }
         } finally {
             dragInFlight = false

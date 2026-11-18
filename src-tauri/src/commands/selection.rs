@@ -1,5 +1,5 @@
 use crate::selection::SelectionStorage;
-use crate::state::SourceStorage;
+use crate::state::{shared_feature_store, SourceStorage};
 use geojson::Feature;
 use libsphere::selection::SelectionDelta;
 use libsphere::source::{features_to_wkt, slice_feature_collection};
@@ -113,7 +113,7 @@ pub async fn selection_query_page(
             None => {
                 let cache = selection_storage.feature_cache.lock().unwrap();
                 let fc = fc_from_cache(&cache, &ids);
-                std::sync::Arc::new(libsphere::FeatureStore::from_features(fc.features))
+                shared_feature_store(libsphere::FeatureStore::from_features(fc.features))
             }
         }
     };
@@ -121,7 +121,7 @@ pub async fn selection_query_page(
     let filter_value = serde_json::json!(["in", ["id"], ["literal", ids]]);
     let filter = libexpression::parse(filter_value).map_err(|e| e.to_string())?;
 
-    let result = fs.query_page(
+    let result = fs.read().unwrap().query_page(
         offset,
         limit,
         Some(&filter),
@@ -153,7 +153,7 @@ pub async fn selection_rect(
             .ok_or_else(|| "No feature store for this source".to_string())?
             .clone()
     };
-    let ids = fs.query_rect(bbox, &mode);
+    let ids = fs.read().unwrap().query_rect(bbox, &mode);
     let mut last_gen = selection_storage.generation.lock().unwrap();
     if generation < *last_gen {
         return Ok(SelectionDelta {

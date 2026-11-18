@@ -49,4 +49,13 @@ describe("map-tool-changed listener", () => {
         store.dispatch(toolsSlice.actions.setTool("draw"))
         expect(store.getState().app.mapTool).toBe("navigation")
     })
+
+    test("switching to select while drawing is allowed", () => {
+        store.dispatch(toolsSlice.actions.setTool("draw"))
+        store.dispatch(appActions.setMapTool("select"))
+        const state = store.getState()
+        expect(state.app.mapTool).toBe("select")
+        expect(state.tools.activeTool).toBe("draw")
+        expect(selectDragPan(state)).toBe(false)
+    })
 })

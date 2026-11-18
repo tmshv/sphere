@@ -21,6 +21,10 @@ const FORM_STYLE: CSSProperties = { marginBottom: GAP_PX.sm }
 
 const reloadAvailable = new Set([SourceType.Geojson])
 
+const EDIT_LABEL = "Switch to edit mode"
+// The disabled edit action names why, in its accessible name and tooltip: draw edits in-memory sources only
+const EDIT_UNAVAILABLE_LABEL = `${EDIT_LABEL} (only in-memory sources can be edited)`
+
 export const selectPanelKind = createSelector(
     [selectors.source.selectSelectedNode, selectors.source.selectCurrentSourceItem],
     sourceKindOf,
@@ -161,7 +165,7 @@ export function SourcePanel() {
                 },
                 {
                     name: "edit",
-                    label: "Switch to edit mode",
+                    label: editable ? EDIT_LABEL : EDIT_UNAVAILABLE_LABEL,
                     icon: IconPencil,
                     disabled: !editable,
                 },

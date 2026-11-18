@@ -13,7 +13,7 @@ vi.mock("maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url", () => ({
 }))
 
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}))
-vi.mock("@hyvilo/maplibre-gl-draw/dist/maplibre-gl-draw.css", () => ({}))
+vi.mock("@sphere/draw/maplibre-gl-draw.css", () => ({}))
 
 const { setupMaplibre } = await import("@/maplibre")
 

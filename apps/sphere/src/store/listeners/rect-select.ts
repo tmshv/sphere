@@ -16,10 +16,12 @@ import {
     selectionRemove,
     selectionSet,
 } from "@/lib/selection-ipc"
+import { getDrawQueue } from "@/lib/draw-session"
 import { isMvtSource } from "@/lib/source"
 import { Point } from "maplibre-gl"
 import { createListenerMiddleware } from "@reduxjs/toolkit"
 import type { RootState } from ".."
+import { selectSelectionTargetInteractive, selectSelectionTargetSourceId } from "../selection-target"
 import { selectSelectedInteractive, selectSelectedSourceId } from "../source/tree-selectors"
 import { actions } from "../actions"
 import { selectPreviewLayerIds } from "../preview"
@@ -40,6 +42,16 @@ let pendingDrag: DragPayload | null = null
 let lastDragBbox: Bbox | null = null
 let lastDragMode: "include" | "intersect" | null = null
 let lastDragOp: SelectionRectOp | null = null
+
+/**
+ * While drawing, the backend must hold every edit before the selection is queried.
+ * False when the flush failed (the queue already surfaced the error), so the query is skipped.
+ */
+async function flushDraw(state: RootState, sourceId: string): Promise<boolean> {
+    if (state.draw.sourceId === undefined) return true
+    const result = await getDrawQueue(sourceId)?.flush()
+    return result?.ok ?? true
+}
 
 function resetDragDedup(): void {
     lastDragBbox = null
@@ -62,8 +74,8 @@ listener.startListening({
                 if (session !== dragSession) break
 
                 const state = listenerApi.getState() as RootState
-                if (!selectSelectedInteractive(state)) continue
-                const sourceId = selectSelectedSourceId(state)
+                if (!selectSelectionTargetInteractive(state)) continue
+                const sourceId = selectSelectionTargetSourceId(state)
                 if (!sourceId) continue
                 if (isMvtSource(state.source.items[sourceId])) continue
 
@@ -78,6 +90,9 @@ listener.startListening({
                 if (lastDragBbox && lastDragMode === mode && lastDragOp === op && bboxEqual(lastDragBbox, bbox)) {
                     continue
                 }
+
+                // Dedup bookkeeping follows a successful flush, so a retry after a failed one is not skipped
+                if (!(await flushDraw(state, sourceId))) continue
                 lastDragBbox = bbox
                 lastDragMode = mode
                 lastDragOp = op
@@ -87,7 +102,8 @@ listener.startListening({
 
                 if (session !== dragSession) break
 
-                emitSelectionDelta(delta)
+                // The commit at the drag's end emits the settled selection
+                emitSelectionDelta(delta, { dragging: true })
             }
         } finally {
             dragInFlight = false
@@ -104,8 +120,8 @@ listener.startListening({
 
         const generation = ++queryGeneration
         const state = listenerApi.getState() as RootState
-        if (!selectSelectedInteractive(state)) return
-        const sourceId = selectSelectedSourceId(state)
+        if (!selectSelectionTargetInteractive(state)) return
+        const sourceId = selectSelectionTargetSourceId(state)
         if (!sourceId) return
         if (isMvtSource(state.source.items[sourceId])) return
 
@@ -116,6 +132,8 @@ listener.startListening({
         const mode = current.x >= start.x ? "include" : "intersect"
         const bbox = screenToGeoBbox(map, start, current)
         const op = modifier === "shift" ? "add" : "set"
+
+        if (!(await flushDraw(state, sourceId))) return
 
         const delta = await selectionRect(sourceId, bbox, mode, op, generation)
 
@@ -144,6 +162,8 @@ listener.startListening({
         resetDragDedup()
 
         const state = listenerApi.getState() as RootState
+        // Draw owns clicks while drawing
+        if (state.draw.sourceId !== undefined) return
         if (!selectSelectedInteractive(state)) return
         const sourceId = selectSelectedSourceId(state)
         if (sourceId && isMvtSource(state.source.items[sourceId])) return

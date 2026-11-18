@@ -36,7 +36,7 @@ listener.startListening({
     },
 })
 
-// Reset to navigation when entering draw mode so RectSelectOverlay unmounts
+// Entering draw starts on the Navigation tool; the user may switch to Select or Info while drawing
 listener.startListening({
     actionCreator: actions.tools.setTool,
     effect: (action, listenerApi) => {

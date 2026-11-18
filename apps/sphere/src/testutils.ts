@@ -1,4 +1,4 @@
-import { type Middleware, configureStore } from "@reduxjs/toolkit"
+import { type Middleware, type Reducer, configureStore } from "@reduxjs/toolkit"
 import { createSourceNodes } from "@/lib/source-tree"
 import { type Id, type SourceNode, type SourceTreeInput, SourceType } from "@/types"
 import type { LayerProps } from "react-map-gl/maplibre"
@@ -52,6 +52,46 @@ export function makeCaptureStore(options: MakeCaptureStoreOptions = {}) {
         },
     })
     return { store, dispatched }
+}
+
+export type MakeLogStoreOptions = {
+    preloadedState: object
+    middleware: Middleware[]
+    // Defaults to the identity on `preloadedState`, so listeners see exactly the seeded state
+    reducer?: Reducer
+}
+
+/**
+ * Like `makeCaptureStore`, but also writes every dispatched action as
+ * `action:<type>` into `log`, a timeline the test can share with its IPC mock
+ * (e.g. `invoke:<command>`), so the order of IPC calls and dispatches can be
+ * asserted. Takes several middlewares, for listeners that hand off to each other.
+ */
+export function makeLogStore(options: MakeLogStoreOptions) {
+    const log: string[] = []
+    const dispatched: CapturedAction[] = []
+    const logMiddleware: Middleware = () => next => action => {
+        if (isCapturedAction(action)) {
+            dispatched.push(action)
+            log.push(`action:${action.type}`)
+        }
+        return next(action)
+    }
+    const identity: Reducer = (s: object = options.preloadedState) => s
+    const store = configureStore({
+        reducer: options.reducer ?? identity,
+        preloadedState: options.preloadedState,
+        middleware: getDefault =>
+            getDefault()
+                .prepend(...options.middleware)
+                .concat(logMiddleware),
+    })
+    return { store, log, dispatched }
+}
+
+/** Lets pending promises and listener effects run. */
+export function flushAsync(): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, 0))
 }
 
 export function makeGeojsonSource<T extends object>(id: string, overrides: T = {} as T) {

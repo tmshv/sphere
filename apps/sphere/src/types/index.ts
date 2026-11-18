@@ -85,3 +85,4 @@ export type DatasetRow<G> = {
 // }
 
 export * from "./source-tree"
+export * from "./draw"

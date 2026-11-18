@@ -1,6 +1,8 @@
 import type { FilterSpecification } from "maplibre-gl"
+import { featureFilter } from "@maplibre/maplibre-gl-style-spec"
 import {
     combineFilters,
+    excludeIdsFilter,
     isExpressionFilter,
     isValidFilterExpression,
     layerOrderMoves,
@@ -172,6 +174,58 @@ describe("combineFilters", () => {
             base,
             ["==", ["get", "type"], "airport"],
             [">=", ["get", "pop"], 1000],
+        ])
+    })
+})
+
+describe("excludeIdsFilter", () => {
+    const GLOBALS = { zoom: 0 }
+    // Where the expression sits in the style; featureFilter needs it for error messages
+    const ROOT_KEY = "filter"
+
+    function shown(filter: FilterSpecification | undefined, id: number | string | undefined): boolean {
+        if (filter === undefined) {
+            return true
+        }
+        const compiled = featureFilter(filter, ROOT_KEY)
+        return compiled.filter(GLOBALS, { type: 1, id, properties: {}, geometry: [] })
+    }
+
+    it("is no filter when no id is hidden", () => {
+        expect(excludeIdsFilter([])).toBeUndefined()
+    })
+
+    it("matches the feature id against the hidden ids", () => {
+        expect(excludeIdsFilter([3, 1])).toEqual(["match", ["id"], [1, 3], false, true])
+    })
+
+    it("lists each id once", () => {
+        expect(excludeIdsFilter([2, 2, 1])).toEqual(["match", ["id"], [1, 2], false, true])
+    })
+
+    it("hides exactly the given numeric ids when MapLibre evaluates it", () => {
+        // featureFilter throws when MapLibre cannot compile the expression
+        const filter = excludeIdsFilter([1, 2])
+        expect(filter).toBeDefined()
+        expect(shown(filter, 1)).toBe(false)
+        expect(shown(filter, 2)).toBe(false)
+        expect(shown(filter, 3)).toBe(true)
+        expect(shown(filter, undefined)).toBe(true)
+        expect(shown(filter, "1")).toBe(true)
+    })
+
+    it("skips ids MapLibre cannot use as a match label", () => {
+        expect(excludeIdsFilter([1.5, Number.MAX_SAFE_INTEGER + 2, 4])).toEqual(["match", ["id"], [4], false, true])
+        expect(excludeIdsFilter([1.5])).toBeUndefined()
+    })
+
+    it("combines with a geometry filter", () => {
+        const geometry: FilterSpecification = ["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]]
+        const hidden = excludeIdsFilter([5])
+        expect(combineFilters(geometry, ...(hidden ? [hidden] : []))).toEqual([
+            "all",
+            geometry,
+            ["match", ["id"], [5], false, true],
         ])
     })
 })
