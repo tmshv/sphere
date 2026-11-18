@@ -52,6 +52,7 @@ export const store = configureStore({
             mapListener.middleware,
             listeners.addBlankLayer.middleware,
             listeners.addBasemap.middleware,
+            listeners.addRasterUrl.middleware,
             listeners.addTerrainProvider.middleware,
             listeners.forceResizeMap.middleware,
             listeners.clearSelection.middleware,

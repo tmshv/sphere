@@ -46,6 +46,14 @@ export function Spotlight({ children, mapId }: SpotlightProps) {
             },
         },
         {
+            id: "add-raster-url",
+            title: "Add raster from URL",
+            description: "Add an XYZ or WMS raster source from a URL template",
+            onTrigger: () => {
+                dispatch(actions.app.openRasterUrlDialog())
+            },
+        },
+        {
             id: "add-mapterhorn",
             title: "Add Mapterhorn terrain",
             description: "Add Mapterhorn elevation source",

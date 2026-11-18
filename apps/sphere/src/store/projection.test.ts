@@ -1,5 +1,7 @@
 import { describe, expect, test } from "vitest"
-import reducer, { projectionSlice } from "./projection"
+import { WEB_MERCATOR_CRS } from "@/lib/projection"
+import type { RootState } from "."
+import reducer, { projectionSlice, selectProjectionCrs } from "./projection"
 
 const { setGlobe, setFlat } = projectionSlice.actions
 
@@ -29,5 +31,14 @@ describe("projectionSlice reducer", () => {
     test("setFlat is idempotent", () => {
         const state = reducer(undefined, setFlat())
         expect(state.value).toBe("mercator")
+    })
+})
+
+describe("selectProjectionCrs", () => {
+    test("is Web Mercator under mercator and globe", () => {
+        for (const value of ["mercator", "globe"] as const) {
+            const state = { projection: { value } } as unknown as RootState
+            expect(selectProjectionCrs(state)).toBe(WEB_MERCATOR_CRS)
+        }
     })
 })

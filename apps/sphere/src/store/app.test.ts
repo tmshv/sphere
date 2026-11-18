@@ -5,6 +5,7 @@ import reducer, {
     selectActiveSidebarTab,
     selectShowAttribution,
     selectShowLeftSidebar,
+    selectRasterUrlDialogOpen,
     selectShowRightSidebar,
     selectSidebarSections,
     selectVersion,
@@ -24,6 +25,8 @@ const {
     setMapTool,
     toggleLeftSidebar,
     toggleRightSidebar,
+    openRasterUrlDialog,
+    closeRasterUrlDialog,
 } = appSlice.actions
 const { isZen, isDark } = appSlice.selectors
 
@@ -256,5 +259,21 @@ describe("app slice sidebarSections", () => {
         const state = reducer(undefined, { type: "@@INIT" })
         const rootState = { app: state } as unknown as Parameters<typeof selectActiveSidebarTab>[0]
         expect(selectSidebarSections("layers")(rootState)).toEqual(state.sidebarSections.layers)
+    })
+
+    test("raster URL dialog starts closed", () => {
+        const state = reducer(undefined, { type: "@@INIT" })
+        expect(selectRasterUrlDialogOpen(makeRootState(state))).toBe(false)
+    })
+
+    test("openRasterUrlDialog opens the raster URL dialog", () => {
+        const state = reducer(undefined, openRasterUrlDialog())
+        expect(selectRasterUrlDialogOpen(makeRootState(state))).toBe(true)
+    })
+
+    test("closeRasterUrlDialog closes the raster URL dialog", () => {
+        const open = reducer(undefined, openRasterUrlDialog())
+        const state = reducer(open, closeRasterUrlDialog())
+        expect(selectRasterUrlDialogOpen(makeRootState(state))).toBe(false)
     })
 })

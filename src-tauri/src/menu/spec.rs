@@ -132,6 +132,7 @@ const FILE: Submenu = Submenu {
     prefix: "file",
     items: &[
         custom_with_accelerator("file.open", "Open…", "CmdOrCtrl+O"),
+        custom("file.add-raster-url", "Add Raster from URL…"),
         SEPARATOR,
         predefined(Predefined::CloseWindow),
     ],
@@ -335,6 +336,11 @@ mod tests {
     #[test]
     fn opening_files_is_always_available() {
         assert!(items_requiring(Requires::Always).contains(&"file.open"));
+    }
+
+    #[test]
+    fn adding_a_raster_from_url_is_always_available() {
+        assert!(items_requiring(Requires::Always).contains(&"file.add-raster-url"));
     }
 
     #[test]

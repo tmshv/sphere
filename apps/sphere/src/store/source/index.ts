@@ -302,6 +302,8 @@ export const sourceSlice = createSlice({
 export const zoomTo = createAction<string>("source/zoomTo")
 // Adds a web basemap as a raster source with a layer of its own; handled by the `add-basemap` listener
 export const addBasemap = createAction<BasemapId>("source/addBasemap")
+// Adds a raster source with a layer from an XYZ or WMS URL template; handled by the `add-raster-url` listener
+export const addRasterFromUrl = createAction<{ template: string; name?: string }>("source/addRasterFromUrl")
 // Adds a web elevation source with no layer; handled by the `add-terrain-provider` listener
 export const addTerrainProvider = createAction<TerrainProviderId>("source/addTerrainProvider")
 
@@ -309,6 +311,7 @@ export const actions = {
     ...sourceSlice.actions,
     zoomTo,
     addBasemap,
+    addRasterFromUrl,
     addTerrainProvider,
     addFromUrl,
     addFromClipboard,

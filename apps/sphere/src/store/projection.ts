@@ -1,5 +1,7 @@
+import { projectionCrs } from "@/lib/projection"
 import type { Projection } from "@/types"
 import { createSlice } from "@reduxjs/toolkit"
+import type { RootState } from "."
 
 // Define a type for the slice state
 type ProjectionState = {
@@ -24,5 +26,8 @@ export const projectionSlice = createSlice({
         },
     },
 })
+
+// The CRS tiles are cut in under the active projection; raster URL templates must match it
+export const selectProjectionCrs = (state: RootState) => projectionCrs(state.projection.value)
 
 export default projectionSlice.reducer
