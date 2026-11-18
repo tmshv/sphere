@@ -91,6 +91,29 @@ describe("addFile thunk", () => {
         expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "source/addFromUrl" }))
     })
 
+    test(".pmtiles ext dispatches addFromUrl with MVT type and pmtiles URL", async () => {
+        mockExtname.mockResolvedValue("pmtiles")
+
+        await addFile("/path/to/data.pmtiles")(store.dispatch, store.getState, undefined)
+
+        expect(mockAddFromUrl).toHaveBeenCalledWith({
+            url: "file:///path/to/data.pmtiles",
+            type: SourceType.MVT,
+        })
+        expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: "source/addFromUrl" }))
+    })
+
+    test(".PMTILES ext (uppercase) is treated as pmtiles", async () => {
+        mockExtname.mockResolvedValue("PMTILES")
+
+        await addFile("/path/to/DATA.PMTILES")(store.dispatch, store.getState, undefined)
+
+        expect(mockAddFromUrl).toHaveBeenCalledWith({
+            url: "file:///path/to/DATA.PMTILES",
+            type: SourceType.MVT,
+        })
+    })
+
     test("unknown ext dispatches addFromUrl with Geojson type and source URL", async () => {
         mockExtname.mockResolvedValue("geojson")
 

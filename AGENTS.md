@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend) using MapLibre GL for map rendering. It supports loading GeoJSON, Shapefile, CSV, GPX, KML, KMZ, and MBTiles formats.
+Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend) using MapLibre GL for map rendering. It supports loading GeoJSON, Shapefile, CSV, GPX, KML, KMZ, MBTiles, and PMTiles formats.
 
 ## Git Conventions
 
@@ -82,7 +82,7 @@ The following code smells are strictly forbidden:
 - `error` - Transient error state surfaced in the UI; populated by the `fail` listener, cleared by `clearError`
 - `properties` - Feature property display state (hover/inspect entries shown in the properties panel)
 - `sky` - Map sky layer toggle/config
-- `terrain` - 3D terrain and hillshade. State: `show`, `hillshade`, `exaggeration` (0-3, default 1.5), `sourceId`, `hillshadeSettings` (intensity, method, light direction/altitude/anchor, shadow/highlight/accent colours; one light source; defaults are MapLibre's own, `HILLSHADE_DEFAULTS`), changed by `updateHillshade` and mapped to the layer paint by `hillshadePaint` / `selectHillshadePaint`. Turning terrain off (`show` false) removes the hillshade too, but keeps the `hillshade` switch, so turning terrain back on restores it. Candidates (`selectTerrainCandidates`) are every raster MBTiles source (assumed Terrarium) and every web `Raster` source with a `dem` encoding (`terrarium`/`mapbox`), regardless of Sources-tree visibility; `selectHasTerrainSource` is true when any exists. The `resolve-terrain-source` listener keeps `sourceId` on a current candidate (the newest when the stored one is gone) and only ever changes `sourceId`, never `show`/`hillshade`/`exaggeration`. The Mapterhorn preset is added by `source.addTerrainProvider` (`add-terrain-provider` listener, Spotlight "Add Mapterhorn terrain"); it is added hidden in the Sources tree (its tiles drawn as a raster are noise; terrain ignores tree visibility), and its only auto-enable rule is that when it is the first elevation source it also turns terrain and hillshade on (`enableFor`). Draw mode suspends terrain only (hillshade stays). `TerrainSources` (in `SphereMap`) mounts `terrain-dem-<id>` / `hillshade-dem-<id>` `raster-dem` sources and the `sphere-hillshade` layer, which `useHillshadePlacement` keeps above the topmost raster layer. The Terrain status bar button (`TerrainButton`) toggles terrain, is disabled without a candidate, and its right-click popup (`StatusbarPopover`, in two `PopoverSection`s: Terrain with source and exaggeration, Hillshade with the switch and every hillshade setting) configures both
+- `terrain` - 3D terrain and hillshade. State: `show`, `hillshade`, `exaggeration` (0-3, default 1.5), `sourceId`, `hillshadeSettings` (intensity, method, light direction/altitude/anchor, shadow/highlight/accent colours; one light source; defaults are MapLibre's own, `HILLSHADE_DEFAULTS`), changed by `updateHillshade` and mapped to the layer paint by `hillshadePaint` / `selectHillshadePaint`. Turning terrain off (`show` false) removes the hillshade too, but keeps the `hillshade` switch, so turning terrain back on restores it. Candidates (`selectTerrainCandidates`) are every raster MBTiles or PMTiles source (assumed Terrarium) and every web `Raster` source with a `dem` encoding (`terrarium`/`mapbox`), regardless of Sources-tree visibility; `selectHasTerrainSource` is true when any exists. The `resolve-terrain-source` listener keeps `sourceId` on a current candidate (the newest when the stored one is gone) and only ever changes `sourceId`, never `show`/`hillshade`/`exaggeration`. The Mapterhorn preset is added by `source.addTerrainProvider` (`add-terrain-provider` listener, Spotlight "Add Mapterhorn terrain"); it is added hidden in the Sources tree (its tiles drawn as a raster are noise; terrain ignores tree visibility), and its only auto-enable rule is that when it is the first elevation source it also turns terrain and hillshade on (`enableFor`). Draw mode suspends terrain only (hillshade stays). `TerrainSources` (in `SphereMap`) mounts `terrain-dem-<id>` / `hillshade-dem-<id>` `raster-dem` sources and the `sphere-hillshade` layer, which `useHillshadePlacement` keeps above the topmost raster layer. The Terrain status bar button (`TerrainButton`) toggles terrain, is disabled without a candidate, and its right-click popup (`StatusbarPopover`, in two `PopoverSection`s: Terrain with source and exaggeration, Hillshade with the switch and every hillshade setting) configures both
 - `tileBoundaries` - Tile-grid debug overlay toggle
 
 > Note: `map` is **not** a Redux slice — it is a `createAction`/`createListenerMiddleware` module (`store/map.ts`) wired into the store's middleware, not the reducer. Map viewport changes flow through that listener, not a slice reducer.
@@ -114,15 +114,15 @@ The following code smells are strictly forbidden:
 ### Backend (`src-tauri/`)
 
 Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
-- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics, rect spatial queries, in-memory source create/replace
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles/PMTiles tiles, paginated feature queries, column statistics, rect spatial queries, in-memory source create/replace
 - `draw.rs` - Draw edit sessions on in-memory sources: begin, working-set queries (by ids or bbox, with a cap), in-place ops, commit and rollback
 - `selection.rs` - Server-side selection state: set/preview/add/remove/apply/clear, rect queries, paginated query over the selection, copy as GeoJSON/WKT
 
-State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source`, `store: Option<Arc<RwLock<FeatureStore>>>` (built at load time; absent for MBTiles sources) and `session: Option<EditSession>` (the open draw session; it lives in the entry, so removing or replacing the entry ends it).
+State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source`, `store: Option<Arc<RwLock<FeatureStore>>>` (built at load time; absent for tile archive (MBTiles, PMTiles) sources) and `session: Option<EditSession>` (the open draw session; it lives in the entry, so removing or replacing the entry ends it).
 
 ### Rust Libraries (`crates/`)
 
-- `libsphere` - Geospatial processing (format parsing, bounds calculation). `FeatureStore` supports incremental `upsert`/`remove`/`get_by_ids`/`refresh_schema`; `EditSession` applies create/update/delete ops to a store while journaling them, then `commit` keeps them or `rollback` undoes them and returns the touched ids
+- `libsphere` - Geospatial processing (format parsing, bounds calculation, the PMTiles reader, and the `TileArchive` trait that MBTiles and PMTiles share). `FeatureStore` supports incremental `upsert`/`remove`/`get_by_ids`/`refresh_schema`; `EditSession` applies create/update/delete ops to a store while journaling them, then `commit` keeps them or `rollback` undoes them and returns the touched ids
 - `libexpression` - MapLibre Style Specification filter expression parser and evaluator
 - `mbtiles` - MBTiles tile database reader
 - `tilejson` - TileJSON spec support
@@ -190,7 +190,7 @@ To bump the app's version, run `npm version patch -w @sphere/app` from the repo 
 | `sphere://{id}/tilejson`               | TileJSON metadata   |
 | `sphere://{id}/tile?z={z}&x={x}&y={y}` | Tile bytes          |
 
-The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `MbtilesReader`, everything else to `SourceReader`. The source ID is extracted from `url.host`.
+The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `TileReader` (`src/lib/tile-reader.ts`), everything else to `SourceReader`. The source ID is extracted from `url.host`.
 
 **CSV source URI params**: When loading CSV files, the `sphere://source` URI accepts query parameters: `?x=<field>&y=<field>` for lon/lat column names (defaults: `lng`/`lat`), `?wkt=<field>` for a WKT geometry column. When a source is stored, features are assigned integer IDs starting from 1 (after the max existing numeric ID). Original string IDs are preserved in `properties["$id"]`.
 
@@ -238,8 +238,8 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `draw_apply`               | Apply one edit in place: `(id, op: {type:"create",drawId,feature}\|{type:"update",id,feature}\|{type:"delete",id}) -> Option<i64>` (backend id for create/update)                  |
 | `draw_commit`              | Keep the session's edits, end the session: `(id) -> Vec<i64>` (touched ids); refreshes schema and source data only when it touched any                                             |
 | `draw_rollback`            | Undo the session's edits, end the session: `(id) -> Vec<i64>` (touched ids); no schema refresh or source-data sync, nothing to re-fetch                                            |
-| `mbtiles_get_tile`         | Get a single tile from MBTiles: `(id, z, x, y) -> Vec<u8>`                                                                                                                         |
-| `mbtiles_get_metadata`     | Get MBTiles metadata/TileJSON: `(id) -> String`                                                                                                                                    |
+| `tiles_get_tile`           | Get a single tile from an MBTiles or PMTiles source: `(id, z, x, y) -> Vec<u8>`                                                                                                    |
+| `tiles_get_tilejson`       | Get metadata/TileJSON from an MBTiles or PMTiles source: `(id) -> String`                                                                                                          |
 | `selection_set`            | Replace selection with the given IDs: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                          |
 | `selection_preview`        | Preview selection (transient overlay): `(ids: Vec<i64>) -> SelectionDelta`                                                                                                         |
 | `selection_add`            | Add IDs to the selection: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                                      |

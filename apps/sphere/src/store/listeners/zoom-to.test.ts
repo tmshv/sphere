@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const mockGetBounds = vi.fn().mockResolvedValue(null)
 const mockGetTileJson = vi.fn().mockResolvedValue(null)
-const mockMbtilesReader = vi.fn()
+const mockTileReader = vi.fn()
 
 vi.mock("@/lib/source-reader", () => ({
     SourceReader: vi.fn().mockImplementation(function mock() {
@@ -13,9 +13,9 @@ vi.mock("@/lib/source-reader", () => ({
     }),
 }))
 
-vi.mock("@/lib/mbtiles", () => ({
-    MbtilesReader: vi.fn().mockImplementation(function mock(id: string) {
-        mockMbtilesReader(id)
+vi.mock("@/lib/tile-reader", () => ({
+    TileReader: vi.fn().mockImplementation(function mock(id: string) {
+        mockTileReader(id)
         return { getTileJson: mockGetTileJson }
     }),
 }))
@@ -166,7 +166,7 @@ describe("zoom-to listener: tree nodes", () => {
         store.dispatch({ type: "source/zoomTo", payload: ROADS_NODE_ID })
         await vi.runAllTimersAsync()
 
-        expect(mockMbtilesReader).toHaveBeenCalledWith(MVT_ID)
+        expect(mockTileReader).toHaveBeenCalledWith(MVT_ID)
         const fitBoundsAction = dispatchedActions.find(a => hasType(a, "map/fitBounds"))
         expect(fitBoundsAction).toEqual(
             expect.objectContaining({ payload: expect.objectContaining({ bounds: MVT_BOUNDS }) }),
@@ -180,7 +180,7 @@ describe("zoom-to listener: tree nodes", () => {
         await vi.runAllTimersAsync()
 
         expect(dispatchedActions.find(a => hasType(a, "map/fitBounds"))).toBeUndefined()
-        expect(mockMbtilesReader).not.toHaveBeenCalled()
+        expect(mockTileReader).not.toHaveBeenCalled()
         expect(mockGetBounds).not.toHaveBeenCalled()
     })
 })

@@ -1,10 +1,10 @@
 import type { RequestParameters } from "maplibre-gl"
-import { MbtilesReader } from "./mbtiles"
+import { TileReader } from "./tile-reader"
 import { SourceReader } from "./source-reader"
 import { SphereProtocol } from "./sphere-protocol"
 
-vi.mock("./mbtiles", () => ({
-    MbtilesReader: vi.fn(),
+vi.mock("./tile-reader", () => ({
+    TileReader: vi.fn(),
 }))
 
 vi.mock("./source-reader", () => ({
@@ -22,8 +22,8 @@ function request(url: string): Promise<{ data: unknown }> {
 
 beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(MbtilesReader).mockImplementation(function MockMbtilesReader() {
-        return Object.assign(Object.create(MbtilesReader.prototype), { getTileJson, getTile })
+    vi.mocked(TileReader).mockImplementation(function MockTileReader() {
+        return Object.assign(Object.create(TileReader.prototype), { getTileJson, getTile })
     })
     vi.mocked(SourceReader).mockImplementation(function MockSourceReader() {
         return Object.assign(Object.create(SourceReader.prototype), { getGeojson })
@@ -51,7 +51,7 @@ describe("SphereProtocol::createHandler", () => {
 
         const result = await request("sphere://abc/tilejson")
 
-        expect(MbtilesReader).toHaveBeenCalledWith("abc")
+        expect(TileReader).toHaveBeenCalledWith("abc")
         expect(result).toEqual({ data: tilejson })
     })
 

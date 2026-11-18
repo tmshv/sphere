@@ -12,6 +12,7 @@ Geospatial data processing library for the Sphere application. Handles loading, 
 | CSV         | `.csv`       |
 | GPX         | `.gpx`       |
 | MBTiles     | `.mbtiles`   |
+| PMTiles     | `.pmtiles`   |
 
 ## Usage
 

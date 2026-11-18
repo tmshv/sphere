@@ -25,13 +25,13 @@ const addFile = createAsyncThunk("addFile", async (path: string, thunkAPI) => {
             thunkAPI.dispatch(addKmz(path))
             break
         }
-        case "mbtiles": {
+        case "mbtiles":
+        case "pmtiles": {
             const url = encodeURI(`file://${path}`)
             thunkAPI.dispatch(
                 source.addFromUrl({
                     url,
                     type: SourceType.MVT,
-                    // type: SourceType.Raster,
                 }),
             )
             break

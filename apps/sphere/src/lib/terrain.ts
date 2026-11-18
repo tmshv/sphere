@@ -7,10 +7,10 @@ import type { SourceProps } from "react-map-gl/maplibre"
 import { rasterTileProps } from "./source"
 import { isRasterTileFormat } from "./tilejson"
 
-// Elevation tiles in an MBTiles file are assumed to use the Terrarium encoding
+// Elevation tiles in an MBTiles or PMTiles file are assumed to use the Terrarium encoding
 export const MBTILES_DEM_ENCODING: DemEncoding = "terrarium"
 
-// Raster MBTiles are served through the sphere:// protocol as 256px tiles, as SphereSource mounts them
+// Raster MBTiles and PMTiles are served through the sphere:// protocol as 256px tiles, as SphereSource mounts them
 const MBTILES_TILE_SIZE = 256
 
 const RASTER_LAYER_TYPE = "raster"

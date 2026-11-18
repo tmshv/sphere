@@ -83,6 +83,7 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
                     SourceData::Geojson(_) => "geojson".into(),
                     SourceData::GeojsonSeq(_) => "geojson".into(),
                     SourceData::Mbtiles(_) => "mbtiles".into(),
+                    SourceData::Pmtiles(_) => "pmtiles".into(),
                     SourceData::Shapefile(_) => "shapefile".into(),
                     SourceData::Csv(_) => "csv".into(),
                     SourceData::Gpx(_) => "gpx".into(),
@@ -91,11 +92,12 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
                 },
             };
             let id = source.id.clone();
-            // MBTiles sources intentionally have no feature store.
+            // Tile archive sources (MBTiles, PMTiles) intentionally have no feature store.
             // For all other source types, failure to build the store is an error.
-            let store = match &source.data {
-                SourceData::Mbtiles(_) => None,
-                _ => Some(shared_feature_store(build_feature_store(&source)?)),
+            let store = if source.is_tile_archive() {
+                None
+            } else {
+                Some(shared_feature_store(build_feature_store(&source)?))
             };
             let entry = SourceEntry::new(source, store);
             storage.store.lock().unwrap().insert(id, entry);
@@ -187,25 +189,21 @@ pub async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Res
 }
 
 #[tauri::command]
-pub async fn mbtiles_get_metadata(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
+pub async fn tiles_get_tilejson(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
-        Some(entry) => match &entry.source.data {
-            SourceData::Mbtiles(mbtiles) => {
-                let meta = mbtiles.get_metadata();
-                match meta {
-                    Ok(meta) => Ok(meta),
-                    Err(err) => Err(format!("Failed to get metadata: {:?}", err)),
-                }
-            }
-            _ => Err("Source not found".into()),
+        Some(entry) => match entry.source.tile_archive() {
+            Some(archive) => archive
+                .get_metadata()
+                .map_err(|err| format!("Failed to get metadata: {:?}", err)),
+            None => Err("Source not found".into()),
         },
         None => Err("Source not found".into()),
     }
 }
 
 #[tauri::command]
-pub async fn mbtiles_get_tile(
+pub async fn tiles_get_tile(
     id: String,
     z: i32,
     x: i32,
@@ -214,16 +212,16 @@ pub async fn mbtiles_get_tile(
 ) -> Result<Vec<u8>, String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
-        Some(entry) => match entry.source.get_mbtiles() {
-            Some(mbtiles) => {
+        Some(entry) => match entry.source.tile_archive() {
+            Some(archive) => {
                 let tile = Tile { x, y, zoom: z };
-                let data = mbtiles.get_tile(&tile);
+                let data = archive.get_tile(&tile);
                 match data {
                     Ok(data) => Ok(data),
                     Err(err) => Err(format!("Failed to get tile {}/{}/{}: {:?}", z, x, y, err)),
                 }
             }
-            None => Err("Source is not MBTiles".into()),
+            None => Err("Source is not a tile archive".into()),
         },
         None => Err(format!("Not found {}", &id)),
     }
@@ -1100,28 +1098,94 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn mbtiles_commands_reject_a_source_that_is_not_mbtiles() {
+    async fn tile_commands_reject_a_source_that_is_not_a_tile_archive() {
         let app = test_app();
         add_file_source(&app, "file-source");
 
-        let tile_err = mbtiles_get_tile("file-source".into(), 0, 0, 0, app.state())
+        let tile_err = tiles_get_tile("file-source".into(), 0, 0, 0, app.state())
             .await
             .unwrap_err();
-        let meta_err = mbtiles_get_metadata("file-source".into(), app.state())
+        let meta_err = tiles_get_tilejson("file-source".into(), app.state())
             .await
             .unwrap_err();
 
-        assert_eq!(tile_err, "Source is not MBTiles");
+        assert_eq!(tile_err, "Source is not a tile archive");
         assert_eq!(meta_err, "Source not found");
     }
 
     #[tokio::test]
-    async fn mbtiles_get_tile_reports_a_missing_source() {
+    async fn tiles_get_tile_reports_a_missing_source() {
         let app = test_app();
 
-        let err = mbtiles_get_tile("nope".into(), 0, 0, 0, app.state()).await.unwrap_err();
+        let err = tiles_get_tile("nope".into(), 0, 0, 0, app.state()).await.unwrap_err();
 
         assert_eq!(err, "Not found nope");
+    }
+
+    const PMTILES_TILE: &[u8] = b"sphere-test-vector-tile";
+
+    /// A one-tile Mvt archive in the system temp dir, deleted when the fixture drops.
+    struct TempPmtiles {
+        path: std::path::PathBuf,
+    }
+
+    impl TempPmtiles {
+        fn new() -> TempPmtiles {
+            static COUNTER: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+            let n = COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            let path = std::env::temp_dir()
+                .join(format!("source-test-{}-{}.pmtiles", std::process::id(), n));
+            let file = std::fs::File::create(&path).unwrap();
+            let mut writer = pmtiles::PmTilesWriter::new(pmtiles::TileType::Mvt)
+                .metadata(r#"{"name":"Sphere Test","vector_layers":[{"id":"places","fields":{}}]}"#)
+                .create(file)
+                .unwrap();
+            writer
+                .add_tile(pmtiles::TileCoord::new(0, 0, 0).unwrap(), PMTILES_TILE)
+                .unwrap();
+            writer.finalize().unwrap();
+            TempPmtiles { path }
+        }
+
+        fn url(&self) -> String {
+            format!("file://{}", self.path.to_string_lossy())
+        }
+    }
+
+    impl Drop for TempPmtiles {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_file(&self.path);
+        }
+    }
+
+    #[tokio::test]
+    async fn source_add_loads_a_pmtiles_file_as_a_tile_source() {
+        let app = test_app();
+        let file = TempPmtiles::new();
+
+        let result = source_add(&file.url(), app.state()).await.unwrap();
+
+        assert_eq!(result.source_type, "pmtiles");
+        let storage = app.state::<SourceStorage>();
+        let entries = storage.store.lock().unwrap();
+        assert!(entries.get(&result.id).unwrap().store.is_none());
+    }
+
+    #[tokio::test]
+    async fn tile_commands_serve_a_pmtiles_source() {
+        let app = test_app();
+        let file = TempPmtiles::new();
+        let id = source_add(&file.url(), app.state()).await.unwrap().id;
+
+        let meta = tiles_get_tilejson(id.clone(), app.state()).await.unwrap();
+        let meta: Value = serde_json::from_str(&meta).unwrap();
+        let tile = tiles_get_tile(id.clone(), 0, 0, 0, app.state()).await.unwrap();
+        let missing = tiles_get_tile(id.clone(), 2, 0, 0, app.state()).await.unwrap();
+
+        assert_eq!(meta["name"], "Sphere Test");
+        assert_eq!(meta["tiles"][0], format!("sphere://{id}/tile?z={{z}}&x={{x}}&y={{y}}"));
+        assert_eq!(tile, PMTILES_TILE);
+        assert!(missing.is_empty());
     }
 
     /// A `.geojson` file in the system temp dir, deleted when the fixture drops.

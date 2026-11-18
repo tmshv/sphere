@@ -38,6 +38,13 @@ pub enum SphereError {
         detail: String,
     },
 
+    // See Shape comment above.
+    #[error("PMTiles error in {path}: {detail}")]
+    Pmtiles {
+        path: String,
+        detail: String,
+    },
+
     #[error("KML error in {path}: {detail}")]
     Kml {
         path: String,

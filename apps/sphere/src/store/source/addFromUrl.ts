@@ -1,4 +1,4 @@
-import { MbtilesReader } from "@/lib/mbtiles"
+import { TileReader } from "@/lib/tile-reader"
 import { EMPTY_SOURCE_METADATA, sourceMetadataFromSchema } from "@/lib/source-metadata"
 import { DEFAULT_SOURCE_FORMAT, isSourceFormat } from "@/lib/source-format"
 import { SourceReader } from "@/lib/source-reader"
@@ -35,7 +35,7 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type, parentI
 
         switch (type) {
             case SourceType.MVT: {
-                const r = new MbtilesReader(id)
+                const r = new TileReader(id)
                 const tilejson = await r.getTileJson()
                 if (tilejson) {
                     logger.info({ tilejson }, "Got tilejson")
@@ -62,7 +62,7 @@ const action = createAsyncThunk("source/addFromUrl", async ({ url, type, parentI
                 break
             }
             case SourceType.Raster: {
-                const r = new MbtilesReader(id)
+                const r = new TileReader(id)
                 const tilejson = await r.getTileJson()
                 if (tilejson) {
                     if (tilejson.name) {

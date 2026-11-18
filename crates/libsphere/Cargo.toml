@@ -1,6 +1,6 @@
 [package]
 name = "libsphere"
-version = "0.13.0"
+version = "0.14.0"
 description = "Sphere Lib"
 license = "MIT"
 edition = "2021"
@@ -17,6 +17,7 @@ path = "src/lib.rs"
 [dependencies]
 tilejson = { path = "../tilejson" }
 mbtiles = { path = "../mbtiles" }
+pmtiles = { version = "=0.28.1", default-features = false }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 
@@ -45,3 +46,6 @@ libexpression = { path = "../libexpression" }
 kml = { version = "0.15", default-features = false, features = ["geo-types"] }
 quick-xml = "0.41"
 zip = { version = "9.0", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[dev-dependencies]
+pmtiles = { version = "=0.28.1", default-features = false, features = ["write"] }
