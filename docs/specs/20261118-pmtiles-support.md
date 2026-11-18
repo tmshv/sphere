@@ -28,7 +28,7 @@ with `SourceType.MVT` exactly like MBTiles and is indistinguishable from it on t
 
 ### `libsphere::pmtiles` (new, `crates/libsphere/src/pmtiles.rs`)
 
-`pub struct Pmtiles { pub name: String, path: String, reader: PmTilesReader<File> }`, with a
+`pub struct Pmtiles { pub name: String, path: String, reader: PmTilesReader<File, BoundedCache> }`, with a
 hand-written `Debug` (the reader has none) that prints `name` and `path`.
 
 - `Pmtiles::new(name, path) -> Result<Pmtiles>` opens the archive and validates the header.
