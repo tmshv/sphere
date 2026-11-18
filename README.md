@@ -4,7 +4,7 @@
 ![](assets/sphere-screenshot-02.png)
 ![](assets/sphere-screenshot-03.png)
 
-Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend), using MapLibre GL for map rendering. It loads **GeoJSON, Shapefile, CSV, GPX, and MBTiles** sources.
+Sphere is a geospatial data visualization and editing desktop application built with Tauri (Rust backend) and React/TypeScript (frontend), using MapLibre GL for map rendering. It loads **GeoJSON, Shapefile, CSV, GPX, MBTiles, and PMTiles** sources.
 
 ## Prerequisites
 
