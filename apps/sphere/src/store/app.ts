@@ -14,6 +14,8 @@ type AppState = {
     activeSidebarTab: SidebarTab
     sidebarSections: Record<SidebarTab, SidebarSection[]>
     mapTool: MapTool
+    // The "Add Raster from URL" dialog, opened from the command palette and the native menu
+    rasterUrlDialogOpen: boolean
 }
 
 const initialState: AppState = {
@@ -35,6 +37,7 @@ const initialState: AppState = {
         ],
     },
     mapTool: DEFAULT_MAP_TOOL,
+    rasterUrlDialogOpen: false,
 }
 
 export const appSlice = createSlice({
@@ -82,6 +85,12 @@ export const appSlice = createSlice({
         setMapTool: (state, action: PayloadAction<MapTool>) => {
             state.mapTool = action.payload
         },
+        openRasterUrlDialog: state => {
+            state.rasterUrlDialogOpen = true
+        },
+        closeRasterUrlDialog: state => {
+            state.rasterUrlDialogOpen = false
+        },
     },
     selectors: {
         isZen: state => state.zenMode,
@@ -100,5 +109,6 @@ export const selectShowAttribution = (state: RootState) => state.app.showAttribu
 export const selectShowLeftSidebar = (state: RootState) => state.app.showLeftSidebar && !state.app.zenMode
 export const selectShowRightSidebar = (state: RootState) => state.app.showRightSidebar
 export const selectVersion = (state: RootState) => state.app.version
+export const selectRasterUrlDialogOpen = (state: RootState) => state.app.rasterUrlDialogOpen
 
 export default appSlice.reducer

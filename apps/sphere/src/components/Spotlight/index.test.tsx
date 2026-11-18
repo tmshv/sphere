@@ -108,6 +108,12 @@ describe("Spotlight", () => {
         expect(mockDispatch).toHaveBeenCalledWith({ type: "source/addBasemap", payload: "sentinel2-2016" })
     })
 
+    it("opens the raster URL dialog when chosen", async () => {
+        openPalette()
+        fireEvent.click(await screen.findByText("Add raster from URL"))
+        expect(mockDispatch).toHaveBeenCalledWith({ type: "app/openRasterUrlDialog" })
+    })
+
     it("no longer offers map style commands or view presets", async () => {
         openPalette()
         await screen.findByText("Toggle Zen")

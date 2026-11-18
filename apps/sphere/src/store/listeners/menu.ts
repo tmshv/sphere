@@ -25,6 +25,10 @@ listener.startListening({
                 dispatch(actions.openFiles())
                 return
 
+            case "file.add-raster-url":
+                dispatch(actions.app.openRasterUrlDialog())
+                return
+
             case "edit.copy-selection-geojson":
                 if (!hasSelection) return
                 dispatch(actions.selection.copySelection("geojson"))

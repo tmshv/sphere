@@ -303,6 +303,12 @@ describe("menu listener", () => {
         expect(dispatchedTypes()).toContain("openFiles/pending")
     })
 
+    test("opens the raster URL dialog", () => {
+        store.dispatch(menuTrigger("file.add-raster-url"))
+
+        expect(store.getState().app.rasterUrlDialogOpen).toBe(true)
+    })
+
     test("toggles dark theme", () => {
         store.dispatch(menuTrigger("view.toggle-dark-theme"))
 

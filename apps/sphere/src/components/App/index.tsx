@@ -12,6 +12,7 @@ import { LeftSidebar } from "../LeftSidebar"
 import { type LocationToString, MapContextMenu } from "../MapContextMenu"
 import { MapStatusbar } from "../MapStatusbar"
 import PropertiesPopup from "../PropertiesPopup"
+import { RasterUrlDialog } from "../RasterUrlDialog"
 import { SphereMap } from "../SphereMap"
 import { Spotlight } from "../Spotlight"
 import { WorkingIndicator } from "../WorkingIndicator"
@@ -80,6 +81,7 @@ export default function App() {
                         />
                     )}
                     <PropertiesPopup />
+                    <RasterUrlDialog />
                 </AppLayout>
             </Spotlight>
         </MapProvider>
