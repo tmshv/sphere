@@ -1,0 +1,359 @@
+use std::fmt;
+use std::fs::File;
+
+use ::pmtiles::{Compression, PmTilesReader, TileCoord, TileType};
+use mbtiles::tile::Tile;
+use serde_json::Value;
+use tilejson::Tilejson3;
+
+use crate::error::{Result, SphereError};
+use crate::mbtiles::sphere_url;
+
+/// TileJSON keys the header owns: metadata must not override them.
+const HEADER_KEYS: [&str; 7] = [
+    "tiles", "format", "minzoom", "maxzoom", "bounds", "center", "scheme",
+];
+
+fn tile_format(tile_type: TileType) -> Option<&'static str> {
+    match tile_type {
+        TileType::Mvt => Some("pbf"),
+        TileType::Png => Some("png"),
+        TileType::Jpeg => Some("jpg"),
+        TileType::Webp => Some("webp"),
+        TileType::Avif | TileType::Mlt | TileType::Unknown => None,
+    }
+}
+
+pub struct Pmtiles {
+    pub name: String,
+    path: String,
+    reader: PmTilesReader<File>,
+}
+
+impl fmt::Debug for Pmtiles {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Pmtiles")
+            .field("name", &self.name)
+            .field("path", &self.path)
+            .finish()
+    }
+}
+
+impl Pmtiles {
+    /// Opens the archive and validates that its tile type and compression are supported.
+    pub fn new(name: String, path: String) -> Result<Pmtiles> {
+        let fail = |detail: String| SphereError::Pmtiles { path: path.clone(), detail };
+        let reader = PmTilesReader::new_with_path(&path).map_err(|e| fail(e.to_string()))?;
+        let header = reader.get_header();
+        if tile_format(header.tile_type).is_none() {
+            return Err(fail(format!("unsupported tile type {:?}", header.tile_type)));
+        }
+        if !matches!(header.tile_compression, Compression::None | Compression::Gzip) {
+            return Err(fail(format!(
+                "unsupported tile compression {:?}",
+                header.tile_compression
+            )));
+        }
+        Ok(Pmtiles { name, path, reader })
+    }
+
+    fn error(&self, detail: impl ToString) -> SphereError {
+        SphereError::Pmtiles { path: self.path.clone(), detail: detail.to_string() }
+    }
+
+    pub fn get_metadata(&self) -> Result<String> {
+        let header = self.reader.get_header();
+        let mut tj = Tilejson3::new();
+        tj.set_zoom(i32::from(header.min_zoom), i32::from(header.max_zoom));
+        tj.set_bounds(vec![
+            header.min_longitude as f32,
+            header.min_latitude as f32,
+            header.max_longitude as f32,
+            header.max_latitude as f32,
+        ]);
+        tj.set_center(vec![
+            header.center_longitude as f32,
+            header.center_latitude as f32,
+            f32::from(header.center_zoom),
+        ]);
+        if let Some(format) = tile_format(header.tile_type) {
+            tj.set_format(format.to_string());
+        }
+        tj.add_tile(sphere_url(&self.name));
+        let base = tj.as_json();
+
+        let mut result = base.clone();
+        if header.metadata_length() > 0 {
+            let raw = self.reader.get_metadata().map_err(|e| self.error(e))?;
+            let metadata: Value = serde_json::from_str(&raw).map_err(|e| self.error(e))?;
+            if metadata.is_object() {
+                mbtiles::merge::merge(&mut result, metadata);
+            }
+        }
+        if let (Some(result), Some(base)) = (result.as_object_mut(), base.as_object()) {
+            for key in HEADER_KEYS {
+                if let Some(value) = base.get(key) {
+                    result.insert(key.to_string(), value.clone());
+                }
+            }
+        }
+        serde_json::to_string(&result).map_err(|e| self.error(e))
+    }
+
+    pub fn get_tile(&self, tile: &Tile) -> Result<Vec<u8>> {
+        let z = u8::try_from(tile.zoom).map_err(|e| self.error(e))?;
+        let x = u32::try_from(tile.x).map_err(|e| self.error(e))?;
+        let y = u32::try_from(tile.y).map_err(|e| self.error(e))?;
+        let coord = TileCoord::new(z, x, y).map_err(|e| self.error(e))?;
+        let bytes = self
+            .reader
+            .get_tile_decompressed(coord)
+            .map_err(|e| self.error(e))?;
+        Ok(bytes.map(|b| b.to_vec()).unwrap_or_default())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ::pmtiles::PmTilesWriter;
+    use serde_json::json;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    static COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+    struct TempArchive {
+        path: String,
+    }
+
+    impl TempArchive {
+        fn new() -> TempArchive {
+            let n = COUNTER.fetch_add(1, Ordering::SeqCst);
+            let path = std::env::temp_dir()
+                .join(format!("sphere-pmtiles-{}-{}.pmtiles", std::process::id(), n))
+                .to_string_lossy()
+                .into_owned();
+            TempArchive { path }
+        }
+    }
+
+    impl Drop for TempArchive {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_file(&self.path);
+        }
+    }
+
+    fn write_archive(
+        tile_type: TileType,
+        compression: Compression,
+        metadata: Option<&str>,
+        tiles: &[((u8, u32, u32), &[u8])],
+    ) -> TempArchive {
+        let archive = TempArchive::new();
+        let mut builder = PmTilesWriter::new(tile_type)
+            .tile_compression(compression)
+            .min_zoom(0)
+            .max_zoom(2)
+            .bounds(10.0, 20.0, 30.0, 40.0)
+            .center(20.0, 30.0)
+            .center_zoom(1);
+        if let Some(m) = metadata {
+            builder = builder.metadata(m);
+        }
+        let file = File::create(&archive.path).expect("create archive");
+        let mut writer = builder.create(file).expect("writer");
+        for ((z, x, y), data) in tiles {
+            writer
+                .add_tile(TileCoord::new(*z, *x, *y).expect("coord"), data)
+                .expect("add tile");
+        }
+        writer.finalize().expect("finalize");
+        archive
+    }
+
+    fn open(archive: &TempArchive) -> Result<Pmtiles> {
+        Pmtiles::new("basemap".to_string(), archive.path.clone())
+    }
+
+    fn meta(archive: &TempArchive) -> Value {
+        let raw = open(archive).expect("open").get_metadata().expect("metadata");
+        serde_json::from_str(&raw).expect("valid json")
+    }
+
+    const SPHERE_TEMPLATE: &str = "sphere://basemap/tile?z={z}&x={x}&y={y}";
+
+    #[test]
+    fn get_metadata_builds_tilejson_from_header_and_metadata() {
+        let archive = write_archive(
+            TileType::Mvt,
+            Compression::Gzip,
+            Some(r#"{"name":"Sphere Test","attribution":"© test","vector_layers":[{"id":"places","fields":{}}]}"#),
+            &[],
+        );
+
+        let json = meta(&archive);
+
+        assert_eq!(json["name"], json!("Sphere Test"));
+        assert_eq!(json["attribution"], json!("© test"));
+        assert_eq!(json["format"], json!("pbf"));
+        assert_eq!(json["minzoom"], json!(0));
+        assert_eq!(json["maxzoom"], json!(2));
+        assert_eq!(json["bounds"], json!([10.0, 20.0, 30.0, 40.0]));
+        assert_eq!(json["center"], json!([20.0, 30.0, 1.0]));
+        assert_eq!(json["tiles"][0], json!(SPHERE_TEMPLATE));
+        assert_eq!(json["vector_layers"][0]["id"], json!("places"));
+    }
+
+    #[test]
+    fn header_keys_win_over_metadata() {
+        let archive = write_archive(
+            TileType::Mvt,
+            Compression::Gzip,
+            Some(r#"{"tiles":["https://evil/{z}/{x}/{y}"],"format":"png","minzoom":5,"maxzoom":9,"bounds":[0,0,1,1]}"#),
+            &[],
+        );
+
+        let json = meta(&archive);
+
+        assert_eq!(json["tiles"][0], json!(SPHERE_TEMPLATE));
+        assert_eq!(json["tiles"].as_array().map(Vec::len), Some(1));
+        assert_eq!(json["format"], json!("pbf"));
+        assert_eq!(json["minzoom"], json!(0));
+        assert_eq!(json["maxzoom"], json!(2));
+        assert_eq!(json["bounds"], json!([10.0, 20.0, 30.0, 40.0]));
+    }
+
+    #[test]
+    fn get_metadata_without_metadata_has_header_fields() {
+        let archive = write_archive(TileType::Mvt, Compression::Gzip, None, &[]);
+
+        let json = meta(&archive);
+
+        assert_eq!(json["format"], json!("pbf"));
+        assert_eq!(json["tiles"][0], json!(SPHERE_TEMPLATE));
+        assert_eq!(json["vector_layers"], json!([]));
+    }
+
+    #[test]
+    fn get_metadata_ignores_metadata_that_is_not_an_object() {
+        let archive = write_archive(TileType::Mvt, Compression::Gzip, Some("[1,2]"), &[]);
+
+        let json = meta(&archive);
+
+        assert_eq!(json["format"], json!("pbf"));
+    }
+
+    #[test]
+    fn get_metadata_rejects_invalid_json() {
+        let archive = write_archive(TileType::Mvt, Compression::Gzip, Some("{not json"), &[]);
+
+        let err = open(&archive).expect("open").get_metadata().expect_err("invalid json");
+
+        assert!(matches!(err, SphereError::Pmtiles { .. }), "got: {err:?}");
+    }
+
+    #[test]
+    fn raster_tile_types_map_to_formats() {
+        for (tile_type, format) in [
+            (TileType::Png, "png"),
+            (TileType::Jpeg, "jpg"),
+            (TileType::Webp, "webp"),
+        ] {
+            let archive = write_archive(tile_type, Compression::None, None, &[]);
+
+            assert_eq!(meta(&archive)["format"], json!(format));
+        }
+    }
+
+    #[test]
+    fn new_rejects_unsupported_tile_types() {
+        for tile_type in [TileType::Avif, TileType::Mlt, TileType::Unknown] {
+            let archive = write_archive(tile_type, Compression::None, None, &[]);
+
+            let err = open(&archive).expect_err("unsupported tile type");
+
+            match err {
+                SphereError::Pmtiles { path, .. } => assert_eq!(path, archive.path),
+                other => panic!("expected a Pmtiles error, got {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn new_rejects_unsupported_compression() {
+        for compression in [Compression::Brotli, Compression::Zstd] {
+            let archive = write_archive(TileType::Mvt, compression, None, &[]);
+
+            let err = open(&archive).expect_err("unsupported compression");
+
+            assert!(matches!(err, SphereError::Pmtiles { .. }), "got: {err:?}");
+        }
+    }
+
+    #[test]
+    fn new_rejects_a_file_that_is_not_pmtiles() {
+        let archive = TempArchive::new();
+        std::fs::write(&archive.path, b"not a pmtiles archive").expect("write");
+
+        let err = open(&archive).expect_err("not pmtiles");
+
+        assert!(err.to_string().contains(&archive.path), "got: {err}");
+    }
+
+    #[test]
+    fn new_reports_the_path_when_the_file_cannot_be_opened() {
+        let path = "/nonexistent/sphere-test.pmtiles".to_string();
+
+        let err = Pmtiles::new("basemap".to_string(), path.clone()).expect_err("missing file");
+
+        match err {
+            SphereError::Pmtiles { path: reported, .. } => assert_eq!(reported, path),
+            other => panic!("expected a Pmtiles error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn get_tile_returns_decompressed_bytes() {
+        for compression in [Compression::Gzip, Compression::None] {
+            let archive = write_archive(
+                TileType::Mvt,
+                compression,
+                None,
+                &[((1, 1, 0), b"sphere-test-vector-tile")],
+            );
+
+            let data = open(&archive)
+                .expect("open")
+                .get_tile(&Tile { zoom: 1, x: 1, y: 0 })
+                .expect("tile");
+
+            assert_eq!(data, b"sphere-test-vector-tile");
+        }
+    }
+
+    #[test]
+    fn get_tile_missing_tile_is_empty() {
+        let archive = write_archive(
+            TileType::Mvt,
+            Compression::Gzip,
+            None,
+            &[((1, 1, 0), b"sphere-test-vector-tile")],
+        );
+
+        let data = open(&archive)
+            .expect("open")
+            .get_tile(&Tile { zoom: 2, x: 3, y: 3 })
+            .expect("missing tile is not an error");
+
+        assert!(data.is_empty());
+    }
+
+    #[test]
+    fn get_tile_rejects_an_out_of_range_coordinate() {
+        let archive = write_archive(TileType::Mvt, Compression::Gzip, None, &[]);
+        let pmtiles = open(&archive).expect("open");
+
+        assert!(pmtiles.get_tile(&Tile { zoom: 1, x: 2, y: 0 }).is_err());
+        assert!(pmtiles.get_tile(&Tile { zoom: -1, x: 0, y: 0 }).is_err());
+    }
+}

@@ -8,6 +8,7 @@ pub mod gpx;
 pub mod index;
 pub mod kml;
 pub mod mbtiles;
+pub mod pmtiles;
 pub mod schema;
 pub mod selection;
 pub mod shape;

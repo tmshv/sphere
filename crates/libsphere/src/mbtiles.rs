@@ -4,7 +4,7 @@ use mbtiles::{
 };
 use crate::error::{Result, SphereError};
 
-fn sphere_url(name: &str) -> String {
+pub(crate) fn sphere_url(name: &str) -> String {
     format!("sphere://{name}/tile?z={{z}}&x={{x}}&y={{y}}")
 }
 
