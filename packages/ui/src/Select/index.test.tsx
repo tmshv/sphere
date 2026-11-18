@@ -1,7 +1,23 @@
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, render, screen } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    hoverStyle,
+    pressedStyle,
+    render,
+    screen,
+    stateStyle,
+} from "../test-utils"
+import { TextField } from "../TextField"
 import { SegmentedControl, Select } from "."
+
+// An undeclared radius, or an explicit zero.
+const SQUARE_CORNERS = ["", "0", "0px"]
+
+// What makes a field's frame: a select and a text field must agree on all of these.
+const FRAME_PROPERTIES = ["border-color", "border-radius", "background-color", "height"]
 
 const OPTIONS = [
     { value: "a", label: "Alpha" },
@@ -91,9 +107,94 @@ describe("Select", () => {
 
         expect(screen.getByLabelText("Column")).toHaveValue("Beta")
     })
+
+    it("marks the current option with a check glyph and no other", async () => {
+        const user = userEvent.setup()
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+
+        await user.click(screen.getByLabelText("Source"))
+
+        const current = await screen.findByRole("option", { name: "Beta" })
+        expect(current.querySelector("svg")).not.toBeNull()
+        expect(screen.getByRole("option", { name: "Alpha" }).querySelector("svg")).toBeNull()
+    })
+
+    it("searchable Select marks the current option with a check glyph", async () => {
+        const user = userEvent.setup()
+        render(<Select label="Column" value="b" options={OPTIONS} onChange={vi.fn()} searchable />)
+
+        await user.click(screen.getByLabelText("Column"))
+        await user.clear(screen.getByLabelText("Column"))
+
+        const current = await screen.findByRole("option", { name: "Beta" })
+        expect(current.querySelector("svg")).not.toBeNull()
+        expect(screen.getByRole("option", { name: "Alpha" }).querySelector("svg")).toBeNull()
+    })
+
+    it("is a pop-up button with the text field's frame and the desktop interaction model", () => {
+        render(
+            <>
+                <Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />
+                <TextField label="Name" value="" onChange={vi.fn()} />
+            </>,
+        )
+        const trigger = screen.getByLabelText("Source")
+        const field = screen.getByLabelText("Name")
+
+        for (const property of FRAME_PROPERTIES) {
+            expect(declaredStyle(trigger, property), property).toBe(declaredStyle(field, property))
+        }
+        expect(declaredStyle(trigger, "background-color")).toBe("var(--sphere-color-content)")
+        expect(declaredStyle(trigger, "box-shadow")).toBe("")
+        expectDesktopInteraction(trigger)
+    })
+
+    it("stays pressed while its menu is open", () => {
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+
+        expect(stateStyle(screen.getByLabelText("Source"), "background-color", "[data-popup-open]")).toBe(
+            "var(--sphere-color-control-pressed)",
+        )
+    })
+
+    it("shows the double chevron glyph on the trigger", () => {
+        render(<Select label="Source" value="b" options={OPTIONS} onChange={vi.fn()} />)
+
+        expect(screen.getByLabelText("Source").querySelector("svg")).not.toBeNull()
+    })
+
+    it("searchable Select edits as text: the text cursor", () => {
+        render(<Select label="Column" value="b" options={OPTIONS} onChange={vi.fn()} searchable />)
+
+        expect(declaredStyle(screen.getByLabelText("Column"), "cursor")).toBe("text")
+    })
+
+    it("highlights options edge to edge with square corners", async () => {
+        const user = userEvent.setup()
+        render(<Select label="Source" value={null} options={OPTIONS} onChange={vi.fn()} />)
+
+        screen.getByLabelText("Source").focus()
+        await user.keyboard("{ArrowDown}")
+        const option = await screen.findByRole("option", { name: "Alpha" })
+
+        expect(SQUARE_CORNERS).toContain(declaredStyle(option, "border-radius"))
+        expect(declaredStyle(option, "cursor")).toBe("default")
+        expect(hoverStyle(option, "background-color")).toBe("")
+    })
 })
 
 describe("SegmentedControl", () => {
+    it("rounds both outer ends even though each radio is followed by a hidden input", () => {
+        render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+        const first = screen.getByRole("radio", { name: "Alpha" })
+        const last = screen.getByRole("radio", { name: "Beta" })
+
+        expect(last.nextElementSibling?.tagName).toBe("INPUT")
+        expect(declaredStyle(first, "border-top-left-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(last, "border-top-right-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(last, "border-bottom-right-radius")).toBe("var(--sphere-radius-control)")
+    })
+
     it("moves with arrow keys and reports the value", async () => {
         const user = userEvent.setup()
         const onChange = vi.fn()
@@ -115,5 +216,59 @@ describe("SegmentedControl", () => {
         fireEvent.click(screen.getByRole("radio", { name: "Beta" }))
 
         expect(onChange).toHaveBeenCalledWith("b")
+    })
+
+    it("an option with an icon is a radio named by its label and shows no label text", () => {
+        render(
+            <SegmentedControl
+                label="Mode"
+                value="a"
+                options={[
+                    { value: "a", label: "List", icon: <svg data-testid="list-icon" /> },
+                    { value: "b", label: "Grid", icon: <svg data-testid="grid-icon" /> },
+                ]}
+                onChange={vi.fn()}
+            />,
+        )
+
+        const radio = screen.getByRole("radio", { name: "List" })
+        expect(radio).toHaveAttribute("title", "List")
+        expect(screen.getByTestId("list-icon")).toBeInTheDocument()
+        expect(screen.queryByText("List")).not.toBeInTheDocument()
+    })
+
+    it("segments follow the desktop interaction model with the accent selection", () => {
+        render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+        const selected = screen.getByRole("radio", { name: "Alpha" })
+
+        expectDesktopInteraction(screen.getByRole("radio", { name: "Beta" }))
+        expect(declaredStyle(screen.getByRole("radio", { name: "Beta" }), "background-color")).toBe(
+            "var(--sphere-color-control)",
+        )
+        expect(selected).toHaveAttribute("data-checked")
+        expect(stateStyle(selected, "background-color", "[data-checked]")).toBe("var(--sphere-color-accent)")
+        expect(stateStyle(selected, "color", "[data-checked]")).toBe("var(--sphere-color-on-accent)")
+    })
+
+    it("an unselected segment darkens to the pressed body while held; the selected one does not", () => {
+        render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+
+        expect(pressedStyle(screen.getByRole("radio", { name: "Beta" }), "background-color")).toBe(
+            "var(--sphere-color-control-pressed)",
+        )
+        expect(pressedStyle(screen.getByRole("radio", { name: "Alpha" }), "background-color")).toBe("")
+        expect(pressedStyle(screen.getByRole("radio", { name: "Beta" }), "transform")).toBe("")
+    })
+
+    it("sm is shorter than the default md", () => {
+        const { rerender } = render(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} />)
+        expect(declaredStyle(screen.getByRole("radio", { name: "Alpha" }), "height")).toBe(
+            "var(--sphere-control-height-md)",
+        )
+
+        rerender(<SegmentedControl label="Mode" value="a" options={OPTIONS} onChange={vi.fn()} size="sm" />)
+        expect(declaredStyle(screen.getByRole("radio", { name: "Alpha" }), "height")).toBe(
+            "var(--sphere-control-height-sm)",
+        )
     })
 })

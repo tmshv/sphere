@@ -8,6 +8,6 @@ describe("LineControls", () => {
         renderWithRecordingStore(<LineControls layerId="l1" color="#00ff00" />)
 
         expect(screen.getByText("Color")).toBeInTheDocument()
-        expect(screen.getByText("#00ff00")).toBeInTheDocument()
+        expect(screen.getByDisplayValue("#00ff00")).toBeInTheDocument()
     })
 })

@@ -1,17 +1,29 @@
+import { DEFAULT_MAP_TOOL, isMapTool } from "@/lib/map-tools"
 import { actions, selectors } from "@/store"
 import { selectMapTool } from "@/store/app"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
-import { DEFAULT_MAP_TOOL, type MapTool } from "@/lib/map-tools"
-import { IconButton, Row } from "@sphere/ui"
-import { type IconComponent, IconHandStop, IconInfoCircle, IconPointer } from "@sphere/icons"
-import { useEffect } from "react"
+import { IconHandStop, IconInfoCircle, IconPointer } from "@sphere/icons"
+import { SegmentedControl, type SegmentedControlOption } from "@sphere/ui"
+import { type CSSProperties, useEffect } from "react"
 
-type ToolSpec = { tool: MapTool; title: string; Icon: IconComponent }
+const ICON_SIZE = 16
+const BOTTOM_OFFSET = "var(--sphere-space-12)"
+const CENTER_LEFT = "50%"
+const CENTER_TRANSFORM = "translateX(-50%)"
+const TOOLBAR_Z_INDEX = "var(--sphere-z-index-app)"
 
-const TOOLS: ToolSpec[] = [
-    { tool: "navigation", title: "Navigation", Icon: IconHandStop },
-    { tool: "select", title: "Select", Icon: IconPointer },
-    { tool: "info", title: "Info", Icon: IconInfoCircle },
+const WRAPPER_STYLE: CSSProperties = {
+    position: "absolute",
+    bottom: BOTTOM_OFFSET,
+    left: CENTER_LEFT,
+    transform: CENTER_TRANSFORM,
+    zIndex: TOOLBAR_Z_INDEX,
+}
+
+const OPTIONS: SegmentedControlOption[] = [
+    { value: "navigation", label: "Navigation", icon: <IconHandStop size={ICON_SIZE} /> },
+    { value: "select", label: "Select", icon: <IconPointer size={ICON_SIZE} /> },
+    { value: "info", label: "Info", icon: <IconInfoCircle size={ICON_SIZE} /> },
 ]
 
 export default function MapToolbar() {
@@ -36,30 +48,15 @@ export default function MapToolbar() {
         return null
     }
 
+    function onChange(value: string) {
+        if (isMapTool(value)) {
+            dispatch(actions.app.setMapTool(value))
+        }
+    }
+
     return (
-        <Row
-            gap="xs"
-            style={{
-                position: "absolute",
-                bottom: 12,
-                left: "50%",
-                transform: "translateX(-50%)",
-                zIndex: 10,
-                background: "rgba(0,0,0,0.6)",
-                borderRadius: 6,
-                padding: "4px",
-            }}
-        >
-            {TOOLS.map(({ tool, title, Icon }) => (
-                <IconButton
-                    key={tool}
-                    appearance="solid"
-                    active={mapTool === tool}
-                    label={title}
-                    icon={<Icon size={16} />}
-                    onClick={() => dispatch(actions.app.setMapTool(tool))}
-                />
-            ))}
-        </Row>
+        <div style={WRAPPER_STYLE}>
+            <SegmentedControl label="Map tool" size="sm" options={OPTIONS} value={mapTool} onChange={onChange} />
+        </div>
     )
 }

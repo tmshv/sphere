@@ -3,6 +3,7 @@ import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "."
 import { appSlice as app } from "./app"
 import { drawSlice as draw } from "./draw"
+import { selectDrawContextFilter, selectDrawContextLayerSpecs, selectDrawHiddenIds } from "./draw-context"
 import { layerSlice as layer } from "./layer"
 import {
     selectPreviewActive,
@@ -12,6 +13,11 @@ import {
     selectPreviewLayerStack,
 } from "./preview"
 import { selectionSlice as selection } from "./selection"
+import {
+    selectSelectionDrawing,
+    selectSelectionTargetInteractive,
+    selectSelectionTargetSourceId,
+} from "./selection-target"
 import { settingsSlice as settings } from "./settings"
 import { selectCurrentSourceItem, sourceSlice as source } from "./source"
 import {
@@ -26,7 +32,16 @@ import { selectSourceOutline, selectSourceTreeShape } from "./source/outline-sel
 import { selectCurrentSourceFields, selectCurrentSourceInfo, selectCurrentSourceMeta } from "./sourceInfo/selectors"
 import { mapInteractionSlice as mapInteraction } from "./map-interaction"
 import { selectPopupEntries } from "./properties"
-import { selectIsShowTerrain } from "./terrain"
+import {
+    selectHasTerrainSource,
+    selectHillshadeSourceId,
+    selectIsShowHillshade,
+    selectIsShowTerrain,
+    selectTerrainCandidates,
+    selectTerrainExaggeration,
+    selectTerrainSource,
+    selectTerrainSpecification,
+} from "./terrain"
 import { toolsSlice as tools } from "./tools"
 export type { PreviewLayerSpec, PreviewLayerStackEntry } from "./preview"
 // Other code such as selectors can use the imported `RootState` type
@@ -43,7 +58,7 @@ export const selectChangeProjectionAvailable = (state: RootState) => {
 export const selectMapStyle = (state: RootState) => state.mapStyle.value
 
 // User layers on the map, bottom to top. Draw mode keeps only raster layers so a basemap stays under the
-// drawing; an active source preview replaces them all
+// drawing (the drawn source shows through the draw context layer instead); an active source preview replaces them all
 export const selectMapLayers = createSelector(
     [draw.selectors.isDrawing, selectPreviewActive, layer.selectors.items, layer.selectors.allIds],
     (drawing, previewActive, items, allIds) => {
@@ -69,6 +84,11 @@ const visibleIds = createSelector([layer.selectors.items, layer.selectors.allIds
 export const selectors = {
     app: app.selectors,
     draw: draw.selectors,
+    drawContext: {
+        hiddenIds: selectDrawHiddenIds,
+        layerSpecs: selectDrawContextLayerSpecs,
+        filter: selectDrawContextFilter,
+    },
     projection: {
         projection: selectProjection,
         changeProjectionAvailable: selectChangeProjectionAvailable,
@@ -78,6 +98,13 @@ export const selectors = {
     },
     terrain: {
         show: selectIsShowTerrain,
+        hillshade: selectIsShowHillshade,
+        exaggeration: selectTerrainExaggeration,
+        candidates: selectTerrainCandidates,
+        hasSource: selectHasTerrainSource,
+        source: selectTerrainSource,
+        specification: selectTerrainSpecification,
+        hillshadeSourceId: selectHillshadeSourceId,
     },
     source: {
         ...source.selectors,
@@ -96,7 +123,12 @@ export const selectors = {
         visibleIds,
         mapLayers: selectMapLayers,
     },
-    selection: selection.selectors,
+    selection: {
+        ...selection.selectors,
+        targetSourceId: selectSelectionTargetSourceId,
+        targetInteractive: selectSelectionTargetInteractive,
+        drawing: selectSelectionDrawing,
+    },
     settings: settings.selectors,
     sourceInfo: {
         selectCurrentSourceInfo,

@@ -1,6 +1,18 @@
-import { fireEvent, render, screen } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    focusVisibleStyle,
+    hoverStyle,
+    render,
+    screen,
+    stateStyle,
+} from "../test-utils"
+import { IconMap } from "@sphere/icons"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import { Tree } from "."
+import { EXPAND_LABEL } from "./TreeRow"
 import type { TreeItem } from "./type"
 
 vi.mock("./useElementSize", () => ({
@@ -77,6 +89,11 @@ describe("Tree", () => {
         expect(screen.getByText("Alpha One")).toBeInTheDocument()
     })
 
+    it("gives the chevron the desktop interaction model", () => {
+        renderTree([])
+        expectDesktopInteraction(screen.getByRole("button", { name: "Expand" }))
+    })
+
     it("renders extra content and does not select when it is clicked", () => {
         const { onSelect } = renderTree([])
         fireEvent.click(screen.getByRole("button", { name: "Bulb" }))
@@ -144,5 +161,107 @@ describe("Tree controlled sync", () => {
         fireEvent.click(background)
         expect(onSelect).not.toHaveBeenCalled()
         expect(screen.getByText("Beta").closest("[role=treeitem]")).toHaveAttribute("aria-selected", "true")
+    })
+})
+
+const FOCUS_WITHIN = ":focus-within"
+const LAYER_RED = "#ff0000"
+const HOVER_PROPERTIES = ["background-color", "color", "box-shadow"]
+const TREE_ITEM = '[role="treeitem"]'
+const ROW_FOCUS_RING = "inset 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring)"
+const ROW_ICON_SIZE = 16
+
+function selectedRow(label: string): Element {
+    const row = screen.getByText(label).closest("[data-selected]")
+    if (!row) {
+        throw new Error("selected row not found")
+    }
+    return row
+}
+
+describe("Tree desktop look", () => {
+    it("paints a selected row light blue with the plain label colour", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+
+        expect(declaredStyle(row, "background-color")).toBe("var(--sphere-color-selection)")
+        expect(declaredStyle(row, "color")).toBe("var(--sphere-color-label)")
+    })
+
+    it("looks the same whether or not the tree has focus", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+
+        expect(stateStyle(row, "background-color", FOCUS_WITHIN)).toBe("")
+        expect(stateStyle(row, "color", FOCUS_WITHIN)).toBe("")
+    })
+
+    it("has the arrow cursor and no hover look on a row", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+
+        expect(declaredStyle(row, "cursor")).toBe("default")
+        for (const property of HOVER_PROPERTIES) {
+            expect(hoverStyle(row, property), `${property} on hover`).toBe("")
+        }
+    })
+
+    it("draws keyboard focus on a row as the focus ring inside it, not the browser's outline", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+        const row = selectedRow("Beta")
+        const item = row.closest(TREE_ITEM)
+        if (!item) {
+            throw new Error("tree item not found")
+        }
+
+        expect(declaredStyle(item, "outline-style")).toBe("none")
+        expect(focusVisibleStyle(row, "box-shadow")).toBe(ROW_FOCUS_RING)
+    })
+
+    it("gives the chevron the plain shape, so its focus ring is a glow outside the small control", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+
+        expect(screen.getByRole("button", { name: EXPAND_LABEL })).toHaveAttribute("data-shape", "plain")
+    })
+
+    it("keeps an explicitly coloured row icon in its colour on a selected row", () => {
+        const colored: TreeItem[] = [
+            { id: "x", label: "Xray", icon: <IconMap size={ROW_ICON_SIZE} color={LAYER_RED} /> },
+        ]
+        renderControlled({ items: colored, expandedIds: [], selectedId: "x" })
+        const icon = selectedRow("Xray").querySelector("svg")
+        if (!icon) {
+            throw new Error("row icon not found")
+        }
+
+        expect(icon).toHaveAttribute("stroke", LAYER_RED)
+        expect(declaredStyle(icon, "stroke")).toBe("")
+        expect(stateStyle(icon, "stroke", FOCUS_WITHIN)).toBe("")
+    })
+
+    it("sets row text at the body size", () => {
+        renderControlled({ expandedIds: [], selectedId: "b" })
+
+        expect(declaredStyle(selectedRow("Beta"), "font-size")).toBe("var(--sphere-font-size-body)")
+    })
+})
+
+describe("Tree keyboard focus", () => {
+    it("lands on the selected row when the tree is tabbed into", async () => {
+        renderControlled({ expandedIds: ["a"], selectedId: "b" })
+
+        await userEvent.tab()
+
+        expect(document.activeElement).toBe(screen.getByText("Beta").closest(TREE_ITEM))
+    })
+
+    it("follows a selection made outside the tree", async () => {
+        const { update } = renderControlled({ expandedIds: ["a"], selectedId: "b" })
+        update({ expandedIds: ["a"], selectedId: "a/2" })
+        expect(document.activeElement).toBe(document.body)
+
+        await userEvent.tab()
+
+        expect(document.activeElement).toBe(screen.getByText("Alpha Two").closest(TREE_ITEM))
     })
 })

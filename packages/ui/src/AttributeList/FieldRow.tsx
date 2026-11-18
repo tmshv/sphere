@@ -10,7 +10,7 @@ import { StringSummary } from "./StringSummary"
 
 const SKELETON_HEIGHT = 28
 
-const NAME_CLASS = textClassName({ weight: "medium", extra: [truncateClass, selectableClass, s.name] })
+const NAME_CLASS = textClassName({ weight: "semibold", extra: [truncateClass, selectableClass, s.name] })
 const KEEP_WHOLE_CLASS = textClassName({ tone: "dimmed", extra: [s.keepWhole] })
 
 export type FieldRowProps = {
@@ -35,7 +35,7 @@ export function FieldRow({ field }: FieldRowProps) {
         <Stack gap="xs">
             <Row gap="xs" align="center">
                 <div className={NAME_CLASS}>{field.name}</div>
-                <Badge size="xs" variant="light" radius="sm" className={s.keepWhole}>
+                <Badge size="xs" variant="light" className={s.keepWhole}>
                     {field.type}
                 </Badge>
                 {field.nullCount && field.nullCount > 0 ? (

@@ -1,13 +1,13 @@
-/* Mantine 5 Skeleton.styles.js, visible and animated. */
+/* A placeholder that fades while content loads. */
 .skeleton {
     --skeleton-fade-duration: 1500ms;
     --skeleton-fade-low: 0.4;
-    /* Mantine 5 Skeleton.styles.js: the cover sits at 10, the fading layer above it at 11. */
+    /* The cover sits at 10, the fading layer above it at 11. */
     --skeleton-cover-z-index: 10;
     --skeleton-fade-z-index: 11;
 
     position: relative;
-    border-radius: var(--sphere-radius-sm);
+    border-radius: var(--sphere-radius-control);
     transform: translateZ(0);
     overflow: hidden;
 }
@@ -15,7 +15,7 @@
 .skeleton::before {
     content: "";
     position: absolute;
-    background: var(--sphere-color-skeleton-cover);
+    background: var(--sphere-color-content);
     inset: 0;
     z-index: var(--skeleton-cover-z-index);
 }
@@ -23,7 +23,7 @@
 .skeleton::after {
     content: "";
     position: absolute;
-    background: var(--sphere-color-skeleton-bg);
+    background: var(--sphere-color-selection-inactive);
     inset: 0;
     animation: fade var(--skeleton-fade-duration) linear infinite;
     z-index: var(--skeleton-fade-z-index);

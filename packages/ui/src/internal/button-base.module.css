@@ -1,0 +1,141 @@
+/* The desktop button: no hover look, the arrow cursor, a colour-only press, the focus-ring glow, and one
+   disabled opacity. Every clickable thing in the package renders through this module. Shape, size and tone are
+   data attributes, so no other module ever needs to out-rank these rules. The reset has zero specificity
+   (:where), so a consumer's layout className (padding, display, height) wins whatever order the stylesheets load
+   in. */
+:where(.root) {
+    /* Glyph sizes inside a glyph button. */
+    --button-glyph-size-sm: 14px;
+    --button-glyph-size-md: 16px;
+
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: none;
+    font: inherit;
+    /* The browser's button style resets these; a container's (a section header's uppercase) must reach the label. */
+    text-transform: inherit;
+    letter-spacing: inherit;
+    word-spacing: inherit;
+    text-indent: inherit;
+    color: inherit;
+    text-align: inherit;
+    text-decoration: none;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.root:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+/* strip fills a strip edge to edge (a section header), where a glow outside would be clipped by the container; its
+   ring is drawn inside instead. A small plain control keeps the glow outside. */
+.root[data-shape="strip"]:focus-visible {
+    box-shadow: inset 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.root:disabled {
+    opacity: var(--sphere-opacity-disabled);
+}
+
+/* Sizes of the glyph shapes: a square box with the glyph centred in it. */
+.root[data-size="sm"] {
+    --button-box-size: var(--sphere-control-height-sm);
+    --button-glyph-size: var(--button-glyph-size-sm);
+}
+
+.root[data-size="md"] {
+    --button-box-size: var(--sphere-control-height-md);
+    --button-glyph-size: var(--button-glyph-size-md);
+}
+
+/* The push-button body, shared by push and bordered-glyph: a light body, a hairline border and the hairline
+   shadow beneath. */
+.root[data-shape="push"],
+.root[data-shape="bordered-glyph"] {
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-control);
+    background-color: var(--sphere-color-control);
+    box-shadow: var(--sphere-shadow-control);
+}
+
+.root[data-shape="push"]:focus-visible,
+.root[data-shape="bordered-glyph"]:focus-visible {
+    box-shadow:
+        var(--sphere-shadow-control),
+        0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.root[data-shape="push"]:active:not(:disabled),
+.root[data-shape="bordered-glyph"]:active:not(:disabled) {
+    background-color: var(--sphere-color-control-pressed);
+}
+
+/* push: a control-height button with body text. */
+.root[data-shape="push"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--sphere-control-height-md);
+    padding-inline: var(--sphere-space-14);
+    color: var(--sphere-color-label);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
+    white-space: nowrap;
+}
+
+/* The default button: accent body with on-accent text. */
+.root[data-shape="push"][data-tone="primary"] {
+    border-color: transparent;
+    background-color: var(--sphere-color-accent);
+    color: var(--sphere-color-on-accent);
+}
+
+.root[data-shape="push"][data-tone="primary"]:active:not(:disabled) {
+    background-color: var(--sphere-color-accent-pressed);
+}
+
+/* glyph and bordered-glyph: a square box sized by data-size. */
+.root[data-shape="glyph"],
+.root[data-shape="bordered-glyph"] {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: var(--button-box-size);
+    height: var(--button-box-size);
+    border-radius: var(--sphere-radius-control);
+    color: var(--sphere-color-label-secondary);
+    line-height: 0;
+}
+
+.root[data-shape="glyph"] svg,
+.root[data-shape="bordered-glyph"] svg {
+    width: var(--button-glyph-size);
+    height: var(--button-glyph-size);
+}
+
+/* Toggled on: an accent glyph, and for bordered-glyph the pressed body. A disabled toggle reads as disabled, so
+   the active look skips it. A glyph button has no body unless its surface asks for one through --button-active-fill
+   (the statusbar's sidebar toggle). */
+.root[data-shape="glyph"][data-active]:not(:disabled) {
+    background-color: var(--button-active-fill, transparent);
+    color: var(--sphere-color-accent-glyph);
+}
+
+.root[data-shape="bordered-glyph"][data-active]:not(:disabled) {
+    background-color: var(--sphere-color-control-pressed);
+    color: var(--sphere-color-accent-glyph);
+}
+
+/* Pressing darkens the glyph to the primary label colour, toggled on or not. */
+.root[data-shape="glyph"]:active:not(:disabled) {
+    color: var(--sphere-color-glyph-pressed);
+}

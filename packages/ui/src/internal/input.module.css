@@ -1,62 +1,58 @@
-/* Mantine 5 Input.styles.js (variant default, size xs), InputWrapper, InputLabel and InputError. */
+/* The text field: the control radius, as a button or a select, `content` background, a hairline border, control-height tall with 12px text. A small regular
+   secondary label sits above it and a small danger message below. Focus (from the mouse too, as macOS text
+   fields do) draws the focus-ring glow. */
 .root {
     font-family: var(--sphere-font-family-sans);
-    line-height: var(--sphere-line-height-body);
+    line-height: var(--sphere-line-height-text);
 }
 
 .label {
     display: inline-block;
-    font-size: var(--sphere-font-size-xs);
-    font-weight: var(--sphere-font-weight-medium);
-    color: var(--sphere-color-label-text);
+    margin-bottom: var(--sphere-space-2);
+    font-size: var(--sphere-font-size-small);
+    font-weight: var(--sphere-font-weight-regular);
+    color: var(--sphere-color-label-secondary);
     word-break: break-word;
     cursor: default;
     -webkit-tap-highlight-color: transparent;
 }
 
 .required {
-    color: var(--sphere-color-invalid);
+    color: var(--sphere-color-danger);
 }
 
 .wrapper {
-    --input-height: 30px;
-    --input-border-width: 1px;
-    /* Mantine pads by size / 3. */
-    --input-padding-divisor: 3;
-
     position: relative;
 }
 
-/* Mantine offsets the input by spacing.xs / 2 when an error sits below it. */
 .wrapperWithError {
-    margin-bottom: calc(var(--sphere-space-xs) / 2);
+    margin-bottom: var(--sphere-space-2);
 }
 
 .input {
-    font-family: var(--sphere-font-family-sans);
-    height: var(--input-height);
-    min-height: var(--input-height);
-    -webkit-tap-highlight-color: transparent;
-    line-height: calc(var(--input-height) - 2 * var(--input-border-width));
     appearance: none;
-    resize: none;
+    -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
-    font-size: var(--sphere-font-size-xs);
-    width: 100%;
-    color: var(--sphere-color-text);
     display: block;
+    width: 100%;
+    height: var(--sphere-control-height-md);
+    margin: 0;
+    padding: 0 var(--sphere-space-10);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-control);
+    outline: none;
+    background-color: var(--sphere-color-content);
+    color: var(--sphere-color-label);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
     text-align: left;
-    padding-left: calc(var(--input-height) / var(--input-padding-divisor));
-    padding-right: calc(var(--input-height) / var(--input-padding-divisor));
-    border-radius: var(--sphere-radius-sm);
-    border: var(--input-border-width) solid var(--sphere-color-input-border);
-    background-color: var(--sphere-color-input-bg);
-    transition: border-color var(--sphere-duration-fast) ease;
+    cursor: text;
 }
 
 .input::placeholder {
     user-select: none;
-    color: var(--sphere-color-input-placeholder);
+    color: var(--sphere-color-label-tertiary);
     opacity: 1;
 }
 
@@ -69,21 +65,16 @@
     appearance: none;
 }
 
-/* Mantine's focusRingStyles.inputStyles: the border turns accent, no outline. */
-.input:focus,
-.input:focus-within {
-    outline: none;
-    border-color: var(--sphere-color-accent);
+.input:focus {
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.input:disabled {
+    opacity: var(--sphere-opacity-disabled);
 }
 
 .invalid {
-    color: var(--sphere-color-invalid);
-    border-color: var(--sphere-color-invalid);
-}
-
-.invalid::placeholder {
-    opacity: 1;
-    color: var(--sphere-color-invalid);
+    border-color: var(--sphere-color-danger);
 }
 
 .withRightSection {
@@ -102,10 +93,9 @@
 }
 
 .error {
-    word-break: break-word;
-    color: var(--sphere-color-invalid);
-    /* Mantine uses the field's font size minus 2px. */
-    font-size: calc(var(--sphere-font-size-xs) - 2px);
-    line-height: 1.2;
     display: block;
+    word-break: break-word;
+    color: var(--sphere-color-danger);
+    font-size: var(--sphere-font-size-small);
+    line-height: var(--sphere-line-height-text);
 }

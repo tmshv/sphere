@@ -1,7 +1,6 @@
 import logger from "@/logger"
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { Source } from "react-map-gl/maplibre"
 import MapGL from "react-map-gl/maplibre"
 import MapBody from "./map-body"
 
@@ -11,7 +10,6 @@ export type SphereMapProps = {
 
 export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
     const mapStyle = useAppSelector(selectors.mapStyle.style)
-    const showTerrain = useAppSelector(selectors.terrain.show)
 
     return (
         <MapGL
@@ -32,9 +30,6 @@ export const SphereMap: React.FC<SphereMapProps> = ({ id }) => {
                 logger.error("Got maplibre error %s", error)
             }}
         >
-            {showTerrain && (
-                <Source id={"mapbox-dem"} type={"raster-dem"} url={"mapbox://mapbox.mapbox-terrain-dem-v1"} />
-            )}
             <MapBody mapId={id} />
         </MapGL>
     )

@@ -1,11 +1,11 @@
 import { Field } from "@base-ui/react/field"
 import type { CSSProperties, ReactNode } from "react"
-import input from "../internal/input.module.css"
+import { cx, input } from "../internal"
 
 const NO_AUTOCORRECT = "off"
 const NO_AUTOCAPITALIZE = "none"
-// Mantine 5 Input: rightSectionWidth defaults to 36.
-const RIGHT_SECTION_WIDTH = "36px"
+// The right section is a square the height of the field.
+const RIGHT_SECTION_WIDTH = "var(--sphere-control-height-md)"
 const REQUIRED_MARK = " *"
 
 type RightSectionStyle = CSSProperties & { "--right-section-width": string }
@@ -40,12 +40,6 @@ export function TextField({
 }: TextFieldProps) {
     const invalid = Boolean(error)
     const hasRightSection = Boolean(rightSection)
-    const wrapperClasses = [input.wrapper, invalid ? input.wrapperWithError : undefined]
-    const inputClasses = [
-        input.input,
-        invalid ? input.invalid : undefined,
-        hasRightSection ? input.withRightSection : undefined,
-    ]
 
     return (
         <Field.Root className={input.root} invalid={invalid} name={name}>
@@ -57,9 +51,9 @@ export function TextField({
                     </span>
                 ) : null}
             </Field.Label>
-            <div className={wrapperClasses.filter(Boolean).join(" ")} style={RIGHT_SECTION_STYLE}>
+            <div className={cx(input.wrapper, invalid && input.wrapperWithError)} style={RIGHT_SECTION_STYLE}>
                 <Field.Control
-                    className={inputClasses.filter(Boolean).join(" ")}
+                    className={cx(input.input, invalid && input.invalid, hasRightSection && input.withRightSection)}
                     value={value}
                     onValueChange={newValue => onChange(newValue)}
                     placeholder={placeholder}

@@ -1,13 +1,16 @@
-/* Sphere Statusbar. Mantine's Flex gap sm, padding xs with sm on the sides. */
-/* The old `backgroundColor: theme.colors.dark` was an array; emotion emitted every entry and the last one (dark[9]) won. */
+/* Sphere's statusbar: a near-black strip in both themes, 28px tall, with light monospace readouts and grey glyphs.
+   It keeps the look it had before the desktop redesign; only the interaction follows the design system (no hover,
+   a colour-only press). */
 .statusbar {
     --statusbar-height: 28px;
 
     display: flex;
     align-items: center;
-    gap: var(--sphere-space-sm);
-    padding: var(--sphere-space-xs) var(--sphere-space-sm);
+    gap: var(--sphere-space-12);
+    box-sizing: border-box;
     height: var(--statusbar-height);
-    background-color: var(--sphere-color-statusbar-bg);
+    padding: var(--sphere-space-4) var(--sphere-space-12);
+    background-color: var(--sphere-color-statusbar);
     color: var(--sphere-color-statusbar-text);
+    cursor: default;
 }

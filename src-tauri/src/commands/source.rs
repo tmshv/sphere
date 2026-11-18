@@ -4,22 +4,21 @@ use libsphere::PageResult;
 use libsphere::schema::{assign_feature_ids, SourceSchema};
 use libsphere::source::{Source, SourceData};
 use mbtiles::tile::Tile;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
 use tauri::State;
 use url::Url;
 
 use crate::selection::SelectionStorage;
-use crate::state::{SourceEntry, SourceStorage};
+use crate::state::{shared_feature_store, SharedFeatureStore, SourceEntry, SourceStorage};
 
 const HISTOGRAM_BINS: usize = 10;
 const DEFAULT_TOP_VALUES: usize = 10;
 
 #[derive(Serialize, Debug)]
 pub struct SourceAddResult {
-    id: String,
+    pub(crate) id: String,
     name: String,
     location: String,
     source_type: String,
@@ -96,9 +95,9 @@ pub async fn source_add(source_url: &str, storage: State<'_, SourceStorage>) -> 
             // For all other source types, failure to build the store is an error.
             let store = match &source.data {
                 SourceData::Mbtiles(_) => None,
-                _ => Some(Arc::new(build_feature_store(&source)?)),
+                _ => Some(shared_feature_store(build_feature_store(&source)?)),
             };
-            let entry = SourceEntry { source, store };
+            let entry = SourceEntry::new(source, store);
             storage.store.lock().unwrap().insert(id, entry);
             Ok(n)
         }
@@ -161,7 +160,7 @@ pub async fn source_get_schema(id: String, storage: State<'_, SourceStorage>) ->
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
         Some(entry) => match &entry.store {
-            Some(fs) => Ok(fs.schema().clone()),
+            Some(fs) => Ok(fs.read().unwrap().schema().clone()),
             None => entry.source.get_schema(),
         },
         None => Err(format!("Not found {}", &id)),
@@ -174,7 +173,7 @@ pub async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Res
     match store.get(&id) {
         Some(entry) => {
             if let Some(fs) = &entry.store {
-                if let Some(bounds) = fs.get_bounds() {
+                if let Some(bounds) = fs.read().unwrap().get_bounds() {
                     return Ok(bounds);
                 }
             }
@@ -251,7 +250,7 @@ pub async fn source_get_filtered(
         None => entry.source.to_geojson(),
         Some(expr) => {
             let fs = entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?;
-            let features = fs.get_filtered(Some(&expr));
+            let features = fs.read().unwrap().get_filtered(Some(&expr));
             let fc = serde_json::json!({
                 "type": "FeatureCollection",
                 "features": features,
@@ -285,7 +284,7 @@ pub async fn source_query_page(
         entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
     };
 
-    let result = fs.query_page(
+    let result = fs.read().unwrap().query_page(
         offset,
         limit,
         filter.as_ref(),
@@ -315,6 +314,8 @@ pub async fn source_get_column_stats(
     };
 
     let col_type = fs
+        .read()
+        .unwrap()
         .schema()
         .columns
         .get(&column)
@@ -329,24 +330,24 @@ pub async fn source_get_column_stats(
 }
 
 fn compute_column_stats(
-    fs: Arc<FeatureStore>,
+    fs: SharedFeatureStore,
     column: String,
     col_type: String,
     ids: Option<Vec<i64>>,
     top_n: usize,
 ) -> Result<ColumnStats, String> {
+    let fs = fs.read().unwrap();
     let id_filter: Option<std::collections::HashSet<i64>> =
         ids.map(|v| v.into_iter().collect());
 
-    let all_features = fs.features();
     let features_iter: Box<dyn Iterator<Item = &geojson::Feature>> = match &id_filter {
-        Some(set) => Box::new(all_features.iter().filter(move |f| match &f.id {
+        Some(set) => Box::new(fs.features().filter(move |f| match &f.id {
             Some(geojson::feature::Id::Number(n)) => {
                 n.as_i64().map(|v| set.contains(&v)).unwrap_or(false)
             }
             _ => false,
         })),
-        None => Box::new(all_features.iter()),
+        None => Box::new(fs.features()),
     };
 
     let mut count = 0u64;
@@ -420,14 +421,7 @@ pub async fn source_query_rect(
         let entry = store.get(&id).ok_or_else(|| format!("Not found {}", &id))?;
         entry.store.as_ref().ok_or_else(|| "No feature store for this source".to_string())?.clone()
     };
-    Ok(fs.query_rect(bbox, &mode))
-}
-
-#[derive(Deserialize, Debug)]
-pub struct SourcePatch {
-    pub added: Vec<serde_json::Value>,
-    pub updated: Vec<serde_json::Value>,
-    pub deleted_ids: Vec<serde_json::Value>,
+    Ok(fs.read().unwrap().query_rect(bbox, &mode))
 }
 
 #[tauri::command]
@@ -446,8 +440,8 @@ pub async fn source_add_data(
         location: location.clone(),
         data: SourceData::InMemory(fc),
     };
-    let store = Arc::new(build_feature_store(&source)?);
-    let entry = SourceEntry { source, store: Some(store) };
+    let store = shared_feature_store(build_feature_store(&source)?);
+    let entry = SourceEntry::new(source, Some(store));
     storage.store.lock().unwrap().insert(id.clone(), entry);
     Ok(SourceAddResult {
         id,
@@ -465,7 +459,7 @@ pub async fn source_replace(
 ) -> Result<(), String> {
     let mut new_fc = data;
     assign_feature_ids(&mut new_fc);
-    let new_store = Arc::new(FeatureStore::from_features(new_fc.features.clone()));
+    let new_store = shared_feature_store(FeatureStore::from_features(new_fc.features.clone()));
 
     let mut store = storage.store.lock().unwrap();
     let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
@@ -475,62 +469,11 @@ pub async fn source_replace(
     }
     entry.source.data = SourceData::InMemory(new_fc);
     entry.store = Some(new_store);
+    // The journal refers to the replaced features: the session cannot survive.
+    entry.session = None;
     Ok(())
 }
 
-#[tauri::command]
-pub async fn source_patch(
-    id: String,
-    patch: SourcePatch,
-    storage: State<'_, SourceStorage>,
-) -> Result<(), String> {
-    let updated_features: Vec<geojson::Feature> = patch.updated.iter()
-        .map(|v| {
-            serde_json::from_value(v.clone())
-                .map_err(|e| format!("Failed to parse updated feature: {}", e))
-        })
-        .collect::<Result<_, _>>()?;
-
-    let added_features: Vec<geojson::Feature> = patch.added.iter()
-        .map(|v| {
-            serde_json::from_value(v.clone())
-                .map_err(|e| format!("Failed to parse added feature: {}", e))
-        })
-        .collect::<Result<_, _>>()?;
-
-    let mut store = storage.store.lock().unwrap();
-    let entry = store.get_mut(&id).ok_or_else(|| format!("Not found {}", id))?;
-    let fc = match &mut entry.source.data {
-        SourceData::InMemory(fc) => fc,
-        _ => return Err(format!("Source {} is not an in-memory source", id)),
-    };
-
-    fc.features.retain(|f| {
-        !patch.deleted_ids.iter().any(|del_id| f.id.as_ref().map_or(false, |fid| {
-            match (fid, del_id) {
-                (geojson::feature::Id::Number(n), serde_json::Value::Number(m)) => {
-                    n.as_f64() == m.as_f64()
-                }
-                (geojson::feature::Id::String(s), serde_json::Value::String(t)) => s == t,
-                _ => false,
-            }
-        }))
-    });
-
-    for updated_feature in updated_features {
-        if let Some(feat) = fc.features.iter_mut().find(|f| f.id == updated_feature.id) {
-            *feat = updated_feature;
-        }
-    }
-
-    for added_feature in added_features {
-        fc.features.push(added_feature);
-    }
-    assign_feature_ids(fc);
-
-    entry.store = Some(Arc::new(build_feature_store(&entry.source)?));
-    Ok(())
-}
 
 #[cfg(test)]
 mod tests {
@@ -601,7 +544,7 @@ mod tests {
             .store
             .lock()
             .unwrap()
-            .insert(id.into(), SourceEntry { source, store: None });
+            .insert(id.into(), SourceEntry::new(source, None));
     }
 
     fn feature_ids(geojson: &str) -> Vec<i64> {
@@ -1152,104 +1095,6 @@ mod tests {
         let err = source_replace("file-source".into(), collection(vec![]), app.state())
             .await
             .unwrap_err();
-
-        assert_eq!(err, "Source file-source is not an in-memory source");
-    }
-
-    #[tokio::test]
-    async fn patch_adds_updates_and_deletes_features() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![serde_json::to_value(point(30.0, 30.0, json!({ "name": "d" }))).unwrap()],
-            updated: vec![json!({
-                "type": "Feature",
-                "id": 2,
-                "geometry": { "type": "Point", "coordinates": [11.0, 11.0] },
-                "properties": { "name": "b2" }
-            })],
-            deleted_ids: vec![json!(1)],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        let geojson = source_get(id.clone(), app.state()).await.unwrap();
-        let parsed: Value = serde_json::from_str(&geojson).unwrap();
-        let names: Vec<&str> = parsed["features"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter_map(|f| f["properties"]["name"].as_str())
-            .collect();
-        assert_eq!(names, vec!["b2", "c", "d"]);
-        assert_eq!(parsed["features"][0]["geometry"]["coordinates"][0], 11.0);
-    }
-
-    #[tokio::test]
-    async fn patch_rebuilds_the_feature_store() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![],
-            updated: vec![],
-            deleted_ids: vec![json!(2), json!(3)],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        let schema = source_get_schema(id.clone(), app.state()).await.unwrap();
-        assert_eq!(schema.features_count, 1);
-        assert_eq!(source_bounds(id, app.state()).await.unwrap(), (0.0, 0.0, 0.0, 0.0));
-    }
-
-    #[tokio::test]
-    async fn patch_gives_added_features_fresh_ids() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![serde_json::to_value(point(30.0, 30.0, json!({ "name": "d" }))).unwrap()],
-            updated: vec![],
-            deleted_ids: vec![],
-        };
-
-        source_patch(id.clone(), patch, app.state()).await.unwrap();
-
-        let geojson = source_get(id, app.state()).await.unwrap();
-        assert_eq!(feature_ids(&geojson), vec![1, 2, 3, 4]);
-    }
-
-    #[tokio::test]
-    async fn patch_rejects_a_malformed_added_feature() {
-        let app = test_app();
-        let id = add_source(&app, sample_features()).await;
-        let patch = SourcePatch {
-            added: vec![json!({ "type": "NotAFeature" })],
-            updated: vec![],
-            deleted_ids: vec![],
-        };
-
-        let err = source_patch(id, patch, app.state()).await.unwrap_err();
-
-        assert!(err.starts_with("Failed to parse added feature"));
-    }
-
-    #[tokio::test]
-    async fn patch_reports_a_missing_source() {
-        let app = test_app();
-        let patch = SourcePatch { added: vec![], updated: vec![], deleted_ids: vec![] };
-
-        let err = source_patch("nope".into(), patch, app.state()).await.unwrap_err();
-
-        assert_eq!(err, "Not found nope");
-    }
-
-    #[tokio::test]
-    async fn patch_rejects_a_source_that_is_not_in_memory() {
-        let app = test_app();
-        add_file_source(&app, "file-source");
-        let patch = SourcePatch { added: vec![], updated: vec![], deleted_ids: vec![] };
-
-        let err = source_patch("file-source".into(), patch, app.state()).await.unwrap_err();
 
         assert_eq!(err, "Source file-source is not an in-memory source");
     }

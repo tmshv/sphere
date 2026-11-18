@@ -11,16 +11,25 @@ afterEach(async () => {
     await act(() => new Promise(resolve => setTimeout(resolve, TRANSITION_SETTLE_MS)))
 })
 
-const { mockDispatch, mockCopyGeojson, selectorSourceId, selectorCount, selectorWrapFc, selectorWktSep } = vi.hoisted(
-    () => ({
-        mockDispatch: vi.fn(),
-        mockCopyGeojson: vi.fn(),
-        selectorSourceId: Symbol("sourceId"),
-        selectorCount: Symbol("count"),
-        selectorWrapFc: Symbol("wrapFc"),
-        selectorWktSep: Symbol("wktSep"),
-    }),
-)
+const {
+    mockDispatch,
+    mockCopyGeojson,
+    selectorSourceId,
+    selectorCount,
+    selectorWrapFc,
+    selectorWktSep,
+    selectorHasTerrain,
+    terrainAvailable,
+} = vi.hoisted(() => ({
+    mockDispatch: vi.fn(),
+    mockCopyGeojson: vi.fn(),
+    selectorSourceId: Symbol("sourceId"),
+    selectorCount: Symbol("count"),
+    selectorWrapFc: Symbol("wrapFc"),
+    selectorWktSep: Symbol("wktSep"),
+    selectorHasTerrain: Symbol("hasTerrain"),
+    terrainAvailable: { value: false },
+}))
 
 vi.mock("react-map-gl/maplibre", () => ({
     useMap: () => ({}),
@@ -33,12 +42,14 @@ vi.mock("../../store/hooks", () => ({
         if (selector === selectorCount) return 2
         if (selector === selectorWrapFc) return true
         if (selector === selectorWktSep) return "\n"
+        if (selector === selectorHasTerrain) return terrainAvailable.value
         return undefined
     },
 }))
 
 vi.mock("../../store/selectors", () => ({
     selectors: {
+        terrain: { hasSource: selectorHasTerrain },
         selection: { sourceId: selectorSourceId, count: selectorCount },
         settings: {
             selectCopyWrapAsFeatureCollection: selectorWrapFc,
@@ -70,6 +81,24 @@ function openPalette() {
 }
 
 describe("Spotlight", () => {
+    afterEach(() => {
+        terrainAvailable.value = false
+    })
+
+    it("leaves the terrain toggle out without a terrain source", async () => {
+        openPalette()
+        await screen.findByText("Toggle Zen")
+        expect(screen.queryByText("Terrain")).toBeNull()
+        expect(screen.getByText("Add Mapterhorn terrain")).toBeDefined()
+    })
+
+    it("offers the terrain toggle when a terrain source exists", async () => {
+        terrainAvailable.value = true
+        openPalette()
+        fireEvent.click(await screen.findByText("Terrain"))
+        expect(mockDispatch).toHaveBeenCalledWith({ type: "terrain/toggle" })
+    })
+
     it("opens on its shortcut and lists command titles", async () => {
         openPalette()
         expect(await screen.findByText("Toggle Zen")).toBeDefined()

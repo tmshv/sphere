@@ -4,7 +4,7 @@
 .container {
     display: flex;
     flex-direction: column;
-    gap: var(--sphere-space-md);
+    gap: var(--sphere-space-16);
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
@@ -16,14 +16,14 @@
    instead of over the text. */
 .header {
     flex-shrink: 0;
-    padding-left: var(--sphere-space-sm);
-    padding-right: var(--sphere-space-sm);
+    padding-left: var(--sphere-space-12);
+    padding-right: var(--sphere-space-12);
 }
 
 .body {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    padding-left: var(--sphere-space-sm);
-    padding-right: var(--sphere-space-sm);
+    padding-left: var(--sphere-space-12);
+    padding-right: var(--sphere-space-12);
 }

@@ -1,4 +1,4 @@
-import type { Source } from "@/types/source"
+import type { RasterSource, Source } from "@/types/source"
 import { type SourceMetadata, SourceType } from "@/types"
 
 export function isMvtSource(source: Source | undefined): boolean {
@@ -14,4 +14,17 @@ export function hasFeatureStore(source: Source | undefined): source is Source & 
         return true
     }
     return source?.type === SourceType.FeatureCollection && !source.pending
+}
+
+// Where a raster's tiles come from: a web raster is served straight from its XYZ tiles, any other raster
+// from its TileJSON URL
+export function rasterTileProps(
+    source: RasterSource,
+): { url: string } | { tiles: string[]; tileSize: number; maxzoom: number; attribution: string } {
+    const { tiles, location } = source
+    if (!tiles) {
+        return { url: location }
+    }
+    const { urls, tileSize, maxzoom, attribution } = tiles
+    return { tiles: urls, tileSize, maxzoom, attribution }
 }

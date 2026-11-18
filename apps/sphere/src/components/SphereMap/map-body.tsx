@@ -1,4 +1,4 @@
-import useMapNavigation from "@/hooks/useMapNavigation"
+import useHillshadePlacement from "@/hooks/useHillshadePlacement"
 import useProjection from "@/hooks/useProjection"
 import useSky from "@/hooks/useSky"
 import useTerrain from "@/hooks/useTerrain"
@@ -15,11 +15,14 @@ import { selectTerrainSpecification } from "@/store/terrain"
 import React from "react"
 import { AttributionControl, useMap } from "react-map-gl/maplibre"
 import Draw from "./Draw"
+import { DrawContextLayer } from "./DrawContextLayer"
 import { FilteredLayerSource } from "./FilteredLayerSource"
+import MapNavigation from "./MapNavigation"
 import RectSelectOverlay from "./RectSelectOverlay"
 import { SourcePreviewLayer } from "./SourcePreviewLayer"
 import { SphereLayer } from "./SphereLayer"
 import { SphereSource } from "./SphereSource"
+import { TerrainSources } from "./TerrainSources"
 
 export type MapBodyProps = {
     mapId: string
@@ -28,10 +31,10 @@ export type MapBodyProps = {
 export default function MapBody({ mapId }: MapBodyProps) {
     useMapStore(mapId)
     const { [mapId]: map } = useMap()
-    useMapNavigation(map)
 
     const terrain = useAppSelector(selectTerrainSpecification)
     useTerrain(map, terrain)
+    useHillshadePlacement(map)
 
     const sky = useAppSelector(selectSkySpecification)
     useSky(map, sky)
@@ -44,6 +47,7 @@ export default function MapBody({ mapId }: MapBodyProps) {
     useTileBoundaries(map)
 
     const drawing = useAppSelector(selectors.draw.isDrawing)
+    const drawSourceId = useAppSelector(selectors.draw.sourceId)
     const showAttribution = useAppSelector(selectShowAttribution)
     const sourceIds = useAppSelector(selectors.source.allIds)
     const layers = useAppSelector(selectors.layer.mapLayers)
@@ -51,10 +55,12 @@ export default function MapBody({ mapId }: MapBodyProps) {
 
     return (
         <>
+            <MapNavigation mapRef={map} />
             {!showAttribution ? null : <AttributionControl compact />}
             {sourceIds.map(id => (
                 <SphereSource key={id} id={id} />
             ))}
+            <TerrainSources />
             {!drawing && previewActive && <SourcePreviewLayer mapId={mapId} delay={50} />}
             {layers.map(({ id }) => (
                 <React.Fragment key={id}>
@@ -62,7 +68,9 @@ export default function MapBody({ mapId }: MapBodyProps) {
                     <SphereLayer id={id} />
                 </React.Fragment>
             ))}
-            {!drawing ? null : <Draw mapId={mapId} />}
+            {/* Before Draw: its layers must be on the map before the draw control adds its own */}
+            <DrawContextLayer />
+            {drawSourceId === undefined ? null : <Draw key={drawSourceId} mapId={mapId} sourceId={drawSourceId} />}
             <RectSelectOverlay mapRef={map} />
         </>
     )

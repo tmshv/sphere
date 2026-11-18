@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react"
 import { ALIGN_ITEMS, type Align } from "./align"
 import { GAP_PX, type Gap } from "./gap"
+import { cx } from "../internal"
 import s from "./row.module.css"
 
 export type Justify = "start" | "end" | "between"
@@ -32,10 +33,7 @@ export function Row({ gap, align, justify, grow = false, className, style, child
     }
 
     return (
-        <div
-            className={[grow ? s.grow : undefined, className].filter(Boolean).join(" ") || undefined}
-            style={{ ...layout, ...style }}
-        >
+        <div className={cx(grow && s.grow, className) || undefined} style={{ ...layout, ...style }}>
             {children}
         </div>
     )

@@ -2,7 +2,7 @@ import { declaredStyle, render, screen } from "../test-utils"
 import { describe, expect, it } from "vitest"
 import { PanelBody } from "."
 
-const INSET = "var(--sphere-space-sm)"
+const INSET = "var(--sphere-space-12)"
 
 function styleOf(element: Element) {
     return window.getComputedStyle(element)

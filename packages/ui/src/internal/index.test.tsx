@@ -1,14 +1,15 @@
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
-import { declaredStyle, render, screen } from "../test-utils"
-import { Badge, Skeleton, Tooltip, unstyledButton } from "."
+import { act } from "@testing-library/react"
+import { afterEach, describe, expect, it, vi } from "vitest"
+import { declaredStyle, fireEvent, render, screen, startingStyle } from "../test-utils"
+import { Badge, Skeleton, Tooltip } from "."
 
 const OPEN_DELAY_MS = 150
 
 describe("Badge", () => {
     it("renders its text and title", () => {
         render(
-            <Badge size="xs" variant="light" radius="sm" title="Type">
+            <Badge size="xs" variant="light" title="Type">
                 string
             </Badge>,
         )
@@ -16,30 +17,54 @@ describe("Badge", () => {
         expect(screen.getByTitle("Type")).toBeInTheDocument()
     })
 
-    it("applies size, variant, radius and extra class", () => {
+    it("applies size, variant and extra class", () => {
         render(
-            <Badge size="sm" variant="filled" radius="xl" className="extra">
+            <Badge size="sm" variant="filled" className="extra">
                 badge
             </Badge>,
         )
         const root = screen.getByText("badge").parentElement
         expect(root?.className).toContain("sizeSm")
         expect(root?.className).toContain("filled")
-        expect(root?.className).toContain("radiusXl")
         expect(root).toHaveClass("extra")
     })
 
-    it("declares the xs radius and the outline colours from tokens", () => {
+    it("declares the control radius and the outline colours from tokens", () => {
         render(
-            <Badge size="sm" variant="outline" radius="xs">
+            <Badge size="sm" variant="outline">
                 link
             </Badge>,
         )
         const root = screen.getByText("link").parentElement
         if (!root) throw new Error("badge root missing")
-        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-xs)")
-        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-badge-outline-dark)")
-        expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-badge-outline-dark)")
+        expect(declaredStyle(root, "border-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-label-secondary)")
+        expect(declaredStyle(root, "border-color")).toBe("var(--sphere-color-separator)")
+    })
+
+    it("is 10px regular text that keeps the case of its data", () => {
+        render(
+            <Badge size="xs" variant="light">
+                /a/Path.png
+            </Badge>,
+        )
+        const root = screen.getByText("/a/Path.png").parentElement
+        if (!root) throw new Error("badge root missing")
+        expect(declaredStyle(root, "--badge-font-size")).toBe("var(--sphere-font-size-mini)")
+        expect(declaredStyle(root, "font-weight")).toBe("var(--sphere-font-weight-regular)")
+        expect(declaredStyle(root, "text-transform")).toBe("")
+    })
+
+    it("fills the light badge with its own badge role", () => {
+        render(
+            <Badge size="xs" variant="light">
+                string
+            </Badge>,
+        )
+        const root = screen.getByText("string").parentElement
+        if (!root) throw new Error("badge root missing")
+        expect(declaredStyle(root, "background")).toBe("var(--sphere-color-badge)")
+        expect(declaredStyle(root, "color")).toBe("var(--sphere-color-label)")
     })
 })
 
@@ -52,17 +77,6 @@ describe("Skeleton", () => {
     it("fills the width by default", () => {
         const { container } = render(<Skeleton height={16} />)
         expect(container.firstElementChild).toHaveStyle({ width: "100%" })
-    })
-})
-
-describe("unstyledButton", () => {
-    it("is a class name usable on a button", () => {
-        render(
-            <button type="button" className={unstyledButton}>
-                press
-            </button>,
-        )
-        expect(screen.getByRole("button", { name: "press" })).toHaveClass(unstyledButton)
     })
 })
 
@@ -108,5 +122,53 @@ describe("Tooltip", () => {
         await new Promise(resolve => setTimeout(resolve, OPEN_DELAY_MS))
 
         expect(screen.queryByText("Copy")).not.toBeInTheDocument()
+    })
+})
+
+// A moment well inside the desktop tooltip delay (700ms), and the rest of it.
+const INSIDE_DESKTOP_DELAY_MS = 350
+const PAST_DESKTOP_DELAY_MS = 400
+
+describe("Tooltip desktop look", () => {
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
+    it("waits the desktop tooltip delay by default", async () => {
+        vi.useFakeTimers()
+        render(
+            <Tooltip label="Copy">
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        fireEvent.pointerEnter(screen.getByRole("button", { name: "Target" }))
+        fireEvent.mouseEnter(screen.getByRole("button", { name: "Target" }))
+        fireEvent.mouseMove(screen.getByRole("button", { name: "Target" }))
+        await act(() => vi.advanceTimersByTimeAsync(INSIDE_DESKTOP_DELAY_MS))
+        expect(screen.queryByText("Copy")).not.toBeInTheDocument()
+
+        await act(() => vi.advanceTimersByTimeAsync(PAST_DESKTOP_DELAY_MS))
+        expect(screen.getByText("Copy")).toBeInTheDocument()
+    })
+
+    it("is a small hairline-bordered tag with no arrow that appears instantly", async () => {
+        const user = userEvent.setup()
+        render(
+            <Tooltip label="Copy" delay={0}>
+                <button type="button">Target</button>
+            </Tooltip>,
+        )
+
+        await user.hover(screen.getByRole("button", { name: "Target" }))
+        const tooltip = await screen.findByRole("tooltip")
+
+        expect(declaredStyle(tooltip, "background-color")).toBe("var(--sphere-color-tooltip)")
+        expect(declaredStyle(tooltip, "color")).toBe("var(--sphere-color-tooltip-text)")
+        expect(declaredStyle(tooltip, "border-radius")).toBe("var(--sphere-radius-control)")
+        expect(declaredStyle(tooltip, "font-size")).toBe("var(--sphere-font-size-small)")
+        expect(declaredStyle(tooltip, "box-shadow")).toContain("var(--sphere-color-popup-border)")
+        expect(startingStyle(tooltip, "opacity")).toBe("")
+        expect(tooltip.children).toHaveLength(0)
     })
 })

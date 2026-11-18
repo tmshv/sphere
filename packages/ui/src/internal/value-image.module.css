@@ -1,4 +1,4 @@
-/* Mantine 5 Image in a figure: a root box, a figure, a relative wrapper and the image. */
+/* An image in a figure: a root box, a figure, a relative wrapper and the image. */
 .image {
     width: var(--value-image-size);
 }

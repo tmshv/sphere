@@ -1,4 +1,5 @@
 import type { Basemap, BasemapId } from "@/types/basemap"
+import type { TerrainProvider, TerrainProviderId } from "@/types/terrain"
 import type { StyleSpecification } from "maplibre-gl"
 
 export const MAP_ID = "spheremap"
@@ -34,6 +35,23 @@ export const BASEMAPS: Record<BasemapId, Basemap> = {
         },
     },
 }
+const TERRAIN_TILE_SIZE = 512
+// Mapterhorn publishes no max zoom, so 12 is a safe cap: beyond it MapLibre overzooms the z12 tiles, while a
+// cap above the deepest level Mapterhorn has would request tiles that do not exist
+const MAPTERHORN_MAXZOOM = 12
+export const TERRAIN_PROVIDERS: Record<TerrainProviderId, TerrainProvider> = {
+    mapterhorn: {
+        name: "Mapterhorn",
+        location: "https://mapterhorn.com",
+        dem: "terrarium",
+        tiles: {
+            urls: ["https://tiles.mapterhorn.com/{z}/{x}/{y}.webp"],
+            tileSize: TERRAIN_TILE_SIZE,
+            maxzoom: MAPTERHORN_MAXZOOM,
+            attribution: "<a href='https://mapterhorn.com/attribution'>© Mapterhorn</a>",
+        },
+    },
+}
 export const EMPTY_GEOJSON = {
     type: "FeatureCollection",
     features: [],
@@ -42,4 +60,5 @@ export const EMPTY_GEOJSON = {
 export const FEATURE_HIGHLIGHT_COLOR = "red"
 export const PREVIEW_COLOR = "black" // tableu10[0]
 export const PREVIEW_RADIUS = 3
-export const DRAW_ORIG_ID_KEY = "__sphere_draw_origid"
+// Most features draw loads at once; a bigger selection or viewport asks the user to zoom in
+export const DRAW_WORKING_SET_CAP = 5000

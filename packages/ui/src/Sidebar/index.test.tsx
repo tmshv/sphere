@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { render, screen } from "../test-utils"
+import { declaredStyle, render, screen } from "../test-utils"
 import { Sidebar } from "."
 
 describe("Sidebar", () => {
@@ -11,5 +11,37 @@ describe("Sidebar", () => {
         )
 
         expect(screen.getByText("panel")).toBeInTheDocument()
+    })
+})
+
+describe("Sidebar look", () => {
+    it("sits on the sidebar colour", () => {
+        render(
+            <Sidebar>
+                <div>panel</div>
+            </Sidebar>,
+        )
+        const container = screen.getByText("panel").parentElement
+        if (!container) {
+            throw new Error("sidebar not found")
+        }
+
+        expect(declaredStyle(container, "background-color")).toBe("var(--sphere-color-sidebar)")
+    })
+})
+
+describe("Sidebar title bar inset", () => {
+    it("starts its content below the overlay title bar", () => {
+        render(
+            <Sidebar>
+                <div>panel</div>
+            </Sidebar>,
+        )
+        const container = screen.getByText("panel").parentElement
+        if (!container) {
+            throw new Error("sidebar not found")
+        }
+
+        expect(declaredStyle(container, "padding-top")).toBe("var(--sphere-titlebar-height)")
     })
 })

@@ -4,7 +4,9 @@ import { type NodeApi, type TreeApi, Tree as ArboristTree } from "react-arborist
 import { TouchBackend } from "react-dnd-touch-backend"
 import { childIds, branchIds, openState } from "./items"
 import { type ArboristMove, toTreeMove } from "./move"
+import { rowHeight } from "../tokens"
 import { TreeRow } from "./TreeRow"
+import s from "./tree-row.module.css"
 import type { TreeItem, TreeMove } from "./type"
 import { useElementSize } from "./useElementSize"
 
@@ -20,9 +22,6 @@ export type TreeProps = {
     canDrop?: (move: TreeMove) => boolean
 }
 
-// Fills its pane whether the parent is a flex column (a SectionStack body) or a sized block
-const CONTAINER_STYLE: React.CSSProperties = { flex: "1 1 0", minHeight: 0, height: "100%" }
-const ROW_HEIGHT = 30
 const INDENT = 16
 /** Pointer travel before a press on a row becomes a drag, so jitter while clicking the chevron or an extra does not start one. */
 const DRAG_SLOP_PX = 4
@@ -53,6 +52,22 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
             }
         }
     }, [items, expandedIds])
+
+    // react-arborist focuses its own focused node (else the first row) when the tree gains focus, and the controlled
+    // selection never moves it. Keep its focus on the selected row, so tabbing in lands there, as in a source list.
+    useLayoutEffect(() => {
+        const tree = treeRef.current
+        if (!tree || selectedId === undefined || tree.focusedNode?.id === selectedId) {
+            return
+        }
+        // Moving react-arborist's focus also marks the tree focused, which would pull DOM focus onto the row; when the
+        // tree did not have focus, it is handed back.
+        const hadFocus = tree.hasFocus
+        tree.focus(selectedId, { scroll: false })
+        if (!hadFocus) {
+            tree.onBlur()
+        }
+    }, [selectedId])
 
     const toMove = (move: ArboristMove) => toTreeMove(move, childIds(items, move.parentId ?? undefined))
 
@@ -91,7 +106,7 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
     }
 
     return (
-        <div ref={ref} style={CONTAINER_STYLE}>
+        <div ref={ref} className={s.tree}>
             <ArboristTree
                 ref={treeRef}
                 data={items}
@@ -110,8 +125,9 @@ export function Tree({ items, selectedId, expandedIds, onSelect, onToggle, onMov
                 dndManager={dndManager}
                 width={width}
                 height={height}
-                rowHeight={ROW_HEIGHT}
+                rowHeight={rowHeight}
                 indent={INDENT}
+                rowClassName={s.item}
             >
                 {TreeRow}
             </ArboristTree>

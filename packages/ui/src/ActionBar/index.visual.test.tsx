@@ -28,6 +28,7 @@ visualCases("ActionBar", {
             />
         ),
     },
+    // Renders exactly what separator renders: the pointer over an action must change nothing.
     hover: {
         render: () => <ActionBar items={ITEMS} onClick={noop} />,
         interact: () => userEvent.hover(page.getByRole("button", { name: "Add" })),

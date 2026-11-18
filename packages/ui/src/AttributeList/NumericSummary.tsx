@@ -1,14 +1,26 @@
 import { Stack } from "../Layout"
 import { BarChart } from "../PropertiesTable/BarChart"
+import { PropertyList, type PropertyListItem } from "../PropertyList"
 import type { FieldSummary } from "."
-import { InfoRow } from "../InfoRow"
 
 const HISTOGRAM_WIDTH = 120
 const HISTOGRAM_HEIGHT = 28
 const HISTOGRAM_COLOR = "rgb(34, 139, 230)"
 
+type NumericFieldSummary = Extract<FieldSummary, { kind: "numeric" }>
+
 export type NumericSummaryProps = {
-    summary: Extract<FieldSummary, { kind: "numeric" }>
+    summary: NumericFieldSummary
+}
+
+/** The min, max and mean the summary has, in that order. */
+export function numericItems({ min, max, mean }: NumericFieldSummary): PropertyListItem[] {
+    const stats: Array<[string, number | undefined]> = [
+        ["min", min],
+        ["max", max],
+        ["mean", mean],
+    ]
+    return stats.flatMap(([name, value]) => (value === undefined ? [] : [{ name, value }]))
 }
 
 export function NumericSummary({ summary }: NumericSummaryProps) {
@@ -20,9 +32,7 @@ export function NumericSummary({ summary }: NumericSummaryProps) {
                 height={HISTOGRAM_HEIGHT}
                 color={HISTOGRAM_COLOR}
             />
-            {summary.min === undefined ? null : <InfoRow label={"min"} value={summary.min} />}
-            {summary.max === undefined ? null : <InfoRow label={"max"} value={summary.max} />}
-            {summary.mean === undefined ? null : <InfoRow label={"mean"} value={summary.mean} />}
+            <PropertyList items={numericItems(summary)} />
         </Stack>
     )
 }

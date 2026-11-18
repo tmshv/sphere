@@ -3,7 +3,8 @@ import { flushSync } from "react-dom"
 import { createRoot } from "react-dom/client"
 import { afterEach, describe, expect, test } from "vitest"
 import { ThemeProvider } from "../ThemeProvider"
-import { visualCases } from "../visual/visualCases"
+import { page } from "vitest/browser"
+import { pressAndHold, releasePress, visualCases } from "../visual/visualCases"
 import { type TabItem, Tabs } from "."
 
 const noop = () => {}
@@ -18,6 +19,11 @@ const ITEMS: ReadonlyArray<TabItem> = [
 visualCases("Tabs", {
     "first-active": { render: () => <Tabs value="sources" onChange={noop} items={ITEMS} /> },
     "second-active": { render: () => <Tabs value="layers" onChange={noop} items={ITEMS} /> },
+    pressed: {
+        render: () => <Tabs value="sources" onChange={noop} items={ITEMS} />,
+        interact: () => pressAndHold(page.getByRole("tab", { name: "Layers" })),
+        cleanup: releasePress,
+    },
 })
 
 // The layout contract the sidebar relies on, read from the real stylesheet.

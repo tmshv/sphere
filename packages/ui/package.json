@@ -28,12 +28,17 @@
     "scripts": {
         "typecheck": "tsc --noEmit",
         "test": "vitest run",
-        "lint": "biome lint src/",
-        "lint:fix": "biome lint --write src/",
-        "test:visual": "vitest run -c vitest.visual.config.ts"
+        "lint": "biome lint src/ .storybook/",
+        "lint:fix": "biome lint --write src/ .storybook/",
+        "test:visual": "vitest run -c vitest.visual.config.ts",
+        "storybook": "storybook dev -p 6006",
+        "build-storybook": "storybook build -o storybook-static"
     },
     "devDependencies": {
+        "@storybook/addon-docs": "10.6.5",
+        "@storybook/react-vite": "10.6.5",
         "@vitest/browser-playwright": "4.1.4",
-        "playwright": "1.64.0"
+        "playwright": "1.64.0",
+        "storybook": "10.6.5"
     }
 }

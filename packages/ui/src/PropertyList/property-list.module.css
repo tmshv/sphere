@@ -1,0 +1,66 @@
+/* Name and value pairs on one grid, so every value starts at the same column: the name column is as wide as the
+   longest name, up to a cap, and names stay left-aligned in the secondary colour. Long names and values wrap rather
+   than hide. Each line is as tall as the small glyph button, so a copy glyph sits on the same line as its pair. */
+.list {
+    --property-name-max-width: 45%;
+
+    display: grid;
+    grid-template-columns: fit-content(var(--property-name-max-width)) minmax(0, 1fr);
+    column-gap: var(--sphere-space-12);
+    row-gap: var(--sphere-space-2);
+    margin: 0;
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-control-height-sm);
+    cursor: default;
+}
+
+/* A row spans both columns and lines its cells up on the list's grid (subgrid). It has a box of its own, the gap
+   between name and value included, so hovering anywhere on it reveals its copy glyph without flicker. */
+.row {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+}
+
+.name {
+    min-width: 0;
+    margin: 0;
+    color: var(--sphere-color-label-secondary);
+    overflow-wrap: anywhere;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.value {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sphere-space-4);
+    min-width: 0;
+    margin: 0;
+}
+
+.text {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--sphere-color-label);
+    overflow-wrap: anywhere;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* The copy glyph closes every row at the right edge, so the glyphs form a column too. It is revealed by its row:
+   while the pointer is over the row, while the glyph has keyboard focus, and while a copy result shows. The button
+   itself has no hover style. */
+.copy {
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    opacity: 0;
+}
+
+.row:hover .copy,
+.copy:focus-within,
+.copy[data-shown] {
+    opacity: 1;
+}

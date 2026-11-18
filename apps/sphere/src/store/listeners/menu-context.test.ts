@@ -1,3 +1,4 @@
+import { TERRAIN_PROVIDERS } from "@/const"
 import type { TileJSON } from "@/types/tilejson"
 import { configureStore } from "@reduxjs/toolkit"
 import { beforeEach, describe, expect, test, vi } from "vitest"
@@ -88,7 +89,7 @@ describe("menu-context listener", () => {
         await flush()
 
         expect(invoke).toHaveBeenCalledWith("menu_set_context", {
-            context: { hasSource: true, hasLayer: false, hasSelection: false },
+            context: { hasSource: true, hasLayer: false, hasSelection: false, hasTerrainSource: false },
         })
     })
 
@@ -97,7 +98,7 @@ describe("menu-context listener", () => {
         await flush()
 
         expect(lastContext()).toEqual({
-            context: { hasSource: true, hasLayer: false, hasSelection: false },
+            context: { hasSource: true, hasLayer: false, hasSelection: false, hasTerrainSource: false },
         })
     })
 
@@ -122,7 +123,24 @@ describe("menu-context listener", () => {
         await flush()
 
         expect(lastContext()).toEqual({
-            context: { hasSource: false, hasLayer: true, hasSelection: false },
+            context: { hasSource: false, hasLayer: true, hasSelection: false, hasTerrainSource: false },
+        })
+    })
+
+    test("reports an available terrain source", async () => {
+        store.dispatch(
+            sourceActions.addRasterSource({
+                id: "dem",
+                name: "Elevation",
+                location: "https://example.com/dem",
+                tiles: TERRAIN_PROVIDERS.mapterhorn.tiles,
+                dem: "terrarium",
+            }),
+        )
+        await flush()
+
+        expect(lastContext()).toEqual({
+            context: { hasSource: false, hasLayer: false, hasSelection: false, hasTerrainSource: true },
         })
     })
 
@@ -131,7 +149,7 @@ describe("menu-context listener", () => {
         await flush()
 
         expect(lastContext()).toEqual({
-            context: { hasSource: false, hasLayer: false, hasSelection: true },
+            context: { hasSource: false, hasLayer: false, hasSelection: true, hasTerrainSource: false },
         })
     })
 
@@ -149,7 +167,7 @@ describe("menu-context listener", () => {
         await flush()
 
         expect(lastContext()).toEqual({
-            context: { hasSource: false, hasLayer: false, hasSelection: false },
+            context: { hasSource: false, hasLayer: false, hasSelection: false, hasTerrainSource: false },
         })
     })
 

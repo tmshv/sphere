@@ -1,7 +1,15 @@
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, render, screen, waitFor } from "../test-utils"
+import {
+    declaredStyle,
+    expectDesktopInteraction,
+    fireEvent,
+    render,
+    screen,
+    startingStyle,
+    waitFor,
+} from "../test-utils"
 import { Dialog } from "."
 
 const TAB_PRESSES = 4
@@ -29,6 +37,19 @@ describe("Dialog", () => {
         expect(screen.queryByText("Input URL")).toBeNull()
         expect(screen.queryByText("body")).toBeNull()
         expect(screen.queryByRole("button", { name: "Submit" })).toBeNull()
+    })
+
+    it("keeps a backdrop that receives pointer events, so clicks behind the dialog are blocked", () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                <p>body</p>
+            </Dialog>,
+        )
+        const backdrop = document.querySelector("[class*='backdrop']")
+        if (!backdrop) throw new Error("dialog backdrop missing")
+
+        expect(declaredStyle(backdrop, "pointer-events")).not.toBe("none")
+        expect(declaredStyle(backdrop, "position")).toBe("fixed")
     })
 
     it("calls onClose on Escape", () => {
@@ -60,6 +81,18 @@ function Opener() {
 }
 
 describe("Dialog focus and dismissal", () => {
+    it("returns focus to the opener when the Close button is clicked", async () => {
+        const user = userEvent.setup()
+        render(<Opener />)
+        const opener = screen.getByRole("button", { name: "Open" })
+
+        await user.click(opener)
+        await user.click(await screen.findByRole("button", { name: "Close" }))
+
+        await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
+        expect(opener).toHaveFocus()
+    })
+
     it("traps focus and returns it to the opener on close", async () => {
         const user = userEvent.setup()
         render(<Opener />)
@@ -67,7 +100,7 @@ describe("Dialog focus and dismissal", () => {
 
         await user.click(opener)
         const dialog = await screen.findByRole("dialog")
-        expect(screen.getByRole("button", { name: "Close" })).toHaveFocus()
+        expect(screen.getByLabelText("field")).toHaveFocus()
         expect(dialog.contains(document.activeElement)).toBe(true)
 
         for (let i = 0; i < TAB_PRESSES; i++) {
@@ -78,6 +111,30 @@ describe("Dialog focus and dismissal", () => {
         await user.keyboard("{Escape}")
         await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
         expect(opener).toHaveFocus()
+    })
+
+    it("focuses the first form control in the body, not the close button", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL" footer={<button type="button">Submit</button>}>
+                <input aria-label="first" />
+                <input aria-label="second" />
+            </Dialog>,
+        )
+        await screen.findByRole("dialog")
+
+        await waitFor(() => expect(screen.getByLabelText("first")).toHaveFocus())
+    })
+
+    it("focuses the popup itself when the body has no control", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                <p>body</p>
+            </Dialog>,
+        )
+        const dialog = await screen.findByRole("dialog")
+
+        await waitFor(() => expect(dialog).toHaveFocus())
+        expect(screen.getByRole("button", { name: "Close" })).not.toHaveFocus()
     })
 
     it("closes on backdrop click", async () => {
@@ -107,5 +164,53 @@ describe("Dialog focus and dismissal", () => {
         await user.click(await screen.findByRole("button", { name: "Close" }))
 
         expect(onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it("gives the close button the desktop interaction model", () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+        expectDesktopInteraction(screen.getByRole("button", { name: "Close" }))
+    })
+})
+
+describe("Dialog surface", () => {
+    it("fades in without a scale or translate", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+        const popup = await screen.findByRole("dialog")
+
+        expect(startingStyle(popup, "transform")).toBe("")
+        expect(startingStyle(popup, "opacity")).toBe("0")
+        expect(declaredStyle(popup, "transition")).toContain("var(--sphere-duration-fast)")
+    })
+
+    it("is a window: window colour, window radius and shadow", async () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+        const popup = await screen.findByRole("dialog")
+
+        expect(declaredStyle(popup, "background-color")).toBe("var(--sphere-color-window)")
+        expect(declaredStyle(popup, "border-radius")).toBe("var(--sphere-radius-window)")
+        expect(declaredStyle(popup, "box-shadow")).toBe("var(--sphere-shadow-window)")
+        expect(declaredStyle(popup, "font-size")).toBe("var(--sphere-font-size-regular)")
+    })
+
+    it("sets the title in bold", () => {
+        render(
+            <Dialog opened onClose={vi.fn()} title="Input URL">
+                body
+            </Dialog>,
+        )
+
+        expect(declaredStyle(screen.getByText("Input URL"), "font-weight")).toBe("var(--sphere-font-weight-bold)")
     })
 })

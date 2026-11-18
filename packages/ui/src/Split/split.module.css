@@ -6,5 +6,5 @@
     width: 100%;
     height: 100%;
     --separator-border: var(--sphere-color-separator);
-    --focus-border: var(--sphere-color-split-focus);
+    --focus-border: var(--sphere-color-accent);
 }

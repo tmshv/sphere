@@ -1,0 +1,86 @@
+/* The segmented look shared by SegmentedControl and Tabs (an NSTabView-style row): a control-height bordered control body,
+   segments separated by the hairline, rounded only on the outer ends. Icons keep the size their caller gives them.
+   The selected segment is accent with on-accent text. No hover style; the arrow cursor; an unselected segment
+   darkens while pressed, as a push button does; focus draws the focus-ring glow. */
+.group {
+    display: inline-flex;
+    align-items: stretch;
+    max-width: 100%;
+}
+
+.segment {
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    position: relative;
+    display: inline-flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sphere-space-4);
+    min-width: 0;
+    height: var(--sphere-control-height-md);
+    margin: 0;
+    padding: 0 var(--sphere-space-12);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-none);
+    outline: none;
+    background-color: var(--sphere-color-control);
+    color: var(--sphere-color-label);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
+    white-space: nowrap;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.segment[data-size="sm"] {
+    height: var(--sphere-control-height-sm);
+}
+
+/* By type, not by child: a radio segment is followed by Base UI's hidden input, so the last segment is never the
+   group's last child. */
+.segment:not(:first-of-type) {
+    border-left-width: 0;
+}
+
+.segment:first-of-type {
+    border-top-left-radius: var(--sphere-radius-control);
+    border-bottom-left-radius: var(--sphere-radius-control);
+}
+
+.segment:last-of-type {
+    border-top-right-radius: var(--sphere-radius-control);
+    border-bottom-right-radius: var(--sphere-radius-control);
+}
+
+.segment:focus-visible {
+    z-index: 1;
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.segment[data-disabled] {
+    opacity: var(--sphere-opacity-disabled);
+}
+
+/* Press darkens an unselected, enabled segment to the pressed body; the selected one is already accent. */
+.segment:active:not([data-checked]):not([data-active]):not([data-disabled]) {
+    background-color: var(--sphere-color-control-pressed);
+}
+
+/* Selected: Base UI marks a checked radio data-checked and the active tab data-active. */
+.segment[data-checked],
+.segment[data-active] {
+    border-color: var(--sphere-color-accent);
+    background-color: var(--sphere-color-accent);
+    color: var(--sphere-color-on-accent);
+}
+
+/* The label of a segment truncates instead of widening the control. */
+.text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -68,7 +68,7 @@ describe("ThemeProvider", () => {
         )
         const styles = document.querySelectorAll("style#sphere-tokens")
         expect(styles).toHaveLength(1)
-        expect(styles[0]?.textContent).toContain("--sphere-space-sm:12px")
+        expect(styles[0]?.textContent).toContain("--sphere-space-12:12px")
     })
 
     it("useColorScheme reports the provider's scheme", () => {

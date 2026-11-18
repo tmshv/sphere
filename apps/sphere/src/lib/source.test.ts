@@ -2,7 +2,7 @@ import { SourceType } from "@/types"
 import type { Source } from "@/types/source"
 import type { TileJSON } from "@/types/tilejson"
 import { describe, expect, test } from "vitest"
-import { hasFeatureStore, isMvtSource } from "./source"
+import { hasFeatureStore, isMvtSource, rasterTileProps } from "./source"
 
 const meta = {
     columns: {},
@@ -107,5 +107,28 @@ describe("hasFeatureStore", () => {
 
     test("is false for no source", () => {
         expect(hasFeatureStore(undefined)).toBe(false)
+    })
+})
+
+describe("rasterTileProps", () => {
+    const raster = {
+        type: SourceType.Raster,
+        location: "https://tiles.example/tile.json",
+        editable: false,
+        pending: false,
+    } as const
+
+    test("points a TileJSON raster at its location", () => {
+        expect(rasterTileProps(raster)).toEqual({ url: "https://tiles.example/tile.json" })
+    })
+
+    test("serves a web raster straight from its XYZ tiles", () => {
+        const tiles = { urls: ["https://t.example/{z}/{x}/{y}.png"], tileSize: 256, maxzoom: 19, attribution: "A" }
+        expect(rasterTileProps({ ...raster, tiles })).toEqual({
+            tiles: tiles.urls,
+            tileSize: 256,
+            maxzoom: 19,
+            attribution: "A",
+        })
     })
 })

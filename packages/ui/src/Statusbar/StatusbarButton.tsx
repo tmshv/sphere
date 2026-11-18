@@ -1,9 +1,8 @@
-import { Button as BaseButton } from "@base-ui/react/button"
-import type { ReactNode } from "react"
-import iconButton from "../Button/icon-button.module.css"
-import { unstyledButton } from "../internal"
+import type { MouseEvent, ReactNode, Ref } from "react"
+import { ButtonBase, cx } from "../internal"
 import s from "./statusbar-button.module.css"
 
+/** How a toggled-on button shows: a yellow glyph, or a grey body behind the glyph. */
 export type StatusbarButtonLook = "accent" | "fill"
 
 export type StatusbarButtonProps = {
@@ -12,11 +11,16 @@ export type StatusbarButtonProps = {
     label: string
     onClick: () => void
     disabled?: boolean
+    /** Toggled on (`aria-pressed`); leave undefined for a button that is not a toggle. */
     active?: boolean
-    /** How an active button stands out: a yellow icon, or a filled background. */
+    /** How a toggled-on button shows (default `accent`). */
     activeLook?: StatusbarButtonLook
+    /** Called on right click, after the native context menu is suppressed. Not called when disabled. */
+    onContextMenu?: () => void
+    ref?: Ref<HTMLButtonElement>
 }
 
+/** A small glyph button for the statusbar. */
 export function StatusbarButton({
     icon,
     label,
@@ -24,28 +28,30 @@ export function StatusbarButton({
     disabled = false,
     active,
     activeLook = "accent",
+    onContextMenu,
+    ref,
 }: StatusbarButtonProps) {
-    const isFilled = active === true && activeLook === "fill"
-    const isAccent = active === true && activeLook === "accent"
-    const classes = [
-        unstyledButton,
-        iconButton.iconButton,
-        iconButton.sizeSm,
-        s.button,
-        isAccent && s.accent,
-        isFilled && s.fill,
-    ]
+    function handleContextMenu(event: MouseEvent<HTMLButtonElement>) {
+        if (disabled || !onContextMenu) {
+            return
+        }
+        event.preventDefault()
+        onContextMenu()
+    }
 
     return (
-        <BaseButton
-            className={classes.filter(Boolean).join(" ")}
-            aria-label={label}
-            aria-pressed={active}
-            title={label}
+        <ButtonBase
+            shape="glyph"
+            size="sm"
+            label={label}
+            active={active}
             disabled={disabled}
-            onClick={() => onClick()}
+            className={cx(s.button, activeLook === "fill" && s.fill)}
+            onClick={onClick}
+            onContextMenu={handleContextMenu}
+            ref={ref}
         >
             {icon}
-        </BaseButton>
+        </ButtonBase>
     )
 }

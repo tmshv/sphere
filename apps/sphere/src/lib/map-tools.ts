@@ -21,3 +21,9 @@ export function isHoverPopupEnabled(tool: MapTool): boolean {
 export function isPopupVisible(tool: MapTool): boolean {
     return POPUP_VISIBLE_TOOLS.has(tool)
 }
+
+const MAP_TOOLS: ReadonlySet<string> = new Set<MapTool>(["navigation", "select", "info"])
+
+export function isMapTool(value: string): value is MapTool {
+    return MAP_TOOLS.has(value)
+}

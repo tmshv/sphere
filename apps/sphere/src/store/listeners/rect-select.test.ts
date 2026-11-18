@@ -46,6 +46,8 @@ vi.mock("../actions", () => {
     }
 })
 
+import { DrawOpQueue, registerDrawQueue } from "@/lib/draw-session"
+import { emitSelectionDelta } from "@/lib/selection-bus"
 import { rectSelectDrag, rectSelectCommit, rectSelectClick } from "../rect-select"
 import listener from "./rect-select"
 
@@ -61,8 +63,9 @@ function makeStore(state: Record<string, unknown>) {
         }
         return next(action)
     }
+    const full = { draw: { pending: false, hiddenIds: [] }, ...state }
     const store = configureStore({
-        reducer: (s = state) => s,
+        reducer: (s = full) => s,
         middleware: getDefaultMiddleware => getDefaultMiddleware().prepend(listener.middleware).concat(capture),
     })
     return { store, dispatched }
@@ -109,6 +112,24 @@ describe("rect-select listener", () => {
         })
         expect(invokeMock.mock.calls.some((c: unknown[]) => c[0] === "source_query_rect")).toBe(false)
         expect(invokeMock.mock.calls.some((c: unknown[]) => c[0] === "selection_set")).toBe(false)
+    })
+
+    test("a drag step emits its delta as dragging, the commit emits settled deltas", async () => {
+        const { store } = makeStore({
+            source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+        })
+
+        // A bbox no other test drags, so the drag dedup does not skip it
+        store.dispatch(rectSelectDrag({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
+        await vi.runAllTimersAsync()
+        expect(vi.mocked(emitSelectionDelta).mock.calls).toEqual([[{ added: [1, 2], removed: [] }, { dragging: true }]])
+
+        vi.mocked(emitSelectionDelta).mockClear()
+        store.dispatch(rectSelectCommit({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
+        await vi.runAllTimersAsync()
+        const origins = vi.mocked(emitSelectionDelta).mock.calls.map(call => call.at(1))
+        expect(origins.length).toBeGreaterThan(0)
+        expect(origins.every(origin => origin === undefined)).toBe(true)
     })
 
     test("rectSelectDrag with shift modifier uses op=preview", async () => {
@@ -334,5 +355,105 @@ describe("rect-select listener", () => {
         await vi.runAllTimersAsync()
 
         expect(invokeMock).not.toHaveBeenCalled()
+    })
+
+    describe("while drawing", () => {
+        const drawState = { pending: false, hiddenIds: [], sourceId: "drawn" }
+
+        test("rectSelectDrag targets the drawn source and flushes the queue first", async () => {
+            const queue = new DrawOpQueue("drawn", () => {})
+            const order: string[] = []
+            vi.spyOn(queue, "flush").mockImplementation(async () => {
+                order.push("flush")
+                return { ok: true }
+            })
+            invokeMock.mockImplementation(async (cmd: string) => {
+                order.push(cmd)
+                return { added: [1], removed: [] }
+            })
+            const unregister = registerDrawQueue(queue)
+            const { store } = makeStore({
+                source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+                draw: drawState,
+            })
+
+            store.dispatch(rectSelectDrag({ start: { x: 10, y: 10 }, current: { x: 100, y: 100 }, modifier: "none" }))
+            await vi.runAllTimersAsync()
+            unregister()
+
+            expect(order).toEqual(["flush", "selection_rect"])
+            const rectCall = invokeMock.mock.calls.find((c: unknown[]) => c[0] === "selection_rect")
+            expect(rectCall?.[1]).toMatchObject({ sourceId: "drawn" })
+        })
+
+        test("rectSelectCommit flushes the queue before selection_rect", async () => {
+            const queue = new DrawOpQueue("drawn", () => {})
+            const order: string[] = []
+            vi.spyOn(queue, "flush").mockImplementation(async () => {
+                order.push("flush")
+                return { ok: true }
+            })
+            invokeMock.mockImplementation(async (cmd: string) => {
+                order.push(cmd)
+                return { added: [1], removed: [] }
+            })
+            const unregister = registerDrawQueue(queue)
+            const { store } = makeStore({ source: makeSourceState([]), draw: drawState })
+
+            store.dispatch(rectSelectCommit({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
+            await vi.runAllTimersAsync()
+            unregister()
+
+            expect(order.slice(0, 2)).toEqual(["flush", "selection_rect"])
+            const rectCall = invokeMock.mock.calls.find((c: unknown[]) => c[0] === "selection_rect")
+            expect(rectCall?.[1]).toMatchObject({ sourceId: "drawn" })
+        })
+
+        test("a failed flush stops the rect query", async () => {
+            const queue = new DrawOpQueue("drawn", () => {})
+            vi.spyOn(queue, "flush").mockResolvedValue({ ok: false, error: new Error("x"), dropped: 0 })
+            const unregister = registerDrawQueue(queue)
+            const { store } = makeStore({ source: makeSourceState([]), draw: drawState })
+
+            store.dispatch(rectSelectCommit({ start: { x: 13, y: 13 }, current: { x: 133, y: 133 }, modifier: "none" }))
+            await vi.runAllTimersAsync()
+            unregister()
+
+            expect(invokeMock).not.toHaveBeenCalled()
+        })
+
+        test("a drag retried with the same bbox after a failed flush is not dedup-skipped", async () => {
+            const queue = new DrawOpQueue("drawn", () => {})
+            vi.spyOn(queue, "flush")
+                .mockResolvedValueOnce({ ok: false, error: new Error("x"), dropped: 0 })
+                .mockResolvedValue({ ok: true })
+            const unregister = registerDrawQueue(queue)
+            const { store } = makeStore({ source: makeSourceState([]), draw: drawState })
+            const drag = rectSelectDrag({ start: { x: 10, y: 10 }, current: { x: 100, y: 100 }, modifier: "none" })
+
+            store.dispatch(drag)
+            await vi.runAllTimersAsync()
+            store.dispatch(drag)
+            await vi.runAllTimersAsync()
+            unregister()
+
+            const rectCalls = invokeMock.mock.calls.filter((c: unknown[]) => c[0] === "selection_rect")
+            expect(rectCalls).toHaveLength(1)
+        })
+
+        test("rectSelectClick does nothing", async () => {
+            const { store, dispatched } = makeStore({
+                source: makeSourceState([makeGeojsonSource("src-1")], { selectedIds: ["src-1"] }),
+                draw: drawState,
+            })
+            const before = dispatched.length
+
+            store.dispatch(rectSelectClick({ point: { x: 10, y: 10 }, modifier: "none" }))
+            await vi.runAllTimersAsync()
+
+            expect(invokeMock).not.toHaveBeenCalled()
+            expect(vi.mocked(emitSelectionDelta)).not.toHaveBeenCalled()
+            expect(dispatched.slice(before).map(a => a.type)).toEqual([rectSelectClick.type])
+        })
     })
 })

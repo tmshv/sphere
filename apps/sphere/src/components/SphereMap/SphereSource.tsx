@@ -1,5 +1,6 @@
 import { EMPTY_GEOJSON } from "@/const"
 import { assertUnreachable } from "@/lib"
+import { rasterTileProps } from "@/lib/source"
 import logger from "@/logger"
 import { useAppSelector } from "@/store/hooks"
 import { SourceType } from "@/types"
@@ -26,14 +27,8 @@ export function selectSourceVersion(source: SourceEntry | undefined): number | n
     return null
 }
 
-// A web raster is served straight from its XYZ tiles; any other raster comes from its TileJSON URL
 export function rasterSourceProps(source: RasterSource): SourceProps {
-    const { tiles, location } = source
-    if (!tiles) {
-        return { type: "raster", url: location }
-    }
-    const { urls, tileSize, maxzoom, attribution } = tiles
-    return { type: "raster", tiles: urls, tileSize, maxzoom, attribution }
+    return { type: "raster", ...rasterTileProps(source) }
 }
 
 export const SphereSource: React.FC<SphereSourceProps> = memo(({ id }) => {

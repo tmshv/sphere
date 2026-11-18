@@ -1,0 +1,58 @@
+/* A settings popup on the macOS popup surface shared with menus: the popup background, a hairline border drawn as
+   a ring and the popup shadow, with the popup radius. Unlike a menu it holds controls, so it is padded on every
+   side and stacks its fields with a gap. It is never taller than the room the positioner reports beside its anchor
+   and scrolls when its fields need more. It appears instantly and fades out over duration-fast. */
+.positioner {
+    z-index: var(--sphere-z-index-popover);
+}
+
+.popup {
+    --popover-width: 240px;
+
+    box-sizing: border-box;
+    width: var(--popover-width);
+    max-height: var(--available-height);
+    overflow-y: auto;
+    padding: var(--sphere-space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sphere-space-12);
+    outline: 0;
+    background-color: var(--sphere-color-popup);
+    color: var(--sphere-color-label);
+    border-radius: var(--sphere-radius-popup);
+    box-shadow:
+        0 0 0 var(--sphere-hairline) var(--sphere-color-popup-border),
+        var(--sphere-shadow-popup);
+    font-family: var(--sphere-font-family-sans);
+    font-size: var(--sphere-font-size-body);
+    line-height: var(--sphere-line-height-tight);
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity var(--sphere-duration-fast) ease;
+}
+
+.popup[data-ending-style] {
+    opacity: 0;
+}
+
+/* A titled group of fields: the title in small semibold label text, the fields stacked under it with the popup's
+   gap, and a separator line above every section but the first. */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sphere-space-12);
+}
+
+.section + .section {
+    padding-top: var(--sphere-space-12);
+    border-top: var(--sphere-hairline) solid var(--sphere-color-separator);
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: var(--sphere-font-size-small);
+    font-weight: var(--sphere-font-weight-semibold);
+    color: var(--sphere-color-label);
+}

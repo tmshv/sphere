@@ -1,0 +1,32 @@
+{
+    "name": "@sphere/draw",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "description": "MapLibre GL drawing control, vendored from @hyvilo/maplibre-gl-draw",
+    "license": "ISC",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+        },
+        "./maplibre-gl-draw.css": "./maplibre-gl-draw.css"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "lint": "biome lint src/",
+        "lint:fix": "biome lint --write src/"
+    },
+    "dependencies": {
+        "@types/geojson": "*"
+    },
+    "peerDependencies": {
+        "maplibre-gl": "^6.15.0"
+    },
+    "devDependencies": {
+        "@turf/bbox-clip": "^7.4.0"
+    }
+}

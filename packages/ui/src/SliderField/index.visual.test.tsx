@@ -22,8 +22,9 @@ visualCases("SliderField", {
     min: { render: () => <SliderField label="Opacity" value={MIN} min={MIN} max={MAX} onChange={noop} /> },
     mid: { render: () => <SliderField label="Opacity" value={MID} min={MIN} max={MAX} step={STEP} onChange={noop} /> },
     max: { render: () => <SliderField label="Opacity" value={MAX} min={MIN} max={MAX} onChange={noop} /> },
+    // Renders exactly what mid renders: the pointer over the knob must change nothing.
     "thumb-hover": {
-        render: () => <SliderField label="Opacity" value={MID} min={MIN} max={MAX} onChange={noop} />,
+        render: () => <SliderField label="Opacity" value={MID} min={MIN} max={MAX} step={STEP} onChange={noop} />,
         interact: () => userEvent.hover(thumbLocator()),
     },
 })

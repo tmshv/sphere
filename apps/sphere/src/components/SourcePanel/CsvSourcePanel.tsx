@@ -1,7 +1,7 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
 import { CsvGeometryConfig } from "./CsvGeometryConfig"
-import { AttributeList, InfoRow, Stack, Text } from "@sphere/ui"
+import { AttributeList, PropertyList, Stack, Text } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
 import { PanelSection } from "./parts/PanelSection"
@@ -28,8 +28,12 @@ export function CsvSourcePanel() {
             </PanelSection>
 
             <PanelSection title={"Parsing"}>
-                <InfoRow label={"Rows with geometry"} value={details.parsed_rows} />
-                <InfoRow label={"Rows skipped"} value={details.skipped_rows} />
+                <PropertyList
+                    items={[
+                        { name: "Rows with geometry", value: details.parsed_rows },
+                        { name: "Rows skipped", value: details.skipped_rows },
+                    ]}
+                />
                 {details.skipped_rows > 0 ? (
                     <Text tone={"warning"}>
                         {details.parsed_rows} of {totalRows} rows had valid geometry

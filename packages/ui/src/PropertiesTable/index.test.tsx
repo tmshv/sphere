@@ -1,6 +1,6 @@
 import type { ColumnDef, SortingState } from "@tanstack/react-table"
 import userEvent from "@testing-library/user-event"
-import { fireEvent, pressedStyle, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, hoverStyle, render, screen } from "../test-utils"
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest"
 import { PropertesTable, type PropertyItem, type PropertyItemMeta } from "."
@@ -98,14 +98,25 @@ describe("PropertesTable", () => {
         expect(onPageChange).toHaveBeenCalledWith(2)
     })
 
-    it("presses the enabled pager buttons down 1px and never a disabled one, as Mantine's nested provider did", () => {
-        renderTable({ pageIndex: 1, pageCount: 3 })
-        expect(pressedStyle(screen.getByRole("button", { name: "Next page" }), "transform")).toBe("translateY(1px)")
+    it("gives the pager buttons the desktop interaction model, enabled or not", () => {
+        renderTable({ pageIndex: 0, pageCount: 3 })
+        expectDesktopInteraction(screen.getByRole("button", { name: "Previous page" }))
+        expectDesktopInteraction(screen.getByRole("button", { name: "Next page" }))
     })
 
-    it("does not press a disabled pager button", () => {
-        renderTable({ pageIndex: 0, pageCount: 1 })
-        expect(pressedStyle(screen.getByRole("button", { name: "Next page" }), "transform")).toBe("")
+    it("gives the photo toggle the desktop interaction model", () => {
+        renderTable()
+        expectDesktopInteraction(screen.getByRole("button", { name: "Show images" }))
+    })
+
+    it("draws the column resizer as an invisible grip with a resize cursor and no hover reveal", () => {
+        renderTable()
+        const resizer = screen.getAllByTestId("column-resizer").at(0)
+        expect(resizer).toBeDefined()
+        if (!resizer) return
+        expect(declaredStyle(resizer, "cursor")).toBe("col-resize")
+        expect(hoverStyle(resizer, "opacity")).toBe("")
+        expect(declaredStyle(resizer, "background")).toBe("transparent")
     })
 
     it("disables previous on the first page and next on the last", () => {
@@ -162,5 +173,10 @@ describe("PropertesTable", () => {
         await user.keyboard("{Enter}")
         expect(screen.getByRole("button", { name: "Show images" })).toBeInTheDocument()
         expect(onSortingChange).not.toHaveBeenCalled()
+    })
+
+    it("stretches to its container", () => {
+        renderTable()
+        expect(declaredStyle(screen.getByRole("table"), "min-width")).toBe("100%")
     })
 })

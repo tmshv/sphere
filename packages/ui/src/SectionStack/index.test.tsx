@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { describe, expect, it } from "vitest"
-import { declaredStyle, fireEvent, render, screen } from "../test-utils"
+import { declaredStyle, expectDesktopInteraction, fireEvent, render, screen } from "../test-utils"
 import { SECTION_HEADER_HEIGHT, SectionStack, type SectionLayout } from "."
+import { rowHeight } from "../tokens"
 
 function Stack({ initial }: { initial: SectionLayout[] }) {
     const [sections, setSections] = useState(initial)
@@ -65,6 +66,19 @@ describe("SectionStack", () => {
 
         expect(screen.getByRole("button", { name: /Outline/ })).toHaveAttribute("aria-expanded", "true")
         expect(screen.getByRole("button", { name: /Details/ })).toHaveAttribute("aria-expanded", "false")
+    })
+
+    it("renders each header as an edge-to-edge strip button, so its focus ring is drawn inside", () => {
+        render(
+            <Stack
+                initial={[
+                    { name: "outline", open: true, size: null },
+                    { name: "details", open: false, size: null },
+                ]}
+            />,
+        )
+
+        expect(screen.getByRole("button", { name: /Outline/ })).toHaveAttribute("data-shape", "strip")
     })
 
     it("calls onSectionsChange with only the clicked section's open flipped", () => {
@@ -153,7 +167,7 @@ describe("SectionStack", () => {
         expect(paddingPx(style.paddingLeft)).toBe(0)
         expect(paddingPx(style.paddingRight)).toBe(0)
         // A spacing token, which happy-dom leaves unresolved.
-        expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(body, "padding-top")).toBe("var(--sphere-space-12)")
     })
 
     it("drops the vertical padding of a flush section body and keeps it for the others", () => {
@@ -183,13 +197,13 @@ describe("SectionStack", () => {
 
         expect(paddingPx(flushStyle.paddingTop)).toBe(0)
         expect(paddingPx(flushStyle.paddingBottom)).toBe(0)
-        expect(declaredStyle(paddedBody, "padding-top")).toBe("var(--sphere-space-sm)")
-        expect(declaredStyle(paddedBody, "padding-bottom")).toBe("var(--sphere-space-sm)")
+        expect(declaredStyle(paddedBody, "padding-top")).toBe("var(--sphere-space-12)")
+        expect(declaredStyle(paddedBody, "padding-bottom")).toBe("var(--sphere-space-12)")
     })
 })
 
 describe("SectionStack header height", () => {
-    it("declares in CSS the same height as SECTION_HEADER_HEIGHT", () => {
+    it("is one row tall, in CSS and in SECTION_HEADER_HEIGHT", () => {
         render(
             <SectionStack sections={[{ name: "outline", open: true, size: null }]} onSectionsChange={() => undefined}>
                 <SectionStack.Section name={"outline"} title={"Outline"}>
@@ -199,6 +213,34 @@ describe("SectionStack header height", () => {
         )
         const header = screen.getByRole("button", { name: /Outline/ })
 
-        expect(declaredStyle(header, "--header-height")).toBe(`${SECTION_HEADER_HEIGHT}px`)
+        expect(declaredStyle(header, "height")).toBe("var(--sphere-row-height)")
+        expect(SECTION_HEADER_HEIGHT).toBe(rowHeight)
+    })
+})
+
+describe("SectionStack header interaction", () => {
+    it("gives the header the desktop interaction model", () => {
+        render(<Stack initial={[{ name: "outline", open: true, size: null }]} />)
+        expectDesktopInteraction(screen.getByRole("button", { name: /Outline/ }))
+    })
+})
+
+describe("SectionStack header look", () => {
+    it("is a row-height strip of small regular uppercase secondary text with a separator on top", () => {
+        render(<Stack initial={[{ name: "outline", open: true, size: null }]} />)
+        const toggle = screen.getByRole("button", { name: /Outline/ })
+        const header = toggle.parentElement
+        if (!header) {
+            throw new Error("header not found")
+        }
+
+        expect(declaredStyle(toggle, "height")).toBe("var(--sphere-row-height)")
+        expect(declaredStyle(header, "color")).toBe("var(--sphere-color-label-secondary)")
+        expect(declaredStyle(header, "font-size")).toBe("var(--sphere-font-size-small)")
+        expect(declaredStyle(header, "font-weight")).toBe("var(--sphere-font-weight-regular)")
+        expect(declaredStyle(header, "text-transform")).toBe("uppercase")
+        expect(declaredStyle(header, "letter-spacing")).toBe("var(--caps-tracking)")
+        expect(declaredStyle(header, "--caps-tracking")).toBe("0.02em")
+        expect(declaredStyle(header, "box-shadow")).toBe("inset 0 1px 0 var(--sphere-color-separator)")
     })
 })

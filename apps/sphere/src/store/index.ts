@@ -53,6 +53,7 @@ export const store = configureStore({
             listeners.addBlankLayer.middleware,
             listeners.addBasemap.middleware,
             listeners.addRasterUrl.middleware,
+            listeners.addTerrainProvider.middleware,
             listeners.forceResizeMap.middleware,
             listeners.clearSelection.middleware,
             listeners.clearSelectionOnNodeChange.middleware,
@@ -67,6 +68,8 @@ export const store = configureStore({
             listeners.autoSelectOnDelete.middleware,
             listeners.exitDrawOnSourceDelete.middleware,
             listeners.saveDraw.middleware,
+            listeners.drawSelection.middleware,
+            listeners.drawToolbar.middleware,
             listeners.mapToolChanged.middleware,
             listeners.rectSelect.middleware,
             listeners.rectSelectMvt.middleware,
@@ -76,6 +79,7 @@ export const store = configureStore({
             listeners.copySelection.middleware,
             listeners.loadSourceInfo.middleware,
             listeners.applyCsvGeometry.middleware,
+            listeners.resolveTerrainSource.middleware,
         )
     },
 })

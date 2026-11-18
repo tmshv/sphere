@@ -47,11 +47,11 @@ function renderTab() {
 }
 
 describe("LayersTab", () => {
-    it("runs the outline to the section edges and keeps the layer panel padded", () => {
+    it("starts the outline and the layer panel's action bar right under their headings", () => {
         renderTab()
 
         expect(verticalPaddingOf(sectionBodyOf(/Outline/))).toEqual([0, 0])
-        expect(verticalPaddingOf(sectionBodyOf(/^Layer$/))).not.toEqual([0, 0])
+        expect(verticalPaddingOf(sectionBodyOf(/^Layer$/))).toEqual([0, 0])
     })
 
     it("scrolls the outline instead of pushing the layer panel off the sidebar", () => {

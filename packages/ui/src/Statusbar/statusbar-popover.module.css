@@ -1,0 +1,8 @@
+/* A popover that opens from the statusbar: the popup surface in the statusbar's near-black instead of the popup
+   colour, in both themes. The Popover already renders its subtree in the dark scheme, so the controls inside take
+   their dark look; this only swaps the surface and tells native parts (scrollbars) the scheme is dark. */
+.popup {
+    --sphere-color-popup: var(--sphere-color-statusbar);
+
+    color-scheme: dark;
+}

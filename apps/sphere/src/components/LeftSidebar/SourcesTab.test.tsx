@@ -81,11 +81,11 @@ function actionAt(index: number) {
 }
 
 describe("SourcesTab", () => {
-    it("runs the outline to the section edges and keeps the source panel padded", () => {
+    it("starts the outline and the source panel's action bar right under their headings", () => {
         renderTab()
 
         expect(verticalPaddingOf(sectionBodyOf(/Outline/))).toEqual([0, 0])
-        expect(verticalPaddingOf(sectionBodyOf(/^Source$/))).not.toEqual([0, 0])
+        expect(verticalPaddingOf(sectionBodyOf(/^Source$/))).toEqual([0, 0])
     })
 
     it("scrolls the outline instead of pushing the source panel off the sidebar", () => {

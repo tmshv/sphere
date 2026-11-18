@@ -1,0 +1,61 @@
+/* A macOS switch beside its label: a pill track in the track colour that fills with the accent when on, and the
+   white slider knob (hairline border, control shadow) sliding to the on side. Nothing changes on hover; keyboard
+   focus draws the focus-ring glow around the track. */
+.root {
+    display: flex;
+}
+
+.label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sphere-space-8);
+    margin-bottom: 0;
+    font-size: var(--sphere-font-size-body);
+    color: var(--sphere-color-label);
+}
+
+.track {
+    --switch-width: 26px;
+    --switch-height: 15px;
+    --switch-inset: 1px;
+    --switch-knob-size: calc(var(--switch-height) - 2 * var(--switch-inset));
+
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: var(--switch-width);
+    height: var(--switch-height);
+    margin: 0;
+    padding: var(--switch-inset);
+    border: 0;
+    border-radius: var(--sphere-radius-pill);
+    background-color: var(--sphere-color-track);
+    cursor: default;
+    outline: 0;
+    transition: background-color var(--sphere-duration-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.track[data-checked] {
+    background-color: var(--sphere-color-accent);
+}
+
+.track:focus-visible {
+    box-shadow: 0 0 0 var(--sphere-focus-ring-width) var(--sphere-color-focus-ring);
+}
+
+.thumb {
+    box-sizing: border-box;
+    width: var(--switch-knob-size);
+    height: var(--switch-knob-size);
+    border: var(--sphere-hairline) solid var(--sphere-color-control-border);
+    border-radius: var(--sphere-radius-pill);
+    background-color: var(--sphere-color-knob);
+    box-shadow: var(--sphere-shadow-control);
+    transition: transform var(--sphere-duration-fast) ease;
+}
+
+.thumb[data-checked] {
+    transform: translateX(calc(var(--switch-width) - var(--switch-height)));
+}

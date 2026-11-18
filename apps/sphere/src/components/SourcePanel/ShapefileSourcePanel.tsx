@@ -1,6 +1,7 @@
 import { selectors } from "@/store"
 import { useAppSelector } from "@/store/hooks"
-import { AttributeList, InfoRow, Stack, Text } from "@sphere/ui"
+import type { FormatDetails } from "@/lib/source-reader"
+import { AttributeList, PropertyList, type PropertyListItem, Stack, Text } from "@sphere/ui"
 import { FileSection } from "./parts/FileSection"
 import { GeometryCounts } from "./parts/GeometryCounts"
 import { PanelSection } from "./parts/PanelSection"
@@ -11,6 +12,16 @@ const SIDECARS = [
     { extension: ".prj", key: "has_prj" },
     { extension: ".cpg", key: "has_cpg" },
 ] as const
+
+type ShapefileDetails = Extract<FormatDetails, { format: "shapefile" }>
+
+/** Whether each sidecar file is present, then the CRS. */
+export function sidecarItems(details: ShapefileDetails): PropertyListItem[] {
+    return [
+        ...SIDECARS.map(sidecar => ({ name: sidecar.extension, value: details[sidecar.key] ? "present" : "missing" })),
+        { name: "CRS", value: details.crs ?? "unknown" },
+    ]
+}
 
 export function ShapefileSourcePanel() {
     const info = useAppSelector(selectors.sourceInfo.selectCurrentSourceInfo)
@@ -27,14 +38,7 @@ export function ShapefileSourcePanel() {
             <FileSection file={info?.file} />
 
             <PanelSection title={"Sidecars & CRS"}>
-                {SIDECARS.map(sidecar => (
-                    <InfoRow
-                        key={sidecar.extension}
-                        label={sidecar.extension}
-                        value={details[sidecar.key] ? "present" : "missing"}
-                    />
-                ))}
-                <InfoRow label={"CRS"} value={details.crs ?? "unknown"} />
+                <PropertyList items={sidecarItems(details)} />
                 {details.has_dbf ? null : (
                     <Text tone={"warning"}>No .dbf sidecar — this shapefile has no attributes</Text>
                 )}

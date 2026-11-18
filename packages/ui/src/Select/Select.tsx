@@ -1,18 +1,14 @@
 import { Combobox } from "@base-ui/react/combobox"
 import { Select as BaseSelect } from "@base-ui/react/select"
-import { type CSSProperties, useId } from "react"
-import input from "../internal/input.module.css"
+import { IconCheck } from "@sphere/icons"
+import { useId } from "react"
+import { cx, input, menu } from "../internal"
 import { ChevronIcon } from "./ChevronIcon"
 import s from "./select.module.css"
 
-// Mantine 5 Select, size xs: right section 24px wide.
-const RIGHT_SECTION_WIDTH = "24px"
-// Mantine 5 Popover: the dropdown sits 8px below the input.
-const DROPDOWN_OFFSET_PX = 8
-
-type RightSectionStyle = CSSProperties & { "--right-section-width": string }
-
-const RIGHT_SECTION_STYLE: RightSectionStyle = { "--right-section-width": RIGHT_SECTION_WIDTH }
+// The list opens just below the button.
+const POPUP_OFFSET_PX = 4
+const CHECK_SIZE_PX = 12
 
 export type SelectOption = {
     value: string
@@ -32,10 +28,6 @@ export type SelectProps = {
 
 function toOption(option: string | SelectOption): SelectOption {
     return typeof option === "string" ? { value: option, label: option } : option
-}
-
-function join(classes: ReadonlyArray<string | undefined>): string {
-    return classes.filter(Boolean).join(" ")
 }
 
 export function Select({ label, value, options, onChange, placeholder, searchable }: SelectProps) {
@@ -65,33 +57,40 @@ type InnerProps = {
     placeholder?: string
 }
 
+function Check() {
+    return <IconCheck size={CHECK_SIZE_PX} />
+}
+
+// A pop-up button: the push-button body with the value on the left and a double chevron on the right. Its list is
+// the menu surface with a check on the current value.
 function PlainSelect({ label, items, selected, onChange, placeholder }: InnerProps) {
     return (
         <BaseSelect.Root items={items} value={selected ? selected.value : null} onValueChange={next => onChange(next)}>
             <div className={input.root}>
                 <BaseSelect.Label className={input.label}>{label}</BaseSelect.Label>
-                <div className={input.wrapper} style={RIGHT_SECTION_STYLE}>
-                    <BaseSelect.Trigger className={join([input.input, input.withRightSection, s.trigger])}>
-                        <BaseSelect.Value className={s.value} placeholder={placeholder} />
-                    </BaseSelect.Trigger>
-                    <div className={join([input.rightSection, s.chevronSection])}>
+                <BaseSelect.Trigger className={s.trigger}>
+                    <BaseSelect.Value className={s.value} placeholder={placeholder} />
+                    <BaseSelect.Icon className={s.glyph}>
                         <ChevronIcon />
-                    </div>
-                </div>
+                    </BaseSelect.Icon>
+                </BaseSelect.Trigger>
             </div>
             <BaseSelect.Portal>
                 <BaseSelect.Positioner
                     className={s.positioner}
                     side="bottom"
                     align="start"
-                    sideOffset={DROPDOWN_OFFSET_PX}
+                    sideOffset={POPUP_OFFSET_PX}
                     alignItemWithTrigger={false}
                 >
-                    <BaseSelect.Popup className={s.dropdown}>
+                    <BaseSelect.Popup className={cx(menu.surface, s.popup)}>
                         <BaseSelect.List className={s.list}>
                             {items.map(item => (
-                                <BaseSelect.Item key={item.value} value={item.value} className={s.item}>
-                                    <BaseSelect.ItemText>{item.label}</BaseSelect.ItemText>
+                                <BaseSelect.Item key={item.value} value={item.value} className={menu.item}>
+                                    <BaseSelect.ItemIndicator className={menu.itemCheck}>
+                                        <Check />
+                                    </BaseSelect.ItemIndicator>
+                                    <BaseSelect.ItemText className={menu.itemLabel}>{item.label}</BaseSelect.ItemText>
                                 </BaseSelect.Item>
                             ))}
                         </BaseSelect.List>
@@ -110,6 +109,7 @@ function optionLabel(option: SelectOption): string {
     return option.label
 }
 
+// The searchable variant types into the pop-up button body; the list filters as it is typed into.
 function SearchableSelect({ label, items, selected, onChange, placeholder }: InnerProps) {
     const inputId = useId()
 
@@ -126,29 +126,23 @@ function SearchableSelect({ label, items, selected, onChange, placeholder }: Inn
                 <label className={input.label} htmlFor={inputId}>
                     {label}
                 </label>
-                <div className={input.wrapper} style={RIGHT_SECTION_STYLE}>
-                    <Combobox.Input
-                        id={inputId}
-                        className={join([input.input, input.withRightSection, s.trigger])}
-                        placeholder={placeholder}
-                    />
-                    <div className={join([input.rightSection, s.chevronSection])}>
+                <div className={s.field}>
+                    <Combobox.Input id={inputId} className={cx(s.trigger, s.search)} placeholder={placeholder} />
+                    <span className={cx(s.glyph, s.searchGlyph)}>
                         <ChevronIcon />
-                    </div>
+                    </span>
                 </div>
             </div>
             <Combobox.Portal>
-                <Combobox.Positioner
-                    className={s.positioner}
-                    side="bottom"
-                    align="start"
-                    sideOffset={DROPDOWN_OFFSET_PX}
-                >
-                    <Combobox.Popup className={s.dropdown}>
+                <Combobox.Positioner className={s.positioner} side="bottom" align="start" sideOffset={POPUP_OFFSET_PX}>
+                    <Combobox.Popup className={cx(menu.surface, s.popup)}>
                         <Combobox.List className={s.list}>
                             {(item: SelectOption) => (
-                                <Combobox.Item key={item.value} value={item} className={s.item}>
-                                    {item.label}
+                                <Combobox.Item key={item.value} value={item} className={menu.item}>
+                                    <Combobox.ItemIndicator className={menu.itemCheck}>
+                                        <Check />
+                                    </Combobox.ItemIndicator>
+                                    <span className={menu.itemLabel}>{item.label}</span>
                                 </Combobox.Item>
                             )}
                         </Combobox.List>

@@ -73,13 +73,7 @@ export default function App() {
                         <SphereMap id={id} />
                     </ErrorBoundary>
                     <MapContextMenu id={id} copyLocationValue={copy} />
-                    {zen ? null : (
-                        <Overlay
-                        // right={(
-                        //     <Toolbar></Toolbar>
-                        // )}
-                        />
-                    )}
+                    {zen ? null : <Overlay />}
                     <PropertiesPopup />
                     <RasterUrlDialog />
                 </AppLayout>
