@@ -114,11 +114,11 @@ The following code smells are strictly forbidden:
 ### Backend (`src-tauri/`)
 
 Tauri app with async Rust backend (Tokio). Commands in `src/commands/`:
-- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles tiles, paginated feature queries, column statistics, rect spatial queries, in-memory source create/replace
+- `source.rs` - Load sources, get GeoJSON, schema, bounds, MBTiles/PMTiles tiles, paginated feature queries, column statistics, rect spatial queries, in-memory source create/replace
 - `draw.rs` - Draw edit sessions on in-memory sources: begin, working-set queries (by ids or bbox, with a cap), in-place ops, commit and rollback
 - `selection.rs` - Server-side selection state: set/preview/add/remove/apply/clear, rect queries, paginated query over the selection, copy as GeoJSON/WKT
 
-State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source`, `store: Option<Arc<RwLock<FeatureStore>>>` (built at load time; absent for MBTiles sources) and `session: Option<EditSession>` (the open draw session; it lives in the entry, so removing or replacing the entry ends it).
+State stored in `SourceStorage` (thread-safe `HashMap<String, SourceEntry>` with Mutex). Each `SourceEntry` holds a `Source`, `store: Option<Arc<RwLock<FeatureStore>>>` (built at load time; absent for tile archive (MBTiles, PMTiles) sources) and `session: Option<EditSession>` (the open draw session; it lives in the entry, so removing or replacing the entry ends it).
 
 ### Rust Libraries (`crates/`)
 

@@ -1122,6 +1122,8 @@ mod tests {
         assert_eq!(err, "Not found nope");
     }
 
+    const PMTILES_TILE: &[u8] = b"sphere-test-vector-tile";
+
     /// A one-tile Mvt archive in the system temp dir, deleted when the fixture drops.
     struct TempPmtiles {
         path: std::path::PathBuf,
@@ -1155,8 +1157,6 @@ mod tests {
             let _ = std::fs::remove_file(&self.path);
         }
     }
-
-    const PMTILES_TILE: &[u8] = b"sphere-test-vector-tile";
 
     #[tokio::test]
     async fn source_add_loads_a_pmtiles_file_as_a_tile_source() {

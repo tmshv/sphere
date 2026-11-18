@@ -34,8 +34,10 @@ hand-written `Debug` (the reader has none) that prints `name` and `path`.
 - `Pmtiles::new(name, path) -> Result<Pmtiles>` opens the archive and validates the header.
   It fails, as `SphereError::Pmtiles { path, detail }`, when the file cannot be opened or is not a
   valid PMTiles v3 archive, when the tile type has no TileJSON format (see below), or when the tile
-  compression is not `None`/`Gzip` (Brotli and Zstd need extra C dependencies and are out of
+  compression is not `None`, `Gzip` or `Unknown` (`Unknown` is served as stored, like pmtiles-js; Brotli and Zstd need extra C dependencies and are out of
   scope). Failing at open time surfaces the problem once, instead of on every tile.
+  The reader is opened with a bounded directory cache (64 directories, evicted oldest-first), so a
+  tile lookup does not re-read and re-decode its leaf directory while the storage lock is held.
 - `get_metadata() -> Result<String>` returns serialized TileJSON 3.0.0, built like the MBTiles one:
   1. From the header, with the local `tilejson::Tilejson3`: `tiles` = the `sphere://{name}/tile?z={z}&x={x}&y={y}`
      template (the same `sphere_url` as MBTiles), `minzoom`/`maxzoom`, `bounds` =
@@ -125,7 +127,7 @@ not bumped.
   vector archive with metadata (name, `vector_layers`) → TileJSON fields and the `sphere://` tile
   template; header keys win over conflicting metadata keys; empty metadata; invalid JSON metadata
   errors; each raster tile type maps to its format; AVIF/MLT/unknown tile types and Brotli/Zstd
-  compression fail to open; gzip tiles come back decompressed; a missing tile is empty; an
+  compression fail to open, `Unknown` compression opens and serves tiles as stored; gzip tiles come back decompressed; a missing tile is empty; an
   out-of-range coordinate errors; a missing file reports its path.
 - `libsphere::source`: a `.pmtiles` path becomes `SourceData::Pmtiles`, and `tile_archive()` is
   `Some` for MBTiles and PMTiles and `None` for a vector file.
