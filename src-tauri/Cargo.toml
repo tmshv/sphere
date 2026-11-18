@@ -31,6 +31,7 @@ nanoid = "0.4"
 
 [dev-dependencies]
 tauri = { version = "2.9.0", features = ["test"] }
+pmtiles = { version = "=0.28.1", default-features = false, features = ["write"] }
 
 [features]
 # by default Tauri runs in production mode
