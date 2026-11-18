@@ -35,8 +35,8 @@ async fn main() {
         })
         .manage(SelectionStorage::default())
         .invoke_handler(tauri::generate_handler![
-            commands::source::mbtiles_get_tile,
-            commands::source::mbtiles_get_metadata,
+            commands::source::tiles_get_tile,
+            commands::source::tiles_get_tilejson,
             commands::source::source_add,
             commands::source::kml_list_documents,
             commands::source::source_get,

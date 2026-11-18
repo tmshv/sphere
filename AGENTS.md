@@ -190,7 +190,7 @@ To bump the app's version, run `npm version patch -w @sphere/app` from the repo 
 | `sphere://{id}/tilejson`               | TileJSON metadata   |
 | `sphere://{id}/tile?z={z}&x={x}&y={y}` | Tile bytes          |
 
-The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `MbtilesReader`, everything else to `SourceReader`. The source ID is extracted from `url.host`.
+The protocol handler (`src/lib/sphere-protocol.ts`) routes by `url.pathname`: `/tilejson` and `/tile` delegate to `TileReader` (`src/lib/tile-reader.ts`), everything else to `SourceReader`. The source ID is extracted from `url.host`.
 
 **CSV source URI params**: When loading CSV files, the `sphere://source` URI accepts query parameters: `?x=<field>&y=<field>` for lon/lat column names (defaults: `lng`/`lat`), `?wkt=<field>` for a WKT geometry column. When a source is stored, features are assigned integer IDs starting from 1 (after the max existing numeric ID). Original string IDs are preserved in `properties["$id"]`.
 
@@ -238,8 +238,8 @@ Available Tauri commands (invoked from frontend via `invoke()`):
 | `draw_apply`               | Apply one edit in place: `(id, op: {type:"create",drawId,feature}\|{type:"update",id,feature}\|{type:"delete",id}) -> Option<i64>` (backend id for create/update)                  |
 | `draw_commit`              | Keep the session's edits, end the session: `(id) -> Vec<i64>` (touched ids); refreshes schema and source data only when it touched any                                             |
 | `draw_rollback`            | Undo the session's edits, end the session: `(id) -> Vec<i64>` (touched ids); no schema refresh or source-data sync, nothing to re-fetch                                            |
-| `mbtiles_get_tile`         | Get a single tile from an MBTiles or PMTiles source: `(id, z, x, y) -> Vec<u8>`                                                                                                    |
-| `mbtiles_get_metadata`     | Get metadata/TileJSON from an MBTiles or PMTiles source: `(id) -> String`                                                                                                          |
+| `tiles_get_tile`           | Get a single tile from an MBTiles or PMTiles source: `(id, z, x, y) -> Vec<u8>`                                                                                                    |
+| `tiles_get_tilejson`       | Get metadata/TileJSON from an MBTiles or PMTiles source: `(id) -> String`                                                                                                          |
 | `selection_set`            | Replace selection with the given IDs: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                          |
 | `selection_preview`        | Preview selection (transient overlay): `(ids: Vec<i64>) -> SelectionDelta`                                                                                                         |
 | `selection_add`            | Add IDs to the selection: `(ids: Vec<i64>) -> SelectionDelta`                                                                                                                      |

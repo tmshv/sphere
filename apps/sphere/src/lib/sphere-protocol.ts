@@ -1,5 +1,5 @@
 import type { AddProtocolAction } from "maplibre-gl"
-import { MbtilesReader } from "./mbtiles"
+import { TileReader } from "./tile-reader"
 import { SourceReader } from "./source-reader"
 
 export class SphereProtocol {
@@ -21,13 +21,13 @@ export class SphereProtocol {
             const path = url.pathname
             switch (path) {
                 case "/tilejson": {
-                    const reader = new MbtilesReader(id)
+                    const reader = new TileReader(id)
                     const tilejson = await reader.getTileJson()
                     if (!tilejson) throw new Error(`No TileJSON for source ${id}`)
                     return { data: tilejson }
                 }
                 case "/tile": {
-                    const reader = new MbtilesReader(id)
+                    const reader = new TileReader(id)
                     const [z, x, y] = this.parseZXY(url)
                     const bytes = await reader.getTile({ z, x, y })
                     // MapLibre treats an empty response as a tile with no data.

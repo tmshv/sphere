@@ -19,9 +19,11 @@ is served synchronously from that reader. With default features off the crate pu
 mmap or HTTP stack; gzip is built in.
 
 The frontend already talks to tile sources only through the source id: `sphere://{id}/tilejson`
-and `sphere://{id}/tile?z=&x=&y=`, routed by `SphereProtocol` to `MbtilesReader`, which invokes
-`mbtiles_get_metadata` / `mbtiles_get_tile`. Those two commands become format-agnostic on the
-backend, so no frontend reader, protocol, slice or component changes. A PMTiles source is added
+and `sphere://{id}/tile?z=&x=&y=`, routed by `SphereProtocol` to a reader that invokes two tile
+commands. Those commands become format-agnostic and take format-neutral names (`tiles_get_tilejson`
+/ `tiles_get_tile`, after the protocol paths they back), and the reader becomes `TileReader` in
+`lib/tile-reader.ts` (was `MbtilesReader` in `lib/mbtiles.ts`). No protocol, slice or component
+changes beyond that rename. A PMTiles source is added
 with `SourceType.MVT` exactly like MBTiles and is indistinguishable from it on the frontend.
 
 ## Backend
@@ -92,9 +94,9 @@ implemented for `mbtiles::Tiles` (delegating to its existing methods) and `Pmtil
 
 - `source_add`: `source_type` is `"pmtiles"` for a PMTiles source; no feature store is built for
   either tile archive (`is_tile_archive()`).
-- `mbtiles_get_metadata` and `mbtiles_get_tile` keep their names and signatures (the frontend and
-  its tests call them) but serve any tile archive through `tile_archive()`. The not-a-tile-source
-  error of `mbtiles_get_tile` becomes `"Source is not a tile archive"`.
+- `mbtiles_get_metadata` / `mbtiles_get_tile` are renamed `tiles_get_tilejson` / `tiles_get_tile`
+  (same arguments and return types) and serve any tile archive through `tile_archive()`. The
+  not-a-tile-source error of `tiles_get_tile` becomes `"Source is not a tile archive"`.
 - `source_get_info` needs no change: its `_` arm already gives tile sources no file to read.
 
 ## Frontend
@@ -109,8 +111,8 @@ implemented for `mbtiles::Tiles` (delegating to its existing methods) and `Pmtil
 ## Docs
 
 `README.md` and `crates/libsphere/README.md` list PMTiles. `AGENTS.md`: the project overview
-format list, the IPC table rows for `mbtiles_get_tile` / `mbtiles_get_metadata` (they serve
-MBTiles and PMTiles), and the terrain note (raster MBTiles *or PMTiles* sources are candidates).
+format list, the IPC table rows for `tiles_get_tile` / `tiles_get_tilejson` (they serve
+MBTiles and PMTiles), the protocol note naming `TileReader`, and the terrain note (raster MBTiles *or PMTiles* sources are candidates).
 Comments in `apps/sphere/src/lib/terrain.ts` that say "MBTiles" for raster tile archives say
 "MBTiles or PMTiles".
 
@@ -132,14 +134,14 @@ not bumped.
 - `libsphere::source`: a `.pmtiles` path becomes `SourceData::Pmtiles`, and `tile_archive()` is
   `Some` for MBTiles and PMTiles and `None` for a vector file.
 - `src-tauri`: `source_add` on a generated `.pmtiles` reports `source_type: "pmtiles"` and stores
-  no feature store; `mbtiles_get_metadata` / `mbtiles_get_tile` serve it; the not-a-tile-archive
+  no feature store; `tiles_get_tilejson` / `tiles_get_tile` serve it; the not-a-tile-archive
   error message.
 - Frontend (Vitest): `add-file` routes a `.pmtiles` path to `addFromUrl` with `SourceType.MVT`;
-  the Open dialog filter includes `pmtiles`.
+  the Open dialog filter includes `pmtiles`; `TileReader` invokes `tiles_get_tilejson` /
+  `tiles_get_tile`.
 
 ## Out of scope
 
 - Remote PMTiles over HTTP range requests (the crate has an `http-async` backend; a later issue).
 - Brotli and Zstd tile compression, AVIF and MLT tile types.
-- Renaming `mbtiles_get_*` / `MbtilesReader` to format-neutral names.
 - Making a missing MBTiles tile return empty bytes instead of an error.

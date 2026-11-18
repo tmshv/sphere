@@ -7,12 +7,12 @@ type Tile = {
     y: number
 }
 
-export class MbtilesReader {
+export class TileReader {
     constructor(private id: string) {}
 
     public async getTileJson(): Promise<TileJSON | null> {
         try {
-            const res = await invoke<string>("mbtiles_get_metadata", {
+            const res = await invoke<string>("tiles_get_tilejson", {
                 id: this.id,
             })
             return this.parse(res)
@@ -22,7 +22,7 @@ export class MbtilesReader {
     }
 
     public async getTile({ z, x, y }: Tile): Promise<Uint8Array | null> {
-        const res = await invoke<number[]>("mbtiles_get_tile", {
+        const res = await invoke<number[]>("tiles_get_tile", {
             id: this.id,
             z,
             x,

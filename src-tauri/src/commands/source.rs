@@ -189,7 +189,7 @@ pub async fn source_bounds(id: String, storage: State<'_, SourceStorage>) -> Res
 }
 
 #[tauri::command]
-pub async fn mbtiles_get_metadata(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
+pub async fn tiles_get_tilejson(id: String, storage: State<'_, SourceStorage>) -> Result<String, String> {
     let store = storage.store.lock().unwrap();
     match store.get(&id) {
         Some(entry) => match entry.source.tile_archive() {
@@ -203,7 +203,7 @@ pub async fn mbtiles_get_metadata(id: String, storage: State<'_, SourceStorage>)
 }
 
 #[tauri::command]
-pub async fn mbtiles_get_tile(
+pub async fn tiles_get_tile(
     id: String,
     z: i32,
     x: i32,
@@ -1098,14 +1098,14 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn mbtiles_commands_reject_a_source_that_is_not_mbtiles() {
+    async fn tile_commands_reject_a_source_that_is_not_a_tile_archive() {
         let app = test_app();
         add_file_source(&app, "file-source");
 
-        let tile_err = mbtiles_get_tile("file-source".into(), 0, 0, 0, app.state())
+        let tile_err = tiles_get_tile("file-source".into(), 0, 0, 0, app.state())
             .await
             .unwrap_err();
-        let meta_err = mbtiles_get_metadata("file-source".into(), app.state())
+        let meta_err = tiles_get_tilejson("file-source".into(), app.state())
             .await
             .unwrap_err();
 
@@ -1114,10 +1114,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn mbtiles_get_tile_reports_a_missing_source() {
+    async fn tiles_get_tile_reports_a_missing_source() {
         let app = test_app();
 
-        let err = mbtiles_get_tile("nope".into(), 0, 0, 0, app.state()).await.unwrap_err();
+        let err = tiles_get_tile("nope".into(), 0, 0, 0, app.state()).await.unwrap_err();
 
         assert_eq!(err, "Not found nope");
     }
@@ -1172,15 +1172,15 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn mbtiles_commands_serve_a_pmtiles_source() {
+    async fn tile_commands_serve_a_pmtiles_source() {
         let app = test_app();
         let file = TempPmtiles::new();
         let id = source_add(&file.url(), app.state()).await.unwrap().id;
 
-        let meta = mbtiles_get_metadata(id.clone(), app.state()).await.unwrap();
+        let meta = tiles_get_tilejson(id.clone(), app.state()).await.unwrap();
         let meta: Value = serde_json::from_str(&meta).unwrap();
-        let tile = mbtiles_get_tile(id.clone(), 0, 0, 0, app.state()).await.unwrap();
-        let missing = mbtiles_get_tile(id.clone(), 2, 0, 0, app.state()).await.unwrap();
+        let tile = tiles_get_tile(id.clone(), 0, 0, 0, app.state()).await.unwrap();
+        let missing = tiles_get_tile(id.clone(), 2, 0, 0, app.state()).await.unwrap();
 
         assert_eq!(meta["name"], "Sphere Test");
         assert_eq!(meta["tiles"][0], format!("sphere://{id}/tile?z={{z}}&x={{x}}&y={{y}}"));

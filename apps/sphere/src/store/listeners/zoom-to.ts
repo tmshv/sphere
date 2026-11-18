@@ -1,6 +1,6 @@
 import { MAP_ID } from "@/const"
 import { assertUnreachable } from "@/lib"
-import { MbtilesReader } from "@/lib/mbtiles"
+import { TileReader } from "@/lib/tile-reader"
 import { resolveSourceRef } from "@/lib/source-tree"
 import { SourceReader } from "@/lib/source-reader"
 import logger from "@/logger"
@@ -62,7 +62,7 @@ listener.startListening({
                 break
             }
             case SourceType.MVT: {
-                const r = new MbtilesReader(sourceId)
+                const r = new TileReader(sourceId)
                 const tilejson = await r.getTileJson()
                 if (tilejson?.bounds) {
                     const bounds = tilejson.bounds
