@@ -31,6 +31,7 @@ describe("openFiles", () => {
         "kml",
         "kmz",
         "mbtiles",
+        "pmtiles",
         "shp",
     ])("offers .%s files in the dialog", async extension => {
         vi.mocked(open).mockResolvedValue(null)
